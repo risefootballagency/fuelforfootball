@@ -10,7 +10,7 @@ import fffLogo from "@/assets/fff_logo.png";
 import whiteMarbleBg from "@/assets/white-marble.png";
 import smudgedMarbleBg from "@/assets/black-marble-smudged.png";
 import europeMap from "@/assets/europe-outline.gif";
-import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown } from "lucide-react";
+import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Star } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
 
@@ -511,11 +511,22 @@ export const RadialMenu = () => {
       }
     },
     { 
+      to: "/stars",
+      labelKey: "header.stars", 
+      fallback: "STARS", 
+      Icon: Star, 
+      angle: 72,
+      quadrantCard: {
+        position: 'bottom-right',
+        component: PerformanceQuadrantCard
+      }
+    },
+    { 
       to: "/performance", 
       labelKey: "header.change_the_game", 
       fallback: "PERFORMANCE", 
       Icon: TrendingUp,
-      angle: 90,
+      angle: 144,
       quadrantCard: {
         position: 'top-right',
         component: PerformanceQuadrantCard
@@ -526,7 +537,7 @@ export const RadialMenu = () => {
       labelKey: "header.daily_fuel", 
       fallback: "DAILY FUEL",
       Icon: BookOpen, 
-      angle: 180,
+      angle: 216,
       quadrantCard: {
         position: 'top-left',
         component: InsightsQuadrantCard
@@ -537,7 +548,7 @@ export const RadialMenu = () => {
       labelKey: "header.contact", 
       fallback: "CONTACT", 
       Icon: MessageCircle, 
-      angle: 270,
+      angle: 288,
       quadrantCard: {
         position: 'bottom-left',
         component: ContactQuadrantCard
