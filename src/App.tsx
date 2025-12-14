@@ -48,6 +48,19 @@ const ScoutPortal = lazy(() => import("./pages/ScoutPortal"));
 const RealisePotential = lazy(() => import("./pages/RealisePotential"));
 const Shop = lazy(() => import("./pages/Shop"));
 const FluidCursor = lazy(() => import("./components/FluidCursor"));
+
+// Service pages
+const Mentorship = lazy(() => import("./pages/services/Mentorship"));
+const Consultation = lazy(() => import("./pages/services/Consultation"));
+const ProPerformance = lazy(() => import("./pages/services/ProPerformance"));
+const ElitePerformance = lazy(() => import("./pages/services/ElitePerformance"));
+const Tactical = lazy(() => import("./pages/services/Tactical"));
+const Technical = lazy(() => import("./pages/services/Technical"));
+const Mental = lazy(() => import("./pages/services/Mental"));
+const StrengthPowerSpeed = lazy(() => import("./pages/services/StrengthPowerSpeed"));
+const Conditioning = lazy(() => import("./pages/services/Conditioning"));
+const Nutrition = lazy(() => import("./pages/services/Nutrition"));
+
 import { SocialSidebar } from "./components/SocialSidebar";
 
 // Loading fallback component
@@ -125,6 +138,17 @@ const App = () => {
                     {createLocalizedRoutes('/login', <Login />)}
                     {createLocalizedRoutes('/portal', <Dashboard />)}
                     {createLocalizedRoutes('/shop', <Shop />)}
+                    
+                    {createLocalizedRoutes('/services/mentorship', <Mentorship />)}
+                    {createLocalizedRoutes('/services/consultation', <Consultation />)}
+                    {createLocalizedRoutes('/services/pro-performance', <ProPerformance />)}
+                    {createLocalizedRoutes('/services/elite-performance', <ElitePerformance />)}
+                    {createLocalizedRoutes('/services/tactical', <Tactical />)}
+                    {createLocalizedRoutes('/services/technical', <Technical />)}
+                    {createLocalizedRoutes('/services/mental', <Mental />)}
+                    {createLocalizedRoutes('/services/strength-power-speed', <StrengthPowerSpeed />)}
+                    {createLocalizedRoutes('/services/conditioning', <Conditioning />)}
+                    {createLocalizedRoutes('/services/nutrition', <Nutrition />)}
                     
                     {/* Staff/Admin routes */}
                     <Route path="/staff" element={<Staff />} />
