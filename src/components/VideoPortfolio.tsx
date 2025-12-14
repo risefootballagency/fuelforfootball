@@ -121,7 +121,7 @@ export const VideoPortfolio = () => {
                 className={`transition-all duration-300 rounded-full ${
                   index === currentIndex
                     ? 'bg-primary w-10 h-3'
-                    : 'bg-white/40 hover:bg-white/60 w-3 h-3'
+                    : 'bg-light-green/40 hover:bg-light-green/60 w-3 h-3'
                 }`}
                 aria-label={`Go to video ${index + 1}`}
               />

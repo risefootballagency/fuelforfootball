@@ -173,7 +173,7 @@ export const IntroModal = ({ open, onOpenChange }: IntroModalProps) => {
                       }}
                     >
                       <h3 className="text-white font-bebas text-[10px] uppercase tracking-wider mb-0.5 sm:text-base sm:mb-1">{t("intro.latest_news", "Latest News")}</h3>
-                      <p className="text-white/80 text-[8px] line-clamp-2 sm:text-xs">{item.title}</p>
+                      <p className="text-light-green/80 text-[8px] line-clamp-2 sm:text-xs">{item.title}</p>
                     </div>
                   ))}
                 </div>
@@ -215,7 +215,7 @@ export const IntroModal = ({ open, onOpenChange }: IntroModalProps) => {
                         }}
                       >
                         <div className="text-xl font-bold text-white font-bebas leading-none text-center sm:text-4xl">{player.age}</div>
-                        <div className="text-[6px] text-white/80 uppercase tracking-wider mt-0.5 text-center sm:text-[9px]">{t("intro.age", "Age")}</div>
+                        <div className="text-[6px] text-light-green/80 uppercase tracking-wider mt-0.5 text-center sm:text-[9px]">{t("intro.age", "Age")}</div>
                       </div>
                     ))}
                   </div>
@@ -242,7 +242,7 @@ export const IntroModal = ({ open, onOpenChange }: IntroModalProps) => {
                             alt={`${normalizedNat} flag`}
                             className="w-6 h-4 object-contain mb-0.5 sm:w-10 sm:h-8 sm:mb-1"
                           />
-                          <div className="text-[6px] text-white/80 uppercase tracking-wider text-center sm:text-[9px]">{t("intro.nationality", "Nationality")}</div>
+                          <div className="text-[6px] text-light-green/80 uppercase tracking-wider text-center sm:text-[9px]">{t("intro.nationality", "Nationality")}</div>
                         </div>
                       );
                     })}
@@ -261,7 +261,7 @@ export const IntroModal = ({ open, onOpenChange }: IntroModalProps) => {
                         }}
                       >
                         <div className="text-lg font-bold text-white font-bebas leading-none text-center sm:text-3xl">{player.position}</div>
-                        <div className="text-[6px] text-white/80 uppercase tracking-wider mt-0.5 text-center sm:text-[9px]">{t("intro.position", "Position")}</div>
+                        <div className="text-[6px] text-light-green/80 uppercase tracking-wider mt-0.5 text-center sm:text-[9px]">{t("intro.position", "Position")}</div>
                       </div>
                     ))}
                   </div>
@@ -281,7 +281,7 @@ export const IntroModal = ({ open, onOpenChange }: IntroModalProps) => {
                           }}
                         >
                           <img src={clubLogo} alt="Club" className="w-6 h-6 object-contain mb-0.5 sm:w-12 sm:h-12 sm:mb-1" />
-                          <div className="text-[6px] text-white/80 uppercase tracking-wider text-center sm:text-[9px]">{t("intro.club", "Club")}</div>
+                          <div className="text-[6px] text-light-green/80 uppercase tracking-wider text-center sm:text-[9px]">{t("intro.club", "Club")}</div>
                         </div>
                       ) : null;
                     })}

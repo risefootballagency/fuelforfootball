@@ -278,7 +278,7 @@ const AnalysisViewer = () => {
                           {analysis.opposition_strengths.split('\n').filter(line => line.trim()).map((line, idx) => {
                             const cleanLine = line.trim().replace(/^[-•]\s*/, '');
                             return (
-                              <div key={idx} className="flex items-center justify-center gap-3 bg-white/10 backdrop-blur-sm p-4 rounded-lg shadow-lg hover:bg-white/15 transition-all">
+                              <div key={idx} className="flex items-center justify-center gap-3 bg-light-green/10 backdrop-blur-sm p-4 rounded-lg shadow-lg hover:bg-light-green/15 transition-all">
                                 <div className="bg-primary rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">
                                   <span className="text-black font-bold text-lg">✓</span>
                                 </div>
@@ -311,7 +311,7 @@ const AnalysisViewer = () => {
                           {analysis.opposition_weaknesses.split('\n').filter(line => line.trim()).map((line, idx) => {
                             const cleanLine = line.trim().replace(/^[-•]\s*/, '');
                             return (
-                              <div key={idx} className="flex items-center justify-center gap-3 bg-white/10 backdrop-blur-sm p-4 rounded-lg shadow-lg hover:bg-white/15 transition-all">
+                              <div key={idx} className="flex items-center justify-center gap-3 bg-light-green/10 backdrop-blur-sm p-4 rounded-lg shadow-lg hover:bg-light-green/15 transition-all">
                                 <div className="bg-primary rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">
                                   <span className="text-black font-bold text-lg">!</span>
                                 </div>
@@ -361,7 +361,7 @@ const AnalysisViewer = () => {
                               </div>
                               <p className="font-bold text-white text-lg">{matchup.name}</p>
                               {matchup.shirt_number && (
-                                <p className="text-sm text-white/80 font-semibold">
+                                <p className="text-sm text-light-green/80 font-semibold">
                                   #{matchup.shirt_number}
                                 </p>
                               )}
