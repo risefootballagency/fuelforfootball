@@ -71,50 +71,35 @@ export const AnimatedSmokyBackground = ({ className = '' }: { className?: string
       
       <style>{`
         @keyframes smokeMove1 {
-          0%, 100% {
-            transform: translate(0%, 0%) scale(1);
-          }
-          25% {
-            transform: translate(-5%, 3%) scale(1.05);
-          }
-          50% {
-            transform: translate(-8%, -2%) scale(1.02);
-          }
-          75% {
-            transform: translate(-3%, 5%) scale(1.08);
-          }
+          0% { transform: translate(0%, 0%) scale(1) rotate(0deg); }
+          20% { transform: translate(-8%, 4%) scale(1.08) rotate(2deg); }
+          40% { transform: translate(-15%, -3%) scale(1.03) rotate(-1deg); }
+          60% { transform: translate(-5%, 8%) scale(1.12) rotate(3deg); }
+          80% { transform: translate(-12%, 2%) scale(0.98) rotate(-2deg); }
+          100% { transform: translate(0%, 0%) scale(1) rotate(0deg); }
         }
         
         @keyframes smokeMove2 {
-          0%, 100% {
-            transform: translate(-10%, -5%) scale(1.02);
-          }
-          33% {
-            transform: translate(-2%, 2%) scale(0.98);
-          }
-          66% {
-            transform: translate(-6%, -3%) scale(1.05);
-          }
+          0% { transform: translate(-5%, -5%) scale(1.02) rotate(0deg); }
+          25% { transform: translate(5%, 3%) scale(0.95) rotate(-3deg); }
+          50% { transform: translate(-10%, 8%) scale(1.1) rotate(2deg); }
+          75% { transform: translate(3%, -6%) scale(1.05) rotate(-1deg); }
+          100% { transform: translate(-5%, -5%) scale(1.02) rotate(0deg); }
         }
         
         @keyframes smokeMove3 {
-          0%, 100% {
-            transform: translate(-5%, 0%) rotate(0deg) scale(1);
-          }
-          50% {
-            transform: translate(-15%, -5%) rotate(3deg) scale(1.1);
-          }
+          0% { transform: translate(0%, 0%) scale(1) rotate(0deg); }
+          33% { transform: translate(-20%, 5%) scale(1.15) rotate(4deg); }
+          66% { transform: translate(-8%, -8%) scale(0.92) rotate(-3deg); }
+          100% { transform: translate(0%, 0%) scale(1) rotate(0deg); }
         }
         
         @keyframes smokeMove4 {
-          0%, 100% {
-            transform: translate(0%, 0%) scale(1);
-            opacity: 0.2;
-          }
-          50% {
-            transform: translate(-10%, -8%) scale(1.15);
-            opacity: 0.3;
-          }
+          0% { transform: translate(0%, 0%) scale(1); opacity: 0.2; }
+          25% { transform: translate(-15%, 10%) scale(1.2); opacity: 0.35; }
+          50% { transform: translate(-25%, -5%) scale(1.1); opacity: 0.25; }
+          75% { transform: translate(-10%, 15%) scale(1.25); opacity: 0.4; }
+          100% { transform: translate(0%, 0%) scale(1); opacity: 0.2; }
         }
       `}</style>
     </div>
