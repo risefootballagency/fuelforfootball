@@ -55,6 +55,7 @@ const YouthPlayers = lazy(() => import("./pages/YouthPlayers"));
 const PlayerJourney = lazy(() => import("./pages/PlayerJourney"));
 const Shop = lazy(() => import("./pages/Shop"));
 const FluidCursor = lazy(() => import("./components/FluidCursor"));
+import { SocialSidebar } from "./components/SocialSidebar";
 
 // Loading fallback component
 const PageLoader = () => (
@@ -104,6 +105,7 @@ const App = () => {
             <Suspense fallback={null}>
               <FluidCursor />
             </Suspense>
+            <SocialSidebar />
             <PageTracker />
             <ScrollToTop />
             <PageTransition>
