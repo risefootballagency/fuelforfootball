@@ -671,13 +671,11 @@ export const RadialMenu = () => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[200] touch-none overscroll-none">
-      {/* Marble background - delayed */}
+      {/* Dark green background */}
       <div 
         className="absolute inset-0 animate-[fade-in_0.4s_ease-out_0.2s_both]"
         style={{
-          backgroundImage: `url(${smudgedMarbleBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundColor: 'hsl(120, 40%, 12%)',
         }}
       />
       
