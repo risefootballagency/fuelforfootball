@@ -49,6 +49,7 @@ const PDFViewer = lazy(() => import("./pages/PDFViewer"));
 const ScoutPortal = lazy(() => import("./pages/ScoutPortal"));
 const RealisePotential = lazy(() => import("./pages/RealisePotential"));
 const Shop = lazy(() => import("./pages/Shop"));
+const PayLink = lazy(() => import("./pages/PayLink"));
 const FluidCursor = lazy(() => import("./components/FluidCursor"));
 
 // Service pages
@@ -167,6 +168,7 @@ const App = () => {
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
                     <Route path="/pdf-viewer" element={<PDFViewer />} />
+                    <Route path="/pay/:id" element={<PayLink />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
