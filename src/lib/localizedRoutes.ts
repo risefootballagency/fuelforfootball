@@ -14,18 +14,6 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     ru: '/igroki',
     tr: '/oyuncular',
   },
-  '/stars': {
-    en: '/stars',
-    es: '/estrellas',
-    pt: '/estrelas',
-    fr: '/etoiles',
-    de: '/sterne',
-    it: '/stelle',
-    pl: '/gwiazdy',
-    cs: '/hvezdy',
-    ru: '/zvezdy',
-    tr: '/yildizlar',
-  },
   '/clubs': {
     en: '/clubs',
     es: '/clubes',
@@ -319,7 +307,7 @@ export function getLocalizedPath(englishPath: string, language: string): string 
     return routeTranslations[englishPath][language];
   }
   
-  // Handle dynamic routes like /stars/:id
+  // Handle dynamic routes like /players/:id
   const basePath = englishPath.split('/').slice(0, 2).join('/');
   const rest = englishPath.split('/').slice(2).join('/');
   

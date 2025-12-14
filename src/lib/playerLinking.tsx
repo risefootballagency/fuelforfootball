@@ -65,7 +65,7 @@ export const linkPlayerNames = (
       parts.push(
         <Link
           key={`player-${match.index}`}
-          to={`/stars/${player.slug}`}
+          to={`/players/${player.slug}`}
           className="text-primary hover:underline font-medium"
         >
           {matchedName}

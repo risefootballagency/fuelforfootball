@@ -34,7 +34,7 @@ export const useLocalizedRedirect = () => {
     
     // If the localized path is different from the current path, redirect
     if (localizedPath !== basePath && currentPath.startsWith(basePath)) {
-      // Preserve any additional path segments (e.g., /stars/player-name)
+      // Preserve any additional path segments (e.g., /players/player-name)
       const rest = currentPath.slice(basePath.length);
       const newPath = localizedPath + rest;
       

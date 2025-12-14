@@ -17,7 +17,7 @@ interface QuickLinkOption {
 const AVAILABLE_LINKS: QuickLinkOption[] = [
   // Players
   { id: "players", title: "Players List", url: "/players", category: "Players" },
-  { id: "stars", title: "Stars Page", url: "/stars", category: "Players" },
+  { id: "players-page", title: "Players Page", url: "/players", category: "Players" },
   
   // Staff Overview
   { id: "overview", title: "Staff Overview", url: "/staff", category: "Staff" },

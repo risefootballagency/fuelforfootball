@@ -26,7 +26,7 @@ import NotFound from "./pages/NotFound";
 const Landing = lazy(() => import("./pages/Landing"));
 const Index = lazy(() => import("./pages/Index"));
 const Staff = lazy(() => import("./pages/Staff"));
-const Stars = lazy(() => import("./pages/Stars"));
+const Players = lazy(() => import("./pages/Players"));
 const PlayerDetail = lazy(() => import("./pages/PlayerDetail"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const About = lazy(() => import("./pages/About"));
@@ -127,8 +127,8 @@ const App = () => {
                     
                     {/* Localized routes */}
                     {createLocalizedRoutes('/clubs', <Clubs />)}
-                    {createLocalizedRoutes('/stars', <Stars />)}
-                    {createLocalizedDynamicRoutes('/stars/:slug', <PlayerDetail />)}
+                    {createLocalizedRoutes('/players', <Players />)}
+                    {createLocalizedDynamicRoutes('/players/:slug', <PlayerDetail />)}
                     {createLocalizedRoutes('/coaches', <Coaches />)}
                     {createLocalizedRoutes('/scouts', <Scouts />)}
                     {createLocalizedRoutes('/agents', <Agents />)}

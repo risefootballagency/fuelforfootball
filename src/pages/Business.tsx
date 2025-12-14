@@ -64,7 +64,7 @@ const showcaseCards: ShowcaseCard[] = [
     bgGradient: "from-purple-900/60 via-purple-800/30 to-black/90",
     icon: <Users className="w-12 h-12" />,
     ctaText: "View Roster",
-    ctaLink: "/stars",
+    ctaLink: "/players",
   },
   {
     id: "market-intel",

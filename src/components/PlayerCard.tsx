@@ -166,7 +166,7 @@ export const PlayerCard = ({ player, viewMode = "grid", disableProfileLink = fal
     }
 
     return (
-      <Link ref={cardRef} to={`/stars/${playerSlug}`} className={listClassName}>
+      <Link ref={cardRef} to={`/players/${playerSlug}`} className={listClassName}>
         {listContent}
       </Link>
     );
@@ -331,7 +331,7 @@ export const PlayerCard = ({ player, viewMode = "grid", disableProfileLink = fal
   return (
     <Link
       ref={cardRef}
-      to={`/stars/${playerSlug}`}
+      to={`/players/${playerSlug}`}
       className={gridClassName}
       onTouchStart={() => setIsTouched(true)}
       onTouchEnd={() => setTimeout(() => setIsTouched(false), 300)}
