@@ -739,31 +739,58 @@ export const RadialMenu = () => {
                 onMouseLeave={() => setHoveredItem(null)}
                 onTouchStart={() => setHoveredItem(index)}
                 onClick={() => {
-                  // Check if this path maps to a role subdomain
+                  const hasSubItems = item.subItems && item.subItems.length > 0;
+
+                  // Role selection mode: treat segments as role selectors
+                  if (isSelectingRole) {
+                    const role = pathToRole[item.to];
+
+                    if (role) {
+                      if (isOnLanguageSubdomain()) {
+                        navigate(item.to);
+                        closeButtonRef.current?.click();
+                      } else {
+                        const url = getRoleUrl(role);
+                        if (url.startsWith("http")) {
+                          window.location.href = url;
+                        } else {
+                          navigate(url);
+                          closeButtonRef.current?.click();
+                        }
+                      }
+                    } else {
+                      navigate(item.to);
+                      closeButtonRef.current?.click();
+                    }
+
+                    return;
+                  }
+
+                  // Inside a role: send categories with sub-pages to the first page
+                  if (hasSubItems) {
+                    const target = item.subItems![0];
+                    navigate(target.to);
+                    closeButtonRef.current?.click();
+                    return;
+                  }
+
+                  // Fallback: regular navigation with role subdomain handling
                   const role = pathToRole[item.to];
-                  
+
                   if (role) {
-                    // If on a language subdomain, stay on it and use localized route
                     if (isOnLanguageSubdomain()) {
                       navigate(item.to);
                       closeButtonRef.current?.click();
                     } else {
-                      // Navigate to subdomain for role pages
                       const url = getRoleUrl(role);
-                      if (url.startsWith('http')) {
+                      if (url.startsWith("http")) {
                         window.location.href = url;
                       } else {
                         navigate(url);
                         closeButtonRef.current?.click();
                       }
                     }
-                  } else if (isSelectingRole) {
-                    // Non-role item in role selection mode - shouldn't happen but handle gracefully
-                    setIsSelectingRole(false);
-                    navigate(item.to);
-                    closeButtonRef.current?.click();
                   } else {
-                    // Regular navigation for non-role pages
                     navigate(item.to);
                     closeButtonRef.current?.click();
                   }
