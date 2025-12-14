@@ -10,9 +10,8 @@ import fffLogo from "@/assets/fff_logo.png";
 import whiteMarbleBg from "@/assets/white-marble.png";
 import smudgedMarbleBg from "@/assets/black-marble-smudged.png";
 import europeMap from "@/assets/europe-outline.gif";
-import { Home, Star, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Sparkles, Route } from "lucide-react";
+import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Sparkles, Route } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { StarsQuadrantCard } from "@/components/radial-menu/StarsQuadrantCard";
 import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
 
 export type QuadrantPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -147,9 +146,9 @@ export const RadialMenu = () => {
         labelKey: "header.between_the_lines", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
-        angle: 51,
+        angle: 60,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(51),
+          position: getQuadrantPositionForAngle(60),
           component: InsightsQuadrantCard,
         },
       },
@@ -158,39 +157,28 @@ export const RadialMenu = () => {
         labelKey: "header.player_journey", 
         fallback: "THE JOURNEY", 
         Icon: Route, 
-        angle: 103,
+        angle: 120,
       },
       { 
         to: "/performance", 
         labelKey: "header.performance", 
         fallback: "PERFORMANCE", 
         Icon: TrendingUp, 
-        angle: 154,
+        angle: 180,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(154),
+          position: getQuadrantPositionForAngle(180),
           component: PerformanceQuadrantCard,
         },
       },
-      { to: "/playersmore", labelKey: "header.what_we_look_for", fallback: "WHAT WE SEEK", Icon: Search, angle: 206 },
-      { 
-        to: "/stars", 
-        labelKey: "header.stars", 
-        fallback: "STARS", 
-        Icon: Star, 
-        angle: 257,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(257),
-          component: StarsQuadrantCard,
-        },
-      },
+      { to: "/playersmore", labelKey: "header.what_we_look_for", fallback: "WHAT WE SEEK", Icon: Search, angle: 240 },
       { 
         to: "/contact", 
         labelKey: "header.contact", 
         fallback: "REPRESENT ME", 
         Icon: Handshake, 
-        angle: 309,
+        angle: 300,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(309),
+          position: getQuadrantPositionForAngle(300),
           component: ContactQuadrantCard,
         },
       },
@@ -198,24 +186,13 @@ export const RadialMenu = () => {
     clubs: [
       { to: "/clubs", labelKey: "header.club_direction", fallback: "CLUB SUPPORT", Icon: Target, angle: 0 },
       { 
-        to: "/stars", 
-        labelKey: "header.stars", 
-        fallback: "OUR STARS", 
-        Icon: Star, 
-        angle: 60,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(60),
-          component: StarsQuadrantCard,
-        },
-      },
-      { 
         to: "/performance", 
         labelKey: "header.performance", 
         fallback: "PERFORMANCE", 
         Icon: TrendingUp, 
-        angle: 120,
+        angle: 72,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(120),
+          position: getQuadrantPositionForAngle(72),
           component: PerformanceQuadrantCard,
         },
       },
@@ -224,9 +201,9 @@ export const RadialMenu = () => {
         labelKey: "header.declare_interest", 
         fallback: "DECLARE INTEREST", 
         Icon: Users, 
-        angle: 180,
+        angle: 144,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
+          position: getQuadrantPositionForAngle(144),
           component: ContactQuadrantCard,
         },
       },
@@ -235,9 +212,9 @@ export const RadialMenu = () => {
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
-        angle: 240,
+        angle: 216,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(240),
+          position: getQuadrantPositionForAngle(216),
           component: InsightsQuadrantCard,
         },
       },
@@ -246,44 +223,22 @@ export const RadialMenu = () => {
         labelKey: "header.arrange_meeting", 
         fallback: "ARRANGE MEETING", 
         Icon: Calendar, 
-        angle: 300,
+        angle: 288,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(300),
+          position: getQuadrantPositionForAngle(288),
           component: ContactQuadrantCard,
         },
       },
     ],
     agents: [
       { 
-        to: "/stars", 
-        labelKey: "header.stars", 
-        fallback: "OUR STARS", 
-        Icon: Star, 
-        angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: StarsQuadrantCard,
-        },
-      },
-      { 
         to: "/contact", 
         labelKey: "header.collaboration", 
         fallback: "COLLABORATION", 
         Icon: Handshake, 
-        angle: 60,
+        angle: 0,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(60),
-          component: ContactQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.declare_interest", 
-        fallback: "DECLARE INTEREST", 
-        Icon: Users, 
-        angle: 120,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(120),
+          position: getQuadrantPositionForAngle(0),
           component: ContactQuadrantCard,
         },
       },
@@ -292,9 +247,9 @@ export const RadialMenu = () => {
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
-        angle: 180,
+        angle: 72,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
+          position: getQuadrantPositionForAngle(72),
           component: InsightsQuadrantCard,
         },
       },
@@ -303,10 +258,21 @@ export const RadialMenu = () => {
         labelKey: "header.performance", 
         fallback: "PERFORMANCE", 
         Icon: TrendingUp, 
-        angle: 240,
+        angle: 144,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(240),
+          position: getQuadrantPositionForAngle(144),
           component: PerformanceQuadrantCard,
+        },
+      },
+      { 
+        to: "/contact", 
+        labelKey: "header.declare_interest", 
+        fallback: "DECLARE INTEREST", 
+        Icon: Users, 
+        angle: 216,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(216),
+          component: ContactQuadrantCard,
         },
       },
       { 
@@ -314,36 +280,25 @@ export const RadialMenu = () => {
         labelKey: "header.arrange_meeting", 
         fallback: "ARRANGE MEETING", 
         Icon: Calendar, 
-        angle: 300,
+        angle: 288,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(300),
+          position: getQuadrantPositionForAngle(288),
           component: ContactQuadrantCard,
         },
       },
     ],
     scouts: [
       { to: "/playersmore", labelKey: "header.what_we_look_for", fallback: "WHAT WE SEEK", Icon: Search, angle: 0 },
-      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 60 },
-      { to: "/scouts", labelKey: "header.jobs", fallback: "OPPORTUNITIES", Icon: Briefcase, angle: 120 },
-      { 
-        to: "/stars", 
-        labelKey: "header.stars", 
-        fallback: "STARS", 
-        Icon: Star, 
-        angle: 180,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
-          component: StarsQuadrantCard,
-        },
-      },
+      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 72 },
+      { to: "/scouts", labelKey: "header.jobs", fallback: "OPPORTUNITIES", Icon: Briefcase, angle: 144 },
       { 
         to: "/between-the-lines", 
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
-        angle: 240,
+        angle: 216,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(240),
+          position: getQuadrantPositionForAngle(216),
           component: InsightsQuadrantCard,
         },
       },
@@ -352,9 +307,9 @@ export const RadialMenu = () => {
         labelKey: "header.work_with_us", 
         fallback: "SCOUT FOR RISE", 
         Icon: Handshake, 
-        angle: 300,
+        angle: 288,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(300),
+          position: getQuadrantPositionForAngle(288),
           component: ContactQuadrantCard,
         },
       },
@@ -366,21 +321,10 @@ export const RadialMenu = () => {
         labelKey: "header.performance", 
         fallback: "PERFORMANCE", 
         Icon: TrendingUp, 
-        angle: 60,
+        angle: 72,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(60),
+          position: getQuadrantPositionForAngle(72),
           component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/stars", 
-        labelKey: "header.stars", 
-        fallback: "STARS", 
-        Icon: Star, 
-        angle: 120,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(120),
-          component: StarsQuadrantCard,
         },
       },
       { 
@@ -388,9 +332,9 @@ export const RadialMenu = () => {
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
-        angle: 180,
+        angle: 144,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
+          position: getQuadrantPositionForAngle(144),
           component: InsightsQuadrantCard,
         },
       },
@@ -399,9 +343,9 @@ export const RadialMenu = () => {
         labelKey: "header.represent_me", 
         fallback: "REPRESENT ME", 
         Icon: Handshake, 
-        angle: 240,
+        angle: 216,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(240),
+          position: getQuadrantPositionForAngle(216),
           component: ContactQuadrantCard,
         },
       },
@@ -410,9 +354,9 @@ export const RadialMenu = () => {
         labelKey: "header.arrange_meeting", 
         fallback: "ARRANGE MEETING", 
         Icon: Calendar, 
-        angle: 300,
+        angle: 288,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(300),
+          position: getQuadrantPositionForAngle(288),
           component: ContactQuadrantCard,
         },
       },
@@ -430,24 +374,13 @@ export const RadialMenu = () => {
         },
       },
       { 
-        to: "/stars", 
-        labelKey: "header.stars", 
-        fallback: "STARS", 
-        Icon: Star, 
-        angle: 60,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(60),
-          component: StarsQuadrantCard,
-        },
-      },
-      { 
         to: "/contact", 
         labelKey: "header.collaboration", 
         fallback: "COLLABORATION", 
         Icon: Heart, 
-        angle: 120,
+        angle: 72,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(120),
+          position: getQuadrantPositionForAngle(72),
           component: ContactQuadrantCard,
         },
       },
@@ -456,9 +389,9 @@ export const RadialMenu = () => {
         labelKey: "header.performance", 
         fallback: "PERFORMANCE", 
         Icon: TrendingUp, 
-        angle: 180,
+        angle: 144,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
+          position: getQuadrantPositionForAngle(144),
           component: PerformanceQuadrantCard,
         },
       },
@@ -467,9 +400,9 @@ export const RadialMenu = () => {
         labelKey: "header.declare_interest", 
         fallback: "DECLARE INTEREST", 
         Icon: Users, 
-        angle: 240,
+        angle: 216,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(240),
+          position: getQuadrantPositionForAngle(216),
           component: ContactQuadrantCard,
         },
       },
@@ -478,26 +411,15 @@ export const RadialMenu = () => {
         labelKey: "header.arrange_meeting", 
         fallback: "ARRANGE MEETING", 
         Icon: Calendar, 
-        angle: 300,
+        angle: 288,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(300),
+          position: getQuadrantPositionForAngle(288),
           component: ContactQuadrantCard,
         },
       },
     ],
     business: [
       { to: "/business", labelKey: "header.packages", fallback: "PACKAGES", Icon: Package, angle: 0 },
-      { 
-        to: "/stars", 
-        labelKey: "header.stars", 
-        fallback: "STARS", 
-        Icon: Star, 
-        angle: 60,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(60),
-          component: StarsQuadrantCard,
-        },
-      },
       { 
         to: "/performance", 
         labelKey: "header.performance", 
@@ -547,14 +469,14 @@ export const RadialMenu = () => {
   // Default menu for main site with quadrant cards
   const defaultMenu: MenuItem[] = [
     { 
-      to: "/stars", 
-      labelKey: "header.stars", 
-      fallback: "STARS", 
-      Icon: Star, 
+      to: "/players", 
+      labelKey: "header.players", 
+      fallback: "PLAYERS", 
+      Icon: Users, 
       angle: 0,
       quadrantCard: {
         position: 'bottom-right',
-        component: StarsQuadrantCard
+        component: ContactQuadrantCard
       }
     },
     { 
