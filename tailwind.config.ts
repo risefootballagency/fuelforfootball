@@ -28,6 +28,10 @@ export default {
           DEFAULT: "hsl(var(--gold))",
           muted: "hsl(var(--gold-muted))",
         },
+        "light-green": {
+          DEFAULT: "hsl(var(--light-green))",
+          dim: "hsl(var(--light-green-dim))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

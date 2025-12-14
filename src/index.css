@@ -17,31 +17,31 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 120 40% 8%;
-    --foreground: 0 0% 100%;
+    --foreground: 142 70% 85%;
 
     --card: 120 40% 8%;
-    --card-foreground: 0 0% 100%;
+    --card-foreground: 142 70% 85%;
 
     --popover: 120 40% 6%;
-    --popover-foreground: 0 0% 100%;
+    --popover-foreground: 142 70% 85%;
 
     --primary: 45 100% 50%;
     --primary-foreground: 0 0% 0%;
 
     --secondary: 120 40% 12%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary-foreground: 142 70% 85%;
 
-    --muted: 120 40% 12%;
-    --muted-foreground: 45 80% 60%;
+    --muted: 142 30% 20%;
+    --muted-foreground: 142 60% 70%;
 
     --accent: 45 100% 50%;
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 142 70% 85%;
 
-    --border: 120 30% 18%;
-    --input: 120 30% 18%;
+    --border: 142 40% 25%;
+    --input: 142 40% 25%;
     --ring: 45 100% 50%;
 
     --radius: 0rem;
@@ -49,8 +49,10 @@ All colors MUST be HSL.
     /* Custom design tokens */
     --gold: 45 100% 50%;
     --gold-muted: 45 80% 60%;
-    --text-primary: 0 0% 100%;
-    --text-secondary: 45 90% 55%;
+    --text-primary: 142 70% 85%;
+    --text-secondary: 142 60% 70%;
+    --light-green: 142 70% 75%;
+    --light-green-dim: 142 50% 50%;
     --bg-dark: 120 40% 8%;
     --bg-card: 120 40% 8%;
   }
