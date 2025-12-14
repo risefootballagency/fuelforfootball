@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { ArrowRight, Brain, Target, Dumbbell, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeroSlider } from "@/components/HeroSlider";
 
 const Players = () => {
   const { t } = useLanguage();
@@ -85,45 +86,36 @@ const Players = () => {
       <Header />
       
       <main className="pt-24 md:pt-28">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden">
-          {/* Title Bar */}
-          <div className="bg-card/80 py-4 border-b border-border/50">
-            <div className="container mx-auto">
-              <h1 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground">
-                Players
-              </h1>
-            </div>
-          </div>
-          
-          {/* Hero Content with Background */}
-          <div className="relative min-h-[400px] md:min-h-[500px] flex items-center">
-            <div 
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: "url('https://static.wixstatic.com/media/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg')"
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-transparent" />
-            
-            <div className="container mx-auto px-4 relative z-10 py-16">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-6">
-                  <h2 className="text-5xl md:text-7xl lg:text-8xl font-bebas uppercase tracking-wider leading-none">
-                    <span className="text-primary">Change</span><br />
-                    <span className="text-primary">The</span><br />
-                    <span className="text-primary">Game</span>
-                  </h2>
-                </div>
-                <div className="text-foreground/90 text-base md:text-lg leading-relaxed">
-                  <p>
-                    Fuel For Football is Football's leading performance consultancy, focusing on player development and performance. Currently, we work with a host of English Premier League and Football League players, alongside a range of talents from across Europe's top leagues. We use our team of coaches to offer several services to our players, ranging from strength, speed and power development, to psychological performance sessions and game analysis.
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Title Bar */}
+        <section className="bg-card/80 py-4 border-b border-border/50">
+          <div className="container mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground">
+              Players
+            </h1>
           </div>
         </section>
+
+        {/* Hero Slider */}
+        <HeroSlider 
+          slides={[
+            {
+              image: "https://static.wixstatic.com/media/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg",
+              title: "Change The Game",
+              subtitle: "Fuel For Football is Football's leading performance consultancy, focusing on player development and performance."
+            },
+            {
+              image: "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg",
+              title: "Tactical Excellence",
+              subtitle: "Read several passes ahead of play to consistently gain the advantage over your matchups."
+            },
+            {
+              image: "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg",
+              title: "Physical Dominance",
+              subtitle: "Become stronger, faster and more powerful to dominate on the pitch."
+            }
+          ]}
+          autoplayDelay={5000}
+        />
 
         {/* What We Do Section */}
         <section className="py-16 md:py-24 px-4 bg-card/50 relative overflow-hidden">
