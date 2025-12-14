@@ -26,7 +26,6 @@ import NotFound from "./pages/NotFound";
 // Lazy-loaded pages for better initial load performance
 const Landing = lazy(() => import("./pages/Landing"));
 const Index = lazy(() => import("./pages/Index"));
-const Players = lazy(() => import("./pages/Performance"));
 const Staff = lazy(() => import("./pages/Staff"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const About = lazy(() => import("./pages/About"));
@@ -134,8 +133,6 @@ const App = () => {
                     {createLocalizedRoutes('/login', <Login />)}
                     {createLocalizedRoutes('/portal', <Dashboard />)}
                     
-                    {/* Non-localized routes */}
-                    {createLocalizedRoutes('/playersmore', <Players />)}
                     <Route path="/players-draft" element={<PlayersDraft />} />
                     {/* Club Network is now only accessible via Staff page */}
                     <Route path="/staff" element={<Staff />} />

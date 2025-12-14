@@ -14,18 +14,6 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     ru: '/igroki',
     tr: '/oyuncular',
   },
-  '/playersmore': {
-    en: '/playersmore',
-    es: '/jugadoras',
-    pt: '/jogadoras',
-    fr: '/joueurs',
-    de: '/spielerinnen',
-    it: '/giocatrici',
-    pl: '/zawodniczki',
-    cs: '/hracky',
-    ru: '/igroki',
-    tr: '/oyuncular',
-  },
   '/stars': {
     en: '/stars',
     es: '/estrellas',
