@@ -461,7 +461,7 @@ export const RadialMenu = () => {
   // Default menu for main site with quadrant cards
   const defaultMenu: MenuItem[] = [
     { 
-      to: "/performance",
+      to: "/players",
       labelKey: "header.players", 
       fallback: "PLAYERS", 
       Icon: Users, 

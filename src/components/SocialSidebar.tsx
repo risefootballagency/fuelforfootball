@@ -17,7 +17,7 @@ export const SocialSidebar = () => {
           href={social.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex items-center justify-center w-12 h-12 bg-background/80 backdrop-blur-sm border-r border-y border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all duration-300 first:rounded-tr-lg first:border-t last:rounded-br-lg"
+          className="group flex items-center justify-center w-12 h-12 hover:bg-primary/10 transition-all duration-300"
           title={social.label}
           style={{ animationDelay: `${index * 0.1}s` }}
         >
