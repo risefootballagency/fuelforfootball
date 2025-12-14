@@ -1,3 +1,5 @@
+import greenSmokyBackground from "@/assets/green-smoky-background.png";
+
 interface GrassBackgroundProps {
   variant?: 'top' | 'bottom' | 'divider' | 'section';
   className?: string;
@@ -62,7 +64,7 @@ export const SmokyBackground = ({ className = '' }: { className?: string }) => {
     <div 
       className={`absolute inset-0 z-0 ${className}`}
       style={{
-        backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png/v1/fill/w_1904,h_400,al_c,q_90,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png')`,
+        backgroundImage: `url(${greenSmokyBackground})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
