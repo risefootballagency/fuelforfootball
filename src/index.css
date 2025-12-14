@@ -16,22 +16,24 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* Main page backgrounds - WHITE */
     --background: 0 0% 100%;
     --foreground: 120 40% 15%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 120 40% 15%;
+    /* Cards, tabs, tables - DARK GREEN theme */
+    --card: 120 40% 8%;
+    --card-foreground: 142 70% 85%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 120 40% 15%;
+    --popover: 120 40% 6%;
+    --popover-foreground: 142 70% 85%;
 
     --primary: 45 100% 50%;
     --primary-foreground: 0 0% 0%;
 
-    --secondary: 142 30% 95%;
-    --secondary-foreground: 120 40% 15%;
+    --secondary: 120 40% 12%;
+    --secondary-foreground: 142 70% 85%;
 
-    --muted: 142 20% 92%;
+    --muted: 142 20% 90%;
     --muted-foreground: 120 30% 40%;
 
     --accent: 45 100% 50%;
@@ -40,8 +42,8 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 142 20% 85%;
-    --input: 142 20% 85%;
+    --border: 142 30% 80%;
+    --input: 142 30% 80%;
     --ring: 45 100% 50%;
 
     --radius: 0rem;
@@ -54,7 +56,13 @@ All colors MUST be HSL.
     --light-green: 142 70% 40%;
     --light-green-dim: 142 50% 35%;
     --bg-dark: 120 40% 8%;
-    --bg-card: 0 0% 98%;
+    --bg-card: 120 40% 8%;
+    
+    /* Dark UI elements */
+    --header-bg: 120 40% 8%;
+    --footer-bg: 120 40% 8%;
+    --table-bg: 120 40% 8%;
+    --tab-bg: 120 40% 10%;
   }
 }
 
