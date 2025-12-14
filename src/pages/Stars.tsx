@@ -68,37 +68,42 @@ const Stars = () => {
       
       <main className="pt-24 md:pt-28">
         {/* Hero Section */}
-        <section className="py-12 md:py-16 px-4">
+        <section className="py-16 md:py-24 px-4">
           <div className="container mx-auto">
-            <div className="text-center mb-12">
-              <h1 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider text-foreground mb-4">
-                {t('stars.title', 'Our Stars')}
+            <div className="text-center mb-16">
+              <h1 className="text-6xl md:text-8xl font-bebas uppercase tracking-wider text-foreground mb-6">
+                {t('stars.title', 'Players')}
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-                {t('stars.subtitle', 'Meet the talented professionals we represent')}
-              </p>
+              <div className="max-w-4xl mx-auto space-y-6">
+                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                  {t('stars.intro', 'We are proud to represent a diverse roster of talented footballers from across the globe. Our players compete at various levels, from emerging prospects to established professionals, each bringing unique skills and determination to the beautiful game.')}
+                </p>
+                <p className="text-base md:text-lg text-muted-foreground/80 leading-relaxed">
+                  {t('stars.description', 'Through our holistic approach combining tactical analysis, physical conditioning, technical development, and career management, we help our players reach their full potential both on and off the pitch.')}
+                </p>
+              </div>
             </div>
 
             {/* View Toggle */}
-            <div className="flex justify-end mb-8">
-              <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
+            <div className="flex justify-center md:justify-end mb-10">
+              <div className="flex items-center gap-2 bg-muted/30 rounded-lg p-1.5 border border-border/50">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className="gap-2"
+                  className="gap-2 px-4"
                 >
                   <Grid className="w-4 h-4" />
-                  <span className="hidden sm:inline">Grid</span>
+                  <span className="hidden sm:inline">{t('stars.grid_view', 'Grid')}</span>
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className="gap-2"
+                  className="gap-2 px-4"
                 >
                   <List className="w-4 h-4" />
-                  <span className="hidden sm:inline">List</span>
+                  <span className="hidden sm:inline">{t('stars.list_view', 'List')}</span>
                 </Button>
               </div>
             </div>
