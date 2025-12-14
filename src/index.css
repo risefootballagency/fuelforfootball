@@ -48,13 +48,15 @@ All colors MUST be HSL.
 
     --radius: 0rem;
 
-    /* Custom design tokens - Celtic green */
+    /* Custom design tokens - Celtic green + Rise mint */
     --gold: 145 75% 45%;
     --gold-muted: 145 60% 55%;
+    --mint: 160 70% 55%;
+    --mint-dim: 160 50% 45%;
     --text-primary: 0 0% 100%;
-    --text-secondary: 145 20% 70%;
-    --light-green: 145 75% 45%;
-    --light-green-dim: 145 50% 35%;
+    --text-secondary: 160 40% 70%;
+    --light-green: 160 70% 55%;
+    --light-green-dim: 160 50% 45%;
     --bg-dark: 147 40% 7%;
     --bg-card: 147 35% 10%;
     
