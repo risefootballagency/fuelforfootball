@@ -2,14 +2,20 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
+import { GrassBackground } from "@/components/GrassBackground";
 
 const Analysis = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
+        {/* Grass Top */}
+        <div className="pt-20">
+          <GrassBackground variant="top" />
+        </div>
+
         {/* Hero Section */}
-        <section className="relative pt-24 pb-8">
+        <section className="relative py-8">
           <div className="container mx-auto px-4 text-center">
             <p className="font-bebas text-2xl text-muted-foreground tracking-widest mb-4">
               ANALYSIS
@@ -20,9 +26,18 @@ const Analysis = () => {
           </div>
         </section>
 
+        {/* Divider */}
+        <GrassBackground variant="divider" />
+
         {/* Pillars */}
-        <section className="py-8 bg-card/30">
-          <div className="container mx-auto px-4">
+        <section className="py-8 relative overflow-hidden">
+          <div className="absolute inset-0 z-0" style={{
+            backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg/v1/fill/w_1904,h_400,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.2,
+          }} />
+          <div className="container mx-auto px-4 relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="flex flex-col items-center gap-3">
                 <img 

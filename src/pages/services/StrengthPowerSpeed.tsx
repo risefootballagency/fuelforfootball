@@ -2,12 +2,17 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
+import { GrassBackground } from "@/components/GrassBackground";
 
 const StrengthPowerSpeed = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
+        {/* Grass Top */}
+        <div className="pt-20">
+          <GrassBackground variant="top" />
+        </div>
         {/* Hero Section */}
         <section className="relative pt-24 pb-8">
           <div className="container mx-auto px-4 text-center">
@@ -61,9 +66,17 @@ const StrengthPowerSpeed = () => {
           </div>
         </section>
 
+        {/* Divider */}
+        <GrassBackground variant="divider" />
+
         {/* In Detail Section */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
+        <section className="py-16 relative">
+          <div className="absolute inset-0 z-0" style={{
+            backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png/v1/fill/w_1904,h_400,al_c,q_90,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }} />
+          <div className="container mx-auto px-4 relative z-10">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               IN DETAIL
             </h2>
@@ -97,9 +110,18 @@ const StrengthPowerSpeed = () => {
           </div>
         </section>
 
+        {/* Divider */}
+        <GrassBackground variant="divider" />
+
         {/* Training Section */}
-        <section className="py-16 bg-card/30">
-          <div className="container mx-auto px-4">
+        <section className="py-16 relative overflow-hidden">
+          <div className="absolute inset-0 z-0" style={{
+            backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg/v1/fill/w_1904,h_800,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.3,
+          }} />
+          <div className="container mx-auto px-4 relative z-10">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               TRAINING
             </h2>
@@ -124,6 +146,9 @@ const StrengthPowerSpeed = () => {
             </div>
           </div>
         </section>
+
+        {/* Divider */}
+        <GrassBackground variant="divider" />
 
         {/* Programming Section */}
         <section className="py-16">
@@ -162,9 +187,18 @@ const StrengthPowerSpeed = () => {
           </div>
         </section>
 
+        {/* Divider */}
+        <GrassBackground variant="divider" />
+
         {/* Options Section */}
-        <section className="py-16 bg-card/30">
-          <div className="container mx-auto px-4">
+        <section className="py-16 relative overflow-hidden">
+          <div className="absolute inset-0 z-0" style={{
+            backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg/v1/fill/w_1904,h_800,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.3,
+          }} />
+          <div className="container mx-auto px-4 relative z-10">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               OPTIONS
             </h2>
@@ -204,6 +238,9 @@ const StrengthPowerSpeed = () => {
             </div>
           </div>
         </section>
+
+        {/* Divider */}
+        <GrassBackground variant="divider" />
 
         {/* The Full Package Section */}
         <section className="py-16">
