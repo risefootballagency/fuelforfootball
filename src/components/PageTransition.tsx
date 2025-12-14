@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, type Location } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/fff_logo.png";
 import { ShaderAnimation } from "@/components/ui/shader-animation";
 import { useTransition } from "@/contexts/TransitionContext";
 
@@ -61,7 +61,7 @@ export const PageTransition = ({ children }: PageTransitionProps) => {
           <div className="absolute inset-0 flex items-center justify-center z-20">
             <img
               src={logo}
-              alt="RISE"
+              alt="Fuel For Football"
               className="h-16 md:h-20"
               style={{
                 animation:
