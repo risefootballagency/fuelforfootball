@@ -6,11 +6,30 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown, Video, Camera, Mic, FileText, Newspaper, Calendar, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WorkWithUsDialog } from "@/components/WorkWithUsDialog";
+import { HeroSlider } from "@/components/HeroSlider";
 import bannerHero from "@/assets/banner-hero.jpg";
 
 const Media = () => {
   const { t } = useLanguage();
   
+  const heroSlides = [
+    {
+      image: bannerHero,
+      title: t('media.slide1_title', 'Media & Press'),
+      subtitle: t('media.slide1_subtitle', 'Request interviews, access content, and connect with our players'),
+    },
+    {
+      image: bannerHero,
+      title: t('media.slide2_title', 'Exclusive Content'),
+      subtitle: t('media.slide2_subtitle', 'Behind-the-scenes access and player stories'),
+    },
+    {
+      image: bannerHero,
+      title: t('media.slide3_title', 'Collaboration Opportunities'),
+      subtitle: t('media.slide3_subtitle', 'Partner with us on creative projects'),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background" key="media-page">
       <SEO 
@@ -21,24 +40,9 @@ const Media = () => {
       />
       <Header />
       
-      <main className="pt-32 md:pt-24">
-        {/* Hero Section */}
-        <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${bannerHero})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-background" />
-          
-          <div className="relative container mx-auto px-4 text-center z-10">
-            <h1 className="text-6xl md:text-8xl font-bebas uppercase tracking-wider text-white mb-4">
-              {t('media.title', 'MEDIA &')} <span className="text-primary">{t('media.title_highlight', 'PRESS')}</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
-              {t('media.subtitle', 'Request interviews, access content, and connect with our players')}
-            </p>
-          </div>
-        </section>
+      <main className="pt-24 md:pt-16">
+        {/* Hero Slider */}
+        <HeroSlider slides={heroSlides} />
 
         {/* INTERVIEW REQUESTS Section */}
         <section className="py-16 md:py-24 bg-background">

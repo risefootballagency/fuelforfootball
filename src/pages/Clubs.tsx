@@ -6,6 +6,7 @@ import { SEO } from "@/components/SEO";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HeroSlider } from "@/components/HeroSlider";
 import bannerHero from "@/assets/banner-hero.jpg";
 import blackMarble from "@/assets/black-marble-smudged.png";
 import clubsSection from "@/assets/clubs-section.png";
@@ -14,34 +15,38 @@ import clubsNetwork from "@/assets/clubs-network.jpg";
 
 const Clubs = () => {
   const { t } = useLanguage();
+  
+  const heroSlides = [
+    {
+      image: bannerHero,
+      title: t('clubs.slide1_title', 'Strategic Football Partnerships'),
+      subtitle: t('clubs.slide1_subtitle', 'Building winning sides through expert consultation and player development'),
+    },
+    {
+      image: clubsNetwork,
+      title: t('clubs.slide2_title', 'Access Elite Talent'),
+      subtitle: t('clubs.slide2_subtitle', 'Connect with our extensive network of professional players'),
+    },
+    {
+      image: clubsSection,
+      title: t('clubs.slide3_title', 'Data-Driven Decisions'),
+      subtitle: t('clubs.slide3_subtitle', 'Performance analytics to optimize your squad'),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background" key="clubs-page">
       <SEO 
-        title="For Clubs - Strategic Football Partnerships | RISE Agency"
-        description="Work with RISE to strategise, recruit, and optimize your squad. Access our extensive network of talented players and expert player development programs."
+        title="For Clubs - Strategic Football Partnerships | Fuel For Football"
+        description="Work with Fuel For Football to strategise, recruit, and optimize your squad. Access our extensive network of talented players and expert player development programs."
         image="/og-preview-clubs.png"
         url="/clubs"
       />
       <Header />
       
-      <main className="pt-32 md:pt-24">
-        {/* Hero Section */}
-        <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${bannerHero})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-background" />
-          
-          <div className="relative container mx-auto px-4 text-center z-10">
-            <h1 className="text-6xl md:text-8xl font-bebas uppercase tracking-wider text-white mb-4">
-              {t('clubs.title')}
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
-              {t('clubs.subtitle')}
-            </p>
-          </div>
-        </section>
+      <main className="pt-24 md:pt-16">
+        {/* Hero Slider */}
+        <HeroSlider slides={heroSlides} />
 
         {/* STRATEGISE Section - Text Left, Image Right */}
         <section className="grid md:grid-cols-2">

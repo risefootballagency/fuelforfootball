@@ -6,7 +6,9 @@ import { SEO } from "@/components/SEO";
 import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Briefcase, Users, Target, TrendingUp, Handshake } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverText } from "@/components/HoverText";
+import { HeroSlider } from "@/components/HeroSlider";
 import { cn } from "@/lib/utils";
+import bannerHero from "@/assets/banner-hero.jpg";
 
 // Case study / showcase card data
 interface ShowcaseCard {
@@ -134,17 +136,37 @@ const Business = () => {
     }
   };
 
+  const heroSlides = [
+    {
+      image: bannerHero,
+      title: t('business.slide1_title', 'Strategic Commercial Partnerships'),
+      subtitle: t('business.slide1_subtitle', 'Connect brands with elite football talent'),
+    },
+    {
+      image: bannerHero,
+      title: t('business.slide2_title', 'Sponsorship Opportunities'),
+      subtitle: t('business.slide2_subtitle', 'End-to-end campaign management'),
+    },
+    {
+      image: bannerHero,
+      title: t('business.slide3_title', 'Investment & Growth'),
+      subtitle: t('business.slide3_subtitle', 'Strategic football investment opportunities'),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background" key="business-page">
       <SEO 
-        title="Business Solutions - Commercial Football Partnerships | RISE Agency"
-        description="Partner with RISE for strategic commercial partnerships, sponsorship opportunities, and business development in professional football."
+        title="Business Solutions - Commercial Football Partnerships | Fuel For Football"
+        description="Partner with Fuel For Football for strategic commercial partnerships, sponsorship opportunities, and business development in professional football."
         image="/og-preview-business.png"
         url="/business"
       />
       <Header />
       
-      <main className="pt-24 md:pt-20">
+      <main className="pt-24 md:pt-16">
+        {/* Hero Slider */}
+        <HeroSlider slides={heroSlides} />
         {/* Hero Section - Minimal with large typography */}
         <section className="relative py-20 md:py-32 overflow-hidden">
           {/* Background pattern */}

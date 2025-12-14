@@ -560,9 +560,9 @@ export const RadialMenu = () => {
     },
     { 
       to: "/performance", 
-      labelKey: "header.realise_potential", 
+      labelKey: "header.change_the_game", 
       fallback: "PERFORMANCE", 
-      Icon: TrendingUp, 
+      Icon: TrendingUp,
       angle: 72,
       quadrantCard: {
         position: 'top-right',

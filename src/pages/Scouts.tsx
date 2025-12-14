@@ -11,6 +11,8 @@ import { SCOUTING_POSITIONS, POSITION_SKILLS, ScoutingPosition } from "@/data/sc
 import useEmblaCarousel from "embla-carousel-react";
 import ScoutingNetworkMap from "@/components/ScoutingNetworkMap";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HeroSlider } from "@/components/HeroSlider";
+import bannerHero from "@/assets/banner-hero.jpg";
 
 const domainConfig = {
   Physical: {
@@ -90,17 +92,37 @@ const Scouts = () => {
     window.open("https://wa.me/447856255509", "_blank");
   };
 
+  const heroSlides = [
+    {
+      image: bannerHero,
+      title: t('scouts.slide1_title', 'Join Our Scouting Network'),
+      subtitle: t('scouts.slide1_subtitle', 'Discover talent and earn competitive commissions'),
+    },
+    {
+      image: bannerHero,
+      title: t('scouts.slide2_title', 'Forever Commission Structure'),
+      subtitle: t('scouts.slide2_subtitle', 'Earn from every deal involving players you discover'),
+    },
+    {
+      image: bannerHero,
+      title: t('scouts.slide3_title', 'Scout Smarter'),
+      subtitle: t('scouts.slide3_subtitle', 'Access our database and analytics tools'),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       <SEO 
-        title="For Scouts - Discover Talent with RISE Agency"
-        description="Join RISE's scouting network. Access our database, competitive incentives, and forever commission structure. Scout smarter across Europe."
+        title="For Scouts - Discover Talent with Fuel For Football"
+        description="Join Fuel For Football's scouting network. Access our database, competitive incentives, and forever commission structure. Scout smarter across Europe."
         image="/og-preview-scouts.png"
         url="/scouts"
       />
       <Header />
       
-      <main className="pt-32 md:pt-24">
+      <main className="pt-24 md:pt-16">
+        {/* Hero Slider */}
+        <HeroSlider slides={heroSlides} />
 
         {/* Scouting Criteria by Position Section */}
         <section className="relative min-h-screen flex flex-col">
