@@ -6,6 +6,7 @@ import { HoverText } from "@/components/HoverText";
 import { LazyPlayer3D } from "@/components/LazyPlayer3D";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HomeBackground } from "@/components/HomeBackground";
+import { SmokyBackground } from "@/components/GrassBackground";
 import { LightConeBackground } from "@/components/LightConeBackground";
 import { XRayProvider, useXRay } from "@/contexts/XRayContext";
 import { LandingCursor } from "@/components/LandingCursor";
@@ -187,6 +188,9 @@ function LandingContent() {
       
       {/* Custom Landing Page Cursor */}
       <LandingCursor />
+      
+      {/* Green Smoky Background */}
+      <SmokyBackground />
       
       {/* Data-driven Background */}
       <HomeBackground />
