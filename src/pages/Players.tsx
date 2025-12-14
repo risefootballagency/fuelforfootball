@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Brain, Target, Dumbbell, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/HeroSlider";
+import { GrassBackground } from "@/components/GrassBackground";
 
 const Players = () => {
   const { t } = useLanguage();
@@ -86,14 +87,26 @@ const Players = () => {
       <Header />
       
       <main className="pt-24 md:pt-28">
-        {/* Title Bar */}
-        <section className="bg-card/80 py-4 border-b border-border/50">
-          <div className="container mx-auto">
+        {/* Title Bar with grass background */}
+        <section className="relative overflow-hidden py-4 border-b border-border/50">
+          <div 
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_152388c2eb9241f48863776d6ca92aff~mv2.jpg/v1/crop/x_0,y_113,w_2000,h_107/fill/w_1920,h_100,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Background%20Header.jpg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+          <div className="absolute inset-0 z-0 bg-background/40" />
+          <div className="container mx-auto relative z-10">
             <h1 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground">
               Players
             </h1>
           </div>
         </section>
+
+        {/* Grass top decoration */}
+        <GrassBackground variant="top" />
 
         {/* Hero Slider */}
         <HeroSlider 
@@ -117,9 +130,13 @@ const Players = () => {
           autoplayDelay={5000}
         />
 
+        {/* Grass divider */}
+        <GrassBackground variant="divider" />
+
         {/* What We Do Section */}
-        <section className="py-16 md:py-24 px-4 bg-card/50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+        <section className="py-16 md:py-24 px-4 relative overflow-hidden">
+          <GrassBackground variant="section" />
+          <div className="absolute inset-0 bg-background/80 z-[1]" />
           <div className="container mx-auto relative z-10">
             <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-8">
               What We Do
@@ -162,6 +179,9 @@ const Players = () => {
           </div>
         </section>
 
+        {/* Grass bottom divider */}
+        <GrassBackground variant="bottom" />
+
         {/* Choose Your Fuel Section */}
         <section className="py-16 md:py-24 px-4 bg-background">
           <div className="container mx-auto">
@@ -187,9 +207,18 @@ const Players = () => {
           </div>
         </section>
 
-        {/* Needs Analysis Section */}
-        <section className="py-16 md:py-24 px-4 bg-card/50">
-          <div className="container mx-auto">
+        {/* Needs Analysis Section with smoky background */}
+        <section className="py-16 md:py-24 px-4 relative overflow-hidden">
+          <div 
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg/v1/fill/w_1920,h_800,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+          <div className="absolute inset-0 bg-background/70 z-[1]" />
+          <div className="container mx-auto relative z-10">
             <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-16">
               Needs Analysis
             </h2>
