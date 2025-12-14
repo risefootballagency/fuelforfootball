@@ -1,1 +1,7 @@
 project_id = "wodoiizsonuwtniziicv"
+
+[functions.track-visit]
+verify_jwt = false
+
+[functions.detect-language]
+verify_jwt = false
