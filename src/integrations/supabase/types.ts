@@ -1363,6 +1363,42 @@ export type Database = {
           },
         ]
       }
+      pay_links: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -2529,6 +2565,66 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      sales: {
+        Row: {
+          amount: number
+          completed_at: string | null
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          pay_link_id: string | null
+          payment_method: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name: string
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          pay_link_id?: string | null
+          payment_method?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          pay_link_id?: string | null
+          payment_method?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_pay_link_id_fkey"
+            columns: ["pay_link_id"]
+            isOneToOne: false
+            referencedRelation: "pay_links"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scout_messages: {
         Row: {
