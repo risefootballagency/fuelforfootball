@@ -1,5 +1,5 @@
 // UPDATE THIS VERSION NUMBER WHEN YOU DEPLOY NEW CHANGES
-const CACHE_VERSION = 'rise-v1.3.5';
+const CACHE_VERSION = 'fff-v1.0.0';
 const CACHE_NAME = `${CACHE_VERSION}`;
 const ASSETS_CACHE = `${CACHE_VERSION}-assets`;
 
@@ -9,7 +9,7 @@ const urlsToCache = [
   '/manifest.json',
   '/lovable-uploads/icon-192x192.png',
   '/lovable-uploads/icon-512x512.png',
-  '/RISEWhite.png'
+  '/fff_logo.png'
 ];
 
 // Install event - cache essential resources
@@ -44,7 +44,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && cacheName !== ASSETS_CACHE && !cacheName.startsWith('rise-offline-')) {
+          if (cacheName !== CACHE_NAME && cacheName !== ASSETS_CACHE && !cacheName.startsWith('fff-offline-')) {
             console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -167,7 +167,7 @@ self.addEventListener('fetch', (event) => {
             <html>
               <head>
                 <meta charset="utf-8">
-                <title>Offline - RISE Portal</title>
+                <title>Offline - FFF Portal</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <style>
                   body { 
@@ -177,8 +177,8 @@ self.addEventListener('fetch', (event) => {
                     justify-content: center; 
                     min-height: 100vh; 
                     margin: 0;
-                    background: #000;
-                    color: #C8A871;
+                    background: #0F2212;
+                    color: #FFB800;
                   }
                   .container { text-align: center; max-width: 400px; padding: 2rem; }
                   h1 { font-size: 2rem; margin-bottom: 1rem; }
@@ -188,7 +188,7 @@ self.addEventListener('fetch', (event) => {
               <body>
                 <div class="container">
                   <h1>You're Offline</h1>
-                  <p>RISE Portal is not available right now. Please check your internet connection and try again.</p>
+                  <p>FFF Portal is not available right now. Please check your internet connection and try again.</p>
                 </div>
               </body>
             </html>`,
@@ -247,7 +247,7 @@ self.addEventListener('push', (event) => {
   console.log('[Service Worker] Push notification received:', event);
   
   let notificationData = {
-    title: 'RISE Portal',
+    title: 'FFF Portal',
     body: 'You have a new notification',
     icon: '/lovable-uploads/icon-192x192.png',
     badge: '/lovable-uploads/icon-192x192.png',
