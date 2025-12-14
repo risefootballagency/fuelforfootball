@@ -48,6 +48,7 @@ import { LanguagesManagement } from "@/components/staff/LanguagesManagement";
 import { SiteManagement } from "@/components/staff/SiteManagement";
 import { StaffPWAInstall } from "@/components/staff/StaffPWAInstall";
 import { StaffOfflineManager } from "@/components/staff/StaffOfflineManager";
+import { ServiceCatalogManagement } from "@/components/staff/ServiceCatalogManagement";
 import { StaffPushNotifications } from "@/components/staff/StaffPushNotifications";
 import { HighlightMaker } from "@/components/staff/HighlightMaker";
 import { useStaffNotifications } from "@/hooks/useStaffNotifications";

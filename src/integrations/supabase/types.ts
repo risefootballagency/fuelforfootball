@@ -2840,6 +2840,63 @@ export type Database = {
         }
         Relationships: []
       }
+      service_catalog: {
+        Row: {
+          badge: string | null
+          category: string
+          collection: string[] | null
+          created_at: string
+          description: string | null
+          discount_mode: string | null
+          discount_value: number | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          name: string
+          options: Json | null
+          price: number
+          ribbon: string | null
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          badge?: string | null
+          category?: string
+          collection?: string[] | null
+          created_at?: string
+          description?: string | null
+          discount_mode?: string | null
+          discount_value?: number | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          name: string
+          options?: Json | null
+          price?: number
+          ribbon?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          badge?: string | null
+          category?: string
+          collection?: string[] | null
+          created_at?: string
+          description?: string | null
+          discount_mode?: string | null
+          discount_value?: number | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          options?: Json | null
+          price?: number
+          ribbon?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       site_visits: {
         Row: {
           created_at: string
