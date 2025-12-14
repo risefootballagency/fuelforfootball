@@ -82,12 +82,12 @@ export const PlayerCard = ({ player, viewMode = "grid", disableProfileLink = fal
     // Format DOB with age
     const dobDisplay = dateOfBirth ? `${dateOfBirth} (${player.age})` : `Age ${player.age}`;
 
-    const listClassName = `group relative flex items-start gap-8 p-8 overflow-hidden transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary hover:bg-card border-b border-border last:border-b-0 hover:!border-primary hover:!border-4 ${disableProfileLink ? '' : 'cursor-pointer'}`;
+    const listClassName = `group relative flex flex-col md:flex-row items-start gap-4 md:gap-8 p-4 md:p-8 overflow-hidden transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary hover:bg-card border-b border-border last:border-b-0 hover:!border-primary hover:!border-4 ${disableProfileLink ? '' : 'cursor-pointer'}`;
 
     const listContent = (
       <>
         {/* Player Image */}
-        <div className="relative w-32 h-44 flex-shrink-0 overflow-hidden rounded-lg shadow-lg">
+        <div className="relative w-full md:w-32 h-48 md:h-44 flex-shrink-0 overflow-hidden rounded-lg shadow-lg">
           <LazyImage
             src={player.image_url || `/lovable-uploads/${player.name.toLowerCase().replace(/\s+/g, '-')}.png`}
             alt={player.name}
@@ -100,8 +100,8 @@ export const PlayerCard = ({ player, viewMode = "grid", disableProfileLink = fal
         {/* Player Info */}
         <div className="flex-1 min-w-0 flex flex-col gap-4">
           <div>
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <h3 className="text-4xl font-bebas uppercase text-foreground tracking-wider group-hover:text-primary transition-colors leading-none">
+            <div className="flex items-start justify-between gap-2 md:gap-4 mb-2 md:mb-3">
+              <h3 className="text-2xl md:text-4xl font-bebas uppercase text-foreground tracking-wider group-hover:text-primary transition-colors leading-none">
                 {player.name}
               </h3>
               {/* Club Info */}
@@ -128,7 +128,7 @@ export const PlayerCard = ({ player, viewMode = "grid", disableProfileLink = fal
               )}
             </div>
             
-            <div className="flex gap-4 text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+            <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 md:mb-4">
               <span>{translatedPosition}</span>
               <span>•</span>
               <span>{dobDisplay}</span>

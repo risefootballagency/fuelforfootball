@@ -18,9 +18,9 @@ const About = () => {
       />
       <Header />
       
-      <main className="pt-32 md:pt-24 touch-pan-y overflow-x-hidden">
+      <main className="pt-20 md:pt-24 touch-pan-y overflow-x-hidden">
         {/* Hero Section */}
-        <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+        <section className="relative h-[40vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
           <div 
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${bannerHero})` }}
@@ -28,23 +28,23 @@ const About = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-background" />
           
           <div className="relative container mx-auto px-4 text-center z-10">
-            <h1 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider text-white mb-6">
+            <h1 className="text-4xl md:text-7xl font-bebas uppercase tracking-wider text-white mb-4 md:mb-6">
               {t('about.title')}
             </h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
+            <p className="text-base md:text-2xl text-white/90 max-w-3xl mx-auto">
               {t('about.subtitle')}
             </p>
           </div>
         </section>
 
         {/* Our Story */}
-        <section className="py-16 md:py-24 bg-muted/30">
+        <section className="py-10 md:py-24 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-8">
+              <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-8">
                 OUR <span className="text-primary">STORY</span>
               </h2>
-              <div className="space-y-6 text-lg text-muted-foreground">
+              <div className="space-y-4 md:space-y-6 text-sm md:text-lg text-muted-foreground">
                 <p>
                   We started as players. We understand the journey—the sacrifices, the setbacks, and what it takes to make it.
                 </p>
@@ -63,41 +63,38 @@ const About = () => {
         </section>
 
         {/* Who We Are */}
-        <section className="py-16 md:py-24">
+        <section className="py-10 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-8">
+              <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-8">
                 {t('about.who_we_are')}
               </h2>
-              <div className="space-y-6 text-lg text-muted-foreground">
+              <div className="space-y-4 md:space-y-6 text-sm md:text-lg text-muted-foreground">
                 <p>
                   RISE Football Agency is the best agency for developing talents and guiding them to the top. We are committed to nurturing talent and maximizing the potential of every athlete we work with.
                 </p>
                 <p>
-                  Founded on firsthand experience as players and coaches, RISE has established itself as a trusted partner for players at all stages of their careers. Our team combines deep development expertise with a genuine passion for the beautiful game.
-                </p>
-                <p>
-                  We understand that success in football extends beyond what happens on the pitch. That's why we provide comprehensive support covering all aspects of a player's career—from performance optimization and transfer dealings to personal development and career guidance.
+                  Founded on firsthand experience as players and coaches, RISE has established itself as a trusted partner for players at all stages of their careers.
                 </p>
               </div>
               
               {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-                <div className="text-center p-4 border border-border/50 bg-card/30 rounded-lg">
-                  <div className="text-4xl font-bebas text-primary">74</div>
-                  <p className="text-xs font-bebas uppercase tracking-widest text-foreground/70">Professionals</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mt-8 md:mt-12">
+                <div className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg">
+                  <div className="text-2xl md:text-4xl font-bebas text-primary">74</div>
+                  <p className="text-[10px] md:text-xs font-bebas uppercase tracking-widest text-foreground/70">Professionals</p>
                 </div>
-                <div className="text-center p-4 border border-border/50 bg-card/30 rounded-lg">
-                  <div className="text-4xl font-bebas text-primary">18</div>
-                  <p className="text-xs font-bebas uppercase tracking-widest text-foreground/70">Big 5 League Players</p>
+                <div className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg">
+                  <div className="text-2xl md:text-4xl font-bebas text-primary">18</div>
+                  <p className="text-[10px] md:text-xs font-bebas uppercase tracking-widest text-foreground/70">Big 5 League</p>
                 </div>
-                <div className="text-center p-4 border border-border/50 bg-card/30 rounded-lg">
-                  <div className="text-4xl font-bebas text-primary">10</div>
-                  <p className="text-xs font-bebas uppercase tracking-widest text-foreground/70">National Team Players</p>
+                <div className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg">
+                  <div className="text-2xl md:text-4xl font-bebas text-primary">10</div>
+                  <p className="text-[10px] md:text-xs font-bebas uppercase tracking-widest text-foreground/70">National Teams</p>
                 </div>
-                <div className="text-center p-4 border border-border/50 bg-card/30 rounded-lg">
-                  <div className="text-4xl font-bebas text-primary">£100M+</div>
-                  <p className="text-xs font-bebas uppercase tracking-widest text-foreground/70">Transfer Fees</p>
+                <div className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg">
+                  <div className="text-2xl md:text-4xl font-bebas text-primary">£100M+</div>
+                  <p className="text-[10px] md:text-xs font-bebas uppercase tracking-widest text-foreground/70">Transfer Fees</p>
                 </div>
               </div>
             </div>
@@ -105,21 +102,18 @@ const About = () => {
         </section>
 
         {/* Our Mission */}
-        <section className="py-12 md:py-16 bg-muted/30">
+        <section className="py-10 md:py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-8">
+              <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-8">
                 {t('about.our_mission')}
               </h2>
-              <div className="space-y-6 text-lg text-muted-foreground">
+              <div className="space-y-4 md:space-y-6 text-sm md:text-lg text-muted-foreground">
                 <p>
                   Our mission is simple: to help footballers reach their full potential both on and off the field. We believe every player deserves expert guidance, unwavering support, and opportunities to showcase their abilities on the biggest stages.
                 </p>
-                <p>
-                  Through our extensive network of clubs, scouts, and industry professionals, we create pathways for players to achieve their dreams. We pride ourselves on building lasting relationships based on trust, transparency, and mutual respect.
-                </p>
-                <p className="text-base text-muted-foreground/90 pt-4">
-                  Our work supports player development within the governance structures that maintain football's integrity. We operate as responsible participants in the regulatory environment, ensuring our services complement and respect the frameworks set by football's governing bodies.
+                <p className="text-xs md:text-base text-muted-foreground/90 pt-2 md:pt-4">
+                  Our work supports player development within the governance structures that maintain football's integrity.
                 </p>
               </div>
             </div>
@@ -127,42 +121,42 @@ const About = () => {
         </section>
 
         {/* What We Do */}
-        <section className="py-12 md:py-16">
+        <section className="py-10 md:py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-12">
+              <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-6 md:mb-12">
                 {t('about.what_we_do')}
               </h2>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-primary">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                <div className="space-y-2 md:space-y-4">
+                  <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-primary">
                     {t('about.representation')}
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {t('about.representation_desc')}
                   </p>
                 </div>
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-primary">
+                <div className="space-y-2 md:space-y-4">
+                  <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-primary">
                     {t('about.career_dev')}
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {t('about.career_dev_desc')}
                   </p>
                 </div>
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-primary">
+                <div className="space-y-2 md:space-y-4">
+                  <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-primary">
                     {t('about.global_network')}
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {t('about.global_network_desc')}
                   </p>
                 </div>
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-primary">
+                <div className="space-y-2 md:space-y-4">
+                  <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-primary">
                     {t('about.personal_support')}
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {t('about.personal_support_desc')}
                   </p>
                 </div>
@@ -172,12 +166,12 @@ const About = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-12 md:py-16 bg-muted/30">
+        <section className="py-10 md:py-16 bg-muted/30">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-6">
+            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-6">
               {t('about.cta_title')}
             </h2>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-base md:text-xl text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto">
               {t('about.cta_subtitle')}
             </p>
             <Button asChild size="lg" className="btn-shine font-bebas uppercase tracking-wider">

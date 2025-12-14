@@ -84,40 +84,40 @@ const Contact = () => {
         url="/contact"
       />
       <Header />
-      <div className="min-h-screen bg-background pt-32 md:pt-24 touch-pan-y overflow-x-hidden">
+      <div className="min-h-screen bg-background pt-24 md:pt-24 touch-pan-y overflow-x-hidden">
         {/* Page Header */}
         <div className="bg-background border-b border-primary/20">
-          <div className="container mx-auto px-4 py-12">
-            <h1 className="text-6xl md:text-7xl font-bebas uppercase text-foreground mb-4 tracking-wider">
+          <div className="container mx-auto px-4 py-8 md:py-12">
+            <h1 className="text-4xl md:text-7xl font-bebas uppercase text-foreground mb-3 md:mb-4 tracking-wider">
               {t('contact.title', 'Contact Us')}
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl">
               {t('contact.subtitle', 'Get in touch with the right team member for your needs')}
             </p>
           </div>
         </div>
 
         {/* Contact Sections */}
-        <main className="container mx-auto px-4 py-16">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <main className="container mx-auto px-3 md:px-4 py-8 md:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             {contactSections.map((section) => (
               <div 
                 key={section.titleKey}
-                className="bg-secondary/30 backdrop-blur-sm p-8 rounded-lg border border-primary/20 hover:border-primary transition-all space-y-6"
+                className="bg-secondary/30 backdrop-blur-sm p-4 md:p-8 rounded-lg border border-primary/20 hover:border-primary transition-all space-y-4 md:space-y-6"
               >
                 <div>
-                  <h2 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-3">
+                  <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary mb-2 md:mb-3">
                     {t(section.titleKey, section.titleFallback)}
                   </h2>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {t(section.descKey, section.descFallback)}
                   </p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   <Button 
                     asChild
-                    className="btn-shine w-full text-lg font-bebas uppercase tracking-wider"
+                    className="btn-shine w-full text-base md:text-lg font-bebas uppercase tracking-wider"
                     size="lg"
                   >
                     <a 
@@ -133,7 +133,7 @@ const Contact = () => {
                   <Button 
                     asChild
                     variant="outline"
-                    className="w-full text-lg font-bebas uppercase tracking-wider"
+                    className="w-full text-base md:text-lg font-bebas uppercase tracking-wider"
                     size="lg"
                   >
                     <a 

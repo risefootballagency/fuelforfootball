@@ -124,21 +124,21 @@ const Services = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="pt-24 md:pt-28 pb-8 bg-gradient-to-b from-primary/20 to-background">
+      <section className="pt-20 md:pt-28 pb-6 md:pb-8 bg-gradient-to-b from-primary/20 to-background">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider text-center text-foreground">
+          <h1 className="text-4xl md:text-7xl font-bebas uppercase tracking-wider text-center text-foreground">
             Services
           </h1>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-8">
+      <section className="py-4 md:py-8">
+        <div className="container mx-auto px-3 md:px-4">
+          <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
             {/* Left Sidebar - Filters */}
             <aside className="lg:w-64 flex-shrink-0">
-              <h2 className="text-xl font-bebas uppercase tracking-wider text-foreground mb-6">
+              <h2 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-4 md:mb-6">
                 Filter by
               </h2>
 
@@ -214,12 +214,12 @@ const Services = () => {
             {/* Main Content Area */}
             <div className="flex-1">
               {/* Sort Header */}
-              <div className="flex justify-between items-center mb-6">
-                <p className="text-muted-foreground text-sm">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <p className="text-muted-foreground text-xs md:text-sm">
                   {loading ? 'Loading...' : `${filteredServices.length} services`}
                 </p>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-48 bg-primary/10 border-primary/30 text-foreground">
+                  <SelectTrigger className="w-36 md:w-48 bg-primary/10 border-primary/30 text-foreground text-sm">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -246,7 +246,7 @@ const Services = () => {
 
               {/* Services Grid */}
               {!loading && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                   {filteredServices.map((service) => (
                     <div
                       key={service.id}
@@ -258,12 +258,12 @@ const Services = () => {
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
                           <div className="relative">
                             {/* Logo circle */}
-                            <div className="w-10 h-10 rounded-full bg-background border-2 border-primary flex items-center justify-center -mb-2 mx-auto relative z-20">
-                              <img src={fffLogo} alt="FFF" className="w-6 h-6 object-contain" />
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-background border-2 border-primary flex items-center justify-center -mb-1.5 md:-mb-2 mx-auto relative z-20">
+                              <img src={fffLogo} alt="FFF" className="w-5 h-5 md:w-6 md:h-6 object-contain" />
                             </div>
                             {/* Banner */}
-                            <div className="bg-primary px-3 py-1 rounded-b-lg">
-                              <span className="text-[10px] font-bebas uppercase tracking-wider text-primary-foreground whitespace-nowrap">
+                            <div className="bg-primary px-2 md:px-3 py-0.5 md:py-1 rounded-b-lg">
+                              <span className="text-[8px] md:text-[10px] font-bebas uppercase tracking-wider text-primary-foreground whitespace-nowrap">
                                 {service.badge || service.name.toUpperCase()}
                               </span>
                             </div>
@@ -272,13 +272,13 @@ const Services = () => {
 
                         {/* Ribbon */}
                         {service.ribbon && (
-                          <div className="absolute top-14 right-2 z-10 bg-destructive text-destructive-foreground text-xs font-bebas uppercase px-2 py-1 rounded">
+                          <div className="absolute top-10 md:top-14 right-1 md:right-2 z-10 bg-destructive text-destructive-foreground text-[10px] md:text-xs font-bebas uppercase px-1.5 md:px-2 py-0.5 md:py-1 rounded">
                             {service.ribbon}
                           </div>
                         )}
 
                         {/* Service Image */}
-                        <div className="aspect-[3/4] pt-12 p-4">
+                        <div className="aspect-[3/4] pt-10 md:pt-12 p-2 md:p-4">
                           <div className="w-full h-full rounded-lg overflow-hidden border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/20 flex items-center justify-center">
                             {service.image_url ? (
                               <img
@@ -303,12 +303,12 @@ const Services = () => {
                       </div>
 
                       {/* Service Info (outside card) */}
-                      <div className="mt-4 text-center">
-                        <h3 className="font-bebas text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors">
+                      <div className="mt-2 md:mt-4 text-center">
+                        <h3 className="font-bebas text-sm md:text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-2">
                           {service.name}
                         </h3>
-                        <div className="w-8 h-px bg-primary/50 mx-auto my-2" />
-                        <p className="text-sm text-muted-foreground">
+                        <div className="w-6 md:w-8 h-px bg-primary/50 mx-auto my-1 md:my-2" />
+                        <p className="text-xs md:text-sm text-muted-foreground">
                           {formatPrice(service.price, service.options)}
                         </p>
                       </div>
