@@ -10,7 +10,7 @@ import fffLogo from "@/assets/fff_logo.png";
 import whiteMarbleBg from "@/assets/white-marble.png";
 import smudgedMarbleBg from "@/assets/black-marble-smudged.png";
 import europeMap from "@/assets/europe-outline.gif";
-import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Sparkles, Route } from "lucide-react";
+import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
 
@@ -135,50 +135,42 @@ export const RadialMenu = () => {
   const roleMenus: Record<string, MenuItem[]> = {
     players: [
       { 
-        to: "/youth-players", 
-        labelKey: "header.youth_players", 
-        fallback: "FOR YOUTH", 
-        Icon: Sparkles, 
-        angle: 0,
-      },
-      { 
-        to: "/between-the-lines", 
-        labelKey: "header.between_the_lines", 
-        fallback: "INSIGHTS", 
+        to: "/daily-fuel", 
+        labelKey: "header.daily_fuel", 
+        fallback: "DAILY FUEL", 
         Icon: BookOpen, 
-        angle: 60,
+        angle: 0,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(60),
+          position: getQuadrantPositionForAngle(0),
           component: InsightsQuadrantCard,
         },
-      },
-      { 
-        to: "/player-journey", 
-        labelKey: "header.player_journey", 
-        fallback: "THE JOURNEY", 
-        Icon: Route, 
-        angle: 120,
       },
       { 
         to: "/performance", 
         labelKey: "header.performance", 
         fallback: "PERFORMANCE", 
         Icon: TrendingUp, 
-        angle: 180,
+        angle: 90,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
+          position: getQuadrantPositionForAngle(90),
           component: PerformanceQuadrantCard,
         },
       },
-      { to: "/performance", labelKey: "header.what_we_look_for", fallback: "WHAT WE SEEK", Icon: Search, angle: 240 },
+      { 
+        to: "/services", 
+        labelKey: "header.services", 
+        fallback: "SERVICES", 
+        Icon: Search, 
+        angle: 180,
+      },
       { 
         to: "/contact", 
         labelKey: "header.contact", 
-        fallback: "REPRESENT ME", 
+        fallback: "CONTACT", 
         Icon: Handshake, 
-        angle: 300,
+        angle: 270,
         quadrantCard: {
-          position: getQuadrantPositionForAngle(300),
+          position: getQuadrantPositionForAngle(270),
           component: ContactQuadrantCard,
         },
       },
@@ -208,7 +200,7 @@ export const RadialMenu = () => {
         },
       },
       { 
-        to: "/between-the-lines", 
+        to: "/daily-fuel",
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
@@ -243,7 +235,7 @@ export const RadialMenu = () => {
         },
       },
       { 
-        to: "/between-the-lines", 
+        to: "/daily-fuel",
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
@@ -292,7 +284,7 @@ export const RadialMenu = () => {
       { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 72 },
       { to: "/scouts", labelKey: "header.jobs", fallback: "OPPORTUNITIES", Icon: Briefcase, angle: 144 },
       { 
-        to: "/between-the-lines", 
+        to: "/daily-fuel",
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
@@ -317,7 +309,7 @@ export const RadialMenu = () => {
     coaches: [
       { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 0 },
       { 
-        to: "/potential", 
+        to: "/performance", 
         labelKey: "header.performance", 
         fallback: "PERFORMANCE", 
         Icon: TrendingUp, 
@@ -328,7 +320,7 @@ export const RadialMenu = () => {
         },
       },
       { 
-        to: "/between-the-lines", 
+        to: "/daily-fuel",
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
@@ -363,7 +355,7 @@ export const RadialMenu = () => {
     ],
     media: [
       { 
-        to: "/between-the-lines", 
+        to: "/daily-fuel",
         labelKey: "header.press_release", 
         fallback: "PRESS", 
         Icon: Newspaper, 
@@ -443,7 +435,7 @@ export const RadialMenu = () => {
         },
       },
       { 
-        to: "/between-the-lines", 
+        to: "/daily-fuel",
         labelKey: "header.insights", 
         fallback: "INSIGHTS", 
         Icon: BookOpen, 
@@ -469,7 +461,7 @@ export const RadialMenu = () => {
   // Default menu for main site with quadrant cards
   const defaultMenu: MenuItem[] = [
     { 
-      to: "/players", 
+      to: "/performance",
       labelKey: "header.players", 
       fallback: "PLAYERS", 
       Icon: Users, 
@@ -491,9 +483,9 @@ export const RadialMenu = () => {
       }
     },
     { 
-      to: "/between-the-lines", 
-      labelKey: "header.between_the_lines", 
-      fallback: "INSIGHTS", 
+      to: "/daily-fuel", 
+      labelKey: "header.daily_fuel", 
+      fallback: "DAILY FUEL",
       Icon: BookOpen, 
       angle: 180,
       quadrantCard: {
