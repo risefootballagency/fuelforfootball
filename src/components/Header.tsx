@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/fff_logo.png";
 import riseStar from "@/assets/rise-star.png";
-import { X, MessageCircle, Users, LogIn, Handshake, ArrowRight, Compass, FileText, Search, Star, Calendar, Briefcase, Send, BookOpen, Activity, Newspaper, Heart, Package, Phone } from "lucide-react";
+import { X, MessageCircle, Users, LogIn, Handshake, ArrowRight, Compass, FileText, Search, Star, Calendar, Briefcase, Send, BookOpen, Activity, Newspaper, Heart, Package, Phone, ShoppingCart, ShoppingBag } from "lucide-react";
 import workingTogether from "@/assets/menu-working-together.jpg";
 import playerPortalImage from "@/assets/menu-player-portal.png";
 import blackMarbleBg from "@/assets/black-marble-smudged.png";
@@ -65,11 +65,11 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
   players: {
     left: [
       { type: 'link', to: '/login', labelKey: 'header.portal', fallback: 'Portal', mobileFallback: 'Portal', icon: LogIn },
-      { type: 'link', to: '/between-the-lines', labelKey: 'header.between_the_lines', fallback: 'Between The Lines', mobileFallback: 'BTL', icon: BookOpen },
+      { type: 'link', to: '/between-the-lines', labelKey: 'header.daily_fuel', fallback: 'Daily Fuel', mobileFallback: 'Daily Fuel', icon: BookOpen },
     ],
     right: [
-      { type: 'button', action: 'whatWeLookFor', labelKey: 'header.what_we_look_for', fallback: 'What We Look For', mobileFallback: 'Look For', icon: Search },
-      { type: 'button', action: 'representation', labelKey: 'header.represent_me', fallback: 'Represent Me', mobileFallback: 'Represent', icon: Handshake },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
+      { type: 'link', to: '/shop', labelKey: 'header.shop', fallback: 'Shop', mobileFallback: 'Shop', icon: ShoppingBag },
     ],
   },
   clubs: {
@@ -546,14 +546,10 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
               </div>
             </>}
 
-          {/* RISE WITH US Button - Right */}
-          <Button onClick={() => setWorkWithUsOpen(true)} size="sm" className={`btn-shine font-bebas uppercase tracking-wider transition-all duration-500 ease-out flex items-center justify-center ${isScrolled ? 'text-xs md:text-sm px-3 md:px-5 h-8 md:h-9 leading-none' : 'text-sm md:text-base px-4 md:px-6 h-9 md:h-10 leading-none'}`}>
-            <span className="hidden md:inline"><HoverText text={t("header.rise_with_us", "RISE WITH US")} /></span>
-            <span className="md:hidden flex flex-col items-center leading-[0.9]">
-              <span>RISE</span>
-              <span>WITH US</span>
-            </span>
-          </Button>
+          {/* Basket Icon - Right */}
+          <button className="group p-2 md:p-3 rounded-full hover:bg-primary/10 transition-all duration-300" title={t("header.basket", "Basket")}>
+            <ShoppingCart className={`text-white/80 group-hover:text-primary transition-colors ${isScrolled ? 'w-5 h-5 md:w-6 md:h-6' : 'w-6 h-6 md:w-7 md:h-7'}`} />
+          </button>
         </div>
       </div>
       </header>
