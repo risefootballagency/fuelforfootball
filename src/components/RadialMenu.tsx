@@ -13,7 +13,6 @@ import europeMap from "@/assets/europe-outline.gif";
 import { Home, Star, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Sparkles, Route } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { StarsQuadrantCard } from "@/components/radial-menu/StarsQuadrantCard";
-import { NewsQuadrantCard } from "@/components/radial-menu/NewsQuadrantCard";
 import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
 
 export type QuadrantPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -563,7 +562,7 @@ export const RadialMenu = () => {
       labelKey: "header.change_the_game", 
       fallback: "PERFORMANCE", 
       Icon: TrendingUp,
-      angle: 72,
+      angle: 90,
       quadrantCard: {
         position: 'top-right',
         component: PerformanceQuadrantCard
@@ -574,21 +573,10 @@ export const RadialMenu = () => {
       labelKey: "header.between_the_lines", 
       fallback: "INSIGHTS", 
       Icon: BookOpen, 
-      angle: 144,
+      angle: 180,
       quadrantCard: {
         position: 'top-left',
         component: InsightsQuadrantCard
-      }
-    },
-    { 
-      to: "/news", 
-      labelKey: "header.news", 
-      fallback: "NEWS", 
-      Icon: Newspaper, 
-      angle: 216,
-      quadrantCard: {
-        position: 'bottom-left',
-        component: NewsQuadrantCard
       }
     },
     { 
@@ -596,9 +584,9 @@ export const RadialMenu = () => {
       labelKey: "header.contact", 
       fallback: "CONTACT", 
       Icon: MessageCircle, 
-      angle: 288,
+      angle: 270,
       quadrantCard: {
-        position: 'bottom-right',
+        position: 'bottom-left',
         component: ContactQuadrantCard
       }
     },

@@ -19,6 +19,7 @@ import Home from "./pages/Home";
 import Stars from "./pages/Stars";
 import PlayerDetail from "./pages/PlayerDetail";
 import News from "./pages/News";
+const Services = lazy(() => import("./pages/Services"));
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
@@ -126,8 +127,7 @@ const App = () => {
                     {createLocalizedRoutes('/business', <Business />)}
                     {createLocalizedRoutes('/media', <Media />)}
                     {createLocalizedRoutes('/performance', <Performance />)}
-                    {createLocalizedRoutes('/news', <News />)}
-                    {createLocalizedDynamicRoutes('/news/:articleId', <News />)}
+                    {createLocalizedRoutes('/services', <Services />)}
                     {createLocalizedRoutes('/between-the-lines', <BetweenTheLines />)}
                     {createLocalizedDynamicRoutes('/between-the-lines/:articleId', <News />)}
                     {createLocalizedRoutes('/open-access', <OpenAccess />)}

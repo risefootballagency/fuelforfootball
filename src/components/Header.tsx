@@ -200,9 +200,6 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
   const [realisePotentialHovered, setRealisePotentialHovered] = useState(false);
   const [rpIndex, setRpIndex] = useState(0);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [newsHovered, setNewsHovered] = useState(false);
-  const [newsArticles, setNewsArticles] = useState<any[]>([]);
-  const [newsIndex, setNewsIndex] = useState(0);
   const [viewport, setViewport] = useState<"mobile" | "tablet" | "desktop">("desktop");
   const realisePotentialImages = [realisePotentialSessions, realisePotentialPaos, realisePotentialReport, realisePotentialAnalysis];
   
@@ -249,20 +246,8 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
         setBetweenLinesPosts(data);
       }
     };
-    const fetchNewsArticles = async () => {
-      const {
-        data,
-        error
-      } = await supabase.from('blog_posts').select('*').eq('published', true).eq('category', 'PLAYER NEWS').order('created_at', {
-        ascending: false
-      }).limit(3);
-      if (data && !error && data.length > 0) {
-        setNewsArticles(data);
-      }
-    };
     fetchStarPlayers();
     fetchBetweenLinesPosts();
-    fetchNewsArticles();
   }, []);
   useEffect(() => {
     if (starPlayers.length > 0) {
@@ -286,14 +271,6 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
     }, 6000);
     return () => clearInterval(rpInterval);
   }, [realisePotentialImages.length]);
-  useEffect(() => {
-    if (newsArticles.length > 0) {
-      const newsInterval = setInterval(() => {
-        setNewsIndex(prev => (prev + 1) % newsArticles.length);
-      }, 6000);
-      return () => clearInterval(newsInterval);
-    }
-  }, [newsArticles.length]);
   
   useEffect(() => {
     const scrollEnabledPaths = ['/', '/players', '/scouts', '/clubs', '/agents', '/coaches', '/business', '/media'];
