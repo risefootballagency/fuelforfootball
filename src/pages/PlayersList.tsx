@@ -200,7 +200,7 @@ const PlayersList = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Player List | RISE Football Agency</title>
+        <title>Player List | Fuel For Football</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       

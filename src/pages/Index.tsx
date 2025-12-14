@@ -91,8 +91,8 @@ const Index = () => {
   return (
     <>
       <SEO 
-        title="RISE Football Agency - Elite Football Representation & Performance"
-        description="RISE Football Agency scouts across professional football in Europe. We have guided many Premier League players to success through their development journey with expert representation and performance optimization."
+        title="Fuel For Football - Elite Football Representation & Performance"
+        description="Fuel For Football scouts across professional football in Europe. We have guided many Premier League players to success through their development journey with expert representation and performance optimization."
         image="/og-preview-home.png"
         url="/"
       />

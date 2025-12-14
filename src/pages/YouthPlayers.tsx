@@ -65,8 +65,8 @@ const YouthPlayers = () => {
       answer: "We work with first team professionals and talented youth players with the will and skill to make it. We're looking for players who are committed to reaching their potential, not just those already at the top."
     },
     {
-      question: "What makes RISE different from other agencies?",
-      answer: "We started as players, became coaches, developed performance teams around Premier League talents, and built this into the agency we run today. We understand development from the inside—not just the business side. Our USP is knowing how to develop a player and guide them to realise their potential."
+      question: "What makes Fuel For Football different from other agencies?",
+      answer: "We started as players, became coaches, developed performance teams around Premier League talents, and built this into the agency we run today. We understand development from the inside—not just the business side. Our USP is knowing how to develop a player and guide them to change the game."
     },
     {
       question: "What happens if I'm under 18?",
@@ -85,8 +85,8 @@ const YouthPlayers = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="For Youth Players & Parents - RISE Football Agency"
-        description="The pathway to the top. Learn about RISE's approach to developing talented youth players with the will and skill to make it. Transparent process, expert guidance."
+        title="For Youth Players & Parents - Fuel For Football"
+        description="The pathway to the top. Learn about Fuel For Football's approach to developing talented youth players with the will and skill to make it. Transparent process, expert guidance."
         image="/og-preview-youth.png"
         url="/youth-players"
       />

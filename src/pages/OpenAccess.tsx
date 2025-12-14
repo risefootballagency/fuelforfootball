@@ -91,8 +91,8 @@ const OpenAccess = () => {
   return (
     <>
       <SEO 
-        title="Open Access - RISE Football Agency"
-        description="Read our monthly Open Access magazine featuring exclusive insights, player stories, and behind-the-scenes content from RISE Football Agency."
+        title="Open Access - Fuel For Football"
+        description="Read our monthly Open Access magazine featuring exclusive insights, player stories, and behind-the-scenes content from Fuel For Football."
         url="/open-access"
       />
       <Header />
@@ -109,7 +109,7 @@ const OpenAccess = () => {
                 Open <span className="text-primary">Access</span>
               </h1>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Our monthly magazine featuring exclusive player stories, behind-the-scenes content, and the latest from RISE Football Agency.
+                Our monthly magazine featuring exclusive player stories, behind-the-scenes content, and the latest from Fuel For Football.
               </p>
             </div>
 

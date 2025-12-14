@@ -49,7 +49,7 @@ export const PWAInstallPrompt = () => {
       setDeferredPrompt(null);
       toast({
         title: "App Installed!",
-        description: "RISE Portal has been added to your device.",
+        description: "Fuel For Football Portal has been added to your device.",
       });
     };
 
@@ -145,7 +145,7 @@ export const PWAInstallPrompt = () => {
           <div>
             <p className="font-semibold text-foreground">App Installed ✓</p>
             <p className="text-sm text-muted-foreground">
-              You're running RISE Portal as an installed app
+              You're running Fuel For Football Portal as an installed app
             </p>
           </div>
         </div>
@@ -207,7 +207,7 @@ export const PWAInstallPrompt = () => {
             <div className="flex items-center gap-3">
               <Download className="h-5 w-5 text-primary" />
               <div>
-                <p className="font-semibold text-foreground">Install RISE Portal</p>
+                <p className="font-semibold text-foreground">Install Fuel For Football Portal</p>
                 <p className="text-sm text-muted-foreground">
                   Add to your home screen for quick access
                 </p>
@@ -229,7 +229,7 @@ export const PWAInstallPrompt = () => {
               <div>
                 <p className="font-semibold text-foreground">Install on iOS</p>
                 <p className="text-sm text-muted-foreground">
-                  Add RISE Portal to your home screen
+                  Add Fuel For Football Portal to your home screen
                 </p>
               </div>
             </div>
@@ -249,7 +249,7 @@ export const PWAInstallPrompt = () => {
             <div className="flex items-center gap-3">
               <Chrome className="h-5 w-5 text-primary" />
               <div>
-                <p className="font-semibold text-foreground">Install RISE Portal</p>
+                <p className="font-semibold text-foreground">Install Fuel For Football Portal</p>
                 <p className="text-sm text-muted-foreground">
                   Add to your device for quick access
                 </p>

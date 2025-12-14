@@ -179,8 +179,8 @@ const News = () => {
   return (
     <>
       <SEO 
-        title={currentArticle ? currentArticle.title : "Latest News - RISE Football Agency"}
-        description={currentArticle ? currentArticle.excerpt : "Stay updated with the latest news from RISE Football Agency and our talented roster of players."}
+        title={currentArticle ? currentArticle.title : "Latest News - Fuel For Football"}
+        description={currentArticle ? currentArticle.excerpt : "Stay updated with the latest news from Fuel For Football and our talented roster of players."}
         image={currentArticle?.image_url || "/og-preview-news.png"}
         url={articleId ? `/news/${articleId}` : "/news"}
       />

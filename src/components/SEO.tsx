@@ -11,15 +11,15 @@ interface SEOProps {
 }
 
 export const SEO = ({ 
-  title = "RISE Football Agency - Elite Football Representation", 
-  description = "RISE Football Agency specializes in football player representation. We scout across professional football in Europe and have guided many Premier League players to success through their development journey.",
+  title = "Fuel For Football - Elite Football Representation", 
+  description = "Fuel For Football specializes in football player representation. We scout across professional football in Europe and have guided many Premier League players to success through their development journey.",
   image = "/og-preview-home.png",
   url,
   type = "website",
   noindex = false,
   structuredData
 }: SEOProps) => {
-  const siteUrl = "https://risefootballagency.com";
+  const siteUrl = "https://fuelforfootball.com";
   const fullUrl = url ? `${siteUrl}${url}` : (typeof window !== 'undefined' ? window.location.href : siteUrl);
   const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
 
@@ -36,7 +36,7 @@ export const SEO = ({
       <meta property="og:image" content={fullImage} />
       <meta property="og:url" content={fullUrl} />
       <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="RISE Football Agency" />
+      <meta property="og:site_name" content="Fuel For Football" />
       
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />

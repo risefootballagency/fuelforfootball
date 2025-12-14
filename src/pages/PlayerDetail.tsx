@@ -403,11 +403,11 @@ const PlayerDetail = () => {
 
   const ogImage = getPlayerOgImage(player.name);
   // Use main domain for SEO
-  const mainDomain = 'https://risefootballagency.com';
+  const mainDomain = 'https://fuelforfootball.com';
   const fullOgImage = ogImage.startsWith('http') ? ogImage : `${mainDomain}${ogImage}`;
 
   // Generate rich meta description with player details
-  const metaDescription = `${player.name} - ${player.position} from ${player.nationality}${player.currentClub ? ` currently at ${player.currentClub}` : ''}. Professional footballer represented by RISE Football Agency. Contact us for transfer enquiries.`;
+  const metaDescription = `${player.name} - ${player.position} from ${player.nationality}${player.currentClub ? ` currently at ${player.currentClub}` : ''}. Professional footballer represented by Fuel For Football. Contact us for transfer enquiries.`;
   
   // Generate Schema.org structured data for the player
   const playerSchema = {
@@ -439,7 +439,7 @@ const PlayerDetail = () => {
     "knowsAbout": ["Football", "Soccer", player.position],
     "worksFor": {
       "@type": "Organization",
-      "name": "RISE Football Agency",
+      "name": "Fuel For Football",
       "url": mainDomain
     }
   };
@@ -447,24 +447,24 @@ const PlayerDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{player.name} | ${player.position} | RISE Football Agency</title>
+        <title>{player.name} | ${player.position} | Fuel For Football</title>
         <meta name="description" content={metaDescription} />
         <link rel="canonical" href={`${mainDomain}/stars/${playername}`} />
         
         {/* Open Graph */}
-        <meta property="og:title" content={`${player.name} | ${player.position} | RISE Football Agency`} />
+        <meta property="og:title" content={`${player.name} | ${player.position} | Fuel For Football`} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:image" content={fullOgImage} />
         <meta property="og:url" content={`${mainDomain}/stars/${playername}`} />
         <meta property="og:type" content="profile" />
-        <meta property="og:site_name" content="RISE Football Agency" />
+        <meta property="og:site_name" content="Fuel For Football" />
         <meta property="profile:first_name" content={player.name.split(' ')[0]} />
         <meta property="profile:last_name" content={player.name.split(' ').slice(1).join(' ')} />
         
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@risefootball" />
-        <meta name="twitter:title" content={`${player.name} | ${player.position} | RISE Football Agency`} />
+        <meta name="twitter:site" content="@fuelforfootball" />
+        <meta name="twitter:title" content={`${player.name} | ${player.position} | Fuel For Football`} />
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={fullOgImage} />
         

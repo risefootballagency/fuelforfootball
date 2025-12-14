@@ -22,7 +22,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-3xl font-bebas uppercase tracking-wider text-foreground mb-4">Introduction</h2>
               <p className="text-muted-foreground leading-relaxed">
-                RISE Football Agency ("we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
+                Fuel For Football ("we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.
               </p>
             </section>
 
