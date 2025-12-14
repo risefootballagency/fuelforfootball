@@ -572,12 +572,16 @@ export const RadialMenu = () => {
     if (isSelectingRole) {
       return roleMenuItems;
     }
-    const activeRole = selectedRole || currentRole;
+
+    // Prefer an explicitly selected role, then subdomain role, then role inferred from path
+    const activeRole = selectedRole || currentRole || pathRole;
+
     if (activeRole && roleMenus[activeRole]) {
       return roleMenus[activeRole];
     }
+
     return defaultMenu;
-  }, [currentRole, selectedRole, isSelectingRole]);
+  }, [currentRole, selectedRole, pathRole, isSelectingRole]);
 
   useEffect(() => {
     console.log('RadialMenu debug', {
