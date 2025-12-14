@@ -54,6 +54,7 @@ const Potential = lazy(() => import("./pages/Potential"));
 const RealisePotential = lazy(() => import("./pages/RealisePotential"));
 const YouthPlayers = lazy(() => import("./pages/YouthPlayers"));
 const PlayerJourney = lazy(() => import("./pages/PlayerJourney"));
+const Shop = lazy(() => import("./pages/Shop"));
 const FluidCursor = lazy(() => import("./components/FluidCursor"));
 
 // Loading fallback component
@@ -143,6 +144,7 @@ const App = () => {
                     <Route path="/realise-potential" element={<RealisePotential />} />
                     {createLocalizedRoutes('/youth-players', <YouthPlayers />)}
                     {createLocalizedRoutes('/player-journey', <PlayerJourney />)}
+                    {createLocalizedRoutes('/shop', <Shop />)}
                     <Route path="/performance-report/:slug" element={<PerformanceReport />} />
                     <Route path="/analysis/:analysisId" element={<AnalysisViewer />} />
                     <Route path="/import-program" element={<ImportProgramCSV />} />
