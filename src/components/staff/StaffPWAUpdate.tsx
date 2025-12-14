@@ -102,7 +102,7 @@ export const StaffPWAUpdate = () => {
                 Update Available
               </CardTitle>
               <CardDescription>
-                A new version of RISE Staff is ready to install
+                A new version of Fuel For Football Staff is ready to install
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

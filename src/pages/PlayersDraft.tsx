@@ -84,7 +84,7 @@ const PlayersDraft = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Players Draft | RISE Football Agency</title>
+        <title>Players Draft | Fuel For Football</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
@@ -146,7 +146,7 @@ const PlayersDraft = () => {
       <section className="relative min-h-screen flex items-center justify-center pt-16">
         <div className="relative z-10 container mx-auto px-4 text-center">
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-bebas uppercase tracking-wider text-white mb-6 drop-shadow-2xl animate-fade-in">
-            {t('players.hero_title', 'REALISE POTENTIAL')}
+            {t('players.hero_title', 'CHANGE THE GAME')}
           </h1>
           <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto drop-shadow-lg animate-fade-in">
             {t('players.hero_subtitle', 'Elevating your game through comprehensive support and development')}

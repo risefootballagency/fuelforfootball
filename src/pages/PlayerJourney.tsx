@@ -89,8 +89,8 @@ const PlayerJourney = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="How We Work With Players - RISE Football Agency"
-        description="A step-by-step look at how RISE develops talent. From discovery to development, see the journey we take with every player we represent."
+        title="How We Work With Players - Fuel For Football"
+        description="A step-by-step look at how Fuel For Football develops talent. From discovery to development, see the journey we take with every player we represent."
         image="/og-preview-journey.png"
         url="/player-journey"
       />

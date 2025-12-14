@@ -135,11 +135,11 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-primary/10">
           <p className="text-xs text-muted-foreground/80 text-center max-w-3xl mx-auto mb-6 px-4">
-            {t("footer.regulatory_text", "RISE Agency operates in accordance with the regulatory frameworks established by FIFA and UEFA. Our work follows the standards required for player representation, governance and integrity.")}
+            {t("footer.regulatory_text", "Fuel For Football operates in accordance with the regulatory frameworks established by FIFA and UEFA. Our work follows the standards required for player representation, governance and integrity.")}
           </p>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} RISE Football Agency. {t("footer.all_rights_reserved", "All rights reserved.")}
+              © {new Date().getFullYear()} Fuel For Football. {t("footer.all_rights_reserved", "All rights reserved.")}
             </p>
             <div className="flex flex-wrap justify-center gap-6">
               <a 

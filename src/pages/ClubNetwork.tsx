@@ -12,7 +12,7 @@ const ClubNetwork = () => {
   return (
     <>
       <SEO
-        title="Club Network - RISE Football Agency"
+        title="Club Network - Fuel For Football"
         description="Access our extensive network of football clubs and contacts across Europe. Connect with scouts, directors, and key decision-makers."
       />
       <div className="min-h-screen bg-background flex flex-col">

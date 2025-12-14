@@ -22,14 +22,14 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-3xl font-bebas uppercase tracking-wider text-foreground mb-4">Agreement to Terms</h2>
               <p className="text-muted-foreground leading-relaxed">
-                By accessing or using the RISE Football Agency website and services, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not access our services.
+                By accessing or using the Fuel For Football website and services, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not access our services.
               </p>
             </section>
 
             <section>
               <h2 className="text-3xl font-bebas uppercase tracking-wider text-foreground mb-4">Services</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                RISE Football Agency provides:
+                Fuel For Football provides:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>Professional football player representation</li>
@@ -67,7 +67,7 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-3xl font-bebas uppercase tracking-wider text-foreground mb-4">Intellectual Property</h2>
               <p className="text-muted-foreground leading-relaxed">
-                All content on our website, including text, graphics, logos, images, and software, is the property of RISE Football Agency and protected by copyright and intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.
+                All content on our website, including text, graphics, logos, images, and software, is the property of Fuel For Football and protected by copyright and intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.
               </p>
             </section>
 
@@ -124,14 +124,14 @@ export default function TermsOfService() {
             <section>
               <h2 className="text-3xl font-bebas uppercase tracking-wider text-foreground mb-4">Limitation of Liability</h2>
               <p className="text-muted-foreground leading-relaxed">
-                To the maximum extent permitted by law, RISE Football Agency shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services.
+                To the maximum extent permitted by law, Fuel For Football shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services.
               </p>
             </section>
 
             <section>
               <h2 className="text-3xl font-bebas uppercase tracking-wider text-foreground mb-4">Indemnification</h2>
               <p className="text-muted-foreground leading-relaxed">
-                You agree to indemnify and hold harmless RISE Football Agency from any claims, damages, losses, liabilities, and expenses arising from your use of our services or violation of these Terms.
+                You agree to indemnify and hold harmless Fuel For Football from any claims, damages, losses, liabilities, and expenses arising from your use of our services or violation of these Terms.
               </p>
             </section>
 

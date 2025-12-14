@@ -782,7 +782,7 @@ export const RadialMenu = () => {
                   A ${circleSize / 2.2} ${circleSize / 2.2} 0 0 1 ${circleSize / 2 + (circleSize / 2.2) * Math.cos(((endAngle) * Math.PI) / 180)} ${circleSize / 2 + (circleSize / 2.2) * Math.sin(((endAngle) * Math.PI) / 180)}
                   Z
                 `}
-                fill={hovered ? "url(#whiteMarblePattern)" : "rgba(128,128,128,0.1)"}
+                fill={hovered ? "hsl(120, 40%, 12%)" : "rgba(128,128,128,0.1)"}
                 className="transition-colors duration-200 cursor-pointer"
                 style={{ pointerEvents: 'auto' }}
                 onMouseEnter={() => setHoveredItem(index)}
@@ -885,13 +885,11 @@ export const RadialMenu = () => {
             left: `calc(50% - ${centerSize / 2}px)`,
           }}
         >
-          {/* Upper 75% with white marble */}
+          {/* Upper 75% with dark green */}
           <div
             className="absolute top-0 left-0 w-full h-[75%]"
             style={{
-              backgroundImage: `url(${whiteMarbleBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundColor: 'hsl(120, 40%, 12%)',
             }}
           />
           

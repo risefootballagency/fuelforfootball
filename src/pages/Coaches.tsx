@@ -17,7 +17,7 @@ const Coaches = () => {
   return (
     <div className="min-h-screen bg-background" key="coaches-page">
       <SEO 
-        title="For Coaches - Professional Representation | RISE Agency"
+        title="For Coaches - Professional Representation | Fuel For Football"
         description="Professional representation for coaching excellence. We showcase your achievements, foster connections, and secure the best opportunities that reflect your coaching expertise."
         image="/og-preview-coaches.png"
         url="/coaches"
@@ -65,7 +65,7 @@ const Coaches = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-6 space-y-4 text-sm md:text-base text-white/80 leading-relaxed">
                   <p>
-                    To rise to the occasion, we must fully embrace the ethos that every day matters. We are not a standard fair-weather agent who only shows up during transfer windows; instead, we are there for the daily grind, supporting you every step of the way. We understand that success in your career is built on consistency and proper preparation.
+                    To change the game, we must fully embrace the ethos that every day matters. We are not a standard fair-weather agent who only shows up during transfer windows; instead, we are there for the daily grind, supporting you every step of the way. We understand that success in your career is built on consistency and proper preparation.
                   </p>
                   <p>
                     As part of our comprehensive approach to ensuring our coaches succeed, we offer individualised pre-match analysis to support your preparation for game day with an eye for tactical and technical details that club staff are unlikely to pick up on. The better prepared you are for game day, the more likely your side are to excel on the pitch. We do not offer generic advice; instead, we provide analysis that is specific to the unique abilities of your side. This means understanding the opposition and main matchups you will face, but framing it in a way that plays to strengths and covers any potential weaknesses.

@@ -119,7 +119,7 @@ export const IntroModal = ({ open, onOpenChange }: IntroModalProps) => {
             {/* Overlay Content - Top Left, using all black space */}
             <div className="absolute top-[8px] left-3 right-[35%] pr-3 space-y-1.5 sm:top-[9px] sm:left-6 sm:right-[calc(35%-5px)] sm:pr-6 sm:space-y-1.5">
               <p id="intro-modal-description" className="text-[11px] text-white leading-tight sm:text-sm sm:leading-relaxed">
-                {t("intro.description", "At RISE, we scout across the entirety of professional football in Europe and have guided many Premier League players to success through their development journey to RISE through the game and Realise Potential.")}
+                {t("intro.description", "At Fuel For Football, we scout across the entirety of professional football in Europe and have guided many Premier League players to success through their development journey to Change the Game.")}
               </p>
               
               {/* Buttons */}

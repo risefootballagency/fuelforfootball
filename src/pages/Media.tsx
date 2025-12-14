@@ -14,8 +14,8 @@ const Media = () => {
   return (
     <div className="min-h-screen bg-background" key="media-page">
       <SEO 
-        title="Media & Press - Request Interviews & Content | RISE Football Agency"
-        description="Media professionals can request interviews, access content, and arrange coverage of RISE Football Agency players and activities."
+        title="Media & Press - Request Interviews & Content | Fuel For Football"
+        description="Media professionals can request interviews, access content, and arrange coverage of Fuel For Football players and activities."
         image="/og-preview-media.png"
         url="/media"
       />
