@@ -128,9 +128,9 @@ const PlayerDetail = () => {
             Sorry, we couldn't find the player you're looking for.
           </p>
           <Button asChild>
-            <Link to="/stars">
+            <Link to="/players">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Stars
+              Back to Players
             </Link>
           </Button>
         </main>
@@ -145,7 +145,7 @@ const PlayerDetail = () => {
         title={`${player.name} - ${translatedPosition} | Fuel For Football`}
         description={displayBio ? displayBio.substring(0, 160) : `${player.name} - Professional footballer represented by Fuel For Football`}
         image={player.image_url || undefined}
-        url={`/stars/${slug}`}
+        url={`/players/${slug}`}
       />
       <Header />
       
@@ -153,9 +153,9 @@ const PlayerDetail = () => {
         {/* Back Button */}
         <div className="container mx-auto px-4 mb-8">
           <Button variant="ghost" asChild className="gap-2">
-            <Link to="/stars">
+            <Link to="/players">
               <ArrowLeft className="w-4 h-4" />
-              {t('player_detail.back', 'Back to Stars')}
+              {t('player_detail.back', 'Back to Players')}
             </Link>
           </Button>
         </div>

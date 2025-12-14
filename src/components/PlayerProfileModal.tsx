@@ -48,7 +48,7 @@ const PlayerProfileModal = ({ open, onOpenChange, playerData }: PlayerProfileMod
         </Button>
         
         <iframe
-          src={`/stars/${playerSlug}?modal=true`}
+          src={`/players/${playerSlug}?modal=true`}
           className="w-full h-full border-0"
           title={`${playerData.name} Profile`}
         />

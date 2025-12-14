@@ -511,9 +511,9 @@ export const RadialMenu = () => {
       }
     },
     { 
-      to: "/stars",
-      labelKey: "header.stars", 
-      fallback: "STARS", 
+      to: "/players",
+      labelKey: "header.players", 
+      fallback: "PLAYERS", 
       Icon: Star, 
       angle: 72,
       quadrantCard: {

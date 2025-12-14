@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Target, Activity, Brain, TrendingUp, Shield, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const Stars = () => {
+const Players = () => {
   const { t } = useLanguage();
 
   const services = [
@@ -137,4 +137,4 @@ const Stars = () => {
   );
 };
 
-export default Stars;
+export default Players;
