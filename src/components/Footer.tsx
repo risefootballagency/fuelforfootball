@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaInstagram, FaTwitter, FaLinkedin, FaYoutube } from "react-icons/fa";
 import logo from "@/assets/fff_logo.png";
@@ -7,9 +8,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { SubdomainLink } from "@/components/SubdomainLink";
 // Build version - update this to verify deployments
-const BUILD_VERSION = "v2024.11.27.001";
+const BUILD_VERSION = "v2024.11.27.002";
 
 export const Footer = () => {
+  const [connectOpen, setConnectOpen] = useState(false);
   const { t } = useLanguage();
 
   return (
@@ -59,7 +61,7 @@ export const Footer = () => {
                 {t("footer.news", "News")}
               </LocalizedLink>
               <LocalizedLink to="/between-the-lines" className="text-muted-foreground hover:text-primary transition-colors">
-                {t("footer.between_the_lines", "Between The Lines")}
+                {t("footer.daily_fuel", "Daily Fuel")}
               </LocalizedLink>
               <Link to="/staff" className="text-muted-foreground hover:text-primary transition-colors">
                 {t("footer.staff", "Staff")}
@@ -79,9 +81,19 @@ export const Footer = () => {
               <Button 
                 size="lg"
                 hoverEffect
-                className="w-full btn-shine font-bebas uppercase tracking-wider text-lg"
+                className="w-full btn-shine font-bebas uppercase tracking-wider text-lg mb-3"
               >
                 {t("footer.contact_us", "Contact Us")}
+              </Button>
+            </WorkWithUsDialog>
+            <WorkWithUsDialog open={connectOpen} onOpenChange={setConnectOpen}>
+              <Button 
+                variant="outline"
+                size="lg"
+                hoverEffect
+                className="w-full font-bebas uppercase tracking-wider text-lg border-primary/50 text-primary hover:bg-primary/10"
+              >
+                {t("footer.connect", "Connect")}
               </Button>
             </WorkWithUsDialog>
           </div>
