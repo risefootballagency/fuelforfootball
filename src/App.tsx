@@ -16,7 +16,6 @@ import { getAllPathVariants } from "@/lib/localizedRoutes";
 
 // Critical pages - loaded immediately
 import Home from "./pages/Home";
-import PlayerDetail from "./pages/PlayerDetail";
 import News from "./pages/News";
 const Services = lazy(() => import("./pages/Services"));
 import Contact from "./pages/Contact";
@@ -36,8 +35,7 @@ const Agents = lazy(() => import("./pages/Agents"));
 const Business = lazy(() => import("./pages/Business"));
 const Media = lazy(() => import("./pages/Media"));
 const Performance = lazy(() => import("./pages/NewPerformance"));
-const BetweenTheLines = lazy(() => import("./pages/BetweenTheLines"));
-const OpenAccess = lazy(() => import("./pages/OpenAccess"));
+const DailyFuel = lazy(() => import("./pages/BetweenTheLines"));
 const PerformanceReport = lazy(() => import("./pages/PerformanceReport"));
 const ImportProgramCSV = lazy(() => import("./pages/ImportProgramCSV"));
 const ReplaceProgram = lazy(() => import("./pages/ReplaceProgram"));
@@ -45,14 +43,9 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const AnalysisViewer = lazy(() => import("./pages/AnalysisViewer"));
 const Intro = lazy(() => import("./pages/Intro"));
-const PlayersDraft = lazy(() => import("./pages/PlayersDraft"));
-// ClubNetwork is accessed only through Staff page, not as a standalone route
 const PDFViewer = lazy(() => import("./pages/PDFViewer"));
 const ScoutPortal = lazy(() => import("./pages/ScoutPortal"));
-const Potential = lazy(() => import("./pages/Potential"));
 const RealisePotential = lazy(() => import("./pages/RealisePotential"));
-const YouthPlayers = lazy(() => import("./pages/YouthPlayers"));
-const PlayerJourney = lazy(() => import("./pages/PlayerJourney"));
 const Shop = lazy(() => import("./pages/Shop"));
 const FluidCursor = lazy(() => import("./components/FluidCursor"));
 import { SocialSidebar } from "./components/SocialSidebar";
@@ -114,11 +107,9 @@ const App = () => {
                   <Suspense fallback={<PageLoader />}>
                   <Routes location={displayLocation}>
                     <Route path="/" element={<Home />} />
-                    {createLocalizedRoutes('/players', <PlayersDraft />)}
                     <Route path="/intro" element={<Intro />} />
                     
                     {/* Localized routes */}
-                    {createLocalizedDynamicRoutes('/stars/:playername', <PlayerDetail />)}
                     {createLocalizedRoutes('/clubs', <Clubs />)}
                     {createLocalizedRoutes('/coaches', <Coaches />)}
                     {createLocalizedRoutes('/scouts', <Scouts />)}
@@ -127,23 +118,18 @@ const App = () => {
                     {createLocalizedRoutes('/media', <Media />)}
                     {createLocalizedRoutes('/performance', <Performance />)}
                     {createLocalizedRoutes('/services', <Services />)}
-                    {createLocalizedRoutes('/between-the-lines', <BetweenTheLines />)}
-                    {createLocalizedDynamicRoutes('/between-the-lines/:articleId', <News />)}
-                    {createLocalizedRoutes('/open-access', <OpenAccess />)}
+                    {createLocalizedRoutes('/daily-fuel', <DailyFuel />)}
+                    {createLocalizedDynamicRoutes('/daily-fuel/:articleId', <News />)}
                     {createLocalizedRoutes('/contact', <Contact />)}
                     {createLocalizedRoutes('/about', <About />)}
                     {createLocalizedRoutes('/login', <Login />)}
                     {createLocalizedRoutes('/portal', <Dashboard />)}
+                    {createLocalizedRoutes('/shop', <Shop />)}
                     
-                    <Route path="/players-draft" element={<PlayersDraft />} />
-                    {/* Club Network is now only accessible via Staff page */}
+                    {/* Staff/Admin routes */}
                     <Route path="/staff" element={<Staff />} />
                     <Route path="/scout-portal" element={<ScoutPortal />} />
-                    <Route path="/potential" element={<Potential />} />
                     <Route path="/realise-potential" element={<RealisePotential />} />
-                    {createLocalizedRoutes('/youth-players', <YouthPlayers />)}
-                    {createLocalizedRoutes('/player-journey', <PlayerJourney />)}
-                    {createLocalizedRoutes('/shop', <Shop />)}
                     <Route path="/performance-report/:slug" element={<PerformanceReport />} />
                     <Route path="/analysis/:analysisId" element={<AnalysisViewer />} />
                     <Route path="/import-program" element={<ImportProgramCSV />} />

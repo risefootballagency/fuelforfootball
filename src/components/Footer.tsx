@@ -105,8 +105,8 @@ export const Footer = () => {
               <LocalizedLink to="/shop" className="text-muted-foreground hover:text-primary transition-colors">
                 Shop
               </LocalizedLink>
-              <LocalizedLink to="/between-the-lines" className="text-muted-foreground hover:text-primary transition-colors">
-                Insights
+              <LocalizedLink to="/daily-fuel" className="text-muted-foreground hover:text-primary transition-colors">
+                Daily Fuel
               </LocalizedLink>
               <LocalizedLink to="/about" className="text-muted-foreground hover:text-primary transition-colors">
                 About
