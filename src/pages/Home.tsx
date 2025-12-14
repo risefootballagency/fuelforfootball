@@ -8,7 +8,7 @@ import Media from './Media';
 import Business from './Business';
 import Dashboard from './Dashboard';
 import Potential from './Potential';
-import Players from './Performance';
+import Players from './PlayersDraft';
 import { getSubdomainInfo } from '@/lib/subdomainUtils';
 
 // Map subdomains to their page components
