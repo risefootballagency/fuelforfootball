@@ -290,6 +290,18 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     ru: '/uslugi/pitanie',
     tr: '/hizmetler/beslenme',
   },
+  '/services/analysis': {
+    en: '/services/analysis',
+    es: '/servicios/analisis',
+    pt: '/servicos/analise',
+    fr: '/services/analyse',
+    de: '/dienstleistungen/analyse',
+    it: '/servizi/analisi',
+    pl: '/uslugi/analiza',
+    cs: '/sluzby/analyza',
+    ru: '/uslugi/analiz',
+    tr: '/hizmetler/analiz',
+  },
 };
 
 // Create reverse mapping: localized path -> english path
