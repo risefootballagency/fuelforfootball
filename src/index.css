@@ -20,12 +20,12 @@ All colors MUST be HSL.
     --background: 0 0% 100%;
     --foreground: 120 40% 15%;
 
-    /* Cards, tabs, tables - DARK GREEN theme */
-    --card: 120 40% 8%;
-    --card-foreground: 142 70% 85%;
+    /* Cards & panels - light surfaces on white theme */
+    --card: 0 0% 100%;
+    --card-foreground: 120 40% 15%;
 
-    --popover: 120 40% 6%;
-    --popover-foreground: 142 70% 85%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 40% 15%;
 
     --primary: 45 100% 50%;
     --primary-foreground: 0 0% 0%;

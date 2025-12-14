@@ -180,7 +180,7 @@ function LandingContent() {
       clearInterval(inactivityInterval);
     };
   }, [setXrayState]);
-  return <div className="landing-no-scroll bg-black flex flex-col items-center justify-end relative overflow-hidden cursor-none md:cursor-none" style={{
+  return <div className="landing-no-scroll bg-background flex flex-col items-center justify-end relative overflow-hidden cursor-none md:cursor-none" style={{
     height: '100dvh',
     maxHeight: '100dvh',
     overflow: 'hidden'
@@ -189,10 +189,7 @@ function LandingContent() {
       {/* Custom Landing Page Cursor */}
       <LandingCursor />
       
-      {/* Animated Green Smoky Background */}
-      <AnimatedSmokyBackground />
-      
-      {/* Data-driven Background */}
+      {/* Subtle data-driven background on white */}
       <HomeBackground />
       
       {/* Light Cone Background - revealed by X-Ray */}
