@@ -1364,8 +1364,8 @@ const Dashboard = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center h-16">
             <img 
-              src="/RISEWhite.png"
-              alt="RISE"
+              src="/fff_logo.png"
+              alt="Fuel For Football"
               className="h-10 w-auto"
             />
           </div>
