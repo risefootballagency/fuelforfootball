@@ -16,7 +16,6 @@ import { getAllPathVariants } from "@/lib/localizedRoutes";
 
 // Critical pages - loaded immediately
 import Home from "./pages/Home";
-import Stars from "./pages/Stars";
 import PlayerDetail from "./pages/PlayerDetail";
 import News from "./pages/News";
 const Services = lazy(() => import("./pages/Services"));
@@ -47,7 +46,6 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const AnalysisViewer = lazy(() => import("./pages/AnalysisViewer"));
 const Intro = lazy(() => import("./pages/Intro"));
-const PlayersList = lazy(() => import("./pages/PlayersList"));
 const PlayersDraft = lazy(() => import("./pages/PlayersDraft"));
 // ClubNetwork is accessed only through Staff page, not as a standalone route
 const PDFViewer = lazy(() => import("./pages/PDFViewer"));
@@ -118,7 +116,6 @@ const App = () => {
                     <Route path="/intro" element={<Intro />} />
                     
                     {/* Localized routes */}
-                    {createLocalizedRoutes('/stars', <Stars />)}
                     {createLocalizedDynamicRoutes('/stars/:playername', <PlayerDetail />)}
                     {createLocalizedRoutes('/clubs', <Clubs />)}
                     {createLocalizedRoutes('/coaches', <Coaches />)}
@@ -138,7 +135,6 @@ const App = () => {
                     
                     {/* Non-localized routes */}
                     {createLocalizedRoutes('/playersmore', <Players />)}
-                    <Route path="/players-list" element={<PlayersList />} />
                     <Route path="/players-draft" element={<PlayersDraft />} />
                     {/* Club Network is now only accessible via Staff page */}
                     <Route path="/staff" element={<Staff />} />
