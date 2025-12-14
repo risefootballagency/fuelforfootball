@@ -3,128 +3,237 @@ import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { ArrowRight, Target, Activity, Brain, TrendingUp, Shield, Users } from "lucide-react";
+import { ArrowRight, Brain, Target, Dumbbell, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Players = () => {
   const { t } = useLanguage();
 
-  const services = [
+  const fourCorners = [
     {
       icon: Target,
-      title: "Technical Training",
-      description: "Control the ball. Control the game. Technical aspects are the cornerstone of a player's ability to perform in matches. Ball mastery can mean the difference between a missed opportunity and a spectacular goal. Our tailored technical training services hone your ball manipulation, enabling precise passes, dribbling at speed, escaping pressure and accurate execution.",
-      link: "/services"
-    },
-    {
-      icon: Activity,
-      title: "Physical Conditioning",
-      description: "Elite performance demands elite preparation. Our evidence-based physical conditioning programs are designed to optimize your speed, strength, endurance, and agility. We build footballers who can outlast and outperform their opponents across 90 minutes and beyond.",
-      link: "/services"
+      title: "Tactical",
+      description: "Sharpen your decision-making and see the game in a different light. Read several passes ahead of play to consistently gain the advantage over your matchups.",
+      link: "/services",
+      image: "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg"
     },
     {
       icon: Brain,
-      title: "Tactical Analysis",
-      description: "Understanding the game at a deeper level separates good players from great ones. Our tactical analysis breaks down your performances, identifies areas for improvement, and provides actionable insights to elevate your decision-making and positional awareness on the pitch.",
-      link: "/services"
+      title: "Psychological",
+      description: "Develop mental skills in consistency, commitment, confidence, resilience, and focus. Outwill opponents to overcome skill differences and dominate on the pitch.",
+      link: "/services",
+      image: "https://static.wixstatic.com/media/c4f4b1_aed8df24614a45b29533fede6bae55c7~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/gran.jpg"
     },
     {
-      icon: Shield,
-      title: "Recovery & Injury Prevention",
-      description: "Longevity in football requires smart recovery protocols and proactive injury prevention. Our mobility programming and recovery strategies keep you on the pitch, performing at your peak while minimizing the risk of setbacks.",
-      link: "/services"
+      icon: Lightbulb,
+      title: "Technical",
+      description: "Master your touch, be more unpredictable and finish at will. Consistently deal with difficult balls into you and find ways to open up into what you do best.",
+      link: "/services",
+      image: "https://static.wixstatic.com/media/c4f4b1_c627e66f4e68449590b6f4f745b91472~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/got.jpg"
     },
     {
-      icon: TrendingUp,
-      title: "Career Management",
-      description: "Your career is more than just matches. We provide comprehensive support including contract negotiations, club placements, and strategic career planning to ensure you reach your full potential both on and off the pitch.",
-      link: "/services"
+      icon: Dumbbell,
+      title: "Physical",
+      description: "Become stronger, faster and more powerful to dominate on the pitch. Condition and develop a capacity for training to progress more quickly and reduce injuries.",
+      link: "/services",
+      image: "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Copy%20of%20We%20play%20out%20from%20the%20back%20to%20advance%20into%20the%20opposition%20half_%20We%20then%20play%20throug.jpg"
+    }
+  ];
+
+  const services = [
+    { name: "Pro Performance", link: "/services" },
+    { name: "Elite Performance", link: "/services" },
+    { name: "Tactical", link: "/services" },
+    { name: "Conditioning", link: "/services" },
+    { name: "Strength, Power & Speed", link: "/services" },
+    { name: "Nutrition", link: "/services" },
+    { name: "Consultation", link: "/services" },
+    { name: "Data Report", link: "/services" },
+    { name: "Technical", link: "/services" },
+  ];
+
+  const needsAnalysisSteps = [
+    {
+      number: "1",
+      title: "Identification of key areas",
+      items: ["Inform us of what you are working on or need to improve", "Discuss this in depth with us through a consultation call"]
     },
     {
-      icon: Users,
-      title: "Personalized Programming",
-      description: "Every player is unique. Our bespoke training programs are tailored to your specific position, playing style, and development goals. We create individualized roadmaps that accelerate your growth and maximize your strengths.",
-      link: "/services"
+      number: "2",
+      title: "Discussion of individualised approach",
+      items: ["Helping you to understand the factors which affect your individual case and what we recommend to maximise your development"]
+    },
+    {
+      number: "3",
+      title: "Take Action",
+      items: ["More Specific Testing", "Footage Gathering", "Further Discussion"]
+    },
+    {
+      number: "4",
+      title: "Be Fuelled",
+      items: ["Learn", "Apply", "Outperform", "Review", "Fuel"]
     }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="Players - Football Development Services | Fuel For Football"
-        description="Elevate your game with our comprehensive player development services. Technical training, tactical analysis, physical conditioning, and career management for footballers."
+        title="Players - Football Performance Services | Fuel For Football"
+        description="Fuel For Football is Football's leading performance consultancy. We work with Premier League and Football League players, offering strength, speed, power development, psychological performance sessions and game analysis."
         url="/players"
       />
       <Header />
       
       <main className="pt-24 md:pt-28">
         {/* Hero Section */}
-        <section className="py-16 md:py-24 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
-          <div className="container mx-auto relative">
-            <div className="text-center mb-16 max-w-4xl mx-auto">
-              <h1 className="text-6xl md:text-8xl font-bebas uppercase tracking-wider text-foreground mb-6">
-                {t('players.title', 'Players')}
+        <section className="relative overflow-hidden">
+          {/* Title Bar */}
+          <div className="bg-card/80 py-4 border-b border-border/50">
+            <div className="container mx-auto">
+              <h1 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground">
+                Players
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-4">
-                {t('players.intro', 'Fuel your potential. Elevate your game.')}
-              </p>
-              <p className="text-base md:text-lg text-muted-foreground/80 leading-relaxed">
-                {t('players.description', 'We provide comprehensive development services designed to help footballers at every level reach their full potential. From technical mastery to tactical intelligence, physical conditioning to career management - we deliver the fuel you need to succeed.')}
-              </p>
             </div>
+          </div>
+          
+          {/* Hero Content with Background */}
+          <div className="relative min-h-[400px] md:min-h-[500px] flex items-center">
+            <div 
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: "url('https://static.wixstatic.com/media/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg')"
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/70 to-transparent" />
+            
+            <div className="container mx-auto px-4 relative z-10 py-16">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div className="space-y-6">
+                  <h2 className="text-5xl md:text-7xl lg:text-8xl font-bebas uppercase tracking-wider leading-none">
+                    <span className="text-primary">Change</span><br />
+                    <span className="text-primary">The</span><br />
+                    <span className="text-primary">Game</span>
+                  </h2>
+                </div>
+                <div className="text-foreground/90 text-base md:text-lg leading-relaxed">
+                  <p>
+                    Fuel For Football is Football's leading performance consultancy, focusing on player development and performance. Currently, we work with a host of English Premier League and Football League players, alongside a range of talents from across Europe's top leagues. We use our team of coaches to offer several services to our players, ranging from strength, speed and power development, to psychological performance sessions and game analysis.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            {/* CTA */}
-            <div className="flex justify-center mb-20">
-              <Link to="/services">
-                <Button size="lg" className="gap-2 text-lg px-8 py-6 font-bebas uppercase tracking-wider">
-                  {t('players.explore_services', 'Explore Our Services')}
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
-              </Link>
+        {/* What We Do Section */}
+        <section className="py-16 md:py-24 px-4 bg-card/50 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+          <div className="container mx-auto relative z-10">
+            <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-8">
+              What We Do
+            </h2>
+            <p className="text-center text-muted-foreground text-lg max-w-4xl mx-auto mb-16">
+              At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents. Through our comprehensive approach, we ensure you are always prepared and confident, enabling you to dominate every match. Longer-term, we reduce injury risk, develop faster, and maximise potential.
+            </p>
+
+            {/* Four Corners Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {fourCorners.map((corner, index) => (
+                <div 
+                  key={index}
+                  className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300"
+                >
+                  <div className="aspect-video overflow-hidden">
+                    <img 
+                      src={corner.image} 
+                      alt={corner.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-2xl font-bebas uppercase tracking-wider text-foreground mb-3 group-hover:text-primary transition-colors">
+                      {corner.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                      {corner.description}
+                    </p>
+                    <Link 
+                      to={corner.link}
+                      className="inline-flex items-center gap-2 text-primary text-sm font-medium group-hover:gap-3 transition-all"
+                    >
+                      Learn More <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
+          </div>
+        </section>
+
+        {/* Choose Your Fuel Section */}
+        <section className="py-16 md:py-24 px-4 bg-background">
+          <div className="container mx-auto">
+            <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-6">
+              Choose Your Fuel
+            </h2>
+            <p className="text-center text-muted-foreground text-lg max-w-3xl mx-auto mb-12">
+              Already aware of where you need to work to make the greatest improvements to your game? Click through to the related service to learn more about how we can help. Alternatively, scroll down for a more general overview of our work.
+            </p>
 
             {/* Services Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
               {services.map((service, index) => (
-                <Link 
-                  key={index} 
+                <Link
+                  key={index}
                   to={service.link}
-                  className="group relative bg-card border border-border/50 rounded-lg p-8 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+                  className="px-6 py-3 bg-primary/10 border border-primary/30 rounded-lg text-foreground font-bebas uppercase tracking-wider text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                 >
-                  <div className="mb-6">
-                    <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <service.icon className="w-7 h-7 text-primary" />
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-foreground mb-4 group-hover:text-primary transition-colors">
-                    {service.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed mb-6">
-                    {service.description}
-                  </p>
-                  <div className="flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
-                    <span className="text-sm uppercase tracking-wide">{t('players.learn_more', 'Learn More')}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
+                  {service.name}
                 </Link>
               ))}
             </div>
           </div>
         </section>
 
+        {/* Needs Analysis Section */}
+        <section className="py-16 md:py-24 px-4 bg-card/50">
+          <div className="container mx-auto">
+            <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-16">
+              Needs Analysis
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {needsAnalysisSteps.map((step, index) => (
+                <div key={index} className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span className="text-3xl font-bebas text-primary">{step.number}</span>
+                  </div>
+                  <h3 className="text-xl font-bebas uppercase tracking-wider text-foreground mb-4">
+                    {step.title}
+                  </h3>
+                  <ul className="text-muted-foreground text-sm space-y-2">
+                    {step.items.map((item, i) => (
+                      <li key={i}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Bottom CTA Section */}
-        <section className="py-16 md:py-24 px-4 bg-card/50 border-t border-border/50">
+        <section className="py-16 md:py-24 px-4 bg-background border-t border-border/50">
           <div className="container mx-auto text-center max-w-3xl">
             <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-6">
-              {t('players.ready_title', 'Ready to Elevate Your Game?')}
+              Ready to Elevate Your Game?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              {t('players.ready_description', 'Get in touch to discuss how we can help you reach your full potential as a footballer.')}
+              Get in touch to discuss how we can help you reach your full potential as a footballer.
             </p>
             <Link to="/contact">
               <Button size="lg" className="gap-2 text-lg px-8 py-6 font-bebas uppercase tracking-wider">
-                {t('players.contact_us', 'Contact Us')}
+                Contact Us
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
