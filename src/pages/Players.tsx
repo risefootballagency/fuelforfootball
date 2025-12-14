@@ -86,9 +86,9 @@ const Players = () => {
       />
       <Header />
       
-      <main className="pt-24 md:pt-28">
+      <main className="pt-20 md:pt-28">
         {/* Title Bar with smoky background */}
-        <section className="relative overflow-hidden py-4 border-b border-border/50">
+        <section className="relative overflow-hidden py-3 md:py-4 border-b border-border/50">
           <div 
             className="absolute inset-0 z-0"
             style={{
@@ -97,8 +97,8 @@ const Players = () => {
               backgroundPosition: 'center',
             }}
           />
-          <div className="container mx-auto relative z-10">
-            <h1 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground">
+          <div className="container mx-auto relative z-10 px-4">
+            <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground">
               Players
             </h1>
           </div>
@@ -130,18 +130,18 @@ const Players = () => {
         <GrassBackground variant="top" />
 
         {/* What We Do Section */}
-        <section className="py-16 md:py-24 px-4 bg-card/50 relative overflow-hidden">
+        <section className="py-10 md:py-24 px-3 md:px-4 bg-card/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
           <div className="container mx-auto relative z-10">
-            <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-8">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-8">
               What We Do
             </h2>
-            <p className="text-center text-muted-foreground text-lg max-w-4xl mx-auto mb-16">
-              At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents. Through our comprehensive approach, we ensure you are always prepared and confident, enabling you to dominate every match. Longer-term, we reduce injury risk, develop faster, and maximise potential.
+            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-4xl mx-auto mb-8 md:mb-16 px-2">
+              At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents.
             </p>
 
             {/* Four Corners Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
               {fourCorners.map((corner, index) => (
                 <div 
                   key={index}
@@ -154,18 +154,18 @@ const Players = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bebas uppercase tracking-wider text-foreground mb-3 group-hover:text-primary transition-colors">
+                  <div className="p-3 md:p-6">
+                    <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-wider text-foreground mb-2 md:mb-3 group-hover:text-primary transition-colors">
                       {corner.title}
                     </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-2 md:mb-4 line-clamp-3 md:line-clamp-none">
                       {corner.description}
                     </p>
                     <Link 
                       to={corner.link}
-                      className="inline-flex items-center gap-2 text-primary text-sm font-medium group-hover:gap-3 transition-all"
+                      className="inline-flex items-center gap-1 md:gap-2 text-primary text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all"
                     >
-                      Learn More <ArrowRight className="w-4 h-4" />
+                      Learn More <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                     </Link>
                   </div>
                 </div>
@@ -175,22 +175,22 @@ const Players = () => {
         </section>
 
         {/* Choose Your Fuel Section */}
-        <section className="py-16 md:py-24 px-4 bg-background">
+        <section className="py-10 md:py-24 px-3 md:px-4 bg-background">
           <div className="container mx-auto">
-            <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-6">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-6">
               Choose Your Fuel
             </h2>
-            <p className="text-center text-muted-foreground text-lg max-w-3xl mx-auto mb-12">
-              Already aware of where you need to work to make the greatest improvements to your game? Click through to the related service to learn more about how we can help. Alternatively, scroll down for a more general overview of our work.
+            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto mb-6 md:mb-12 px-2">
+              Already aware of where you need to work to make the greatest improvements to your game? Click through to the related service to learn more.
             </p>
 
             {/* Services Grid */}
-            <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+            <div className="flex flex-wrap justify-center gap-2 md:gap-3 max-w-4xl mx-auto">
               {services.map((service, index) => (
                 <Link
                   key={index}
                   to={service.link}
-                  className="px-6 py-3 bg-primary/10 border border-primary/30 rounded-lg text-foreground font-bebas uppercase tracking-wider text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                  className="px-3 md:px-6 py-2 md:py-3 bg-primary/10 border border-primary/30 rounded-lg text-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                 >
                   {service.name}
                 </Link>
@@ -200,22 +200,22 @@ const Players = () => {
         </section>
 
         {/* Needs Analysis Section */}
-        <section className="py-16 md:py-24 px-4 bg-card/50">
+        <section className="py-10 md:py-24 px-3 md:px-4 bg-card/50">
           <div className="container mx-auto">
-            <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-16">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-8 md:mb-16">
               Needs Analysis
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
               {needsAnalysisSteps.map((step, index) => (
                 <div key={index} className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-3xl font-bebas text-primary">{step.number}</span>
+                  <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 md:mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+                    <span className="text-2xl md:text-3xl font-bebas text-primary">{step.number}</span>
                   </div>
-                  <h3 className="text-xl font-bebas uppercase tracking-wider text-foreground mb-4">
+                  <h3 className="text-base md:text-xl font-bebas uppercase tracking-wider text-foreground mb-2 md:mb-4">
                     {step.title}
                   </h3>
-                  <ul className="text-muted-foreground text-sm space-y-2">
+                  <ul className="text-muted-foreground text-xs md:text-sm space-y-1 md:space-y-2">
                     {step.items.map((item, i) => (
                       <li key={i}>{item}</li>
                     ))}
@@ -227,18 +227,18 @@ const Players = () => {
         </section>
 
         {/* Bottom CTA Section */}
-        <section className="py-16 md:py-24 px-4 bg-background border-t border-border/50">
+        <section className="py-10 md:py-24 px-4 bg-background border-t border-border/50">
           <div className="container mx-auto text-center max-w-3xl">
-            <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-6">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-4 md:mb-6">
               Ready to Elevate Your Game?
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-base md:text-lg text-muted-foreground mb-6 md:mb-8">
               Get in touch to discuss how we can help you reach your full potential as a footballer.
             </p>
             <Link to="/contact">
-              <Button size="lg" className="gap-2 text-lg px-8 py-6 font-bebas uppercase tracking-wider">
+              <Button size="lg" className="gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider">
                 Contact Us
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
               </Button>
             </Link>
           </div>

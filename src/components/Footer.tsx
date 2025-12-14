@@ -77,13 +77,13 @@ export const Footer = () => {
         </div>
 
         {/* Main Footer Content - 3 Column Grid */}
-        <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-6xl mx-auto mb-12">
           {/* Quick Links */}
           <div>
-            <h3 className="font-bebas text-2xl uppercase tracking-wider text-foreground mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-foreground mb-4 md:mb-6">
               {t("footer.quick_links", "Quick Links")}
             </h3>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+            <div className="grid grid-cols-2 gap-x-4 md:gap-x-6 gap-y-2 md:gap-y-3">
               <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
                 Home
               </Link>
@@ -122,7 +122,7 @@ export const Footer = () => {
 
           {/* Get In Touch */}
           <div>
-            <h3 className="font-bebas text-2xl uppercase tracking-wider text-foreground mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-foreground mb-4 md:mb-6">
               {t("footer.get_in_touch", "Get In Touch")}
             </h3>
             
@@ -169,10 +169,10 @@ export const Footer = () => {
 
           {/* Follow Us */}
           <div>
-            <h3 className="font-bebas text-2xl uppercase tracking-wider text-foreground mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-foreground mb-4 md:mb-6">
               {t("footer.follow_us", "Follow Us")}
             </h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 md:gap-3">
               <a
                 href="https://www.instagram.com/FuelForFootball"
                 target="_blank"
@@ -250,12 +250,12 @@ export const Footer = () => {
         </div>
 
         {/* Newsletter Section */}
-        <div className="max-w-xl mx-auto text-center mb-12 p-6 bg-primary/5 rounded-xl border border-primary/20">
-          <h4 className="font-bebas text-xl uppercase tracking-wider text-foreground mb-2">
+        <div className="max-w-xl mx-auto text-center mb-8 md:mb-12 p-4 md:p-6 bg-primary/5 rounded-xl border border-primary/20">
+          <h4 className="font-bebas text-lg md:text-xl uppercase tracking-wider text-foreground mb-2">
             Keep Updated With Our New Packages And Offers
           </h4>
-          <p className="text-sm text-muted-foreground mb-4">Subscribe to our newsletter</p>
-          <form onSubmit={handleNewsletterSubmit} className="flex gap-3">
+          <p className="text-xs md:text-sm text-muted-foreground mb-4">Subscribe to our newsletter</p>
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 md:gap-3">
             <Input
               type="email"
               value={email}
@@ -275,15 +275,15 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-primary/10">
-          <p className="text-xs text-muted-foreground/80 text-center max-w-3xl mx-auto mb-6 px-4">
+        <div className="pt-6 md:pt-8 border-t border-primary/10">
+          <p className="text-[10px] md:text-xs text-muted-foreground/80 text-center max-w-3xl mx-auto mb-4 md:mb-6 px-2 md:px-4">
             {t("footer.regulatory_text", "Fuel For Football operates in accordance with the regulatory frameworks established by FIFA and UEFA. Our work follows the standards required for player representation, governance and integrity.")}
           </p>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
+            <p className="text-xs md:text-sm text-muted-foreground">
               © {new Date().getFullYear()} Fuel For Football. {t("footer.all_rights_reserved", "All rights reserved.")}
             </p>
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-wrap justify-center gap-3 md:gap-6">
               <a 
                 href="https://open.spotify.com/show/1Ep6k8p6j4rMT1a0AFqX8C" 
                 target="_blank" 
