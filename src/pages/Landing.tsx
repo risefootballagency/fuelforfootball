@@ -233,7 +233,7 @@ function LandingContent() {
         </Button>
       </div>
       
-      {/* Top Center Logo - disappears on xray or when hovering REALISE POTENTIAL area */}
+      {/* Top Center Logo - disappears on xray or when hovering CHANGE THE GAME area */}
       <div className={`absolute top-4 md:top-6 z-[1] transition-opacity duration-500 ${xrayState.isActive || topLogoHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} style={{
         left: '50%',
         transform: 'translateX(-50%)'
@@ -248,7 +248,7 @@ function LandingContent() {
         </div>
       </div>
       
-      {/* Hidden text revealed by X-ray - REALISE POTENTIAL - hidden until hover */}
+      {/* Hidden text revealed by X-ray - CHANGE THE GAME - hidden until hover */}
       <div className="absolute left-1/2 transform -translate-x-1/2 z-[1] opacity-0 hover:opacity-100 transition-opacity duration-500" style={{
       top: 'calc(4rem - 50px)'
     }} onMouseEnter={() => setTopLogoHovered(true)} onMouseLeave={() => setTopLogoHovered(false)}>
