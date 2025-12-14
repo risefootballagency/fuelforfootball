@@ -95,7 +95,8 @@ const Shop = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-12">
             {/* Left Sidebar - Filters */}
-            <aside className="lg:w-56 flex-shrink-0">
+            <aside className="hidden lg:block lg:w-56 flex-shrink-0">
+              <div className="sticky top-24">
               <h2 className="text-2xl font-bebas uppercase tracking-wider text-foreground mb-8">
                 Filter by
               </h2>
@@ -169,6 +170,7 @@ const Shop = () => {
                     ))}
                   </div>
                 )}
+              </div>
               </div>
             </aside>
 

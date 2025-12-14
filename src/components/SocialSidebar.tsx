@@ -1,6 +1,14 @@
 import { FaInstagram, FaFacebook, FaYoutube, FaLinkedin, FaTelegram } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 
 export const SocialSidebar = () => {
+  const location = useLocation();
+  
+  // Only show on /players page
+  if (location.pathname !== "/players") {
+    return null;
+  }
+
   const socialLinks = [
     { icon: FaInstagram, href: "https://www.instagram.com/FuelForFootball", label: "Instagram" },
     { icon: FaFacebook, href: "https://www.facebook.com/fuelforfooty", label: "Facebook" },
