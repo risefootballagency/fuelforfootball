@@ -21,12 +21,20 @@ interface QuadrantCardProps {
   maxHeight?: number;
 }
 
+interface SubMenuItem {
+  to: string;
+  labelKey: string;
+  fallback: string;
+}
+
 interface MenuItem {
   to: string;
   labelKey: string;
   fallback: string;
   Icon: React.ComponentType<{ className?: string }>;
   angle: number;
+  category?: string;
+  subItems?: SubMenuItem[];
   quadrantCard?: {
     position: QuadrantPosition;
     component: React.ComponentType<QuadrantCardProps>;
@@ -135,44 +143,74 @@ export const RadialMenu = () => {
   const roleMenus: Record<string, MenuItem[]> = {
     players: [
       { 
-        to: "/daily-fuel", 
-        labelKey: "header.daily_fuel", 
-        fallback: "DAILY FUEL", 
-        Icon: BookOpen, 
+        to: "/services/mentorship", 
+        labelKey: "services.general", 
+        fallback: "GENERAL", 
+        Icon: Users, 
         angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: InsightsQuadrantCard,
-        },
+        category: "general",
+        subItems: [
+          { to: "/services/mentorship", labelKey: "services.mentorship", fallback: "MENTORSHIP" },
+          { to: "/services/consultation", labelKey: "services.consultation", fallback: "CONSULTATION" },
+        ],
       },
       { 
-        to: "/performance", 
-        labelKey: "header.performance", 
-        fallback: "PERFORMANCE", 
+        to: "/services/pro-performance", 
+        labelKey: "services.holistic", 
+        fallback: "HOLISTIC", 
+        Icon: Target, 
+        angle: 60,
+        category: "holistic",
+        subItems: [
+          { to: "/services/pro-performance", labelKey: "services.pro_performance", fallback: "PRO PERFORMANCE" },
+          { to: "/services/elite-performance", labelKey: "services.elite_performance", fallback: "ELITE PERFORMANCE" },
+        ],
+      },
+      { 
+        to: "/services/tactical", 
+        labelKey: "services.tactical", 
+        fallback: "TACTICAL", 
+        Icon: BookOpen, 
+        angle: 120,
+        category: "tactical",
+        subItems: [
+          { to: "/services/tactical", labelKey: "services.tactical_training", fallback: "TACTICAL TRAINING" },
+        ],
+      },
+      { 
+        to: "/services/technical", 
+        labelKey: "services.technical", 
+        fallback: "TECHNICAL", 
         Icon: TrendingUp, 
-        angle: 90,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(90),
-          component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/services", 
-        labelKey: "header.services", 
-        fallback: "SERVICES", 
-        Icon: Search, 
         angle: 180,
+        category: "technical",
+        subItems: [
+          { to: "/services/technical", labelKey: "services.technical_training", fallback: "TECHNICAL TRAINING" },
+        ],
       },
       { 
-        to: "/contact", 
-        labelKey: "header.contact", 
-        fallback: "CONTACT", 
-        Icon: Handshake, 
-        angle: 270,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(270),
-          component: ContactQuadrantCard,
-        },
+        to: "/services/mental", 
+        labelKey: "services.mental", 
+        fallback: "MENTAL", 
+        Icon: Heart, 
+        angle: 240,
+        category: "mental",
+        subItems: [
+          { to: "/services/mental", labelKey: "services.mental_performance", fallback: "MENTAL PERFORMANCE" },
+        ],
+      },
+      { 
+        to: "/services/strength-power-speed", 
+        labelKey: "services.physical", 
+        fallback: "PHYSICAL", 
+        Icon: Trophy, 
+        angle: 300,
+        category: "physical",
+        subItems: [
+          { to: "/services/strength-power-speed", labelKey: "services.strength_power_speed", fallback: "STRENGTH, POWER & SPEED" },
+          { to: "/services/conditioning", labelKey: "services.conditioning", fallback: "CONDITIONING" },
+          { to: "/services/nutrition", labelKey: "services.nutrition", fallback: "NUTRITION" },
+        ],
       },
     ],
     clubs: [
