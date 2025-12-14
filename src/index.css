@@ -662,3 +662,22 @@ a:hover .hover-text-letter-clone,
     scroll-snap-stop: normal;
   }
 }
+
+/* Marquee animation for player carousel */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover,
+.pause-animation {
+  animation-play-state: paused;
+}
