@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { LateralFilter } from "@/components/LateralFilter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 import fffLogo from "@/assets/fff_logo.png";
 
 interface Service {
@@ -11,95 +12,13 @@ interface Service {
   name: string;
   category: string;
   price: number;
-  priceLabel: string;
-  image: string;
-  badge?: string;
+  image_url: string | null;
+  badge: string | null;
+  ribbon: string | null;
+  description: string | null;
+  options: any;
+  visible: boolean;
 }
-
-// Placeholder service data - replace with Supabase data later
-const placeholderServices: Service[] = [
-  {
-    id: "1",
-    name: "Player Review",
-    category: "Analysis Services",
-    price: 95,
-    priceLabel: "From £95.00",
-    image: "/placeholder.svg",
-    badge: "PLAYER REVIEW",
-  },
-  {
-    id: "2",
-    name: "Off-Season Programming (3 Months)",
-    category: "Physical Services",
-    price: 299,
-    priceLabel: "From £299.00",
-    image: "/placeholder.svg",
-    badge: "OFF-SEASON PROGRAMMING",
-  },
-  {
-    id: "3",
-    name: "Youth Development Programme",
-    category: "All in One Services",
-    price: 50,
-    priceLabel: "£50.00",
-    image: "/placeholder.svg",
-    badge: "YOUTH DEVELOPMENT PROGRAMME",
-  },
-  {
-    id: "4",
-    name: "European Match Analysis Package",
-    category: "Analysis Services",
-    price: 399,
-    priceLabel: "From £399.00",
-    image: "/placeholder.svg",
-    badge: "EUROPEAN CAMPAIGN ANALYSIS PACKAGE",
-  },
-  {
-    id: "5",
-    name: "Technical Training Plan",
-    category: "Technical Services",
-    price: 149,
-    priceLabel: "From £149.00",
-    image: "/placeholder.svg",
-    badge: "TECHNICAL TRAINING PLAN",
-  },
-  {
-    id: "6",
-    name: "Nutrition Consultation",
-    category: "Nutrition Services",
-    price: 75,
-    priceLabel: "From £75.00",
-    image: "/placeholder.svg",
-    badge: "NUTRITION CONSULTATION",
-  },
-  {
-    id: "7",
-    name: "Mental Performance Session",
-    category: "Psychological Services",
-    price: 85,
-    priceLabel: "From £85.00",
-    image: "/placeholder.svg",
-    badge: "MENTAL PERFORMANCE SESSION",
-  },
-  {
-    id: "8",
-    name: "1-to-1 Coaching Session",
-    category: "Coaching Services",
-    price: 120,
-    priceLabel: "From £120.00",
-    image: "/placeholder.svg",
-    badge: "1-TO-1 COACHING",
-  },
-  {
-    id: "9",
-    name: "Performance Data Report",
-    category: "Data Services",
-    price: 199,
-    priceLabel: "From £199.00",
-    image: "/placeholder.svg",
-    badge: "PERFORMANCE DATA REPORT",
-  },
-];
 
 const categories = [
   "All",
@@ -111,25 +30,53 @@ const categories = [
   "Psychological Services",
   "Coaching Services",
   "Data Services",
+  "Special Packages",
 ];
 
 const priceRanges = [
   { label: "All Prices", value: "all" },
   { label: "Under £100", value: "under-100" },
-  { label: "£100 - £200", value: "100-200" },
-  { label: "£200 - £300", value: "200-300" },
-  { label: "Over £300", value: "over-300" },
+  { label: "£100 - £500", value: "100-500" },
+  { label: "£500 - £1000", value: "500-1000" },
+  { label: "Over £1000", value: "over-1000" },
 ];
 
 const Services = () => {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedPrice, setSelectedPrice] = useState("all");
   const [sortBy, setSortBy] = useState("default");
   const [categoryExpanded, setCategoryExpanded] = useState(true);
   const [priceExpanded, setPriceExpanded] = useState(false);
 
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('service_catalog')
+          .select('*')
+          .eq('visible', true)
+          .order('display_order');
+
+        if (error) {
+          console.error('Error fetching services:', error);
+          return;
+        }
+
+        setServices(data || []);
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
   const filteredServices = useMemo(() => {
-    let filtered = [...placeholderServices];
+    let filtered = [...services];
 
     // Filter by category
     if (selectedCategory !== "All") {
@@ -142,12 +89,12 @@ const Services = () => {
         switch (selectedPrice) {
           case "under-100":
             return s.price < 100;
-          case "100-200":
-            return s.price >= 100 && s.price <= 200;
-          case "200-300":
-            return s.price >= 200 && s.price <= 300;
-          case "over-300":
-            return s.price > 300;
+          case "100-500":
+            return s.price >= 100 && s.price <= 500;
+          case "500-1000":
+            return s.price >= 500 && s.price <= 1000;
+          case "over-1000":
+            return s.price > 1000;
           default:
             return true;
         }
@@ -164,7 +111,13 @@ const Services = () => {
     }
 
     return filtered;
-  }, [selectedCategory, selectedPrice, sortBy]);
+  }, [services, selectedCategory, selectedPrice, sortBy]);
+
+  const formatPrice = (price: number, options: any) => {
+    const hasOptions = options && Array.isArray(options) && options.length > 0;
+    const prefix = hasOptions ? "From " : "";
+    return `${prefix}£${price.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -261,7 +214,10 @@ const Services = () => {
             {/* Main Content Area */}
             <div className="flex-1">
               {/* Sort Header */}
-              <div className="flex justify-end mb-6">
+              <div className="flex justify-between items-center mb-6">
+                <p className="text-muted-foreground text-sm">
+                  {loading ? 'Loading...' : `${filteredServices.length} services`}
+                </p>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-48 bg-primary/10 border-primary/30 text-foreground">
                     <SelectValue placeholder="Sort by" />
@@ -275,64 +231,94 @@ const Services = () => {
                 </Select>
               </div>
 
+              {/* Loading State */}
+              {loading && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i}>
+                      <Skeleton className="aspect-[3/4] rounded-lg" />
+                      <Skeleton className="h-6 mt-4 w-3/4 mx-auto" />
+                      <Skeleton className="h-4 mt-2 w-1/2 mx-auto" />
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Services Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredServices.map((service) => (
-                  <div
-                    key={service.id}
-                    className="group cursor-pointer"
-                  >
-                    {/* Card */}
-                    <div className="relative bg-card border-2 border-primary/30 rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-                      {/* Top Badge with Logo */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
-                        <div className="relative">
-                          {/* Logo circle */}
-                          <div className="w-10 h-10 rounded-full bg-background border-2 border-primary flex items-center justify-center -mb-2 mx-auto relative z-20">
-                            <img src={fffLogo} alt="FFF" className="w-6 h-6 object-contain" />
+              {!loading && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredServices.map((service) => (
+                    <div
+                      key={service.id}
+                      className="group cursor-pointer"
+                    >
+                      {/* Card */}
+                      <div className="relative bg-card border-2 border-primary/30 rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+                        {/* Top Badge with Logo */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
+                          <div className="relative">
+                            {/* Logo circle */}
+                            <div className="w-10 h-10 rounded-full bg-background border-2 border-primary flex items-center justify-center -mb-2 mx-auto relative z-20">
+                              <img src={fffLogo} alt="FFF" className="w-6 h-6 object-contain" />
+                            </div>
+                            {/* Banner */}
+                            <div className="bg-primary px-3 py-1 rounded-b-lg">
+                              <span className="text-[10px] font-bebas uppercase tracking-wider text-primary-foreground whitespace-nowrap">
+                                {service.badge || service.name.toUpperCase()}
+                              </span>
+                            </div>
                           </div>
-                          {/* Banner */}
-                          <div className="bg-primary px-3 py-1 rounded-b-lg">
-                            <span className="text-[10px] font-bebas uppercase tracking-wider text-primary-foreground whitespace-nowrap">
-                              {service.badge}
-                            </span>
+                        </div>
+
+                        {/* Ribbon */}
+                        {service.ribbon && (
+                          <div className="absolute top-14 right-2 z-10 bg-destructive text-destructive-foreground text-xs font-bebas uppercase px-2 py-1 rounded">
+                            {service.ribbon}
                           </div>
+                        )}
+
+                        {/* Service Image */}
+                        <div className="aspect-[3/4] pt-12 p-4">
+                          <div className="w-full h-full rounded-lg overflow-hidden border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/20 flex items-center justify-center">
+                            {service.image_url ? (
+                              <img
+                                src={service.image_url}
+                                alt={service.name}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="text-center p-4">
+                                <img src={fffLogo} alt="FFF" className="w-16 h-16 object-contain mx-auto opacity-30" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Change The Game text */}
+                        <div className="text-center py-2">
+                          <span className="text-xs font-bebas uppercase tracking-widest text-muted-foreground italic">
+                            Change The Game
+                          </span>
                         </div>
                       </div>
 
-                      {/* Service Image */}
-                      <div className="aspect-[3/4] pt-12 p-4">
-                        <div className="w-full h-full rounded-lg overflow-hidden border border-primary/20">
-                          <img
-                            src={service.image}
-                            alt={service.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Change The Game text */}
-                      <div className="text-center py-2">
-                        <span className="text-xs font-bebas uppercase tracking-widest text-muted-foreground italic">
-                          Change The Game
-                        </span>
+                      {/* Service Info (outside card) */}
+                      <div className="mt-4 text-center">
+                        <h3 className="font-bebas text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors">
+                          {service.name}
+                        </h3>
+                        <div className="w-8 h-px bg-primary/50 mx-auto my-2" />
+                        <p className="text-sm text-muted-foreground">
+                          {formatPrice(service.price, service.options)}
+                        </p>
                       </div>
                     </div>
-
-                    {/* Service Info (outside card) */}
-                    <div className="mt-4 text-center">
-                      <h3 className="font-bebas text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors">
-                        {service.name}
-                      </h3>
-                      <div className="w-8 h-px bg-primary/50 mx-auto my-2" />
-                      <p className="text-sm text-muted-foreground">{service.priceLabel}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
 
               {/* No results */}
-              {filteredServices.length === 0 && (
+              {!loading && filteredServices.length === 0 && (
                 <div className="text-center py-16">
                   <p className="text-xl font-bebas uppercase tracking-wider text-muted-foreground">
                     No services found
