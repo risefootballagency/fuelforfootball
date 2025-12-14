@@ -53,10 +53,10 @@ type SubHeaderConfig = {
 const defaultSubHeader: SubHeaderConfig = {
   left: [
     { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
-    { type: 'button', action: 'declareInterest', labelKey: 'header.declare_interest', fallback: 'Declare Interest In A Star', mobileFallback: 'Interest', icon: Users },
+    { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
   ],
   right: [
-    { type: 'button', action: 'representation', labelKey: 'header.request_representation', fallback: 'Request Representation', mobileFallback: 'Represent', icon: Handshake },
+    { type: 'link', to: '/daily-fuel', labelKey: 'header.daily_fuel', fallback: 'Daily Fuel', mobileFallback: 'Daily Fuel', icon: BookOpen },
     { type: 'link', to: '/login', labelKey: 'header.portal', fallback: 'Portal', mobileFallback: 'Portal', icon: LogIn },
   ],
 };
@@ -79,7 +79,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
     ],
     right: [
       { type: 'link', to: '/performance', labelKey: 'header.stars', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
-      { type: 'button', action: 'declareInterest', labelKey: 'header.declare_interest', fallback: 'Declare Interest', mobileFallback: 'Interest', icon: Users },
+      { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
     ],
   },
   scouts: {
@@ -98,7 +98,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/contact', labelKey: 'header.requests', fallback: 'Requests', mobileFallback: 'Requests', icon: FileText },
     ],
     right: [
-      { type: 'button', action: 'declareInterest', labelKey: 'header.declare_interest', fallback: 'Declare Interest', mobileFallback: 'Interest', icon: Users },
+      { type: 'link', to: '/daily-fuel', labelKey: 'header.daily_fuel', fallback: 'Daily Fuel', mobileFallback: 'Daily Fuel', icon: BookOpen },
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
   },
@@ -108,7 +108,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
     ],
     right: [
-      { type: 'button', action: 'representation', labelKey: 'header.represent_me', fallback: 'Represent Me', mobileFallback: 'Represent', icon: Handshake },
+      { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
   },
@@ -118,17 +118,17 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/contact', labelKey: 'header.collaboration', fallback: 'Collaboration', mobileFallback: 'Collab', icon: Heart },
     ],
     right: [
-      { type: 'button', action: 'declareInterest', labelKey: 'header.declare_interest_star', fallback: 'Declare Interest in Star', mobileFallback: 'Interest', icon: Users },
+      { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
   },
   business: {
     left: [
       { type: 'link', to: '/business', labelKey: 'header.packages', fallback: 'Packages', mobileFallback: 'Packages', icon: Package },
-      { type: 'button', action: 'declareInterest', labelKey: 'header.declare_interest_package', fallback: 'Declare Interest in Package', mobileFallback: 'Interest', icon: Users },
+      { type: 'link', to: '/contact', labelKey: 'header.connect_with_us', fallback: 'Connect With Us', mobileFallback: 'Connect', icon: Phone },
     ],
     right: [
-      { type: 'link', to: '/contact', labelKey: 'header.connect_with_us', fallback: 'Connect With Us', mobileFallback: 'Connect', icon: Phone },
+      { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
   },

@@ -8,53 +8,53 @@ export const AnimatedSmokyBackground = ({ className = '' }: { className?: string
       
       {/* Animated smoke layers */}
       <div className="absolute inset-0">
-        {/* Layer 1 - Large slow moving smoke */}
+        {/* Layer 1 - Large dominant smoke streaks */}
         <div 
-          className="absolute w-[200%] h-[200%]"
+          className="absolute w-[300%] h-[300%]"
           style={{
             background: `
-              radial-gradient(ellipse 80% 50% at 20% 30%, rgba(34, 197, 94, 0.5) 0%, transparent 50%),
-              radial-gradient(ellipse 60% 40% at 70% 60%, rgba(74, 222, 128, 0.4) 0%, transparent 45%),
-              radial-gradient(ellipse 90% 60% at 40% 80%, rgba(22, 163, 74, 0.55) 0%, transparent 55%)
+              radial-gradient(ellipse 120% 80% at 15% 25%, rgba(34, 197, 94, 0.7) 0%, transparent 60%),
+              radial-gradient(ellipse 100% 70% at 75% 50%, rgba(74, 222, 128, 0.6) 0%, transparent 55%),
+              radial-gradient(ellipse 140% 90% at 35% 85%, rgba(22, 163, 74, 0.75) 0%, transparent 65%)
             `,
             animation: 'smokeMove1 25s ease-in-out infinite',
           }}
         />
         
-        {/* Layer 2 - Medium movement */}
+        {/* Layer 2 - Medium bold streaks */}
         <div 
-          className="absolute w-[200%] h-[200%]"
+          className="absolute w-[300%] h-[300%]"
           style={{
             background: `
-              radial-gradient(ellipse 70% 45% at 60% 40%, rgba(74, 222, 128, 0.45) 0%, transparent 50%),
-              radial-gradient(ellipse 50% 35% at 30% 70%, rgba(134, 239, 172, 0.35) 0%, transparent 45%),
-              radial-gradient(ellipse 80% 55% at 80% 20%, rgba(34, 197, 94, 0.4) 0%, transparent 50%)
+              radial-gradient(ellipse 110% 75% at 55% 35%, rgba(74, 222, 128, 0.65) 0%, transparent 60%),
+              radial-gradient(ellipse 90% 60% at 25% 65%, rgba(134, 239, 172, 0.55) 0%, transparent 55%),
+              radial-gradient(ellipse 130% 85% at 85% 15%, rgba(34, 197, 94, 0.6) 0%, transparent 60%)
             `,
             animation: 'smokeMove2 20s ease-in-out infinite',
           }}
         />
         
-        {/* Layer 3 - Faster wisps */}
+        {/* Layer 3 - Prominent wisps */}
         <div 
-          className="absolute w-[200%] h-[200%]"
+          className="absolute w-[250%] h-[250%]"
           style={{
             background: `
-              radial-gradient(ellipse 40% 30% at 50% 50%, rgba(134, 239, 172, 0.5) 0%, transparent 40%),
-              radial-gradient(ellipse 35% 25% at 20% 40%, rgba(187, 247, 208, 0.4) 0%, transparent 35%),
-              radial-gradient(ellipse 45% 35% at 75% 65%, rgba(74, 222, 128, 0.45) 0%, transparent 40%)
+              radial-gradient(ellipse 80% 55% at 45% 45%, rgba(134, 239, 172, 0.7) 0%, transparent 50%),
+              radial-gradient(ellipse 70% 50% at 15% 35%, rgba(187, 247, 208, 0.6) 0%, transparent 45%),
+              radial-gradient(ellipse 85% 60% at 80% 70%, rgba(74, 222, 128, 0.65) 0%, transparent 50%)
             `,
             animation: 'smokeMove3 15s ease-in-out infinite',
           }}
         />
         
-        {/* Layer 4 - Floating particles */}
+        {/* Layer 4 - Large floating clouds */}
         <div 
-          className="absolute w-[150%] h-[150%]"
+          className="absolute w-[200%] h-[200%]"
           style={{
             background: `
-              radial-gradient(circle at 25% 35%, rgba(187, 247, 208, 0.4) 0%, transparent 25%),
-              radial-gradient(circle at 65% 55%, rgba(220, 252, 231, 0.3) 0%, transparent 20%),
-              radial-gradient(circle at 45% 75%, rgba(187, 247, 208, 0.35) 0%, transparent 22%)
+              radial-gradient(circle at 20% 30%, rgba(187, 247, 208, 0.6) 0%, transparent 35%),
+              radial-gradient(circle at 70% 50%, rgba(220, 252, 231, 0.5) 0%, transparent 30%),
+              radial-gradient(circle at 40% 80%, rgba(187, 247, 208, 0.55) 0%, transparent 32%)
             `,
             animation: 'smokeMove4 30s ease-in-out infinite',
           }}

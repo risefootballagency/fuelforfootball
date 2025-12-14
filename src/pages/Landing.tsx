@@ -198,44 +198,6 @@ function LandingContent() {
       {/* Light Cone Background - revealed by X-Ray */}
       <LightConeBackground />
       
-      {/* Fixed Position Buttons - Desktop Only - Coordinated with golden triangle cone */}
-      {/* Cone apex is at ~49.3% from left, 65% from top. Buttons positioned along cone edges */}
-      
-      {/* DECLARE INTEREST - Fixed position on LEFT side of cone */}
-      <div className={`hidden md:block fixed z-[1] pointer-events-auto transition-opacity duration-300 ${languagePopupOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} style={{
-        left: '26%',
-        top: '78%',
-        transform: `translate(-50%, -50%) rotate(-${coneAngle - 0.3}deg)`
-      }}>
-        <Button 
-          onClick={() => setShowDeclareInterest(true)} 
-          variant="outline" 
-          size="sm" 
-          className="font-bebas uppercase tracking-wider border-primary/40 text-primary/80 hover:bg-primary hover:text-primary-foreground hover:border-primary text-sm h-7 w-[180px] transition-all duration-300"
-          style={{ borderRadius: '20px' }}
-          hoverEffect
-        >
-          {t("landing.declare_interest", "Declare Interest In Star")}
-        </Button>
-      </div>
-      
-      {/* REPRESENT ME - Fixed position on RIGHT side of cone */}
-      <div className={`hidden md:block fixed z-[1] pointer-events-auto transition-opacity duration-300 ${languagePopupOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} style={{
-        left: '74%',
-        top: '78%',
-        transform: `translate(-50%, -50%) rotate(${coneAngle}deg)`
-      }}>
-        <Button 
-          onClick={() => setShowRepresentation(true)} 
-          variant="outline" 
-          size="sm" 
-          className="font-bebas uppercase tracking-wider border-primary/40 text-primary/80 hover:bg-primary hover:text-primary-foreground hover:border-primary text-sm h-7 w-[180px] transition-all duration-300"
-          style={{ borderRadius: '20px' }}
-          hoverEffect
-        >
-          {t("landing.represent_me", "Represent Me")}
-        </Button>
-      </div>
       
       {/* Top Center Logo - disappears on xray or when hovering CHANGE THE GAME area */}
       <div className={`absolute top-4 md:top-6 z-[1] transition-opacity duration-500 ${xrayState.isActive || topLogoHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'}`} style={{
@@ -312,19 +274,6 @@ function LandingContent() {
 
             {/* OLD Tablet Layout - REMOVED, now uses desktop slider */}
             <div className="hidden flex-col items-center gap-0 mt-4">
-              {/* Buttons row - with divider line */}
-              <div className="border-t border-primary/40 pt-2 pb-2 flex justify-center" style={{
-              width: '50%'
-            }}>
-                <div className="flex gap-2">
-                  <Button onClick={() => setShowRepresentation(true)} variant="outline" size="sm" className="font-bebas uppercase tracking-wider border-primary/50 text-primary hover:bg-primary/10 hover:text-primary text-xs px-3 h-7" hoverEffect>
-                    {t("landing.represent_me", "Represent Me")}
-                  </Button>
-                  <Button onClick={() => setShowDeclareInterest(true)} size="sm" className="btn-shine font-bebas uppercase tracking-wider text-xs px-3 h-7" hoverEffect>
-                    {t("landing.declare_interest_short", "Declare Interest")}
-                  </Button>
-                </div>
-              </div>
               
               {/* Top row: Players, Coaches, Clubs */}
               <div className="border-t border-primary/40 pt-1 pb-1" style={{
@@ -367,19 +316,6 @@ function LandingContent() {
             transform: 'translateY(-25px) translateX(-4px)'
           }}>
               
-              {/* Buttons row - with divider line */}
-              <div className="border-t border-primary/40 pt-1 pb-1 flex justify-center" style={{
-              width: '42%'
-            }}>
-                <div className="flex gap-1.5">
-                  <Button onClick={() => setShowRepresentation(true)} variant="outline" size="sm" className="font-bebas uppercase tracking-wider border-primary/50 text-primary hover:bg-primary/10 hover:text-primary text-[10px] px-2 h-5" hoverEffect>
-                    {t("landing.represent_me", "Represent Me")}
-                  </Button>
-                  <Button onClick={() => setShowDeclareInterest(true)} size="sm" className="btn-shine font-bebas uppercase tracking-wider text-[10px] px-2 h-5" hoverEffect>
-                    {t("landing.declare_interest_short", "Declare Interest")}
-                  </Button>
-                </div>
-              </div>
               
               {/* Top row: Players, Coaches, Clubs - with divider */}
               <div className="border-t border-primary/40 pt-0.5 pb-0.5" style={{
