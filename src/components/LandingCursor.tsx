@@ -32,9 +32,9 @@ export const LandingCursor = () => {
         transform: 'translate(-50%, -50%)',
       }}
     >
-      {/* Simple gold dot cursor - no reveal effect */}
-      <div className="w-3 h-3 rounded-full bg-primary/80 shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
-      <div className="absolute inset-0 w-6 h-6 -translate-x-1.5 -translate-y-1.5 border border-primary/40 rounded-full animate-pulse" />
+      {/* Mint green dot cursor */}
+      <div className="w-3 h-3 rounded-full bg-[hsl(var(--mint))] shadow-[0_0_10px_hsl(var(--mint)/0.5)]" />
+      <div className="absolute inset-0 w-6 h-6 -translate-x-1.5 -translate-y-1.5 border border-[hsl(var(--mint)/0.4)] rounded-full animate-pulse" />
     </div>
   );
 };
