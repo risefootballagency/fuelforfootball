@@ -8,6 +8,7 @@ import { SEO } from "@/components/SEO";
 import { VideoPortfolio } from "@/components/VideoPortfolio";
 import ScoutingNetworkMap from "@/components/ScoutingNetworkMap";
 import { CapabilityAccordion } from "@/components/CapabilityAccordion";
+import { PlayerMarquee } from "@/components/PlayerMarquee";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { HoverText } from "@/components/HoverText";
@@ -119,6 +120,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Player Marquee - Fuelling The Best */}
+        <PlayerMarquee />
 
         {/* INSIDE:ACCESS Section */}
         {translatedInsideAccess.length > 0 && (
