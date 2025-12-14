@@ -16,53 +16,53 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Main page backgrounds - WHITE */
-    --background: 0 0% 100%;
-    --foreground: 120 40% 15%;
+    /* Celtic FC Color Scheme - Dark green/black background with bright green accents */
+    --background: 147 40% 7%;
+    --foreground: 0 0% 100%;
 
-    /* Cards & panels - light surfaces on white theme */
-    --card: 0 0% 100%;
-    --card-foreground: 120 40% 15%;
+    /* Cards & panels - dark green surfaces */
+    --card: 147 35% 10%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 120 40% 15%;
+    --popover: 147 35% 8%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 45 100% 50%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 145 75% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 120 40% 12%;
-    --secondary-foreground: 142 70% 85%;
+    --secondary: 147 30% 15%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 142 20% 90%;
-    --muted-foreground: 120 30% 40%;
+    --muted: 147 25% 12%;
+    --muted-foreground: 145 20% 70%;
 
-    --accent: 45 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 145 75% 45%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 142 30% 80%;
-    --input: 142 30% 80%;
-    --ring: 45 100% 50%;
+    --border: 147 30% 20%;
+    --input: 147 30% 15%;
+    --ring: 145 75% 45%;
 
     --radius: 0rem;
 
-    /* Custom design tokens */
-    --gold: 45 100% 50%;
-    --gold-muted: 45 80% 60%;
-    --text-primary: 120 40% 15%;
-    --text-secondary: 120 30% 40%;
-    --light-green: 142 70% 40%;
-    --light-green-dim: 142 50% 35%;
-    --bg-dark: 120 40% 8%;
-    --bg-card: 120 40% 8%;
+    /* Custom design tokens - Celtic green */
+    --gold: 145 75% 45%;
+    --gold-muted: 145 60% 55%;
+    --text-primary: 0 0% 100%;
+    --text-secondary: 145 20% 70%;
+    --light-green: 145 75% 45%;
+    --light-green-dim: 145 50% 35%;
+    --bg-dark: 147 40% 7%;
+    --bg-card: 147 35% 10%;
     
     /* Dark UI elements */
-    --header-bg: 120 40% 8%;
-    --footer-bg: 120 40% 8%;
-    --table-bg: 120 40% 8%;
-    --tab-bg: 120 40% 10%;
+    --header-bg: 147 40% 7%;
+    --footer-bg: 147 40% 7%;
+    --table-bg: 147 35% 10%;
+    --tab-bg: 147 30% 12%;
   }
 }
 

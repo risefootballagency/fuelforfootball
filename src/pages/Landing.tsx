@@ -180,7 +180,7 @@ function LandingContent() {
       clearInterval(inactivityInterval);
     };
   }, [setXrayState]);
-  return <div className="landing-no-scroll bg-background flex flex-col items-center justify-end relative overflow-hidden cursor-none md:cursor-none" style={{
+  return <div className="landing-no-scroll bg-[hsl(147,40%,7%)] flex flex-col items-center justify-end relative overflow-hidden cursor-none md:cursor-none" style={{
     height: '100dvh',
     maxHeight: '100dvh',
     overflow: 'hidden'
