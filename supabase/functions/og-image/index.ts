@@ -7,11 +7,11 @@ const corsHeaders = {
 
 // Player OG image mappings
 const playerOgImages: Record<string, string> = {
-  'tyrese-omotoye': 'https://risefootballagency.com/og-tyrese-omotoye.png',
-  'michael-vit-mulligan': 'https://risefootballagency.com/og-michael-vit-mulligan.png',
+  'tyrese-omotoye': 'https://fuelforfootball.com/og-tyrese-omotoye.png',
+  'michael-vit-mulligan': 'https://fuelforfootball.com/og-michael-vit-mulligan.png',
 };
 
-const defaultOgImage = 'https://storage.googleapis.com/gpt-engineer-file-uploads/blxFQX1QtlSc3qNcPxWdCZ730Tf1/social-images/social-1761325756417-RISE Mini Logos (1500 x 600 px) (16).png';
+const defaultOgImage = 'https://fuelforfootball.com/fff_logo.png';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -37,8 +37,8 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       ogImage,
       playerName,
-      title: `${playerName} | RISE Football Agency`,
-      description: `${playerName} - Professional football player represented by RISE Football Agency.`
+      title: `${playerName} | Fuel For Football`,
+      description: `${playerName} - Professional football player represented by Fuel For Football.`
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
