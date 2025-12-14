@@ -25,16 +25,16 @@ All colors MUST be HSL.
     --popover: 0 0% 5%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 43 49% 61%;
+    --primary: 45 100% 50%;
     --primary-foreground: 0 0% 0%;
 
     --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 0 0% 10%;
-    --muted-foreground: 43 40% 70%;
+    --muted-foreground: 45 80% 60%;
 
-    --accent: 43 49% 61%;
+    --accent: 45 100% 50%;
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
@@ -42,15 +42,15 @@ All colors MUST be HSL.
 
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 43 49% 61%;
+    --ring: 45 100% 50%;
 
     --radius: 0rem;
 
     /* Custom design tokens */
-    --gold: 43 49% 61%;
-    --gold-muted: 43 40% 70%;
+    --gold: 45 100% 50%;
+    --gold-muted: 45 80% 60%;
     --text-primary: 0 0% 100%;
-    --text-secondary: 43 50% 60%;
+    --text-secondary: 45 90% 55%;
     --bg-dark: 0 0% 0%;
     --bg-card: 0 0% 0%;
   }

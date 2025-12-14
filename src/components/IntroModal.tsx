@@ -4,7 +4,7 @@ import { RepresentationDialog } from "@/components/RepresentationDialog";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import introImage from "@/assets/intro-modal-background.png";
-import riseLogo from "@/assets/logo.png";
+import fffLogo from "@/assets/fff_logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { getCountryFlagUrl } from "@/lib/countryFlags";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -109,10 +109,10 @@ export const IntroModal = ({ open, onOpenChange }: IntroModalProps) => {
                 className="w-full h-auto object-contain"
               />
             
-            {/* RISE Logo - Top Right Corner */}
+            {/* FFF Logo - Top Right Corner */}
             <img 
-              src={riseLogo} 
-              alt="RISE Football" 
+              src={fffLogo} 
+              alt="Fuel For Football" 
               className="absolute top-2 right-2 w-32 h-auto object-contain sm:top-[30px] sm:right-[32px]"
             />
             

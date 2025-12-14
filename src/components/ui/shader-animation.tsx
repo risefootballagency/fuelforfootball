@@ -25,7 +25,7 @@ export function ShaderAnimation() {
       }
     `
 
-    // Fragment shader with risegold and white colors
+    // Fragment shader with FFF gold and white colors
     const fragmentShader = `
       #define TWO_PI 6.2831853072
       #define PI 3.14159265359
@@ -39,8 +39,8 @@ export function ShaderAnimation() {
         float t = time*0.05;
         float lineWidth = 0.002;
 
-        // Rise gold: HSL(43, 49%, 61%) = RGB(202, 177, 113) / 255
-        vec3 riseGold = vec3(0.792, 0.694, 0.443);
+        // FFF Gold: HSL(45, 100%, 50%) = RGB(255, 184, 0) / 255
+        vec3 fffGold = vec3(1.0, 0.722, 0.0);
         // White
         vec3 white = vec3(1.0, 1.0, 1.0);
 
@@ -51,7 +51,7 @@ export function ShaderAnimation() {
         
         // Mix between gold and white based on position and time
         float colorMix = sin(uv.x * 3.0 + uv.y * 2.0 + t * 2.0) * 0.5 + 0.5;
-        vec3 baseColor = mix(riseGold, white, colorMix * 0.6);
+        vec3 baseColor = mix(fffGold, white, colorMix * 0.6);
         
         vec3 color = baseColor * intensity;
         

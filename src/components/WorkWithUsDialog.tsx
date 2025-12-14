@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoleSubdomain, RoleSubdomain } from "@/hooks/useRoleSubdomain";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/fff_logo.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type Role = "player" | "coach" | "club" | "agent" | "parent" | "media" | "other" | null;
@@ -541,7 +541,7 @@ export const WorkWithUsDialog = ({ children, open, onOpenChange }: WorkWithUsDia
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         {!selectedRole && (
           <div className="flex justify-center pt-4 mb-4">
-            <img src={logo} alt="RISE Football Agency" className="h-16" />
+            <img src={logo} alt="Fuel For Football" className="h-16" />
           </div>
         )}
         <DialogHeader>

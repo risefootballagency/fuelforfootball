@@ -147,10 +147,10 @@ export const Player3DEffect = ({ className = "", imagePrefix = "player" }: Playe
       
       varying vec2 vUv;
       
-      const vec3 riseGold = vec3(0.92, 0.78, 0.45);
+      const vec3 fffGold = vec3(1.0, 0.722, 0.0);
       const vec3 revealGrey = vec3(0.75, 0.75, 0.78);
       const vec3 revealWhite = vec3(1.0, 1.0, 1.0);
-      const vec3 brightGold = vec3(1.0, 0.9, 0.5);
+      const vec3 brightGold = vec3(1.0, 0.9, 0.4);
       const vec3 warmLight = vec3(1.0, 0.95, 0.85);
       
       // ============= SIMPLEX NOISE IMPLEMENTATION =============
@@ -402,7 +402,7 @@ export const Player3DEffect = ({ className = "", imagePrefix = "player" }: Playe
         // Shiny shimmer for gold band - animated highlights
         float goldShimmer = sin(noiseTime * 1.2 + vUv.x * 12.0 + vUv.y * 10.0) * 0.2 + 0.9;
         goldShimmer += sin(noiseTime * 2.0 + vUv.y * 18.0) * 0.1;
-        vec3 shinyGold = riseGold * goldShimmer * 1.15;
+        vec3 shinyGold = fffGold * goldShimmer * 1.15;
         
         // Build composite color - start black, add bands
         vec3 compositeColor = vec3(0.0);
@@ -412,7 +412,7 @@ export const Player3DEffect = ({ className = "", imagePrefix = "player" }: Playe
         // Water glow around cursor blob - subtle ambient illumination
         float glowMask = waterBlob(vUv, cursorBlobPos, 0.22, 0.0);
         float outerGlow = smoothstep(0.0, 0.5, glowMask) * (1.0 - smoothstep(0.5, 1.0, glowMask));
-        compositeColor += mix(revealGrey, riseGold, 0.3) * outerGlow * cursorBlobOpacity * 0.15;
+        compositeColor += mix(revealGrey, fffGold, 0.3) * outerGlow * cursorBlobOpacity * 0.15;
         
         // Inner white glow at the very center
         float innerGlow = smoothstep(0.6, 0.9, fluidMask);

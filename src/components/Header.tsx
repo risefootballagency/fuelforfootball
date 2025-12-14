@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/fff_logo.png";
 import riseStar from "@/assets/rise-star.png";
 import { X, MessageCircle, Users, LogIn, Handshake, ArrowRight, Compass, FileText, Search, Star, Calendar, Briefcase, Send, BookOpen, Activity, Newspaper, Heart, Package, Phone } from "lucide-react";
 import workingTogether from "@/assets/menu-working-together.jpg";
@@ -496,7 +496,7 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
             })()}
             className="absolute left-1/2 transform -translate-x-1/2 z-10"
           >
-            <img src={logo} alt="RISE Football Agency" className={`transition-all duration-500 ease-out ${isScrolled ? 'h-9 md:h-11' : 'h-10 md:h-12'}`} />
+            <img src={logo} alt="Fuel For Football" className={`transition-all duration-500 ease-out ${isScrolled ? 'h-9 md:h-11' : 'h-10 md:h-12'}`} />
           </Link>
 
           {/* Utility icons - animate from top bar into header */}

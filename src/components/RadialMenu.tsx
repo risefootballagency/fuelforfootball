@@ -6,7 +6,7 @@ import { useRoleSubdomain, pathToRole } from "@/hooks/useRoleSubdomain";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getSubdomainInfo } from "@/lib/subdomainUtils";
-import riseLogoBlack from "@/assets/RISEBlack.png";
+import fffLogo from "@/assets/fff_logo.png";
 import whiteMarbleBg from "@/assets/white-marble.png";
 import smudgedMarbleBg from "@/assets/black-marble-smudged.png";
 import europeMap from "@/assets/europe-outline.gif";
@@ -910,8 +910,8 @@ export const RadialMenu = () => {
 
           {/* Logo */}
           <img
-            src={riseLogoBlack}
-            alt="RISE"
+            src={fffLogo}
+            alt="Fuel For Football"
             className="mb-1 relative z-20"
             style={{ 
               width: `${centerSize * 0.9}px`,

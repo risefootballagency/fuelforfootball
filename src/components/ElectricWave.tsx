@@ -26,8 +26,8 @@ export const ElectricWave = () => {
     let waveStartTime = 0;
     let waveCorner = 0; // 0: top-left, 1: top-right, 2: bottom-right, 3: bottom-left
     
-    // RiseGold colors
-    const riseGold = { r: 235, g: 199, b: 115 };
+    // FFF Gold colors - RGB(255, 184, 0)
+    const fffGold = { r: 255, g: 184, b: 0 };
     const white = { r: 255, g: 255, b: 255 };
     const grey = { r: 180, g: 180, b: 180 };
     
@@ -113,8 +113,8 @@ export const ElectricWave = () => {
             color = white;
             alpha = 0.5;
           } else {
-            // Center risegold
-            color = riseGold;
+            // Center FFF gold
+            color = fffGold;
             alpha = 0.7;
           }
           
@@ -179,7 +179,7 @@ export const ElectricWave = () => {
           
           // Fade crackles
           const crackleAlpha = crackleFade * 0.6 * (0.5 + Math.random() * 0.5);
-          ctx.strokeStyle = `rgba(${riseGold.r}, ${riseGold.g}, ${riseGold.b}, ${crackleAlpha})`;
+          ctx.strokeStyle = `rgba(${fffGold.r}, ${fffGold.g}, ${fffGold.b}, ${crackleAlpha})`;
           ctx.lineWidth = 1 + Math.random() * 2;
           ctx.stroke();
           
