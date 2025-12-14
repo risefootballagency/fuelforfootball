@@ -218,7 +218,7 @@ function LandingContent() {
       <div className="absolute left-1/2 transform -translate-x-1/2 z-[1] opacity-0 hover:opacity-100 transition-opacity duration-500" style={{
       top: 'calc(4rem - 50px)'
     }} onMouseEnter={() => setTopLogoHovered(true)} onMouseLeave={() => setTopLogoHovered(false)}>
-        <span className="font-bebas text-2xl md:text-6xl lg:text-7xl tracking-[0.2em] md:tracking-[0.3em] text-white/90 uppercase whitespace-nowrap">
+        <span className="font-bebas text-2xl md:text-6xl lg:text-7xl tracking-[0.2em] md:tracking-[0.3em] text-light-green/90 uppercase whitespace-nowrap">
           <HoverText text={t("landing.change_the_game", "CHANGE THE GAME")} className="hover-text-slow" />
         </span>
       </div>
@@ -241,10 +241,10 @@ function LandingContent() {
       
       {/* Portal & Staff links - subtle top right */}
       <div className="absolute top-6 md:top-8 right-4 md:right-8 z-50 flex items-center gap-3">
-        <Link to="/staff" className="text-white/20 hover:text-white/50 text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
+        <Link to="/staff" className="text-light-green/20 hover:text-light-green/50 text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
           {t("header.staff", "Staff")}
         </Link>
-        <LocalizedLink to="/portal" className="text-white/20 hover:text-white/50 text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
+        <LocalizedLink to="/portal" className="text-light-green/20 hover:text-light-green/50 text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
           {t("header.portal", "Portal")}
         </LocalizedLink>
       </div>
@@ -281,7 +281,7 @@ function LandingContent() {
             }}>
                 <nav className="flex items-center justify-center gap-2">
                   {desktopNavLinks.slice(0, 3).map((link, index) => <div key={link.to} className="flex items-center">
-                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-1 text-[17px] font-bebas uppercase tracking-[0.15em] text-white/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
+                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-1 text-[17px] font-bebas uppercase tracking-[0.15em] text-light-green/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
                         <HoverText text={t(link.labelKey, link.fallback)} />
                       </button>
                       {index < 2 && <div className="w-px h-3 bg-primary/40" />}
@@ -295,7 +295,7 @@ function LandingContent() {
             }}>
                 <nav className="flex items-center justify-center gap-1">
                   {desktopNavLinks.slice(3).map((link, index) => <div key={link.to} className="flex items-center">
-                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-1 text-[17px] font-bebas uppercase tracking-[0.15em] text-white/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
+                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-1 text-[17px] font-bebas uppercase tracking-[0.15em] text-light-green/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
                         <HoverText text={t(link.labelKey, link.fallback)} />
                       </button>
                       {index < 3 && <div className="w-px h-3 bg-primary/40" />}
@@ -305,7 +305,7 @@ function LandingContent() {
               
               {/* Select role text */}
               <div className="text-center pt-1">
-                <span className="text-[10px] font-bebas uppercase tracking-[0.15em] text-white/40">
+                <span className="text-[10px] font-bebas uppercase tracking-[0.15em] text-light-green/40">
                   {t("landing.select_role_enter", "Select Your Role To Enter Site")}
                 </span>
               </div>
@@ -323,7 +323,7 @@ function LandingContent() {
             }}>
                 <nav className="flex items-center justify-center gap-1">
                   {mobileNavLinks.slice(0, 3).map((link, index) => <div key={link.to} className="flex items-center">
-                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-0.5 text-[17px] font-bebas uppercase tracking-[0.15em] text-white/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
+                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-0.5 text-[17px] font-bebas uppercase tracking-[0.15em] text-light-green/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
                         <HoverText text={t(link.labelKey, link.fallback)} />
                       </button>
                       {index < 2 && <div className="w-px h-3 bg-primary/40" />}
@@ -337,7 +337,7 @@ function LandingContent() {
             }}>
                 <nav className="flex items-center justify-center gap-1">
                   {mobileNavLinks.slice(3).map((link, index) => <div key={link.to} className="flex items-center">
-                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-0.5 text-[17px] font-bebas uppercase tracking-[0.15em] text-white/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
+                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-0.5 text-[17px] font-bebas uppercase tracking-[0.15em] text-light-green/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
                         <HoverText text={t(link.labelKey, link.fallback)} />
                       </button>
                       {index < 3 && <div className="w-px h-3 bg-primary/40" />}
@@ -347,7 +347,7 @@ function LandingContent() {
               
               {/* Select role text - mobile */}
               <div className="text-center pt-0">
-                <span className="text-[10px] font-bebas uppercase tracking-[0.15em] text-white/40">
+                <span className="text-[10px] font-bebas uppercase tracking-[0.15em] text-light-green/40">
                   {t("landing.select_role_enter", "Select Your Role To Enter Site")}
                 </span>
               </div>
@@ -529,7 +529,7 @@ function RoleSlider({
             <path 
               d="M0,87 Q50,15 100,87" 
               fill="none" 
-              stroke="rgba(255,255,255,0.2)" 
+              stroke="hsl(142 70% 75% / 0.2)" 
               strokeWidth="1"
               vectorEffect="non-scaling-stroke"
             />
@@ -572,7 +572,7 @@ function RoleSlider({
                   className={`absolute z-10 text-[15px] font-bebas uppercase tracking-[0.12em] transition-all duration-300 whitespace-nowrap ${
                     isSelected ? 'text-primary font-bold' : 
                     isHovered ? 'text-primary font-bold' : 
-                    'text-white/40'
+                    'text-light-green/40'
                   }`}
                   style={{
                     left: `${xPercent}%`,
@@ -589,7 +589,7 @@ function RoleSlider({
                       ? 'bg-primary scale-125' 
                       : selectedIndex !== null && index < selectedIndex 
                         ? 'bg-primary/60' 
-                        : 'bg-white/30'
+                        : 'bg-light-green/30'
                   }`}
                   style={{
                     left: `${xPercent}%`,
@@ -653,7 +653,7 @@ function RoleSlider({
               {t(navLinks[nearestSnapIndex].labelKey, navLinks[nearestSnapIndex].fallback)}
             </span>
           ) : (
-            <span className="text-[10px] font-bebas uppercase tracking-[0.25em] text-white/30">
+            <span className="text-[10px] font-bebas uppercase tracking-[0.25em] text-light-green/30">
               {isDragging ? t("landing.drag_to_role", "Drag to a role to select") : t("landing.drag_slider_select", "Drag slider to select role")}
             </span>
           )}
