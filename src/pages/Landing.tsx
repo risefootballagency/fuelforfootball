@@ -13,7 +13,7 @@ import { RepresentationDialog } from "@/components/RepresentationDialog";
 import { DeclareInterestPlayerDialog } from "@/components/DeclareInterestPlayerDialog";
 import { Button } from "@/components/ui/button";
 import { useRoleSubdomain, pathToRole, RoleSubdomain } from "@/hooks/useRoleSubdomain";
-import riseLogoWhite from "@/assets/logo.png";
+import fffLogo from "@/assets/fff_logo.png";
 // Inner component that uses the XRay context for full-page tracking
 function LandingContent() {
   const {
@@ -240,11 +240,11 @@ function LandingContent() {
       }}>
         {/* Desktop */}
         <div className="hidden md:block">
-          <img src={riseLogoWhite} alt="RISE Football Agency" className="h-[55px] w-auto" loading="eager" fetchPriority="high" />
+          <img src={fffLogo} alt="Fuel For Football" className="h-[55px] w-auto" loading="eager" fetchPriority="high" />
         </div>
         {/* Mobile */}
         <div className="md:hidden">
-          <img src={riseLogoWhite} alt="RISE Football Agency" className="h-[42px] w-auto" loading="eager" fetchPriority="high" />
+          <img src={fffLogo} alt="Fuel For Football" className="h-[42px] w-auto" loading="eager" fetchPriority="high" />
         </div>
       </div>
       

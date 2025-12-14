@@ -77,9 +77,9 @@ export const ShootingStar = ({ className = '' }: ShootingStarProps) => {
 
   if (!isAnimating) return null;
 
-  // RiseGold color: rgb(235, 199, 115) / #ebc773 / hsl(43, 73%, 69%)
-  const riseGold = '#ebc773';
-  const riseGoldLight = '#f5dca0';
+  // FFF Gold color: hsl(45, 100%, 50%) = #FFB800
+  const fffGold = '#FFB800';
+  const fffGoldLight = '#FFD54F';
 
   return (
     <div 
@@ -96,12 +96,12 @@ export const ShootingStar = ({ className = '' }: ShootingStarProps) => {
         style={{
           width: '6px',
           height: '6px',
-          background: `radial-gradient(circle, #ffffff 0%, ${riseGoldLight} 40%, ${riseGold} 100%)`,
+          background: `radial-gradient(circle, #ffffff 0%, ${fffGoldLight} 40%, ${fffGold} 100%)`,
           boxShadow: `
             0 0 4px 2px #ffffffcc,
-            0 0 10px 5px ${riseGoldLight}aa,
-            0 0 20px 10px ${riseGold}66,
-            0 0 40px 20px ${riseGold}22
+            0 0 10px 5px ${fffGoldLight}aa,
+            0 0 20px 10px ${fffGold}66,
+            0 0 40px 20px ${fffGold}22
           `,
         }}
       />
@@ -113,7 +113,7 @@ export const ShootingStar = ({ className = '' }: ShootingStarProps) => {
           height: '2px',
           left: '-115px',
           top: '2px',
-          background: `linear-gradient(to right, transparent 0%, ${riseGold}11 20%, ${riseGold}55 50%, ${riseGoldLight}cc 85%, #ffffff 100%)`,
+          background: `linear-gradient(to right, transparent 0%, ${fffGold}11 20%, ${fffGold}55 50%, ${fffGoldLight}cc 85%, #ffffff 100%)`,
           borderRadius: '1px',
           filter: 'blur(0.5px)',
           transform: 'rotate(-45deg)',
@@ -128,7 +128,7 @@ export const ShootingStar = ({ className = '' }: ShootingStarProps) => {
           height: '6px',
           left: '-75px',
           top: '0px',
-          background: `linear-gradient(to right, transparent 0%, ${riseGold}08 30%, ${riseGold}22 70%, ${riseGold}44 100%)`,
+          background: `linear-gradient(to right, transparent 0%, ${fffGold}08 30%, ${fffGold}22 70%, ${fffGold}44 100%)`,
           borderRadius: '3px',
           filter: 'blur(3px)',
           transform: 'rotate(-45deg)',

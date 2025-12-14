@@ -133,8 +133,8 @@ const FluidCursor = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = 'lighter';
       
-      // RISEgold: 43 49% 61%
-      ctx.strokeStyle = `hsla(43, 49%, 61%, 0.2)`;
+      // FFF Gold: 45 100% 50%
+      ctx.strokeStyle = `hsla(45, 100%, 50%, 0.2)`;
       ctx.lineWidth = 1;
 
       for (const line of linesRef.current) {

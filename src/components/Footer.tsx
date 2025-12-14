@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaInstagram, FaTwitter, FaLinkedin, FaYoutube } from "react-icons/fa";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/fff_logo.png";
 import { WorkWithUsDialog } from "@/components/WorkWithUsDialog";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -17,7 +17,7 @@ export const Footer = () => {
       <div className="container mx-auto px-4 py-16">
         {/* Top Section - Logo & Description */}
         <div className="max-w-4xl mx-auto text-center mb-16">
-          <img src={logo} alt="RISE Football Agency" className="h-16 mx-auto mb-6" />
+          <img src={logo} alt="Fuel For Football" className="h-16 mx-auto mb-6" />
           <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
             {t("footer.description", "Performance-first football representation helping players, coaches, and clubs reach their full potential through data-driven insights and professional development.")}
           </p>
