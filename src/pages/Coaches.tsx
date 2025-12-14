@@ -6,6 +6,7 @@ import { SEO } from "@/components/SEO";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HeroSlider } from "@/components/HeroSlider";
 import bannerHero from "@/assets/banner-hero.jpg";
 import blackMarble from "@/assets/black-marble-smudged.png";
 import coachesSection from "@/assets/coaches-section.png";
@@ -14,6 +15,25 @@ import coachesNetwork from "@/assets/coaches-network.jpg";
 
 const Coaches = () => {
   const { t } = useLanguage();
+  
+  const heroSlides = [
+    {
+      image: bannerHero,
+      title: t('coaches.slide1_title', 'Professional Coaching Representation'),
+      subtitle: t('coaches.slide1_subtitle', 'Elevate your coaching career with expert support'),
+    },
+    {
+      image: coachesNetwork,
+      title: t('coaches.slide2_title', 'Tactical Excellence'),
+      subtitle: t('coaches.slide2_subtitle', 'Pre-match analysis and strategic preparation'),
+    },
+    {
+      image: coachesSection,
+      title: t('coaches.slide3_title', 'Career Advancement'),
+      subtitle: t('coaches.slide3_subtitle', 'Connect with opportunities that match your expertise'),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background" key="coaches-page">
       <SEO 
@@ -24,24 +44,9 @@ const Coaches = () => {
       />
       <Header />
       
-      <main className="pt-32 md:pt-24">
-        {/* Hero Section */}
-        <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${bannerHero})` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-background" />
-          
-          <div className="relative container mx-auto px-4 text-center z-10">
-            <h1 className="text-6xl md:text-8xl font-bebas uppercase tracking-wider text-white mb-4">
-              {t('coaches.title')}
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
-              {t('coaches.subtitle')}
-            </p>
-          </div>
-        </section>
+      <main className="pt-24 md:pt-16">
+        {/* Hero Slider */}
+        <HeroSlider slides={heroSlides} />
 
         {/* RESULTS Section - Text Left, Image Right */}
         <section className="grid md:grid-cols-2">

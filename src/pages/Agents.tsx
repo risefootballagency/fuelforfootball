@@ -10,6 +10,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { HeroSlider } from "@/components/HeroSlider";
+import bannerHero from "@/assets/banner-hero.jpg";
 
 const Agents = () => {
   const handleWhatsApp = () => {
@@ -81,41 +83,47 @@ const Agents = () => {
     },
   ];
 
+  const heroSlides = [
+    {
+      image: bannerHero,
+      title: 'Partner With Us',
+      subtitle: 'Collaborate on player opportunities and grow together',
+    },
+    {
+      image: bannerHero,
+      title: 'Trusted Network',
+      subtitle: 'Access 50+ club connections across 12 countries',
+    },
+    {
+      image: bannerHero,
+      title: 'Transparent Collaboration',
+      subtitle: 'Clear terms, fair commissions, mutual success',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       <SEO 
-        title="For Agents - Collaborate with RISE Football Agency"
-        description="Partner with RISE Football Agency. Collaborate on player opportunities, share networks, and grow together in the football industry."
+        title="For Agents - Collaborate with Fuel For Football"
+        description="Partner with Fuel For Football. Collaborate on player opportunities, share networks, and grow together in the football industry."
         image="/og-preview-agents.png"
         url="/agents"
       />
       <Header />
       
-      <main className="pt-32 md:pt-24">
-        {/* Hero Section */}
-        <section className="relative min-h-[70vh] flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
-          
-          <div className="relative z-10 text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-6">
-              <Handshake className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold">Agent Partnerships</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider mb-6 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-              Partner With Us
-            </h1>
-            
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 font-light">
-              Collaborate on player opportunities, share networks, and grow together in the football industry.
-            </p>
-            
-            <p className="text-base text-muted-foreground/80 max-w-xl mx-auto mb-8">
+      <main className="pt-24 md:pt-16">
+        {/* Hero Slider */}
+        <HeroSlider slides={heroSlides} />
+
+        {/* Quick Contact Section */}
+        <section className="py-12 px-4 bg-muted/20">
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-lg text-muted-foreground mb-6">
               We believe the best outcomes happen when agents work together. Whether you need club connections, 
               player development support, or a trusted partner for complex deals - we are here to collaborate.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button 
                 onClick={handleWhatsApp}
                 className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg"

@@ -52,7 +52,7 @@ export const Footer = () => {
                 {t("footer.scouts", "Scout")}
               </SubdomainLink>
               <LocalizedLink to="/performance" className="text-muted-foreground hover:text-primary transition-colors">
-                {t("footer.realise_potential", "Realise Potential")}
+                {t("footer.change_the_game", "Change The Game")}
               </LocalizedLink>
               <LocalizedLink to="/about" className="text-muted-foreground hover:text-primary transition-colors">
                 {t("footer.about", "About")}
