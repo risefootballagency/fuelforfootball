@@ -87,7 +87,7 @@ const Contact = () => {
       <div className="min-h-screen bg-background pt-24 md:pt-24 touch-pan-y overflow-x-hidden">
         {/* Page Header */}
         <div className="bg-background border-b border-primary/20">
-          <div className="container mx-auto px-4 py-8 md:py-12">
+          <div className="container mx-auto py-8 md:py-12">
             <h1 className="text-4xl md:text-7xl font-bebas uppercase text-foreground mb-3 md:mb-4 tracking-wider">
               {t('contact.title', 'Contact Us')}
             </h1>
@@ -98,7 +98,7 @@ const Contact = () => {
         </div>
 
         {/* Contact Sections */}
-        <main className="container mx-auto px-3 md:px-4 py-8 md:py-16">
+        <main className="container mx-auto py-8 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             {contactSections.map((section) => (
               <div 

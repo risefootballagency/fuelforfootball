@@ -170,7 +170,7 @@ const Clubs = () => {
 
         {/* CTA Section */}
         <section className="py-12 md:py-16 bg-background">
-          <div className="container mx-auto px-4 text-center">
+          <div className="container mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-6">
               {t('clubs.cta_title')}
             </h2>
