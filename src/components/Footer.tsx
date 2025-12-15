@@ -47,7 +47,7 @@ export const Footer = () => {
       {/* Change The Game Divider */}
       <div className="relative flex items-center justify-center py-6 bg-[hsl(var(--bg-dark))]">
         <div className="absolute left-0 right-0 h-1 bg-primary top-1/2 -translate-y-1/2" />
-        <span className="relative bg-[hsl(var(--bg-dark))] px-8 text-3xl md:text-4xl font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] italic">
+        <span className="relative bg-[hsl(var(--bg-dark))] px-8 text-3xl md:text-4xl font-bebas uppercase tracking-wider text-mint italic">
           Change The Game
         </span>
       </div>
@@ -68,7 +68,7 @@ export const Footer = () => {
         {/* Top Section - Logo & Description */}
         <div className="max-w-4xl mx-auto text-center mb-16">
           <img src={logo} alt="Fuel For Football" className="h-16 mx-auto mb-6" />
-          <p className="text-lg text-[hsl(142_60%_70%)] leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg text-mint-dim leading-relaxed max-w-2xl mx-auto">
             {t("footer.description", "Performance-first football representation helping players, coaches, and clubs reach their full potential through data-driven insights and professional development.")}
           </p>
         </div>
@@ -77,41 +77,41 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-6xl mx-auto mb-12">
           {/* Quick Links */}
           <div>
-            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-[hsl(142_70%_85%)] mb-4 md:mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-mint mb-4 md:mb-6">
               {t("footer.quick_links", "Quick Links")}
             </h3>
             <div className="grid grid-cols-2 gap-x-4 md:gap-x-6 gap-y-2 md:gap-y-3">
-              <Link to="/" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <Link to="/" className="text-mint-dim hover:text-primary transition-colors">
                 Home
               </Link>
-              <LocalizedLink to="/players" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/players" className="text-mint-dim hover:text-primary transition-colors">
                 Players
               </LocalizedLink>
-              <LocalizedLink to="/clubs" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/clubs" className="text-mint-dim hover:text-primary transition-colors">
                 Clubs
               </LocalizedLink>
-              <LocalizedLink to="/coaches" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/coaches" className="text-mint-dim hover:text-primary transition-colors">
                 Coaches
               </LocalizedLink>
-              <LocalizedLink to="/scouts" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/scouts" className="text-mint-dim hover:text-primary transition-colors">
                 Scouts
               </LocalizedLink>
-              <LocalizedLink to="/performance" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/performance" className="text-mint-dim hover:text-primary transition-colors">
                 Performance
               </LocalizedLink>
-              <LocalizedLink to="/services" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/services" className="text-mint-dim hover:text-primary transition-colors">
                 Services
               </LocalizedLink>
-              <LocalizedLink to="/shop" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/shop" className="text-mint-dim hover:text-primary transition-colors">
                 Shop
               </LocalizedLink>
-              <LocalizedLink to="/daily-fuel" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/daily-fuel" className="text-mint-dim hover:text-primary transition-colors">
                 Daily Fuel
               </LocalizedLink>
-              <LocalizedLink to="/about" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/about" className="text-mint-dim hover:text-primary transition-colors">
                 About
               </LocalizedLink>
-              <LocalizedLink to="/contact" className="text-[hsl(142_60%_70%)] hover:text-primary transition-colors">
+              <LocalizedLink to="/contact" className="text-mint-dim hover:text-primary transition-colors">
                 Contact
               </LocalizedLink>
             </div>
@@ -119,7 +119,7 @@ export const Footer = () => {
 
           {/* Get In Touch */}
           <div>
-            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-[hsl(142_70%_85%)] mb-4 md:mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-mint mb-4 md:mb-6">
               {t("footer.get_in_touch", "Get In Touch")}
             </h3>
             
@@ -127,7 +127,7 @@ export const Footer = () => {
             <div className="space-y-4 mb-6">
               <a
                 href="mailto:info@fuelforfootball.com"
-                className="flex items-center gap-3 text-[hsl(142_60%_70%)] hover:text-primary transition-colors text-sm"
+                className="flex items-center gap-3 text-mint-dim hover:text-primary transition-colors text-sm"
               >
                 <Mail className="w-4 h-4 text-primary" />
                 <span>info@fuelforfootball.com</span>
@@ -136,7 +136,7 @@ export const Footer = () => {
                 href="https://wa.me/447742431806"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 text-[hsl(142_60%_70%)] hover:text-primary transition-colors text-sm"
+                className="flex items-center gap-3 text-mint-dim hover:text-primary transition-colors text-sm"
               >
                 <FaWhatsapp className="w-4 h-4 text-primary" />
                 <span>+44 7742431806</span>
@@ -166,7 +166,7 @@ export const Footer = () => {
 
           {/* Follow Us */}
           <div>
-            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-[hsl(142_70%_85%)] mb-4 md:mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-mint mb-4 md:mb-6">
               {t("footer.follow_us", "Follow Us")}
             </h3>
             <div className="grid grid-cols-2 gap-2 md:gap-3">
@@ -177,7 +177,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
               >
                 <FaInstagram className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] group-hover:text-primary transition-colors">Instagram</span>
+                <span className="text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Instagram</span>
               </a>
               <a
                 href="https://x.com/fuelforfootball"
@@ -186,7 +186,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
               >
                 <FaTwitter className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] group-hover:text-primary transition-colors">Twitter</span>
+                <span className="text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Twitter</span>
               </a>
               <a
                 href="https://www.linkedin.com/company/fuel-for-football"
@@ -195,7 +195,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
               >
                 <FaLinkedin className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] group-hover:text-primary transition-colors">LinkedIn</span>
+                <span className="text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">LinkedIn</span>
               </a>
               <a
                 href="https://www.youtube.com/@FuelForFootball"
@@ -204,7 +204,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
               >
                 <FaYoutube className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] group-hover:text-primary transition-colors">YouTube</span>
+                <span className="text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">YouTube</span>
               </a>
               <a
                 href="https://www.facebook.com/fuelforfooty"
@@ -213,7 +213,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
               >
                 <FaFacebook className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] group-hover:text-primary transition-colors">Facebook</span>
+                <span className="text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Facebook</span>
               </a>
               <a
                 href="https://open.spotify.com/show/1Ep6k8p6j4rMT1a0AFqX8C"
@@ -222,7 +222,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
               >
                 <FaSpotify className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] group-hover:text-primary transition-colors">Podcast</span>
+                <span className="text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Podcast</span>
               </a>
               <a
                 href="#"
@@ -231,7 +231,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
               >
                 <FaTelegram className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] group-hover:text-primary transition-colors">Telegram</span>
+                <span className="text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Telegram</span>
               </a>
               <a
                 href="#"
@@ -240,7 +240,7 @@ export const Footer = () => {
                 className="flex items-center gap-2 p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
               >
                 <FaSnapchatGhost className="w-4 h-4 text-primary" />
-                <span className="text-xs font-bebas uppercase tracking-wider text-[hsl(142_70%_85%)] group-hover:text-primary transition-colors">Snapchat</span>
+                <span className="text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Snapchat</span>
               </a>
             </div>
           </div>
@@ -248,17 +248,17 @@ export const Footer = () => {
 
         {/* Newsletter Section */}
         <div className="max-w-xl mx-auto text-center mb-8 md:mb-12 p-4 md:p-6 bg-primary/10 rounded-xl border border-primary/20">
-          <h4 className="font-bebas text-lg md:text-xl uppercase tracking-wider text-[hsl(142_70%_85%)] mb-2">
+          <h4 className="font-bebas text-lg md:text-xl uppercase tracking-wider text-mint mb-2">
             Keep Updated With Our New Packages And Offers
           </h4>
-          <p className="text-xs md:text-sm text-[hsl(142_60%_70%)] mb-4">Subscribe to our newsletter</p>
+          <p className="text-xs md:text-sm text-mint-dim mb-4">Subscribe to our newsletter</p>
           <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 md:gap-3">
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 bg-[hsl(120_40%_12%)] border-primary/30 text-[hsl(142_70%_85%)] placeholder:text-[hsl(142_40%_50%)]"
+              className="flex-1 bg-[hsl(120_40%_12%)] border-primary/30 text-mint placeholder:text-mint-dim/50"
               required
             />
             <Button 
@@ -273,11 +273,11 @@ export const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="pt-6 md:pt-8 border-t border-primary/10">
-          <p className="text-[10px] md:text-xs text-[hsl(142_50%_60%)]/80 text-center max-w-3xl mx-auto mb-4 md:mb-6 px-2 md:px-4">
+          <p className="text-[10px] md:text-xs text-mint-dim/80 text-center max-w-3xl mx-auto mb-4 md:mb-6 px-2 md:px-4">
             {t("footer.regulatory_text", "Fuel For Football operates in accordance with the regulatory frameworks established by FIFA and UEFA. Our work follows the standards required for player representation, governance and integrity.")}
           </p>
           <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
-            <p className="text-xs md:text-sm text-[hsl(142_60%_70%)]">
+            <p className="text-xs md:text-sm text-mint-dim">
               © {new Date().getFullYear()} Fuel For Football. {t("footer.all_rights_reserved", "All rights reserved.")}
             </p>
             <div className="flex flex-wrap justify-center gap-3 md:gap-6">
@@ -285,18 +285,18 @@ export const Footer = () => {
                 href="https://open.spotify.com/show/1Ep6k8p6j4rMT1a0AFqX8C" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-sm text-[hsl(142_60%_70%)] hover:text-primary transition-colors font-bebas uppercase tracking-wider"
+                className="text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider"
               >
                 Fuel For Football Podcast
               </a>
-              <Link to="/privacy-policy" className="text-sm text-[hsl(142_60%_70%)] hover:text-primary transition-colors font-bebas uppercase tracking-wider">
+              <Link to="/privacy-policy" className="text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider">
                 {t("footer.privacy_policy", "Privacy Policy")}
               </Link>
               <a 
                 href="/FIFA_Football_Agent_Regulations.pdf" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-sm text-[hsl(142_60%_70%)] hover:text-primary transition-colors font-bebas uppercase tracking-wider"
+                className="text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider"
               >
                 {t("footer.regulations", "REGULATIONS")}
               </a>
@@ -304,7 +304,7 @@ export const Footer = () => {
                 href="https://www.fifa.com/legal/football-regulatory/agents" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-sm text-[hsl(142_60%_70%)] hover:text-primary transition-colors font-bebas uppercase tracking-wider"
+                className="text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider"
               >
                 {t("footer.fifa_framework", "FIFA Framework")}
               </a>
@@ -312,13 +312,13 @@ export const Footer = () => {
                 href="https://www.uefa.com/insideuefa/protecting-the-game/football-regulatory" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-sm text-[hsl(142_60%_70%)] hover:text-primary transition-colors font-bebas uppercase tracking-wider"
+                className="text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider"
               >
                 {t("footer.uefa_framework", "UEFA Framework")}
               </a>
             </div>
           </div>
-          <p className="text-[10px] text-[hsl(142_40%_50%)]/40 text-center mt-4">
+          <p className="text-[10px] text-mint-dim/40 text-center mt-4">
             Build: {BUILD_VERSION}
           </p>
         </div>
