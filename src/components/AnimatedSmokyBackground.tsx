@@ -1,21 +1,22 @@
 import { useEffect, useRef } from "react";
 
 export const AnimatedSmokyBackground = ({ className = '' }: { className?: string }) => {
+  // Brand mint color #c5db9e = rgba(197, 219, 158, opacity)
   return (
     <div className={`absolute inset-0 z-0 overflow-hidden bg-[#0a1a0a] ${className}`}>
       {/* Base gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0d2818]/80 via-[#0a1a0a] to-[#051005]" />
       
-      {/* Animated smoke layers */}
+      {/* Animated smoke layers using brand mint #c5db9e */}
       <div className="absolute inset-0">
         {/* Layer 1 - Large dominant smoke streaks */}
         <div 
           className="absolute w-[300%] h-[300%]"
           style={{
             background: `
-              radial-gradient(ellipse 120% 80% at 15% 25%, rgba(34, 197, 94, 0.7) 0%, transparent 60%),
-              radial-gradient(ellipse 100% 70% at 75% 50%, rgba(74, 222, 128, 0.6) 0%, transparent 55%),
-              radial-gradient(ellipse 140% 90% at 35% 85%, rgba(22, 163, 74, 0.75) 0%, transparent 65%)
+              radial-gradient(ellipse 120% 80% at 15% 25%, rgba(197, 219, 158, 0.5) 0%, transparent 60%),
+              radial-gradient(ellipse 100% 70% at 75% 50%, rgba(197, 219, 158, 0.45) 0%, transparent 55%),
+              radial-gradient(ellipse 140% 90% at 35% 85%, rgba(180, 205, 140, 0.5) 0%, transparent 65%)
             `,
             animation: 'smokeMove1 25s ease-in-out infinite',
           }}
@@ -26,9 +27,9 @@ export const AnimatedSmokyBackground = ({ className = '' }: { className?: string
           className="absolute w-[300%] h-[300%]"
           style={{
             background: `
-              radial-gradient(ellipse 110% 75% at 55% 35%, rgba(74, 222, 128, 0.65) 0%, transparent 60%),
-              radial-gradient(ellipse 90% 60% at 25% 65%, rgba(134, 239, 172, 0.55) 0%, transparent 55%),
-              radial-gradient(ellipse 130% 85% at 85% 15%, rgba(34, 197, 94, 0.6) 0%, transparent 60%)
+              radial-gradient(ellipse 110% 75% at 55% 35%, rgba(197, 219, 158, 0.45) 0%, transparent 60%),
+              radial-gradient(ellipse 90% 60% at 25% 65%, rgba(210, 230, 175, 0.4) 0%, transparent 55%),
+              radial-gradient(ellipse 130% 85% at 85% 15%, rgba(180, 205, 140, 0.45) 0%, transparent 60%)
             `,
             animation: 'smokeMove2 20s ease-in-out infinite',
           }}
@@ -39,9 +40,9 @@ export const AnimatedSmokyBackground = ({ className = '' }: { className?: string
           className="absolute w-[250%] h-[250%]"
           style={{
             background: `
-              radial-gradient(ellipse 80% 55% at 45% 45%, rgba(134, 239, 172, 0.7) 0%, transparent 50%),
-              radial-gradient(ellipse 70% 50% at 15% 35%, rgba(187, 247, 208, 0.6) 0%, transparent 45%),
-              radial-gradient(ellipse 85% 60% at 80% 70%, rgba(74, 222, 128, 0.65) 0%, transparent 50%)
+              radial-gradient(ellipse 80% 55% at 45% 45%, rgba(210, 230, 175, 0.5) 0%, transparent 50%),
+              radial-gradient(ellipse 70% 50% at 15% 35%, rgba(220, 238, 190, 0.45) 0%, transparent 45%),
+              radial-gradient(ellipse 85% 60% at 80% 70%, rgba(197, 219, 158, 0.5) 0%, transparent 50%)
             `,
             animation: 'smokeMove3 15s ease-in-out infinite',
           }}
@@ -52,9 +53,9 @@ export const AnimatedSmokyBackground = ({ className = '' }: { className?: string
           className="absolute w-[200%] h-[200%]"
           style={{
             background: `
-              radial-gradient(circle at 20% 30%, rgba(187, 247, 208, 0.6) 0%, transparent 35%),
-              radial-gradient(circle at 70% 50%, rgba(220, 252, 231, 0.5) 0%, transparent 30%),
-              radial-gradient(circle at 40% 80%, rgba(187, 247, 208, 0.55) 0%, transparent 32%)
+              radial-gradient(circle at 20% 30%, rgba(220, 238, 190, 0.4) 0%, transparent 35%),
+              radial-gradient(circle at 70% 50%, rgba(230, 245, 210, 0.35) 0%, transparent 30%),
+              radial-gradient(circle at 40% 80%, rgba(220, 238, 190, 0.4) 0%, transparent 32%)
             `,
             animation: 'smokeMove4 30s ease-in-out infinite',
           }}

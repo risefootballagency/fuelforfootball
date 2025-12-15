@@ -36,6 +36,10 @@ export default {
           DEFAULT: "hsl(var(--light-green))",
           dim: "hsl(var(--light-green-dim))",
         },
+        mint: {
+          DEFAULT: "hsl(var(--mint))",
+          dim: "hsl(var(--mint-dim))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
