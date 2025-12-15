@@ -116,6 +116,19 @@ All colors MUST be HSL.
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Agrandir Tight', 'Bebas Neue', sans-serif;
     letter-spacing: 0.05em;
+    transform: scaleY(1.15);
+    transform-origin: center;
+  }
+  
+  /* Utility class for extra tall text */
+  .text-tall {
+    transform: scaleY(1.25);
+    transform-origin: center;
+  }
+  
+  .text-extra-tall {
+    transform: scaleY(1.4);
+    transform-origin: center;
   }
 
   /* Print styles for PDF export */
