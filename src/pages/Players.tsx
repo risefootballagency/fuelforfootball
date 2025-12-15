@@ -215,12 +215,12 @@ const Players = () => {
         </section>
 
         {/* Bottom CTA Section */}
-        <section className="py-10 md:py-24 px-4 bg-background border-t border-border/50">
+        <section className="py-10 md:py-24 px-4 border-t border-border/50" style={{ backgroundColor: '#fafafa' }}>
           <div className="container mx-auto text-center max-w-3xl">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-4 md:mb-6">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6" style={{ color: '#008240' }}>
               Ready to Elevate Your Game?
             </h2>
-            <p className="text-base md:text-lg text-muted-foreground mb-6 md:mb-8">
+            <p className="text-base md:text-lg mb-6 md:mb-8" style={{ color: '#008240' }}>
               Get in touch to discuss how we can help you reach your full potential as a footballer.
             </p>
             <Link to="/contact">
