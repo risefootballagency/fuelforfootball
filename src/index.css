@@ -51,8 +51,8 @@ All colors MUST be HSL.
     /* Custom design tokens - Celtic green + Rise mint */
     --gold: 145 75% 45%;
     --gold-muted: 145 60% 55%;
-    --mint: 160 70% 55%;
-    --mint-dim: 160 50% 45%;
+    --mint: 142 70% 75%;
+    --mint-dim: 142 60% 60%;
     --text-primary: 0 0% 100%;
     --text-secondary: 160 40% 70%;
     --light-green: 160 70% 55%;
