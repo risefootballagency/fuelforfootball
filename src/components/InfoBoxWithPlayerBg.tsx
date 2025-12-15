@@ -6,6 +6,7 @@ interface InfoBoxWithPlayerBgProps {
   className?: string;
   imagePosition?: 'left' | 'right' | 'center';
   imageOpacity?: number;
+  style?: React.CSSProperties;
 }
 
 // Available player images for use across the site
@@ -16,6 +17,12 @@ export const PLAYER_BG_IMAGES = [
   '/players/ongenda.jpg',
   '/players/masangu.jpg',
   '/players/cardoso.png',
+  '/players/grujic.png',
+  '/players/kiyine.jpg',
+  '/players/junior-nsangou.jpg',
+  '/players/balaj.png',
+  '/players/aboubacar-doumbia.png',
+  '/players/bacalu.png',
 ];
 
 export const InfoBoxWithPlayerBg: React.FC<InfoBoxWithPlayerBgProps> = ({
@@ -24,6 +31,7 @@ export const InfoBoxWithPlayerBg: React.FC<InfoBoxWithPlayerBgProps> = ({
   className = '',
   imagePosition = 'right',
   imageOpacity = 0.15,
+  style,
 }) => {
   const positionClasses = {
     left: 'left-0',
@@ -32,7 +40,7 @@ export const InfoBoxWithPlayerBg: React.FC<InfoBoxWithPlayerBgProps> = ({
   };
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden ${className}`} style={style}>
       {/* Player image background */}
       {playerImage && (
         <div 

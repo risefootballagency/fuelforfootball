@@ -3,6 +3,7 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
 
 interface ContactSection {
   titleKey: string;
@@ -86,7 +87,12 @@ const Contact = () => {
       <Header />
       <div className="min-h-screen bg-background pt-24 md:pt-24 touch-pan-y overflow-x-hidden">
         {/* Page Header */}
-        <div className="bg-background border-b border-primary/20">
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[0]}
+          className="bg-background border-b border-primary/20"
+          imagePosition="right"
+          imageOpacity={0.1}
+        >
           <div className="container mx-auto py-8 md:py-12">
             <h1 className="text-4xl md:text-7xl font-bebas uppercase text-foreground mb-3 md:mb-4 tracking-wider">
               {t('contact.title', 'Contact Us')}
@@ -95,15 +101,18 @@ const Contact = () => {
               {t('contact.subtitle', 'Get in touch with the right team member for your needs')}
             </p>
           </div>
-        </div>
+        </InfoBoxWithPlayerBg>
 
         {/* Contact Sections */}
         <main className="container mx-auto py-8 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-            {contactSections.map((section) => (
-              <div 
+            {contactSections.map((section, index) => (
+              <InfoBoxWithPlayerBg
                 key={section.titleKey}
+                playerImage={PLAYER_BG_IMAGES[index % PLAYER_BG_IMAGES.length]}
                 className="bg-secondary/30 backdrop-blur-sm p-4 md:p-8 rounded-lg border border-primary/20 hover:border-primary transition-all space-y-4 md:space-y-6"
+                imagePosition={index % 2 === 0 ? 'right' : 'left'}
+                imageOpacity={0.12}
               >
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary mb-2 md:mb-3">
@@ -146,7 +155,7 @@ const Contact = () => {
                     </a>
                   </Button>
                 </div>
-              </div>
+              </InfoBoxWithPlayerBg>
             ))}
           </div>
         </main>
