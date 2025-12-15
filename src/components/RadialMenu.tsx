@@ -779,7 +779,7 @@ export const RadialMenu = () => {
                     style={{
                       width: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
                       height: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
-                      color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(160, 60%, 65%)',
+                      color: hovered ? 'hsl(45, 100%, 50%)' : '#c5db9e',
                     }}
                   >
                     <item.Icon className="w-full h-full" />
@@ -792,7 +792,7 @@ export const RadialMenu = () => {
                     fontSize: `${isMobile ? centerSize * 0.12 : centerSize * 0.0875}px`,
                     maxWidth: isMobile ? `${centerSize * 0.5}px` : 'none',
                     whiteSpace: isMobile ? 'normal' : 'nowrap',
-                    color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(160, 60%, 65%)',
+                    color: hovered ? 'hsl(45, 100%, 50%)' : '#c5db9e',
                   }}
                 >
                   {t(item.labelKey, item.fallback)}

@@ -72,8 +72,8 @@ All colors MUST be HSL.
     /* Legacy aliases for compatibility */
     --gold: 152 100% 28%;
     --gold-muted: 150 100% 25%;
-    --mint: 152 100% 40%;
-    --mint-dim: 150 100% 30%;
+    --mint: 82 46% 74%;
+    --mint-dim: 82 40% 60%;
     --text-primary: 0 0% 98%;
     --text-secondary: 0 0% 70%;
     --light-green: 152 100% 28%;
