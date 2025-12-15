@@ -16,55 +16,75 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Celtic FC Color Scheme - Dark green/black background with bright green accents */
-    --background: 147 40% 7%;
+    /* FFF Brand Colors - extracted from logo */
+    /* Primary: Gold/Amber outer ring */
+    /* Secondary: Mint/Sage green inner elements */
+    /* Tertiary: Dark forest green background */
+    
+    --background: 120 35% 12%;
     --foreground: 0 0% 100%;
 
     /* Cards & panels - dark green surfaces */
-    --card: 147 35% 10%;
+    --card: 120 30% 15%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 147 35% 8%;
+    --popover: 120 30% 12%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 145 75% 45%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: FFF Gold/Amber */
+    --primary: 45 95% 55%;
+    --primary-foreground: 120 35% 12%;
 
-    --secondary: 147 30% 15%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary: FFF Mint/Sage Green */
+    --secondary: 90 35% 75%;
+    --secondary-foreground: 120 35% 12%;
 
-    --muted: 147 25% 12%;
-    --muted-foreground: 145 20% 70%;
+    --muted: 120 25% 18%;
+    --muted-foreground: 90 25% 70%;
 
-    --accent: 145 75% 45%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent uses the gold */
+    --accent: 45 95% 55%;
+    --accent-foreground: 120 35% 12%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 147 30% 20%;
-    --input: 147 30% 15%;
-    --ring: 145 75% 45%;
+    --border: 120 25% 25%;
+    --input: 120 25% 18%;
+    --ring: 45 95% 55%;
 
     --radius: 0rem;
 
-    /* Custom design tokens - Celtic green + Rise mint */
-    --gold: 145 75% 45%;
-    --gold-muted: 145 60% 55%;
-    --mint: 142 70% 75%;
-    --mint-dim: 142 60% 60%;
+    /* FFF Brand Tokens */
+    /* Primary: Gold/Amber from logo outer ring */
+    --fff-gold: 45 95% 55%;
+    --fff-gold-dim: 45 80% 45%;
+    
+    /* Secondary: Mint/Sage from logo inner elements */
+    --fff-mint: 90 35% 75%;
+    --fff-mint-dim: 90 30% 60%;
+    
+    /* Tertiary: Dark green from logo grass background */
+    --fff-green: 120 35% 12%;
+    --fff-green-light: 120 30% 20%;
+    
+    /* Legacy aliases for compatibility */
+    --gold: 45 95% 55%;
+    --gold-muted: 45 80% 45%;
+    --mint: 90 35% 75%;
+    --mint-dim: 90 30% 60%;
     --text-primary: 0 0% 100%;
-    --text-secondary: 160 40% 70%;
-    --light-green: 160 70% 55%;
-    --light-green-dim: 160 50% 45%;
-    --bg-dark: 147 40% 7%;
-    --bg-card: 147 35% 10%;
+    --text-secondary: 90 30% 70%;
+    --light-green: 90 35% 75%;
+    --light-green-dim: 90 30% 60%;
+    --bg-dark: 120 35% 12%;
+    --bg-card: 120 30% 15%;
     
     /* Dark UI elements */
-    --header-bg: 147 40% 7%;
-    --footer-bg: 147 40% 7%;
-    --table-bg: 147 35% 10%;
-    --tab-bg: 147 30% 12%;
+    --header-bg: 120 35% 10%;
+    --footer-bg: 120 35% 10%;
+    --table-bg: 120 30% 15%;
+    --tab-bg: 120 25% 18%;
   }
 }
 
