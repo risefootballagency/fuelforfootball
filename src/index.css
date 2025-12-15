@@ -75,6 +75,10 @@ All colors MUST be HSL.
     --mint: 82 46% 74%;
     --mint-dim: 82 40% 60%;
     
+    /* FFF Orange/Gold accent for hover states */
+    --fff-orange: 36 100% 50%;
+    --fff-gold: 45 100% 50%;
+    
     /* Glossy green gradient for headers */
     --glossy-green: linear-gradient(
       180deg,
