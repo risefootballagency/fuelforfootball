@@ -92,26 +92,40 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
 
-  html, body {
+  /* Fix for 100vw causing horizontal scroll when scrollbar is visible */
+  :root {
+    --scrollbar-width: 0px;
+  }
+  
+  @supports (scrollbar-gutter: stable) {
+    html {
+      scrollbar-gutter: stable;
+    }
+  }
+
+  html {
     overflow-x: hidden;
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     height: auto;
     min-height: 100%;
-    max-width: 100vw;
+  }
+  
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Agrandir Tight', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
   /* Prevent scrolling on landing page */
   body:has(.landing-no-scroll) {
     overflow: hidden;
     height: 100dvh;
-  }
-
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'Agrandir Tight', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
