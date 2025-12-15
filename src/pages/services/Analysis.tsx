@@ -10,7 +10,7 @@ const Analysis = () => {
       <main>
         {/* Hero Section */}
         <section className="relative py-8 pt-24">
-          <div className="container mx-auto px-4 text-center">
+          <div className="container mx-auto text-center">
             <p className="font-bebas text-2xl text-muted-foreground tracking-widest mb-4">
               ANALYSIS
             </p>
@@ -23,7 +23,7 @@ const Analysis = () => {
 
         {/* Pillars */}
         <section className="py-8 relative overflow-hidden bg-card/30">
-          <div className="container mx-auto px-4 relative z-10">
+          <div className="container mx-auto relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="flex flex-col items-center gap-3">
                 <img 
@@ -63,7 +63,7 @@ const Analysis = () => {
 
         {/* Pre-Match Opposition Analysis */}
         <section className="py-16">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               PRE-MATCH OPPOSITION ANALYSIS
             </h2>
@@ -113,7 +113,7 @@ const Analysis = () => {
 
         {/* Post-Match Analysis */}
         <section className="py-16 bg-card/30">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               POST-MATCH ANALYSIS
             </h2>
@@ -163,7 +163,7 @@ const Analysis = () => {
 
         {/* Positional Guide */}
         <section className="py-16">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               POSITIONAL GUIDE
             </h2>
@@ -213,7 +213,7 @@ const Analysis = () => {
 
         {/* Player Efficiency Report */}
         <section className="py-16 bg-card/30">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               PLAYER EFFICIENCY REPORT
             </h2>
@@ -263,7 +263,7 @@ const Analysis = () => {
 
         {/* In Detail Section */}
         <section className="py-16">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               IN DETAIL
             </h2>

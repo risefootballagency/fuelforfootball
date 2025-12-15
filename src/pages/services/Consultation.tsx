@@ -9,7 +9,7 @@ const Consultation = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto">
           <h1 className="font-bebas text-5xl md:text-7xl text-primary mb-6">
             {t("services.consultation.title", "Consultation")}
           </h1>

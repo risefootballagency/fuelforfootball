@@ -118,13 +118,13 @@ const Players = () => {
         />
 
         {/* What We Do Section */}
-        <section className="py-10 md:py-24 px-3 md:px-4 bg-card/50 relative overflow-hidden">
+        <section className="py-10 md:py-24 bg-card/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
           <div className="container mx-auto relative z-10">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-8">
               What We Do
             </h2>
-            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-4xl mx-auto mb-8 md:mb-16 px-2">
+            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-4xl mx-auto mb-8 md:mb-16">
               At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents.
             </p>
 
@@ -163,12 +163,12 @@ const Players = () => {
         </section>
 
         {/* Choose Your Fuel Section */}
-        <section className="py-10 md:py-24 px-3 md:px-4 bg-background">
+        <section className="py-10 md:py-24 bg-background">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-6">
               Choose Your Fuel
             </h2>
-            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto mb-6 md:mb-12 px-2">
+            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto mb-6 md:mb-12">
               Already aware of where you need to work to make the greatest improvements to your game? Click through to the related service to learn more.
             </p>
 
@@ -188,7 +188,7 @@ const Players = () => {
         </section>
 
         {/* Needs Analysis Section */}
-        <section className="py-10 md:py-24 px-3 md:px-4 bg-card/50">
+        <section className="py-10 md:py-24 bg-card/50">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-8 md:mb-16">
               Needs Analysis
@@ -215,7 +215,7 @@ const Players = () => {
         </section>
 
         {/* Bottom CTA Section */}
-        <section className="py-10 md:py-24 px-4 border-t border-border/50" style={{ backgroundColor: '#fafafa' }}>
+        <section className="py-10 md:py-24 border-t border-border/50" style={{ backgroundColor: '#fafafa' }}>
           <div className="container mx-auto text-center max-w-3xl">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6" style={{ color: '#008240' }}>
               Ready to Elevate Your Game?
