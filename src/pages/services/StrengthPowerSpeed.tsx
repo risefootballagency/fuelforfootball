@@ -63,12 +63,7 @@ const StrengthPowerSpeed = () => {
 
 
         {/* In Detail Section */}
-        <section className="py-16 relative">
-          <div className="absolute inset-0 z-0" style={{
-            backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png/v1/fill/w_1904,h_400,al_c,q_90,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }} />
+        <section className="py-16 relative bg-card/30">
           <div className="container mx-auto px-4 relative z-10">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               IN DETAIL
@@ -106,12 +101,6 @@ const StrengthPowerSpeed = () => {
 
         {/* Training Section */}
         <section className="py-16 relative overflow-hidden">
-          <div className="absolute inset-0 z-0" style={{
-            backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg/v1/fill/w_1904,h_800,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            opacity: 0.3,
-          }} />
           <div className="container mx-auto px-4 relative z-10">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               TRAINING
@@ -178,13 +167,7 @@ const StrengthPowerSpeed = () => {
 
 
         {/* Options Section */}
-        <section className="py-16 relative overflow-hidden">
-          <div className="absolute inset-0 z-0" style={{
-            backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg/v1/fill/w_1904,h_800,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            opacity: 0.3,
-          }} />
+        <section className="py-16 relative overflow-hidden bg-card/30">
           <div className="container mx-auto px-4 relative z-10">
             <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
               OPTIONS
