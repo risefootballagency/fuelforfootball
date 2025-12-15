@@ -9,6 +9,7 @@ import { VideoPortfolio } from "@/components/VideoPortfolio";
 import ScoutingNetworkMap from "@/components/ScoutingNetworkMap";
 import { CapabilityAccordion } from "@/components/CapabilityAccordion";
 import { PlayerMarquee } from "@/components/PlayerMarquee";
+import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { HoverText } from "@/components/HoverText";
@@ -182,7 +183,12 @@ const Index = () => {
 
             {/* Scouting Philosophy Points */}
             <div className="mt-12 grid md:grid-cols-3 gap-6">
-              <div className="p-6 border border-border/50 bg-card/30">
+              <InfoBoxWithPlayerBg 
+                playerImage={PLAYER_BG_IMAGES[0]} 
+                className="p-6 border border-border/50 bg-card/30 rounded-lg"
+                imagePosition="right"
+                imageOpacity={0.12}
+              >
                 <div className="flex items-start gap-4">
                   <span className="text-4xl font-bebas text-primary/30">01</span>
                   <div className="space-y-2">
@@ -194,9 +200,14 @@ const Index = () => {
                     </p>
                   </div>
                 </div>
-              </div>
+              </InfoBoxWithPlayerBg>
 
-              <div className="p-6 border border-border/50 bg-card/30">
+              <InfoBoxWithPlayerBg 
+                playerImage={PLAYER_BG_IMAGES[1]} 
+                className="p-6 border border-border/50 bg-card/30 rounded-lg"
+                imagePosition="right"
+                imageOpacity={0.12}
+              >
                 <div className="flex items-start gap-4">
                   <span className="text-4xl font-bebas text-primary/30">02</span>
                   <div className="space-y-2">
@@ -208,9 +219,14 @@ const Index = () => {
                     </p>
                   </div>
                 </div>
-              </div>
+              </InfoBoxWithPlayerBg>
 
-              <div className="p-6 border border-border/50 bg-card/30">
+              <InfoBoxWithPlayerBg 
+                playerImage={PLAYER_BG_IMAGES[2]} 
+                className="p-6 border border-border/50 bg-card/30 rounded-lg"
+                imagePosition="right"
+                imageOpacity={0.12}
+              >
                 <div className="flex items-start gap-4">
                   <span className="text-4xl font-bebas text-primary/30">03</span>
                   <div className="space-y-2">
@@ -222,7 +238,7 @@ const Index = () => {
                     </p>
                   </div>
                 </div>
-              </div>
+              </InfoBoxWithPlayerBg>
             </div>
           </div>
         </section>
