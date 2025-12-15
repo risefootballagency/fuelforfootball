@@ -86,18 +86,10 @@ const Players = () => {
       <Header />
       
       <main className="pt-20 md:pt-28">
-        {/* Title Bar with smoky background */}
-        <section className="relative overflow-hidden py-3 md:py-4 border-b border-border/50">
-          <div 
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png/v1/fill/w_1920,h_80,al_c,q_90,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
+        {/* Title Bar */}
+        <section className="relative overflow-hidden py-3 md:py-4 border-b border-border/50 bg-primary">
           <div className="container mx-auto relative z-10 px-4">
-            <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground">
+            <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-primary-foreground">
               Players
             </h1>
           </div>

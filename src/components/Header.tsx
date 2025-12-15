@@ -312,16 +312,7 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
 
   return <>
       {/* Top Utility Bar - only on homepage and only when not scrolled */}
-      {showTopBar && !isScrolled && <div className="fixed top-14 md:top-16 left-0 right-0 z-[99] transition-all duration-500 border-b-2 border-primary overflow-hidden">
-          {/* Smoky green background */}
-          <div 
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png/v1/fill/w_1920,h_60,al_c,q_90,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
+      {showTopBar && !isScrolled && <div className="fixed top-14 md:top-16 left-0 right-0 z-[99] transition-all duration-500 border-b-2 border-primary overflow-hidden bg-primary">
           <div className="container mx-auto px-2 md:px-4 relative z-10">
           <div className="flex items-center h-8 md:h-10 relative">
             {/* Left items - hidden on mobile, shown on tablet+ */}
