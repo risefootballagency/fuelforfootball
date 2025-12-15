@@ -322,18 +322,18 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
                   {index > 0 && <div className="w-px h-4 bg-white/20" />}
                   {item.type === 'link' ? (
                     pathToRole[item.to!] ? (
-                      <SubdomainLink role={pathToRole[item.to!]} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500 flex items-center gap-1.5">
+                      <SubdomainLink role={pathToRole[item.to!]} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500 flex items-center gap-1.5">
                         <item.icon className="w-3.5 h-3.5" />
                         <HoverText text={t(item.labelKey, item.fallback)} />
                       </SubdomainLink>
                     ) : (
-                      <LocalizedLink to={item.to!} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500 flex items-center gap-1.5">
+                      <LocalizedLink to={item.to!} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500 flex items-center gap-1.5">
                         <item.icon className="w-3.5 h-3.5" />
                         <HoverText text={t(item.labelKey, item.fallback)} />
                       </LocalizedLink>
                     )
                   ) : (
-                    <button onClick={() => handleSubHeaderAction(item.action)} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500 flex items-center gap-1.5">
+                    <button onClick={() => handleSubHeaderAction(item.action)} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500 flex items-center gap-1.5">
                       <item.icon className="w-3.5 h-3.5" />
                       <HoverText text={t(item.labelKey, item.fallback)} />
                     </button>
@@ -349,16 +349,16 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
                   {index > 0 && <div className="w-px h-3 bg-white/20" />}
                   {item.type === 'link' ? (
                     pathToRole[item.to!] ? (
-                      <SubdomainLink role={pathToRole[item.to!]} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500">
+                      <SubdomainLink role={pathToRole[item.to!]} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500">
                         <HoverText text={t(item.labelKey, item.mobileFallback)} />
                       </SubdomainLink>
                     ) : (
-                      <LocalizedLink to={item.to!} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500">
+                      <LocalizedLink to={item.to!} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500">
                         <HoverText text={t(item.labelKey, item.mobileFallback)} />
                       </LocalizedLink>
                     )
                   ) : (
-                    <button onClick={() => handleSubHeaderAction(item.action)} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500">
+                    <button onClick={() => handleSubHeaderAction(item.action)} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500">
                       <HoverText text={t(item.labelKey, item.mobileFallback)} />
                     </button>
                   )}
@@ -383,16 +383,16 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
                   {index > 0 && <div className="w-px h-3 bg-white/20" />}
                   {item.type === 'link' ? (
                     pathToRole[item.to!] ? (
-                      <SubdomainLink role={pathToRole[item.to!]} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500">
+                      <SubdomainLink role={pathToRole[item.to!]} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500">
                         <HoverText text={t(item.labelKey, item.mobileFallback)} />
                       </SubdomainLink>
                     ) : (
-                      <LocalizedLink to={item.to!} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500">
+                      <LocalizedLink to={item.to!} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500">
                         <HoverText text={t(item.labelKey, item.mobileFallback)} />
                       </LocalizedLink>
                     )
                   ) : (
-                    <button onClick={() => handleSubHeaderAction(item.action)} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500">
+                    <button onClick={() => handleSubHeaderAction(item.action)} className="text-[10px] font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500">
                       <HoverText text={t(item.labelKey, item.mobileFallback)} />
                     </button>
                   )}
@@ -407,18 +407,18 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
                   {index > 0 && <div className="w-px h-4 bg-white/20" />}
                   {item.type === 'link' ? (
                     pathToRole[item.to!] ? (
-                      <SubdomainLink role={pathToRole[item.to!]} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500 flex items-center gap-1.5">
+                      <SubdomainLink role={pathToRole[item.to!]} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500 flex items-center gap-1.5">
                         <item.icon className="w-3.5 h-3.5" />
                         <HoverText text={t(item.labelKey, item.fallback)} />
                       </SubdomainLink>
                     ) : (
-                      <LocalizedLink to={item.to!} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500 flex items-center gap-1.5">
+                      <LocalizedLink to={item.to!} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500 flex items-center gap-1.5">
                         <item.icon className="w-3.5 h-3.5" />
                         <HoverText text={t(item.labelKey, item.fallback)} />
                       </LocalizedLink>
                     )
                   ) : (
-                    <button onClick={() => handleSubHeaderAction(item.action)} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-primary transition-all duration-500 flex items-center gap-1.5">
+                    <button onClick={() => handleSubHeaderAction(item.action)} className="text-sm font-bebas uppercase tracking-wider text-white/80 hover:text-fff-orange transition-all duration-500 flex items-center gap-1.5">
                       <item.icon className="w-3.5 h-3.5" />
                       <HoverText text={t(item.labelKey, item.fallback)} />
                     </button>
