@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Brain, Target, Dumbbell, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/HeroSlider";
-import { GrassBackground } from "@/components/GrassBackground";
 
 const Players = () => {
   const { t } = useLanguage();
@@ -125,9 +124,6 @@ const Players = () => {
           ]}
           autoplayDelay={5000}
         />
-
-        {/* Grass top decoration - only used as strip under slider */}
-        <GrassBackground variant="top" />
 
         {/* What We Do Section */}
         <section className="py-10 md:py-24 px-3 md:px-4 bg-card/50 relative overflow-hidden">

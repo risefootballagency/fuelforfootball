@@ -2,17 +2,12 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
-import { GrassBackground } from "@/components/GrassBackground";
 
 const StrengthPowerSpeed = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        {/* Grass Top */}
-        <div className="pt-20">
-          <GrassBackground variant="top" />
-        </div>
         {/* Hero Section */}
         <section className="relative pt-24 pb-8">
           <div className="container mx-auto px-4 text-center">
@@ -66,8 +61,6 @@ const StrengthPowerSpeed = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <GrassBackground variant="divider" />
 
         {/* In Detail Section */}
         <section className="py-16 relative">
@@ -110,8 +103,6 @@ const StrengthPowerSpeed = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <GrassBackground variant="divider" />
 
         {/* Training Section */}
         <section className="py-16 relative overflow-hidden">
@@ -147,8 +138,6 @@ const StrengthPowerSpeed = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <GrassBackground variant="divider" />
 
         {/* Programming Section */}
         <section className="py-16">
@@ -187,8 +176,6 @@ const StrengthPowerSpeed = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <GrassBackground variant="divider" />
 
         {/* Options Section */}
         <section className="py-16 relative overflow-hidden">
@@ -239,8 +226,6 @@ const StrengthPowerSpeed = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <GrassBackground variant="divider" />
 
         {/* The Full Package Section */}
         <section className="py-16">

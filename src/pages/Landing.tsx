@@ -6,7 +6,6 @@ import { HoverText } from "@/components/HoverText";
 import { LazyPlayer3D } from "@/components/LazyPlayer3D";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HomeBackground } from "@/components/HomeBackground";
-import { AnimatedSmokyBackground } from "@/components/AnimatedSmokyBackground";
 import { LightConeBackground } from "@/components/LightConeBackground";
 import { XRayProvider, useXRay } from "@/contexts/XRayContext";
 import { LandingCursor } from "@/components/LandingCursor";
