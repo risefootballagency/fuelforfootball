@@ -16,75 +16,76 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* FFF Brand Colors - extracted from logo */
-    /* Primary: Gold/Amber outer ring */
-    /* Secondary: Mint/Sage green inner elements */
-    /* Tertiary: Dark forest green background */
+    /* FFF Brand Colors */
+    /* Header green: #00914a */
+    /* Dark background: #010101 */
+    /* Light background: #fafafa */
+    /* Text green: #008240 */
     
-    --background: 120 35% 12%;
-    --foreground: 0 0% 100%;
+    /* Default: Dark theme */
+    --background: 0 0% 0.4%;
+    --foreground: 0 0% 98%;
 
-    /* Cards & panels - dark green surfaces */
-    --card: 120 30% 15%;
-    --card-foreground: 0 0% 100%;
+    /* Cards & panels */
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 120 30% 12%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 2%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Primary: FFF Gold/Amber */
-    --primary: 45 95% 55%;
-    --primary-foreground: 120 35% 12%;
+    /* Primary: FFF Header Green #00914a */
+    --primary: 152 100% 28%;
+    --primary-foreground: 0 0% 98%;
 
-    /* Secondary: FFF Mint/Sage Green */
-    --secondary: 90 35% 75%;
-    --secondary-foreground: 120 35% 12%;
+    /* Secondary */
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 120 25% 18%;
-    --muted-foreground: 90 25% 70%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
 
-    /* Accent uses the gold */
-    --accent: 45 95% 55%;
-    --accent-foreground: 120 35% 12%;
+    /* Accent: FFF Green */
+    --accent: 152 100% 28%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 120 25% 25%;
-    --input: 120 25% 18%;
-    --ring: 45 95% 55%;
+    --border: 0 0% 15%;
+    --input: 0 0% 10%;
+    --ring: 152 100% 28%;
 
     --radius: 0rem;
 
     /* FFF Brand Tokens */
-    /* Primary: Gold/Amber from logo outer ring */
-    --fff-gold: 45 95% 55%;
-    --fff-gold-dim: 45 80% 45%;
+    /* Header green: #00914a */
+    --fff-green: 152 100% 28%;
+    --fff-green-dark: 150 100% 25%;
     
-    /* Secondary: Mint/Sage from logo inner elements */
-    --fff-mint: 90 35% 75%;
-    --fff-mint-dim: 90 30% 60%;
+    /* Light theme text green: #008240 */
+    --fff-text-green: 150 100% 25%;
     
-    /* Tertiary: Dark green from logo grass background */
-    --fff-green: 120 35% 12%;
-    --fff-green-light: 120 30% 20%;
+    /* Background colors */
+    --fff-dark: 0 0% 0.4%;
+    --fff-light: 0 0% 98%;
     
     /* Legacy aliases for compatibility */
-    --gold: 45 95% 55%;
-    --gold-muted: 45 80% 45%;
-    --mint: 90 35% 75%;
-    --mint-dim: 90 30% 60%;
-    --text-primary: 0 0% 100%;
-    --text-secondary: 90 30% 70%;
-    --light-green: 90 35% 75%;
-    --light-green-dim: 90 30% 60%;
-    --bg-dark: 120 35% 12%;
-    --bg-card: 120 30% 15%;
+    --gold: 152 100% 28%;
+    --gold-muted: 150 100% 25%;
+    --mint: 152 100% 40%;
+    --mint-dim: 150 100% 30%;
+    --text-primary: 0 0% 98%;
+    --text-secondary: 0 0% 70%;
+    --light-green: 152 100% 28%;
+    --light-green-dim: 150 100% 25%;
+    --bg-dark: 0 0% 0.4%;
+    --bg-card: 0 0% 3%;
     
     /* Dark UI elements */
-    --header-bg: 120 35% 10%;
-    --footer-bg: 120 35% 10%;
-    --table-bg: 120 30% 15%;
-    --tab-bg: 120 25% 18%;
+    --header-bg: 152 100% 28%;
+    --footer-bg: 0 0% 0.4%;
+    --table-bg: 0 0% 3%;
+    --tab-bg: 0 0% 5%;
   }
 }
 
