@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Brain, Target, Dumbbell, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/HeroSlider";
+import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
 
 const Players = () => {
   const { t } = useLanguage();
@@ -131,9 +132,12 @@ const Players = () => {
             {/* Four Corners Grid */}
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
               {fourCorners.map((corner, index) => (
-                <div 
+                <InfoBoxWithPlayerBg
                   key={index}
+                  playerImage={PLAYER_BG_IMAGES[index % PLAYER_BG_IMAGES.length]}
                   className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300"
+                  imagePosition="right"
+                  imageOpacity={0.15}
                 >
                   <div className="aspect-video overflow-hidden">
                     <img 
@@ -156,14 +160,19 @@ const Players = () => {
                       Learn More <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                     </Link>
                   </div>
-                </div>
+                </InfoBoxWithPlayerBg>
               ))}
             </div>
           </div>
         </section>
 
         {/* Choose Your Fuel Section */}
-        <section className="py-10 md:py-24 bg-background">
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[4]}
+          className="py-10 md:py-24 bg-background"
+          imagePosition="left"
+          imageOpacity={0.08}
+        >
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-6">
               Choose Your Fuel
@@ -185,10 +194,15 @@ const Players = () => {
               ))}
             </div>
           </div>
-        </section>
+        </InfoBoxWithPlayerBg>
 
         {/* Needs Analysis Section */}
-        <section className="py-10 md:py-24 bg-card/50">
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[5]}
+          className="py-10 md:py-24 bg-card/50"
+          imagePosition="right"
+          imageOpacity={0.1}
+        >
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-8 md:mb-16">
               Needs Analysis
@@ -196,7 +210,13 @@ const Players = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
               {needsAnalysisSteps.map((step, index) => (
-                <div key={index} className="text-center">
+                <InfoBoxWithPlayerBg
+                  key={index}
+                  playerImage={PLAYER_BG_IMAGES[(index + 6) % PLAYER_BG_IMAGES.length]}
+                  className="text-center p-4 rounded-lg border border-border/30 bg-card/50"
+                  imagePosition="center"
+                  imageOpacity={0.12}
+                >
                   <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 md:mb-6 rounded-full bg-primary/20 flex items-center justify-center">
                     <span className="text-2xl md:text-3xl font-bebas text-primary">{step.number}</span>
                   </div>
@@ -208,14 +228,20 @@ const Players = () => {
                       <li key={i}>{item}</li>
                     ))}
                   </ul>
-                </div>
+                </InfoBoxWithPlayerBg>
               ))}
             </div>
           </div>
-        </section>
+        </InfoBoxWithPlayerBg>
 
         {/* Bottom CTA Section */}
-        <section className="py-10 md:py-24 border-t border-border/50" style={{ backgroundColor: '#fafafa' }}>
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[0]}
+          className="py-10 md:py-24 border-t border-border/50"
+          imagePosition="right"
+          imageOpacity={0.1}
+          style={{ backgroundColor: '#fafafa' }}
+        >
           <div className="container mx-auto text-center max-w-3xl">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6" style={{ color: '#008240' }}>
               Ready to Elevate Your Game?
@@ -230,7 +256,7 @@ const Players = () => {
               </Button>
             </Link>
           </div>
-        </section>
+        </InfoBoxWithPlayerBg>
       </main>
       
       <Footer />

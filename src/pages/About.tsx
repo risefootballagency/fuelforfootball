@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
 import bannerHero from "@/assets/banner-hero.jpg";
 
 const About = () => {
@@ -38,7 +39,12 @@ const About = () => {
         </section>
 
         {/* Our Story */}
-        <section className="py-10 md:py-24 bg-muted/30">
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[0]}
+          className="py-10 md:py-24 bg-muted/30"
+          imagePosition="right"
+          imageOpacity={0.1}
+        >
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-8">
@@ -60,10 +66,15 @@ const About = () => {
               </div>
             </div>
           </div>
-        </section>
+        </InfoBoxWithPlayerBg>
 
         {/* Who We Are */}
-        <section className="py-10 md:py-24">
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[1]}
+          className="py-10 md:py-24"
+          imagePosition="left"
+          imageOpacity={0.08}
+        >
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-8">
@@ -80,29 +91,34 @@ const About = () => {
               
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mt-8 md:mt-12">
-                <div className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg">
+                <InfoBoxWithPlayerBg playerImage={PLAYER_BG_IMAGES[6]} className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg" imageOpacity={0.12}>
                   <div className="text-2xl md:text-4xl font-bebas text-primary">74</div>
                   <p className="text-[10px] md:text-xs font-bebas uppercase tracking-widest text-foreground/70">Professionals</p>
-                </div>
-                <div className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg">
+                </InfoBoxWithPlayerBg>
+                <InfoBoxWithPlayerBg playerImage={PLAYER_BG_IMAGES[7]} className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg" imageOpacity={0.12}>
                   <div className="text-2xl md:text-4xl font-bebas text-primary">18</div>
                   <p className="text-[10px] md:text-xs font-bebas uppercase tracking-widest text-foreground/70">Big 5 League</p>
-                </div>
-                <div className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg">
+                </InfoBoxWithPlayerBg>
+                <InfoBoxWithPlayerBg playerImage={PLAYER_BG_IMAGES[8]} className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg" imageOpacity={0.12}>
                   <div className="text-2xl md:text-4xl font-bebas text-primary">10</div>
                   <p className="text-[10px] md:text-xs font-bebas uppercase tracking-widest text-foreground/70">National Teams</p>
-                </div>
-                <div className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg">
+                </InfoBoxWithPlayerBg>
+                <InfoBoxWithPlayerBg playerImage={PLAYER_BG_IMAGES[9]} className="text-center p-3 md:p-4 border border-border/50 bg-card/30 rounded-lg" imageOpacity={0.12}>
                   <div className="text-2xl md:text-4xl font-bebas text-primary">£100M+</div>
                   <p className="text-[10px] md:text-xs font-bebas uppercase tracking-widest text-foreground/70">Transfer Fees</p>
-                </div>
+                </InfoBoxWithPlayerBg>
               </div>
             </div>
           </div>
-        </section>
+        </InfoBoxWithPlayerBg>
 
         {/* Our Mission */}
-        <section className="py-10 md:py-16 bg-muted/30">
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[2]}
+          className="py-10 md:py-16 bg-muted/30"
+          imagePosition="right"
+          imageOpacity={0.1}
+        >
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-8">
@@ -118,55 +134,65 @@ const About = () => {
               </div>
             </div>
           </div>
-        </section>
+        </InfoBoxWithPlayerBg>
 
         {/* What We Do */}
-        <section className="py-10 md:py-16">
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[3]}
+          className="py-10 md:py-16"
+          imagePosition="left"
+          imageOpacity={0.08}
+        >
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-6 md:mb-12">
                 {t('about.what_we_do')}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                <div className="space-y-2 md:space-y-4">
+                <InfoBoxWithPlayerBg playerImage={PLAYER_BG_IMAGES[4]} className="space-y-2 md:space-y-4 p-4 rounded-lg border border-border/30 bg-card/30" imageOpacity={0.1}>
                   <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-primary">
                     {t('about.representation')}
                   </h3>
                   <p className="text-sm md:text-base text-muted-foreground">
                     {t('about.representation_desc')}
                   </p>
-                </div>
-                <div className="space-y-2 md:space-y-4">
+                </InfoBoxWithPlayerBg>
+                <InfoBoxWithPlayerBg playerImage={PLAYER_BG_IMAGES[5]} className="space-y-2 md:space-y-4 p-4 rounded-lg border border-border/30 bg-card/30" imageOpacity={0.1}>
                   <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-primary">
                     {t('about.career_dev')}
                   </h3>
                   <p className="text-sm md:text-base text-muted-foreground">
                     {t('about.career_dev_desc')}
                   </p>
-                </div>
-                <div className="space-y-2 md:space-y-4">
+                </InfoBoxWithPlayerBg>
+                <InfoBoxWithPlayerBg playerImage={PLAYER_BG_IMAGES[10]} className="space-y-2 md:space-y-4 p-4 rounded-lg border border-border/30 bg-card/30" imageOpacity={0.1}>
                   <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-primary">
                     {t('about.global_network')}
                   </h3>
                   <p className="text-sm md:text-base text-muted-foreground">
                     {t('about.global_network_desc')}
                   </p>
-                </div>
-                <div className="space-y-2 md:space-y-4">
+                </InfoBoxWithPlayerBg>
+                <InfoBoxWithPlayerBg playerImage={PLAYER_BG_IMAGES[11]} className="space-y-2 md:space-y-4 p-4 rounded-lg border border-border/30 bg-card/30" imageOpacity={0.1}>
                   <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-primary">
                     {t('about.personal_support')}
                   </h3>
                   <p className="text-sm md:text-base text-muted-foreground">
                     {t('about.personal_support_desc')}
                   </p>
-                </div>
+                </InfoBoxWithPlayerBg>
               </div>
             </div>
           </div>
-        </section>
+        </InfoBoxWithPlayerBg>
 
         {/* CTA Section */}
-        <section className="py-10 md:py-16 bg-muted/30">
+        <InfoBoxWithPlayerBg
+          playerImage={PLAYER_BG_IMAGES[0]}
+          className="py-10 md:py-16 bg-muted/30"
+          imagePosition="center"
+          imageOpacity={0.08}
+        >
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-6">
               {t('about.cta_title')}
@@ -178,7 +204,7 @@ const About = () => {
               <Link to="/contact">{t('about.cta_button')}</Link>
             </Button>
           </div>
-        </section>
+        </InfoBoxWithPlayerBg>
       </main>
 
       <Footer />

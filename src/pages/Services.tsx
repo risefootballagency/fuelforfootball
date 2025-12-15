@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
 import fffLogo from "@/assets/fff_logo.png";
 
 interface Service {
@@ -124,13 +125,18 @@ const Services = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="pt-20 md:pt-28 pb-6 md:pb-8 bg-gradient-to-b from-primary/20 to-background">
+      <InfoBoxWithPlayerBg
+        playerImage={PLAYER_BG_IMAGES[0]}
+        className="pt-20 md:pt-28 pb-6 md:pb-8 bg-gradient-to-b from-primary/20 to-background"
+        imagePosition="right"
+        imageOpacity={0.12}
+      >
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-7xl font-bebas uppercase tracking-wider text-center text-foreground">
             Services
           </h1>
         </div>
-      </section>
+      </InfoBoxWithPlayerBg>
 
       {/* Main Content */}
       <section className="py-4 md:py-8">
