@@ -43,7 +43,10 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-[hsl(var(--bg-dark))] text-[hsl(0_0%_98%)] border-t border-primary/10">
+    <footer className="text-[hsl(0_0%_98%)] border-t border-primary/10">
+      {/* Smooth transition gradient from page to footer */}
+      <div className="h-24 bg-gradient-to-b from-transparent via-[hsl(var(--bg-dark))]/50 to-[hsl(var(--bg-dark))]" />
+      
       {/* Change The Game Divider */}
       <div className="relative flex items-center justify-center py-6 bg-[hsl(var(--bg-dark))]">
         <div className="absolute left-0 right-0 h-1 bg-primary top-1/2 -translate-y-1/2" />
@@ -69,7 +72,7 @@ export const Footer = () => {
         <div className="max-w-4xl mx-auto text-center mb-16">
           <img src={logo} alt="Fuel For Football" className="h-16 mx-auto mb-6" />
           <p className="text-lg text-mint-dim leading-relaxed max-w-2xl mx-auto">
-            {t("footer.description", "Performance-first football representation helping players, coaches, and clubs reach their full potential through data-driven insights and professional development.")}
+            {t("footer.description", "Fuel For Football is football's leading performance consultancy. We help players, coaches, and clubs reach their full potential through elite physical training, tactical analysis, psychological development, and data-driven insights.")}
           </p>
         </div>
 

@@ -87,7 +87,7 @@ const Players = () => {
       
       <main className="pt-20 md:pt-28">
         {/* Title Bar */}
-        <section className="relative overflow-hidden py-3 md:py-4 border-b border-border/50 bg-primary">
+        <section className="relative overflow-hidden py-3 md:py-4 border-b border-border/50 bg-glossy-green">
           <div className="container mx-auto relative z-10">
             <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-primary-foreground">
               Players
