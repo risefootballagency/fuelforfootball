@@ -774,11 +774,12 @@ export const RadialMenu = () => {
                     marginBottom: `${isMobile ? centerSize * 0.02 : centerSize * 0.05}px`,
                   }}
                 >
-                  <div 
-                    className={`transition-colors duration-300 ${hovered ? 'text-black' : 'text-white/70'}`}
+                <div 
+                    className="transition-colors duration-300"
                     style={{
                       width: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
                       height: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
+                      color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(160, 60%, 65%)',
                     }}
                   >
                     <item.Icon className="w-full h-full" />
@@ -786,11 +787,12 @@ export const RadialMenu = () => {
                 </div>
 
                 <span
-                  className={`font-bebas tracking-[0.15em] transition-all duration-300 text-center leading-tight ${hovered ? 'text-black' : 'text-white/60'}`}
+                  className="font-bebas tracking-[0.15em] transition-all duration-300 text-center leading-tight"
                   style={{ 
                     fontSize: `${isMobile ? centerSize * 0.12 : centerSize * 0.0875}px`,
                     maxWidth: isMobile ? `${centerSize * 0.5}px` : 'none',
                     whiteSpace: isMobile ? 'normal' : 'nowrap',
+                    color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(160, 60%, 65%)',
                   }}
                 >
                   {t(item.labelKey, item.fallback)}
@@ -810,50 +812,33 @@ export const RadialMenu = () => {
             left: `calc(50% - ${centerSize / 2}px)`,
           }}
         >
-          {/* Upper 75% with dark green */}
-          <div
-            className="absolute top-0 left-0 w-full h-[75%]"
-            style={{
-              backgroundColor: 'hsl(120, 40%, 12%)',
-            }}
-          />
-          
-          {/* Gold divider line */}
-          <div className="absolute left-0 w-full h-[2px] bg-primary z-10" style={{ top: '75%' }} />
-          
-          {/* Lower 25% with smudged marble */}
-          <div 
-            className="absolute bottom-0 left-0 w-full h-[25%]"
-            style={{
-              backgroundImage: `url(${smudgedMarbleBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
-
-          {/* Logo */}
+          {/* Logo fills the entire circle */}
           <img
             src={fffLogo}
             alt="Fuel For Football"
-            className="mb-1 relative z-20"
+            className="absolute inset-0 w-full h-full object-cover z-10"
+          />
+          
+          {/* White background behind role selector */}
+          <div 
+            className="absolute left-0 w-full bg-white z-20"
             style={{ 
-              width: `${centerSize * 0.9}px`,
-              height: `${centerSize * 0.9}px`,
-              transform: `translate(-2px, ${isMobile ? -centerSize * 0.06 + 7 - 3 : -centerSize * 0.13 + 7}px)` 
+              top: '55%',
+              height: '20%',
             }}
           />
           
-          {/* Gold divider between logo and dropdown */}
+          {/* Gold divider above role selector */}
           <div 
             className="absolute left-0 w-full h-[2px] bg-primary z-30"
-            style={{ top: 'calc(55% - 1px)' }}
+            style={{ top: '55%' }}
           />
           
           {/* Role/Menu selection button */}
           <div
-            className="text-center relative z-20 w-full flex items-center justify-center"
+            className="text-center absolute z-30 w-full flex items-center justify-center"
             style={{ 
-              transform: `translateY(${isMobile ? (-centerSize * 0.28 - 4 + 1) : (-centerSize * 0.3125)}px)` 
+              top: '57%',
             }}
           >
             <button
@@ -868,9 +853,24 @@ export const RadialMenu = () => {
             </button>
           </div>
           
-          {/* Language selector in lower half */}
+          {/* Gold divider above language selector */}
           <div 
-            className="absolute z-20" 
+            className="absolute left-0 w-full h-[2px] bg-primary z-30"
+            style={{ top: '75%' }}
+          />
+          
+          {/* White background behind language selector */}
+          <div 
+            className="absolute left-0 w-full bg-white z-20"
+            style={{ 
+              top: '75%',
+              bottom: 0,
+            }}
+          />
+          
+          {/* Language selector in lower section */}
+          <div 
+            className="absolute z-30" 
             style={{ 
               bottom: isMobile ? `${centerSize * 0.06 - 7}px` : `${centerSize * 0.04375}px`,
               left: '50%',
