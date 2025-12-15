@@ -573,7 +573,7 @@ function RoleSlider({
                   style={{
                     left: `${xPercent}%`,
                     top: `${yPercent}%`,
-                    transform: `translate(-50%, -100%) translateY(-10px)`
+                    transform: `translate(-50%, -100%) translateY(${index === 3 ? '-14px' : '-10px'})`
                   }}
                 >
                   {t(link.labelKey, link.fallback)}
