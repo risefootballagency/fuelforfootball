@@ -812,16 +812,17 @@ export const RadialMenu = () => {
             left: `calc(50% - ${centerSize / 2}px)`,
           }}
         >
-          {/* Logo fills the entire circle */}
+          {/* Logo fills the entire circle - 10% larger */}
           <img
             src={fffLogo}
             alt="Fuel For Football"
-            className="absolute inset-0 w-full h-full object-cover z-10"
+            className="absolute inset-0 w-[110%] h-[110%] object-cover z-10"
+            style={{ top: '-5%', left: '-5%' }}
           />
           
           {/* White background behind role selector */}
           <div 
-            className="absolute left-0 w-full bg-white z-20"
+            className="absolute left-0 w-full bg-white/80 z-20"
             style={{ 
               top: '55%',
               height: '20%',
@@ -856,14 +857,14 @@ export const RadialMenu = () => {
           {/* Gold divider above language selector */}
           <div 
             className="absolute left-0 w-full h-[2px] bg-primary z-30"
-            style={{ top: '75%' }}
+            style={{ top: 'calc(75% + 4px)' }}
           />
           
           {/* White background behind language selector */}
           <div 
-            className="absolute left-0 w-full bg-white z-20"
+            className="absolute left-0 w-full bg-white/80 z-20"
             style={{ 
-              top: '75%',
+              top: 'calc(75% + 4px)',
               bottom: 0,
             }}
           />
