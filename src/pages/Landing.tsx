@@ -315,36 +315,36 @@ function LandingContent() {
               
               
               {/* Top row: Players, Coaches, Clubs - with divider */}
-              <div className="border-t border-primary/40 pt-0.5 pb-0.5" style={{
+              <div className="border-t border-[hsl(var(--mint)/0.4)] pt-0.5 pb-0.5" style={{
               width: '60%'
             }}>
                 <nav className="flex items-center justify-center gap-1">
-                  {mobileNavLinks.slice(0, 3).map((link, index) => <div key={link.to} className="flex items-center">
-                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-0.5 text-[17px] font-bebas uppercase tracking-[0.15em] text-light-green/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
+                {mobileNavLinks.slice(0, 3).map((link, index) => <div key={link.to} className="flex items-center">
+                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-0.5 text-[17px] font-bebas uppercase tracking-[0.15em] text-[hsl(var(--mint)/0.8)] hover:text-[hsl(var(--mint))] transition-colors duration-300 whitespace-nowrap">
                         <HoverText text={t(link.labelKey, link.fallback)} />
                       </button>
-                      {index < 2 && <div className="w-px h-3 bg-primary/40" />}
+                      {index < 2 && <div className="w-px h-3 bg-[hsl(var(--mint)/0.4)]" />}
                     </div>)}
                 </nav>
               </div>
               
               {/* Bottom row: Agents, Scouts, Business, Media - widest */}
-              <div className="border-t border-primary/40 pt-0.5" style={{
+              <div className="border-t border-[hsl(var(--mint)/0.4)] pt-0.5" style={{
               width: '82%'
             }}>
                 <nav className="flex items-center justify-center gap-1">
                   {mobileNavLinks.slice(3).map((link, index) => <div key={link.to} className="flex items-center">
-                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-0.5 text-[17px] font-bebas uppercase tracking-[0.15em] text-light-green/80 hover:text-primary transition-colors duration-300 whitespace-nowrap">
+                      <button onClick={() => navigateToRole(link.to)} className="px-2 py-0.5 text-[17px] font-bebas uppercase tracking-[0.15em] text-[hsl(var(--mint)/0.8)] hover:text-[hsl(var(--mint))] transition-colors duration-300 whitespace-nowrap">
                         <HoverText text={t(link.labelKey, link.fallback)} />
                       </button>
-                      {index < 3 && <div className="w-px h-3 bg-primary/40" />}
+                      {index < 3 && <div className="w-px h-3 bg-[hsl(var(--mint)/0.4)]" />}
                     </div>)}
                 </nav>
               </div>
               
               {/* Select role text - mobile */}
               <div className="text-center pt-0">
-                <span className="text-[10px] font-bebas uppercase tracking-[0.15em] text-light-green/40">
+                <span className="text-[10px] font-bebas uppercase tracking-[0.15em] text-[hsl(var(--mint)/0.4)]">
                   {t("landing.select_role_enter", "Select Your Role To Enter Site")}
                 </span>
               </div>
@@ -526,7 +526,7 @@ function RoleSlider({
             <path 
               d="M0,87 Q50,15 100,87" 
               fill="none" 
-              stroke="hsl(142 70% 75% / 0.2)" 
+              stroke="hsl(var(--mint) / 0.2)" 
               strokeWidth="1"
               vectorEffect="non-scaling-stroke"
             />
@@ -539,7 +539,7 @@ function RoleSlider({
             <path 
               d="M0,87 Q50,15 100,87"
               fill="none" 
-              stroke="hsl(var(--primary) / 0.6)" 
+              stroke="hsl(var(--mint) / 0.6)" 
               strokeWidth="1"
               vectorEffect="non-scaling-stroke"
               clipPath="url(#filledClip)"
@@ -567,9 +567,9 @@ function RoleSlider({
                   onMouseEnter={() => setHoveredIndex(index)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   className={`absolute z-10 text-[15px] font-bebas uppercase tracking-[0.12em] transition-all duration-300 whitespace-nowrap ${
-                    isSelected ? 'text-primary font-bold' : 
-                    isHovered ? 'text-primary font-bold' : 
-                    'text-light-green/40'
+                    isSelected ? 'text-[hsl(var(--mint))] font-bold' : 
+                    isHovered ? 'text-[hsl(var(--mint))] font-bold' : 
+                    'text-[hsl(var(--mint)/0.4)]'
                   }`}
                   style={{
                     left: `${xPercent}%`,
@@ -583,10 +583,10 @@ function RoleSlider({
                 <div 
                   className={`absolute z-10 w-2 h-2 rounded-full transition-all duration-200 ${
                     selectedIndex !== null && index === selectedIndex 
-                      ? 'bg-primary scale-125' 
+                      ? 'bg-[hsl(var(--mint))] scale-125' 
                       : selectedIndex !== null && index < selectedIndex 
-                        ? 'bg-primary/60' 
-                        : 'bg-light-green/30'
+                        ? 'bg-[hsl(var(--mint)/0.6)]' 
+                        : 'bg-[hsl(var(--mint)/0.3)]'
                   }`}
                   style={{
                     left: `${xPercent}%`,
@@ -617,15 +617,15 @@ function RoleSlider({
                 onMouseDown={handleThumbMouseDown}
               >
                 {/* Outer glow - larger and more visible */}
-                <div className={`absolute inset-0 rounded-full bg-primary/40 blur-lg ${isDragging ? 'scale-[2]' : 'scale-150'} transition-transform duration-150`} style={{
+                <div className={`absolute inset-0 rounded-full bg-[hsl(var(--mint)/0.4)] blur-lg ${isDragging ? 'scale-[2]' : 'scale-150'} transition-transform duration-150`} style={{
                   width: '32px',
                   height: '32px',
                   marginLeft: '-4px',
                   marginTop: '-4px'
                 }} />
                 {/* Main thumb - larger and more obvious */}
-                <div className={`relative w-6 h-6 rounded-full bg-primary shadow-lg flex items-center justify-center ${isDragging ? 'scale-125' : 'hover:scale-110'} transition-transform duration-150`} style={{
-                  boxShadow: '0 0 20px hsl(var(--primary) / 0.7), 0 0 40px hsl(var(--primary) / 0.3)'
+                <div className={`relative w-6 h-6 rounded-full bg-[hsl(var(--mint))] shadow-lg flex items-center justify-center ${isDragging ? 'scale-125' : 'hover:scale-110'} transition-transform duration-150`} style={{
+                  boxShadow: '0 0 20px hsl(var(--mint) / 0.7), 0 0 40px hsl(var(--mint) / 0.3)'
                 }}>
                   {/* Grip lines - more visible */}
                   <div className="flex gap-[3px]">
@@ -642,15 +642,15 @@ function RoleSlider({
         {/* Instruction text - shows hovered role name or default - fixed height to prevent layout shift */}
         <div className="text-center h-6 flex items-center justify-center" style={{ marginTop: isTablet ? '-20px' : '-8px' }}>
           {hoveredIndex !== null ? (
-            <span className="text-lg font-bebas font-bold uppercase tracking-[0.15em] text-primary transition-all duration-200">
+            <span className="text-lg font-bebas font-bold uppercase tracking-[0.15em] text-[hsl(var(--mint))] transition-all duration-200">
               {t(navLinks[hoveredIndex].labelKey, navLinks[hoveredIndex].fallback)}
             </span>
           ) : nearestSnapIndex !== null ? (
-            <span className="text-lg font-bebas font-bold uppercase tracking-[0.15em] text-primary transition-all duration-200">
+            <span className="text-lg font-bebas font-bold uppercase tracking-[0.15em] text-[hsl(var(--mint))] transition-all duration-200">
               {t(navLinks[nearestSnapIndex].labelKey, navLinks[nearestSnapIndex].fallback)}
             </span>
           ) : (
-            <span className="text-[10px] font-bebas uppercase tracking-[0.25em] text-light-green/30">
+            <span className="text-[10px] font-bebas uppercase tracking-[0.25em] text-[hsl(var(--mint)/0.3)]">
               {isDragging ? t("landing.drag_to_role", "Drag to a role to select") : t("landing.drag_slider_select", "Drag slider to select role")}
             </span>
           )}
