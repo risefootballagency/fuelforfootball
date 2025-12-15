@@ -2,20 +2,14 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
-import { GrassBackground } from "@/components/GrassBackground";
 
 const Analysis = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        {/* Grass Top */}
-        <div className="pt-20">
-          <GrassBackground variant="top" />
-        </div>
-
         {/* Hero Section */}
-        <section className="relative py-8">
+        <section className="relative py-8 pt-24">
           <div className="container mx-auto px-4 text-center">
             <p className="font-bebas text-2xl text-muted-foreground tracking-widest mb-4">
               ANALYSIS
@@ -26,8 +20,6 @@ const Analysis = () => {
           </div>
         </section>
 
-        {/* Divider */}
-        <GrassBackground variant="divider" />
 
         {/* Pillars */}
         <section className="py-8 relative overflow-hidden">

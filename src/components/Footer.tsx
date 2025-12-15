@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { toast } from "@/hooks/use-toast";
-import { GrassBackground } from "@/components/GrassBackground";
 
 // Build version - update this to verify deployments
 const BUILD_VERSION = "v2024.11.27.002";
@@ -44,9 +43,7 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-[hsl(var(--bg-dark))] text-[hsl(142_70%_85%)] border-t border-primary/10">
-      {/* Grass Top Border */}
-      <GrassBackground variant="top" />
+    <footer className="bg-[hsl(var(--bg-dark))] text-[hsl(0_0%_98%)] border-t border-primary/10">
       {/* Change The Game Divider */}
       <div className="relative flex items-center justify-center py-6 bg-[hsl(var(--bg-dark))]">
         <div className="absolute left-0 right-0 h-1 bg-primary top-1/2 -translate-y-1/2" />
