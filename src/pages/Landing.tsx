@@ -226,7 +226,7 @@ function LandingContent() {
       </div>
       
       {/* Language Selector - Mobile only */}
-      <div className="md:hidden absolute z-[50] pointer-events-auto top-[calc(50%+124px)] flex flex-col items-center" style={{
+      <div className="md:hidden absolute z-[50] pointer-events-auto top-[calc(50%+144px)] flex flex-col items-center" style={{
         left: '50%',
         transform: 'translateX(-50%)'
       }}>
