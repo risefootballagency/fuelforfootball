@@ -259,22 +259,22 @@ const Players = () => {
         </section>
 
         {/* Quick Navigation Buttons */}
-        <nav className="bg-[#0a3622] py-2 md:py-3 border-b-2 border-[#c4a000]">
+        <nav className="bg-[#0a3622] py-1 md:py-1.5 border-b-2 border-[#c4a000]">
           <div className="container mx-auto">
             <div className="flex flex-wrap justify-center items-center gap-0">
               {/* General - Dropdown */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="px-4 md:px-8 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5 border-r border-[#c4a000]/30">
+                <DropdownMenuTrigger className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5 border-r border-[#c4a000]/30">
                   General <ChevronDown className="w-3 h-3" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[180px]">
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
                     <Link to="/services/consultation">Consultation</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
                     <Link to="/services/pro-performance">Pro Performance</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
                     <Link to="/services/elite-performance">Elite Performance</Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -282,60 +282,60 @@ const Players = () => {
 
               {/* Holistic - Dropdown */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="px-4 md:px-8 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5 border-r border-[#c4a000]/30">
+                <DropdownMenuTrigger className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5 border-r border-[#c4a000]/30">
                   Holistic <ChevronDown className="w-3 h-3" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[180px]">
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
                     <Link to="/services/pro-performance">Pro Performance</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
                     <Link to="/services/elite-performance">Elite Performance</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
                     <Link to="/services/mentorship">Mentorship</Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
               {/* Tactical - Direct Link */}
-              <a
-                href="#tactical"
-                className="px-4 md:px-8 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
+              <Link
+                to="/services/tactical"
+                className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
               >
                 Tactical
-              </a>
+              </Link>
 
               {/* Technical - Direct Link */}
-              <a
-                href="#technical"
-                className="px-4 md:px-8 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
+              <Link
+                to="/services/technical"
+                className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
               >
                 Technical
-              </a>
+              </Link>
 
               {/* Mental - Direct Link */}
-              <a
-                href="#psychological"
-                className="px-4 md:px-8 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
+              <Link
+                to="/services/mental"
+                className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
               >
                 Mental
-              </a>
+              </Link>
 
               {/* Physical - Dropdown */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="px-4 md:px-8 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5">
+                <DropdownMenuTrigger className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5">
                   Physical <ChevronDown className="w-3 h-3" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[200px]">
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
-                    <a href="#sps">Strength, Power & Speed</a>
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
+                    <Link to="/services/strength-power-speed">Strength, Power & Speed</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
-                    <a href="#conditioning">Conditioning</a>
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
+                    <Link to="/services/conditioning">Conditioning</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer">
-                    <a href="#nutrition">Nutrition</a>
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
+                    <Link to="/services/nutrition">Nutrition</Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
