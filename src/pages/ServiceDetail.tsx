@@ -177,14 +177,21 @@ const ServiceDetail = () => {
     return 1;
   };
 
+  const [checkoutProgress, setCheckoutProgress] = useState(0);
+
   const handleBuyNow = async () => {
     if (!service) return;
     
     setIsProcessing(true);
-    toast({
-      title: "Processing...",
-      description: "Preparing your checkout session...",
-    });
+    setCheckoutProgress(0);
+    
+    // Animate progress
+    const progressInterval = setInterval(() => {
+      setCheckoutProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.random() * 15;
+      });
+    }, 200);
 
     try {
       // Determine if this is a subscription based on selected option
@@ -204,20 +211,29 @@ const ServiceDetail = () => {
 
       if (error) throw error;
       
+      setCheckoutProgress(100);
+      
       if (data?.url) {
-        window.open(data.url, '_blank');
+        setTimeout(() => {
+          window.open(data.url, '_blank');
+          setIsProcessing(false);
+          setCheckoutProgress(0);
+        }, 300);
       } else {
         throw new Error('No checkout URL returned');
       }
     } catch (error) {
       console.error('Checkout error:', error);
+      clearInterval(progressInterval);
+      setIsProcessing(false);
+      setCheckoutProgress(0);
       toast({
         title: "Checkout Error",
         description: "Failed to create checkout session. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsProcessing(false);
+      clearInterval(progressInterval);
     }
   };
 
@@ -295,7 +311,49 @@ const ServiceDetail = () => {
   const options = service.options as ServiceOption[] | null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Checkout Loading Overlay */}
+      {isProcessing && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            {/* Circular Progress Spinner */}
+            <div className="relative w-20 h-20">
+              {/* Background circle */}
+              <svg className="w-20 h-20 -rotate-90">
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  fill="none"
+                  className="text-muted/30"
+                />
+                {/* Progress circle */}
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  fill="none"
+                  strokeLinecap="round"
+                  className="text-primary transition-all duration-200"
+                  style={{
+                    strokeDasharray: `${2 * Math.PI * 36}`,
+                    strokeDashoffset: `${2 * Math.PI * 36 * (1 - checkoutProgress / 100)}`,
+                  }}
+                />
+              </svg>
+              {/* Percentage text */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-lg font-bebas text-foreground">{Math.round(checkoutProgress)}%</span>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground font-medium">Preparing checkout...</p>
+          </div>
+        </div>
+      )}
       <Header />
       
       <main className="pt-20 md:pt-24 pb-12 md:pb-16">
