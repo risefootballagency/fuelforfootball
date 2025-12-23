@@ -308,7 +308,7 @@ const ServiceDetail = () => {
                     <SelectContent>
                       {options.map((option) => (
                         <SelectItem key={option.name} value={option.name}>
-                          {option.name} - £{option.price.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+                          {option.name} - £{(option.price ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                         </SelectItem>
                       ))}
                     </SelectContent>
