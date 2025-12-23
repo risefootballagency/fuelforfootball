@@ -37,7 +37,6 @@ const Scouts = lazy(() => import("./pages/Scouts"));
 const Agents = lazy(() => import("./pages/Agents"));
 const Business = lazy(() => import("./pages/Business"));
 const Media = lazy(() => import("./pages/Media"));
-const Performance = lazy(() => import("./pages/NewPerformance"));
 const DailyFuel = lazy(() => import("./pages/BetweenTheLines"));
 const PerformanceReport = lazy(() => import("./pages/PerformanceReport"));
 const ImportProgramCSV = lazy(() => import("./pages/ImportProgramCSV"));
@@ -139,7 +138,6 @@ const App = () => {
                     {createLocalizedRoutes('/agents', <Agents />)}
                     {createLocalizedRoutes('/business', <Business />)}
                     {createLocalizedRoutes('/media', <Media />)}
-                    {createLocalizedRoutes('/performance', <Performance />)}
                     {createLocalizedRoutes('/services', <Services />)}
                     {createLocalizedRoutes('/daily-fuel', <DailyFuel />)}
                     {createLocalizedDynamicRoutes('/daily-fuel/:articleId', <News />)}

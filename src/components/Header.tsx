@@ -54,7 +54,7 @@ type SubHeaderConfig = {
 const defaultSubHeader: SubHeaderConfig = {
   left: [
     { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
-    { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
+    { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
   ],
   right: [
     { type: 'link', to: '/daily-fuel', labelKey: 'header.daily_fuel', fallback: 'Daily Fuel', mobileFallback: 'Daily Fuel', icon: BookOpen },
@@ -79,7 +79,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
     right: [
-      { type: 'link', to: '/performance', labelKey: 'header.stars', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
       { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
     ],
   },
@@ -95,7 +95,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
   },
   agents: {
     left: [
-      { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
       { type: 'link', to: '/contact', labelKey: 'header.requests', fallback: 'Requests', mobileFallback: 'Requests', icon: FileText },
     ],
     right: [
@@ -106,7 +106,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
   coaches: {
     left: [
       { type: 'link', to: '/login', labelKey: 'header.portal', fallback: 'Portal', mobileFallback: 'Portal', icon: LogIn },
-      { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
     ],
     right: [
       { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
@@ -119,7 +119,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/contact', labelKey: 'header.collaboration', fallback: 'Collaboration', mobileFallback: 'Collab', icon: Heart },
     ],
     right: [
-      { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
   },
@@ -129,7 +129,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/contact', labelKey: 'header.connect_with_us', fallback: 'Connect With Us', mobileFallback: 'Connect', icon: Phone },
     ],
     right: [
-      { type: 'link', to: '/performance', labelKey: 'header.performance', fallback: 'Performance', mobileFallback: 'Performance', icon: Activity },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
   },
@@ -466,7 +466,7 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
               if (path.startsWith('/agents')) return '/agents';
               if (path.startsWith('/business')) return '/business';
               if (path.startsWith('/media')) return '/media';
-              if (path.startsWith('/performance') || path.startsWith('/news') || path.startsWith('/daily-fuel')) return '/performance';
+              if (path.startsWith('/news') || path.startsWith('/daily-fuel')) return '/daily-fuel';
               
               // Only return '/' if truly on the main landing page with no subdomain
               return '/';
