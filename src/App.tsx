@@ -9,6 +9,7 @@ import { PageTracker } from "@/components/PageTracker";
 import { PageTransition } from "@/components/PageTransition";
 import { TransitionProvider } from "@/contexts/TransitionContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useSubdomainRouter } from "@/hooks/useSubdomainRouter";
 import { useLocalizedRedirect } from "@/hooks/useLocalizedRedirect";
@@ -50,6 +51,7 @@ const ScoutPortal = lazy(() => import("./pages/ScoutPortal"));
 const RealisePotential = lazy(() => import("./pages/RealisePotential"));
 const Shop = lazy(() => import("./pages/Shop"));
 const PayLink = lazy(() => import("./pages/PayLink"));
+const Cart = lazy(() => import("./pages/Cart"));
 const FluidCursor = lazy(() => import("./components/FluidCursor"));
 
 // Service pages
@@ -106,6 +108,7 @@ const App = () => {
   
   return (
     <QueryClientProvider client={queryClient}>
+      <CartProvider>
       <LanguageProvider>
         <TooltipProvider>
           <Toaster />
@@ -145,6 +148,7 @@ const App = () => {
                     {createLocalizedRoutes('/login', <Login />)}
                     {createLocalizedRoutes('/portal', <Dashboard />)}
                     {createLocalizedRoutes('/shop', <Shop />)}
+                    {createLocalizedRoutes('/cart', <Cart />)}
                     
                     {createLocalizedRoutes('/services/mentorship', <Mentorship />)}
                     {createLocalizedRoutes('/services/consultation', <Consultation />)}
@@ -182,6 +186,7 @@ const App = () => {
           </BrowserRouter>
         </TooltipProvider>
       </LanguageProvider>
+      </CartProvider>
     </QueryClientProvider>
   );
 };

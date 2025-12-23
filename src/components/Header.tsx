@@ -30,6 +30,7 @@ import { getEnglishPath, getAllPathVariants } from "@/lib/localizedRoutes";
 import { useRoleSubdomain, roleConfigs, RoleSubdomain, pathToRole } from "@/hooks/useRoleSubdomain";
 import { RadialMenu } from "@/components/RadialMenu";
 import { SubdomainLink } from "@/components/SubdomainLink";
+import { CartIcon } from "@/components/CartIcon";
 
 // NOTE: GridLines component is available at src/components/GridLines.tsx 
 // for coordinate-based positioning during design. Import and add it when needed.
@@ -522,10 +523,8 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
               </div>
             </>}
 
-          {/* Basket Icon - Right */}
-          <button className="group p-2 md:p-3 rounded-full hover:bg-primary/10 transition-all duration-300" title={t("header.basket", "Basket")}>
-            <ShoppingCart className={`text-white/80 group-hover:text-primary transition-colors ${isScrolled ? 'w-5 h-5 md:w-6 md:h-6' : 'w-6 h-6 md:w-7 md:h-7'}`} />
-          </button>
+          {/* Cart Icon - Right */}
+          <CartIcon />
         </div>
       </div>
       </header>
