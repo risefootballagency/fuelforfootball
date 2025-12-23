@@ -114,6 +114,8 @@ const ServiceDetail = () => {
     return service.price;
   };
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const handleAddToCart = () => {
     toast({
       title: "Added to Cart",
@@ -121,12 +123,41 @@ const ServiceDetail = () => {
     });
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
+    if (!service) return;
+    
+    setIsProcessing(true);
     toast({
-      title: "Proceeding to Checkout",
-      description: "Redirecting to payment...",
+      title: "Processing...",
+      description: "Preparing your checkout session...",
     });
-    // TODO: Implement Stripe checkout
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-service-checkout', {
+        body: {
+          serviceId: service.id,
+          selectedOption: selectedOption || null,
+          paymentMode: 'payment',
+        },
+      });
+
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Checkout Error",
+        description: "Failed to create checkout session. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const getServiceSlug = (name: string) => {
@@ -339,9 +370,10 @@ const ServiceDetail = () => {
                 <Button 
                   onClick={handleBuyNow}
                   size="lg"
+                  disabled={isProcessing}
                   className="flex-1 btn-shine font-bebas uppercase tracking-wider"
                 >
-                  Buy Now
+                  {isProcessing ? "Processing..." : "Buy Now"}
                 </Button>
               </div>
             </div>
