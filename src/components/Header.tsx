@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/fff_logo.png";
 import riseStar from "@/assets/rise-star.png";
-import { X, MessageCircle, Users, LogIn, Handshake, ArrowRight, Compass, FileText, Search, Star, Calendar, Briefcase, Send, BookOpen, Activity, Newspaper, Heart, Package, Phone, ShoppingCart, ShoppingBag } from "lucide-react";
+import { X, MessageCircle, Users, LogIn, Handshake, ArrowRight, Compass, FileText, Search, Star, Calendar, Briefcase, Send, BookOpen, Activity, Newspaper, Heart, Package, Phone, ShoppingCart, ShoppingBag, Wrench } from "lucide-react";
 import workingTogether from "@/assets/menu-working-together.jpg";
 import playerPortalImage from "@/assets/menu-player-portal.png";
 import blackMarbleBg from "@/assets/black-marble-smudged.png";
@@ -68,8 +68,8 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/daily-fuel', labelKey: 'header.daily_fuel', fallback: 'Daily Fuel', mobileFallback: 'Daily Fuel', icon: BookOpen },
     ],
     right: [
-      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
-      { type: 'link', to: '/shop', labelKey: 'header.shop', fallback: 'Shop', mobileFallback: 'Shop', icon: ShoppingBag },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
+      { type: 'link', to: '/shop', labelKey: 'header.shop', fallback: 'Shop', mobileFallback: 'Shop', icon: ShoppingCart },
     ],
   },
   clubs: {
