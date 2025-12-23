@@ -11,8 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Building2, CreditCard } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowDownCircle, ArrowUpCircle, Building2, CreditCard, Link2, FileText, ShoppingCart } from "lucide-react";
 import { format } from "date-fns";
+import { PayLinksManagement } from "./PayLinksManagement";
+import { InvoicesManagement } from "./InvoicesManagement";
+import { ServiceOrdersManagement } from "./ServiceOrdersManagement";
 
 interface Payment {
   id: string;
@@ -55,7 +58,7 @@ interface Invoice {
 }
 
 export const PaymentsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
-  const [activeTab, setActiveTab] = useState<'ins' | 'outs' | 'bank_details'>('ins');
+  const [activeTab, setActiveTab] = useState<'ins' | 'outs' | 'bank_details' | 'pay_links' | 'invoices' | 'orders'>('ins');
   const [payments, setPayments] = useState<Payment[]>([]);
   const [bankDetails, setBankDetails] = useState<BankDetail[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -380,21 +383,36 @@ export const PaymentsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="ins" className="flex items-center gap-2">
-            <ArrowDownCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">Money In</span>
-            <span className="sm:hidden">In</span>
+        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+          <TabsTrigger value="ins" className="flex items-center gap-1 text-xs md:text-sm">
+            <ArrowDownCircle className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Money In</span>
+            <span className="md:hidden">In</span>
           </TabsTrigger>
-          <TabsTrigger value="outs" className="flex items-center gap-2">
-            <ArrowUpCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">Money Out</span>
-            <span className="sm:hidden">Out</span>
+          <TabsTrigger value="outs" className="flex items-center gap-1 text-xs md:text-sm">
+            <ArrowUpCircle className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Money Out</span>
+            <span className="md:hidden">Out</span>
           </TabsTrigger>
-          <TabsTrigger value="bank_details" className="flex items-center gap-2">
-            <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Bank Details</span>
-            <span className="sm:hidden">Bank</span>
+          <TabsTrigger value="invoices" className="flex items-center gap-1 text-xs md:text-sm">
+            <FileText className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Invoices</span>
+            <span className="md:hidden">Inv</span>
+          </TabsTrigger>
+          <TabsTrigger value="pay_links" className="flex items-center gap-1 text-xs md:text-sm">
+            <Link2 className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Pay Links</span>
+            <span className="md:hidden">Links</span>
+          </TabsTrigger>
+          <TabsTrigger value="orders" className="flex items-center gap-1 text-xs md:text-sm">
+            <ShoppingCart className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Orders</span>
+            <span className="md:hidden">Ord</span>
+          </TabsTrigger>
+          <TabsTrigger value="bank_details" className="flex items-center gap-1 text-xs md:text-sm">
+            <Building2 className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden md:inline">Bank Details</span>
+            <span className="md:hidden">Bank</span>
           </TabsTrigger>
         </TabsList>
 
@@ -623,6 +641,21 @@ export const PaymentsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
               </Card>
             )}
           </div>
+        </TabsContent>
+
+        {/* Pay Links Tab */}
+        <TabsContent value="pay_links">
+          <PayLinksManagement isAdmin={isAdmin} />
+        </TabsContent>
+
+        {/* Invoices Tab */}
+        <TabsContent value="invoices">
+          <InvoicesManagement isAdmin={isAdmin} />
+        </TabsContent>
+
+        {/* Orders Tab */}
+        <TabsContent value="orders">
+          <ServiceOrdersManagement />
         </TabsContent>
       </Tabs>
 
