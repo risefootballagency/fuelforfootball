@@ -125,6 +125,118 @@ const Index = () => {
         {/* Player Marquee - Fuelling The Best */}
         <PlayerMarquee />
 
+        {/* HOW WE FUEL Section */}
+        <section className="py-12 md:py-16 px-4 bg-gradient-to-b from-background to-muted/20">
+          <div className="container mx-auto max-w-7xl">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-4">
+                HOW WE <span className="text-primary">FUEL</span>
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Players Card */}
+              <Link 
+                to="/players"
+                className="group relative overflow-hidden rounded-2xl border-2 border-border hover:border-primary/50 bg-card/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={playersNetwork} 
+                    alt="Players" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-2">PLAYERS</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    We collaborate with players to enhance their performance and unlock their true potential, ensuring they reach new heights in their careers.
+                  </p>
+                  <span className="text-sm font-bebas uppercase tracking-wider text-primary group-hover:underline">
+                    LEARN MORE →
+                  </span>
+                </div>
+              </Link>
+
+              {/* Coaches Card */}
+              <Link 
+                to="/coaches"
+                className="group relative overflow-hidden rounded-2xl border-2 border-border hover:border-primary/50 bg-card/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={coachesNetwork} 
+                    alt="Coaches" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-2">COACHES</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    We support coaches in decision-making from behind the scenes, both tactically and in retaining control over the dressing room.
+                  </p>
+                  <span className="text-sm font-bebas uppercase tracking-wider text-primary group-hover:underline">
+                    LEARN MORE →
+                  </span>
+                </div>
+              </Link>
+
+              {/* Agents Card */}
+              <Link 
+                to="/agents"
+                className="group relative overflow-hidden rounded-2xl border-2 border-border hover:border-primary/50 bg-card/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={scoutsNetwork} 
+                    alt="Agents" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-2">AGENTS</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    We help agents create transfer opportunities by showcasing their players' strengths and developing their skillset to increase market value.
+                  </p>
+                  <span className="text-sm font-bebas uppercase tracking-wider text-primary group-hover:underline">
+                    LEARN MORE →
+                  </span>
+                </div>
+              </Link>
+
+              {/* Clubs Card */}
+              <Link 
+                to="/clubs"
+                className="group relative overflow-hidden rounded-2xl border-2 border-border hover:border-primary/50 bg-card/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={clubsNetwork} 
+                    alt="Clubs" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-2">CLUBS</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    We maximise club efficiency by identifying and resolving issues for smooth operations. Our long-term strategising ensures sustained success.
+                  </p>
+                  <span className="text-sm font-bebas uppercase tracking-wider text-primary group-hover:underline">
+                    LEARN MORE →
+                  </span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* INSIDE:ACCESS Section */}
         {translatedInsideAccess.length > 0 && (
           <section className="py-12 md:py-16 px-4 bg-background/80 backdrop-blur-sm">

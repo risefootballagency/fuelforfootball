@@ -3,14 +3,10 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroSlider } from "@/components/HeroSlider";
 import bannerHero from "@/assets/banner-hero.jpg";
-import blackMarble from "@/assets/black-marble-smudged.png";
 import coachesSection from "@/assets/coaches-section.png";
-import coachesSection2 from "@/assets/coaches-section-2.png";
 import coachesNetwork from "@/assets/coaches-network.jpg";
 
 const Coaches = () => {
@@ -19,26 +15,44 @@ const Coaches = () => {
   const heroSlides = [
     {
       image: bannerHero,
-      title: t('coaches.slide1_title', 'Professional Coaching Representation'),
-      subtitle: t('coaches.slide1_subtitle', 'Elevate your coaching career with expert support'),
+      title: 'THE WAR ROOM',
+      subtitle: 'Strategic support to enhance your decision-making',
     },
     {
       image: coachesNetwork,
-      title: t('coaches.slide2_title', 'Tactical Excellence'),
-      subtitle: t('coaches.slide2_subtitle', 'Pre-match analysis and strategic preparation'),
+      title: 'TACTICAL EXCELLENCE',
+      subtitle: 'Pre-match analysis and strategic preparation',
     },
     {
       image: coachesSection,
-      title: t('coaches.slide3_title', 'Career Advancement'),
-      subtitle: t('coaches.slide3_subtitle', 'Connect with opportunities that match your expertise'),
+      title: 'FUEL UP ON SUCCESS',
+      subtitle: 'Arm yourself with the edge to thrive',
     },
+  ];
+
+  const developmentSteps = [
+    {
+      number: "01",
+      title: "UNDERSTAND",
+      description: "To optimise a coach's performance, we start by understanding their coaching philosophy. This involves a deep dive into their beliefs, values, and approach to coaching. By gaining this insight, we can tailor our services to help coaches achieve their goals and improve their overall performance."
+    },
+    {
+      number: "02",
+      title: "DEVELOP",
+      description: "In this particular part of the process, we work with coaches to identify the areas where they can make the biggest impact to achieve their desired results. By discussing strategies and techniques tailored to their specific needs, we can shape your career and team's future."
+    },
+    {
+      number: "03",
+      title: "APPLY",
+      description: "In the final part of the process, we will work together to advance with the agreed strategy based on your specific needs as a coach. Our goal is to ensure that you have all the tools and resources necessary to achieve your coaching objectives. Let's work together to take your coaching practice to the next level!"
+    }
   ];
 
   return (
     <div className="min-h-screen bg-background" key="coaches-page">
       <SEO 
-        title="For Coaches - Professional Representation | Fuel For Football"
-        description="Professional representation for coaching excellence. We showcase your achievements, foster connections, and secure the best opportunities that reflect your coaching expertise."
+        title="For Coaches - The War Room | Fuel For Football"
+        description="Strategic support for coaching excellence. We serve as your tactical co-pilots, helping you make better decisions, develop winning strategies, and lead your team to success."
         image="/og-preview-coaches.png"
         url="/coaches"
       />
@@ -48,180 +62,85 @@ const Coaches = () => {
         {/* Hero Slider */}
         <HeroSlider slides={heroSlides} />
 
-        {/* RESULTS Section - Text Left, Image Right */}
-        <section className="grid md:grid-cols-2">
-          <div 
-            className="relative p-8 md:p-16 flex items-center"
-            style={{ backgroundImage: `url(${blackMarble})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-          >
-            <div className="max-w-xl space-y-6">
-              <div>
-                <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-[--gold] mb-6">
-                  {t('coaches.results')}
-                </h2>
-                <p className="text-base md:text-xl text-white/90 leading-relaxed">
-                  {t('coaches.results_desc')}
-                </p>
-              </div>
-              <Collapsible>
-                <CollapsibleTrigger className="group flex items-center gap-3 px-4 py-2.5 bg-[--gold]/10 hover:bg-[--gold]/20 border border-[--gold]/30 rounded-md transition-all">
-                  <span className="text-sm uppercase tracking-wider text-[--gold] font-medium">{t('coaches.learn_more')}</span>
-                  <ChevronDown className="h-4 w-4 text-[--gold] transition-transform group-data-[state=open]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-6 space-y-4 text-sm md:text-base text-white/80 leading-relaxed">
-                  <p>
-                    To change the game, we must fully embrace the ethos that every day matters. We are not a standard fair-weather agent who only shows up during transfer windows; instead, we are there for the daily grind, supporting you every step of the way. We understand that success in your career is built on consistency and proper preparation.
-                  </p>
-                  <p>
-                    As part of our comprehensive approach to ensuring our coaches succeed, we offer individualised pre-match analysis to support your preparation for game day with an eye for tactical and technical details that club staff are unlikely to pick up on. The better prepared you are for game day, the more likely your side are to excel on the pitch. We do not offer generic advice; instead, we provide analysis that is specific to the unique abilities of your side. This means understanding the opposition and main matchups you will face, but framing it in a way that plays to strengths and covers any potential weaknesses.
-                  </p>
-                  <p>
-                    Beyond the physical and tactical preparations, we also understand the importance of mental readiness. Our mental skill and will sessions work to get you into the right frame of mind before match day, so that you can re-impart this wisdom to your players and be a greater motivator.
-                  </p>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          </div>
-          <div 
-            className="relative min-h-[300px] md:min-h-[600px] bg-cover bg-center"
-            style={{ backgroundImage: `url(${coachesSection})` }}
-          />
-        </section>
-
-        {/* FOSTER Section - Image Left, Text Right */}
-        <section className="grid md:grid-cols-2">
-          <div 
-            className="relative min-h-[300px] md:min-h-[600px] bg-cover bg-center order-2 md:order-1"
-            style={{ backgroundImage: `url(${coachesNetwork})` }}
-          />
-          <div 
-            className="relative p-8 md:p-16 flex items-center order-1 md:order-2"
-            style={{ backgroundImage: `url(${blackMarble})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-          >
-            <div className="max-w-xl space-y-6">
-              <div>
-                <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-[--gold] mb-6">
-                  {t('coaches.foster')}
-                </h2>
-                <p className="text-base md:text-xl text-white/90 leading-relaxed">
-                  {t('coaches.foster_desc')}
-                </p>
-              </div>
-              <Collapsible>
-                <CollapsibleTrigger className="group flex items-center gap-3 px-4 py-2.5 bg-[--gold]/10 hover:bg-[--gold]/20 border border-[--gold]/30 rounded-md transition-all">
-                  <span className="text-sm uppercase tracking-wider text-[--gold] font-medium">{t('coaches.learn_more')}</span>
-                  <ChevronDown className="h-4 w-4 text-[--gold] transition-transform group-data-[state=open]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-6 space-y-4 text-sm md:text-base text-white/80 leading-relaxed">
-                  <p>
-                    Pushing the limits of your players physically and mentally is key to discovering what they are truly capable of. Through our expertise in the performance space, we support the implementation of training protocols to eliminate their weaknesses while expanding on their strengths. Rest assured that no stone will be left unturned in each training week.
-                  </p>
-                  <p>
-                    Our agency provides the best possible support to help your players excel. We understand that maximising potential requires both holistic and individualised attention to nurture the body and mind. With a team composed of experienced professionals, we provide support through tactical analysis, as well as psychological, technical, strength, power and speed training. This comprehensive set of expertise allows us to approach a player's development from all angles, ensuring progress in every aspect of performance.
-                  </p>
-                  <p>
-                    Our expert individualised training is tailored specifically to help you make adjustments for the unique needs and aspirations of your players. One of the key benefits of our agency is the continuity of care that we provide. Our team follows you from club to club, unlike the typical performance staff with whom you must start afresh with each move that you make in your career. This allows us to truly get to understand the ways that you work, evolving needs, and we can therefore suggest necessary adjustments to your training regimen in real-time. We can track progress closely, making small tweaks and corrections that can make a big difference in performance. Additionally, our team acts as a conduit to club staff, keeping the lines of communication open, sharing important information and collaborating to ensure training remains in harmony.
-                  </p>
-                </CollapsibleContent>
-              </Collapsible>
+        {/* THE WAR ROOM Section */}
+        <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-background to-muted/20">
+          <div className="container mx-auto max-w-5xl">
+            <div className="text-center mb-12">
+              <h2 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider text-primary mb-6">
+                THE WAR ROOM
+              </h2>
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-4xl mx-auto">
+                We serve as your strategic support away from the club, providing a fresh, external perspective to enhance your decision-making. With our detailed analysis, expert coaching insights, and tactical advice, you can explore new strategies and optimise team performance. Partnering with us gives you access to a wealth of knowledge and innovative solutions, helping you stay ahead of the competition. We aim to empower you with the tools and insights needed to run your team more effectively and achieve your coaching goals.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* ALLURE Section - Text Left, Image Right */}
-        <section className="grid md:grid-cols-2">
-          <div 
-            className="relative p-8 md:p-16 flex items-center"
-            style={{ backgroundImage: `url(${blackMarble})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-          >
-            <div className="max-w-xl space-y-6">
-              <div>
-                <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-[--gold] mb-6">
-                  {t('coaches.allure')}
-                </h2>
-                <p className="text-base md:text-xl text-white/90 leading-relaxed">
-                  {t('coaches.allure_desc')}
-                </p>
-              </div>
-              <Collapsible>
-                <CollapsibleTrigger className="group flex items-center gap-3 px-4 py-2.5 bg-[--gold]/10 hover:bg-[--gold]/20 border border-[--gold]/30 rounded-md transition-all">
-                  <span className="text-sm uppercase tracking-wider text-[--gold] font-medium">{t('coaches.learn_more')}</span>
-                  <ChevronDown className="h-4 w-4 text-[--gold] transition-transform group-data-[state=open]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-6 space-y-4 text-sm md:text-base text-white/80 leading-relaxed">
-                  <p>
-                    In a competitive market, the combination of greater finances, superior scouting and networking results in the greatest success on the pitch. Our work impacts all three to put you in the prime position to execute at a higher level than competitors. Ensure that you find, convince and sign the greatest and best-fitted talent each and every season; while simultaneously making wise decisions on the timing of departures for expert squad-building.
-                  </p>
-                  <p>
-                    Our analysis extends across the entirety of professional football within Europe, allowing us to pick out players that club scouting networks can easily miss. Furthermore, our talent identification ensures prudent signings including undervalued players and key contributors to success on the pitch. We consider not only the raw ability and potential of players, but also their technical and tactical adaptability to your playstyle, as well as experience within related systems. This allows you to more easily coach the players in your team to reflect your vision on the pitch.
-                  </p>
-                  <p>
-                    A major aspect to this is our broad network which spans across half of the globe with key decision-makers in clubs at all levels of the game. This combined with our reputation for recruiting great fits for our coaches allows us to tap into any market to ensure deals are completed.
-                  </p>
-                </CollapsibleContent>
-              </Collapsible>
+        {/* FUEL UP ON SUCCESS Section */}
+        <section className="py-16 md:py-24 px-4 bg-muted/20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+          <div className="container mx-auto max-w-5xl relative z-10">
+            <div className="text-center mb-12">
+              <h2 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider mb-6">
+                FUEL UP ON <span className="text-primary">SUCCESS</span>
+              </h2>
+            </div>
+            <div className="space-y-6 text-base md:text-lg text-muted-foreground leading-relaxed">
+              <p>
+                Fuel For Football are the tactical co-pilots, sat in the war room strategising on how to get the results for you and your team. In the rapid-paced, high-stakes world of football where teams are ever disassociating themselves from their coaches, building models which limit their coaches' ability to work at their best, we claw ground back.
+              </p>
+              <p>
+                Understanding the pressure of delivering wins week in and week out, we arm you with precise tactical insights, advanced training methodologies, and resilient psychological support. But we go beyond the here and now: Our services are designed to help you strategically plan for the future including beyond your existing club, ensuring your recruitment efforts yield maximum impact on your team's abilities and cohesion. Every training session, every match, every season, Fuel For Football stands by you with the edge to not just survive but thrive in the relentless pursuit of excellence. Embrace the challenge, claim your victories, and together, let's redefine the landscape of football coaching.
+              </p>
             </div>
           </div>
-          <div 
-            className="relative min-h-[300px] md:min-h-[600px] bg-cover bg-center"
-            style={{ backgroundImage: `url(${coachesSection2})` }}
-          />
         </section>
 
-        {/* PROGRESS Section - Image Left, Text Right */}
-        <section className="grid md:grid-cols-2">
-          <div 
-            className="relative min-h-[300px] md:min-h-[600px] bg-cover bg-center order-2 md:order-1"
-            style={{ backgroundImage: `url(${coachesSection})` }}
-          />
-          <div 
-            className="relative p-8 md:p-16 flex items-center order-1 md:order-2"
-            style={{ backgroundImage: `url(${blackMarble})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-          >
-            <div className="max-w-xl space-y-6">
-              <div>
-                <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-[--gold] mb-6">
-                  {t('coaches.progress')}
-                </h2>
-                <p className="text-base md:text-xl text-white/90 leading-relaxed">
-                  {t('coaches.progress_desc')}
-                </p>
-              </div>
-              <Collapsible>
-                <CollapsibleTrigger className="group flex items-center gap-3 px-4 py-2.5 bg-[--gold]/10 hover:bg-[--gold]/20 border border-[--gold]/30 rounded-md transition-all">
-                  <span className="text-sm uppercase tracking-wider text-[--gold] font-medium">{t('coaches.learn_more')}</span>
-                  <ChevronDown className="h-4 w-4 text-[--gold] transition-transform group-data-[state=open]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-6 space-y-4 text-sm md:text-base text-white/80 leading-relaxed">
-                  <p>
-                    Our role is then to negotiate the best possible contracts for our coaches. We recognise the sheer amount of dedication, hard work, and sacrifice that goes into a career, and we firmly believe in ensuring our coaches are fairly rewarded for their efforts.
+        {/* COACH DEVELOPMENT PROCESS Section */}
+        <section className="py-16 md:py-24 px-4 bg-background">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-12">
+              <h2 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider mb-6">
+                COACH DEVELOPMENT <span className="text-primary">PROCESS</span>
+              </h2>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
+              {developmentSteps.map((step) => (
+                <div 
+                  key={step.number}
+                  className="p-8 rounded-2xl border-2 border-border bg-card/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl"
+                >
+                  <div className="text-6xl font-bebas text-primary/20 mb-4">{step.number}</div>
+                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-4">
+                    {step.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {step.description}
                   </p>
-                  <p>
-                    Our team of agents and legal advisors understand the intricacies of the football industry and know how to advocate effectively for our clients. Our aim is to secure contracts that reflect not only your current performance, but also the value you bring to a team.
-                  </p>
-                  <p>
-                    This is not limited to the financial aspect of the contract, though that is certainly important. We also consider a wide range of other factors that contribute to your overall career satisfaction and progression. This could include clauses around recruitment, freedom of movement, club obligations, bonuses, as well as key elements like image rights and sponsorship deals.
-                  </p>
-                  <p>
-                    During negotiations, our team maintains constant communication with you, ensuring that you are always informed and involved in the process. We believe in transparency and will always explain the details of the proposed contract, including any potential risks and benefits.
-                  </p>
-                </CollapsibleContent>
-              </Collapsible>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center max-w-4xl mx-auto">
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                In the world of football, every coach strives for excellence. Fuel for Football is your strategic partner in achieving this goal. We offer services designed to enhance every aspect of your coaching, from developing individual player skills and creating cohesive team dynamics to implementing advanced tactical strategies. With our support, you can refine your approach, gain fresh insights, and lead your team to consistent success.
+              </p>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-12 md:py-16 bg-background">
+        <section className="py-16 md:py-24 bg-gradient-to-b from-muted/20 to-background">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-6">
-              {t('coaches.cta_title')}
+            <h2 className="text-5xl md:text-6xl font-bebas uppercase tracking-wider mb-6">
+              READY TO <span className="text-primary">CHANGE THE GAME</span>?
             </h2>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              {t('coaches.cta_subtitle')}
+              Book a consultation and discover how we can elevate your coaching career
             </p>
-            <Button asChild size="lg" className="btn-shine font-bebas uppercase tracking-wider">
-              <Link to="/contact">{t('coaches.cta_button')}</Link>
+            <Button asChild size="lg" className="btn-shine font-bebas uppercase tracking-wider text-lg px-10 py-6">
+              <Link to="/contact">BOOK A CONSULTATION</Link>
             </Button>
           </div>
         </section>
