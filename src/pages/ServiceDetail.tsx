@@ -76,10 +76,19 @@ const ServiceDetail = () => {
         if (foundService) {
           setService(foundService);
           
-          // Fetch related services from same category
-          const related = services?.filter(s => 
+          // Fetch 3 most similar related services (same category first, then any others)
+          const sameCategory = services?.filter(s => 
             s.category === foundService.category && s.id !== foundService.id
-          ).slice(0, 6) || [];
+          ) || [];
+          
+          // If not enough in same category, get others
+          let related = sameCategory.slice(0, 3);
+          if (related.length < 3) {
+            const others = services?.filter(s => 
+              s.category !== foundService.category && s.id !== foundService.id
+            ).slice(0, 3 - related.length) || [];
+            related = [...related, ...others];
+          }
           setRelatedServices(related);
           
           // Set default option if options exist
@@ -133,6 +142,9 @@ const ServiceDetail = () => {
       title: "Added to Cart",
       description: `${service.name}${selectedOption ? ` - ${selectedOption}` : ''} has been added to your cart.`,
     });
+    
+    // Open cart page
+    navigate('/cart');
   };
 
   const handleBuyNow = async () => {
@@ -255,9 +267,9 @@ const ServiceDetail = () => {
           <Button 
             variant="ghost" 
             className="mb-4 md:mb-6 -ml-2 h-9 px-3 text-sm"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/services')}
           >
-            <ArrowLeft className="mr-1.5 h-4 w-4" /> Back
+            <ArrowLeft className="mr-1.5 h-4 w-4" /> Back to Services
           </Button>
 
           {/* Product Section - Stack on mobile, grid on desktop */}
@@ -396,8 +408,8 @@ const ServiceDetail = () => {
           {service.description && (
             <section className="mt-8 md:mt-16">
               <div className="bg-card/50 border border-primary/20 rounded-xl p-4 md:p-8">
-                <h2 className="text-xl md:text-3xl font-bebas uppercase tracking-wider text-foreground mb-4 md:mb-6">
-                  About This Service
+                <h2 className="text-xl md:text-3xl font-bebas uppercase tracking-wider text-foreground mb-4 md:mb-6 text-center">
+                  About {service.name}
                 </h2>
                 <div 
                   className="prose prose-sm max-w-none text-muted-foreground leading-relaxed [&>p]:mb-3 md:[&>p]:mb-4 [&>p:last-child]:mb-0 md:columns-2 md:gap-8"
@@ -413,35 +425,35 @@ const ServiceDetail = () => {
               <h2 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-center mb-6 md:mb-8">
                 Related Products
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 max-w-4xl mx-auto">
                 {relatedServices.map((related) => (
                   <LocalizedLink
                     key={related.id}
                     to={`/service/${getServiceSlug(related.name)}`}
                     className="group"
                   >
-                    <div className="relative bg-card border border-primary/30 rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg">
-                      <div className="aspect-square p-1.5 md:p-2">
+                    <div className="relative bg-card border border-primary/30 rounded-xl overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/10">
+                      <div className="aspect-[4/3] overflow-hidden">
                         {related.image_url ? (
                           <img
                             src={related.image_url}
                             alt={related.name}
-                            className="w-full h-full object-cover rounded transition-transform duration-300 group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/20 rounded">
-                            <img src={fffLogo} alt="" className="w-10 h-10 md:w-12 md:h-12 opacity-30" />
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/20">
+                            <img src={fffLogo} alt="" className="w-16 h-16 opacity-30" />
                           </div>
                         )}
                       </div>
-                    </div>
-                    <div className="mt-1.5 md:mt-2 text-center">
-                      <h3 className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                        {related.name}
-                      </h3>
-                      <p className="text-[9px] md:text-xs text-muted-foreground mt-0.5 md:mt-1">
-                        {formatPrice(related.price, related.options)}
-                      </p>
+                      <div className="p-4 text-center border-t border-primary/10">
+                        <h3 className="text-sm md:text-base font-bebas uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                          {related.name}
+                        </h3>
+                        <p className="text-sm text-primary font-medium mt-1">
+                          {formatPrice(related.price, related.options)}
+                        </p>
+                      </div>
                     </div>
                   </LocalizedLink>
                 ))}
