@@ -32,33 +32,54 @@ export default {
   				'Bebas Neue',
   				'sans-serif'
   			],
+  			inter: [
+  				'Inter',
+  				'system-ui',
+  				'sans-serif'
+  			],
+  			mono: [
+  				'Space Mono',
+  				'ui-monospace',
+  				'SFMono-Regular',
+  				'monospace'
+  			],
   			sans: [
+  				'Inter',
   				'ui-sans-serif',
   				'system-ui',
-  				'sans-serif',
-  				'Apple Color Emoji',
-  				'Segoe UI Emoji',
-  				'Segoe UI Symbol',
-  				'Noto Color Emoji'
+  				'sans-serif'
   			],
   			serif: [
   				'ui-serif',
   				'Georgia',
-  				'Cambria',
-  				'Times New Roman',
-  				'Times',
   				'serif'
   			],
-  			mono: [
-  				'ui-monospace',
-  				'SFMono-Regular',
-  				'Menlo',
-  				'Monaco',
-  				'Consolas',
-  				'Liberation Mono',
-  				'Courier New',
-  				'monospace'
+  			display: [
+  				'Agrandir Tight',
+  				'Bebas Neue',
+  				'sans-serif'
   			]
+  		},
+  		fontSize: {
+  			'xs': ['0.75rem', { lineHeight: '1.5', letterSpacing: '0.02em' }],
+  			'sm': ['0.875rem', { lineHeight: '1.6', letterSpacing: '0.01em' }],
+  			'base': ['1rem', { lineHeight: '1.7', letterSpacing: '0' }],
+  			'lg': ['1.125rem', { lineHeight: '1.6', letterSpacing: '-0.01em' }],
+  			'xl': ['1.25rem', { lineHeight: '1.5', letterSpacing: '-0.01em' }],
+  			'2xl': ['1.5rem', { lineHeight: '1.4', letterSpacing: '-0.02em' }],
+  			'3xl': ['1.875rem', { lineHeight: '1.3', letterSpacing: '-0.02em' }],
+  			'4xl': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
+  			'5xl': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+  			'6xl': ['3.75rem', { lineHeight: '1', letterSpacing: '-0.03em' }],
+  			'7xl': ['4.5rem', { lineHeight: '1', letterSpacing: '-0.03em' }],
+  			'8xl': ['6rem', { lineHeight: '0.95', letterSpacing: '-0.04em' }],
+  			'9xl': ['8rem', { lineHeight: '0.9', letterSpacing: '-0.04em' }],
+  		},
+  		spacing: {
+  			'18': '4.5rem',
+  			'22': '5.5rem',
+  			'26': '6.5rem',
+  			'30': '7.5rem',
   		},
   		colors: {
   			border: 'hsl(var(--border))',
