@@ -260,10 +260,10 @@ const ServiceDetail = () => {
             <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
 
-          {/* Product Section */}
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-            {/* Image Gallery */}
-            <div className="space-y-4">
+          {/* Product Section - Two columns with sticky image */}
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+            {/* Image Gallery - Sticky on desktop */}
+            <div className="md:sticky md:top-24 space-y-4">
               {/* Main Image */}
               <div className="relative aspect-square bg-card border-2 border-primary/30 rounded-xl overflow-hidden">
                 {images.length > 0 ? (
@@ -324,7 +324,7 @@ const ServiceDetail = () => {
               )}
             </div>
 
-            {/* Product Info */}
+            {/* Product Info - Compact section */}
             <div className="space-y-6">
               <div>
                 <p className="text-sm text-primary font-medium uppercase tracking-wider mb-2">
@@ -359,16 +359,8 @@ const ServiceDetail = () => {
                 </div>
               )}
 
-              {/* Description */}
-              {service.description && (
-                <div 
-                  className="prose prose-sm max-w-none text-muted-foreground leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0"
-                  dangerouslySetInnerHTML={{ __html: service.description }}
-                />
-              )}
-
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <Button 
                   onClick={handleAddToCart}
                   variant="outline"
@@ -387,8 +379,33 @@ const ServiceDetail = () => {
                   {isProcessing ? "Processing..." : "Buy Now"}
                 </Button>
               </div>
+
+              {/* Short description teaser on mobile */}
+              <div className="md:hidden">
+                {service.description && (
+                  <div 
+                    className="prose prose-sm max-w-none text-muted-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 line-clamp-4"
+                    dangerouslySetInnerHTML={{ __html: service.description }}
+                  />
+                )}
+              </div>
             </div>
           </div>
+
+          {/* Full-width Description Section */}
+          {service.description && (
+            <section className="mt-12 md:mt-16">
+              <div className="bg-card/50 border border-primary/20 rounded-xl p-6 md:p-8">
+                <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-foreground mb-6">
+                  About This Service
+                </h2>
+                <div 
+                  className="prose prose-sm md:prose-base max-w-none text-muted-foreground leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0 md:columns-2 md:gap-8"
+                  dangerouslySetInnerHTML={{ __html: service.description }}
+                />
+              </div>
+            </section>
+          )}
 
           {/* Related Products */}
           {relatedServices.length > 0 && (
