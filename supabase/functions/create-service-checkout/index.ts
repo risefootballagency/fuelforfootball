@@ -29,8 +29,8 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const { serviceId, selectedOption, customerEmail, customerName, paymentMode } = await req.json();
-    logStep("Request body", { serviceId, selectedOption, paymentMode });
+    const { serviceId, selectedOption, customerEmail, customerName, paymentMode, recurringInterval, intervalCount } = await req.json();
+    logStep("Request body", { serviceId, selectedOption, paymentMode, recurringInterval, intervalCount });
 
     if (!serviceId) throw new Error("Service ID is required");
 
@@ -75,46 +75,43 @@ serve(async (req) => {
       }
     }
 
-    // Create product and price dynamically if not already set
-    let priceId = service.stripe_price_id;
+    // Determine if this is a subscription
+    const isSubscription = paymentMode === 'subscription';
     
-    if (!priceId) {
-      logStep("Creating Stripe product for service");
-      
-      const product = await stripe.products.create({
-        name: service.name,
-        description: service.description?.replace(/<[^>]*>/g, '').substring(0, 500) || undefined,
-      });
-      logStep("Product created", { productId: product.id });
+    // Create product
+    logStep("Creating Stripe product for service");
+    
+    const productName = optionName 
+      ? `${service.name} - ${optionName}` 
+      : service.name;
+    
+    const product = await stripe.products.create({
+      name: productName,
+      description: service.description?.replace(/<[^>]*>/g, '').substring(0, 500) || undefined,
+    });
+    logStep("Product created", { productId: product.id });
 
-      // Create price - convert pounds to pence
-      const priceAmount = Math.round(finalPrice * 100);
-      const price = await stripe.prices.create({
-        product: product.id,
-        unit_amount: priceAmount,
-        currency: 'gbp',
-        ...(paymentMode === 'subscription' ? { recurring: { interval: 'month' } } : {}),
-      });
-      logStep("Price created", { priceId: price.id, amount: priceAmount });
-      priceId = price.id;
+    // Create price - convert pounds to pence
+    const priceAmount = Math.round(finalPrice * 100);
+    
+    // Build price params
+    const priceParams: Stripe.PriceCreateParams = {
+      product: product.id,
+      unit_amount: priceAmount,
+      currency: 'gbp',
+    };
 
-      // Save to database
-      await supabaseClient
-        .from('service_catalog')
-        .update({ stripe_product_id: product.id, stripe_price_id: price.id })
-        .eq('id', serviceId);
-    } else if (selectedOption) {
-      // If option selected, create new price for option amount
-      const priceAmount = Math.round(finalPrice * 100);
-      const price = await stripe.prices.create({
-        product: service.stripe_product_id,
-        unit_amount: priceAmount,
-        currency: 'gbp',
-        ...(paymentMode === 'subscription' ? { recurring: { interval: 'month' } } : {}),
-      });
-      logStep("Option price created", { priceId: price.id, amount: priceAmount });
-      priceId = price.id;
+    // Add recurring config for subscriptions
+    if (isSubscription && recurringInterval) {
+      priceParams.recurring = {
+        interval: recurringInterval as Stripe.PriceCreateParams.Recurring.Interval,
+        interval_count: intervalCount || 1,
+      };
+      logStep("Creating subscription price", { interval: recurringInterval, intervalCount: intervalCount || 1 });
     }
+
+    const price = await stripe.prices.create(priceParams);
+    logStep("Price created", { priceId: price.id, amount: priceAmount, isSubscription });
 
     const origin = req.headers.get("origin") || "https://fuelforfootball.com";
 
@@ -124,22 +121,23 @@ serve(async (req) => {
       customer_email: customerId ? undefined : email,
       line_items: [
         {
-          price: priceId,
+          price: price.id,
           quantity: 1,
         },
       ],
-      mode: paymentMode === 'subscription' ? 'subscription' : 'payment',
+      mode: isSubscription ? 'subscription' : 'payment',
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/services`,
       metadata: {
         service_id: serviceId,
         service_name: service.name,
         selected_option: optionName || '',
+        is_subscription: isSubscription ? 'true' : 'false',
       },
     };
 
     const session = await stripe.checkout.sessions.create(sessionParams);
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Checkout session created", { sessionId: session.id, url: session.url, mode: sessionParams.mode });
 
     // Create order record
     const { error: orderError } = await supabaseClient

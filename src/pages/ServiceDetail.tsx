@@ -147,6 +147,36 @@ const ServiceDetail = () => {
     navigate('/cart');
   };
 
+  // Determine if the selected option is a subscription (Monthly, 6-Months, 12-Months, etc.)
+  const isSubscriptionOption = (optionName: string): boolean => {
+    const subscriptionKeywords = ['monthly', 'month', '6-months', '12-months', 'annual', 'yearly'];
+    return subscriptionKeywords.some(keyword => optionName.toLowerCase().includes(keyword));
+  };
+
+  // Get the recurring interval for subscription options
+  const getRecurringInterval = (optionName: string): string | null => {
+    const lower = optionName.toLowerCase();
+    if (lower.includes('12-months') || lower.includes('annual') || lower.includes('yearly')) {
+      return 'year';
+    }
+    if (lower.includes('6-months')) {
+      return 'month'; // 6-month billing handled via interval_count
+    }
+    if (lower.includes('month')) {
+      return 'month';
+    }
+    return null;
+  };
+
+  // Get interval count for subscription options
+  const getIntervalCount = (optionName: string): number => {
+    const lower = optionName.toLowerCase();
+    if (lower.includes('6-months')) {
+      return 6;
+    }
+    return 1;
+  };
+
   const handleBuyNow = async () => {
     if (!service) return;
     
@@ -157,11 +187,18 @@ const ServiceDetail = () => {
     });
 
     try {
+      // Determine if this is a subscription based on selected option
+      const isSubscription = selectedOption ? isSubscriptionOption(selectedOption) : false;
+      const recurringInterval = selectedOption ? getRecurringInterval(selectedOption) : null;
+      const intervalCount = selectedOption ? getIntervalCount(selectedOption) : 1;
+
       const { data, error } = await supabase.functions.invoke('create-service-checkout', {
         body: {
           serviceId: service.id,
           selectedOption: selectedOption || null,
-          paymentMode: 'payment',
+          paymentMode: isSubscription ? 'subscription' : 'payment',
+          recurringInterval: recurringInterval,
+          intervalCount: intervalCount,
         },
       });
 
