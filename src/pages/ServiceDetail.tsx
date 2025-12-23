@@ -96,11 +96,12 @@ const ServiceDetail = () => {
     fetchService();
   }, [slug]);
 
-  const formatPrice = (price: number, options?: unknown) => {
+  const formatPrice = (price: number | null | undefined, options?: unknown) => {
+    const safePrice = price ?? 0;
     const optionsArray = options as ServiceOption[] | null;
     const hasOptions = optionsArray && Array.isArray(optionsArray) && optionsArray.length > 0;
     const prefix = hasOptions ? "From " : "";
-    return `${prefix}£${price.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `${prefix}£${safePrice.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   const getCurrentPrice = () => {
