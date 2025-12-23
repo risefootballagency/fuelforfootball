@@ -361,11 +361,10 @@ const ServiceDetail = () => {
 
               {/* Description */}
               {service.description && (
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {service.description}
-                  </p>
-                </div>
+                <div 
+                  className="prose prose-sm max-w-none text-muted-foreground leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0"
+                  dangerouslySetInnerHTML={{ __html: service.description }}
+                />
               )}
 
               {/* Action Buttons */}
