@@ -96,6 +96,30 @@ const Players = () => {
           </div>
         </section>
 
+        {/* Quick Navigation Buttons */}
+        <section className="bg-primary py-2 md:py-3 border-b-2 border-yellow-400">
+          <div className="container mx-auto">
+            <div className="flex flex-wrap justify-center gap-1 md:gap-2">
+              {[
+                { name: "General", link: "/services" },
+                { name: "Holistic", link: "/services" },
+                { name: "Tactical", link: "/services" },
+                { name: "Technical", link: "/services" },
+                { name: "Mental", link: "/services" },
+                { name: "Physical", link: "/services" },
+              ].map((item, index) => (
+                <Link
+                  key={index}
+                  to={item.link}
+                  className="px-3 md:px-6 py-1.5 md:py-2 text-primary-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-yellow-400 hover:text-primary transition-all duration-300"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Hero Slider */}
         <HeroSlider 
           slides={[
