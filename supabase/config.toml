@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.detect-language]
 verify_jwt = false
+
+[functions.create-service-checkout]
+verify_jwt = false
+
+[functions.create-pay-link]
+verify_jwt = false

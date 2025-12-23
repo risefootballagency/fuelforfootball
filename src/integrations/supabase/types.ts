@@ -1372,6 +1372,8 @@ export type Database = {
           expires_at: string | null
           id: string
           status: string
+          stripe_payment_link_id: string | null
+          stripe_payment_link_url: string | null
           title: string
           updated_at: string
         }
@@ -1383,6 +1385,8 @@ export type Database = {
           expires_at?: string | null
           id?: string
           status?: string
+          stripe_payment_link_id?: string | null
+          stripe_payment_link_url?: string | null
           title: string
           updated_at?: string
         }
@@ -1394,6 +1398,8 @@ export type Database = {
           expires_at?: string | null
           id?: string
           status?: string
+          stripe_payment_link_id?: string | null
+          stripe_payment_link_url?: string | null
           title?: string
           updated_at?: string
         }
@@ -2952,6 +2958,8 @@ export type Database = {
           options: Json | null
           price: number
           ribbon: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
           updated_at: string
           visible: boolean
         }
@@ -2970,6 +2978,8 @@ export type Database = {
           options?: Json | null
           price?: number
           ribbon?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           updated_at?: string
           visible?: boolean
         }
@@ -2988,10 +2998,68 @@ export type Database = {
           options?: Json | null
           price?: number
           ribbon?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           updated_at?: string
           visible?: boolean
         }
         Relationships: []
+      }
+      service_orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_email: string
+          customer_name: string | null
+          id: string
+          notes: string | null
+          selected_option: string | null
+          service_id: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          customer_email: string
+          customer_name?: string | null
+          id?: string
+          notes?: string | null
+          selected_option?: string | null
+          service_id?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          customer_name?: string | null
+          id?: string
+          notes?: string | null
+          selected_option?: string | null
+          service_id?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_orders_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_visits: {
         Row: {
