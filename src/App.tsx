@@ -64,6 +64,7 @@ const StrengthPowerSpeed = lazy(() => import("./pages/services/StrengthPowerSpee
 const Conditioning = lazy(() => import("./pages/services/Conditioning"));
 const Nutrition = lazy(() => import("./pages/services/Nutrition"));
 const Analysis = lazy(() => import("./pages/services/Analysis"));
+const ServiceDetail = lazy(() => import("./pages/ServiceDetail"));
 
 import { SocialSidebar } from "./components/SocialSidebar";
 
@@ -156,6 +157,7 @@ const App = () => {
                     {createLocalizedRoutes('/services/conditioning', <Conditioning />)}
                     {createLocalizedRoutes('/services/nutrition', <Nutrition />)}
                     {createLocalizedRoutes('/services/analysis', <Analysis />)}
+                    {createLocalizedDynamicRoutes('/service/:slug', <ServiceDetail />)}
                     
                     {/* Staff/Admin routes */}
                     <Route path="/staff" element={<Staff />} />
