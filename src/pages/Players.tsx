@@ -3,10 +3,16 @@ import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { ArrowRight, Brain, Target, Dumbbell, Lightbulb } from "lucide-react";
+import { ArrowRight, Brain, Target, Dumbbell, Lightbulb, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/HeroSlider";
 import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Players = () => {
   const { t } = useLanguage();
@@ -97,25 +103,86 @@ const Players = () => {
         </section>
 
         {/* Quick Navigation Buttons */}
-        <section className="bg-primary py-2 md:py-3 border-b-2 border-yellow-400">
+        <section className="bg-card/80 backdrop-blur-sm py-2 md:py-3 border-b border-border/30">
           <div className="container mx-auto">
-            <div className="flex flex-wrap justify-center gap-1 md:gap-2">
-              {[
-                { name: "General", link: "/services" },
-                { name: "Holistic", link: "/services" },
-                { name: "Tactical", link: "/services" },
-                { name: "Technical", link: "/services" },
-                { name: "Mental", link: "/services" },
-                { name: "Physical", link: "/services" },
-              ].map((item, index) => (
-                <Link
-                  key={index}
-                  to={item.link}
-                  className="px-3 md:px-6 py-1.5 md:py-2 text-primary-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-yellow-400 hover:text-primary transition-all duration-300"
-                >
-                  {item.name}
-                </Link>
-              ))}
+            <div className="flex flex-wrap justify-center items-center gap-1 md:gap-2">
+              {/* General - Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="px-3 md:px-6 py-1.5 md:py-2 text-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-flex items-center gap-1">
+                  General <ChevronDown className="w-3 h-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-card border border-border z-50">
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/consultation" className="cursor-pointer">Consultation</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/pro-performance" className="cursor-pointer">Pro Performance</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/elite-performance" className="cursor-pointer">Elite Performance</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Holistic - Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="px-3 md:px-6 py-1.5 md:py-2 text-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-flex items-center gap-1">
+                  Holistic <ChevronDown className="w-3 h-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-card border border-border z-50">
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/pro-performance" className="cursor-pointer">Pro Performance</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/elite-performance" className="cursor-pointer">Elite Performance</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/mentorship" className="cursor-pointer">Mentorship</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Tactical - Direct Link */}
+              <Link
+                to="/services/tactical"
+                className="px-3 md:px-6 py-1.5 md:py-2 text-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
+                Tactical
+              </Link>
+
+              {/* Technical - Direct Link */}
+              <Link
+                to="/services/technical"
+                className="px-3 md:px-6 py-1.5 md:py-2 text-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
+                Technical
+              </Link>
+
+              {/* Mental - Direct Link */}
+              <Link
+                to="/services/mental"
+                className="px-3 md:px-6 py-1.5 md:py-2 text-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
+                Mental
+              </Link>
+
+              {/* Physical - Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="px-3 md:px-6 py-1.5 md:py-2 text-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-flex items-center gap-1">
+                  Physical <ChevronDown className="w-3 h-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-card border border-border z-50">
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/strength-power-speed" className="cursor-pointer">Strength, Power & Speed</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/conditioning" className="cursor-pointer">Conditioning</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/services/nutrition" className="cursor-pointer">Nutrition</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </section>
