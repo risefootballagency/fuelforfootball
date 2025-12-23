@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
+import { LocalizedLink } from "@/components/LocalizedLink";
 import fffLogo from "@/assets/fff_logo.png";
 
 interface Service {
@@ -114,10 +115,15 @@ const Services = () => {
     return filtered;
   }, [services, selectedCategory, selectedPrice, sortBy]);
 
-  const formatPrice = (price: number, options: any) => {
-    const hasOptions = options && Array.isArray(options) && options.length > 0;
+  const formatPrice = (price: number, options: unknown) => {
+    const optionsArray = options as { name: string; price: number }[] | null;
+    const hasOptions = optionsArray && Array.isArray(optionsArray) && optionsArray.length > 0;
     const prefix = hasOptions ? "From " : "";
     return `${prefix}£${price.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const getServiceSlug = (name: string) => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
   };
 
   return (
@@ -256,9 +262,10 @@ const Services = () => {
               {!loading && (
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                   {filteredServices.map((service) => (
-                    <div
+                    <LocalizedLink
                       key={service.id}
-                      className="group cursor-pointer"
+                      to={`/service/${getServiceSlug(service.name)}`}
+                      className="group cursor-pointer block"
                     >
                       {/* Card */}
                       <div className="relative bg-card border-2 border-primary/30 rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
@@ -320,7 +327,7 @@ const Services = () => {
                           {formatPrice(service.price, service.options)}
                         </p>
                       </div>
-                    </div>
+                    </LocalizedLink>
                   ))}
                 </div>
               )}
