@@ -99,9 +99,6 @@ export const Footer = () => {
               <LocalizedLink to="/scouts" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
                 Scouts
               </LocalizedLink>
-              <LocalizedLink to="/performance" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
-                Performance
-              </LocalizedLink>
               <LocalizedLink to="/services" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
                 Services
               </LocalizedLink>
