@@ -115,7 +115,6 @@ const Staff = () => {
   const [isMarketeer, setIsMarketeer] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'betweenthelines' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | null>('overview');
-  const [isSignUp, setIsSignUp] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Enable staff notifications
@@ -423,36 +422,6 @@ const Staff = () => {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/staff`,
-        },
-      });
-
-      if (error) {
-        toast.error(error.message);
-        setLoading(false);
-        return;
-      }
-
-      if (data.user) {
-        toast.success("Account created! You can now log in.");
-        setIsSignUp(false);
-        setPassword("");
-      }
-    } catch (err) {
-      toast.error("An error occurred during sign up");
-      setLoading(false);
-    }
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -482,11 +451,11 @@ const Staff = () => {
             <Card className="w-full">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-center">
-                  {isSignUp ? "Staff Sign Up" : "Staff Login"}
+                  Staff Login
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-4" autoComplete="on">
+                <form onSubmit={handleLogin} className="space-y-4" autoComplete="on">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -510,37 +479,23 @@ const Staff = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      autoComplete={isSignUp ? "new-password" : "current-password"}
+                      autoComplete="current-password"
                     />
                   </div>
-                  {!isSignUp && (
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="remember-me-staff"
-                        checked={rememberMe}
-                        onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                      />
-                      <Label htmlFor="remember-me-staff" className="text-sm cursor-pointer">
-                        Remember me
-                      </Label>
-                    </div>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="remember-me-staff"
+                      checked={rememberMe}
+                      onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                    />
+                    <Label htmlFor="remember-me-staff" className="text-sm cursor-pointer">
+                      Remember me
+                    </Label>
+                  </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? (isSignUp ? "Creating account..." : "Logging in...") : (isSignUp ? "Create Account" : "Access Dashboard")}
+                    {loading ? "Logging in..." : "Access Dashboard"}
                   </Button>
                 </form>
-                <div className="mt-4 text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSignUp(!isSignUp);
-                      setPassword("");
-                    }}
-                    className="text-sm text-primary hover:underline"
-                  >
-                    {isSignUp ? "Already have an account? Login" : "Need an account? Sign up"}
-                  </button>
-                </div>
               </CardContent>
             </Card>
           </div>
