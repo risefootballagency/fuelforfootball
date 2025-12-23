@@ -13,7 +13,7 @@ import fffLogo from "@/assets/fff_logo.png";
 
 interface ServiceOption {
   name: string;
-  price: number;
+  surcharge: number;
 }
 
 interface Service {
@@ -109,7 +109,7 @@ const ServiceDetail = () => {
     const options = service.options as unknown as ServiceOption[] | null;
     if (options && Array.isArray(options) && selectedOption) {
       const option = options.find(o => o.name === selectedOption);
-      return option?.price || service.price;
+      return service.price + (option?.surcharge || 0);
     }
     return service.price;
   };
@@ -308,7 +308,7 @@ const ServiceDetail = () => {
                     <SelectContent>
                       {options.map((option) => (
                         <SelectItem key={option.name} value={option.name}>
-                          {option.name} - £{(option.price ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+                          {option.name} - £{(service.price + (option.surcharge ?? 0)).toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                         </SelectItem>
                       ))}
                     </SelectContent>
