@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LocalizedLink } from "@/components/LocalizedLink";
+import { useCart } from "@/contexts/CartContext";
 import fffLogo from "@/assets/fff_logo.png";
 
 interface ServiceOption {
@@ -42,6 +43,7 @@ const ServiceDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addItem } = useCart();
   
   const [service, setService] = useState<Service | null>(null);
   const [relatedServices, setRelatedServices] = useState<RelatedService[]>([]);
@@ -117,9 +119,19 @@ const ServiceDetail = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleAddToCart = () => {
+    if (!service) return;
+    
+    addItem({
+      serviceId: service.id,
+      name: service.name,
+      price: getCurrentPrice(),
+      selectedOption: selectedOption || null,
+      imageUrl: service.image_url,
+    });
+    
     toast({
       title: "Added to Cart",
-      description: `${service?.name}${selectedOption ? ` - ${selectedOption}` : ''} has been added to your cart.`,
+      description: `${service.name}${selectedOption ? ` - ${selectedOption}` : ''} has been added to your cart.`,
     });
   };
 
