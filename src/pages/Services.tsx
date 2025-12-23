@@ -133,12 +133,12 @@ const Services = () => {
       {/* Hero Section */}
       <InfoBoxWithPlayerBg
         playerImage={PLAYER_BG_IMAGES[0]}
-        className="pt-20 md:pt-28 pb-6 md:pb-8 bg-gradient-to-b from-primary/20 to-background"
+        className="pt-20 md:pt-28 pb-4 md:pb-8 bg-gradient-to-b from-primary/20 to-background"
         imagePosition="right"
         imageOpacity={0.12}
       >
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl md:text-7xl font-bebas uppercase tracking-wider text-center text-foreground">
+          <h1 className="text-3xl md:text-7xl font-bebas uppercase tracking-wider text-center text-foreground">
             Services
           </h1>
         </div>
@@ -147,8 +147,57 @@ const Services = () => {
       {/* Main Content */}
       <section className="py-4 md:py-8">
         <div className="container mx-auto px-3 md:px-4">
+          {/* Mobile Filter Bar */}
+          <div className="lg:hidden mb-4 space-y-3">
+            {/* Sort & Filter Row */}
+            <div className="flex gap-2">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="flex-1 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat} className="text-xs">
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedPrice} onValueChange={setSelectedPrice}>
+                <SelectTrigger className="flex-1 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
+                  <SelectValue placeholder="Price" />
+                </SelectTrigger>
+                <SelectContent>
+                  {priceRanges.map((range) => (
+                    <SelectItem key={range.value} value={range.value} className="text-xs">
+                      {range.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-24 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default" className="text-xs">Default</SelectItem>
+                  <SelectItem value="price-low" className="text-xs">Price ↑</SelectItem>
+                  <SelectItem value="price-high" className="text-xs">Price ↓</SelectItem>
+                  <SelectItem value="name" className="text-xs">Name</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Results count */}
+            <p className="text-muted-foreground text-xs">
+              {loading ? 'Loading...' : `${filteredServices.length} services`}
+            </p>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
-            {/* Left Sidebar - Filters */}
+            {/* Left Sidebar - Filters (Desktop only) */}
             <aside className="hidden lg:block lg:w-64 flex-shrink-0">
               <div className="sticky top-24">
               <h2 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-4 md:mb-6">
@@ -227,8 +276,8 @@ const Services = () => {
 
             {/* Main Content Area */}
             <div className="flex-1">
-              {/* Sort Header */}
-              <div className="flex justify-between items-center mb-4 md:mb-6">
+              {/* Sort Header - Desktop only */}
+              <div className="hidden lg:flex justify-between items-center mb-4 md:mb-6">
                 <p className="text-muted-foreground text-xs md:text-sm">
                   {loading ? 'Loading...' : `${filteredServices.length} services`}
                 </p>
@@ -247,11 +296,11 @@ const Services = () => {
 
               {/* Loading State */}
               {loading && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
                   {[...Array(8)].map((_, i) => (
                     <div key={i}>
                       <Skeleton className="aspect-[3/4] rounded-lg" />
-                      <Skeleton className="h-6 mt-4 w-3/4 mx-auto" />
+                      <Skeleton className="h-5 mt-3 w-3/4 mx-auto" />
                       <Skeleton className="h-4 mt-2 w-1/2 mx-auto" />
                     </div>
                   ))}
@@ -260,7 +309,7 @@ const Services = () => {
 
               {/* Services Grid */}
               {!loading && (
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
                   {filteredServices.map((service) => (
                     <LocalizedLink
                       key={service.id}
@@ -268,17 +317,17 @@ const Services = () => {
                       className="group cursor-pointer block"
                     >
                       {/* Card */}
-                      <div className="relative bg-card border-2 border-primary/30 rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
+                      <div className="relative bg-card border border-primary/30 md:border-2 rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
                         {/* Top Badge with Logo */}
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
                           <div className="relative">
                             {/* Logo circle */}
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-background border-2 border-primary flex items-center justify-center -mb-1.5 md:-mb-2 mx-auto relative z-20">
-                              <img src={fffLogo} alt="FFF" className="w-5 h-5 md:w-6 md:h-6 object-contain" />
+                            <div className="w-6 h-6 md:w-10 md:h-10 rounded-full bg-background border border-primary md:border-2 flex items-center justify-center -mb-1 md:-mb-2 mx-auto relative z-20">
+                              <img src={fffLogo} alt="FFF" className="w-4 h-4 md:w-6 md:h-6 object-contain" />
                             </div>
                             {/* Banner */}
-                            <div className="bg-primary px-2 md:px-3 py-0.5 md:py-1 rounded-b-lg">
-                              <span className="text-[8px] md:text-[10px] font-bebas uppercase tracking-wider text-primary-foreground whitespace-nowrap">
+                            <div className="bg-primary px-1.5 md:px-3 py-0.5 md:py-1 rounded-b-lg">
+                              <span className="text-[7px] md:text-[10px] font-bebas uppercase tracking-wider text-primary-foreground whitespace-nowrap">
                                 {service.badge || service.name.toUpperCase()}
                               </span>
                             </div>
@@ -287,13 +336,13 @@ const Services = () => {
 
                         {/* Ribbon */}
                         {service.ribbon && (
-                          <div className="absolute top-10 md:top-14 right-1 md:right-2 z-10 bg-destructive text-destructive-foreground text-[10px] md:text-xs font-bebas uppercase px-1.5 md:px-2 py-0.5 md:py-1 rounded">
+                          <div className="absolute top-8 md:top-14 right-0.5 md:right-2 z-10 bg-destructive text-destructive-foreground text-[8px] md:text-xs font-bebas uppercase px-1 md:px-2 py-0.5 md:py-1 rounded">
                             {service.ribbon}
                           </div>
                         )}
 
                         {/* Service Image */}
-                        <div className="aspect-[3/4] pt-10 md:pt-12 p-2 md:p-4">
+                        <div className="aspect-[3/4] pt-8 md:pt-12 p-1.5 md:p-4">
                           <div className="w-full h-full rounded-lg overflow-hidden border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/20 flex items-center justify-center">
                             {service.image_url ? (
                               <img
@@ -302,28 +351,28 @@ const Services = () => {
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                               />
                             ) : (
-                              <div className="text-center p-4">
-                                <img src={fffLogo} alt="FFF" className="w-16 h-16 object-contain mx-auto opacity-30" />
+                              <div className="text-center p-2 md:p-4">
+                                <img src={fffLogo} alt="FFF" className="w-10 h-10 md:w-16 md:h-16 object-contain mx-auto opacity-30" />
                               </div>
                             )}
                           </div>
                         </div>
 
                         {/* Change The Game text */}
-                        <div className="text-center py-2">
-                          <span className="text-xs font-bebas uppercase tracking-widest text-muted-foreground italic">
+                        <div className="text-center py-1.5 md:py-2">
+                          <span className="text-[9px] md:text-xs font-bebas uppercase tracking-widest text-muted-foreground italic">
                             Change The Game
                           </span>
                         </div>
                       </div>
 
                       {/* Service Info (outside card) */}
-                      <div className="mt-2 md:mt-4 text-center">
-                        <h3 className="font-bebas text-sm md:text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                      <div className="mt-1.5 md:mt-4 text-center px-1">
+                        <h3 className="font-bebas text-xs md:text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight">
                           {service.name}
                         </h3>
-                        <div className="w-6 md:w-8 h-px bg-primary/50 mx-auto my-1 md:my-2" />
-                        <p className="text-xs md:text-sm text-muted-foreground">
+                        <div className="w-4 md:w-8 h-px bg-primary/50 mx-auto my-1 md:my-2" />
+                        <p className="text-[10px] md:text-sm text-muted-foreground">
                           {formatPrice(service.price, service.options)}
                         </p>
                       </div>
@@ -334,11 +383,11 @@ const Services = () => {
 
               {/* No results */}
               {!loading && filteredServices.length === 0 && (
-                <div className="text-center py-16">
-                  <p className="text-xl font-bebas uppercase tracking-wider text-muted-foreground">
+                <div className="text-center py-12 md:py-16">
+                  <p className="text-lg md:text-xl font-bebas uppercase tracking-wider text-muted-foreground">
                     No services found
                   </p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <p className="text-xs md:text-sm text-muted-foreground mt-2">
                     Try adjusting your filters
                   </p>
                 </div>
