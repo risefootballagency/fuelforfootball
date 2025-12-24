@@ -61,15 +61,15 @@ const Consultation = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-24 pb-16">
+      <main className="pt-20 md:pt-24">
         {/* Hero Section */}
-        <section className="relative py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl">
-              <h1 className="font-bebas text-5xl md:text-7xl text-primary mb-6">
+        <section className="relative py-16 md:py-20 bg-gradient-to-b from-primary/5 to-transparent">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto lg:mx-0">
+              <h1 className="font-bebas text-5xl md:text-6xl lg:text-7xl text-primary mb-6">
                 {t("services.consultation.title", "CONSULTATION")}
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mb-8 leading-relaxed">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mb-8 leading-relaxed">
                 Expert consultation services tailored to your specific needs. Whether you're a player, parent, or club, we provide professional advice to help you make informed decisions and achieve your football goals.
               </p>
               <Button asChild size="lg" className="btn-shine font-bebas uppercase tracking-wider">
@@ -80,27 +80,27 @@ const Consultation = () => {
         </section>
 
         {/* What We Offer */}
-        <section className="py-16 md:py-24">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="font-bebas text-4xl md:text-5xl text-primary mb-4">WHAT WE OFFER</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <section className="py-16 md:py-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-bebas text-3xl md:text-4xl lg:text-5xl text-primary mb-4">WHAT WE OFFER</h2>
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
                 Our consultation services cover every aspect of football performance and career development.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {consultationServices.map((service, index) => (
                 <div 
                   key={index}
-                  className="group bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-xl"
+                  className="group bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <service.icon className="h-7 w-7 text-primary" />
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                    <service.icon className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-bebas text-2xl text-primary mb-2">{service.title}</h3>
-                  <p className="text-muted-foreground text-sm mb-4">{service.description}</p>
-                  <p className="text-lg font-semibold text-primary">{service.price}</p>
+                  <h3 className="font-bebas text-xl md:text-2xl text-primary mb-2">{service.title}</h3>
+                  <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{service.description}</p>
+                  <p className="text-base font-semibold text-primary">{service.price}</p>
                 </div>
               ))}
             </div>
@@ -108,26 +108,26 @@ const Consultation = () => {
         </section>
 
         {/* How It Works */}
-        <section className="py-16 md:py-24 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="font-bebas text-4xl md:text-5xl text-primary mb-4">HOW IT WORKS</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <section className="py-16 md:py-20 bg-muted/30">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-bebas text-3xl md:text-4xl lg:text-5xl text-primary mb-4">HOW IT WORKS</h2>
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
                 Our consultation process is designed to be straightforward and effective.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {processSteps.map((step, index) => (
                 <div key={index} className="relative">
-                  <div className="p-6 rounded-2xl bg-card border border-border h-full">
-                    <div className="text-5xl font-bebas text-primary/20 mb-2">{step.step}</div>
-                    <h3 className="font-bebas text-xl uppercase tracking-wider mb-2">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                  <div className="p-6 rounded-lg bg-card border border-border h-full">
+                    <div className="text-4xl md:text-5xl font-bebas text-primary/20 mb-2">{step.step}</div>
+                    <h3 className="font-bebas text-lg md:text-xl uppercase tracking-wider mb-2">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
                   </div>
                   {index < processSteps.length - 1 && (
-                    <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
-                      <ArrowRight className="h-6 w-6 text-primary/30" />
+                    <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
+                      <ArrowRight className="h-5 w-5 text-primary/30" />
                     </div>
                   )}
                 </div>
@@ -137,39 +137,39 @@ const Consultation = () => {
         </section>
 
         {/* Who It's For */}
-        <section className="py-16 md:py-24">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="font-bebas text-4xl md:text-5xl text-primary mb-4">WHO IT'S FOR</h2>
+        <section className="py-16 md:py-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="font-bebas text-3xl md:text-4xl lg:text-5xl text-primary mb-4">WHO IT'S FOR</h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              <div className="text-center p-8 bg-card border border-border rounded-xl">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-8 w-8 text-primary" />
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
+              <div className="text-center p-6 md:p-8 bg-card border border-border rounded-lg">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="font-bebas text-2xl text-primary mb-3">Players</h3>
-                <p className="text-muted-foreground">
+                <h3 className="font-bebas text-xl md:text-2xl text-primary mb-3">Players</h3>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   Get expert guidance on your development, career decisions, and pathway to professional football.
                 </p>
               </div>
 
-              <div className="text-center p-8 bg-card border border-border rounded-xl">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <MessageSquare className="h-8 w-8 text-primary" />
+              <div className="text-center p-6 md:p-8 bg-card border border-border rounded-lg">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="font-bebas text-2xl text-primary mb-3">Parents</h3>
-                <p className="text-muted-foreground">
+                <h3 className="font-bebas text-xl md:text-2xl text-primary mb-3">Parents</h3>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   Understand the football industry and make informed decisions about your child's development and opportunities.
                 </p>
               </div>
 
-              <div className="text-center p-8 bg-card border border-border rounded-xl">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <FileText className="h-8 w-8 text-primary" />
+              <div className="text-center p-6 md:p-8 bg-card border border-border rounded-lg sm:col-span-2 lg:col-span-1">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="font-bebas text-2xl text-primary mb-3">Clubs</h3>
-                <p className="text-muted-foreground">
+                <h3 className="font-bebas text-xl md:text-2xl text-primary mb-3">Clubs</h3>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   Receive strategic advice on player recruitment, development programs, and performance optimization.
                 </p>
               </div>
@@ -178,10 +178,10 @@ const Consultation = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-primary/5">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="font-bebas text-4xl md:text-5xl text-primary mb-6">READY TO GET STARTED?</h2>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+        <section className="py-16 md:py-20 bg-primary/5">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="font-bebas text-3xl md:text-4xl lg:text-5xl text-primary mb-6">READY TO GET STARTED?</h2>
+            <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
               Book a consultation today and take the first step towards achieving your football goals.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
