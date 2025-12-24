@@ -60,10 +60,10 @@ const Clubs = () => {
       />
       <Header />
       
-      <main className="pt-24 md:pt-16">
+      <main className="pt-20 md:pt-24">
         {/* CLUBS Title Banner */}
-        <div className="bg-[#1a1a1a] py-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bebas uppercase tracking-[0.3em] text-white">
+        <div className="bg-[#1a1a1a] py-3 md:py-4 text-center">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bebas uppercase tracking-[0.3em] text-white">
             CLUBS
           </h1>
         </div>
@@ -118,25 +118,25 @@ const Clubs = () => {
 
         {/* HOW WE FUEL Section */}
         <section 
-          className="relative py-8"
+          className="relative py-12 md:py-16"
           style={{
             backgroundImage: `url(https://static.wixstatic.com/media/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png/v1/fill/w_1920,h_576,al_c,q_90,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_ecb5f8902dc448c4ae5f0739b810bd7b~mv2.png)`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
         >
-          <div className="text-center mb-8">
-            <h2 className="text-4xl md:text-5xl font-bebas uppercase tracking-[0.2em] text-white italic">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bebas uppercase tracking-[0.2em] text-white italic">
               HOW WE FUEL
             </h2>
           </div>
 
           {/* Tabs */}
-          <div className="flex justify-center mb-8">
-            <div className="flex bg-transparent">
+          <div className="flex justify-center mb-8 px-4">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-0">
               <button
                 onClick={() => setActiveTab('strategy')}
-                className={`px-8 md:px-16 py-4 font-bebas uppercase tracking-[0.15em] text-lg md:text-xl transition-all ${
+                className={`px-6 md:px-12 lg:px-16 py-3 md:py-4 font-bebas uppercase tracking-[0.1em] md:tracking-[0.15em] text-base md:text-lg lg:text-xl transition-all ${
                   activeTab === 'strategy' 
                     ? 'bg-[#FFD700] text-black' 
                     : 'bg-transparent text-white border border-white/30 hover:bg-white/10'
@@ -146,7 +146,7 @@ const Clubs = () => {
               </button>
               <button
                 onClick={() => setActiveTab('recruitment')}
-                className={`px-8 md:px-16 py-4 font-bebas uppercase tracking-[0.15em] text-lg md:text-xl transition-all ${
+                className={`px-6 md:px-12 lg:px-16 py-3 md:py-4 font-bebas uppercase tracking-[0.1em] md:tracking-[0.15em] text-base md:text-lg lg:text-xl transition-all ${
                   activeTab === 'recruitment' 
                     ? 'bg-[#FFD700] text-black' 
                     : 'bg-transparent text-white border border-white/30 hover:bg-white/10'
@@ -156,7 +156,7 @@ const Clubs = () => {
               </button>
               <button
                 onClick={() => setActiveTab('optimisation')}
-                className={`px-8 md:px-16 py-4 font-bebas uppercase tracking-[0.15em] text-lg md:text-xl transition-all ${
+                className={`px-6 md:px-12 lg:px-16 py-3 md:py-4 font-bebas uppercase tracking-[0.1em] md:tracking-[0.15em] text-base md:text-lg lg:text-xl transition-all ${
                   activeTab === 'optimisation' 
                     ? 'bg-[#FFD700] text-black' 
                     : 'bg-transparent text-white border border-white/30 hover:bg-white/10'
@@ -168,8 +168,8 @@ const Clubs = () => {
           </div>
 
           {/* Tab Content */}
-          <div className="max-w-4xl mx-auto px-6 pb-8">
-            <div className="space-y-6 text-white text-sm md:text-base leading-relaxed">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div className="space-y-5 text-white text-sm md:text-base leading-relaxed">
               {tabContent[activeTab].paragraphs.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
@@ -179,26 +179,26 @@ const Clubs = () => {
 
         {/* CHANGE THE GAME Section */}
         <section 
-          className="relative py-16"
+          className="relative py-16 md:py-20"
           style={{
             backgroundImage: `url(https://static.wixstatic.com/media/c4f4b1_151de22e2aae4c939735fc18e9e99715~mv2.png/v1/fill/w_1920,h_561,al_c,q_90,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_151de22e2aae4c939735fc18e9e99715~mv2.png)`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
         >
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-8">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10 md:mb-12">
               <h2 className="text-3xl md:text-4xl font-bebas uppercase tracking-[0.2em] text-white">
                 CHANGE THE GAME
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center max-w-5xl mx-auto">
               <div className="text-center md:text-left">
-                <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-white mb-2">
+                <h3 className="text-xl md:text-2xl lg:text-3xl font-bebas uppercase tracking-wider text-white mb-2">
                   Our MISSION
                 </h3>
-                <p className="text-[#FFD700] text-xl md:text-2xl font-bebas uppercase tracking-wider mb-6">
+                <p className="text-[#FFD700] text-lg md:text-xl lg:text-2xl font-bebas uppercase tracking-wider mb-6">
                   TO CHANGE THE GAME
                 </p>
                 <p className="text-white text-sm md:text-base leading-relaxed">
@@ -217,18 +217,18 @@ const Clubs = () => {
         </section>
 
         {/* START NOW CTA Section */}
-        <section className="py-16 bg-[#1a1a1a]">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-3xl md:text-4xl font-bebas uppercase tracking-[0.2em] text-white mb-8">
+        <section className="py-16 md:py-20 bg-[#1a1a1a]">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bebas uppercase tracking-[0.2em] text-white mb-6 md:mb-8">
               START NOW
             </h2>
-            <p className="text-white/80 text-sm md:text-base leading-relaxed max-w-4xl mx-auto mb-10">
+            <p className="text-white/80 text-sm md:text-base leading-relaxed max-w-4xl mx-auto mb-8 md:mb-10">
               In the world of football, every club yearns for success. Fuel for Football is your strategic ally in crafting this legacy. We deliver services designed to elevate every aspect of your club's performance - from fostering superior player development to bolstering cohesive team dynamics and honing cutting-edge tactical strategies. Our expert guidance does not stop at the first team, but extends to nurturing the stars of tomorrow within your youth ranks. By partnering with us, you are investing in the future success of your club on and off the pitch. Fuel for Football is more than just a support system; we are the fuel that powers your team to long-term success.
             </p>
             <Button 
               asChild 
               size="lg" 
-              className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-bebas uppercase tracking-[0.2em] px-10 py-6 text-lg"
+              className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 font-bebas uppercase tracking-[0.2em] px-8 md:px-10 py-5 md:py-6 text-base md:text-lg"
             >
               <Link to="/contact">BOOK A CONSULTATION</Link>
             </Button>
