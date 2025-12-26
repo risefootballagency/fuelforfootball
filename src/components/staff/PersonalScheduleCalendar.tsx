@@ -24,7 +24,7 @@ interface CalendarEvent {
 }
 
 const EVENT_CATEGORIES = [
-  { value: 'work', label: 'Work', color: 'hsl(43, 49%, 61%)' },
+  { value: 'work', label: 'Work', color: 'hsl(36, 100%, 50%)' },
   { value: 'personal', label: 'Personal', color: 'hsl(200, 70%, 50%)' },
   { value: 'meeting', label: 'Meeting', color: 'hsl(280, 60%, 55%)' },
   { value: 'training', label: 'Training', color: 'hsl(140, 60%, 45%)' },
@@ -264,7 +264,7 @@ export const PersonalScheduleCalendar = ({
 
   const getCategoryColor = (category: string | null): string => {
     const cat = EVENT_CATEGORIES.find(c => c.value === category);
-    return cat?.color || 'hsl(43, 49%, 61%)';
+    return cat?.color || 'hsl(36, 100%, 50%)';
   };
 
   const calendarWeeks = generateCalendarWeeks();

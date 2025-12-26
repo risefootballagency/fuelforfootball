@@ -262,7 +262,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
       'G': { bg: 'hsl(190, 70%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(190, 70%, 55%)' },
       'H': { bg: 'hsl(30, 80%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(30, 80%, 55%)' },
       'REST': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
-      'MATCH': { bg: 'hsl(43, 49%, 61%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(43, 49%, 71%)' },
+      'MATCH': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
     };
     return colorMap[key] || { bg: 'hsl(0, 0%, 10%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 15%)' };
   };
