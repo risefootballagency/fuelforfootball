@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Send, Bot, User, Save, Loader2, Plus, Trash2, Settings, ChevronDown } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { sharedSupabase as supabase } from '@/integrations/supabase/sharedClient';
 import { toast } from 'sonner';
 import { MarkdownContent } from '@/utils/markdownRenderer';
 
