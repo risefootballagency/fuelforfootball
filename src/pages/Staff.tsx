@@ -63,7 +63,7 @@ import { CoachingAIChat } from "@/components/staff/coaching/CoachingAIChat";
 import { OpenAccessManagement } from "@/components/staff/OpenAccessManagement";
 import { SalesManagement } from "@/components/staff/SalesManagement";
 
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
 import { Checkbox } from "@/components/ui/checkbox";
 import marbleBackground from "@/assets/smudged-marble-overlay.png";
