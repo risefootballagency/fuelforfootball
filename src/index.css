@@ -77,7 +77,9 @@ All colors MUST be HSL.
     
     /* FFF Orange/Gold accent for hover states */
     --fff-orange: 36 100% 50%;
-    --fff-gold: 45 100% 50%;
+    --fff-gold: 36 100% 50%;
+    --accent-gold: 36 100% 50%;
+    --accent-gold-dim: 36 90% 35%;
     
     /* Glossy green gradient for headers */
     --glossy-green: linear-gradient(
