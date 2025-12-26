@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Calendar as CalendarIcon, Image, Upload, Trash2, Play, List, Folder } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { toast } from "sonner";
 import { VideoPreviewCard } from "./VideoPreviewCard";
 import { PlaylistManager } from "@/components/PlaylistManager";

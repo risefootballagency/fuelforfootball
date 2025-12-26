@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { format, addDays, startOfWeek, parseISO, isSameDay, addWeeks } from "date-fns";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";

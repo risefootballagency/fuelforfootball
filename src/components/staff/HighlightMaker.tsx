@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { sharedSupabase as supabase } from '@/integrations/supabase/sharedClient';
 import { 
   Film, 
   Download, 

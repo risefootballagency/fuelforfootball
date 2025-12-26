@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { Plus, Edit, Trash2, Search, Languages, RefreshCw, Globe } from "lucide-react";
 
 interface Translation {
