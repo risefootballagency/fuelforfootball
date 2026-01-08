@@ -60,6 +60,7 @@ const Consultation = lazy(() => import("./pages/services/Consultation"));
 const ProPerformance = lazy(() => import("./pages/services/ProPerformance"));
 const ElitePerformance = lazy(() => import("./pages/services/ElitePerformance"));
 const Tactical = lazy(() => import("./pages/services/Tactical"));
+const ActionReports = lazy(() => import("./pages/services/ActionReports"));
 const Technical = lazy(() => import("./pages/services/Technical"));
 const Mental = lazy(() => import("./pages/services/Mental"));
 const StrengthPowerSpeed = lazy(() => import("./pages/services/StrengthPowerSpeed"));
@@ -154,6 +155,7 @@ const App = () => {
                     {createLocalizedRoutes('/services/pro-performance', <ProPerformance />)}
                     {createLocalizedRoutes('/services/elite-performance', <ElitePerformance />)}
                     {createLocalizedRoutes('/services/tactical', <Tactical />)}
+                    {createLocalizedRoutes('/services/action-reports', <ActionReports />)}
                     {createLocalizedRoutes('/services/technical', <Technical />)}
                     {createLocalizedRoutes('/services/mental', <Mental />)}
                     {createLocalizedRoutes('/services/strength-power-speed', <StrengthPowerSpeed />)}
