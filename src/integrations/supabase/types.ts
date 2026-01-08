@@ -1363,6 +1363,87 @@ export type Database = {
           },
         ]
       }
+      outreach_prospects: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          last_contact_date: string | null
+          next_follow_up: string | null
+          notes: string | null
+          prospect_name: string
+          source: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          last_contact_date?: string | null
+          next_follow_up?: string | null
+          notes?: string | null
+          prospect_name: string
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          last_contact_date?: string | null
+          next_follow_up?: string | null
+          notes?: string | null
+          prospect_name?: string
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      outreach_targets: {
+        Row: {
+          conversions_actual: number | null
+          conversions_target: number | null
+          created_at: string
+          follow_ups_actual: number | null
+          follow_ups_target: number | null
+          id: string
+          month: string
+          new_prospects_actual: number | null
+          new_prospects_target: number | null
+          updated_at: string
+        }
+        Insert: {
+          conversions_actual?: number | null
+          conversions_target?: number | null
+          created_at?: string
+          follow_ups_actual?: number | null
+          follow_ups_target?: number | null
+          id?: string
+          month: string
+          new_prospects_actual?: number | null
+          new_prospects_target?: number | null
+          updated_at?: string
+        }
+        Update: {
+          conversions_actual?: number | null
+          conversions_target?: number | null
+          created_at?: string
+          follow_ups_actual?: number | null
+          follow_ups_target?: number | null
+          id?: string
+          month?: string
+          new_prospects_actual?: number | null
+          new_prospects_target?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pay_links: {
         Row: {
           amount: number
@@ -2581,6 +2662,108 @@ export type Database = {
         }
         Relationships: []
       }
+      retention_clients: {
+        Row: {
+          client_name: string
+          client_type: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          last_contact_date: string | null
+          next_contact_date: string | null
+          notes: string | null
+          player_id: string | null
+          status: string
+          total_revenue: number | null
+          updated_at: string
+        }
+        Insert: {
+          client_name: string
+          client_type?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          last_contact_date?: string | null
+          next_contact_date?: string | null
+          notes?: string | null
+          player_id?: string | null
+          status?: string
+          total_revenue?: number | null
+          updated_at?: string
+        }
+        Update: {
+          client_name?: string
+          client_type?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          last_contact_date?: string | null
+          next_contact_date?: string | null
+          notes?: string | null
+          player_id?: string | null
+          status?: string
+          total_revenue?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retention_clients_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "retention_clients_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      retention_targets: {
+        Row: {
+          conversion_actual: number | null
+          conversion_target: number | null
+          created_at: string
+          id: string
+          month: string
+          outreach_actual: number | null
+          outreach_target: number | null
+          sales_actual: number | null
+          sales_target: number | null
+          updated_at: string
+        }
+        Insert: {
+          conversion_actual?: number | null
+          conversion_target?: number | null
+          created_at?: string
+          id?: string
+          month: string
+          outreach_actual?: number | null
+          outreach_target?: number | null
+          sales_actual?: number | null
+          sales_target?: number | null
+          updated_at?: string
+        }
+        Update: {
+          conversion_actual?: number | null
+          conversion_target?: number | null
+          created_at?: string
+          id?: string
+          month?: string
+          outreach_actual?: number | null
+          outreach_target?: number | null
+          sales_actual?: number | null
+          sales_target?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sales: {
         Row: {
           amount: number
@@ -2640,6 +2823,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sales_goals: {
+        Row: {
+          created_at: string
+          id: string
+          month: string
+          notes: string | null
+          packages_actual: number | null
+          packages_target: number | null
+          revenue_actual: number | null
+          revenue_target: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: string
+          notes?: string | null
+          packages_actual?: number | null
+          packages_target?: number | null
+          revenue_actual?: number | null
+          revenue_target?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: string
+          notes?: string | null
+          packages_actual?: number | null
+          packages_target?: number | null
+          revenue_actual?: number | null
+          revenue_target?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sales_hub_content: {
+        Row: {
+          content: string | null
+          content_type: string
+          created_at: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          content_type: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       saved_signatures: {
         Row: {
@@ -3096,6 +3348,63 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_time_tracking: {
+        Row: {
+          created_at: string
+          currency: string | null
+          date: string
+          duration_minutes: number
+          fee_received: number | null
+          id: string
+          notes: string | null
+          player_id: string | null
+          player_name: string | null
+          service_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          date?: string
+          duration_minutes?: number
+          fee_received?: number | null
+          id?: string
+          notes?: string | null
+          player_id?: string | null
+          player_name?: string | null
+          service_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          date?: string
+          duration_minutes?: number
+          fee_received?: number | null
+          id?: string
+          notes?: string | null
+          player_id?: string | null
+          player_name?: string | null
+          service_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_time_tracking_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_time_tracking_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players_public"
             referencedColumns: ["id"]
           },
         ]

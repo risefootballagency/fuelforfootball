@@ -64,6 +64,7 @@ import { OpenAccessManagement } from "@/components/staff/OpenAccessManagement";
 import { SalesManagement } from "@/components/staff/SalesManagement";
 import { ContractSignature } from "@/components/staff/ContractSignature";
 import { VersionManager } from "@/lib/versionManager";
+import { RetentionTracker, SalesTracker, OutreachTracker, SalesHub, TimeManagement } from "@/components/staff/sales";
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
@@ -116,7 +117,7 @@ const Staff = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMarketeer, setIsMarketeer] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'betweenthelines' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | null>('overview');
+  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'betweenthelines' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Enable staff notifications
@@ -615,6 +616,10 @@ const Staff = () => {
       locked: isMarketeer,
       sections: [
         { id: 'sales', title: 'Sales & Pay Links', icon: ShoppingCart },
+        { id: 'salestracker', title: 'Sales Tracker', icon: TrendingUp },
+        { id: 'retention', title: 'Retention', icon: Users },
+        { id: 'outreach', title: 'Outreach', icon: UserCog },
+        { id: 'saleshub', title: 'Sales Hub', icon: FileText },
       ]
     },
     {
@@ -968,6 +973,7 @@ const Staff = () => {
                   {expandedSection === 'scouts' && <ScoutsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'scoutingcentre' && <ScoutingCentreManagement isAdmin={isAdmin} />}
                   {expandedSection === 'coaching' && <CoachingDatabase isAdmin={isAdmin} />}
+                  {expandedSection === 'timemanagement' && <TimeManagement />}
                   {expandedSection === 'analysis' && <AnalysisManagement isAdmin={isAdmin} />}
                   {expandedSection === 'highlightmaker' && <HighlightMaker isAdmin={isAdmin} />}
                   {expandedSection === 'marketing' && <MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
@@ -985,6 +991,10 @@ const Staff = () => {
                   {expandedSection === 'budgets' && <BudgetsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'financialreports' && <FinancialReports isAdmin={isAdmin} />}
                   {expandedSection === 'sales' && <SalesManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'salestracker' && <SalesTracker />}
+                  {expandedSection === 'retention' && <RetentionTracker />}
+                  {expandedSection === 'outreach' && <OutreachTracker />}
+                  {expandedSection === 'saleshub' && <SalesHub />}
                   {expandedSection === 'updates' && <UpdatesManagement isAdmin={isAdmin} />}
                   {expandedSection === 'clubnetwork' && <ClubNetworkManagement />}
                   {expandedSection === 'transferhub' && <TransferHub isAdmin={isAdmin} />}
