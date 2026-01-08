@@ -298,13 +298,20 @@ const Players = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Tactical - Direct Link */}
-              <Link
-                to="/services/tactical"
-                className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
-              >
-                Tactical
-              </Link>
+              {/* Tactical - Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5 border-r border-[#c4a000]/30">
+                  Tactical <ChevronDown className="w-3 h-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[180px]">
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
+                    <Link to="/services/tactical">Tactical Overview</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
+                    <Link to="/services/action-reports">Action Reports</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Technical - Direct Link */}
               <Link
