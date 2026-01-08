@@ -19,6 +19,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { R90RatingsViewer } from "./R90RatingsViewer";
 import { formatScoreWithFrequency } from "@/lib/utils";
 import { ActionsByTypeDialog } from "./ActionsByTypeDialog";
+import { ActionVideoUpload } from "./ActionVideoUpload";
 
 interface CreatePerformanceReportDialogProps {
   open: boolean;
@@ -47,6 +48,7 @@ interface PerformanceAction {
   action_type: string;
   action_description: string;
   notes: string;
+  video_url?: string;
 }
 
 interface SortableStatItemProps {
@@ -238,7 +240,7 @@ export const CreatePerformanceReportDialog = ({
 
   // Performance actions
   const [actions, setActions] = useState<PerformanceAction[]>([
-    { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "" }
+    { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "", video_url: "" }
   ]);
 
   // Drag and drop sensors
@@ -574,6 +576,7 @@ export const CreatePerformanceReportDialog = ({
             action_type: action.action_type || "",
             action_description: action.action_description || "",
             notes: action.notes || "",
+            video_url: action.video_url || "",
           }))
         );
         
@@ -651,7 +654,7 @@ export const CreatePerformanceReportDialog = ({
       progressive_passes_adj_per90: "",
     });
     setActions([
-      { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "" }
+      { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "", video_url: "" }
     ]);
   };
 
@@ -677,6 +680,7 @@ export const CreatePerformanceReportDialog = ({
             action_type: action.action_type || "",
             action_description: action.action_description || "",
             notes: action.notes || "",
+            video_url: action.video_url || "",
           }))
         );
       }
@@ -695,7 +699,8 @@ export const CreatePerformanceReportDialog = ({
         action_score: "",
         action_type: "",
         action_description: "",
-        notes: ""
+        notes: "",
+        video_url: ""
       }
     ]);
   };
@@ -707,7 +712,8 @@ export const CreatePerformanceReportDialog = ({
       action_score: "",
       action_type: "",
       action_description: "",
-      notes: ""
+      notes: "",
+      video_url: ""
     };
     
     const newActions = [
@@ -1125,6 +1131,7 @@ export const CreatePerformanceReportDialog = ({
           action_type: a.action_type || null,
           action_description: a.action_description || null,
           notes: a.notes || null,
+          video_url: a.video_url || null,
         }));
 
       if (actionsToInsert.length > 0) {

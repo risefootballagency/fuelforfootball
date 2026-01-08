@@ -62,6 +62,8 @@ import { AthleteCentre } from "@/components/staff/AthleteCentre";
 import { CoachingAIChat } from "@/components/staff/coaching/CoachingAIChat";
 import { OpenAccessManagement } from "@/components/staff/OpenAccessManagement";
 import { SalesManagement } from "@/components/staff/SalesManagement";
+import { ContractSignature } from "@/components/staff/ContractSignature";
+import { VersionManager } from "@/lib/versionManager";
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
@@ -114,7 +116,7 @@ const Staff = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMarketeer, setIsMarketeer] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'betweenthelines' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | null>('overview');
+  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'betweenthelines' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Enable staff notifications
@@ -172,6 +174,11 @@ const Staff = () => {
     const savedRememberMe = localStorage.getItem("staff_remember_me");
     if (savedEmail) setEmail(savedEmail);
     if (savedRememberMe === "true") setRememberMe(true);
+    
+    // Initialize version manager for PWA cache control
+    if (navigator.onLine) {
+      VersionManager.initialize(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -631,6 +638,7 @@ const Staff = () => {
       locked: isMarketeer,
       sections: [
         { id: 'legal', title: 'Legal', icon: Scale },
+        { id: 'contracts', title: 'Contracts', icon: FileCheck },
         { id: 'languages', title: 'Languages', icon: Languages },
         ...(isAdmin ? [
           { id: 'sitemanagement', title: 'Site Management', icon: Settings },
@@ -983,6 +991,7 @@ const Staff = () => {
                   {expandedSection === 'athletecentre' && <AthleteCentre />}
                   {expandedSection === 'coachingchat' && <CoachingAIChat />}
                   {expandedSection === 'legal' && <LegalManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'contracts' && <ContractSignature />}
                   {expandedSection === 'languages' && <LanguagesManagement isAdmin={isAdmin} />}
                   {expandedSection === 'sitemanagement' && isAdmin && <SiteManagement isAdmin={isAdmin} />}
                   {expandedSection === 'passwords' && isAdmin && <PlayerPasswordManagement />}

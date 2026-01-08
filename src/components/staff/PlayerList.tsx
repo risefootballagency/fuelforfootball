@@ -7,9 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Edit, X, Save } from "lucide-react";
+import { Edit, X, Save, ChevronUp, ChevronDown } from "lucide-react";
 import { getCountryFlagUrl } from "@/lib/countryFlags";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// Position order for smart sorting (GK -> defenders -> midfielders -> attackers)
+const POSITION_ORDER: Record<string, number> = {
+  'GK': 1, 'LB': 2, 'LCB': 3, 'CB': 4, 'RCB': 5, 'RB': 6,
+  'CDM': 7, 'DM': 7, 'LCM': 8, 'CM': 9, 'RCM': 10,
+  'LM': 11, 'LW': 12, 'AM': 13, 'CAM': 13, 'RM': 14, 'RW': 15,
+  'CF': 16, 'ST': 17
+};
 
 interface Player {
   id: string;
@@ -26,6 +34,7 @@ interface Player {
   category: string | null;
   representation_status: string | null;
   visible_on_stars_page: boolean;
+  player_list_order: number | null;
 }
 
 type EditableField = 'position' | 'age' | 'club' | 'league' | 'email' | 'category' | 'representation_status';
@@ -65,12 +74,32 @@ export const PlayerList = ({ isAdmin }: { isAdmin: boolean }) => {
     try {
       const { data, error } = await supabase
         .from("players")
-        .select("id, name, club, club_logo, league, position, age, nationality, bio, email, image_url, category, representation_status, visible_on_stars_page")
+        .select("id, name, club, club_logo, league, position, age, nationality, bio, email, image_url, category, representation_status, visible_on_stars_page, player_list_order")
         .neq("category", "Scouted")
-        .order("name");
+        .in("representation_status", ["mandated", "represented", "previously_mandated"])
+        .order("player_list_order", { ascending: true, nullsFirst: false });
 
       if (error) throw error;
-      setPlayers(data || []);
+      
+      // Sort by position order if no manual order set
+      const sortedPlayers = (data || []).sort((a, b) => {
+        // First sort by player_list_order if available
+        if (a.player_list_order !== null && b.player_list_order !== null) {
+          return a.player_list_order - b.player_list_order;
+        }
+        if (a.player_list_order !== null) return -1;
+        if (b.player_list_order !== null) return 1;
+        
+        // Then sort by position
+        const posA = POSITION_ORDER[a.position.toUpperCase()] || 99;
+        const posB = POSITION_ORDER[b.position.toUpperCase()] || 99;
+        if (posA !== posB) return posA - posB;
+        
+        // Finally sort by name
+        return a.name.localeCompare(b.name);
+      });
+      
+      setPlayers(sortedPlayers);
     } catch (error) {
       console.error("Error fetching players:", error);
       toast.error("Failed to load players");

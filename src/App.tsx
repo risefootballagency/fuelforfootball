@@ -52,6 +52,7 @@ const Shop = lazy(() => import("./pages/Shop"));
 const PayLink = lazy(() => import("./pages/PayLink"));
 const Cart = lazy(() => import("./pages/Cart"));
 const FluidCursor = lazy(() => import("./components/FluidCursor"));
+const SignContract = lazy(() => import("./pages/SignContract"));
 
 // Service pages
 const Mentorship = lazy(() => import("./pages/services/Mentorship"));
@@ -173,6 +174,7 @@ const App = () => {
                     <Route path="/terms-of-service" element={<TermsOfService />} />
                     <Route path="/pdf-viewer" element={<PDFViewer />} />
                     <Route path="/pay/:id" element={<PayLink />} />
+                    <Route path="/sign/:slug" element={<SignContract />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
