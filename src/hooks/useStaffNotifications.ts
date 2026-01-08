@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface NotificationTrigger {
@@ -8,8 +8,26 @@ interface NotificationTrigger {
   onPlaylistChange?: boolean;
 }
 
+/**
+ * Staff notifications hook with hydration guard for PWA compatibility.
+ * Usage with hydration guard:
+ * ```
+ * const [isHydrated, setIsHydrated] = useState(false);
+ * useEffect(() => { setIsHydrated(true); }, []);
+ * useStaffNotifications(isHydrated ? { onVisitor: true, ... } : {});
+ * ```
+ */
 export const useStaffNotifications = (triggers: NotificationTrigger = {}) => {
+  const [isInitialized, setIsInitialized] = useState(false);
+
   useEffect(() => {
+    // Hydration guard - wait for client-side hydration
+    setIsInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    // Don't set up subscriptions until hydrated
+    if (!isInitialized) return;
     const channels: any[] = [];
 
     // Listen for site visits
@@ -159,5 +177,5 @@ export const useStaffNotifications = (triggers: NotificationTrigger = {}) => {
     return () => {
       channels.forEach(channel => supabase.removeChannel(channel));
     };
-  }, [triggers.onVisitor, triggers.onFormSubmission, triggers.onClipUpload, triggers.onPlaylistChange]);
+  }, [isInitialized, triggers.onVisitor, triggers.onFormSubmission, triggers.onClipUpload, triggers.onPlaylistChange]);
 };
