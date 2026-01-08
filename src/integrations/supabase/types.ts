@@ -1485,6 +1485,7 @@ export type Database = {
           minute: number | null
           notes: string | null
           updated_at: string | null
+          video_url: string | null
           zone: number | null
         }
         Insert: {
@@ -1499,6 +1500,7 @@ export type Database = {
           minute?: number | null
           notes?: string | null
           updated_at?: string | null
+          video_url?: string | null
           zone?: number | null
         }
         Update: {
@@ -1513,6 +1515,7 @@ export type Database = {
           minute?: number | null
           notes?: string | null
           updated_at?: string | null
+          video_url?: string | null
           zone?: number | null
         }
         Relationships: [
@@ -2129,9 +2132,11 @@ export type Database = {
           name: string
           nationality: string
           next_program_notes: string | null
+          player_list_order: number | null
           position: string
           preferred_currency: string | null
           representation_status: string | null
+          star_order: number | null
           transfer_priority: string | null
           transfer_status: string | null
           updated_at: string | null
@@ -2157,9 +2162,11 @@ export type Database = {
           name: string
           nationality: string
           next_program_notes?: string | null
+          player_list_order?: number | null
           position: string
           preferred_currency?: string | null
           representation_status?: string | null
+          star_order?: number | null
           transfer_priority?: string | null
           transfer_status?: string | null
           updated_at?: string | null
@@ -2185,9 +2192,11 @@ export type Database = {
           name?: string
           nationality?: string
           next_program_notes?: string | null
+          player_list_order?: number | null
           position?: string
           preferred_currency?: string | null
           representation_status?: string | null
+          star_order?: number | null
           transfer_priority?: string | null
           transfer_status?: string | null
           updated_at?: string | null
@@ -2632,6 +2641,36 @@ export type Database = {
           },
         ]
       }
+      saved_signatures: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean | null
+          name: string
+          signature_data: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name: string
+          signature_data: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          signature_data?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       scout_messages: {
         Row: {
           content: string
@@ -3057,6 +3096,157 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_contracts: {
+        Row: {
+          completed_pdf_url: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_name: string | null
+          file_url: string
+          id: string
+          owner_field_values: Json | null
+          owner_signed_at: string | null
+          share_token: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_pdf_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_name?: string | null
+          file_url: string
+          id?: string
+          owner_field_values?: Json | null
+          owner_signed_at?: string | null
+          share_token?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_pdf_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_name?: string | null
+          file_url?: string
+          id?: string
+          owner_field_values?: Json | null
+          owner_signed_at?: string | null
+          share_token?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      signature_fields: {
+        Row: {
+          contract_id: string
+          created_at: string
+          display_order: number | null
+          field_type: string
+          height: number | null
+          id: string
+          label: string | null
+          page_number: number
+          required: boolean | null
+          signer_party: string
+          updated_at: string
+          width: number | null
+          x_position: number
+          y_position: number
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          display_order?: number | null
+          field_type: string
+          height?: number | null
+          id?: string
+          label?: string | null
+          page_number?: number
+          required?: boolean | null
+          signer_party: string
+          updated_at?: string
+          width?: number | null
+          x_position: number
+          y_position: number
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          display_order?: number | null
+          field_type?: string
+          height?: number | null
+          id?: string
+          label?: string | null
+          page_number?: number
+          required?: boolean | null
+          signer_party?: string
+          updated_at?: string
+          width?: number | null
+          x_position?: number
+          y_position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_fields_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "signature_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_submissions: {
+        Row: {
+          contract_id: string
+          created_at: string
+          field_values: Json | null
+          id: string
+          ip_address: string | null
+          signed_at: string | null
+          signer_email: string | null
+          signer_name: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          field_values?: Json | null
+          id?: string
+          ip_address?: string | null
+          signed_at?: string | null
+          signer_email?: string | null
+          signer_name?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          field_values?: Json | null
+          id?: string
+          ip_address?: string | null
+          signed_at?: string | null
+          signer_email?: string | null
+          signer_name?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_submissions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "signature_contracts"
             referencedColumns: ["id"]
           },
         ]
