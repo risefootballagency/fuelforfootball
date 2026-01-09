@@ -1,233 +1,170 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { Play, Target, TrendingUp, BarChart3 } from "lucide-react";
+import {
+  ServicePageLayout,
+  ServiceSection,
+  ServiceSectionTitle,
+  ServiceContentBlock,
+  ServiceInfoCard,
+} from "@/components/services/ServicePageLayout";
 
 const ActionReports = () => {
+  const steps = [
+    { icon: Play, title: "VIDEO SUBMISSION", description: "Upload your match footage or provide access to game recordings." },
+    { icon: Target, title: "ACTION LOGGING", description: "Our analysts log every significant action you take throughout the match." },
+    { icon: BarChart3, title: "DEEP ANALYSIS", description: "Each action is rated, categorised, and analysed for tactical effectiveness." },
+    { icon: TrendingUp, title: "REPORT DELIVERY", description: "Receive a comprehensive report with clips, scores, and improvement priorities." },
+  ];
+
+  const pricing = [
+    { reports: "1 REPORT", price: "£85", perReport: "Single match analysis", featured: false },
+    { reports: "10 REPORTS", price: "£499", perReport: "£49.90 per report", savings: "Save £351", featured: false },
+    { reports: "20 REPORTS", price: "£899", perReport: "£44.95 per report", savings: "Save £801", featured: true },
+    { reports: "40 REPORTS", price: "£1,399", perReport: "£34.98 per report", savings: "Save £2,001", featured: false },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-20 md:pt-24">
-        {/* Hero Section */}
-        <section className="relative py-16 md:py-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p className="font-bebas text-xl md:text-2xl text-muted-foreground tracking-widest mb-4">
-              TACTICAL
-            </p>
-            <h1 className="font-bebas text-4xl md:text-5xl lg:text-6xl text-foreground mb-6">
-              ACTION REPORTS
-            </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg">
-              Deep-dive analysis of your in-game actions with video clips, tactical breakdowns, and actionable insights to elevate every touch.
-            </p>
-          </div>
-        </section>
+    <ServicePageLayout
+      category="TACTICAL"
+      title="ACTION REPORTS"
+      subtitle="Deep-dive analysis of your in-game actions with video clips, tactical breakdowns, and actionable insights to elevate every touch."
+    >
+      {/* What Is Section */}
+      <ServiceSection dark>
+        <ServiceSectionTitle>WHAT ARE ACTION REPORTS?</ServiceSectionTitle>
+        
+        <ServiceContentBlock
+          paragraphs={[
+            "An Action Report is a granular breakdown of every significant action you take during a match. Unlike traditional post-match analysis that focuses on general performance trends, Action Reports zoom in on individual moments—passes, dribbles, defensive interventions, shots, runs, and more.",
+            "Each action is timestamped, clipped from match footage, and analysed against tactical principles specific to your position. You'll see exactly what you did well, what you could improve, and why certain decisions led to success or missed opportunities.",
+            "This micro-level analysis reveals patterns invisible to the naked eye: decision-making tendencies, spatial awareness gaps, timing issues, and technical habits that aggregate into your overall performance profile."
+          ]}
+        />
+      </ServiceSection>
 
-        {/* What Is Section */}
-        <section className="py-12 md:py-16 bg-card/30">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-10 tracking-widest">
-              WHAT ARE ACTION REPORTS?
-            </h2>
-            
-            <div className="max-w-4xl mx-auto space-y-6 text-muted-foreground text-sm md:text-base">
-              <p className="leading-relaxed">
-                An <strong className="text-foreground">Action Report</strong> is a granular breakdown of every significant action you take during a match. Unlike traditional post-match analysis that focuses on general performance trends, Action Reports zoom in on individual moments—passes, dribbles, defensive interventions, shots, runs, and more.
-              </p>
-              <p className="leading-relaxed">
-                Each action is timestamped, clipped from match footage, and analysed against tactical principles specific to your position. You'll see exactly what you did well, what you could improve, and why certain decisions led to success or missed opportunities.
-              </p>
-              <p className="leading-relaxed">
-                This micro-level analysis reveals patterns invisible to the naked eye: decision-making tendencies, spatial awareness gaps, timing issues, and technical habits that aggregate into your overall performance profile.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works */}
-        <section className="py-16 md:py-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
-              HOW IT WORKS
-            </h2>
-            
-            <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-card border border-border rounded-lg p-6 text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Play className="w-6 h-6 text-primary" />
+      {/* How It Works */}
+      <ServiceSection>
+        <ServiceSectionTitle>HOW IT WORKS</ServiceSectionTitle>
+        
+        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <div 
+                key={index} 
+                className="bg-card border border-border rounded-xl p-6 text-center hover:border-primary/30 transition-colors animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-bebas text-lg text-foreground mb-2">1. VIDEO SUBMISSION</h3>
-                <p className="text-muted-foreground text-sm">
-                  Upload your match footage or provide access to game recordings.
+                <h3 className="font-bebas text-base md:text-lg text-foreground mb-2">{step.title}</h3>
+                <p className="text-muted-foreground text-xs md:text-sm">
+                  {step.description}
                 </p>
               </div>
-              
-              <div className="bg-card border border-border rounded-lg p-6 text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Target className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-bebas text-lg text-foreground mb-2">2. ACTION LOGGING</h3>
-                <p className="text-muted-foreground text-sm">
-                  Our analysts log every significant action you take throughout the match.
-                </p>
-              </div>
-              
-              <div className="bg-card border border-border rounded-lg p-6 text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BarChart3 className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-bebas text-lg text-foreground mb-2">3. DEEP ANALYSIS</h3>
-                <p className="text-muted-foreground text-sm">
-                  Each action is rated, categorised, and analysed for tactical effectiveness.
-                </p>
-              </div>
-              
-              <div className="bg-card border border-border rounded-lg p-6 text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-bebas text-lg text-foreground mb-2">4. REPORT DELIVERY</h3>
-                <p className="text-muted-foreground text-sm">
-                  Receive a comprehensive report with clips, scores, and improvement priorities.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+            );
+          })}
+        </div>
+      </ServiceSection>
 
-        {/* What's Included */}
-        <section className="py-16 md:py-20 bg-card/30">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
-              WHAT'S INCLUDED
-            </h2>
-            
-            <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-6 md:gap-8">
-              <div className="bg-background border border-border rounded-lg p-6 md:p-8">
-                <h3 className="font-bebas text-xl md:text-2xl text-primary mb-4">ACTION BREAKDOWN</h3>
-                <ul className="space-y-2 text-muted-foreground text-sm md:text-base">
-                  <li>- Every action timestamped and categorised</li>
-                  <li>- Video clips of key moments</li>
-                  <li>- Success/failure assessment per action</li>
-                  <li>- Positional context for each play</li>
-                  <li>- Minute-by-minute activity tracking</li>
-                </ul>
-              </div>
-              
-              <div className="bg-background border border-border rounded-lg p-6 md:p-8">
-                <h3 className="font-bebas text-xl md:text-2xl text-primary mb-4">TACTICAL SCORING</h3>
-                <ul className="space-y-2 text-muted-foreground text-sm md:text-base">
-                  <li>- R90 performance score calculation</li>
-                  <li>- Action-by-action ratings</li>
-                  <li>- Category breakdowns (attacking, defensive, etc.)</li>
-                  <li>- Zone-based analysis</li>
-                  <li>- Comparison to positional benchmarks</li>
-                </ul>
-              </div>
-              
-              <div className="bg-background border border-border rounded-lg p-6 md:p-8">
-                <h3 className="font-bebas text-xl md:text-2xl text-primary mb-4">VIDEO CLIPS</h3>
-                <ul className="space-y-2 text-muted-foreground text-sm md:text-base">
-                  <li>- Individual clips for every logged action</li>
-                  <li>- Highlight reel of best moments</li>
-                  <li>- Areas for improvement compilation</li>
-                  <li>- Easy sharing with coaches</li>
-                  <li>- Downloadable formats</li>
-                </ul>
-              </div>
-              
-              <div className="bg-background border border-border rounded-lg p-6 md:p-8">
-                <h3 className="font-bebas text-xl md:text-2xl text-primary mb-4">INSIGHTS & RECOMMENDATIONS</h3>
-                <ul className="space-y-2 text-muted-foreground text-sm md:text-base">
-                  <li>- Performance overview narrative</li>
-                  <li>- Key strengths identified</li>
-                  <li>- Priority areas for development</li>
-                  <li>- Specific drills and exercises</li>
-                  <li>- Next match focus points</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* What's Included */}
+      <ServiceSection dark>
+        <ServiceSectionTitle>WHAT'S INCLUDED</ServiceSectionTitle>
+        
+        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-6">
+          <ServiceInfoCard
+            title="ACTION BREAKDOWN"
+            items={[
+              "Every action timestamped and categorised",
+              "Video clips of key moments",
+              "Success/failure assessment per action",
+              "Positional context for each play",
+              "Minute-by-minute activity tracking"
+            ]}
+          />
+          <ServiceInfoCard
+            title="TACTICAL SCORING"
+            items={[
+              "R90 performance score calculation",
+              "Action-by-action ratings",
+              "Category breakdowns (attacking, defensive, etc.)",
+              "Zone-based analysis",
+              "Comparison to positional benchmarks"
+            ]}
+          />
+          <ServiceInfoCard
+            title="VIDEO CLIPS"
+            items={[
+              "Individual clips for every logged action",
+              "Highlight reel of best moments",
+              "Areas for improvement compilation",
+              "Easy sharing with coaches",
+              "Downloadable formats"
+            ]}
+          />
+          <ServiceInfoCard
+            title="INSIGHTS & RECOMMENDATIONS"
+            items={[
+              "Performance overview narrative",
+              "Key strengths identified",
+              "Priority areas for development",
+              "Specific drills and exercises",
+              "Next match focus points"
+            ]}
+          />
+        </div>
+      </ServiceSection>
 
-        {/* Pricing */}
-        <section className="py-16 md:py-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-bebas text-3xl md:text-4xl text-primary text-center mb-12 tracking-widest">
-              PRICING
-            </h2>
-            
-            <div className="max-w-4xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-card border border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                <h3 className="font-bebas text-lg text-foreground mb-2">1 REPORT</h3>
-                <p className="font-bebas text-3xl text-primary mb-4">£85</p>
-                <p className="text-muted-foreground text-sm mb-4">Single match analysis</p>
-                <LocalizedLink to="/services/action-reports">
-                  <Button variant="outline" className="w-full font-bebas tracking-wider">
-                    Get Started
-                  </Button>
-                </LocalizedLink>
-              </div>
-              
-              <div className="bg-card border border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                <h3 className="font-bebas text-lg text-foreground mb-2">10 REPORTS</h3>
-                <p className="font-bebas text-3xl text-primary mb-1">£499</p>
-                <p className="text-xs text-green-500 mb-3">Save £351</p>
-                <p className="text-muted-foreground text-sm mb-4">£49.90 per report</p>
-                <LocalizedLink to="/services/action-reports">
-                  <Button variant="outline" className="w-full font-bebas tracking-wider">
-                    Get Started
-                  </Button>
-                </LocalizedLink>
-              </div>
-              
-              <div className="bg-card border border-primary rounded-lg p-6 text-center">
-                <h3 className="font-bebas text-lg text-foreground mb-2">20 REPORTS</h3>
-                <p className="font-bebas text-3xl text-primary mb-1">£899</p>
-                <p className="text-xs text-green-500 mb-3">Save £801</p>
-                <p className="text-muted-foreground text-sm mb-4">£44.95 per report</p>
-                <LocalizedLink to="/services/action-reports">
-                  <Button className="w-full font-bebas tracking-wider">
-                    Best Value
-                  </Button>
-                </LocalizedLink>
-              </div>
-              
-              <div className="bg-card border border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                <h3 className="font-bebas text-lg text-foreground mb-2">40 REPORTS</h3>
-                <p className="font-bebas text-3xl text-primary mb-1">£1,399</p>
-                <p className="text-xs text-green-500 mb-3">Save £2,001</p>
-                <p className="text-muted-foreground text-sm mb-4">£34.98 per report</p>
-                <LocalizedLink to="/services/action-reports">
-                  <Button variant="outline" className="w-full font-bebas tracking-wider">
-                    Get Started
-                  </Button>
-                </LocalizedLink>
-              </div>
+      {/* Pricing */}
+      <ServiceSection>
+        <ServiceSectionTitle>PRICING</ServiceSectionTitle>
+        
+        <div className="max-w-4xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {pricing.map((tier, index) => (
+            <div 
+              key={index} 
+              className={`bg-card border rounded-xl p-5 md:p-6 text-center transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 ${
+                tier.featured ? 'border-primary' : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <h3 className="font-bebas text-base md:text-lg text-foreground mb-2">{tier.reports}</h3>
+              <p className="font-bebas text-2xl md:text-3xl text-primary mb-1">{tier.price}</p>
+              {tier.savings && (
+                <p className="text-xs text-green-500 mb-2">{tier.savings}</p>
+              )}
+              <p className="text-muted-foreground text-xs md:text-sm mb-4">{tier.perReport}</p>
+              <LocalizedLink to="/contact">
+                <Button 
+                  variant={tier.featured ? "default" : "outline"} 
+                  className="w-full font-bebas tracking-wider text-sm"
+                >
+                  {tier.featured ? 'Best Value' : 'Get Started'}
+                </Button>
+              </LocalizedLink>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </ServiceSection>
 
-        {/* CTA */}
-        <section className="py-16 md:py-20 bg-card/30">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="font-bebas text-3xl md:text-4xl text-foreground mb-6">
-              READY TO UNDERSTAND YOUR GAME?
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-              Stop guessing about your performance. Get detailed, actionable insights from every match with our Action Reports.
-            </p>
-            <LocalizedLink to="/contact">
-              <Button size="lg" className="font-bebas tracking-wider text-lg px-8">
-                Book Your Report
-              </Button>
-            </LocalizedLink>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
+      {/* CTA */}
+      <ServiceSection dark>
+        <div className="text-center">
+          <h2 className="font-bebas text-2xl md:text-3xl lg:text-4xl text-foreground mb-4">
+            READY TO UNDERSTAND YOUR GAME?
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-8 text-sm md:text-base">
+            Stop guessing about your performance. Get detailed, actionable insights from every match with our Action Reports.
+          </p>
+          <LocalizedLink to="/contact">
+            <Button size="lg" className="font-bebas tracking-wider text-base md:text-lg px-8">
+              Book Your Report
+            </Button>
+          </LocalizedLink>
+        </div>
+      </ServiceSection>
+    </ServicePageLayout>
   );
 };
 
