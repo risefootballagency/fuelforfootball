@@ -22,7 +22,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import PlayerManagement from "@/components/staff/PlayerManagement";
 import { PlayerList } from "@/components/staff/PlayerList";
 import BlogManagement from "@/components/staff/BlogManagement";
-import BetweenTheLinesManagement from "@/components/staff/BetweenTheLinesManagement";
+import DailyFuelManagement from "@/components/staff/DailyFuelManagement";
 import { CoachingDatabase } from "@/components/staff/CoachingDatabase";
 import { AnalysisManagement } from "@/components/staff/AnalysisManagement";
 import { FormSubmissionsManagement } from "@/components/staff/FormSubmissionsManagement";
@@ -117,7 +117,7 @@ const Staff = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMarketeer, setIsMarketeer] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'betweenthelines' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | null>('overview');
+  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Enable staff notifications
@@ -163,7 +163,7 @@ const Staff = () => {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const handleSectionToggle = (section: 'overview' | 'staffaccounts' | 'players' | 'playerlist' | 'recruitment' | 'blog' | 'betweenthelines' | 'coaching' | 'analysis' | 'marketing' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'legal') => {
+  const handleSectionToggle = (section: 'overview' | 'staffaccounts' | 'players' | 'playerlist' | 'recruitment' | 'blog' | 'dailyfuel' | 'coaching' | 'analysis' | 'marketing' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'legal') => {
     setExpandedSection(expandedSection === section ? null : section);
     // Scroll to top when section changes
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -604,7 +604,7 @@ const Staff = () => {
         { id: 'marketingideas', title: 'Ideas', icon: Target },
         { id: 'contentcreator', title: 'Content Creator', icon: Film },
         { id: 'blog', title: 'News Articles', icon: Newspaper },
-        { id: 'betweenthelines', title: 'Between The Lines', icon: FileText },
+        { id: 'dailyfuel', title: 'Daily Fuel', icon: FileText },
         { id: 'openaccess', title: 'Open Access', icon: FileText },
         { id: 'visitors', title: 'Site Visitors', icon: Eye },
       ]
@@ -980,7 +980,7 @@ const Staff = () => {
                   {expandedSection === 'contentcreator' && <ContentCreator />}
                   {expandedSection === 'marketingideas' && <MarketingIdeas />}
                   {expandedSection === 'blog' && <BlogManagement isAdmin={isAdmin} />}
-                  {expandedSection === 'betweenthelines' && <BetweenTheLinesManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'dailyfuel' && <DailyFuelManagement isAdmin={isAdmin} />}
                   {expandedSection === 'openaccess' && <OpenAccessManagement />}
                   {expandedSection === 'submissions' && <FormSubmissionsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'visitors' && <SiteVisitorsManagement isAdmin={isAdmin} />}

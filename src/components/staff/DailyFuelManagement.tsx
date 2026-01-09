@@ -22,7 +22,7 @@ interface BlogPost {
   created_at: string;
 }
 
-const betweenTheLinesCategories = [
+const dailyFuelCategories = [
   "TECHNICAL",
   "NUTRITION",
   "PSYCHOLOGY",
@@ -33,7 +33,7 @@ const betweenTheLinesCategories = [
   "AGENTS",
 ];
 
-const BetweenTheLinesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
+const DailyFuelManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
@@ -69,7 +69,7 @@ const BetweenTheLinesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       const { data, error } = await supabase
         .from("blog_posts")
         .select("*")
-        .in("category", betweenTheLinesCategories)
+        .in("category", dailyFuelCategories)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -188,7 +188,7 @@ const BetweenTheLinesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h2 className="text-xl sm:text-2xl font-bold">Between The Lines Management</h2>
+        <h2 className="text-xl sm:text-2xl font-bold">Daily Fuel Management</h2>
         {!isAdmin && (
           <div className="text-sm text-muted-foreground">View Only</div>
         )}
@@ -269,7 +269,7 @@ const BetweenTheLinesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {betweenTheLinesCategories.map((cat) => (
+                    {dailyFuelCategories.map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
                       </SelectItem>
@@ -378,4 +378,4 @@ const BetweenTheLinesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   );
 };
 
-export default BetweenTheLinesManagement;
+export default DailyFuelManagement;

@@ -56,7 +56,7 @@ const createSlug = (title: string): string => {
     .trim();
 };
 
-export default function BetweenTheLines() {
+export default function DailyFuel() {
   const { t, language } = useLanguage();
   const [articles, setArticles] = useState<Article[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
@@ -77,7 +77,7 @@ export default function BetweenTheLines() {
 
   const fetchArticles = async () => {
     try {
-      const betweenTheLinesCategories = [
+      const dailyFuelCategories = [
         "TECHNICAL",
         "NUTRITION",
         "PSYCHOLOGY",
@@ -92,7 +92,7 @@ export default function BetweenTheLines() {
         .from("blog_posts")
         .select("*")
         .eq("published", true)
-        .in("category", betweenTheLinesCategories)
+        .in("category", dailyFuelCategories)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -131,14 +131,14 @@ export default function BetweenTheLines() {
           <div className="text-center mb-12 space-y-3 animate-fade-in">
             <div className="inline-block">
               <span className="text-sm font-bebas uppercase tracking-widest text-primary border border-primary/30 px-6 py-2 rounded-full">
-                {t('btl.badge')}
+                {t('btl.badge', 'Educational Content')}
               </span>
             </div>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bebas uppercase tracking-wider text-foreground mb-4">
-              {t('btl.title_part1')} <span className="text-primary">{t('btl.title_part2')}</span>
+              {t('btl.title_part1', 'Daily')} <span className="text-primary">{t('btl.title_part2', 'Fuel')}</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {t('btl.subtitle')}
+              {t('btl.subtitle', 'Expert insights, tactical breakdowns, and educational content to fuel your football development.')}
             </p>
           </div>
 
@@ -194,7 +194,7 @@ export default function BetweenTheLines() {
           ) : filteredArticles.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-xl text-muted-foreground">
-                {t('btl.no_articles')}
+                {t('btl.no_articles', 'No articles found for this filter.')}
               </p>
             </div>
           ) : (
@@ -210,7 +210,7 @@ export default function BetweenTheLines() {
                 {filteredArticles.map((article) => (
                   <CarouselItem key={article.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
                     <a
-                      href={getLocalizedPath(`/between-the-lines/${createSlug(article.title)}`, language)}
+                      href={getLocalizedPath(`/daily-fuel/${createSlug(article.title)}`, language)}
                       className="group cursor-pointer overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all hover:shadow-lg block h-full"
                     >
                       <div className="relative aspect-[4/3] overflow-hidden bg-black">
@@ -261,10 +261,10 @@ export default function BetweenTheLines() {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent"></div>
               <div className="text-center relative z-10">
                 <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary mb-3">
-                  {t('btl.broadcast_title')}
+                  {t('btl.broadcast_title', 'Join Our Broadcast Channel')}
                 </h2>
                 <p className="text-foreground mb-6 text-base md:text-lg leading-relaxed">
-                  {t('btl.broadcast_description')}
+                  {t('btl.broadcast_description', 'Get exclusive insights, early access to content, and direct updates from our team.')}
                 </p>
                 <a
                   href="https://www.instagram.com/channel/AbY33s3ZhuxaNwuo/"
@@ -272,7 +272,7 @@ export default function BetweenTheLines() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-background font-bebas uppercase tracking-wider text-lg hover:bg-primary/90 hover:scale-105 transition-all rounded shadow-lg"
                 >
-                  <HoverText text={t('btl.join_channel')} />
+                  <HoverText text={t('btl.join_channel', 'Join Channel')} />
                 </a>
               </div>
             </div>
