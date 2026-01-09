@@ -5,10 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Loader2, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { linkPlayerNames, usePlayerNames } from "@/lib/playerLinking";
+import { useArticleServiceRecommendation } from "@/hooks/useArticleServiceRecommendation";
+import { LocalizedLink } from "@/components/LocalizedLink";
 interface NewsArticle {
   id: string;
   title: string;
@@ -38,6 +40,13 @@ const ArticleView = ({ article }: { article: NewsArticle }) => {
     content: article.content,
     enabled: language !== 'en'
   });
+  
+  // Get recommended service based on article content
+  const { recommendedService, loading: serviceLoading } = useArticleServiceRecommendation(
+    article.category,
+    article.title,
+    article.content
+  );
 
   // Format paragraph with bold text and player links
   const formatParagraph = (paragraph: string) => {
@@ -56,12 +65,17 @@ const ArticleView = ({ article }: { article: NewsArticle }) => {
     });
   };
 
+  // Strip HTML from description
+  const stripHtml = (html: string) => {
+    return html?.replace(/<[^>]*>/g, '').substring(0, 150) + '...' || '';
+  };
+
   return (
     <>
-      <Link to="/news">
+      <Link to="/daily-fuel">
         <Button variant="ghost" className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          {t("news.back_to_news", "Back to News")}
+          {t("news.back_to_news", "Back to Daily Fuel")}
         </Button>
       </Link>
       
@@ -114,6 +128,40 @@ const ArticleView = ({ article }: { article: NewsArticle }) => {
             </p>
           ))}
         </div>
+        
+        {/* Recommended Service */}
+        {recommendedService && !serviceLoading && (
+          <div className="mt-12 pt-8 border-t border-border">
+            <h3 className="font-bebas text-xl text-muted-foreground uppercase tracking-wider mb-4">
+              Recommended For You
+            </h3>
+            <LocalizedLink to={`/service/${recommendedService.id}`}>
+              <div className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all hover:shadow-lg group cursor-pointer">
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex-1">
+                    <span className="text-xs text-primary font-bebas uppercase tracking-wider">
+                      {recommendedService.category}
+                    </span>
+                    <h4 className="font-bebas text-2xl md:text-3xl text-foreground group-hover:text-primary transition-colors mt-1 mb-2">
+                      {recommendedService.name}
+                    </h4>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                      {stripHtml(recommendedService.description || '')}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bebas text-xl text-primary">
+                        From £{recommendedService.price}
+                      </span>
+                      <span className="text-sm text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Learn More <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </LocalizedLink>
+          </div>
+        )}
       </article>
     </>
   );
