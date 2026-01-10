@@ -3,16 +3,45 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ExternalLink } from "lucide-react";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import fffLogo from "@/assets/fff_logo.png";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, clearCart, totalPrice } = useCart();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paypalEmail, setPaypalEmail] = useState<string | null>(null);
+
+  // Fetch PayPal details
+  useEffect(() => {
+    const fetchPaypalDetails = async () => {
+      const { data } = await supabase
+        .from('bank_details')
+        .select('paypal_email')
+        .eq('payment_type', 'paypal')
+        .eq('is_default', true)
+        .limit(1);
+      
+      if (data && data.length > 0) {
+        setPaypalEmail(data[0].paypal_email);
+      } else {
+        // Try to get any PayPal record if no default
+        const { data: anyPaypal } = await supabase
+          .from('bank_details')
+          .select('paypal_email')
+          .eq('payment_type', 'paypal')
+          .not('paypal_email', 'is', null)
+          .limit(1);
+        if (anyPaypal && anyPaypal.length > 0) {
+          setPaypalEmail(anyPaypal[0].paypal_email);
+        }
+      }
+    };
+    fetchPaypalDetails();
+  }, []);
 
   const formatPrice = (price: number) => {
     return `£${price.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -217,17 +246,34 @@ const Cart = () => {
                   <span className="text-primary">{formatPrice(totalPrice)}</span>
                 </div>
 
-                <Button
-                  onClick={handleCheckout}
-                  disabled={isProcessing}
-                  size="lg"
-                  className="w-full btn-shine font-bebas uppercase tracking-wider h-11 md:h-12"
-                >
-                  {isProcessing ? "Processing..." : "Proceed to Checkout"}
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleCheckout}
+                    disabled={isProcessing}
+                    size="lg"
+                    className="w-full btn-shine font-bebas uppercase tracking-wider h-11 md:h-12"
+                  >
+                    {isProcessing ? "Processing..." : "Pay with Card"}
+                  </Button>
+
+                  {/* PayPal Option */}
+                  {paypalEmail && (
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full bg-[#0070ba] hover:bg-[#005ea6] text-white border-[#0070ba] font-bebas uppercase tracking-wider h-11 md:h-12"
+                      onClick={() => {
+                        window.open(`https://paypal.me/${paypalEmail}/${totalPrice}GBP`, '_blank');
+                      }}
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Pay with PayPal
+                    </Button>
+                  )}
+                </div>
 
                 <p className="text-[10px] md:text-xs text-muted-foreground text-center mt-3 md:mt-4">
-                  Secure checkout powered by Stripe
+                  Secure checkout powered by Stripe & PayPal
                 </p>
               </div>
             </div>
