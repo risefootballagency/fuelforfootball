@@ -6,11 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ShoppingCart, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { useCart } from "@/contexts/CartContext";
 import fffLogo from "@/assets/fff_logo.png";
+
+interface PayPalDetail {
+  paypal_email: string | null;
+}
 
 interface ServiceOption {
   name: string;
@@ -50,6 +54,35 @@ const ServiceDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [paypalEmail, setPaypalEmail] = useState<string | null>(null);
+
+  // Fetch PayPal details
+  useEffect(() => {
+    const fetchPaypalDetails = async () => {
+      const { data } = await supabase
+        .from('bank_details')
+        .select('paypal_email')
+        .eq('payment_type', 'paypal')
+        .eq('is_default', true)
+        .limit(1);
+      
+      if (data && data.length > 0) {
+        setPaypalEmail(data[0].paypal_email);
+      } else {
+        // Try to get any PayPal record if no default
+        const { data: anyPaypal } = await supabase
+          .from('bank_details')
+          .select('paypal_email')
+          .eq('payment_type', 'paypal')
+          .not('paypal_email', 'is', null)
+          .limit(1);
+        if (anyPaypal && anyPaypal.length > 0) {
+          setPaypalEmail(anyPaypal[0].paypal_email);
+        }
+      }
+    };
+    fetchPaypalDetails();
+  }, []);
 
   useEffect(() => {
     const fetchService = async () => {
@@ -467,24 +500,42 @@ const ServiceDetail = () => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-2">
-                <Button 
-                  onClick={handleAddToCart}
-                  variant="outline"
-                  size="lg"
-                  className="flex-1 font-bebas uppercase tracking-wider h-11 md:h-12 text-sm md:text-base"
-                >
-                  <ShoppingCart className="mr-1.5 md:mr-2 h-4 w-4 md:h-5 md:w-5" />
-                  Add to Cart
-                </Button>
-                <Button 
-                  onClick={handleBuyNow}
-                  size="lg"
-                  disabled={isProcessing}
-                  className="flex-1 btn-shine font-bebas uppercase tracking-wider h-11 md:h-12 text-sm md:text-base"
-                >
-                  {isProcessing ? "Processing..." : "Buy Now"}
-                </Button>
+              <div className="space-y-3 pt-2">
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={handleAddToCart}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1 font-bebas uppercase tracking-wider h-11 md:h-12 text-sm md:text-base"
+                  >
+                    <ShoppingCart className="mr-1.5 md:mr-2 h-4 w-4 md:h-5 md:w-5" />
+                    Add to Cart
+                  </Button>
+                  <Button 
+                    onClick={handleBuyNow}
+                    size="lg"
+                    disabled={isProcessing}
+                    className="flex-1 btn-shine font-bebas uppercase tracking-wider h-11 md:h-12 text-sm md:text-base"
+                  >
+                    {isProcessing ? "Processing..." : "Buy Now"}
+                  </Button>
+                </div>
+                
+                {/* PayPal Option */}
+                {paypalEmail && (
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full bg-[#0070ba] hover:bg-[#005ea6] text-white border-[#0070ba] font-bebas uppercase tracking-wider h-11 md:h-12 text-sm md:text-base"
+                    onClick={() => {
+                      const amount = getCurrentPrice();
+                      window.open(`https://paypal.me/${paypalEmail}/${amount}GBP`, '_blank');
+                    }}
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Pay with PayPal
+                  </Button>
+                )}
               </div>
 
               {/* Description preview on mobile */}
