@@ -692,16 +692,21 @@ export const RadialMenu = () => {
                   // Role selection mode: treat segments as role selectors
                   if (isSelectingRole) {
                     const role = pathToRole[item.to];
+                    console.log('[RadialMenu] Role selection mode - item:', item.to, 'role:', role);
 
                     if (role) {
                       if (isOnLanguageSubdomain()) {
+                        console.log('[RadialMenu] On language subdomain - using internal navigation');
                         navigate(item.to);
                         closeButtonRef.current?.click();
                       } else {
                         const url = getRoleUrl(role);
+                        console.log('[RadialMenu] Generated role URL:', url);
                         if (url.startsWith("http")) {
+                          console.log('[RadialMenu] Navigating to subdomain URL');
                           window.location.href = url;
                         } else {
+                          console.log('[RadialMenu] Using internal navigation');
                           navigate(url);
                           closeButtonRef.current?.click();
                         }
@@ -724,16 +729,21 @@ export const RadialMenu = () => {
 
                   // Fallback: regular navigation with role subdomain handling
                   const role = pathToRole[item.to];
+                  console.log('[RadialMenu] Regular navigation - item:', item.to, 'role:', role);
 
                   if (role) {
                     if (isOnLanguageSubdomain()) {
+                      console.log('[RadialMenu] On language subdomain - using internal navigation');
                       navigate(item.to);
                       closeButtonRef.current?.click();
                     } else {
                       const url = getRoleUrl(role);
+                      console.log('[RadialMenu] Generated role URL:', url);
                       if (url.startsWith("http")) {
+                        console.log('[RadialMenu] Navigating to subdomain URL');
                         window.location.href = url;
                       } else {
+                        console.log('[RadialMenu] Using internal navigation');
                         navigate(url);
                         closeButtonRef.current?.click();
                       }

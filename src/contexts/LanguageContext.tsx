@@ -248,25 +248,36 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const pathname = window.location.pathname;
     const protocol = window.location.protocol;
     
+    console.log('[switchLanguage] Switching to:', lang);
+    console.log('[switchLanguage] Current hostname:', hostname);
+    console.log('[switchLanguage] Current pathname:', pathname);
+    
     // Convert current path to English, then to the target language
     const englishPath = getEnglishPath(pathname);
     const localizedPath = getLocalizedPath(englishPath, lang);
     
+    console.log('[switchLanguage] English path:', englishPath);
+    console.log('[switchLanguage] Localized path:', localizedPath);
+    
     // For preview/localhost environments, use localStorage and navigate
     if (isPreviewOrLocalEnvironment()) {
+      console.log('[switchLanguage] Preview environment - using localStorage');
       localStorage.setItem('preferred_language', lang);
       sessionStorage.setItem('ip_language_detected', lang); // Override IP detection
       // Use window.location to ensure full page reload with new language
       if (pathname !== localizedPath) {
         window.location.href = localizedPath;
       } else {
-        setLanguage(lang);
+        window.location.reload();
       }
       return;
     }
 
     const info = getSubdomainInfo(hostname);
     const baseDomain = info.baseDomain;
+    
+    console.log('[switchLanguage] Subdomain info:', info);
+    console.log('[switchLanguage] Base domain:', baseDomain);
     
     // Check if we're on a role subdomain
     let currentRoleSubdomain: string | null = null;
@@ -303,6 +314,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
 
     const newUrl = `${protocol}//${newHostname}${finalPath}`;
+    console.log('[switchLanguage] New URL:', newUrl);
     window.location.href = newUrl;
   }, []);
 

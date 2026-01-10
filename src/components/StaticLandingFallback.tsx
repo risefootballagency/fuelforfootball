@@ -24,14 +24,21 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
 
   const navigateToRole = (path: string) => {
     const role = pathToRole[path];
+    console.log('[StaticFallback.navigateToRole] Path:', path, 'Role:', role);
+    
     if (role) {
       const roleUrl = getRoleUrl(role as Exclude<RoleSubdomain, null>);
+      console.log('[StaticFallback.navigateToRole] Generated URL:', roleUrl);
+      
       if (roleUrl.startsWith('http')) {
+        console.log('[StaticFallback.navigateToRole] Navigating to subdomain URL');
         window.location.href = roleUrl;
       } else {
-        window.location.href = path;
+        console.log('[StaticFallback.navigateToRole] Navigating to internal path:', roleUrl);
+        window.location.href = roleUrl;
       }
     } else {
+      console.log('[StaticFallback.navigateToRole] No role match, using path directly');
       window.location.href = path;
     }
   };
