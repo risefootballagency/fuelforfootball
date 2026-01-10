@@ -725,7 +725,7 @@ const Index = () => {
                 size="lg" 
                 className="text-xl font-bebas uppercase tracking-wider px-12 py-7 hover:scale-105 transition-transform"
               >
-                <a href="mailto:jolon.levene@risefootballagency.com?subject=Portfolio%20Request">
+                <a href="mailto:info@fuelforfootball.com?subject=Portfolio%20Request">
                   <HoverText text={t("home.request_portfolio", "Request Our Portfolio")} />
                 </a>
               </Button>

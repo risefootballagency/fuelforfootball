@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const SITE_URL = 'https://risefootballagency.com'
+const SITE_URL = 'https://fuelforfootball.com'
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
