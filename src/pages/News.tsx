@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { linkPlayerNames, usePlayerNames } from "@/lib/playerLinking";
 import { useArticleServiceRecommendation } from "@/hooks/useArticleServiceRecommendation";
 import { LocalizedLink } from "@/components/LocalizedLink";
+import { ServiceQuickAddWidget } from "@/components/ServiceQuickAddWidget";
 interface NewsArticle {
   id: string;
   title: string;
@@ -129,37 +130,13 @@ const ArticleView = ({ article }: { article: NewsArticle }) => {
           ))}
         </div>
         
-        {/* Recommended Service */}
+        {/* Recommended Service Widget */}
         {recommendedService && !serviceLoading && (
-          <div className="mt-12 pt-8 border-t border-border">
-            <h3 className="font-bebas text-xl text-muted-foreground uppercase tracking-wider mb-4">
+          <div className="mt-8 pt-6 border-t border-border">
+            <h3 className="font-bebas text-lg text-muted-foreground uppercase tracking-wider mb-3">
               Recommended For You
             </h3>
-            <LocalizedLink to={`/service/${recommendedService.id}`}>
-              <div className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all hover:shadow-lg group cursor-pointer">
-                <div className="flex flex-col md:flex-row gap-6">
-                  <div className="flex-1">
-                    <span className="text-xs text-primary font-bebas uppercase tracking-wider">
-                      {recommendedService.category}
-                    </span>
-                    <h4 className="font-bebas text-2xl md:text-3xl text-foreground group-hover:text-primary transition-colors mt-1 mb-2">
-                      {recommendedService.name}
-                    </h4>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                      {stripHtml(recommendedService.description || '')}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="font-bebas text-xl text-primary">
-                        From £{recommendedService.price}
-                      </span>
-                      <span className="text-sm text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
-                        Learn More <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </LocalizedLink>
+            <ServiceQuickAddWidget service={recommendedService} />
           </div>
         )}
       </article>

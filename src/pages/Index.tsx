@@ -102,7 +102,7 @@ const Index = () => {
       <IntroModal open={showIntroModal} onOpenChange={setShowIntroModal} />
       <div className="bg-background min-h-screen relative z-10 snap-scroll-container">
         {/* Hero Section */}
-        <section className="pt-28 md:pt-32 pb-12 md:pb-20 px-4 relative overflow-hidden">
+        <section className="pt-28 md:pt-32 pb-6 md:pb-10 px-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background/80"></div>
           <div className="container mx-auto max-w-7xl relative z-10">
             <div className="text-center space-y-6">
@@ -115,7 +115,7 @@ const Index = () => {
               </p>
               
               {/* Capability Accordion */}
-              <div className="mt-12">
+              <div className="mt-6">
                 <CapabilityAccordion />
               </div>
             </div>
@@ -126,9 +126,9 @@ const Index = () => {
         <PlayerMarquee />
 
         {/* HOW WE FUEL Section */}
-        <section className="py-12 md:py-16 px-4 bg-gradient-to-b from-background to-muted/20">
+        <section className="py-6 md:py-8 px-4 bg-gradient-to-b from-background to-muted/20">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-12">
+            <div className="text-center mb-6">
               <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-4">
                 HOW WE <span className="text-primary">FUEL</span>
               </h2>
@@ -239,9 +239,9 @@ const Index = () => {
 
         {/* INSIDE:ACCESS Section */}
         {translatedInsideAccess.length > 0 && (
-          <section className="py-12 md:py-16 px-4 bg-background/80 backdrop-blur-sm">
+          <section className="py-6 md:py-8 px-4 bg-background/80 backdrop-blur-sm">
             <div className="container mx-auto max-w-7xl w-full">
-              <div className="text-center mb-6 space-y-3">
+              <div className="text-center mb-4 space-y-2">
               <div className="inline-block">
                 <span className="text-sm font-bebas uppercase tracking-widest text-primary border border-primary/30 px-6 py-2 rounded-full">
                   {t("home.exclusive", "Exclusive")}
@@ -276,9 +276,9 @@ const Index = () => {
         )}
 
         {/* Club Network Map Section */}
-        <section className="py-12 md:py-16 px-4 bg-background/90 backdrop-blur-sm">
+        <section className="py-6 md:py-8 px-4 bg-background/90 backdrop-blur-sm">
           <div className="container mx-auto max-w-7xl">
-            <div className="text-center mb-8 space-y-3">
+            <div className="text-center mb-4 space-y-2">
               <div className="inline-block">
                 <span className="text-sm font-bebas uppercase tracking-widest text-primary border border-primary/30 px-6 py-2 rounded-full">
                   Eyes Across All Of Europe
@@ -356,17 +356,17 @@ const Index = () => {
         </section>
 
         {/* Player Development Section - Visual Stats */}
-        <section className="py-16 md:py-24 px-4 bg-background/85 backdrop-blur-sm relative overflow-hidden">
+        <section className="py-8 md:py-12 px-4 bg-background/85 backdrop-blur-sm relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
           <div className="container mx-auto max-w-7xl relative z-10">
-            <div className="text-center mb-12">
+            <div className="text-center mb-6">
               <h2 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider text-foreground">
                 {t("home.player", "PLAYER")} <span className="text-primary">{t("home.development", "DEVELOPMENT")}</span>
               </h2>
             </div>
 
             {/* Big Impact Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="text-center group">
                 <div className="text-6xl md:text-8xl font-bebas text-primary group-hover:scale-110 transition-transform duration-300">74</div>
                 <div className="h-px w-16 bg-primary/50 mx-auto my-3" />
@@ -419,8 +419,8 @@ const Index = () => {
             </div>
 
             {/* What We Look For - Position/Domain Table */}
-            <div className="mt-16">
-              <div className="text-center mb-8">
+            <div className="mt-8">
+              <div className="text-center mb-4">
                 <h3 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-foreground">
                   WHAT WE <span className="text-primary">LOOK FOR</span>
                 </h3>
