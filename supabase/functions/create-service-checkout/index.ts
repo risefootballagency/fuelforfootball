@@ -78,18 +78,34 @@ serve(async (req) => {
     // Determine if this is a subscription
     const isSubscription = paymentMode === 'subscription';
     
-    // Create product
+    // Create product with image
     logStep("Creating Stripe product for service");
     
     const productName = optionName 
       ? `${service.name} - ${optionName}` 
       : service.name;
     
-    const product = await stripe.products.create({
+    // Build product params with optional image
+    const productParams: Stripe.ProductCreateParams = {
       name: productName,
       description: service.description?.replace(/<[^>]*>/g, '').substring(0, 500) || undefined,
-    });
-    logStep("Product created", { productId: product.id });
+    };
+    
+    // Add image if available (Stripe requires absolute HTTPS URL)
+    if (service.image_url) {
+      // Handle relative URLs by converting to absolute
+      let imageUrl = service.image_url;
+      if (imageUrl.startsWith('/')) {
+        imageUrl = `https://fuelforfootball.com${imageUrl}`;
+      } else if (!imageUrl.startsWith('http')) {
+        imageUrl = `https://fuelforfootball.com/${imageUrl}`;
+      }
+      productParams.images = [imageUrl];
+      logStep("Adding product image", { imageUrl });
+    }
+    
+    const product = await stripe.products.create(productParams);
+    logStep("Product created", { productId: product.id, hasImage: !!productParams.images });
 
     // Create price - convert pounds to pence
     const priceAmount = Math.round(finalPrice * 100);

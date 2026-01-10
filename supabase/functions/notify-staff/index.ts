@@ -6,9 +6,11 @@ const corsHeaders = {
 };
 
 interface NotifyRequest {
-  event_type: 'visitor' | 'form_submission' | 'clip_upload' | 'playlist_change';
+  event_type?: 'visitor' | 'form_submission' | 'clip_upload' | 'playlist_change' | 'purchase';
+  type?: 'visitor' | 'form_submission' | 'clip_upload' | 'playlist_change' | 'purchase';
   title: string;
-  body: string;
+  body?: string;
+  message?: string;
   data?: Record<string, any>;
 }
 
@@ -97,10 +99,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { event_type, title, body, data }: NotifyRequest = await req.json();
+    const reqBody: NotifyRequest = await req.json();
+    // Support both field naming conventions
+    const event_type = reqBody.event_type || reqBody.type || 'purchase';
+    const title = reqBody.title;
+    const body = reqBody.body || reqBody.message;
+    const data = reqBody.data;
 
-    if (!event_type || !title || !body) {
-      throw new Error('Missing required fields: event_type, title, body');
+    if (!title || !body) {
+      throw new Error('Missing required fields: title, body/message');
     }
 
     const supabaseClient = createClient(
