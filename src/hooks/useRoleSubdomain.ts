@@ -56,23 +56,29 @@ export const useRoleSubdomain = () => {
 
   const getRoleUrl = (role: Exclude<RoleSubdomain, null>) => {
     const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+    const info = getSubdomainInfo(hostname);
+    
+    console.log('[getRoleUrl] Role:', role, 'Hostname:', hostname, 'Info:', info);
     
     // For localhost, lovable.app preview, or IP addresses, just return the route
     if (isPreviewOrLocalEnvironment(hostname)) {
+      console.log('[getRoleUrl] Preview environment - using internal route:', roleConfigs[role].route);
       return roleConfigs[role].route;
     }
     
     // If we're on a language subdomain, stay on it and use localized routes
-    if (currentLanguageSubdomain) {
-      const languageCode = getLanguageFromSubdomain(currentLanguageSubdomain) || 'en';
+    if (info.type === 'language' && info.subdomain) {
+      const languageCode = getLanguageFromSubdomain(info.subdomain) || 'en';
       const localizedPath = getLocalizedPath(roleConfigs[role].route, languageCode);
+      console.log('[getRoleUrl] Language subdomain - using localized path:', localizedPath);
       return localizedPath;
     }
     
-    const protocol = window.location.protocol;
-    const info = getSubdomainInfo(hostname);
-    
-    return `${protocol}//${role}.${info.baseDomain}`;
+    // For production, generate subdomain URL
+    const subdomainUrl = `${protocol}//${role}.${info.baseDomain}`;
+    console.log('[getRoleUrl] Production - using subdomain URL:', subdomainUrl);
+    return subdomainUrl;
   };
 
   const otherRoles = currentRole 

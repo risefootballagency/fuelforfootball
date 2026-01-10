@@ -83,14 +83,21 @@ function LandingContent() {
   }, [isPWA]);
   const navigateToRole = (path: string) => {
     const role = pathToRole[path];
+    console.log('[Landing.navigateToRole] Path:', path, 'Role:', role);
+    
     if (role) {
       const roleUrl = getRoleUrl(role as Exclude<RoleSubdomain, null>);
+      console.log('[Landing.navigateToRole] Generated URL:', roleUrl);
+      
       if (roleUrl.startsWith('http')) {
+        console.log('[Landing.navigateToRole] Navigating to subdomain URL');
         window.location.href = roleUrl;
       } else {
-        window.location.href = path;
+        console.log('[Landing.navigateToRole] Navigating to internal path:', roleUrl);
+        window.location.href = roleUrl;
       }
     } else {
+      console.log('[Landing.navigateToRole] No role match, using path directly');
       window.location.href = path;
     }
   };

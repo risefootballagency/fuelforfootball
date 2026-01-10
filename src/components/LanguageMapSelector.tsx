@@ -83,8 +83,10 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
 
   const handleConfirm = () => {
     if (pendingLanguage) {
+      console.log('[LanguageMapSelector.handleConfirm] Switching to:', pendingLanguage);
       switchLanguage(pendingLanguage);
-      handleOpenChange(false);
+      // Delay closing to ensure navigation starts
+      setTimeout(() => handleOpenChange(false), 100);
     }
   };
 
