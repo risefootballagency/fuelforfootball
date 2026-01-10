@@ -6,10 +6,11 @@
   const parts = hostname.split('.');
   
   // Language subdomains and their route translations
-  const LANGUAGE_SUBDOMAINS = ['en', 'es', 'pt', 'fr', 'de', 'it', 'pl', 'cs', 'cz', 'ru', 'tr'];
+  const LANGUAGE_SUBDOMAINS = ['en', 'es', 'pt', 'fr', 'de', 'it', 'pl', 'cs', 'cz', 'ru', 'tr', 'hr', 'no'];
   const routeTranslations: Record<string, Record<string, string>> = {
     '/players': { en: '/players', es: '/jugadoras', pt: '/jogadoras', fr: '/joueurs', de: '/spielerinnen', it: '/giocatrici', pl: '/zawodniczki', cs: '/hracky', ru: '/igroki', tr: '/oyuncular' },
-    
+    '/learnmore': { en: '/learnmore', es: '/aprender-mas', pt: '/saiba-mais', fr: '/en-savoir-plus', de: '/erfahren-mehr', it: '/scopri-di-piu', pl: '/dowiedz-sie-wiecej', cs: '/zjistit-vice', ru: '/uznat-bolshe', tr: '/daha-fazla-bilgi' },
+    '/stars': { en: '/stars', es: '/estrellas', pt: '/estrelas', fr: '/etoiles', de: '/sterne', it: '/stelle', pl: '/gwiazdy', cs: '/hvezdy', ru: '/zvezdy', tr: '/yildizlar' },
     '/clubs': { en: '/clubs', es: '/clubes', pt: '/clubes', fr: '/clubs', de: '/vereine', it: '/club', pl: '/kluby', cs: '/kluby', ru: '/kluby', tr: '/kulupler' },
     '/scouts': { en: '/scouts', es: '/ojeadores', pt: '/olheiros', fr: '/recruteurs', de: '/scouts', it: '/osservatori', pl: '/skauci', cs: '/skauti', ru: '/skauty', tr: '/skautlar' },
     '/coaches': { en: '/coaches', es: '/entrenadores', pt: '/treinadores', fr: '/entraineurs', de: '/trainer', it: '/allenatori', pl: '/trenerzy', cs: '/treneri', ru: '/trenery', tr: '/antrenorler' },
@@ -18,9 +19,12 @@
     '/news': { en: '/news', es: '/noticias', pt: '/noticias', fr: '/actualites', de: '/nachrichten', it: '/notizie', pl: '/aktualnosci', cs: '/novinky', ru: '/novosti', tr: '/haberler' },
     '/contact': { en: '/contact', es: '/contacto', pt: '/contato', fr: '/contact', de: '/kontakt', it: '/contatti', pl: '/kontakt', cs: '/kontakt', ru: '/kontakty', tr: '/iletisim' },
     '/performance': { en: '/performance', es: '/rendimiento', pt: '/desempenho', fr: '/performance', de: '/leistung', it: '/prestazioni', pl: '/wydajnosc', cs: '/vykon', ru: '/rezultaty', tr: '/performans' },
+    '/between-the-lines': { en: '/between-the-lines', es: '/entre-lineas', pt: '/entre-linhas', fr: '/entre-les-lignes', de: '/zwischen-den-zeilen', it: '/tra-le-righe', pl: '/miedzy-wierszami', cs: '/mezi-radky', ru: '/mezhdu-strok', tr: '/satirlar-arasi' },
     '/daily-fuel': { en: '/daily-fuel', es: '/combustible-diario', pt: '/combustivel-diario', fr: '/carburant-quotidien', de: '/taeglicher-treibstoff', it: '/carburante-quotidiano', pl: '/codzienne-paliwo', cs: '/denni-palivo', ru: '/ezhednevnoe-toplivo', tr: '/gunluk-yakit' },
     '/login': { en: '/login', es: '/acceso', pt: '/entrar', fr: '/connexion', de: '/anmelden', it: '/accedi', pl: '/logowanie', cs: '/prihlaseni', ru: '/vhod', tr: '/giris' },
     '/portal': { en: '/portal', es: '/portal', pt: '/portal', fr: '/portail', de: '/portal', it: '/portale', pl: '/portal', cs: '/portal', ru: '/portal', tr: '/portal' },
+    '/media': { en: '/media', es: '/medios', pt: '/midia', fr: '/medias', de: '/medien', it: '/media', pl: '/media', cs: '/media', ru: '/media', tr: '/medya' },
+    '/business': { en: '/business', es: '/negocios', pt: '/negocios', fr: '/entreprise', de: '/geschaeft', it: '/affari', pl: '/biznes', cs: '/obchod', ru: '/biznes', tr: '/is' },
   };
   
   // Check for www.{subdomain}.domain.com format (4+ parts with www prefix)
