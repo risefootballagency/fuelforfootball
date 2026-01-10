@@ -56,31 +56,86 @@ import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
+import { VersionManager } from "./lib/versionManager";
 
-// Register service worker with update detection - wrapped in try-catch to prevent console errors
+// Force version check and cache clear on load
+const initializeApp = async () => {
+  try {
+    console.log('[App] Checking for updates...');
+    const versionInfo = await VersionManager.initialize(true);
+    
+    if (versionInfo.hasUpdate) {
+      console.log('[App] New version detected! Clearing caches and reloading...');
+      await VersionManager.forceUpdate();
+      return; // forceUpdate will reload the page
+    }
+    
+    console.log('[App] Running version:', versionInfo.version);
+  } catch (error) {
+    console.error('[App] Version check failed:', error);
+  }
+};
+
+// Run version check immediately
+initializeApp();
+
+// Register service worker with aggressive update detection
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        updateViaCache: 'none' // Always fetch sw.js fresh
+      });
       console.log('[PWA] Service Worker registered');
       
-      // Check for updates on page load - wrapped in try-catch
+      // Check for updates immediately
       try {
         await registration.update();
       } catch {
-        // Silently ignore update errors - not critical
+        // Silently ignore update errors
       }
       
-      // Check for updates periodically (every 5 minutes)
+      // Listen for new service worker activation
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          console.log('[PWA] New service worker installing...');
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('[PWA] New service worker installed, triggering update...');
+              // New service worker is ready, tell it to take over
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        }
+      });
+      
+      // Check for updates every 2 minutes (more aggressive)
       setInterval(async () => {
         try {
           await registration.update();
         } catch {
           // Silently ignore periodic update errors
         }
-      }, 5 * 60 * 1000);
+      }, 2 * 60 * 1000);
     } catch {
       // Silently fail - SW is not critical for app functionality
+    }
+  });
+  
+  // Reload page when new service worker takes control
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    console.log('[PWA] New service worker active, reloading page...');
+    window.location.reload();
+  });
+  
+  // Listen for update messages from service worker
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SW_UPDATED') {
+      console.log('[PWA] Service worker updated to:', event.data.version);
     }
   });
 }

@@ -3,7 +3,7 @@
  * Handles automatic update checks and force updates
  */
 
-const VERSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
+const VERSION_CHECK_INTERVAL = 2 * 60 * 1000; // 2 minutes (more aggressive)
 const LAST_CHECK_KEY = 'fff_last_version_check';
 const CURRENT_VERSION_KEY = 'fff_current_version';
 
@@ -17,16 +17,23 @@ export class VersionManager {
   private static lastCheckTime: number = 0;
 
   /**
-   * Get the current build version from the build timestamp
+   * Get the current build version from the index.html
+   * Uses cache-busting to always get the latest version
    */
   static async getCurrentBuildVersion(): Promise<string> {
     try {
-      // Try to fetch the build manifest or index.html to get version info
-      const response = await fetch('/index.html', { cache: 'no-store' });
+      // Fetch index.html with cache-busting
+      const response = await fetch('/index.html?_=' + Date.now(), { 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       const html = await response.text();
       
-      // Extract version from meta tag or use hash of content
-      const versionMatch = html.match(/data-version="([^"]+)"/);
+      // Extract version from meta tag
+      const versionMatch = html.match(/data-build-version="([^"]+)"/);
       if (versionMatch) {
         return versionMatch[1];
       }
@@ -61,12 +68,24 @@ export class VersionManager {
       const storedVersion = localStorage.getItem(CURRENT_VERSION_KEY);
       
       localStorage.setItem(LAST_CHECK_KEY, now.toString());
-      localStorage.setItem(CURRENT_VERSION_KEY, currentVersion);
       
-      const hasUpdate = storedVersion !== null && storedVersion !== currentVersion;
+      // First load - store version but don't trigger update
+      if (storedVersion === null) {
+        localStorage.setItem(CURRENT_VERSION_KEY, currentVersion);
+        console.log('[VersionManager] First visit, storing version:', currentVersion);
+        return {
+          version: currentVersion,
+          buildTime: new Date().toISOString(),
+          hasUpdate: false,
+        };
+      }
+      
+      const hasUpdate = storedVersion !== currentVersion;
       
       if (hasUpdate) {
         console.log('[VersionManager] Update available:', storedVersion, '->', currentVersion);
+        // Update stored version so next check knows we're current
+        localStorage.setItem(CURRENT_VERSION_KEY, currentVersion);
       }
       
       return {
@@ -102,6 +121,11 @@ export class VersionManager {
         );
       }
 
+      // Tell service worker to clear its caches too
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
+      }
+
       // Unregister service workers
       if ('serviceWorker' in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
@@ -113,12 +137,13 @@ export class VersionManager {
         );
       }
 
-      // Clear version info
+      // Clear version info so we re-check on reload
       localStorage.removeItem(LAST_CHECK_KEY);
-      localStorage.removeItem(CURRENT_VERSION_KEY);
 
-      // Hard reload
-      window.location.reload();
+      // Hard reload with cache busting
+      const url = new URL(window.location.href);
+      url.searchParams.set('_refresh', Date.now().toString());
+      window.location.href = url.toString();
     } catch (error) {
       console.error('[VersionManager] Force update failed:', error);
       // Fallback to simple reload
@@ -135,8 +160,7 @@ export class VersionManager {
     const versionInfo = await this.checkForUpdates(forceCheck);
     
     if (versionInfo.hasUpdate) {
-      console.log('[VersionManager] New version available, consider refreshing');
-      // Could show a toast or notification here
+      console.log('[VersionManager] New version available, will trigger refresh');
     }
     
     return versionInfo;

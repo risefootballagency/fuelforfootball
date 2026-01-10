@@ -1,5 +1,6 @@
-// UPDATE THIS VERSION NUMBER WHEN YOU DEPLOY NEW CHANGES
-const CACHE_VERSION = 'fff-v1.0.0';
+// CACHE VERSION - Updated automatically on each deploy via build process
+// Users will always get fresh HTML from network, cache is only for offline fallback
+const CACHE_VERSION = 'fff-v' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
 const CACHE_NAME = `${CACHE_VERSION}`;
 const ASSETS_CACHE = `${CACHE_VERSION}-assets`;
 
@@ -37,14 +38,15 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches aggressively
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activating version:', CACHE_VERSION);
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && cacheName !== ASSETS_CACHE && !cacheName.startsWith('fff-offline-')) {
+          // Delete ALL caches that don't match current version
+          if (!cacheName.startsWith(CACHE_VERSION)) {
             console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -70,7 +72,7 @@ function addCrossOriginHeaders(response) {
   });
 }
 
-// Fetch event - cache-first for assets, network-first for API
+// Fetch event - NETWORK-FIRST for HTML, cache-first for static assets
 self.addEventListener('fetch', (event) => {
   // Skip cross-origin requests and browser extensions
   if (!event.request.url.startsWith(self.location.origin)) {
@@ -79,16 +81,95 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
   
-  // Skip service worker and manifest
-  if (url.pathname === '/sw.js' || url.pathname === '/manifest.json') {
+  // Skip service worker - always fetch fresh
+  if (url.pathname === '/sw.js') {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' }).then(addCrossOriginHeaders)
     );
     return;
   }
 
-  // Network-first strategy for JS and CSS (always get latest code)
-  const isCodeAsset = /\.(js|css)$/.test(url.pathname);
+  // For navigation requests (HTML pages), ALWAYS try network first
+  // This ensures users get the latest version on every page load
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
+        .then((response) => {
+          console.log('[Service Worker] Fetched fresh HTML from network');
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put('/', responseToCache);
+            });
+          }
+          return addCrossOriginHeaders(response);
+        })
+        .catch(() => {
+          console.log('[Service Worker] Network failed, trying cache for navigation');
+          return caches.match('/').then((cachedResponse) => {
+            if (cachedResponse) {
+              console.log('[Service Worker] Serving cached HTML (offline mode)');
+              return addCrossOriginHeaders(cachedResponse);
+            }
+            // Return offline page if nothing cached
+            return new Response(
+              `<!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <title>Offline - FFF Portal</title>
+                  <meta name="viewport" content="width=device-width, initial-scale=1">
+                  <style>
+                    body { 
+                      font-family: system-ui; 
+                      display: flex; 
+                      align-items: center; 
+                      justify-content: center; 
+                      min-height: 100vh; 
+                      margin: 0;
+                      background: #0F2212;
+                      color: #FFB800;
+                    }
+                    .container { text-align: center; max-width: 400px; padding: 2rem; }
+                    h1 { font-size: 2rem; margin-bottom: 1rem; }
+                    p { color: #999; }
+                    button { 
+                      margin-top: 1rem; 
+                      padding: 0.75rem 1.5rem; 
+                      background: #FFB800; 
+                      border: none; 
+                      border-radius: 8px; 
+                      font-weight: bold;
+                      cursor: pointer;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <h1>You're Offline</h1>
+                    <p>FFF Portal is not available right now. Please check your internet connection and try again.</p>
+                    <button onclick="window.location.reload()">Retry</button>
+                  </div>
+                </body>
+              </html>`,
+              {
+                status: 200,
+                statusText: 'OK',
+                headers: new Headers({
+                  'Content-Type': 'text/html',
+                  'Cross-Origin-Opener-Policy': 'same-origin',
+                  'Cross-Origin-Embedder-Policy': 'credentialless'
+                })
+              }
+            );
+          });
+        })
+    );
+    return;
+  }
+
+  // Network-first strategy for JS, CSS, and manifest (always get latest code)
+  const isCodeAsset = /\.(js|css)$/.test(url.pathname) || url.pathname === '/manifest.json';
   
   if (isCodeAsset) {
     event.respondWith(
@@ -122,7 +203,6 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) {
-          console.log('[Service Worker] Serving asset from cache:', url.pathname);
           return addCrossOriginHeaders(cachedResponse);
         }
         
@@ -137,71 +217,6 @@ self.addEventListener('fetch', (event) => {
         }).catch(() => {
           console.log('[Service Worker] Asset not available offline:', url.pathname);
           return new Response('Asset not available offline', { status: 503 });
-        });
-      })
-    );
-    return;
-  }
-
-  // For navigation requests (HTML pages), try cache first to enable offline
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      caches.match('/').then((cachedResponse) => {
-        if (cachedResponse) {
-          console.log('[Service Worker] Serving index from cache for navigation');
-          return addCrossOriginHeaders(cachedResponse);
-        }
-        
-        // If not cached, try network
-        return fetch(event.request).then((response) => {
-          if (response && response.status === 200) {
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put('/', responseToCache);
-            });
-          }
-          return addCrossOriginHeaders(response);
-        }).catch(() => {
-          return new Response(
-            `<!DOCTYPE html>
-            <html>
-              <head>
-                <meta charset="utf-8">
-                <title>Offline - FFF Portal</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <style>
-                  body { 
-                    font-family: system-ui; 
-                    display: flex; 
-                    align-items: center; 
-                    justify-content: center; 
-                    min-height: 100vh; 
-                    margin: 0;
-                    background: #0F2212;
-                    color: #FFB800;
-                  }
-                  .container { text-align: center; max-width: 400px; padding: 2rem; }
-                  h1 { font-size: 2rem; margin-bottom: 1rem; }
-                  p { color: #999; }
-                </style>
-              </head>
-              <body>
-                <div class="container">
-                  <h1>You're Offline</h1>
-                  <p>FFF Portal is not available right now. Please check your internet connection and try again.</p>
-                </div>
-              </body>
-            </html>`,
-            {
-              status: 200,
-              statusText: 'OK',
-              headers: new Headers({
-                'Content-Type': 'text/html',
-                'Cross-Origin-Opener-Policy': 'same-origin',
-                'Cross-Origin-Embedder-Policy': 'credentialless'
-              })
-            }
-          );
         });
       })
     );
@@ -239,6 +254,14 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    console.log('[Service Worker] Clearing all caches on request');
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => caches.delete(cacheName))
+      );
+    });
   }
 });
 
