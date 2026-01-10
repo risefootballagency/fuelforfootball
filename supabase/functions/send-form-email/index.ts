@@ -7,7 +7,7 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-const NOTIFICATION_EMAIL = "jolon.levene@risefootballagency.com";
+const NOTIFICATION_EMAIL = "info@fuelforfootball.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -65,13 +65,13 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Sending email to:", to);
 
       const emailResponse = await resend.emails.send({
-        from: "RISE Football <onboarding@resend.dev>",
+        from: "Fuel For Football <onboarding@resend.dev>",
         to: [to],
         subject: subject,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 20px; text-align: center;">
-              <h1 style="color: #B8A574; margin: 0; font-size: 28px; letter-spacing: 2px;">RISE FOOTBALL</h1>
+              <h1 style="color: #D4AF37; margin: 0; font-size: 28px; letter-spacing: 2px;">FUEL FOR FOOTBALL</h1>
               <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 14px;">Realising Potential</p>
             </div>
             <div style="padding: 30px; background: #ffffff;">
@@ -79,7 +79,7 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
             <div style="background: #f5f5f5; padding: 20px; text-align: center;">
               <p style="color: #666666; font-size: 12px; margin: 0;">
-                © ${new Date().getFullYear()} RISE Football. All rights reserved.
+                © ${new Date().getFullYear()} Fuel For Football. All rights reserved.
               </p>
             </div>
           </div>
@@ -124,17 +124,17 @@ const handler = async (req: Request): Promise<Response> => {
       const submitterEmail = data.email || 'Not provided';
       
       const notificationResponse = await resend.emails.send({
-        from: "RISE Football <onboarding@resend.dev>",
+        from: "Fuel For Football <onboarding@resend.dev>",
         to: [NOTIFICATION_EMAIL],
         subject: `New ${formLabel} Submission`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 20px; text-align: center;">
-              <h1 style="color: #B8A574; margin: 0; font-size: 28px; letter-spacing: 2px;">RISE FOOTBALL</h1>
+              <h1 style="color: #D4AF37; margin: 0; font-size: 28px; letter-spacing: 2px;">FUEL FOR FOOTBALL</h1>
               <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 14px;">New Form Submission</p>
             </div>
             <div style="padding: 30px; background: #ffffff;">
-              <h2 style="color: #1a1a1a; margin-bottom: 20px; border-bottom: 2px solid #B8A574; padding-bottom: 10px;">
+              <h2 style="color: #1a1a1a; margin-bottom: 20px; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">
                 ${formLabel}
               </h2>
               <p style="color: #666; margin-bottom: 20px;">
@@ -149,7 +149,7 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
             <div style="background: #f5f5f5; padding: 20px; text-align: center;">
               <p style="color: #666666; font-size: 12px; margin: 0;">
-                © ${new Date().getFullYear()} RISE Football. All rights reserved.
+                © ${new Date().getFullYear()} Fuel For Football. All rights reserved.
               </p>
             </div>
           </div>

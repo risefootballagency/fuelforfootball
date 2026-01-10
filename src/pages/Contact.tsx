@@ -24,7 +24,7 @@ const Contact = () => {
       descKey: "contact.players_desc",
       descFallback: "Take your career to the next level with professional representation",
       whatsapp: "+447508342901",
-      email: "jolon.levene@risefootballagency.com"
+      email: "info@fuelforfootball.com"
     },
     {
       titleKey: "contact.clubs",
@@ -32,7 +32,7 @@ const Contact = () => {
       descKey: "contact.clubs_desc",
       descFallback: "Discover top talent for your squad through our extensive network",
       whatsapp: "+447508342901",
-      email: "jolon.levene@risefootballagency.com"
+      email: "info@fuelforfootball.com"
     },
     {
       titleKey: "contact.media",
@@ -40,7 +40,7 @@ const Contact = () => {
       descKey: "contact.media_desc",
       descFallback: "Press inquiries and media relations",
       whatsapp: "+447446365438",
-      email: "kuda.butawo@risefootballagency.com"
+      email: "info@fuelforfootball.com"
     },
     {
       titleKey: "contact.sponsors",
@@ -48,7 +48,7 @@ const Contact = () => {
       descKey: "contact.sponsors_desc",
       descFallback: "Partnership and sponsorship opportunities",
       whatsapp: "+447446365438",
-      email: "kuda.butawo@risefootballagency.com"
+      email: "info@fuelforfootball.com"
     },
     {
       titleKey: "contact.agents",
@@ -56,7 +56,7 @@ const Contact = () => {
       descKey: "contact.agents_desc",
       descFallback: "Professional collaboration and networking",
       whatsapp: "+447508342901",
-      email: "jolon.levene@risefootballagency.com"
+      email: "info@fuelforfootball.com"
     },
     {
       titleKey: "contact.parents",
@@ -64,7 +64,7 @@ const Contact = () => {
       descKey: "contact.parents_desc",
       descFallback: "Supporting your young player's journey",
       whatsapp: "+447508342901",
-      email: "jolon.levene@risefootballagency.com"
+      email: "info@fuelforfootball.com"
     },
     {
       titleKey: "contact.other",
@@ -72,7 +72,7 @@ const Contact = () => {
       descKey: "contact.other_desc",
       descFallback: "General inquiries and other matters",
       whatsapp: "+447446365438",
-      email: "kuda.butawo@risefootballagency.com"
+      email: "info@fuelforfootball.com"
     }
   ];
 

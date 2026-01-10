@@ -280,13 +280,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       // English: just the base domain (no language subdomain)
       newHostname = baseDomain;
     } else {
-      // Other languages: language.basedomain (e.g., es.risefootballagency.com)
+      // Other languages: language.basedomain (e.g., es.fuelforfootball.com)
       const urlSubdomain = languageUrlSubdomains[lang];
       newHostname = `${urlSubdomain}.${baseDomain}`;
     }
 
     // If we were on a role subdomain, convert it to a path and translate it
-    // e.g., players.risefootballagency.com → es.risefootballagency.com/jugadoras
+    // e.g., players.fuelforfootball.com → es.fuelforfootball.com/jugadoras
     let finalPath = localizedPath;
     if (currentRoleSubdomain && ROLE_SUBDOMAINS.includes(currentRoleSubdomain as any)) {
       // Translate the role subdomain to a localized path

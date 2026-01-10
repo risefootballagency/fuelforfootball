@@ -1,4 +1,4 @@
-# RISE Football Agency - robots.txt
+# Fuel For Football - robots.txt
 
 User-agent: Googlebot
 Allow: /
@@ -55,7 +55,7 @@ Disallow: /pdf-viewer
 Disallow: /analysis/
 
 # Sitemaps
-Sitemap: https://risefootballagency.com/sitemap.xml
+Sitemap: https://fuelforfootball.com/sitemap.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1
