@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaInstagram, FaTwitter, FaLinkedin, FaYoutube, FaFacebook, FaSnapchatGhost, FaTelegram, FaSpotify, FaWhatsapp } from "react-icons/fa";
 import { Mail } from "lucide-react";
 import logo from "@/assets/fff_logo.png";
-import riseLogo from "@/assets/rise-logo-full.png";
+import riseLogo from "@/assets/rise-black-logo.png";
 import { WorkWithUsDialog } from "@/components/WorkWithUsDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,9 +67,9 @@ export const Footer = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-10 md:py-16">
+      <div className="container mx-auto px-4 py-5 md:py-8">
         {/* Top Section - Logo & Description */}
-        <div className="max-w-4xl mx-auto text-center mb-10 md:mb-16">
+        <div className="max-w-4xl mx-auto text-center mb-5 md:mb-8">
           <img src={logo} alt="Fuel For Football" className="h-12 md:h-16 mx-auto mb-4 md:mb-6" />
           <p className="text-sm md:text-lg text-mint-dim leading-relaxed max-w-2xl mx-auto px-2">
             {t("footer.description", "Fuel For Football is football's leading performance consultancy. We help players, coaches, and clubs reach their full potential through elite physical training, tactical analysis, psychological development, and data-driven insights.")}
@@ -77,7 +77,7 @@ export const Footer = () => {
         </div>
 
         {/* Main Footer Content - 3 Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-6xl mx-auto mb-10 md:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-6xl mx-auto mb-5 md:mb-6">
           {/* Quick Links */}
           <div className="text-center md:text-left">
             <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-mint mb-4 md:mb-6">
@@ -148,7 +148,7 @@ export const Footer = () => {
                 <Button 
                   size="lg"
                   hoverEffect
-                  className="w-full btn-shine font-bebas uppercase tracking-wider text-base md:text-lg h-11 md:h-12"
+                  className="w-full btn-shine font-bebas uppercase tracking-wider text-lg md:text-xl h-11 md:h-12"
                 >
                   {t("footer.contact_us", "Contact Us")}
                 </Button>
@@ -158,7 +158,7 @@ export const Footer = () => {
                   variant="outline"
                   size="lg"
                   hoverEffect
-                  className="w-full font-bebas uppercase tracking-wider text-base md:text-lg border-primary/50 text-primary hover:bg-primary/10 h-11 md:h-12"
+                  className="w-full font-bebas uppercase tracking-wider text-lg md:text-xl border-primary/50 text-primary hover:bg-primary/10 h-11 md:h-12"
                 >
                   {t("footer.connect", "Connect")}
                 </Button>
@@ -249,7 +249,7 @@ export const Footer = () => {
         </div>
 
         {/* Newsletter Section */}
-        <div className="max-w-xl mx-auto text-center mb-8 md:mb-12 p-4 md:p-6 bg-primary/10 rounded-xl border border-primary/20">
+        <div className="max-w-xl mx-auto text-center mb-4 md:mb-6 p-3 md:p-4 bg-primary/10 rounded-xl border border-primary/20">
           <h4 className="font-bebas text-base md:text-xl uppercase tracking-wider text-mint mb-1.5 md:mb-2">
             Keep Updated With Our New Packages And Offers
           </h4>
@@ -274,7 +274,7 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 md:pt-8 border-t border-primary/10">
+        <div className="pt-3 md:pt-4 border-t border-primary/10">
           <p className="text-[9px] md:text-xs text-mint-dim/80 text-center max-w-3xl mx-auto mb-4 md:mb-6 px-2 md:px-4 leading-relaxed">
             {t("footer.regulatory_text", "Fuel For Football operates in accordance with the regulatory frameworks established by FIFA and UEFA. Our work follows the standards required for player representation, governance and integrity.")}
           </p>
@@ -301,22 +301,6 @@ export const Footer = () => {
                 className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1"
               >
                 {t("footer.regulations", "REGULATIONS")}
-              </a>
-              <a 
-                href="https://www.fifa.com/legal/football-regulatory/agents" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1"
-              >
-                {t("footer.fifa_framework", "FIFA")}
-              </a>
-              <a 
-                href="https://www.uefa.com/insideuefa/protecting-the-game/football-regulatory" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1"
-              >
-                {t("footer.uefa_framework", "UEFA")}
               </a>
             </div>
           </div>

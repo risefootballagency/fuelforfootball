@@ -213,13 +213,13 @@ All colors MUST be HSL.
     font-weight: 500;
   }
   
-  /* Premium section spacing */
+  /* Premium section spacing - Reduced by half */
   .section-padding {
-    @apply py-16 md:py-24 lg:py-32;
+    @apply py-8 md:py-12 lg:py-16;
   }
   
   .section-padding-sm {
-    @apply py-10 md:py-16 lg:py-20;
+    @apply py-5 md:py-8 lg:py-10;
   }
 
   /* Print styles for PDF export */
@@ -973,4 +973,21 @@ a:hover .hover-text-letter-clone,
 /* Premium loading skeleton */
 .skeleton-premium {
   @apply bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%] animate-pulse;
+}
+
+/* Slider/Carousel text uses brand font */
+.embla, 
+.embla__container,
+.embla__slide,
+[class*="carousel"],
+[class*="slider"] {
+  font-family: 'Agrandir Tight', 'Bebas Neue', sans-serif;
+}
+
+/* Ensure all slider text uses proper font */
+.embla__slide h1, .embla__slide h2, .embla__slide h3, .embla__slide h4,
+[class*="carousel"] h1, [class*="carousel"] h2, [class*="carousel"] h3, [class*="carousel"] h4 {
+  font-family: 'Agrandir Tight', 'Bebas Neue', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }

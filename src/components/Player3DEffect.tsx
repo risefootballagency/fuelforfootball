@@ -744,15 +744,17 @@ export const Player3DEffect = ({ className = "", imagePrefix = "player" }: Playe
         // Store the full color version before converting to greyscale
         vec3 fullColorComposite = compositeColor;
         
-        // Convert base to greyscale for normal display (color revealed through x-ray)
-        float greyValue = dot(compositeColor, vec3(0.299, 0.587, 0.114));
-        vec3 greyscaleComposite = vec3(greyValue);
-        
         // ============= FLUID BLOB X-RAY (matches overlay shader) =============
         float mouseXrayMask = calculateFluidMask(vUv);
         
-        // X-ray reveals the FULL COLOR version of the player image
-        vec3 finalColor = mix(greyscaleComposite, fullColorComposite, mouseXrayMask);
+        // X-ray reveals the FULL COLOR version of the player image with enhanced saturation
+        // Boost color saturation for the revealed areas
+        vec3 boostedColor = fullColorComposite * 1.15; // Slight brightness boost
+        float greyValue = dot(compositeColor, vec3(0.299, 0.587, 0.114));
+        vec3 greyscaleComposite = vec3(greyValue) * 0.9; // Slightly darker greyscale
+        
+        // Mix between greyscale and boosted color based on X-ray mask
+        vec3 finalColor = mix(greyscaleComposite, boostedColor, mouseXrayMask);
         
         // Edge rim light
         float rimLeft = smoothstep(0.1, 0.0, vUv.x) * max(0.0, shadowAmount) * 0.3;
