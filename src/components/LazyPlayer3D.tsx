@@ -20,11 +20,26 @@ const StaticPlaceholder = ({ className, imagePrefix = "player" }: { className?: 
 
 export const LazyPlayer3D = ({ className, imagePrefix = "player" }: LazyPlayer3DProps) => {
   const [isReady, setIsReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Check if mobile device - don't load 3D effect on mobile to prevent performance issues
+    const checkMobile = window.matchMedia('(max-width: 768px)').matches;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    if (checkMobile && isTouchDevice) {
+      setIsMobile(true);
+      return;
+    }
+    
     // Start loading immediately - no delays
     setIsReady(true);
   }, []);
+
+  // On mobile, just show static image
+  if (isMobile) {
+    return <StaticPlaceholder className={className} imagePrefix={imagePrefix} />;
+  }
 
   return (
     <div className={className}>

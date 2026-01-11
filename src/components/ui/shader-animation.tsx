@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
 
 export function ShaderAnimation() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [isMobile, setIsMobile] = useState(false)
   const sceneRef = useRef<{
     camera: THREE.Camera
     scene: THREE.Scene
@@ -14,6 +15,15 @@ export function ShaderAnimation() {
   } | null>(null)
 
   useEffect(() => {
+    // Check if mobile device - use simpler animation on mobile
+    const checkMobile = window.matchMedia('(max-width: 768px)').matches
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    
+    if (checkMobile && isTouchDevice) {
+      setIsMobile(true)
+      return
+    }
+
     if (!containerRef.current) return
 
     const container = containerRef.current
@@ -81,7 +91,7 @@ export function ShaderAnimation() {
     scene.add(mesh)
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)) // Limit pixel ratio for performance
 
     container.appendChild(renderer.domElement)
 
@@ -138,6 +148,19 @@ export function ShaderAnimation() {
       }
     }
   }, [])
+
+  // Simple CSS gradient fallback for mobile
+  if (isMobile) {
+    return (
+      <div
+        className="w-full h-screen"
+        style={{
+          background: "linear-gradient(135deg, hsl(120, 80%, 5%) 0%, hsl(45, 100%, 20%) 50%, hsl(120, 80%, 5%) 100%)",
+          overflow: "hidden",
+        }}
+      />
+    )
+  }
 
   return (
     <div

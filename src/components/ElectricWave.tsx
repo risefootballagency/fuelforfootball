@@ -1,9 +1,19 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const ElectricWave = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
+    // Check if mobile device - disable on mobile to prevent performance issues
+    const checkMobile = window.matchMedia('(max-width: 768px)').matches;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    if (checkMobile && isTouchDevice) {
+      setIsMobile(true);
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -208,6 +218,11 @@ export const ElectricWave = () => {
       cancelAnimationFrame(animationId);
     };
   }, []);
+  
+  // Don't render canvas on mobile
+  if (isMobile) {
+    return null;
+  }
   
   return (
     <canvas
