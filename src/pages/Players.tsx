@@ -8,12 +8,6 @@ import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ServiceCarousel } from "@/components/ServiceCarousel";
 import { VideoHeroBanner } from "@/components/VideoHeroBanner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 // Service Section Component with Carousel
 const ServiceSection = ({
@@ -284,28 +278,32 @@ const Players = () => {
         />
 
         {/* Full-Width Navigation Submenu */}
-        <nav className="bg-[#0a3622] border-b-2 border-[#c4a000]">
+        <nav className="bg-[#0a3622] border-2 border-[#0a3622]">
           <div className="w-full">
             <div className="flex justify-center">
               {navItems.map((item, index) => (
                 item.hasDropdown ? (
-                  <DropdownMenu key={index}>
-                    <DropdownMenuTrigger className="flex-1 max-w-[200px] px-2 md:px-6 py-2.5 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center justify-center gap-1.5 border-r border-[#c4a000]/20 last:border-r-0">
-                      {item.label} <ChevronDown className="w-3 h-3" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[180px]">
+                  <div key={index} className="group relative flex-1">
+                    <div className="px-2 md:px-6 py-2.5 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center justify-center gap-1.5 border-r border-[#c4a000]/20 last:border-r-0 w-full cursor-pointer">
+                      {item.label} <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform" />
+                    </div>
+                    <div className="absolute left-0 top-full min-w-[180px] bg-[#0a3622] border-2 border-[#0a3622] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg">
                       {item.items?.map((subItem, subIndex) => (
-                        <DropdownMenuItem key={subIndex} asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-2">
-                          <Link to={subItem.link}>{subItem.label}</Link>
-                        </DropdownMenuItem>
+                        <Link
+                          key={subIndex}
+                          to={subItem.link}
+                          className="block px-4 py-2 text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider"
+                        >
+                          {subItem.label}
+                        </Link>
                       ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    </div>
+                  </div>
                 ) : (
                   <Link
                     key={index}
                     to={item.link || "#"}
-                    className="flex-1 max-w-[200px] px-2 md:px-6 py-2.5 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 text-center border-r border-[#c4a000]/20 last:border-r-0"
+                    className="flex-1 px-2 md:px-6 py-2.5 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 text-center border-r border-[#c4a000]/20 last:border-r-0"
                   >
                     {item.label}
                   </Link>
@@ -316,7 +314,7 @@ const Players = () => {
         </nav>
 
         {/* What We Do Section */}
-        <section className="py-10 md:py-24 bg-card/50 relative overflow-hidden">
+        <section className="py-5 md:py-12 bg-card/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
           <div className="container mx-auto relative z-10">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-8">
@@ -379,49 +377,6 @@ const Players = () => {
           ]}
           autoplayDelay={5000}
         />
-
-        {/* What We Do Section */}
-        <section className="py-10 md:py-24 bg-card/50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-          <div className="container mx-auto relative z-10">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-8">
-              What We Do
-            </h2>
-            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-4xl mx-auto mb-8 md:mb-16">
-              At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents. Through our comprehensive approach, we ensure you are always prepared and confident, enabling you to dominate every match. Longer-term, we reduce injury risk, develop faster, and maximise potential.
-            </p>
-
-            {/* Four Corners Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-              {fourCorners.map((corner, index) => (
-                <Link 
-                  key={index}
-                  to={corner.link}
-                  className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300"
-                >
-                  <div className="aspect-video overflow-hidden">
-                    <img 
-                      src={corner.image} 
-                      alt={corner.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="p-3 md:p-6">
-                    <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-wider text-foreground mb-2 md:mb-3 group-hover:text-primary transition-colors">
-                      {corner.title}
-                    </h3>
-                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-2 md:mb-4 line-clamp-3 md:line-clamp-none">
-                      {corner.description}
-                    </p>
-                    <span className="inline-flex items-center gap-1 md:gap-2 text-primary text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all">
-                      Learn More <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Choose Your Fuel Section */}
         <section className="py-10 md:py-24 bg-background">
