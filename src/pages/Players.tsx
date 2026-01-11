@@ -7,6 +7,7 @@ import { ArrowRight, Brain, Target, Dumbbell, Lightbulb, ChevronDown, ExternalLi
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ServiceCarousel } from "@/components/ServiceCarousel";
+import { VideoHeroBanner } from "@/components/VideoHeroBanner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -276,6 +277,12 @@ const Players = () => {
           </div>
         </section>
 
+        {/* Video Hero Banner */}
+        <VideoHeroBanner 
+          videoSrc="/videos/players-hero.mp4"
+          title="FUEL FOR FOOTBALL"
+        />
+
         {/* Full-Width Navigation Submenu */}
         <nav className="bg-[#0a3622] border-b-2 border-[#c4a000]">
           <div className="w-full">
@@ -307,6 +314,49 @@ const Players = () => {
             </div>
           </div>
         </nav>
+
+        {/* What We Do Section */}
+        <section className="py-10 md:py-24 bg-card/50 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+          <div className="container mx-auto relative z-10">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-8">
+              What We Do
+            </h2>
+            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-4xl mx-auto mb-8 md:mb-16">
+              At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents. Through our comprehensive approach, we ensure you are always prepared and confident, enabling you to dominate every match. Longer-term, we reduce injury risk, develop faster, and maximise potential.
+            </p>
+
+            {/* Four Corners Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+              {fourCorners.map((corner, index) => (
+                <Link 
+                  key={index}
+                  to={corner.link}
+                  className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300"
+                >
+                  <div className="aspect-video overflow-hidden">
+                    <img 
+                      src={corner.image} 
+                      alt={corner.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-3 md:p-6">
+                    <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-wider text-foreground mb-2 md:mb-3 group-hover:text-primary transition-colors">
+                      {corner.title}
+                    </h3>
+                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-2 md:mb-4 line-clamp-3 md:line-clamp-none">
+                      {corner.description}
+                    </p>
+                    <span className="inline-flex items-center gap-1 md:gap-2 text-primary text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all">
+                      Learn More <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Hero Slider */}
         <HeroSlider 
