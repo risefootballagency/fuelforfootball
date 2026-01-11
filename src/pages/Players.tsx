@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Brain, Target, Dumbbell, Lightbulb, ChevronDown, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/HeroSlider";
+import { ServiceCarousel } from "@/components/ServiceCarousel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,35 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Product Card Component
-const ProductCard = ({ 
-  image, 
-  title, 
-  link 
-}: { 
-  image: string; 
-  title: string; 
-  link: string;
-}) => (
-  <Link to={link} className="group block">
-    <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
-      <div className="aspect-square overflow-hidden bg-muted">
-        <img 
-          src={image} 
-          alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-      </div>
-      <div className="p-3 md:p-4">
-        <h4 className="text-sm md:text-base font-bebas uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-2">
-          {title}
-        </h4>
-      </div>
-    </div>
-  </Link>
-);
-
-// Service Section Component
+// Service Section Component with Carousel
 const ServiceSection = ({
   id,
   title,
@@ -70,13 +43,9 @@ const ServiceSection = ({
       </h2>
       
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start ${reverse ? 'lg:flex-row-reverse' : ''}`}>
-        {/* Products Grid */}
+        {/* Products Carousel */}
         <div className={`${reverse ? 'lg:order-2' : ''}`}>
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
-            {products.slice(0, 4).map((product, index) => (
-              <ProductCard key={index} {...product} />
-            ))}
-          </div>
+          <ServiceCarousel products={products} />
         </div>
         
         {/* Description and Daily Fuel */}
@@ -239,6 +208,55 @@ const Players = () => {
     { image: "https://static.wixstatic.com/media/e2ec89_1f3e61bf392a4cdc8a8f02483a6c5c29~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_1f3e61bf392a4cdc8a8f02483a6c5c29~mv2.png", title: "Performance Efficiency Report", link: "/services/data" },
   ];
 
+  // Navigation items for the full-width submenu
+  const navItems = [
+    {
+      label: "General",
+      hasDropdown: true,
+      items: [
+        { label: "Consultation", link: "/services/consultation" },
+        { label: "Pro Performance", link: "/services/pro-performance" },
+        { label: "Elite Performance", link: "/services/elite-performance" },
+      ]
+    },
+    {
+      label: "Holistic",
+      hasDropdown: true,
+      items: [
+        { label: "Pro Performance", link: "/services/pro-performance" },
+        { label: "Elite Performance", link: "/services/elite-performance" },
+        { label: "Mentorship", link: "/services/mentorship" },
+      ]
+    },
+    {
+      label: "Tactical",
+      hasDropdown: true,
+      items: [
+        { label: "Tactical Overview", link: "/services/tactical" },
+        { label: "Action Reports", link: "/services/action-reports" },
+      ]
+    },
+    {
+      label: "Technical",
+      hasDropdown: false,
+      link: "/services/technical"
+    },
+    {
+      label: "Mental",
+      hasDropdown: false,
+      link: "/services/mental"
+    },
+    {
+      label: "Physical",
+      hasDropdown: true,
+      items: [
+        { label: "Strength, Power & Speed", link: "/services/strength-power-speed" },
+        { label: "Conditioning", link: "/services/conditioning" },
+        { label: "Nutrition", link: "/services/nutrition" },
+      ]
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <SEO 
@@ -258,94 +276,34 @@ const Players = () => {
           </div>
         </section>
 
-        {/* Quick Navigation Buttons */}
-        <nav className="bg-[#0a3622] py-1 md:py-1.5 border-b-2 border-[#c4a000]">
-          <div className="container mx-auto">
-            <div className="flex flex-wrap justify-center items-center gap-0">
-              {/* General - Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5 border-r border-[#c4a000]/30">
-                  General <ChevronDown className="w-3 h-3" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[180px]">
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/consultation">Consultation</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/pro-performance">Pro Performance</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/elite-performance">Elite Performance</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Holistic - Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5 border-r border-[#c4a000]/30">
-                  Holistic <ChevronDown className="w-3 h-3" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[180px]">
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/pro-performance">Pro Performance</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/elite-performance">Elite Performance</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/mentorship">Mentorship</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Tactical - Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5 border-r border-[#c4a000]/30">
-                  Tactical <ChevronDown className="w-3 h-3" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[180px]">
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/tactical">Tactical Overview</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/action-reports">Action Reports</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Technical - Direct Link */}
-              <Link
-                to="/services/technical"
-                className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
-              >
-                Technical
-              </Link>
-
-              {/* Mental - Direct Link */}
-              <Link
-                to="/services/mental"
-                className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 border-r border-[#c4a000]/30"
-              >
-                Mental
-              </Link>
-
-              {/* Physical - Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className="px-4 md:px-8 py-1 md:py-1.5 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center gap-1.5">
-                  Physical <ChevronDown className="w-3 h-3" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[200px]">
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/strength-power-speed">Strength, Power & Speed</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/conditioning">Conditioning</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-1">
-                    <Link to="/services/nutrition">Nutrition</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+        {/* Full-Width Navigation Submenu */}
+        <nav className="bg-[#0a3622] border-b-2 border-[#c4a000]">
+          <div className="w-full">
+            <div className="flex justify-center">
+              {navItems.map((item, index) => (
+                item.hasDropdown ? (
+                  <DropdownMenu key={index}>
+                    <DropdownMenuTrigger className="flex-1 max-w-[200px] px-2 md:px-6 py-2.5 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center justify-center gap-1.5 border-r border-[#c4a000]/20 last:border-r-0">
+                      {item.label} <ChevronDown className="w-3 h-3" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-[#0a3622] border-2 border-[#c4a000] z-50 min-w-[180px]">
+                      {item.items?.map((subItem, subIndex) => (
+                        <DropdownMenuItem key={subIndex} asChild className="text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider cursor-pointer py-2">
+                          <Link to={subItem.link}>{subItem.label}</Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link
+                    key={index}
+                    to={item.link || "#"}
+                    className="flex-1 max-w-[200px] px-2 md:px-6 py-2.5 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 text-center border-r border-[#c4a000]/20 last:border-r-0"
+                  >
+                    {item.label}
+                  </Link>
+                )
+              ))}
             </div>
           </div>
         </nav>
