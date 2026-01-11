@@ -294,14 +294,6 @@ export const Footer = () => {
               <Link to="/privacy-policy" className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1">
                 {t("footer.privacy_policy", "Privacy Policy")}
               </Link>
-              <a 
-                href="/FIFA_Football_Agent_Regulations.pdf" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1"
-              >
-                {t("footer.regulations", "REGULATIONS")}
-              </a>
             </div>
           </div>
           <p className="text-[9px] md:text-[10px] text-mint-dim/40 text-center mt-4">
