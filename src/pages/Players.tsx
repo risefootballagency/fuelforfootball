@@ -263,9 +263,9 @@ const Players = () => {
       
       <main className="pt-20 md:pt-28">
         {/* Title Bar */}
-        <section className="relative overflow-hidden py-3 md:py-4 border-b border-border/50 bg-glossy-green">
-          <div className="container mx-auto relative z-10">
-            <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-primary-foreground">
+        <section className="relative overflow-hidden py-2 md:py-4 border-b border-border/50 bg-glossy-green">
+          <div className="container mx-auto relative z-10 flex items-center justify-center min-h-[40px] md:min-h-[auto]">
+            <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-primary-foreground leading-none">
               Players
             </h1>
           </div>
@@ -277,15 +277,15 @@ const Players = () => {
           title="FUEL FOR FOOTBALL"
         />
 
-        {/* Full-Width Navigation Submenu */}
+        {/* Full-Width Navigation Submenu - wraps to two lines on mobile */}
         <nav className="bg-[#0a3622] border-2 border-[#0a3622]">
           <div className="w-full">
-            <div className="flex justify-center">
+            <div className="flex flex-wrap justify-center">
               {navItems.map((item, index) => (
                 item.hasDropdown ? (
-                  <div key={index} className="group relative flex-1">
-                    <div className="px-2 md:px-6 py-2.5 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center justify-center gap-1.5 border-r border-[#c4a000]/20 last:border-r-0 w-full cursor-pointer">
-                      {item.label} <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform" />
+                  <div key={index} className="group relative w-1/3 md:w-auto md:flex-1">
+                    <div className="px-2 md:px-6 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-[10px] md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center justify-center gap-0.5 md:gap-1.5 border-r border-[#c4a000]/20 last:border-r-0 w-full cursor-pointer">
+                      {item.label} <ChevronDown className="w-2.5 h-2.5 md:w-3 md:h-3 group-hover:rotate-180 transition-transform" />
                     </div>
                     <div className="absolute left-0 top-full min-w-[180px] bg-[#0a3622] border-2 border-[#0a3622] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg">
                       {item.items?.map((subItem, subIndex) => (
@@ -303,7 +303,7 @@ const Players = () => {
                   <Link
                     key={index}
                     to={item.link || "#"}
-                    className="flex-1 px-2 md:px-6 py-2.5 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-xs md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 text-center border-r border-[#c4a000]/20 last:border-r-0"
+                    className="w-1/3 md:w-auto md:flex-1 px-2 md:px-6 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-[10px] md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 text-center border-r border-[#c4a000]/20 last:border-r-0"
                   >
                     {item.label}
                   </Link>
