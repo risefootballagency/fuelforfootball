@@ -14,6 +14,17 @@ export function usePerformanceCheck(): PerformanceCheckResult {
   useEffect(() => {
     const checkPerformance = async () => {
       try {
+        // Check for mobile device first - mobile devices often struggle with heavy 3D
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        if (isMobile && isTouchDevice) {
+          setIsLowPerformance(true);
+          setReason('Mobile device detected');
+          setIsChecking(false);
+          return;
+        }
+
         // Check for WebGL support
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');

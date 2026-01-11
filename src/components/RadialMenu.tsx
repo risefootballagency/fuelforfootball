@@ -11,7 +11,7 @@ import whiteMarbleBg from "@/assets/white-marble.png";
 import smudgedMarbleBg from "@/assets/black-marble-smudged.png";
 import europeMap from "@/assets/europe-outline.gif";
 import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Star } from "lucide-react";
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef } from "react";
 import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
 
 export type QuadrantPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -528,14 +528,7 @@ export const RadialMenu = () => {
     return defaultMenu;
   }, [currentRole, selectedRole, pathRole, isSelectingRole]);
 
-  useEffect(() => {
-    console.log('RadialMenu debug', {
-      isMobile,
-      hoveredItem,
-      hasQuadrant: hoveredItem !== null ? !!menuItems[hoveredItem]?.quadrantCard : null,
-      menuLength: menuItems.length,
-    });
-  }, [isMobile, hoveredItem, menuItems]);
+  // Debug logging removed for production - was causing performance issues on mobile
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
@@ -592,10 +585,12 @@ export const RadialMenu = () => {
         }}
       />
       
-      {/* White pulse animation from center - delayed */}
-      <div className="absolute inset-0 flex items-center justify-center animate-[fade-in_0.3s_ease-out_0.3s_both]">
-        <div className="absolute w-4 h-4 bg-white rounded-full animate-[pulse-expand_6s_ease-out_infinite]" />
-      </div>
+      {/* White pulse animation from center - disabled on mobile to prevent performance issues */}
+      {!isMobile && (
+        <div className="absolute inset-0 flex items-center justify-center animate-[fade-in_0.3s_ease-out_0.3s_both]">
+          <div className="absolute w-4 h-4 bg-white rounded-full animate-[pulse-expand_6s_ease-out_infinite]" />
+        </div>
+      )}
       {/* Grid pattern background - delayed */}
       <div 
         className="absolute inset-0 opacity-20 animate-[fade-in_0.4s_ease-out_0.25s_both]"
@@ -693,21 +688,16 @@ export const RadialMenu = () => {
                   // Role selection mode: treat segments as role selectors
                   if (isSelectingRole) {
                     const role = pathToRole[item.to];
-                    console.log('[RadialMenu] Role selection mode - item:', item.to, 'role:', role);
 
                     if (role) {
                       if (isOnLanguageSubdomain()) {
-                        console.log('[RadialMenu] On language subdomain - using internal navigation');
                         navigate(item.to);
                         closeButtonRef.current?.click();
                       } else {
                         const url = getRoleUrl(role);
-                        console.log('[RadialMenu] Generated role URL:', url);
                         if (url.startsWith("http")) {
-                          console.log('[RadialMenu] Navigating to subdomain URL');
                           window.location.href = url;
                         } else {
-                          console.log('[RadialMenu] Using internal navigation');
                           navigate(url);
                           closeButtonRef.current?.click();
                         }
@@ -734,21 +724,16 @@ export const RadialMenu = () => {
 
                   // Fallback: regular navigation with role subdomain handling
                   const role = pathToRole[item.to];
-                  console.log('[RadialMenu] Regular navigation - item:', item.to, 'role:', role);
 
                   if (role) {
                     if (isOnLanguageSubdomain()) {
-                      console.log('[RadialMenu] On language subdomain - using internal navigation');
                       navigate(item.to);
                       closeButtonRef.current?.click();
                     } else {
                       const url = getRoleUrl(role);
-                      console.log('[RadialMenu] Generated role URL:', url);
                       if (url.startsWith("http")) {
-                        console.log('[RadialMenu] Navigating to subdomain URL');
                         window.location.href = url;
                       } else {
-                        console.log('[RadialMenu] Using internal navigation');
                         navigate(url);
                         closeButtonRef.current?.click();
                       }
@@ -988,16 +973,7 @@ export const RadialMenu = () => {
         const maxWidth = 320;
         const maxHeight = 220;
 
-        console.log('Quadrant overlay', {
-          isMobile,
-          hoveredItem,
-          position: card.position,
-          maxWidth,
-          maxHeight,
-          vw,
-          vh,
-          circleSize,
-        });
+        // Debug logging removed for production
 
         // Convert viewport edge positions to overlay coordinates
         const overlaySize = Math.max(vw, vh);
