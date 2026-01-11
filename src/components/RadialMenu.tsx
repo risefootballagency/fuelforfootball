@@ -80,6 +80,7 @@ export const RadialMenu = () => {
   const [isSelectingRole, setIsSelectingRole] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [hoveredLang, setHoveredLang] = useState<LanguageCode | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const languages = [
@@ -719,11 +720,15 @@ export const RadialMenu = () => {
                     return;
                   }
 
-                  // Inside a role: send categories with sub-pages to the first page
-                  if (hasSubItems) {
-                    const target = item.subItems![0];
-                    navigate(target.to);
-                    closeButtonRef.current?.click();
+                  // Inside a role: if category has sub-items, expand it instead of navigating
+                  if (hasSubItems && item.category) {
+                    if (expandedCategory === item.category) {
+                      // If already expanded, collapse it
+                      setExpandedCategory(null);
+                    } else {
+                      // Expand this category
+                      setExpandedCategory(item.category);
+                    }
                     return;
                   }
 
@@ -763,6 +768,8 @@ export const RadialMenu = () => {
           const centerAngle = index * segmentAngle + segmentAngle / 2;
           const hovered = hoveredItem === index;
           const pos = getCirclePosition(centerAngle, radius);
+          const isExpanded = item.category && expandedCategory === item.category;
+          const hasSubItems = item.subItems && item.subItems.length > 0;
 
           return (
             <div
@@ -776,37 +783,68 @@ export const RadialMenu = () => {
               }}
             >
               <div className="flex flex-col items-center justify-center">
-                <div 
-                  className="rounded-full flex items-center justify-center transition-all duration-300"
-                  style={{
-                    width: `${isMobile ? centerSize * 0.35 : centerSize * 0.4}px`,
-                    height: `${isMobile ? centerSize * 0.35 : centerSize * 0.4}px`,
-                    marginBottom: `${isMobile ? centerSize * 0.02 : centerSize * 0.05}px`,
-                  }}
-                >
-                <div 
-                    className="transition-colors duration-300"
-                    style={{
-                      width: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
-                      height: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
-                      color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(var(--mint))',
-                    }}
-                  >
-                    <item.Icon className="w-full h-full" />
+                {/* Show sub-items when expanded */}
+                {isExpanded && hasSubItems ? (
+                  <div className="flex flex-col items-center gap-1">
+                    {item.subItems!.map((subItem, subIndex) => (
+                      <button
+                        key={subItem.to}
+                        className="pointer-events-auto px-3 py-1 bg-black/60 hover:bg-primary text-white hover:text-black font-bebas tracking-wider text-xs md:text-sm transition-all duration-200 rounded animate-[fade-in_0.2s_ease-out_both] whitespace-nowrap"
+                        style={{ animationDelay: `${subIndex * 0.05}s` }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(subItem.to);
+                          closeButtonRef.current?.click();
+                        }}
+                      >
+                        {t(subItem.labelKey, subItem.fallback)}
+                      </button>
+                    ))}
+                    <button
+                      className="pointer-events-auto mt-1 text-xs text-white/60 hover:text-primary font-bebas tracking-wider transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedCategory(null);
+                      }}
+                    >
+                      ← BACK
+                    </button>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    <div 
+                      className="rounded-full flex items-center justify-center transition-all duration-300"
+                      style={{
+                        width: `${isMobile ? centerSize * 0.35 : centerSize * 0.4}px`,
+                        height: `${isMobile ? centerSize * 0.35 : centerSize * 0.4}px`,
+                        marginBottom: `${isMobile ? centerSize * 0.02 : centerSize * 0.05}px`,
+                      }}
+                    >
+                      <div 
+                        className="transition-colors duration-300"
+                        style={{
+                          width: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
+                          height: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
+                          color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(var(--mint))',
+                        }}
+                      >
+                        <item.Icon className="w-full h-full" />
+                      </div>
+                    </div>
 
-                <span
-                  className="font-bebas tracking-[0.15em] transition-all duration-300 text-center leading-tight"
-                  style={{ 
-                    fontSize: `${isMobile ? centerSize * 0.12 : centerSize * 0.0875}px`,
-                    maxWidth: isMobile ? `${centerSize * 0.5}px` : 'none',
-                    whiteSpace: isMobile ? 'normal' : 'nowrap',
-                    color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(var(--mint))',
-                  }}
-                >
-                  {t(item.labelKey, item.fallback)}
-                </span>
+                    <span
+                      className="font-bebas tracking-[0.15em] transition-all duration-300 text-center leading-tight"
+                      style={{ 
+                        fontSize: `${isMobile ? centerSize * 0.12 : centerSize * 0.0875}px`,
+                        maxWidth: isMobile ? `${centerSize * 0.5}px` : 'none',
+                        whiteSpace: isMobile ? 'normal' : 'nowrap',
+                        color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(var(--mint))',
+                      }}
+                    >
+                      {t(item.labelKey, item.fallback)}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           );
