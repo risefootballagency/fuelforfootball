@@ -1,12 +1,16 @@
 import { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingCart, ArrowRight, Check } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
+import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   image: string;
   title: string;
   link: string;
+  price?: number;
+  currency?: string;
 }
 
 interface ServiceCarouselProps {
@@ -15,6 +19,8 @@ interface ServiceCarouselProps {
 
 export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [addedItems, setAddedItems] = useState<Set<number>>(new Set());
+  const { addItem } = useCart();
   
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
@@ -45,6 +51,29 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
     };
   }, [emblaApi]);
 
+  const handleAddToCart = (product: Product, index: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    addItem({
+      serviceId: product.link,
+      name: product.title,
+      price: product.price || 0,
+      selectedOption: null,
+      imageUrl: product.image,
+    });
+    
+    setAddedItems(prev => new Set(prev).add(index));
+    
+    setTimeout(() => {
+      setAddedItems(prev => {
+        const next = new Set(prev);
+        next.delete(index);
+        return next;
+      });
+    }, 2000);
+  };
+
   if (products.length === 0) return null;
 
   return (
@@ -57,25 +86,57 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
               key={index}
               className="flex-[0_0_100%] min-w-0 px-0"
             >
-              <Link to={product.link} className="block group/card">
-                <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
-                  <div className="aspect-square overflow-hidden bg-muted relative">
-                    <img 
-                      src={product.image} 
-                      alt={product.title}
-                      className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
-                    />
-                    {/* Gradient overlay for text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    {/* Title overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h4 className="text-base md:text-lg font-bebas uppercase tracking-wider text-white group-hover/card:text-primary transition-colors line-clamp-2">
-                        {product.title}
-                      </h4>
+              <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
+                <div className="aspect-square overflow-hidden bg-muted relative">
+                  <img 
+                    src={product.image} 
+                    alt={product.title}
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Gradient overlay for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  {/* Title and buttons overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
+                    <h4 className="text-base md:text-lg font-bebas uppercase tracking-wider text-white line-clamp-2">
+                      {product.title}
+                    </h4>
+                    <div className="flex gap-2">
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-black text-xs"
+                      >
+                        <Link to={product.link}>
+                          <ArrowRight className="w-3 h-3 mr-1" />
+                          Learn More
+                        </Link>
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={(e) => handleAddToCart(product, index, e)}
+                        className={`flex-1 text-xs transition-all ${
+                          addedItems.has(index) 
+                            ? "bg-green-600 hover:bg-green-700" 
+                            : "bg-primary hover:bg-primary/90"
+                        }`}
+                      >
+                        {addedItems.has(index) ? (
+                          <>
+                            <Check className="w-3 h-3 mr-1" />
+                            Added
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="w-3 h-3 mr-1" />
+                            Add to Basket
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             </div>
           ))}
         </div>
