@@ -79,6 +79,7 @@ export const LandingImageWall = () => {
         .from("marketing_gallery")
         .select("id, file_url, title")
         .eq("folder", "landing")
+        .not("file_url", "is", null)
         .eq("file_type", "image")
         .limit(100);
       
