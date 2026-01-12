@@ -105,7 +105,7 @@ export const IntroModal = ({ open, onOpenChange }: IntroModalProps) => {
               {/* Main Image - Natural size, no stretching */}
               <img 
                 src={introImage} 
-                alt="RISE Football - From Striving to Rising to Thriving" 
+                alt="Fuel For Football - Change The Game" 
                 className="w-full h-auto object-contain"
               />
             

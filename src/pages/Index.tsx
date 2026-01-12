@@ -833,7 +833,7 @@ const Index = () => {
                   width="100%"
                   height="100%"
                   src="https://www.youtube-nocookie.com/embed/pWH2cdmzwVg?rel=0"
-                  title="RISE Football Video 1"
+                  title="Fuel For Football Video 1"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
@@ -849,7 +849,7 @@ const Index = () => {
                   width="100%"
                   height="100%"
                   src="https://www.youtube-nocookie.com/embed/XtmRhHvXeyo?rel=0"
-                  title="RISE Football Video 2"
+                  title="Fuel For Football Video 2"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen

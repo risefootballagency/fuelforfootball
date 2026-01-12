@@ -47,7 +47,7 @@ export const StaffPWAInstall = () => {
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true);
       setShowInstallButton(false);
-      toast.success("RISE Staff app installed successfully!");
+      toast.success("FFF Staff app installed successfully!");
     });
 
     // Check for service worker updates
@@ -82,7 +82,7 @@ export const StaffPWAInstall = () => {
       const { outcome } = await deferredPrompt.userChoice;
       
       if (outcome === 'accepted') {
-        toast.success("Installing RISE Staff app...");
+        toast.success("Installing FFF Staff app...");
         setShowInstallButton(false);
       } else {
         toast.info("Installation cancelled");
@@ -100,7 +100,7 @@ export const StaffPWAInstall = () => {
       <div>
         <h2 className="text-3xl font-bebas mb-2">PWA MANAGEMENT</h2>
         <p className="text-muted-foreground">
-          Install and manage RISE Staff as a Progressive Web App
+          Install and manage FFF Staff as a Progressive Web App
         </p>
       </div>
 
@@ -161,14 +161,14 @@ export const StaffPWAInstall = () => {
               Install App
             </CardTitle>
             <CardDescription>
-              Add RISE Staff to your device home screen
+              Add FFF Staff to your device home screen
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {isInstalled ? (
               <div className="flex items-center gap-2 p-4 bg-primary/10 rounded-lg">
                 <Check className="h-5 w-5 text-primary" />
-                <span className="text-sm">RISE Staff is already installed</span>
+                <span className="text-sm">FFF Staff is already installed</span>
               </div>
             ) : showInstallButton ? (
               <Button 
@@ -177,7 +177,7 @@ export const StaffPWAInstall = () => {
                 size="lg"
               >
                 <Download className="mr-2 h-4 w-4" />
-                Install RISE Staff
+                Install FFF Staff
               </Button>
             ) : (
               <div className="text-sm text-muted-foreground p-4 bg-muted rounded-lg">
@@ -196,7 +196,7 @@ export const StaffPWAInstall = () => {
           <CardHeader>
             <CardTitle>Benefits</CardTitle>
             <CardDescription>
-              Why install RISE Staff as an app
+              Why install FFF Staff as an app
             </CardDescription>
           </CardHeader>
           <CardContent>
