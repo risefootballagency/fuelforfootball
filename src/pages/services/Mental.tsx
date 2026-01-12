@@ -24,6 +24,7 @@ const Mental = () => {
       category="PSYCHOLOGICAL PERFORMANCE"
       title="SKILL + WILL = SUCCESS"
       subtitle="Football is not solely about skill. The fine margins are decided by will."
+      heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
 

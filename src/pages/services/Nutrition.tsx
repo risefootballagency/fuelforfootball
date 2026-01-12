@@ -37,6 +37,7 @@ const Nutrition = () => {
     <ServicePageLayout
       category="NUTRITION"
       title="TO GET THE MOST OUT OF YOURSELF\nFUELLING PROPERLY IS A MUST"
+      heroVideo="/videos/players-hero.mp4"
     >
       {/* Benefits Section */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-card/60 to-card/30">

@@ -40,6 +40,7 @@ const Technical = () => {
     <ServicePageLayout
       category="TECHNICAL"
       title="CONTROL THE BALL\nCONTROL THE GAME"
+      heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
 

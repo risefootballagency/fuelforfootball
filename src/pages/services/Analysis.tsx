@@ -21,6 +21,7 @@ const Analysis = () => {
     <ServicePageLayout
       category="ANALYSIS"
       title="SEE THE GAME\nBEFORE IT HAPPENS"
+      heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
 
