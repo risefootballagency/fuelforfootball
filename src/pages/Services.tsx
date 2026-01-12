@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
-import { LocalizedLink } from "@/components/LocalizedLink";
+import { ShopHeader } from "@/components/ShopHeader";
 import { ShopServicesSidebar } from "@/components/ShopServicesSidebar";
+import { ServiceDetailPanel } from "@/components/ServiceDetailPanel";
+import { AnimatePresence } from "framer-motion";
 import fffLogo from "@/assets/fff_logo.png";
 
 interface Service {
@@ -18,57 +19,23 @@ interface Service {
   badge: string | null;
   ribbon: string | null;
   description: string | null;
-  options: any;
+  options: unknown;
   visible: boolean;
 }
 
-// Sidebar categories format with nested structure
+// Sidebar categories - using exact database category values
 const sidebarCategories = [
   { label: "All Services", value: "All" },
-  { 
-    label: "All in One", 
-    value: "All in One Services",
-    subCategories: [
-      { label: "Pro Performance", value: "Pro Performance" },
-      { label: "Elite Performance", value: "Elite Performance" },
-    ]
-  },
-  { 
-    label: "Analysis", 
-    value: "Analysis Services",
-  },
-  { 
-    label: "Technical", 
-    value: "Technical Services",
-  },
-  { 
-    label: "Physical", 
-    value: "Physical Services",
-    subCategories: [
-      { label: "Strength & Power", value: "Strength & Power" },
-      { label: "Conditioning", value: "Conditioning" },
-    ]
-  },
-  { 
-    label: "Nutrition", 
-    value: "Nutrition Services",
-  },
-  { 
-    label: "Psychological", 
-    value: "Psychological Services",
-  },
-  { 
-    label: "Coaching", 
-    value: "Coaching Services",
-  },
-  { 
-    label: "Data & Stats", 
-    value: "Data Services",
-  },
-  { 
-    label: "Special Packages", 
-    value: "Special Packages",
-  },
+  { label: "All in One", value: "All in One Services" },
+  { label: "Analysis", value: "Analysis Services" },
+  { label: "Technical", value: "Technical Services" },
+  { label: "Tactical", value: "Tactical" },
+  { label: "Physical", value: "Physical Services" },
+  { label: "Nutrition", value: "Nutrition Services" },
+  { label: "Psychological", value: "Psychological Services" },
+  { label: "Coaching", value: "Coaching Services" },
+  { label: "Data & Stats", value: "Data Services" },
+  { label: "Special Packages", value: "Special Packages" },
 ];
 
 const priceRanges = [
@@ -85,6 +52,7 @@ const Services = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedPrice, setSelectedPrice] = useState("all");
   const [sortBy, setSortBy] = useState("default");
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -114,7 +82,7 @@ const Services = () => {
   const filteredServices = useMemo(() => {
     let filtered = [...services];
 
-    // Filter by category
+    // Filter by category - exact match with database category
     if (selectedCategory !== "All") {
       filtered = filtered.filter((s) => s.category === selectedCategory);
     }
@@ -156,13 +124,10 @@ const Services = () => {
     return `${prefix}£${price.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const getServiceSlug = (name: string) => {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      {/* Use ShopHeader instead of regular Header */}
+      <ShopHeader type="services" />
 
       {/* Hero Section */}
       <InfoBoxWithPlayerBg
@@ -278,9 +243,9 @@ const Services = () => {
               {!loading && (
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
                   {filteredServices.map((service) => (
-                    <LocalizedLink
+                    <div
                       key={service.id}
-                      to={`/service/${getServiceSlug(service.name)}`}
+                      onClick={() => setSelectedService(service)}
                       className="group cursor-pointer block"
                     >
                       {/* Card */}
@@ -343,7 +308,7 @@ const Services = () => {
                           {formatPrice(service.price, service.options)}
                         </p>
                       </div>
-                    </LocalizedLink>
+                    </div>
                   ))}
                 </div>
               )}
@@ -363,6 +328,16 @@ const Services = () => {
           </div>
         </div>
       </section>
+
+      {/* Service Detail Panel */}
+      <AnimatePresence>
+        {selectedService && (
+          <ServiceDetailPanel
+            service={selectedService}
+            onClose={() => setSelectedService(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>

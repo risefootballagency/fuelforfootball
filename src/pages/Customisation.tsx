@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Header } from "@/components/Header";
+import { ShopHeader } from "@/components/ShopHeader";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
@@ -223,7 +223,7 @@ const Customisation = () => {
         description="Customise your own training package. Select from our range of performance services to create your perfect development programme."
         url="/customisation"
       />
-      <Header />
+      <ShopHeader type="customisation" />
 
       <main className="pt-16 md:pt-20 min-h-screen flex">
         {/* Left Sidebar - Porsche Style */}
