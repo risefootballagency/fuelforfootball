@@ -31,39 +31,39 @@ All colors MUST be HSL.
     /* Text green: #008240 */
 
     /* Default: Dark theme */
-    --background: 240 4% 95%;
-    --foreground: 240 5% 10%;
+    --background: 0 0% 0.4%;
+    --foreground: 0 0% 98%;
 
     /* Cards & panels */
-    --card: 0 0% 98%;
-    --card-foreground: 240 5% 10%;
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 240 5% 90%;
-    --popover-foreground: 240 5% 10%;
+    --popover: 0 0% 2%;
+    --popover-foreground: 0 0% 98%;
 
     /* Primary: FFF Header Green #00914a */
-    --primary: 258 89% 66%;
-    --primary-foreground: 250 100% 97%;
+    --primary: 152 100% 28%;
+    --primary-foreground: 0 0% 98%;
 
     /* Secondary */
-    --secondary: 240 5% 33%;
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 4% 83%;
-    --muted-foreground: 240 5% 10%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
 
     /* Accent: FFF Green */
-    --accent: 269 100% 98%;
-    --accent-foreground: 270 91% 65%;
+    --accent: 152 100% 28%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 85% 97%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 4% 83%;
-    --input: 240 4% 83%;
-    --ring: 258 89% 66%;
+    --border: 0 0% 15%;
+    --input: 0 0% 10%;
+    --ring: 152 100% 28%;
 
-    --radius: 0.5rem;
+    --radius: 0rem;
 
     /* FFF Brand Tokens */
     /* Header green: #00914a */
@@ -78,8 +78,8 @@ All colors MUST be HSL.
     --fff-light: 0 0% 98%;
 
     /* Legacy aliases - now using FFF orange/yellow */
-    --gold: 36 100% 50%;
-    --gold-muted: 36 90% 45%;
+    --gold: 152 100% 28%;
+    --gold-muted: 150 100% 25%;
     --mint: 82 46% 74%;
     --mint-dim: 82 40% 60%;
 
