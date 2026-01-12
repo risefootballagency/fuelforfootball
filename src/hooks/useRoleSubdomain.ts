@@ -24,6 +24,8 @@ export const roleConfigs: Record<Exclude<RoleSubdomain, null>, RoleConfig> = {
 export const pathToRole: Record<string, Exclude<RoleSubdomain, null>> = {
   '/learnmore': 'players',
   '/players': 'players',
+  '/players/intro': 'players',
+  '/players/services': 'players',
   '/clubs': 'clubs',
   '/scouts': 'scouts',
   '/agents': 'agents',

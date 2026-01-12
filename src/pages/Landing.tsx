@@ -112,7 +112,7 @@ function LandingContent() {
     labelKey: "landing.nav_clubs",
     fallback: "CLUB"
   }, {
-    to: "/players",
+    to: "/players/intro",
     labelKey: "landing.nav_players",
     fallback: "PLAYER"
   }, {
@@ -131,7 +131,7 @@ function LandingContent() {
 
   // Mobile navigation
   const mobileNavLinks = [{
-    to: "/players",
+    to: "/players/intro",
     labelKey: "landing.nav_players",
     fallback: "PLAYER"
   }, {
