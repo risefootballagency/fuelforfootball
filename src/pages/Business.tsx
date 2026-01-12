@@ -7,6 +7,9 @@ import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Briefcase, Users, Targ
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverText } from "@/components/HoverText";
 import { HeroSlider } from "@/components/HeroSlider";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { Marquee } from "@/components/Marquee";
+import { PartnersSection } from "@/components/PartnersSection";
 import { cn } from "@/lib/utils";
 import bannerHero from "@/assets/banner-hero.jpg";
 
@@ -167,6 +170,9 @@ const Business = () => {
       <main className="pt-24 md:pt-16">
         {/* Hero Slider */}
         <HeroSlider slides={heroSlides} />
+
+        <Marquee text="CHANGE THE GAME" />
+
         {/* Hero Section - Minimal with large typography */}
         <section className="relative py-20 md:py-32 overflow-hidden">
           {/* Background pattern */}
@@ -178,40 +184,42 @@ const Business = () => {
           </div>
           
           <div className="container mx-auto px-4">
-            <div className="max-w-5xl">
-              {/* Large outlined text */}
-              <h1 className="text-[15vw] md:text-[12vw] lg:text-[10vw] font-bebas uppercase leading-[0.85] tracking-tight text-transparent" 
-                  style={{ WebkitTextStroke: "1px hsl(var(--foreground) / 0.15)" }}>
-                READY?
-              </h1>
-              <div className="flex items-baseline gap-4 md:gap-8">
+            <ScrollReveal>
+              <div className="max-w-5xl">
+                {/* Large outlined text */}
                 <h1 className="text-[15vw] md:text-[12vw] lg:text-[10vw] font-bebas uppercase leading-[0.85] tracking-tight text-transparent" 
                     style={{ WebkitTextStroke: "1px hsl(var(--foreground) / 0.15)" }}>
-                  SET.
+                  READY?
                 </h1>
-                <h1 className="text-[15vw] md:text-[12vw] lg:text-[10vw] font-bebas uppercase leading-[0.85] tracking-tight text-foreground">
-                  GO.
-                </h1>
+                <div className="flex items-baseline gap-4 md:gap-8">
+                  <h1 className="text-[15vw] md:text-[12vw] lg:text-[10vw] font-bebas uppercase leading-[0.85] tracking-tight text-transparent" 
+                      style={{ WebkitTextStroke: "1px hsl(var(--foreground) / 0.15)" }}>
+                    SET.
+                  </h1>
+                  <h1 className="text-[15vw] md:text-[12vw] lg:text-[10vw] font-bebas uppercase leading-[0.85] tracking-tight text-foreground">
+                    GO.
+                  </h1>
+                </div>
+                
+                {/* Subtitle */}
+                <p className="mt-8 text-xl md:text-2xl text-muted-foreground max-w-2xl">
+                  {t('business.subtitle', 'Strategic commercial partnerships that connect brands with elite football talent.')}
+                </p>
+                
+                {/* CTA Buttons */}
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <Button size="lg" className="btn-shine font-bebas uppercase tracking-wider text-lg px-8" hoverEffect>
+                    <a href="mailto:jolon.levene@fuelforfootball.com?subject=Business%20Inquiry">
+                      {t('business.start_collaboration', 'Start Collaboration')}
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="lg" className="font-bebas uppercase tracking-wider text-lg px-8 border-primary/30 text-primary hover:bg-primary/10" hoverEffect>
+                    {t('business.drop_briefing', 'Drop Your Briefing')}
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
               </div>
-              
-              {/* Subtitle */}
-              <p className="mt-8 text-xl md:text-2xl text-muted-foreground max-w-2xl">
-                {t('business.subtitle', 'Strategic commercial partnerships that connect brands with elite football talent.')}
-              </p>
-              
-              {/* CTA Buttons */}
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Button size="lg" className="btn-shine font-bebas uppercase tracking-wider text-lg px-8" hoverEffect>
-                  <a href="mailto:jolon.levene@risefootballagency.com?subject=Business%20Inquiry">
-                    {t('business.start_collaboration', 'Start Collaboration')}
-                  </a>
-                </Button>
-                <Button variant="outline" size="lg" className="font-bebas uppercase tracking-wider text-lg px-8 border-primary/30 text-primary hover:bg-primary/10" hoverEffect>
-                  {t('business.drop_briefing', 'Drop Your Briefing')}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </div>
-            </div>
+            </ScrollReveal>
           </div>
         </section>
 
@@ -219,37 +227,39 @@ const Business = () => {
         <section className="py-8 md:py-12 relative">
           {/* Navigation Arrows */}
           <div className="container mx-auto px-4 mb-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-foreground">
-                {t('business.our_work', 'Our Work & Services')}
-              </h2>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => scroll("left")}
-                  disabled={!canScrollLeft}
-                  className={cn(
-                    "p-2 rounded-full border transition-all duration-300",
-                    canScrollLeft 
-                      ? "border-primary/50 text-primary hover:bg-primary/10" 
-                      : "border-border/30 text-muted-foreground/30 cursor-not-allowed"
-                  )}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => scroll("right")}
-                  disabled={!canScrollRight}
-                  className={cn(
-                    "p-2 rounded-full border transition-all duration-300",
-                    canScrollRight 
-                      ? "border-primary/50 text-primary hover:bg-primary/10" 
-                      : "border-border/30 text-muted-foreground/30 cursor-not-allowed"
-                  )}
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+            <ScrollReveal>
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-foreground">
+                  {t('business.our_work', 'Our Work & Services')}
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => scroll("left")}
+                    disabled={!canScrollLeft}
+                    className={cn(
+                      "p-2 rounded-full border transition-all duration-300",
+                      canScrollLeft 
+                        ? "border-primary/50 text-primary hover:bg-primary/10" 
+                        : "border-border/30 text-muted-foreground/30 cursor-not-allowed"
+                    )}
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => scroll("right")}
+                    disabled={!canScrollRight}
+                    className={cn(
+                      "p-2 rounded-full border transition-all duration-300",
+                      canScrollRight 
+                        ? "border-primary/50 text-primary hover:bg-primary/10" 
+                        : "border-border/30 text-muted-foreground/30 cursor-not-allowed"
+                    )}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
           
           {/* Cards Container */}
@@ -334,10 +344,12 @@ const Business = () => {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
               {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-5xl md:text-7xl font-bebas text-primary mb-2">{stat.value}</div>
-                  <div className="text-sm md:text-base text-muted-foreground uppercase tracking-wider font-bebas">{stat.label}</div>
-                </div>
+                <ScrollReveal key={index} delay={index * 0.1}>
+                  <div className="text-center">
+                    <div className="text-5xl md:text-7xl font-bebas text-primary mb-2">{stat.value}</div>
+                    <div className="text-sm md:text-base text-muted-foreground uppercase tracking-wider font-bebas">{stat.label}</div>
+                  </div>
+                </ScrollReveal>
               ))}
             </div>
           </div>
@@ -346,14 +358,16 @@ const Business = () => {
         {/* How We Collaborate Section */}
         <section className="py-16 md:py-24 bg-muted/20">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-6">
-                {t('business.how_we_collaborate', 'How We Collaborate')}
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                From initial briefing to campaign execution, we partner with brands to create authentic football-driven marketing campaigns.
-              </p>
-            </div>
+            <ScrollReveal>
+              <div className="max-w-4xl mx-auto text-center mb-16">
+                <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-6">
+                  {t('business.how_we_collaborate', 'How We Collaborate')}
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                  From initial briefing to campaign execution, we partner with brands to create authentic football-driven marketing campaigns.
+                </p>
+              </div>
+            </ScrollReveal>
             
             <div className="grid md:grid-cols-3 gap-8">
               {[
@@ -373,15 +387,20 @@ const Business = () => {
                   description: "From contract negotiation to campaign delivery, we manage every detail for seamless execution."
                 }
               ].map((item, index) => (
-                <div key={index} className="relative p-8 bg-card/50 border border-border/50 rounded-xl group hover:border-primary/50 transition-colors duration-500">
-                  <div className="text-6xl font-bebas text-primary/20 absolute top-4 right-4">{item.step}</div>
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-foreground mb-4">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </div>
+                <ScrollReveal key={index} delay={index * 0.15}>
+                  <div className="relative p-8 bg-card/50 border border-border/50 rounded-xl group hover:border-primary/50 transition-colors duration-500">
+                    <div className="text-6xl font-bebas text-primary/20 absolute top-4 right-4">{item.step}</div>
+                    <h3 className="text-2xl font-bebas uppercase tracking-wider text-foreground mb-4">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </div>
+                </ScrollReveal>
               ))}
             </div>
           </div>
         </section>
+
+        {/* Partners Section */}
+        <PartnersSection />
 
         {/* CTA Section */}
         <section className="py-20 md:py-32 relative overflow-hidden">
@@ -389,24 +408,26 @@ const Business = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
           
           <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider mb-6">
-                {t('business.lets_build', "Let's Build Together")}
-              </h2>
-              <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-                {t('business.cta_desc', 'Ready to explore commercial opportunities with RISE? Get in touch with our business development team.')}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="btn-shine font-bebas uppercase tracking-wider text-lg px-10" hoverEffect>
-                  <a href="mailto:jolon.levene@risefootballagency.com?subject=Business%20Inquiry">
-                    {t('business.contact_team', 'Contact Business Team')}
-                  </a>
-                </Button>
-                <Button variant="outline" size="lg" className="font-bebas uppercase tracking-wider text-lg px-10 border-primary/40" hoverEffect>
-                  {t('business.view_stars', 'View Our Stars')}
-                </Button>
+            <ScrollReveal>
+              <div className="max-w-3xl mx-auto text-center">
+                <h2 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider mb-6">
+                  {t('business.lets_build', "Let's Build Together")}
+                </h2>
+                <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+                  {t('business.cta_desc', 'Ready to explore commercial opportunities with Fuel For Football? Get in touch with our business development team.')}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button size="lg" className="btn-shine font-bebas uppercase tracking-wider text-lg px-10" hoverEffect>
+                    <a href="mailto:jolon.levene@fuelforfootball.com?subject=Business%20Inquiry">
+                      {t('business.contact_team', 'Contact Business Team')}
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="lg" className="font-bebas uppercase tracking-wider text-lg px-10 border-primary/40" hoverEffect>
+                    {t('business.view_stars', 'View Our Stars')}
+                  </Button>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
         </section>
       </main>

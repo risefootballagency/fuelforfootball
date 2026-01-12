@@ -2632,6 +2632,7 @@ export type Database = {
           image_url: string | null
           publish_date: string | null
           published: boolean | null
+          published_date: string | null
           summary: string | null
           title: string
           updated_at: string | null
@@ -2644,6 +2645,7 @@ export type Database = {
           image_url?: string | null
           publish_date?: string | null
           published?: boolean | null
+          published_date?: string | null
           summary?: string | null
           title: string
           updated_at?: string | null
@@ -2656,6 +2658,7 @@ export type Database = {
           image_url?: string | null
           publish_date?: string | null
           published?: boolean | null
+          published_date?: string | null
           summary?: string | null
           title?: string
           updated_at?: string | null
