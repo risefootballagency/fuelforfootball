@@ -231,8 +231,12 @@ const Customisation = () => {
           <div className="p-6 border-b border-border">
             <h1 className="font-bebas text-2xl uppercase tracking-wider">Build Your Package</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Select services to create your programme
+              Select monthly services to create your programme
             </p>
+            <div className="mt-3 inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-medium">
+              <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+              Monthly Subscription
+            </div>
           </div>
 
           {/* Search */}
@@ -307,6 +311,13 @@ const Customisation = () => {
 
           {/* Footer - Pricing Summary */}
           <div className="p-4 border-t border-border bg-muted/20">
+            {/* Monthly Subscription Label */}
+            <div className="text-center mb-3 pb-3 border-b border-border/50">
+              <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                Monthly Subscription Package
+              </span>
+            </div>
+
             {/* Pricing */}
             <div className="space-y-1 mb-4">
               <div className="flex justify-between items-baseline">
@@ -314,9 +325,14 @@ const Customisation = () => {
                 <span className="font-bebas text-2xl text-primary">£{totalPrice.toFixed(2)}<span className="text-sm text-muted-foreground font-sans">/mo</span></span>
               </div>
               {selectedServices.size > 0 && (
-                <p className="text-xs text-muted-foreground text-right">
-                  {totalItems} {totalItems === 1 ? 'service' : 'services'} selected
-                </p>
+                <>
+                  <p className="text-xs text-muted-foreground text-right">
+                    {totalItems} {totalItems === 1 ? 'service' : 'services'} selected
+                  </p>
+                  <p className="text-[10px] text-primary/70 text-right mt-1">
+                    Billed monthly - cancel anytime
+                  </p>
+                </>
               )}
             </div>
 
@@ -328,7 +344,7 @@ const Customisation = () => {
               size="lg"
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Add Package to Basket
+              Add Monthly Package
             </Button>
 
             {/* Back Link */}
@@ -584,6 +600,14 @@ const Customisation = () => {
                   <p className="text-muted-foreground">No services selected yet.</p>
                 ) : (
                   <>
+                    {/* Monthly subscription badge */}
+                    <div className="text-center mb-4 pb-4 border-b border-border/50">
+                      <span className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-medium">
+                        <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                        Monthly Subscription Package
+                      </span>
+                    </div>
+
                     <div className="space-y-3 mb-6">
                       {Array.from(selectedServices.values()).map(({ service, quantity }) => (
                         <div key={service.id} className="flex items-start justify-between p-3 bg-muted/30 rounded-lg">
@@ -592,7 +616,7 @@ const Customisation = () => {
                             <p className="text-xs text-muted-foreground">{service.category}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium">£{(service.price * quantity).toFixed(2)}</p>
+                            <p className="font-medium">£{(service.price * quantity).toFixed(2)}<span className="text-xs text-muted-foreground">/mo</span></p>
                             <p className="text-xs text-muted-foreground">x{quantity}</p>
                           </div>
                         </div>
@@ -604,6 +628,9 @@ const Customisation = () => {
                         <span>Monthly Total</span>
                         <span className="text-primary">£{totalPrice.toFixed(2)}/mo</span>
                       </div>
+                      <p className="text-[10px] text-muted-foreground text-center">
+                        Billed monthly - cancel anytime
+                      </p>
                     </div>
 
                     <Button
@@ -615,7 +642,7 @@ const Customisation = () => {
                       size="lg"
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      Add Package to Basket
+                      Add Monthly Package
                     </Button>
                   </>
                 )}

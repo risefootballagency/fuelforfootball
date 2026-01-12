@@ -14,6 +14,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useSubdomainRouter } from "@/hooks/useSubdomainRouter";
 import { useLocalizedRedirect } from "@/hooks/useLocalizedRedirect";
 import { getAllPathVariants } from "@/lib/localizedRoutes";
+import { CartNotificationWrapper } from "@/components/CartNotificationWrapper";
 
 // Critical pages - loaded immediately
 import Home from "./pages/Home";
@@ -117,6 +118,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <CartNotificationWrapper />
           <BrowserRouter>
             <SubdomainRouter />
             <TransitionProvider>

@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import { ShopHeader } from "@/components/ShopHeader";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -91,7 +91,7 @@ const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <ShopHeader type="services" />
         <main className="pt-20 md:pt-24 pb-12 md:pb-16">
           <div className="container mx-auto px-4 text-center py-12 md:py-16">
             <ShoppingBag className="h-16 w-16 md:h-24 md:w-24 mx-auto text-muted-foreground/50 mb-4 md:mb-6" />
@@ -111,7 +111,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <ShopHeader type="services" />
       
       <main className="pt-20 md:pt-24 pb-12 md:pb-16">
         <div className="container mx-auto px-3 md:px-4">

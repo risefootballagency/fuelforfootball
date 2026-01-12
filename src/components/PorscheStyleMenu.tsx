@@ -126,6 +126,55 @@ export const PorscheStyleMenu = ({ type }: PorscheStyleMenuProps) => {
           </div>
         </div>
 
+        {/* Top Actions - Build Package & Cart */}
+        <div className="p-4 border-b border-border space-y-3">
+          {/* Customisation Link */}
+          <DrawerClose asChild>
+            <LocalizedLink
+              to="/customisation"
+              className="flex items-center gap-3 py-3 px-4 bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 rounded-lg transition-all group"
+            >
+              <Sparkles className="w-5 h-5 text-primary" />
+              <div className="flex-1">
+                <span className="font-bebas uppercase tracking-wider text-foreground block">
+                  Build Your Package
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Create your custom programme
+                </span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
+            </LocalizedLink>
+          </DrawerClose>
+
+          {/* Cart */}
+          <DrawerClose asChild>
+            <LocalizedLink
+              to="/cart"
+              className="flex items-center justify-between py-3 px-4 bg-muted/30 hover:bg-muted/50 rounded-lg transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <ShoppingCart className="w-5 h-5 text-primary" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-2 -right-2 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {totalItems}
+                    </span>
+                  )}
+                </div>
+                <span className="font-bebas uppercase tracking-wider text-foreground">
+                  Basket
+                </span>
+              </div>
+              {totalItems > 0 && (
+                <span className="text-sm font-medium text-foreground">
+                  £{totalPrice.toFixed(2)}
+                </span>
+              )}
+            </LocalizedLink>
+          </DrawerClose>
+        </div>
+
         {/* Categories List */}
         <nav className="flex-1 overflow-y-auto p-4">
           {loading ? (
@@ -173,55 +222,8 @@ export const PorscheStyleMenu = ({ type }: PorscheStyleMenuProps) => {
           )}
         </nav>
 
-        {/* Footer Links */}
-        <div className="p-4 border-t border-border space-y-3">
-          {/* Customisation Link */}
-          <DrawerClose asChild>
-            <LocalizedLink
-              to="/customisation"
-              className="flex items-center gap-3 py-3 px-4 bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 rounded-lg transition-all group"
-            >
-              <Sparkles className="w-5 h-5 text-primary" />
-              <div className="flex-1">
-                <span className="font-bebas uppercase tracking-wider text-foreground block">
-                  Build Your Package
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Create your custom programme
-                </span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
-            </LocalizedLink>
-          </DrawerClose>
-
-          {/* Cart */}
-          <DrawerClose asChild>
-            <LocalizedLink
-              to="/cart"
-              className="flex items-center justify-between py-3 px-4 bg-muted/30 hover:bg-muted/50 rounded-lg transition-all group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <ShoppingCart className="w-5 h-5 text-primary" />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                      {totalItems}
-                    </span>
-                  )}
-                </div>
-                <span className="font-bebas uppercase tracking-wider text-foreground">
-                  Basket
-                </span>
-              </div>
-              {totalItems > 0 && (
-                <span className="text-sm font-medium text-foreground">
-                  £{totalPrice.toFixed(2)}
-                </span>
-              )}
-            </LocalizedLink>
-          </DrawerClose>
-
-          {/* Back to Players */}
+        {/* Footer - Back to Players only */}
+        <div className="p-4 border-t border-border">
           <DrawerClose asChild>
             <LocalizedLink
               to="/players"
