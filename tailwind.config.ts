@@ -38,7 +38,7 @@ export default {
   				'sans-serif'
   			],
   			mono: [
-  				'Inconsolata',
+  				'IBM Plex Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
@@ -49,7 +49,7 @@ export default {
   				'monospace'
   			],
   			sans: [
-  				'Work Sans',
+  				'Montserrat',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
@@ -62,7 +62,7 @@ export default {
   				'sans-serif'
   			],
   			serif: [
-  				'Lora',
+  				'Cormorant Garamond',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
