@@ -777,8 +777,12 @@ export const RadialMenu = () => {
                         style={{ animationDelay: `${subIndex * 0.05}s` }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(subItem.to);
+                          e.preventDefault();
+                          // Close the drawer first, then navigate after a small delay
                           closeButtonRef.current?.click();
+                          setTimeout(() => {
+                            navigate(subItem.to);
+                          }, 100);
                         }}
                       >
                         {t(subItem.labelKey, subItem.fallback)}

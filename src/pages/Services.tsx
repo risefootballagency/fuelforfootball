@@ -2,11 +2,11 @@ import { useState, useMemo, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
 import { LocalizedLink } from "@/components/LocalizedLink";
+import { ShopServicesSidebar } from "@/components/ShopServicesSidebar";
 import fffLogo from "@/assets/fff_logo.png";
 
 interface Service {
@@ -22,17 +22,53 @@ interface Service {
   visible: boolean;
 }
 
-const categories = [
-  "All",
-  "All in One Services",
-  "Analysis Services",
-  "Technical Services",
-  "Physical Services",
-  "Nutrition Services",
-  "Psychological Services",
-  "Coaching Services",
-  "Data Services",
-  "Special Packages",
+// Sidebar categories format with nested structure
+const sidebarCategories = [
+  { label: "All Services", value: "All" },
+  { 
+    label: "All in One", 
+    value: "All in One Services",
+    subCategories: [
+      { label: "Pro Performance", value: "Pro Performance" },
+      { label: "Elite Performance", value: "Elite Performance" },
+    ]
+  },
+  { 
+    label: "Analysis", 
+    value: "Analysis Services",
+  },
+  { 
+    label: "Technical", 
+    value: "Technical Services",
+  },
+  { 
+    label: "Physical", 
+    value: "Physical Services",
+    subCategories: [
+      { label: "Strength & Power", value: "Strength & Power" },
+      { label: "Conditioning", value: "Conditioning" },
+    ]
+  },
+  { 
+    label: "Nutrition", 
+    value: "Nutrition Services",
+  },
+  { 
+    label: "Psychological", 
+    value: "Psychological Services",
+  },
+  { 
+    label: "Coaching", 
+    value: "Coaching Services",
+  },
+  { 
+    label: "Data & Stats", 
+    value: "Data Services",
+  },
+  { 
+    label: "Special Packages", 
+    value: "Special Packages",
+  },
 ];
 
 const priceRanges = [
@@ -49,8 +85,6 @@ const Services = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedPrice, setSelectedPrice] = useState("all");
   const [sortBy, setSortBy] = useState("default");
-  const [categoryExpanded, setCategoryExpanded] = useState(true);
-  const [priceExpanded, setPriceExpanded] = useState(false);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -156,9 +190,9 @@ const Services = () => {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat} className="text-xs">
-                      {cat}
+                  {sidebarCategories.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value} className="text-xs">
+                      {cat.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -197,82 +231,15 @@ const Services = () => {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
-            {/* Left Sidebar - Filters (Desktop only) */}
-            <aside className="hidden lg:block lg:w-64 flex-shrink-0">
-              <div className="sticky top-24">
-              <h2 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-4 md:mb-6">
-                Filter by
-              </h2>
-
-              {/* Category Filter */}
-              <div className="mb-6">
-                <button
-                  onClick={() => setCategoryExpanded(!categoryExpanded)}
-                  className="flex items-center justify-between w-full pb-2 border-b border-primary/30"
-                >
-                  <span className="font-bebas text-lg uppercase tracking-wider text-foreground">
-                    Category
-                  </span>
-                  {categoryExpanded ? (
-                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </button>
-                {categoryExpanded && (
-                  <div className="mt-3 space-y-2">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={`block w-full text-left text-sm transition-colors ${
-                          selectedCategory === cat
-                            ? "text-primary font-semibold"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Price Filter */}
-              <div>
-                <button
-                  onClick={() => setPriceExpanded(!priceExpanded)}
-                  className="flex items-center justify-between w-full pb-2 border-b border-primary/30"
-                >
-                  <span className="font-bebas text-lg uppercase tracking-wider text-foreground">
-                    Price
-                  </span>
-                  {priceExpanded ? (
-                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </button>
-                {priceExpanded && (
-                  <div className="mt-3 space-y-2">
-                    {priceRanges.map((range) => (
-                      <button
-                        key={range.value}
-                        onClick={() => setSelectedPrice(range.value)}
-                        className={`block w-full text-left text-sm transition-colors ${
-                          selectedPrice === range.value
-                            ? "text-primary font-semibold"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {range.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              </div>
-            </aside>
+            {/* Left Sidebar (Desktop only) */}
+            <div className="hidden lg:block">
+              <ShopServicesSidebar
+                type="services"
+                categories={sidebarCategories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            </div>
 
             {/* Main Content Area */}
             <div className="flex-1">

@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { ChevronDown, ChevronUp, Download } from "lucide-react";
+import { Download } from "lucide-react";
+import { ShopServicesSidebar } from "@/components/ShopServicesSidebar";
 
 interface Product {
   id: string;
@@ -35,20 +36,16 @@ const placeholderProducts: Product[] = [
   },
 ];
 
-const categories = ["All", "Analysis"];
-
-const priceRanges = [
-  { label: "All Prices", value: "all" },
-  { label: "Under £10", value: "under-10" },
-  { label: "£10 - £20", value: "10-20" },
-  { label: "Over £20", value: "over-20" },
+// Sidebar categories format
+const sidebarCategories = [
+  { label: "All Products", value: "All" },
+  { label: "Analysis", value: "Analysis" },
+  { label: "Training", value: "Training" },
+  { label: "Equipment", value: "Equipment" },
 ];
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedPrice, setSelectedPrice] = useState("all");
-  const [categoryExpanded, setCategoryExpanded] = useState(true);
-  const [priceExpanded, setPriceExpanded] = useState(false);
 
   const filteredProducts = useMemo(() => {
     let filtered = [...placeholderProducts];
@@ -58,24 +55,8 @@ const Shop = () => {
       filtered = filtered.filter((p) => p.category === selectedCategory);
     }
 
-    // Filter by price
-    if (selectedPrice !== "all") {
-      filtered = filtered.filter((p) => {
-        switch (selectedPrice) {
-          case "under-10":
-            return p.price < 10;
-          case "10-20":
-            return p.price >= 10 && p.price <= 20;
-          case "over-20":
-            return p.price > 20;
-          default:
-            return true;
-        }
-      });
-    }
-
     return filtered;
-  }, [selectedCategory, selectedPrice]);
+  }, [selectedCategory]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,86 +74,16 @@ const Shop = () => {
       {/* Main Content */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Left Sidebar - Filters */}
-            <aside className="hidden lg:block lg:w-56 flex-shrink-0">
-              <div className="sticky top-24">
-              <h2 className="text-2xl font-bebas uppercase tracking-wider text-foreground mb-8">
-                Filter by
-              </h2>
-
-              {/* Category Filter */}
-              <div className="mb-6">
-                <button
-                  onClick={() => setCategoryExpanded(!categoryExpanded)}
-                  className="flex items-center justify-between w-full pb-3 border-b border-muted-foreground/30"
-                >
-                  <span className="font-bebas text-lg uppercase tracking-wider text-foreground">
-                    Category
-                  </span>
-                  {categoryExpanded ? (
-                    <span className="text-muted-foreground">−</span>
-                  ) : (
-                    <span className="text-muted-foreground">+</span>
-                  )}
-                </button>
-                {categoryExpanded && (
-                  <div className="mt-4 space-y-2">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={`block w-full text-left text-sm transition-colors ${
-                          selectedCategory === cat
-                            ? "text-foreground font-semibold"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div className="border-b border-muted-foreground/30 mb-6" />
-
-              {/* Price Filter */}
-              <div>
-                <button
-                  onClick={() => setPriceExpanded(!priceExpanded)}
-                  className="flex items-center justify-between w-full pb-3 border-b border-muted-foreground/30"
-                >
-                  <span className="font-bebas text-lg uppercase tracking-wider text-foreground">
-                    Price
-                  </span>
-                  {priceExpanded ? (
-                    <span className="text-muted-foreground">−</span>
-                  ) : (
-                    <span className="text-muted-foreground">+</span>
-                  )}
-                </button>
-                {priceExpanded && (
-                  <div className="mt-4 space-y-2">
-                    {priceRanges.map((range) => (
-                      <button
-                        key={range.value}
-                        onClick={() => setSelectedPrice(range.value)}
-                        className={`block w-full text-left text-sm transition-colors ${
-                          selectedPrice === range.value
-                            ? "text-foreground font-semibold"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {range.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              </div>
-            </aside>
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Left Sidebar */}
+            <div className="hidden lg:block">
+              <ShopServicesSidebar
+                type="shop"
+                categories={sidebarCategories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+              />
+            </div>
 
             {/* Main Content Area */}
             <div className="flex-1">
