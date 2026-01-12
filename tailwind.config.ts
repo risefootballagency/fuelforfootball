@@ -38,6 +38,7 @@ export default {
   				'sans-serif'
   			],
   			mono: [
+  				'Space Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
@@ -48,6 +49,7 @@ export default {
   				'monospace'
   			],
   			sans: [
+  				'Inter',
   				'ui-sans-serif',
   				'system-ui',
   				'sans-serif',

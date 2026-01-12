@@ -63,7 +63,7 @@ All colors MUST be HSL.
     --input: 0 0% 10%;
     --ring: 152 100% 28%;
 
-    --radius: 0rem;
+    --radius: 0.625rem;
 
     /* FFF Brand Tokens */
     /* Header green: #00914a */
@@ -78,8 +78,8 @@ All colors MUST be HSL.
     --fff-light: 0 0% 98%;
 
     /* Legacy aliases - now using FFF orange/yellow */
-    --gold: 152 100% 28%;
-    --gold-muted: 150 100% 25%;
+    --gold: 36 100% 50%;
+    --gold-muted: 36 90% 45%;
     --mint: 82 46% 74%;
     --mint-dim: 82 40% 60%;
 
@@ -133,10 +133,10 @@ All colors MUST be HSL.
     --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-sm: 10px 10px 50px 10px hsla(0, 0%, 0%, 0.1);
+    --shadow: 10px 10px 100px 10px hsla(0, 0%, 0%, 0.1);
+    --shadow-md: 10px 10px 150px 10px hsla(0, 0%, 0%, 0.1);
+    --shadow-lg: 10px 10px 250px 10px hsla(0, 0%, 0%, 0.1);
     --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
     --tracking-normal: 0em;
@@ -177,12 +177,13 @@ All colors MUST be HSL.
     --sidebar-ring: 255 91% 76%;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-sm: 10px 10px 50px 10px hsla(0, 0%, 0%, 0.1);
+    --shadow: 10px 10px 100px 10px hsla(0, 0%, 0%, 0.1);
+    --shadow-md: 10px 10px 150px 10px hsla(0, 0%, 0%, 0.1);
+    --shadow-lg: 10px 10px 250px 10px hsla(0, 0%, 0%, 0.1);
     --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --radius: 0.625rem;
   }
 }
 
