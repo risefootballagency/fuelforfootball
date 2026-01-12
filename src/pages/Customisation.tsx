@@ -9,20 +9,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  ChevronDown, 
+  ChevronRight,
   Check, 
   Plus, 
   Minus, 
   ShoppingCart, 
   ArrowLeft,
-  Info,
-  Sparkles,
-  X
+  X,
+  Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
 import fffLogo from "@/assets/fff_logo.png";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ServiceOption {
   id: string;
@@ -31,7 +35,6 @@ interface ServiceOption {
   price: number;
   description: string | null;
   image_url: string | null;
-  frequency?: string;
 }
 
 interface SelectedService {
@@ -39,16 +42,26 @@ interface SelectedService {
   quantity: number;
 }
 
-// Service categories for the configurator
+// Service categories - clean labels without icons
 const CATEGORIES = [
-  { id: "Analysis Services", label: "Analysis", icon: "📊" },
-  { id: "Technical Services", label: "Technical", icon: "⚽" },
-  { id: "Physical Services", label: "Physical", icon: "💪" },
-  { id: "Nutrition Services", label: "Nutrition", icon: "🥗" },
-  { id: "Psychological Services", label: "Mental", icon: "🧠" },
-  { id: "Coaching Services", label: "Coaching", icon: "📋" },
-  { id: "Data Services", label: "Data & Stats", icon: "📈" },
+  { id: "Analysis Services", label: "Analysis" },
+  { id: "Technical Services", label: "Technical" },
+  { id: "Physical Services", label: "Physical" },
+  { id: "Nutrition Services", label: "Nutrition" },
+  { id: "Psychological Services", label: "Mental" },
+  { id: "Coaching Services", label: "Coaching" },
+  { id: "Data Services", label: "Data & Stats" },
 ];
+
+// Calculate discount percentage based on number of unique services
+const getDiscountPercent = (itemCount: number): number => {
+  if (itemCount < 3) return 0;
+  if (itemCount === 3) return 20;
+  if (itemCount === 4) return 30;
+  if (itemCount === 5) return 40;
+  // 41% for 6, 42% for 7, etc.
+  return 40 + (itemCount - 5);
+};
 
 const Customisation = () => {
   const { addItem } = useCart();
@@ -57,6 +70,8 @@ const Customisation = () => {
   const [selectedServices, setSelectedServices] = useState<Map<string, SelectedService>>(new Map());
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [showSummary, setShowSummary] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -66,22 +81,15 @@ const Customisation = () => {
           .select('id, name, category, price, description, image_url')
           .eq('visible', true)
           .not('category', 'eq', 'All in One Services')
+          .not('name', 'ilike', '%European Match Analysis%')
           .order('category', { ascending: true })
           .order('price', { ascending: true });
 
         if (error) throw error;
+        setServices(data || []);
         
-        // Map the data to include frequency field
-        const mappedData: ServiceOption[] = (data || []).map(item => ({
-          ...item,
-          frequency: undefined
-        }));
-        
-        setServices(mappedData);
-        
-        // Set initial image
-        if (mappedData.length > 0 && mappedData[0].image_url) {
-          setActiveImage(mappedData[0].image_url);
+        if (data && data.length > 0 && data[0].image_url) {
+          setActiveImage(data[0].image_url);
         }
       } catch (error) {
         console.error('Error fetching services:', error);
@@ -105,26 +113,39 @@ const Customisation = () => {
     return grouped;
   }, [services]);
 
-  // Calculate totals
-  const { totalPrice, monthlyPrice, totalItems } = useMemo(() => {
-    let total = 0;
-    let monthly = 0;
+  // Filter services based on search
+  const filteredServicesByCategory = useMemo(() => {
+    if (!searchQuery) return servicesByCategory;
+    
+    const filtered: Record<string, ServiceOption[]> = {};
+    Object.entries(servicesByCategory).forEach(([category, categoryServices]) => {
+      const matchingServices = categoryServices.filter(s => 
+        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      if (matchingServices.length > 0) {
+        filtered[category] = matchingServices;
+      }
+    });
+    return filtered;
+  }, [servicesByCategory, searchQuery]);
+
+  // Calculate totals with discount
+  const { subtotal, discountPercent, discountAmount, totalPrice, totalItems } = useMemo(() => {
+    let subtotal = 0;
     let items = 0;
 
     selectedServices.forEach(({ service, quantity }) => {
-      const price = service.price * quantity;
-      total += price;
+      subtotal += service.price * quantity;
       items += quantity;
-      
-      // Estimate monthly based on frequency
-      if (service.frequency?.includes('month')) {
-        monthly += price;
-      } else {
-        monthly += price / 12; // Spread one-time payments over 12 months
-      }
     });
 
-    return { totalPrice: total, monthlyPrice: monthly, totalItems: items };
+    const uniqueServiceCount = selectedServices.size;
+    const discountPercent = getDiscountPercent(uniqueServiceCount);
+    const discountAmount = subtotal * (discountPercent / 100);
+    const totalPrice = subtotal - discountAmount;
+
+    return { subtotal, discountPercent, discountAmount, totalPrice, totalItems: items };
   }, [selectedServices]);
 
   const toggleService = (service: ServiceOption) => {
@@ -158,23 +179,31 @@ const Customisation = () => {
     setSelectedServices(newSelected);
   };
 
-  const addAllToCart = () => {
-    selectedServices.forEach(({ service, quantity }) => {
-      for (let i = 0; i < quantity; i++) {
-        addItem({
-          serviceId: service.id,
-          name: service.name,
-          price: service.price,
-          selectedOption: null,
-          imageUrl: service.image_url,
-        });
-      }
+  const addPackageToCart = () => {
+    // Create a single package item with all selected services
+    const packageItems = Array.from(selectedServices.values())
+      .map(({ service, quantity }) => `${service.name} x${quantity}`)
+      .join(', ');
+
+    addItem({
+      serviceId: `custom-package-${Date.now()}`,
+      name: `Custom Package (${selectedServices.size} services)`,
+      price: totalPrice,
+      selectedOption: packageItems,
+      imageUrl: activeImage,
     });
     
-    toast.success(`Added ${totalItems} items to basket`, {
-      description: `Total: £${totalPrice.toFixed(2)}`,
+    toast.success('Package added to basket', {
+      description: discountPercent > 0 
+        ? `${discountPercent}% discount applied! You save £${discountAmount.toFixed(2)}`
+        : `Total: £${totalPrice.toFixed(2)}/mo`,
     });
   };
+
+  // Get selected category services
+  const selectedCategoryServices = selectedCategory 
+    ? filteredServicesByCategory[selectedCategory] || []
+    : [];
 
   // Get featured images from selected services
   const selectedImages = useMemo(() => {
@@ -196,111 +225,329 @@ const Customisation = () => {
       />
       <Header />
 
-      {/* Top Bar - Porsche style */}
-      <div className="fixed top-14 md:top-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-12 md:h-14">
-            <LocalizedLink 
-              to="/services" 
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden md:inline">Back to Services</span>
-            </LocalizedLink>
+      <main className="pt-16 md:pt-20 min-h-screen flex">
+        {/* Left Sidebar - Porsche Style */}
+        <aside className="w-80 lg:w-96 border-r border-border bg-background flex flex-col h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] sticky top-16 md:top-20">
+          {/* Header */}
+          <div className="p-6 border-b border-border">
+            <h1 className="font-bebas text-2xl uppercase tracking-wider">Build Your Package</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Select services to create your programme
+            </p>
+          </div>
 
-            <div className="flex items-center gap-4 md:gap-8">
-              {/* Monthly estimate */}
-              <div className="text-right">
-                <span className="text-xs text-muted-foreground block">Est. Monthly</span>
-                <span className="font-bebas text-lg md:text-xl">
-                  £{monthlyPrice.toFixed(2)}<span className="text-xs text-muted-foreground">/mo</span>
-                </span>
-              </div>
-
-              {/* Total */}
-              <div className="text-right">
-                <span className="text-xs text-muted-foreground block">Total</span>
-                <span className="font-bebas text-lg md:text-xl text-primary">
-                  £{totalPrice.toFixed(2)}
-                </span>
-              </div>
-
-              {/* Summary button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSummary(true)}
-                className="hidden md:flex"
-              >
-                Summary
-              </Button>
-
-              {/* Add to cart */}
-              <Button
-                onClick={addAllToCart}
-                disabled={totalItems === 0}
-                className="font-bebas uppercase tracking-wider"
-              >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Add All ({totalItems})
-              </Button>
+          {/* Search */}
+          <div className="p-4 border-b border-border">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search services..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
             </div>
           </div>
-        </div>
-      </div>
 
-      <main className="pt-28 md:pt-32">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Left - Preview Area */}
-            <div className="lg:w-2/3 lg:sticky lg:top-32 lg:h-[calc(100vh-160px)]">
-              {/* Main Preview */}
-              <div className="relative aspect-[16/10] bg-gradient-to-br from-primary/5 to-muted rounded-xl overflow-hidden border border-border">
-                <AnimatePresence mode="wait">
-                  {activeImage ? (
-                    <motion.img
-                      key={activeImage}
-                      src={activeImage}
-                      alt="Service preview"
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="w-full h-full flex items-center justify-center"
-                    >
-                      <div className="text-center">
-                        <img src={fffLogo} alt="FFF" className="w-24 h-24 mx-auto opacity-20" />
-                        <p className="text-muted-foreground mt-4 font-bebas uppercase tracking-wider">
-                          Select services to preview
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Expand button */}
-                <button className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center hover:bg-background transition-colors border border-border">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                  </svg>
-                </button>
+          {/* Categories */}
+          <nav className="flex-1 overflow-y-auto">
+            {loading ? (
+              <div className="p-4 space-y-2">
+                {[...Array(7)].map((_, i) => (
+                  <Skeleton key={i} className="h-12 rounded-lg" />
+                ))}
               </div>
+            ) : (
+              <ul className="p-2">
+                {CATEGORIES.map((category, index) => {
+                  const categoryServices = filteredServicesByCategory[category.id] || [];
+                  const selectedInCategory = categoryServices.filter(s => selectedServices.has(s.id)).length;
+                  
+                  if (categoryServices.length === 0 && !searchQuery) return null;
 
-              {/* Thumbnails */}
-              {selectedImages.length > 0 && (
-                <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                  return (
+                    <motion.li
+                      key={category.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                    >
+                      <button
+                        onClick={() => setSelectedCategory(
+                          selectedCategory === category.id ? null : category.id
+                        )}
+                        className={cn(
+                          "w-full flex items-center justify-between py-3 px-4 text-left transition-all duration-200 rounded-lg",
+                          selectedCategory === category.id
+                            ? "bg-primary/10 text-foreground"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        <span className="font-medium text-sm">{category.label}</span>
+                        <div className="flex items-center gap-2">
+                          {selectedInCategory > 0 && (
+                            <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                              {selectedInCategory}
+                            </span>
+                          )}
+                          <ChevronRight 
+                            className={cn(
+                              "w-4 h-4 transition-transform duration-200",
+                              selectedCategory === category.id && "rotate-90"
+                            )} 
+                          />
+                        </div>
+                      </button>
+                    </motion.li>
+                  );
+                })}
+              </ul>
+            )}
+          </nav>
+
+          {/* Footer - Pricing Summary */}
+          <div className="p-4 border-t border-border bg-muted/20">
+            {/* Discount Banner */}
+            {discountPercent > 0 && (
+              <div className="mb-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-primary font-medium">{discountPercent}% Bundle Discount</span>
+                  <span className="text-primary font-bebas">-£{discountAmount.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Pricing */}
+            <div className="space-y-2 mb-4">
+              {discountPercent > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-muted-foreground line-through">£{subtotal.toFixed(2)}/mo</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-muted-foreground text-sm">Est. Monthly</span>
+                <span className="font-bebas text-xl text-primary">£{totalPrice.toFixed(2)}/mo</span>
+              </div>
+            </div>
+
+            {/* Discount Hint */}
+            {selectedServices.size > 0 && selectedServices.size < 3 && (
+              <p className="text-xs text-muted-foreground mb-3">
+                Add {3 - selectedServices.size} more for 20% off
+              </p>
+            )}
+
+            {/* Add to Cart Button */}
+            <Button
+              onClick={addPackageToCart}
+              disabled={totalItems === 0}
+              className="w-full font-bebas uppercase tracking-wider"
+              size="lg"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Add Package to Basket
+            </Button>
+
+            {/* Back Link */}
+            <LocalizedLink
+              to="/services"
+              className="flex items-center gap-2 mt-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors justify-center"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Services</span>
+            </LocalizedLink>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col lg:flex-row">
+          {/* Services Panel */}
+          <div className="lg:w-1/2 border-r border-border overflow-y-auto h-[calc(100vh-64px)] md:h-[calc(100vh-80px)]">
+            <AnimatePresence mode="wait">
+              {selectedCategory ? (
+                <motion.div
+                  key={selectedCategory}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="p-6"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="font-bebas text-2xl uppercase tracking-wider">
+                      {CATEGORIES.find(c => c.id === selectedCategory)?.label}
+                    </h2>
+                    <button 
+                      onClick={() => setSelectedCategory(null)}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <TooltipProvider delayDuration={300}>
+                      {selectedCategoryServices.map((service) => {
+                        const isSelected = selectedServices.has(service.id);
+                        const selectedData = selectedServices.get(service.id);
+                        
+                        return (
+                          <Tooltip key={service.id}>
+                            <TooltipTrigger asChild>
+                              <div
+                                className={cn(
+                                  "p-4 rounded-lg border transition-all cursor-pointer group",
+                                  isSelected 
+                                    ? "border-primary bg-primary/5" 
+                                    : "border-border hover:border-primary/50 hover:bg-muted/30"
+                                )}
+                                onClick={() => !isSelected && toggleService(service)}
+                                onMouseEnter={() => service.image_url && setActiveImage(service.image_url)}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <h3 className="font-medium text-sm text-foreground">
+                                      {service.name}
+                                    </h3>
+                                    <p className="text-primary font-bebas text-lg mt-1">
+                                      £{service.price.toFixed(2)}<span className="text-xs text-muted-foreground font-sans">/mo</span>
+                                    </p>
+                                  </div>
+
+                                  {isSelected ? (
+                                    <div className="flex items-center gap-3">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          updateQuantity(service.id, -1);
+                                        }}
+                                        className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+                                      >
+                                        <Minus className="w-4 h-4" />
+                                      </button>
+                                      <span className="w-6 text-center font-bebas text-lg">
+                                        {selectedData?.quantity || 1}
+                                      </span>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          updateQuantity(service.id, 1);
+                                        }}
+                                        className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+                                      >
+                                        <Plus className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full border-2 border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
+                                      <Plus className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </TooltipTrigger>
+                            {service.description && (
+                              <TooltipContent side="right" className="max-w-xs">
+                                <p className="text-sm">{service.description}</p>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        );
+                      })}
+                    </TooltipProvider>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex-1 flex items-center justify-center h-full p-8"
+                >
+                  <div className="text-center max-w-sm">
+                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                      <ChevronRight className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="font-bebas text-xl uppercase tracking-wider mb-2 text-muted-foreground">
+                      Select a Category
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Choose from the categories on the left to view available services
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Preview Panel */}
+          <div className="hidden lg:flex lg:w-1/2 flex-col h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] bg-muted/10">
+            {/* Main Preview */}
+            <div className="flex-1 relative">
+              <AnimatePresence mode="wait">
+                {activeImage ? (
+                  <motion.img
+                    key={activeImage}
+                    src={activeImage}
+                    alt="Service preview"
+                    initial={{ opacity: 0, scale: 1.02 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/20 to-muted/40"
+                  >
+                    <div className="text-center">
+                      <img src={fffLogo} alt="FFF" className="w-20 h-20 mx-auto opacity-20" />
+                      <p className="text-muted-foreground mt-4 font-bebas uppercase tracking-wider text-sm">
+                        Hover over services to preview
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Overlay with package info */}
+              {totalItems > 0 && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/90 to-transparent p-6">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Your Package</p>
+                      <p className="font-bebas text-2xl uppercase tracking-wider">
+                        {selectedServices.size} {selectedServices.size === 1 ? 'Service' : 'Services'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      {discountPercent > 0 && (
+                        <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full font-medium">
+                          {discountPercent}% OFF
+                        </span>
+                      )}
+                      <p className="font-bebas text-3xl text-primary mt-1">
+                        £{totalPrice.toFixed(2)}<span className="text-base text-muted-foreground">/mo</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Selected Thumbnails */}
+            {selectedImages.length > 0 && (
+              <div className="p-4 border-t border-border bg-background">
+                <div className="flex gap-2 overflow-x-auto pb-1">
                   {selectedImages.map((img, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveImage(img)}
                       className={cn(
-                        "flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all",
+                        "flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all",
                         activeImage === img ? "border-primary" : "border-transparent hover:border-border"
                       )}
                     >
@@ -308,186 +555,13 @@ const Customisation = () => {
                     </button>
                   ))}
                 </div>
-              )}
-
-              {/* Selected Services Count */}
-              <div className="mt-6 p-4 bg-muted/30 rounded-lg border border-border">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bebas text-lg uppercase tracking-wider">Your Package</h3>
-                  <span className="text-sm text-muted-foreground">{totalItems} services selected</span>
-                </div>
-                
-                {totalItems === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Start building your custom package by selecting services from the categories on the right.
-                  </p>
-                ) : (
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {Array.from(selectedServices.values()).map(({ service, quantity }) => (
-                      <div key={service.id} className="flex items-center justify-between text-sm">
-                        <span className="truncate flex-1">{service.name}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">×{quantity}</span>
-                          <span className="font-medium">£{(service.price * quantity).toFixed(2)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
-            </div>
-
-            {/* Right - Categories and Options */}
-            <div className="lg:w-1/3">
-              <div className="mb-6">
-                <h1 className="font-bebas text-3xl md:text-4xl uppercase tracking-wider">
-                  Build Your Package
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                  Select the services you need to create your personalised development programme.
-                </p>
-              </div>
-
-              {/* Search */}
-              <div className="relative mb-6">
-                <input
-                  type="text"
-                  placeholder="Search equipment options"
-                  className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-
-              {/* Categories Accordion */}
-              {loading ? (
-                <div className="space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-16 rounded-lg" />
-                  ))}
-                </div>
-              ) : (
-                <Accordion type="single" collapsible className="space-y-2">
-                  {CATEGORIES.map((category) => {
-                    const categoryServices = servicesByCategory[category.id] || [];
-                    const selectedInCategory = categoryServices.filter(s => selectedServices.has(s.id)).length;
-                    
-                    if (categoryServices.length === 0) return null;
-
-                    return (
-                      <AccordionItem
-                        key={category.id}
-                        value={category.id}
-                        className="border border-border rounded-lg overflow-hidden"
-                      >
-                        <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/30 transition-colors">
-                          <div className="flex items-center gap-3 flex-1">
-                            <span className="text-xl">{category.icon}</span>
-                            <span className="font-medium">{category.label}</span>
-                            {selectedInCategory > 0 && (
-                              <span className="ml-auto mr-4 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">
-                                {selectedInCategory} selected
-                              </span>
-                            )}
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="space-y-2 pt-2">
-                            {categoryServices.map((service) => {
-                              const isSelected = selectedServices.has(service.id);
-                              const selectedData = selectedServices.get(service.id);
-                              
-                              return (
-                                <div
-                                  key={service.id}
-                                  className={cn(
-                                    "p-3 rounded-lg border transition-all cursor-pointer",
-                                    isSelected 
-                                      ? "border-primary bg-primary/5" 
-                                      : "border-border hover:border-primary/50"
-                                  )}
-                                  onClick={() => !isSelected && toggleService(service)}
-                                >
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-medium text-sm">{service.name}</span>
-                                        {service.frequency && (
-                                          <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                                            {service.frequency}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <span className="text-sm text-primary font-medium">
-                                        £{service.price.toFixed(2)}
-                                      </span>
-                                    </div>
-
-                                    {isSelected ? (
-                                      <div className="flex items-center gap-2">
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            updateQuantity(service.id, -1);
-                                          }}
-                                          className="w-7 h-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-                                        >
-                                          <Minus className="w-3 h-3" />
-                                        </button>
-                                        <span className="w-6 text-center text-sm font-medium">
-                                          {selectedData?.quantity || 1}
-                                        </span>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            updateQuantity(service.id, 1);
-                                          }}
-                                          className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
-                                        >
-                                          <Plus className="w-3 h-3" />
-                                        </button>
-                                      </div>
-                                    ) : (
-                                      <div className="w-6 h-6 rounded-full border-2 border-border flex items-center justify-center">
-                                        <Plus className="w-3 h-3 text-muted-foreground" />
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    );
-                  })}
-                </Accordion>
-              )}
-
-              {/* Info Note */}
-              <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                <div className="flex gap-3">
-                  <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-foreground font-medium">
-                      Need help choosing?
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Contact us for a free consultation to discuss your development goals.
-                    </p>
-                    <LocalizedLink 
-                      to="/contact"
-                      className="text-sm text-primary hover:underline mt-2 inline-block"
-                    >
-                      Get in touch →
-                    </LocalizedLink>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </main>
 
-      {/* Summary Drawer */}
+      {/* Summary Drawer - Mobile */}
       <AnimatePresence>
         {showSummary && (
           <>
@@ -517,7 +591,7 @@ const Customisation = () => {
                   <p className="text-muted-foreground">No services selected yet.</p>
                 ) : (
                   <>
-                    <div className="space-y-4 mb-6">
+                    <div className="space-y-3 mb-6">
                       {Array.from(selectedServices.values()).map(({ service, quantity }) => (
                         <div key={service.id} className="flex items-start justify-between p-3 bg-muted/30 rounded-lg">
                           <div className="flex-1">
@@ -526,7 +600,7 @@ const Customisation = () => {
                           </div>
                           <div className="text-right">
                             <p className="font-medium">£{(service.price * quantity).toFixed(2)}</p>
-                            <p className="text-xs text-muted-foreground">×{quantity}</p>
+                            <p className="text-xs text-muted-foreground">x{quantity}</p>
                           </div>
                         </div>
                       ))}
@@ -535,28 +609,30 @@ const Customisation = () => {
                     <div className="border-t border-border pt-4 space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span>£{totalPrice.toFixed(2)}</span>
+                        <span>£{subtotal.toFixed(2)}/mo</span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Est. Monthly</span>
-                        <span>£{monthlyPrice.toFixed(2)}/mo</span>
-                      </div>
+                      {discountPercent > 0 && (
+                        <div className="flex justify-between text-sm text-primary">
+                          <span>{discountPercent}% Discount</span>
+                          <span>-£{discountAmount.toFixed(2)}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between font-bebas text-xl uppercase pt-2 border-t border-border">
                         <span>Total</span>
-                        <span className="text-primary">£{totalPrice.toFixed(2)}</span>
+                        <span className="text-primary">£{totalPrice.toFixed(2)}/mo</span>
                       </div>
                     </div>
 
                     <Button
                       onClick={() => {
-                        addAllToCart();
+                        addPackageToCart();
                         setShowSummary(false);
                       }}
                       className="w-full mt-6 font-bebas uppercase tracking-wider"
                       size="lg"
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      Add All to Basket
+                      Add Package to Basket
                     </Button>
                   </>
                 )}
@@ -565,8 +641,6 @@ const Customisation = () => {
           </>
         )}
       </AnimatePresence>
-
-      <Footer />
     </div>
   );
 };
