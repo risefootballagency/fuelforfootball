@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -21,7 +23,7 @@ All colors MUST be HSL.
     /* Dark background: #010101 */
     /* Light background: #fafafa */
     /* Text green: #008240 */
-    
+
     /* Default: Dark theme */
     --background: 0 0% 0.4%;
     --foreground: 0 0% 98%;
@@ -34,7 +36,7 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 98%;
 
     /* Primary: FFF Header Green #00914a */
-    --primary: 152 100% 28%;
+    --primary: 0 73.7089% 41.7647%;
     --primary-foreground: 0 0% 98%;
 
     /* Secondary */
@@ -61,26 +63,26 @@ All colors MUST be HSL.
     /* Header green: #00914a */
     --fff-green: 152 100% 28%;
     --fff-green-dark: 150 100% 25%;
-    
+
     /* Light theme text green: #008240 */
     --fff-text-green: 150 100% 25%;
-    
+
     /* Background colors */
     --fff-dark: 0 0% 0.4%;
     --fff-light: 0 0% 98%;
-    
+
     /* Legacy aliases - now using FFF orange/yellow */
     --gold: 36 100% 50%;
     --gold-muted: 36 90% 45%;
     --mint: 82 46% 74%;
     --mint-dim: 82 40% 60%;
-    
+
     /* FFF Orange/Gold accent for hover states */
     --fff-orange: 36 100% 50%;
     --fff-gold: 36 100% 50%;
     --accent-gold: 36 100% 50%;
     --accent-gold-dim: 36 90% 35%;
-    
+
     /* Glossy green gradient for headers */
     --glossy-green: linear-gradient(
       180deg,
@@ -100,7 +102,7 @@ All colors MUST be HSL.
     --light-green-dim: 150 100% 25%;
     --bg-dark: 0 0% 0.4%;
     --bg-card: 0 0% 3%;
-    
+
     /* Dark UI elements */
     --header-bg: 152 100% 28%;
     --footer-bg: 0 0% 0.4%;
@@ -120,7 +122,7 @@ All colors MUST be HSL.
   :root {
     --scrollbar-width: 0px;
   }
-  
+
   @supports (scrollbar-gutter: stable) {
     html {
       scrollbar-gutter: stable;
@@ -134,7 +136,7 @@ All colors MUST be HSL.
     height: auto;
     min-height: 100%;
   }
-  
+
   body {
     overflow-x: hidden;
     width: 100%;
@@ -161,25 +163,25 @@ All colors MUST be HSL.
     text-transform: uppercase;
     line-height: 0.95;
   }
-  
+
   h1 {
     letter-spacing: 0.05em;
   }
-  
+
   h2 {
     letter-spacing: 0.04em;
   }
-  
+
   h3, h4, h5, h6 {
     letter-spacing: 0.03em;
   }
-  
+
   /* Body text refinements */
   p {
     line-height: 1.7;
     letter-spacing: 0.01em;
   }
-  
+
   /* Premium label styling */
   .label-text {
     font-family: 'Inter', sans-serif;
@@ -188,36 +190,36 @@ All colors MUST be HSL.
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  
+
   /* Monospace for stats/data */
   .stat-text {
     font-family: 'Space Mono', monospace;
     font-feature-settings: 'tnum' 1;
     letter-spacing: -0.02em;
   }
-  
+
   /* Utility class for extra tall text */
   .text-tall {
     transform: scaleY(1.15);
     transform-origin: center;
   }
-  
+
   .text-extra-tall {
     transform: scaleY(1.25);
     transform-origin: center;
   }
-  
+
   /* Athletic condensed style */
   .text-condensed {
     letter-spacing: 0.02em;
     font-weight: 500;
   }
-  
+
   /* Premium section spacing - Reduced by half */
   .section-padding {
     @apply py-8 md:py-12 lg:py-16;
   }
-  
+
   .section-padding-sm {
     @apply py-5 md:py-8 lg:py-10;
   }
@@ -228,12 +230,12 @@ All colors MUST be HSL.
       print-color-adjust: exact;
       -webkit-print-color-adjust: exact;
     }
-    
+
     @page {
       size: auto;
       margin: 10mm;
     }
-    
+
     /* Hide default browser headers and footers */
     header, footer {
       display: none !important;
@@ -610,7 +612,7 @@ All colors MUST be HSL.
       inset 0 1px 0 rgba(255, 255, 255, 0.2),
       inset 0 -1px 0 rgba(0, 0, 0, 0.3);
   }
-  
+
   .bg-glossy-green::before {
     content: '';
     position: absolute;
@@ -624,7 +626,7 @@ All colors MUST be HSL.
     );
     pointer-events: none;
   }
-  
+
   .bg-glossy-green::after {
     content: '';
     position: absolute;
@@ -645,21 +647,21 @@ All colors MUST be HSL.
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
     border-radius: 2px;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--border) / 0.8);
   }
@@ -668,7 +670,7 @@ All colors MUST be HSL.
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -836,7 +838,7 @@ a:hover .hover-text-letter-clone,
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .snap-scroll-container > section {
     scroll-snap-align: start;
     scroll-snap-stop: normal;
