@@ -25,7 +25,7 @@ const MESSAGING = {
   },
   urgency: {
     headline: "The Window Is Closing",
-    subline: "Your peak years are limited. The scouts are watching now—not later.",
+    subline: "Your peak years are limited. The scouts are watching now, not later.",
     cta: "Act before it's too late",
   },
 };
@@ -112,7 +112,7 @@ export const ShadowyEliteSection = ({ className = "" }: { className?: string }) 
           Working With <span className="text-primary">Elite Talent</span>
         </h2>
         <p className="text-white/50 max-w-2xl mx-auto">
-          From Premier League stars to rising academy players, we operate in the shadows of the game—
+          From Premier League stars to rising academy players, we operate in the shadows of the game,
           developing the next generation of world-class footballers.
         </p>
       </div>

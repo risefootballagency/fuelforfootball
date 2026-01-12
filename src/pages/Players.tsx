@@ -519,7 +519,7 @@ const Players = () => {
               The Window Is Closing
             </h2>
             <p className="text-base md:text-lg mb-6 md:mb-8" style={{ color: '#008240' }}>
-              Your peak years are limited. The scouts are watching now—not later. Take action before it's too late.
+              Your peak years are limited. The scouts are watching now, not later. Take action before it's too late.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <WhatsAppPulse position="inline" message="Speak to us now" showDelay={0} />

@@ -8,8 +8,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppPulse } from "@/components/WhatsAppPulse";
 import { EliteMessaging, PropagandaBanner } from "@/components/EliteMessaging";
 import { useMarketingGalleryImages } from "@/hooks/useMarketingGalleryImages";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ArrowRight, Play } from "lucide-react";
+import { useLandingFolderImages } from "@/hooks/useLandingFolderImages";
+import { motion } from "framer-motion";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SECTIONS = [
@@ -32,9 +33,7 @@ const About = () => {
   });
   
   const { data: galleryImages = [] } = useMarketingGalleryImages(20);
-
-  // Get specific images for each section
-  const getImage = (index: number) => galleryImages[index % galleryImages.length]?.file_url;
+  const { data: landingImages = [] } = useLandingFolderImages(20);
 
   // Update active section on scroll
   useEffect(() => {
@@ -67,8 +66,8 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="About Fuel For Football - Performance Consultancy | Player Development"
-        description="Fuel For Football is football's leading performance consultancy. We help players, coaches, and clubs reach their full potential through elite training and development."
+        title="About Fuel For Football | Leading Performance Consultancy"
+        description="Fuel For Football is football's leading performance consultancy. Revolutionising scouting, performance analysis, and player development to change the game."
         image="/og-preview-about.png"
         url="/about"
       />
@@ -100,7 +99,7 @@ const About = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-5xl md:text-8xl font-bebas uppercase tracking-wider text-white mb-4"
             >
-              The Standard.
+              Change The Game.
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -108,7 +107,7 @@ const About = () => {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="text-lg md:text-2xl text-white/80 max-w-2xl"
             >
-              Football's first integrated performance and representation consultancy.
+              Football's leading performance consultancy. Revolutionising how players are developed, scouted, and prepared for the elite level.
             </motion.p>
           </div>
 
@@ -156,10 +155,10 @@ const About = () => {
           <div className="container mx-auto px-4 mb-16 md:mb-24">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-8 leading-tight">
-                A player's potential isn't defined by where they start. It's defined by the system around them.
+                A player's potential is not defined by where they start. It is defined by the system around them.
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground">
-                We built the first consultancy that treats performance and representation as one unified discipline.
+                We built the first consultancy that integrates performance science, tactical analysis, and career development into one unified discipline.
               </p>
             </div>
           </div>
@@ -170,17 +169,17 @@ const About = () => {
               {galleryImages[1] && (
                 <img 
                   src={galleryImages[1].file_url}
-                  alt="Our approach"
+                  alt="Performance consultancy"
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6 md:p-10">
                 <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-white mb-2">
-                  Company Philosophy
+                  Performance First
                 </h3>
                 <p className="text-sm md:text-base text-white/70 max-w-md">
-                  We are committed to exclusive quality from the first assessment to match day. Our focus is on performance, development, and career trajectory.
+                  We are committed to exclusive quality from the first assessment to match day. Every detail matters in developing elite footballers.
                 </p>
               </div>
             </div>
@@ -208,10 +207,10 @@ const About = () => {
           <div className="container mx-auto px-4 py-16 md:py-24">
             <blockquote className="max-w-3xl mx-auto text-center">
               <p className="text-2xl md:text-4xl font-bebas uppercase tracking-wider italic mb-6">
-                "In the beginning, I looked around but couldn't find the support I was dreaming of. So we decided to build it ourselves."
+                "In the beginning, I looked around but could not find the support I was dreaming of. So we decided to build it ourselves."
               </p>
               <cite className="text-sm text-muted-foreground not-italic">
-                — Jolon Levene, Founder
+                Jolon Levene, Founder
               </cite>
             </blockquote>
           </div>
@@ -225,8 +224,11 @@ const About = () => {
         >
           <div className="container mx-auto px-4 mb-12">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4">
-              The highest level of performance consultancy for over a decade.
+              The First to Do This.
             </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              We pioneered the integrated approach to player development. No one else was combining elite performance coaching with advanced scouting and tactical analysis.
+            </p>
           </div>
 
           {/* Timeline Cards */}
@@ -238,7 +240,7 @@ const About = () => {
                   {galleryImages[3] && (
                     <img 
                       src={galleryImages[3].file_url}
-                      alt="How it started"
+                      alt="Origins"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   )}
@@ -257,7 +259,7 @@ const About = () => {
                   {galleryImages[4] && (
                     <img 
                       src={galleryImages[4].file_url}
-                      alt="From 2015"
+                      alt="Since 2015"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   )}
@@ -266,7 +268,7 @@ const About = () => {
                   From 2015.
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  We pioneered the integrated approach—combining elite performance coaching with career management. No one else was doing this. We were the first.
+                  We pioneered the integrated approach, combining elite performance coaching with advanced scouting and tactical education. We were the first to do this.
                 </p>
               </div>
 
@@ -276,7 +278,7 @@ const About = () => {
                   {galleryImages[5] && (
                     <img 
                       src={galleryImages[5].file_url}
-                      alt="Today"
+                      alt="Present day"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   )}
@@ -285,7 +287,7 @@ const About = () => {
                   Today.
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Now the model has been proven. Our players compete at the highest levels across Europe. The industry is catching up—but we're still ahead.
+                  Now the model has been proven. Our players compete at the highest levels across Europe. The industry is catching up, but we are still ahead.
                 </p>
               </div>
             </div>
@@ -322,10 +324,10 @@ const About = () => {
         >
           <div className="container mx-auto px-4 mb-12">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4">
-              Committed to Excellence.
+              The Level of Talent We Develop.
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl">
-              Our goal is to make unique player dreams come true—creating incomparable careers, for every position and every level, turning potential into success.
+              From academy prospects to international stars. Our track record speaks for itself in developing world-class footballers.
             </p>
           </div>
 
@@ -337,17 +339,17 @@ const About = () => {
                 {galleryImages[6] && (
                   <img 
                     src={galleryImages[6].file_url}
-                    alt="Elite talent"
+                    alt="Elite development"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6 md:p-10">
                   <h3 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-white mb-2">
-                    Elite Representation
+                    Elite Development
                   </h3>
                   <p className="text-sm md:text-base text-white/70 max-w-lg">
-                    We've worked with some of the most talented players in the game. From academy prospects to international stars, our track record speaks for itself.
+                    We have worked with some of the most talented players in the game. Our performance systems prepare players for the highest level.
                   </p>
                 </div>
               </div>
@@ -373,41 +375,44 @@ const About = () => {
                 {galleryImages[8] && (
                   <img 
                     src={galleryImages[8].file_url}
-                    alt="Career development"
+                    alt="Player development"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 p-4 md:p-6">
                   <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-white">
-                    Career Development
+                    Player Development
                   </h4>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Player Showcase Marquee */}
-          <div className="mt-16 md:mt-24 overflow-hidden">
-            <div className="flex gap-4 animate-marquee">
-              {[...galleryImages, ...galleryImages].slice(0, 16).map((img, i) => (
-                <div 
-                  key={`${img?.id}-${i}`}
-                  className="relative w-48 md:w-64 flex-shrink-0 aspect-[3/4] overflow-hidden rounded-lg"
-                >
-                  {img && (
-                    <img 
-                      src={img.file_url}
-                      alt={img.title}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                  <span className="absolute bottom-3 left-3 text-xs font-bebas uppercase tracking-wider text-white">
-                    {img?.title}
-                  </span>
-                </div>
-              ))}
+          {/* Players Who Took Action - Using Landing Folder Images */}
+          <div className="mt-16 md:mt-24">
+            <div className="container mx-auto px-4 mb-6">
+              <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider">
+                Players Who Took Action.
+              </h3>
+            </div>
+            <div className="overflow-hidden">
+              <div className="flex gap-1 animate-marquee">
+                {[...landingImages, ...landingImages].map((img, i) => (
+                  <div 
+                    key={`${img?.id}-${i}`}
+                    className="relative w-32 md:w-48 flex-shrink-0 aspect-[3/4] overflow-hidden"
+                  >
+                    {img && (
+                      <img 
+                        src={img.file_url}
+                        alt="Elite player"
+                        className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -422,13 +427,13 @@ const About = () => {
             <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
               <div>
                 <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-6">
-                  Tradition and New Horizons.
+                  Where We Are Going.
                 </h2>
                 <p className="text-lg text-muted-foreground mb-6">
-                  Our players are inspired by greatness. And we are always developing new methods. We believe in permanent progress—that's why we're working with the future Ballon d'Or winner.
+                  Our players are inspired by greatness. And we are always developing new methods. We believe in permanent progress. That is why we are working with the future Ballon d'Or winner.
                 </p>
                 <p className="text-sm text-muted-foreground mb-8">
-                  Every day you hesitate is another day your competition gets ahead. The players who made it didn't wait for the perfect moment.
+                  Every day you hesitate is another day your competition gets ahead. The players who made it did not wait for the perfect moment.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
