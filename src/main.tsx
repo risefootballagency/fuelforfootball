@@ -58,8 +58,16 @@ import App from "./App.tsx";
 import "./index.css";
 import { VersionManager } from "./lib/versionManager";
 
-// Force version check and cache clear on load
+// Skip version check during development to prevent reload loops
+const isDev = import.meta.env.DEV;
+
+// Only do version checks in production
 const initializeApp = async () => {
+  if (isDev) {
+    console.log('[App] Development mode - skipping version check');
+    return;
+  }
+  
   try {
     console.log('[App] Checking for updates...');
     const versionInfo = await VersionManager.initialize(true);
@@ -76,66 +84,44 @@ const initializeApp = async () => {
   }
 };
 
-// Run version check immediately
-initializeApp();
+// Run version check immediately (only in production)
+if (!isDev) {
+  initializeApp();
+}
 
-// Register service worker with aggressive update detection
-if ('serviceWorker' in navigator) {
+// Register service worker only in production
+if ('serviceWorker' in navigator && !isDev) {
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
-        updateViaCache: 'none' // Always fetch sw.js fresh
+        updateViaCache: 'none'
       });
       console.log('[PWA] Service Worker registered');
       
-      // Check for updates immediately
-      try {
-        await registration.update();
-      } catch {
-        // Silently ignore update errors
-      }
-      
-      // Listen for new service worker activation
+      // Listen for new service worker activation - but don't auto-reload
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         if (newWorker) {
           console.log('[PWA] New service worker installing...');
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('[PWA] New service worker installed, triggering update...');
-              // New service worker is ready, tell it to take over
-              newWorker.postMessage({ type: 'SKIP_WAITING' });
+              console.log('[PWA] New service worker installed');
+              // Don't auto-reload - let VersionManager handle it
             }
           });
         }
       });
       
-      // Check for updates every 2 minutes (more aggressive)
+      // Check for updates every 5 minutes (less aggressive)
       setInterval(async () => {
         try {
           await registration.update();
         } catch {
           // Silently ignore periodic update errors
         }
-      }, 2 * 60 * 1000);
+      }, 5 * 60 * 1000);
     } catch {
       // Silently fail - SW is not critical for app functionality
-    }
-  });
-  
-  // Reload page when new service worker takes control
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing) return;
-    refreshing = true;
-    console.log('[PWA] New service worker active, reloading page...');
-    window.location.reload();
-  });
-  
-  // Listen for update messages from service worker
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SW_UPDATED') {
-      console.log('[PWA] Service worker updated to:', event.data.version);
     }
   });
 }
