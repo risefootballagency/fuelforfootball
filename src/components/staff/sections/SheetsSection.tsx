@@ -3,10 +3,9 @@ import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Table2, Trash2, Edit2, Save, PlusCircle, MinusCircle, Search } from "lucide-react";
+import { Plus, Table2, Trash2, Edit2, Save, PlusCircle, MinusCircle, Search, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -26,9 +25,8 @@ interface SheetData {
 export const SheetsSection = () => {
   const [sheets, setSheets] = useState<StaffSheet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [editingSheet, setEditingSheet] = useState<StaffSheet | null>(null);
-  const [viewingSheet, setViewingSheet] = useState<StaffSheet | null>(null);
   const [title, setTitle] = useState("");
   const [sheetData, setSheetData] = useState<SheetData>({ headers: ["Column 1", "Column 2", "Column 3"], rows: [["", "", ""]] });
   const [searchQuery, setSearchQuery] = useState("");
@@ -107,14 +105,19 @@ export const SheetsSection = () => {
     setTitle("");
     setSheetData({ headers: ["Column 1", "Column 2", "Column 3"], rows: [["", "", ""]] });
     setEditingSheet(null);
-    setIsDialogOpen(false);
+    setIsEditing(false);
   };
 
   const openEdit = (sheet: StaffSheet) => {
     setEditingSheet(sheet);
     setTitle(sheet.title);
     setSheetData(parseSheetContent(sheet.content));
-    setIsDialogOpen(true);
+    setIsEditing(true);
+  };
+
+  const openNew = () => {
+    resetForm();
+    setIsEditing(true);
   };
 
   const updateHeader = (index: number, value: string) => {
@@ -164,6 +167,99 @@ export const SheetsSection = () => {
     return <div className="p-4 text-muted-foreground">Loading sheets...</div>;
   }
 
+  // Full-screen editor view
+  if (isEditing) {
+    return (
+      <div className="space-y-4">
+        {/* Editor Header */}
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={resetForm}>
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back
+          </Button>
+          <span className="text-lg font-medium">
+            {editingSheet ? "Edit Sheet" : "New Sheet"}
+          </span>
+        </div>
+
+        {/* Title input */}
+        <Input
+          placeholder="Sheet title..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="text-lg font-medium max-w-md"
+        />
+
+        {/* Table controls */}
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={addColumn}>
+            <PlusCircle className="w-3 h-3 mr-1" /> Column
+          </Button>
+          <Button size="sm" variant="outline" onClick={addRow}>
+            <PlusCircle className="w-3 h-3 mr-1" /> Row
+          </Button>
+        </div>
+
+        {/* Full-screen table */}
+        <div className="border rounded-lg overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {sheetData.headers.map((header, i) => (
+                  <TableHead key={i} className="min-w-[150px]">
+                    <div className="flex items-center gap-1">
+                      <Input
+                        value={header}
+                        onChange={(e) => updateHeader(i, e.target.value)}
+                        className="h-8 text-sm font-semibold"
+                      />
+                      {sheetData.headers.length > 1 && (
+                        <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" onClick={() => removeColumn(i)}>
+                          <MinusCircle className="w-3 h-3 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableHead>
+                ))}
+                <TableHead className="w-12"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sheetData.rows.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {row.map((cell, colIndex) => (
+                    <TableCell key={colIndex} className="p-1">
+                      <Input
+                        value={cell}
+                        onChange={(e) => updateCell(rowIndex, colIndex, e.target.value)}
+                        className="h-9 text-sm"
+                      />
+                    </TableCell>
+                  ))}
+                  <TableCell className="p-1">
+                    {sheetData.rows.length > 1 && (
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => removeRow(rowIndex)}>
+                        <MinusCircle className="w-3 h-3 text-destructive" />
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={resetForm}>Cancel</Button>
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" /> Save Sheet
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // List view
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -178,89 +274,9 @@ export const SheetsSection = () => {
           />
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setIsDialogOpen(open); }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" /> New Sheet
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-5xl max-h-[90vh]">
-            <DialogHeader>
-              <DialogTitle>{editingSheet ? "Edit Sheet" : "New Sheet"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                placeholder="Sheet title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={addColumn}>
-                  <PlusCircle className="w-3 h-3 mr-1" /> Column
-                </Button>
-                <Button size="sm" variant="outline" onClick={addRow}>
-                  <PlusCircle className="w-3 h-3 mr-1" /> Row
-                </Button>
-              </div>
-
-              <ScrollArea className="max-h-[50vh] border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {sheetData.headers.map((header, i) => (
-                        <TableHead key={i} className="min-w-[120px]">
-                          <div className="flex items-center gap-1">
-                            <Input
-                              value={header}
-                              onChange={(e) => updateHeader(i, e.target.value)}
-                              className="h-7 text-xs font-semibold"
-                            />
-                            {sheetData.headers.length > 1 && (
-                              <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => removeColumn(i)}>
-                                <MinusCircle className="w-3 h-3 text-destructive" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableHead>
-                      ))}
-                      <TableHead className="w-10"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sheetData.rows.map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {row.map((cell, colIndex) => (
-                          <TableCell key={colIndex} className="p-1">
-                            <Input
-                              value={cell}
-                              onChange={(e) => updateCell(rowIndex, colIndex, e.target.value)}
-                              className="h-8 text-xs"
-                            />
-                          </TableCell>
-                        ))}
-                        <TableCell className="p-1">
-                          {sheetData.rows.length > 1 && (
-                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeRow(rowIndex)}>
-                              <MinusCircle className="w-3 h-3 text-destructive" />
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
-
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={resetForm}>Cancel</Button>
-                <Button onClick={handleSave}>
-                  <Save className="w-4 h-4 mr-2" /> Save
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button className="gap-2" onClick={openNew}>
+          <Plus className="w-4 h-4" /> New Sheet
+        </Button>
       </div>
 
       {/* Sheets Grid */}
@@ -268,7 +284,7 @@ export const SheetsSection = () => {
         {filteredSheets.map((sheet) => {
           const data = parseSheetContent(sheet.content);
           return (
-            <Card key={sheet.id} className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => setViewingSheet(sheet)}>
+            <Card key={sheet.id} className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => openEdit(sheet)}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
@@ -305,48 +321,6 @@ export const SheetsSection = () => {
           <p className="text-sm">Create your first sheet to get started!</p>
         </div>
       )}
-
-      {/* View Dialog */}
-      <Dialog open={!!viewingSheet} onOpenChange={() => setViewingSheet(null)}>
-        <DialogContent className="max-w-4xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Table2 className="w-5 h-5 text-green-500" />
-              {viewingSheet?.title}
-            </DialogTitle>
-          </DialogHeader>
-          <ScrollArea className="max-h-[60vh]">
-            {viewingSheet && (() => {
-              const data = parseSheetContent(viewingSheet.content);
-              return (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {data.headers.map((h, i) => (
-                        <TableHead key={i} className="font-semibold">{h}</TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.rows.map((row, ri) => (
-                      <TableRow key={ri}>
-                        {row.map((cell, ci) => (
-                          <TableCell key={ci}>{cell || "-"}</TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              );
-            })()}
-          </ScrollArea>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => viewingSheet && openEdit(viewingSheet)}>
-              <Edit2 className="w-4 h-4 mr-2" /> Edit
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

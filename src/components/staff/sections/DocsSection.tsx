@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FileText, Trash2, Edit2, Save, FolderPlus, Folder, Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Search } from "lucide-react";
+import { Plus, FileText, Trash2, Edit2, Save, FolderPlus, Folder, Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Search, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -29,7 +28,7 @@ export const DocsSection = () => {
   const [docs, setDocs] = useState<StaffDoc[]>([]);
   const [folders, setFolders] = useState<DocFolder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
   const [editingDoc, setEditingDoc] = useState<StaffDoc | null>(null);
   const [title, setTitle] = useState("");
@@ -143,7 +142,7 @@ export const DocsSection = () => {
     setContent("");
     setSelectedFolder(null);
     setEditingDoc(null);
-    setIsDialogOpen(false);
+    setIsEditing(false);
   };
 
   const openEdit = (doc: StaffDoc) => {
@@ -151,7 +150,12 @@ export const DocsSection = () => {
     setTitle(doc.title);
     setContent(doc.content);
     setSelectedFolder(doc.folder_id);
-    setIsDialogOpen(true);
+    setIsEditing(true);
+  };
+
+  const openNew = () => {
+    resetForm();
+    setIsEditing(true);
   };
 
   const applyFormat = (formatType: string) => {
@@ -189,6 +193,109 @@ export const DocsSection = () => {
     return <div className="p-4 text-muted-foreground">Loading documents...</div>;
   }
 
+  // Full-screen editor view
+  if (isEditing) {
+    return (
+      <div className="space-y-4">
+        {/* Editor Header */}
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={resetForm}>
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back
+          </Button>
+          <span className="text-lg font-medium">
+            {editingDoc ? "Edit Document" : "New Document"}
+          </span>
+        </div>
+
+        {/* Title and folder row */}
+        <div className="flex gap-2">
+          <Input
+            placeholder="Document title..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="flex-1 text-lg font-medium"
+          />
+          <Select value={selectedFolder || "none"} onValueChange={(v) => setSelectedFolder(v === "none" ? null : v)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="No folder" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No folder</SelectItem>
+              {folders.map(f => (
+                <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="icon" variant="outline">
+                <FolderPlus className="w-4 h-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-sm">
+              <DialogHeader>
+                <DialogTitle>New Folder</DialogTitle>
+              </DialogHeader>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Folder name..."
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                />
+                <Button onClick={createFolder}>Create</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Formatting toolbar */}
+        <div className="flex flex-wrap gap-1 p-2 bg-muted/50 rounded-lg">
+          <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("bold")}>
+            <Bold className="w-4 h-4" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("italic")}>
+            <Italic className="w-4 h-4" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("underline")}>
+            <Underline className="w-4 h-4" />
+          </Button>
+          <div className="w-px bg-border mx-1" />
+          <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("h1")}>
+            <Heading1 className="w-4 h-4" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("h2")}>
+            <Heading2 className="w-4 h-4" />
+          </Button>
+          <div className="w-px bg-border mx-1" />
+          <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("bullet")}>
+            <List className="w-4 h-4" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("number")}>
+            <ListOrdered className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* Full-screen content area */}
+        <textarea
+          id="doc-content-full"
+          placeholder="Write your content here... (Supports Markdown formatting)"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="w-full min-h-[calc(100vh-400px)] p-4 rounded-lg border bg-background font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+        />
+
+        {/* Action buttons */}
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={resetForm}>Cancel</Button>
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" /> Save Document
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // List view
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -221,101 +328,9 @@ export const DocsSection = () => {
           </Select>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setIsDialogOpen(open); }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" /> New Document
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh]">
-            <DialogHeader>
-              <DialogTitle>{editingDoc ? "Edit Document" : "New Document"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Document title..."
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="flex-1"
-                />
-                <Select value={selectedFolder || "none"} onValueChange={(v) => setSelectedFolder(v === "none" ? null : v)}>
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="No folder" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No folder</SelectItem>
-                    {folders.map(f => (
-                      <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="icon" variant="outline">
-                      <FolderPlus className="w-4 h-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-sm">
-                    <DialogHeader>
-                      <DialogTitle>New Folder</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Folder name..."
-                        value={newFolderName}
-                        onChange={(e) => setNewFolderName(e.target.value)}
-                      />
-                      <Button onClick={createFolder}>Create</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              
-              {/* Formatting toolbar */}
-              <div className="flex flex-wrap gap-1 p-2 bg-muted/50 rounded-lg">
-                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("bold")}>
-                  <Bold className="w-4 h-4" />
-                </Button>
-                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("italic")}>
-                  <Italic className="w-4 h-4" />
-                </Button>
-                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("underline")}>
-                  <Underline className="w-4 h-4" />
-                </Button>
-                <div className="w-px bg-border mx-1" />
-                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("h1")}>
-                  <Heading1 className="w-4 h-4" />
-                </Button>
-                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("h2")}>
-                  <Heading2 className="w-4 h-4" />
-                </Button>
-                <div className="w-px bg-border mx-1" />
-                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("bullet")}>
-                  <List className="w-4 h-4" />
-                </Button>
-                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("number")}>
-                  <ListOrdered className="w-4 h-4" />
-                </Button>
-              </div>
-
-              <textarea
-                id="doc-content-full"
-                placeholder="Write your content here... (Supports Markdown formatting)"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full min-h-[400px] p-4 rounded-lg border bg-background font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={resetForm}>Cancel</Button>
-                <Button onClick={handleSave}>
-                  <Save className="w-4 h-4 mr-2" /> Save
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button className="gap-2" onClick={openNew}>
+          <Plus className="w-4 h-4" /> New Document
+        </Button>
       </div>
 
       {/* Documents Grid */}
