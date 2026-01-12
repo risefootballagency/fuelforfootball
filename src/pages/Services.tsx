@@ -8,7 +8,6 @@ import { ShopHeader } from "@/components/ShopHeader";
 import { ShopServicesSidebar } from "@/components/ShopServicesSidebar";
 import { ServiceDetailPanel } from "@/components/ServiceDetailPanel";
 import { ServiceCard } from "@/components/ServiceCard";
-import { FeaturedServicesPanel } from "@/components/FeaturedServicesPanel";
 import { AnimatePresence } from "framer-motion";
 import fffLogo from "@/assets/fff_logo.png";
 
@@ -119,12 +118,6 @@ const Services = () => {
     return filtered;
   }, [services, selectedCategory, selectedPrice, sortBy]);
 
-  // Get featured services for empty state
-  const featuredServices = useMemo(() => {
-    return services
-      .filter(s => s.badge || s.ribbon)
-      .slice(0, 3);
-  }, [services]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -242,7 +235,7 @@ const Services = () => {
               )}
 
               {/* Services Grid */}
-              {!loading && selectedCategory !== "All" && (
+              {!loading && (
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
                   {filteredServices.map((service) => (
                     <ServiceCard
@@ -259,16 +252,6 @@ const Services = () => {
                       onClick={() => setSelectedService(service)}
                     />
                   ))}
-                </div>
-              )}
-
-              {/* Featured Services - When no category selected */}
-              {!loading && selectedCategory === "All" && (
-                <div className="max-w-2xl mx-auto">
-                  <FeaturedServicesPanel
-                    services={featuredServices.length > 0 ? featuredServices : services.slice(0, 3)}
-                    onServiceClick={(service) => setSelectedService(service as Service)}
-                  />
                 </div>
               )}
 

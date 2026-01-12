@@ -301,15 +301,57 @@ export const PorscheStyleMenu = ({ type }: PorscheStyleMenuProps) => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex-1 flex items-center justify-center p-8"
+              className="flex-1 p-8"
             >
-              <div className="text-center max-w-md">
-                <h3 className="font-bebas text-3xl uppercase tracking-wider mb-4 text-muted-foreground">
-                  Select a Category
-                </h3>
-                <p className="text-muted-foreground">
-                  Choose from our range of {type === 'services' ? 'performance services' : 'products'}
-                </p>
+              <h3 className="font-bebas text-3xl uppercase tracking-wider mb-2 text-foreground">
+                Featured
+              </h3>
+              <p className="text-muted-foreground mb-8">
+                Our most popular {type === 'services' ? 'services' : 'products'}
+              </p>
+
+              {/* Featured Services - Stacked */}
+              <div className="space-y-4">
+                {services.slice(0, 3).map((service, index) => (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <DrawerClose asChild>
+                      <button
+                        onClick={() => navigate('/services')}
+                        className="w-full group flex bg-background border border-border rounded-lg overflow-hidden hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 text-left"
+                      >
+                        {/* Image */}
+                        <div className="w-32 h-24 bg-gradient-to-br from-primary/5 to-primary/20 flex-shrink-0 relative overflow-hidden">
+                          {service.image_url ? (
+                            <img 
+                              src={service.image_url} 
+                              alt={service.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-3xl font-bebas text-primary/20 uppercase">
+                              {service.name.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 p-4 flex flex-col justify-center">
+                          <h4 className="font-bebas text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                            {service.name}
+                          </h4>
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                            {getCategoryLabel(service.category)}
+                          </p>
+                        </div>
+                      </button>
+                    </DrawerClose>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
           )}

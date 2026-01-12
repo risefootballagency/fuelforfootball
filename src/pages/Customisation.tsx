@@ -8,7 +8,7 @@ import { LocalizedLink } from "@/components/LocalizedLink";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
-import { FeaturedServicesPanel } from "@/components/FeaturedServicesPanel";
+
 import { 
   ChevronRight,
   Check, 
@@ -203,18 +203,6 @@ const Customisation = () => {
   const selectedCategoryServices = selectedCategory 
     ? filteredServicesByCategory[selectedCategory] || []
     : [];
-
-  // Get featured services for empty state
-  const featuredServices = useMemo(() => {
-    return services.slice(0, 3).map(s => ({
-      id: s.id,
-      name: s.name,
-      price: s.price,
-      image_url: s.image_url,
-      description: s.description,
-      badge: null,
-    }));
-  }, [services]);
 
   // Get featured images from selected services
   const selectedImages = useMemo(() => {
@@ -476,18 +464,16 @@ const Customisation = () => {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex-1 h-full"
+                  className="flex-1 h-full flex items-center justify-center p-8"
                 >
-                  <FeaturedServicesPanel
-                    services={featuredServices}
-                    onServiceClick={(service) => {
-                      // Find and select the category for this service
-                      const fullService = services.find(s => s.id === service.id);
-                      if (fullService) {
-                        setSelectedCategory(fullService.category);
-                      }
-                    }}
-                  />
+                  <div className="text-center max-w-md">
+                    <h3 className="font-bebas text-3xl uppercase tracking-wider mb-4 text-muted-foreground">
+                      Select a Category
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Choose from our range of performance services to build your custom package
+                    </p>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
