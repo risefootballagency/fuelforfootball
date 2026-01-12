@@ -113,13 +113,12 @@ export const RadialMenu = () => {
   }, [location.pathname]);
 
   const displayRoleKey = selectedRole || currentRole || pathRole;
-  const displayRoleLabelKey = displayRoleKey ? `roles.${displayRoleKey}` : 'roles.main';
+  const displayRoleLabelKey = displayRoleKey ? `roles.${displayRoleKey}` : 'roles.players';
   const displayRoleFallback = displayRoleKey && roleConfigs[displayRoleKey as keyof typeof roleConfigs]
     ? roleConfigs[displayRoleKey as keyof typeof roleConfigs].name.toUpperCase()
-    : 'MAIN';
+    : 'PLAYER';
 
   const allRoles: Array<{ key: string | null; labelKey: string; fallback: string }> = [
-    { key: null, labelKey: "roles.main", fallback: "Main" },
     { key: "players", labelKey: "roles.players", fallback: "Player" },
     { key: "clubs", labelKey: "roles.clubs", fallback: "Club" },
     { key: "scouts", labelKey: "roles.scouts", fallback: "Scout" },

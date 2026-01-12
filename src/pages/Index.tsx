@@ -700,7 +700,7 @@ const Index = () => {
             <div className="space-y-4">
               <div className="inline-block">
                 <span className="text-sm font-bebas uppercase tracking-widest text-primary border border-primary/30 px-6 py-2 rounded-full">
-                  {t("home.rise_with_us", "RISE WITH US")}
+                  {t("home.fuel_up", "FUEL UP")}
                 </span>
               </div>
               <h2 className="text-4xl md:text-6xl lg:text-7xl font-bebas uppercase tracking-wider text-foreground leading-tight">

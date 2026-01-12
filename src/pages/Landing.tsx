@@ -330,11 +330,29 @@ function LandingContent() {
               </div>
             </div>
 
-            {/* Mobile Layout - pushed down with proper divider lines */}
+            {/* Mobile Layout - Rise style with action buttons */}
             <div className="md:hidden flex flex-col items-center gap-0 mt-0 hover-text-no-shift" style={{
             transform: 'translateY(-25px) translateX(-4px)'
           }}>
               
+              {/* Action buttons row - mobile */}
+              <div className="flex gap-2 mb-3 w-full max-w-xs justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowRepresentation(true)}
+                  className="font-bebas uppercase tracking-wider text-xs border-[hsl(var(--mint)/0.4)] text-[hsl(var(--mint)/0.8)] hover:text-primary hover:border-primary bg-transparent"
+                >
+                  {t("landing.represent_me", "Represent Me")}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setShowDeclareInterest(true)}
+                  className="font-bebas uppercase tracking-wider text-xs"
+                >
+                  {t("landing.declare_interest", "Declare Interest")}
+                </Button>
+              </div>
               
               {/* Top row: Players, Coaches, Clubs - with divider */}
               <div className="border-t border-[hsl(var(--mint)/0.4)] pt-0.5 pb-0.5" style={{
