@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Folder, FolderPlus, Image, Check, X, Trash2 } from "lucide-react";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface GalleryItem {
