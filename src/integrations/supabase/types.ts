@@ -941,6 +941,30 @@ export type Database = {
         }
         Relationships: []
       }
+      gallery_folders: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       highlight_projects: {
         Row: {
           clips: Json | null
@@ -1230,6 +1254,7 @@ export type Database = {
           description: string | null
           file_type: string
           file_url: string
+          folder: string | null
           id: string
           player_id: string | null
           thumbnail_url: string | null
@@ -1242,6 +1267,7 @@ export type Database = {
           description?: string | null
           file_type: string
           file_url: string
+          folder?: string | null
           id?: string
           player_id?: string | null
           thumbnail_url?: string | null
@@ -1254,6 +1280,7 @@ export type Database = {
           description?: string | null
           file_type?: string
           file_url?: string
+          folder?: string | null
           id?: string
           player_id?: string | null
           thumbnail_url?: string | null

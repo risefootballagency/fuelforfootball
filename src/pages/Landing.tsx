@@ -7,6 +7,7 @@ import { LazyPlayer3D } from "@/components/LazyPlayer3D";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HomeBackground } from "@/components/HomeBackground";
 import { LightConeBackground } from "@/components/LightConeBackground";
+import { LandingImageWall } from "@/components/LandingImageWall";
 import { XRayProvider, useXRay } from "@/contexts/XRayContext";
 import { LandingCursor } from "@/components/LandingCursor";
 import { RepresentationDialog } from "@/components/RepresentationDialog";
@@ -221,6 +222,9 @@ function LandingContent() {
       
       {/* Subtle data-driven background on white */}
       <HomeBackground />
+      
+      {/* Image Wall Background - revealed by X-Ray */}
+      <LandingImageWall />
       
       {/* Light Cone Background - revealed by X-Ray */}
       <LightConeBackground />

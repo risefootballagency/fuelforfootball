@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Calendar as CalendarIcon, Image, Upload, Trash2, Play, List, Folder } from "lucide-react";
+import { Calendar as CalendarIcon, Image, Upload, Trash2, Play, List, Folder, FolderOpen } from "lucide-react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { toast } from "sonner";
 import { VideoPreviewCard } from "./VideoPreviewCard";
 import { PlaylistManager } from "@/components/PlaylistManager";
 import { HomepageVideoManager } from "./HomepageVideoManager";
+import { GalleryFolderManager } from "./GalleryFolderManager";
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -90,6 +91,7 @@ export const MarketingManagement = ({ isAdmin, isMarketeer }: { isAdmin: boolean
   const [selectedVideoForPlaylist, setSelectedVideoForPlaylist] = useState<GalleryItem | null>(null);
   const [playlistPlayerData, setPlaylistPlayerData] = useState<any>(null);
   const [showHomepageVideos, setShowHomepageVideos] = useState(false);
+  const [showFolderManager, setShowFolderManager] = useState(false);
 
   useEffect(() => {
     // Fetch data for Gallery & Planner tabs on mount
@@ -445,11 +447,18 @@ export const MarketingManagement = ({ isAdmin, isMarketeer }: { isAdmin: boolean
                       )}
                       
                       {canManage && (
-                        <Button onClick={() => setShowUploadDialog(true)} size="sm" className="md:size-default">
-                          <Upload className="w-4 h-4 mr-2" />
-                          <span className="hidden sm:inline">Upload Image</span>
-                          <span className="sm:hidden">Upload</span>
-                        </Button>
+                        <>
+                          <Button onClick={() => setShowFolderManager(true)} size="sm" variant="outline" className="md:size-default">
+                            <FolderOpen className="w-4 h-4 mr-2" />
+                            <span className="hidden sm:inline">Folders</span>
+                            <span className="sm:hidden">📁</span>
+                          </Button>
+                          <Button onClick={() => setShowUploadDialog(true)} size="sm" className="md:size-default">
+                            <Upload className="w-4 h-4 mr-2" />
+                            <span className="hidden sm:inline">Upload Image</span>
+                            <span className="sm:hidden">Upload</span>
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -1133,6 +1142,13 @@ export const MarketingManagement = ({ isAdmin, isMarketeer }: { isAdmin: boolean
           <HomepageVideoManager canManage={canManage} />
         </DialogContent>
       </Dialog>
+
+      {/* Gallery Folder Manager */}
+      <GalleryFolderManager
+        open={showFolderManager}
+        onOpenChange={setShowFolderManager}
+        onFolderUpdated={fetchGalleryItems}
+      />
     </div>
   );
 };
