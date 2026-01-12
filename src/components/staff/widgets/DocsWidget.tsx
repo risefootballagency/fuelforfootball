@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, FileText, Trash2, Edit2, Save, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, FileText, Trash2, Edit2, Save, FolderPlus, Folder, Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -13,22 +13,34 @@ interface StaffDoc {
   id: string;
   title: string;
   content: string;
+  folder_id: string | null;
   created_at: string;
   updated_at: string;
   created_by: string | null;
 }
 
+interface DocFolder {
+  id: string;
+  name: string;
+}
+
 export const DocsWidget = () => {
   const [docs, setDocs] = useState<StaffDoc[]>([]);
+  const [folders, setFolders] = useState<DocFolder[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
   const [editingDoc, setEditingDoc] = useState<StaffDoc | null>(null);
-  const [viewingDoc, setViewingDoc] = useState<StaffDoc | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [filterFolder, setFilterFolder] = useState<string>("all");
+  const [newFolderName, setNewFolderName] = useState("");
+  const [activeFormats, setActiveFormats] = useState<string[]>([]);
 
   useEffect(() => {
     fetchDocs();
+    fetchFolders();
   }, []);
 
   const fetchDocs = async () => {
@@ -48,6 +60,24 @@ export const DocsWidget = () => {
     }
   };
 
+  const fetchFolders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("staff_documents")
+        .select("folder_id")
+        .eq("doc_type", "doc")
+        .not("folder_id", "is", null);
+
+      if (error) throw error;
+      
+      // Get unique folder IDs and names from the data
+      const uniqueFolders = Array.from(new Set((data || []).map(d => d.folder_id).filter(Boolean)));
+      setFolders(uniqueFolders.map(id => ({ id: id as string, name: id as string })));
+    } catch (error) {
+      console.error("Error fetching folders:", error);
+    }
+  };
+
   const handleSave = async () => {
     if (!title.trim()) {
       toast.error("Please enter a title");
@@ -55,22 +85,31 @@ export const DocsWidget = () => {
     }
 
     try {
+      const docData = {
+        title,
+        content,
+        folder_id: selectedFolder,
+        doc_type: "doc",
+        updated_at: new Date().toISOString()
+      };
+
       if (editingDoc) {
         const { error } = await supabase
           .from("staff_documents")
-          .update({ title, content, updated_at: new Date().toISOString() })
+          .update(docData)
           .eq("id", editingDoc.id);
         if (error) throw error;
         toast.success("Document updated");
       } else {
         const { error } = await supabase
           .from("staff_documents")
-          .insert({ title, content, doc_type: "doc" });
+          .insert(docData);
         if (error) throw error;
         toast.success("Document created");
       }
       resetForm();
       fetchDocs();
+      fetchFolders();
     } catch (error) {
       toast.error("Failed to save document");
     }
@@ -88,10 +127,24 @@ export const DocsWidget = () => {
     }
   };
 
+  const createFolder = () => {
+    if (!newFolderName.trim()) {
+      toast.error("Please enter a folder name");
+      return;
+    }
+    setFolders([...folders, { id: newFolderName, name: newFolderName }]);
+    setSelectedFolder(newFolderName);
+    setNewFolderName("");
+    setIsFolderDialogOpen(false);
+    toast.success("Folder created");
+  };
+
   const resetForm = () => {
     setTitle("");
     setContent("");
+    setSelectedFolder(null);
     setEditingDoc(null);
+    setActiveFormats([]);
     setIsDialogOpen(false);
   };
 
@@ -99,8 +152,61 @@ export const DocsWidget = () => {
     setEditingDoc(doc);
     setTitle(doc.title);
     setContent(doc.content);
+    setSelectedFolder(doc.folder_id);
     setIsDialogOpen(true);
   };
+
+  const applyFormat = (format: string) => {
+    const textarea = document.getElementById("doc-content") as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+
+    let formattedText = "";
+    let prefix = "";
+    let suffix = "";
+
+    switch (format) {
+      case "bold":
+        prefix = "**";
+        suffix = "**";
+        break;
+      case "italic":
+        prefix = "*";
+        suffix = "*";
+        break;
+      case "underline":
+        prefix = "__";
+        suffix = "__";
+        break;
+      case "h1":
+        prefix = "# ";
+        break;
+      case "h2":
+        prefix = "## ";
+        break;
+      case "bullet":
+        prefix = "• ";
+        break;
+      case "number":
+        prefix = "1. ";
+        break;
+      default:
+        return;
+    }
+
+    formattedText = prefix + selectedText + suffix;
+    const newContent = content.substring(0, start) + formattedText + content.substring(end);
+    setContent(newContent);
+  };
+
+  const filteredDocs = filterFolder === "all" 
+    ? docs 
+    : filterFolder === "unfiled" 
+      ? docs.filter(d => !d.folder_id)
+      : docs.filter(d => d.folder_id === filterFolder);
 
   if (loading) {
     return <div className="p-4 text-muted-foreground text-sm">Loading...</div>;
@@ -108,30 +214,110 @@ export const DocsWidget = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-muted-foreground">{docs.length} documents</span>
+      <div className="flex items-center justify-between mb-3 gap-2">
+        <Select value={filterFolder} onValueChange={setFilterFolder}>
+          <SelectTrigger className="w-[140px] h-8 text-xs">
+            <SelectValue placeholder="All docs" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All docs ({docs.length})</SelectItem>
+            <SelectItem value="unfiled">Unfiled</SelectItem>
+            {folders.map(f => (
+              <SelectItem key={f.id} value={f.id}>
+                <span className="flex items-center gap-1">
+                  <Folder className="w-3 h-3" /> {f.name}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
         <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setIsDialogOpen(open); }}>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline" className="gap-1">
               <Plus className="w-3 h-3" /> New
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogContent className="max-w-3xl max-h-[85vh]">
             <DialogHeader>
               <DialogTitle>{editingDoc ? "Edit Document" : "New Document"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <Input
-                placeholder="Document title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <Textarea
-                placeholder="Write your content here..."
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Document title..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="flex-1"
+                />
+                <Select value={selectedFolder || "none"} onValueChange={(v) => setSelectedFolder(v === "none" ? null : v)}>
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue placeholder="No folder" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No folder</SelectItem>
+                    {folders.map(f => (
+                      <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="icon" variant="outline">
+                      <FolderPlus className="w-4 h-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                      <DialogTitle>New Folder</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Folder name..."
+                        value={newFolderName}
+                        onChange={(e) => setNewFolderName(e.target.value)}
+                      />
+                      <Button onClick={createFolder}>Create</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              
+              {/* Formatting toolbar */}
+              <div className="flex flex-wrap gap-1 p-2 bg-muted/50 rounded-lg">
+                <Button size="sm" variant={activeFormats.includes("bold") ? "secondary" : "ghost"} className="h-8 px-2" onClick={() => applyFormat("bold")}>
+                  <Bold className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant={activeFormats.includes("italic") ? "secondary" : "ghost"} className="h-8 px-2" onClick={() => applyFormat("italic")}>
+                  <Italic className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant={activeFormats.includes("underline") ? "secondary" : "ghost"} className="h-8 px-2" onClick={() => applyFormat("underline")}>
+                  <Underline className="w-4 h-4" />
+                </Button>
+                <div className="w-px bg-border mx-1" />
+                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("h1")}>
+                  <Heading1 className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("h2")}>
+                  <Heading2 className="w-4 h-4" />
+                </Button>
+                <div className="w-px bg-border mx-1" />
+                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("bullet")}>
+                  <List className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="ghost" className="h-8 px-2" onClick={() => applyFormat("number")}>
+                  <ListOrdered className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <textarea
+                id="doc-content"
+                placeholder="Write your content here... (Supports Markdown formatting)"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[300px] font-mono text-sm"
+                className="w-full min-h-[350px] p-4 rounded-lg border bg-background font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
               />
+              
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" onClick={resetForm}>Cancel</Button>
                 <Button onClick={handleSave}>
@@ -145,20 +331,27 @@ export const DocsWidget = () => {
 
       <ScrollArea className="flex-1">
         <div className="space-y-2">
-          {docs.map((doc) => (
+          {filteredDocs.map((doc) => (
             <div
               key={doc.id}
               className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors cursor-pointer group"
-              onClick={() => setViewingDoc(doc)}
+              onClick={() => openEdit(doc)}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-primary shrink-0" />
                   <div>
                     <p className="font-medium text-sm">{doc.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(doc.updated_at), "MMM d, yyyy")}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(doc.updated_at), "MMM d, yyyy")}
+                      </p>
+                      {doc.folder_id && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Folder className="w-3 h-3" /> {doc.folder_id}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -182,35 +375,13 @@ export const DocsWidget = () => {
               </div>
             </div>
           ))}
-          {docs.length === 0 && (
+          {filteredDocs.length === 0 && (
             <p className="text-center text-muted-foreground text-sm py-8">
               No documents yet. Create your first one!
             </p>
           )}
         </div>
       </ScrollArea>
-
-      {/* View Dialog */}
-      <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
-        <DialogContent className="max-w-3xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              {viewingDoc?.title}
-            </DialogTitle>
-          </DialogHeader>
-          <ScrollArea className="max-h-[60vh]">
-            <div className="whitespace-pre-wrap text-sm font-mono p-4 bg-muted/50 rounded-lg">
-              {viewingDoc?.content || <span className="text-muted-foreground">No content</span>}
-            </div>
-          </ScrollArea>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => viewingDoc && openEdit(viewingDoc)}>
-              <Edit2 className="w-4 h-4 mr-2" /> Edit
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
