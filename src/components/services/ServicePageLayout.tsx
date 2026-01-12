@@ -7,27 +7,65 @@ interface ServicePageLayoutProps {
   category: string;
   title: string;
   subtitle?: string;
+  heroImage?: string;
+  heroVideo?: string;
 }
 
-export const ServicePageLayout = ({ children, category, title, subtitle }: ServicePageLayoutProps) => {
+export const ServicePageLayout = ({ 
+  children, 
+  category, 
+  title, 
+  subtitle,
+  heroImage,
+  heroVideo
+}: ServicePageLayoutProps) => {
+  const hasMedia = heroImage || heroVideo;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-20 md:pt-24">
         {/* Hero Section */}
         <section className="relative py-16 md:py-24 overflow-hidden">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
-          
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-primary/3 rounded-full blur-2xl pointer-events-none" />
+          {/* Media Background */}
+          {hasMedia && (
+            <div className="absolute inset-0 z-0">
+              {heroVideo ? (
+                <video 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                  className="w-full h-full object-cover"
+                >
+                  <source src={heroVideo} type="video/mp4" />
+                </video>
+              ) : heroImage ? (
+                <img 
+                  src={heroImage} 
+                  alt={title}
+                  className="w-full h-full object-cover"
+                />
+              ) : null}
+              {/* Dark overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
+            </div>
+          )}
+
+          {/* Gradient overlay (non-media) */}
+          {!hasMedia && (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-primary/3 rounded-full blur-2xl pointer-events-none" />
+            </>
+          )}
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <p className="font-bebas text-lg md:text-xl text-primary tracking-[0.3em] mb-4 animate-fade-in">
+            <p className={`font-bebas text-lg md:text-xl tracking-[0.3em] mb-4 animate-fade-in ${hasMedia ? 'text-white' : 'text-primary'}`}>
               {category}
             </p>
-            <h1 className="font-bebas text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-foreground mb-4 leading-[0.95] animate-fade-in [animation-delay:100ms]">
+            <h1 className={`font-bebas text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 leading-[0.95] animate-fade-in [animation-delay:100ms] ${hasMedia ? 'text-white drop-shadow-lg' : 'text-foreground'}`}>
               {title.split('\n').map((line, i) => (
                 <span key={i}>
                   {line}
@@ -36,7 +74,7 @@ export const ServicePageLayout = ({ children, category, title, subtitle }: Servi
               ))}
             </h1>
             {subtitle && (
-              <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg leading-relaxed animate-fade-in [animation-delay:200ms]">
+              <p className={`max-w-2xl mx-auto text-base md:text-lg leading-relaxed animate-fade-in [animation-delay:200ms] ${hasMedia ? 'text-white/90' : 'text-muted-foreground'}`}>
                 {subtitle}
               </p>
             )}
