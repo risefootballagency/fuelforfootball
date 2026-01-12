@@ -4019,6 +4019,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           doc_type: string
+          folder_id: string | null
           id: string
           title: string
           updated_at: string
@@ -4028,6 +4029,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           doc_type?: string
+          folder_id?: string | null
           id?: string
           title: string
           updated_at?: string
@@ -4037,6 +4039,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           doc_type?: string
+          folder_id?: string | null
           id?: string
           title?: string
           updated_at?: string
