@@ -38,7 +38,7 @@ const ServiceSection = ({
   learnMoreText: string;
   reverse?: boolean;
 }) => (
-  <section id={id} className="py-12 md:py-20 bg-card/30 border-y border-border/30">
+  <section id={id} className="py-6 md:py-10 bg-card/30 border-y border-border/30">
     <div className="container mx-auto">
       <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-8 md:mb-12">
         {title}
@@ -56,12 +56,14 @@ const ServiceSection = ({
             {description}
           </p>
           
-          <Link 
-            to={learnMoreLink}
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded font-bebas uppercase tracking-wider text-sm hover:bg-primary/90 transition-colors"
-          >
-            {learnMoreText}
-            <ArrowRight className="w-4 h-4" />
+          <Link to={learnMoreLink}>
+            <Button 
+              hoverEffect
+              className="font-bebas uppercase tracking-wider text-sm"
+            >
+              {learnMoreText.toUpperCase()}
+              <ArrowRight className="w-4 h-4" />
+            </Button>
           </Link>
           
           {dailyFuelArticle && (
@@ -220,7 +222,13 @@ const Players = () => {
       <Header />
       
       <main className="pt-20 md:pt-28">
-        {/* Title Bar */}
+        {/* Video Hero Banner - Full width at top */}
+        <VideoHeroBanner 
+          videoSrc="/videos/players-hero.mp4"
+          title="FUEL FOR FOOTBALL"
+        />
+
+        {/* Title Bar - Now below video */}
         <section className="relative overflow-hidden border-b border-border/50 bg-glossy-green">
           <div className="container mx-auto relative z-10 flex items-center justify-center py-3 md:py-4">
             <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-primary-foreground leading-none">
@@ -229,13 +237,7 @@ const Players = () => {
           </div>
         </section>
 
-        {/* Video Hero Banner */}
-        <VideoHeroBanner 
-          videoSrc="/videos/players-hero.mp4"
-          title="FUEL FOR FOOTBALL"
-        />
-
-        {/* Full-Width Navigation Submenu */}
+        {/* Full-Width Navigation Submenu - Directly below title */}
         <PlayersSubmenu />
 
         {/* What We Do Section */}
@@ -271,9 +273,9 @@ const Players = () => {
                     <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-2 md:mb-4 line-clamp-3 md:line-clamp-none">
                       {corner.description}
                     </p>
-                    <span className="inline-flex items-center gap-1 md:gap-2 text-primary text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all">
-                      Learn More <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-                    </span>
+                    <Button variant="link" className="p-0 h-auto text-primary text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all">
+                      LEARN MORE <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+                    </Button>
                   </div>
                 </Link>
               ))}
@@ -307,7 +309,7 @@ const Players = () => {
         <PlayerRollingSlider />
 
         {/* Choose Your Fuel Section */}
-        <section className="py-10 md:py-24 bg-background">
+        <section className="py-5 md:py-12 bg-background">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-6">
               Choose Your Fuel
@@ -332,7 +334,7 @@ const Players = () => {
         </section>
 
         {/* Needs Analysis Section */}
-        <section className="py-10 md:py-24 bg-card/50">
+        <section className="py-5 md:py-12 bg-card/50">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-8 md:mb-16">
               Needs Analysis
@@ -477,7 +479,7 @@ const Players = () => {
         />
 
         {/* Consultation CTA Section */}
-        <section className="py-16 md:py-24 bg-primary/5">
+        <section className="py-8 md:py-12 bg-primary/5">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-4">
               Not Sure What Will Make The Greatest Impact?
@@ -513,7 +515,7 @@ const Players = () => {
         <MetricBanner />
 
         {/* Bottom CTA Section */}
-        <section className="py-10 md:py-24 border-t border-border/50 bg-[#fafafa]">
+        <section className="py-5 md:py-12 border-t border-border/50 bg-[#fafafa]">
           <div className="container mx-auto text-center max-w-3xl">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6" style={{ color: '#008240' }}>
               The Window Is Closing
