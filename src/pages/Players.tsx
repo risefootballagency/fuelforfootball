@@ -9,6 +9,7 @@ import { HeroSlider } from "@/components/HeroSlider";
 import { ServiceCarousel } from "@/components/ServiceCarousel";
 import { VideoHeroBanner } from "@/components/VideoHeroBanner";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { PlayerRollingSlider } from "@/components/PlayerRollingSlider";
 
 // Service Section Component with Carousel
 const ServiceSection = ({
@@ -378,6 +379,9 @@ const Players = () => {
           ]}
           autoplayDelay={5000}
         />
+
+        {/* Players We've Worked With Rolling Slider */}
+        <PlayerRollingSlider />
 
         {/* Choose Your Fuel Section */}
         <section className="py-10 md:py-24 bg-background">
