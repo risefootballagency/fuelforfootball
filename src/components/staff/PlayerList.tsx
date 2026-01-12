@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,8 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Edit, X, Save, ChevronUp, ChevronDown } from "lucide-react";
+import { Edit, X, Save, ChevronDown, ChevronRight } from "lucide-react";
 import { getCountryFlagUrl } from "@/lib/countryFlags";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -18,6 +19,9 @@ const POSITION_ORDER: Record<string, number> = {
   'LM': 11, 'LW': 12, 'AM': 13, 'CAM': 13, 'RM': 14, 'RW': 15,
   'CF': 16, 'ST': 17
 };
+
+// Category display order - Fuel For Football first
+const CATEGORY_ORDER = ['Fuel For Football', 'represented', 'mandated', 'previously_mandated', 'scouted', 'other'];
 
 interface Player {
   id: string;
@@ -51,6 +55,7 @@ export const PlayerList = ({ isAdmin }: { isAdmin: boolean }) => {
   const [selectedField, setSelectedField] = useState<EditableField>('position');
   const [fieldEdits, setFieldEdits] = useState<FieldEdit>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     name: "",
     club: "",
@@ -240,6 +245,58 @@ export const PlayerList = ({ isAdmin }: { isAdmin: boolean }) => {
     return { club: null, clubLogo: null };
   };
 
+  // Group players by category
+  const groupedPlayers = useMemo(() => {
+    const groups: Record<string, Player[]> = {};
+    
+    players.forEach(player => {
+      const category = player.category || player.representation_status || 'other';
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(player);
+    });
+
+    // Sort categories according to CATEGORY_ORDER
+    const sortedCategories = Object.keys(groups).sort((a, b) => {
+      const indexA = CATEGORY_ORDER.indexOf(a);
+      const indexB = CATEGORY_ORDER.indexOf(b);
+      if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
+
+    return { groups, sortedCategories };
+  }, [players]);
+
+  const toggleCategory = (category: string) => {
+    // Fuel For Football cannot be collapsed
+    if (category === 'Fuel For Football') return;
+    
+    setCollapsedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  };
+
+  const getCategoryLabel = (category: string): string => {
+    const labels: Record<string, string> = {
+      'Fuel For Football': 'Fuel For Football',
+      'represented': 'Represented',
+      'mandated': 'Mandated',
+      'previously_mandated': 'Previously Mandated',
+      'scouted': 'Scouted',
+      'other': 'Other'
+    };
+    return labels[category] || category;
+  };
+
   if (loading) {
     return <div>Loading players...</div>;
   }
@@ -360,88 +417,121 @@ export const PlayerList = ({ isAdmin }: { isAdmin: boolean }) => {
           })}
         </div>
       ) : (
-        // Desktop Table View
-        <div className="rounded-lg border bg-card overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent border-b">
-                <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Player</TableHead>
-                <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{getFieldLabel(selectedField)}</TableHead>
-                {isAdmin && <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold w-20">Actions</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {players.map((player, index) => {
-              return (
-                <TableRow 
-                  key={player.id} 
-                  className={`border-0 hover:bg-transparent ${index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}`}
-                >
-                  <TableCell className="py-2.5">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-muted overflow-hidden flex-shrink-0">
-                        <img
-                          src={player.image_url || `/players/${player.name.toLowerCase().replace(/\s+/g, '-')}.png`}
-                          alt={player.name}
-                          className="h-full w-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/players/player1.jpg';
-                          }}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-medium text-foreground leading-tight">{player.name}</span>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <img
-                            src={getCountryFlagUrl(player.nationality)}
-                            alt={player.nationality}
-                            className="w-4 h-3 object-cover rounded-sm"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                          <span className="text-[10px] text-muted-foreground">{player.nationality}</span>
-                        </div>
-                      </div>
+        // Desktop Grouped Table View with Collapsible Categories
+        <div className="space-y-4">
+          {groupedPlayers.sortedCategories.map((category) => {
+            const categoryPlayers = groupedPlayers.groups[category];
+            const isCollapsed = collapsedCategories.has(category);
+            const isFuelForFootball = category === 'Fuel For Football';
+
+            return (
+              <Collapsible key={category} open={isFuelForFootball || !isCollapsed}>
+                <div className="rounded-lg border bg-card overflow-hidden">
+                  <CollapsibleTrigger 
+                    className={`w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted/70 transition-colors ${isFuelForFootball ? 'cursor-default' : 'cursor-pointer'}`}
+                    onClick={(e) => {
+                      if (isFuelForFootball) {
+                        e.preventDefault();
+                        return;
+                      }
+                      toggleCategory(category);
+                    }}
+                    disabled={isFuelForFootball}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm">{getCategoryLabel(category)}</span>
+                      <span className="text-xs text-muted-foreground">({categoryPlayers.length})</span>
                     </div>
-                  </TableCell>
-                  <TableCell className="py-2.5">
-                    {isAdmin ? (
-                      <div className="space-y-1">
-                        <Input
-                          type={selectedField === 'age' ? 'number' : 'text'}
-                          value={getFieldValue(player)}
-                          onChange={(e) => handleFieldEdit(player.id, selectedField === 'age' ? parseInt(e.target.value) || 0 : e.target.value)}
-                          className="h-9 max-w-[300px]"
-                          placeholder={`Enter ${getFieldLabel(selectedField).toLowerCase()}`}
-                        />
-                        {selectedField === 'league' && player.club && (
-                          <div className="text-xs italic text-muted-foreground">
-                            {player.club}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-sm text-foreground">{getFieldValue(player) || "—"}</span>
+                    {!isFuelForFootball && (
+                      isCollapsed ? 
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" /> : 
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     )}
-                  </TableCell>
-                  {isAdmin && (
-                    <TableCell className="py-2.5">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(player)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              );
-              })}
-            </TableBody>
-          </Table>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-transparent border-b">
+                          <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Player</TableHead>
+                          <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{getFieldLabel(selectedField)}</TableHead>
+                          {isAdmin && <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold w-20">Actions</TableHead>}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {categoryPlayers.map((player, index) => (
+                          <TableRow 
+                            key={player.id} 
+                            className={`border-0 hover:bg-transparent ${index % 2 === 0 ? 'bg-muted/30' : 'bg-background'}`}
+                          >
+                            <TableCell className="py-2.5">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-muted overflow-hidden flex-shrink-0">
+                                  <img
+                                    src={player.image_url || `/players/${player.name.toLowerCase().replace(/\s+/g, '-')}.png`}
+                                    alt={player.name}
+                                    className="h-full w-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.src = '/players/player1.jpg';
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-foreground leading-tight">{player.name}</span>
+                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                    <img
+                                      src={getCountryFlagUrl(player.nationality)}
+                                      alt={player.nationality}
+                                      className="w-4 h-3 object-cover rounded-sm"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    />
+                                    <span className="text-[10px] text-muted-foreground">{player.nationality}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-2.5">
+                              {isAdmin ? (
+                                <div className="space-y-1">
+                                  <Input
+                                    type={selectedField === 'age' ? 'number' : 'text'}
+                                    value={getFieldValue(player)}
+                                    onChange={(e) => handleFieldEdit(player.id, selectedField === 'age' ? parseInt(e.target.value) || 0 : e.target.value)}
+                                    className="h-9 max-w-[300px]"
+                                    placeholder={`Enter ${getFieldLabel(selectedField).toLowerCase()}`}
+                                  />
+                                  {selectedField === 'league' && player.club && (
+                                    <div className="text-xs italic text-muted-foreground">
+                                      {player.club}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-sm text-foreground">{getFieldValue(player) || "—"}</span>
+                              )}
+                            </TableCell>
+                            {isAdmin && (
+                              <TableCell className="py-2.5">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEdit(player)}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
+            );
+          })}
         </div>
       )}
 
