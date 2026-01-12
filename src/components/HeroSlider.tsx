@@ -57,11 +57,11 @@ export const HeroSlider = ({ slides, autoplayDelay = 5000 }: HeroSliderProps) =>
     <section className="relative w-full h-[40vh] md:h-[65vh] overflow-hidden">
       {/* Carousel Container - ensure no partial slides visible */}
       <div ref={emblaRef} className="h-full w-full overflow-hidden">
-        <div className="flex h-full w-full">
+        <div className="flex h-full touch-pan-y">
           {slides.map((slide, index) => (
             <div
               key={index}
-              className="relative flex-[0_0_100%] min-w-full h-full"
+              className="relative flex-[0_0_100%] min-w-0 w-full h-full"
             >
               {/* Background Image */}
               <div
