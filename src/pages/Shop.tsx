@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Download } from "lucide-react";
+import { ShopHeader } from "@/components/ShopHeader";
 import { ShopServicesSidebar } from "@/components/ShopServicesSidebar";
+import { ServiceDetailPanel } from "@/components/ServiceDetailPanel";
+import { AnimatePresence } from "framer-motion";
 
 interface Product {
   id: string;
@@ -12,27 +14,33 @@ interface Product {
   price: number;
   priceLabel: string;
   image: string;
+  description?: string;
+  badge?: string;
 }
 
 // Placeholder product data - replace with Supabase data later
 const placeholderProducts: Product[] = [
   {
     id: "1",
-    name: "Principles of Play -",
+    name: "Principles of Play",
     subtitle: "Chess Not Checkers",
     category: "Analysis",
     price: 9.99,
     priceLabel: "£9.99",
     image: "/placeholder.svg",
+    description: "Learn the fundamental principles that separate elite players from the rest. This comprehensive guide covers tactical awareness, positioning, and decision-making.",
+    badge: "BESTSELLER",
   },
   {
     id: "2",
-    name: "Schemes - Respond",
-    subtitle: "Quickly In Games",
+    name: "Schemes",
+    subtitle: "Respond Quickly In Games",
     category: "Analysis",
     price: 19.99,
     priceLabel: "£19.99",
     image: "/placeholder.svg",
+    description: "Master the art of reading and reacting to different tactical setups. Understand how top teams structure their play and how to exploit weaknesses.",
+    badge: "NEW",
   },
 ];
 
@@ -46,6 +54,7 @@ const sidebarCategories = [
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const filteredProducts = useMemo(() => {
     let filtered = [...placeholderProducts];
@@ -58,9 +67,22 @@ const Shop = () => {
     return filtered;
   }, [selectedCategory]);
 
+  // Convert product to service format for ServiceDetailPanel
+  const productAsService = selectedProduct ? {
+    id: selectedProduct.id,
+    name: `${selectedProduct.name} - ${selectedProduct.subtitle}`,
+    category: selectedProduct.category,
+    price: selectedProduct.price,
+    image_url: selectedProduct.image,
+    description: selectedProduct.description || null,
+    badge: selectedProduct.badge || null,
+    options: null,
+  } : null;
+
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      {/* Use ShopHeader instead of regular Header */}
+      <ShopHeader type="shop" />
 
       {/* Hero Section */}
       <section className="pt-24 md:pt-28 pb-8 bg-gradient-to-b from-primary/20 to-background border-b-4 border-primary">
@@ -90,9 +112,13 @@ const Shop = () => {
               {/* Products Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredProducts.map((product) => (
-                  <div key={product.id} className="group cursor-pointer">
+                  <div 
+                    key={product.id} 
+                    className="group cursor-pointer"
+                    onClick={() => setSelectedProduct(product)}
+                  >
                     {/* Product Card */}
-                    <div className="relative bg-[hsl(120,40%,12%)] border-2 border-primary rounded-lg overflow-hidden p-4">
+                    <div className="relative bg-[hsl(120,40%,12%)] border-2 border-primary rounded-lg overflow-hidden p-4 hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all">
                       {/* Download Icon Badge */}
                       <div className="absolute top-6 right-6 z-10">
                         <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
@@ -128,7 +154,7 @@ const Shop = () => {
 
                     {/* Product Info (outside card) */}
                     <div className="mt-4">
-                      <h3 className="font-normal text-base text-foreground leading-tight">
+                      <h3 className="font-normal text-base text-foreground leading-tight group-hover:text-primary transition-colors">
                         {product.name}
                         <br />
                         {product.subtitle}
@@ -154,6 +180,16 @@ const Shop = () => {
           </div>
         </div>
       </section>
+
+      {/* Product Detail Panel */}
+      <AnimatePresence>
+        {productAsService && (
+          <ServiceDetailPanel
+            service={productAsService}
+            onClose={() => setSelectedProduct(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <Footer />
     </div>

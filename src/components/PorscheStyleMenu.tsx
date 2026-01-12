@@ -1,143 +1,104 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { X, ChevronRight, ShoppingCart, Search, ArrowLeft, Sparkles } from "lucide-react";
 import { DrawerClose } from "@/components/ui/drawer";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { useCart } from "@/contexts/CartContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
-interface ServiceCategory {
+interface ServiceItem {
   id: string;
   name: string;
-  description?: string;
-  imageUrl?: string;
-  items?: {
-    id: string;
-    name: string;
-    price?: number;
-    path: string;
-    imageUrl?: string;
-    badge?: string;
-  }[];
+  price: number;
+  category: string;
+  image_url: string | null;
 }
-
-const SERVICE_CATEGORIES: ServiceCategory[] = [
-  {
-    id: "holistic",
-    name: "All-in-One Performance",
-    description: "Complete integrated performance packages",
-    items: [
-      { id: "pro", name: "Pro Performance", price: 499, path: "/services/pro-performance", badge: "Popular" },
-      { id: "elite", name: "Elite Performance", price: 999, path: "/services/elite-performance", badge: "Best Value" },
-    ]
-  },
-  {
-    id: "analysis",
-    name: "Analysis",
-    description: "Tactical and performance analysis",
-    items: [
-      { id: "analysis", name: "Video Analysis", path: "/services/analysis" },
-      { id: "action-reports", name: "Action Reports", path: "/services/action-reports" },
-    ]
-  },
-  {
-    id: "technical",
-    name: "Technical",
-    description: "Skill development and technique",
-    items: [
-      { id: "technical", name: "Technical Training", path: "/services/technical" },
-    ]
-  },
-  {
-    id: "tactical",
-    name: "Tactical",
-    description: "Game understanding and positioning",
-    items: [
-      { id: "tactical", name: "Tactical Training", path: "/services/tactical" },
-    ]
-  },
-  {
-    id: "physical",
-    name: "Physical",
-    description: "Strength, speed, and conditioning",
-    items: [
-      { id: "sps", name: "Strength, Power & Speed", path: "/services/strength-power-speed" },
-      { id: "conditioning", name: "Conditioning", path: "/services/conditioning" },
-    ]
-  },
-  {
-    id: "mental",
-    name: "Mental",
-    description: "Psychology and mindset",
-    items: [
-      { id: "mental", name: "Mental Performance", path: "/services/mental" },
-    ]
-  },
-  {
-    id: "nutrition",
-    name: "Nutrition",
-    description: "Diet and performance nutrition",
-    items: [
-      { id: "nutrition", name: "Nutrition Plans", path: "/services/nutrition" },
-    ]
-  },
-  {
-    id: "general",
-    name: "General",
-    description: "Mentorship and consultation",
-    items: [
-      { id: "mentorship", name: "Mentorship", path: "/services/mentorship" },
-      { id: "consultation", name: "Consultation", path: "/services/consultation" },
-    ]
-  },
-];
-
-const SHOP_CATEGORIES: ServiceCategory[] = [
-  {
-    id: "analysis-products",
-    name: "Analysis",
-    description: "Educational analysis products",
-    items: [
-      { id: "pop", name: "Principles of Play", price: 9.99, path: "/shop?category=analysis" },
-      { id: "schemes", name: "Schemes", price: 19.99, path: "/shop?category=analysis" },
-    ]
-  },
-  {
-    id: "training-products",
-    name: "Training",
-    description: "Training guides and programs",
-    items: [
-      { id: "guides", name: "Training Guides", path: "/shop?category=training" },
-    ]
-  },
-];
 
 interface PorscheStyleMenuProps {
   type: 'shop' | 'services';
-  onClose?: () => void;
 }
 
-export const PorscheStyleMenu = ({ type, onClose }: PorscheStyleMenuProps) => {
-  const { t } = useLanguage();
+export const PorscheStyleMenu = ({ type }: PorscheStyleMenuProps) => {
+  const navigate = useNavigate();
   const { totalItems, totalPrice } = useCart();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = type === 'services' ? SERVICE_CATEGORIES : SHOP_CATEGORIES;
-  const selectedCategoryData = categories.find(c => c.id === selectedCategory);
+  // Fetch services from database
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('service_catalog')
+          .select('id, name, price, category, image_url')
+          .eq('visible', true)
+          .order('category')
+          .order('display_order');
 
-  const filteredCategories = searchQuery
-    ? categories.filter(c => 
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.items?.some(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
-    : categories;
+        if (error) throw error;
+        setServices(data || []);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  // Get unique categories from services
+  const categories = [...new Set(services.map(s => s.category))].filter(Boolean);
+
+  // Filter services based on search and selected category
+  const filteredServices = services.filter(s => {
+    const matchesSearch = !searchQuery || 
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !selectedCategory || s.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Get category label
+  const getCategoryLabel = (category: string) => {
+    const labels: Record<string, string> = {
+      'All in One Services': 'All in One',
+      'Analysis Services': 'Analysis',
+      'Technical Services': 'Technical',
+      'Physical Services': 'Physical',
+      'Nutrition Services': 'Nutrition',
+      'Psychological Services': 'Mental',
+      'Coaching Services': 'Coaching',
+      'Data Services': 'Data & Stats',
+      'Special Packages': 'Special',
+      'Tactical': 'Tactical',
+    };
+    return labels[category] || category;
+  };
+
+  // Navigate to services page with category filter
+  const handleCategoryClick = (category: string) => {
+    if (selectedCategory === category) {
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(category);
+    }
+  };
+
+  // Navigate to service and close drawer
+  const handleServiceClick = (category: string) => {
+    // Navigate to services page - the page will handle showing details
+    navigate(`/services?category=${encodeURIComponent(category)}`);
+  };
 
   return (
-    <div className="fixed inset-0 z-[200] flex">
+    <div className="fixed inset-0 z-[200] flex bg-background/95 backdrop-blur-md">
       {/* Left Panel - Categories */}
-      <div className="w-full md:w-[400px] bg-background border-r border-border flex flex-col h-full">
+      <div className="w-full md:w-[380px] bg-background border-r border-border flex flex-col h-full">
         {/* Header */}
         <div className="p-6 border-b border-border flex items-center justify-between">
           <DrawerClose asChild>
@@ -148,7 +109,7 @@ export const PorscheStyleMenu = ({ type, onClose }: PorscheStyleMenuProps) => {
           <h2 className="font-bebas text-2xl uppercase tracking-wider">
             {type === 'services' ? 'Services' : 'Shop'}
           </h2>
-          <div className="w-6" /> {/* Spacer for alignment */}
+          <div className="w-6" />
         </div>
 
         {/* Search */}
@@ -167,34 +128,49 @@ export const PorscheStyleMenu = ({ type, onClose }: PorscheStyleMenuProps) => {
 
         {/* Categories List */}
         <nav className="flex-1 overflow-y-auto p-4">
-          <ul className="space-y-1">
-            {filteredCategories.map((category, index) => (
-              <motion.li
-                key={category.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <button
-                  onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
-                  className={cn(
-                    "w-full flex items-center justify-between py-3 px-4 text-left transition-all duration-200 rounded-lg group",
-                    selectedCategory === category.id
-                      ? "bg-primary/10 text-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  )}
-                >
-                  <span className="font-medium">{category.name}</span>
-                  <ChevronRight 
-                    className={cn(
-                      "w-4 h-4 transition-transform duration-200",
-                      selectedCategory === category.id && "rotate-90"
-                    )} 
-                  />
-                </button>
-              </motion.li>
-            ))}
-          </ul>
+          {loading ? (
+            <div className="space-y-2">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-12 bg-muted/30 rounded-lg animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <ul className="space-y-1">
+              {categories.map((category, index) => {
+                const itemCount = services.filter(s => s.category === category).length;
+                
+                return (
+                  <motion.li
+                    key={category}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                  >
+                    <button
+                      onClick={() => handleCategoryClick(category)}
+                      className={cn(
+                        "w-full flex items-center justify-between py-3 px-4 text-left transition-all duration-200 rounded-lg group",
+                        selectedCategory === category
+                          ? "bg-primary/10 text-foreground"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      <span className="font-medium">{getCategoryLabel(category)}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{itemCount}</span>
+                        <ChevronRight 
+                          className={cn(
+                            "w-4 h-4 transition-transform duration-200",
+                            selectedCategory === category && "rotate-90"
+                          )} 
+                        />
+                      </div>
+                    </button>
+                  </motion.li>
+                );
+              })}
+            </ul>
+          )}
         </nav>
 
         {/* Footer Links */}
@@ -211,7 +187,7 @@ export const PorscheStyleMenu = ({ type, onClose }: PorscheStyleMenuProps) => {
                   Build Your Package
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  Customise your own training package
+                  Create your custom programme
                 </span>
               </div>
               <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
@@ -258,12 +234,12 @@ export const PorscheStyleMenu = ({ type, onClose }: PorscheStyleMenuProps) => {
         </div>
       </div>
 
-      {/* Right Panel - Category Items with Images */}
-      <div className="hidden md:flex flex-1 bg-muted/20 overflow-y-auto">
+      {/* Right Panel - Services Preview */}
+      <div className="hidden md:flex flex-1 bg-muted/10 overflow-y-auto">
         <AnimatePresence mode="wait">
-          {selectedCategoryData ? (
+          {selectedCategory ? (
             <motion.div
-              key={selectedCategoryData.id}
+              key={selectedCategory}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -271,62 +247,51 @@ export const PorscheStyleMenu = ({ type, onClose }: PorscheStyleMenuProps) => {
               className="w-full p-8"
             >
               <h3 className="font-bebas text-3xl uppercase tracking-wider mb-2">
-                {selectedCategoryData.name}
+                {getCategoryLabel(selectedCategory)}
               </h3>
-              {selectedCategoryData.description && (
-                <p className="text-muted-foreground mb-8">
-                  {selectedCategoryData.description}
-                </p>
-              )}
+              <p className="text-muted-foreground mb-8">
+                {filteredServices.length} services available
+              </p>
 
               {/* Items Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {selectedCategoryData.items?.map((item, index) => (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {filteredServices.map((service, index) => (
                   <motion.div
-                    key={item.id}
+                    key={service.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: index * 0.05 }}
                   >
                     <DrawerClose asChild>
-                      <LocalizedLink
-                        to={item.path}
-                        className="group block bg-background border border-border rounded-lg overflow-hidden hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+                      <button
+                        onClick={() => navigate('/services')}
+                        className="w-full group block bg-background border border-border rounded-lg overflow-hidden hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 text-left"
                       >
                         {/* Image Area */}
-                        <div className="aspect-[16/10] bg-gradient-to-br from-primary/5 to-primary/20 flex items-center justify-center relative overflow-hidden">
-                          {item.imageUrl ? (
+                        <div className="aspect-[16/9] bg-gradient-to-br from-primary/5 to-primary/20 flex items-center justify-center relative overflow-hidden">
+                          {service.image_url ? (
                             <img 
-                              src={item.imageUrl} 
-                              alt={item.name}
+                              src={service.image_url} 
+                              alt={service.name}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
-                            <div className="text-6xl font-bebas text-primary/20 uppercase">
-                              {item.name.charAt(0)}
+                            <div className="text-4xl font-bebas text-primary/20 uppercase">
+                              {service.name.charAt(0)}
                             </div>
-                          )}
-                          
-                          {/* Badge */}
-                          {item.badge && (
-                            <span className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs font-bebas uppercase px-2 py-1 rounded">
-                              {item.badge}
-                            </span>
                           )}
                         </div>
 
                         {/* Content */}
                         <div className="p-4">
-                          <h4 className="font-bebas text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors">
-                            {item.name}
+                          <h4 className="font-bebas text-base uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                            {service.name}
                           </h4>
-                          {item.price && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              From £{item.price.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
-                            </p>
-                          )}
+                          <p className="text-sm text-primary mt-1">
+                            £{service.price.toFixed(2)}
+                          </p>
                         </div>
-                      </LocalizedLink>
+                      </button>
                     </DrawerClose>
                   </motion.div>
                 ))}
@@ -343,7 +308,7 @@ export const PorscheStyleMenu = ({ type, onClose }: PorscheStyleMenuProps) => {
                   Select a Category
                 </h3>
                 <p className="text-muted-foreground">
-                  Choose from our range of {type === 'services' ? 'performance services' : 'products'} to explore options
+                  Choose from our range of {type === 'services' ? 'performance services' : 'products'}
                 </p>
               </div>
             </motion.div>
@@ -351,9 +316,9 @@ export const PorscheStyleMenu = ({ type, onClose }: PorscheStyleMenuProps) => {
         </AnimatePresence>
       </div>
 
-      {/* Darkened overlay for right side (click to close) */}
+      {/* Overlay to close drawer */}
       <DrawerClose asChild>
-        <div className="hidden md:block absolute top-0 right-0 bottom-0 left-[400px] z-[-1]" />
+        <button className="hidden md:block absolute inset-0 z-[-1]" aria-label="Close menu" />
       </DrawerClose>
     </div>
   );
