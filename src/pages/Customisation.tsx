@@ -194,9 +194,7 @@ const Customisation = () => {
     });
     
     toast.success('Package added to basket', {
-      description: discountPercent > 0 
-        ? `${discountPercent}% discount applied! You save £${discountAmount.toFixed(2)}`
-        : `Total: £${totalPrice.toFixed(2)}/mo`,
+      description: `£${totalPrice.toFixed(2)}/mo`,
     });
   };
 
@@ -308,36 +306,18 @@ const Customisation = () => {
 
           {/* Footer - Pricing Summary */}
           <div className="p-4 border-t border-border bg-muted/20">
-            {/* Discount Banner */}
-            {discountPercent > 0 && (
-              <div className="mb-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-primary font-medium">{discountPercent}% Bundle Discount</span>
-                  <span className="text-primary font-bebas">-£{discountAmount.toFixed(2)}</span>
-                </div>
-              </div>
-            )}
-
             {/* Pricing */}
-            <div className="space-y-2 mb-4">
-              {discountPercent > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="text-muted-foreground line-through">£{subtotal.toFixed(2)}/mo</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-muted-foreground text-sm">Est. Monthly</span>
-                <span className="font-bebas text-xl text-primary">£{totalPrice.toFixed(2)}/mo</span>
+            <div className="space-y-1 mb-4">
+              <div className="flex justify-between items-baseline">
+                <span className="text-muted-foreground text-sm">Monthly Total</span>
+                <span className="font-bebas text-2xl text-primary">£{totalPrice.toFixed(2)}<span className="text-sm text-muted-foreground font-sans">/mo</span></span>
               </div>
+              {selectedServices.size > 0 && (
+                <p className="text-xs text-muted-foreground text-right">
+                  {totalItems} {totalItems === 1 ? 'service' : 'services'} selected
+                </p>
+              )}
             </div>
-
-            {/* Discount Hint */}
-            {selectedServices.size > 0 && selectedServices.size < 3 && (
-              <p className="text-xs text-muted-foreground mb-3">
-                Add {3 - selectedServices.size} more for 20% off
-              </p>
-            )}
 
             {/* Add to Cart Button */}
             <Button
@@ -396,19 +376,32 @@ const Customisation = () => {
                         return (
                           <Tooltip key={service.id}>
                             <TooltipTrigger asChild>
-                              <div
+                              <motion.div
+                                whileTap={{ scale: 0.98 }}
                                 className={cn(
-                                  "p-4 rounded-lg border transition-all cursor-pointer group",
+                                  "relative p-4 rounded-xl border-2 transition-all cursor-pointer group overflow-hidden",
                                   isSelected 
-                                    ? "border-primary bg-primary/5" 
-                                    : "border-border hover:border-primary/50 hover:bg-muted/30"
+                                    ? "border-primary bg-gradient-to-br from-primary/10 via-primary/5 to-transparent shadow-lg shadow-primary/10" 
+                                    : "border-border/50 hover:border-primary/30 hover:bg-muted/20"
                                 )}
                                 onClick={() => !isSelected && toggleService(service)}
                                 onMouseEnter={() => service.image_url && setActiveImage(service.image_url)}
                               >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex-1">
-                                    <h3 className="font-medium text-sm text-foreground">
+                                {/* Selection glow effect */}
+                                {isSelected && (
+                                  <motion.div 
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none"
+                                  />
+                                )}
+                                
+                                <div className="relative flex items-center justify-between">
+                                  <div className="flex-1 pr-4">
+                                    <h3 className={cn(
+                                      "font-medium text-sm transition-colors",
+                                      isSelected ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                                    )}>
                                       {service.name}
                                     </h3>
                                     <p className="text-primary font-bebas text-lg mt-1">
@@ -417,17 +410,21 @@ const Customisation = () => {
                                   </div>
 
                                   {isSelected ? (
-                                    <div className="flex items-center gap-3">
+                                    <motion.div 
+                                      initial={{ scale: 0 }}
+                                      animate={{ scale: 1 }}
+                                      className="flex items-center gap-2"
+                                    >
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           updateQuantity(service.id, -1);
                                         }}
-                                        className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+                                        className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center hover:bg-muted transition-all hover:scale-105 active:scale-95"
                                       >
                                         <Minus className="w-4 h-4" />
                                       </button>
-                                      <span className="w-6 text-center font-bebas text-lg">
+                                      <span className="w-8 text-center font-bebas text-xl">
                                         {selectedData?.quantity || 1}
                                       </span>
                                       <button
@@ -435,21 +432,24 @@ const Customisation = () => {
                                           e.stopPropagation();
                                           updateQuantity(service.id, 1);
                                         }}
-                                        className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
+                                        className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-all hover:scale-105 active:scale-95 shadow-md shadow-primary/30"
                                       >
                                         <Plus className="w-4 h-4" />
                                       </button>
-                                    </div>
+                                    </motion.div>
                                   ) : (
-                                    <div className="w-8 h-8 rounded-full border-2 border-border flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                                      <Plus className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                    </div>
+                                    <motion.div 
+                                      whileHover={{ scale: 1.1 }}
+                                      className="w-10 h-10 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center group-hover:border-primary/50 transition-all"
+                                    >
+                                      <Plus className="w-5 h-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                                    </motion.div>
                                   )}
                                 </div>
-                              </div>
+                              </motion.div>
                             </TooltipTrigger>
                             {service.description && (
-                              <TooltipContent side="right" className="max-w-xs">
+                              <TooltipContent side="right" className="max-w-xs bg-background/95 backdrop-blur-sm border-border">
                                 <p className="text-sm">{service.description}</p>
                               </TooltipContent>
                             )}
@@ -524,12 +524,7 @@ const Customisation = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      {discountPercent > 0 && (
-                        <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full font-medium">
-                          {discountPercent}% OFF
-                        </span>
-                      )}
-                      <p className="font-bebas text-3xl text-primary mt-1">
+                      <p className="font-bebas text-3xl text-primary">
                         £{totalPrice.toFixed(2)}<span className="text-base text-muted-foreground">/mo</span>
                       </p>
                     </div>
@@ -607,18 +602,8 @@ const Customisation = () => {
                     </div>
 
                     <div className="border-t border-border pt-4 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Subtotal</span>
-                        <span>£{subtotal.toFixed(2)}/mo</span>
-                      </div>
-                      {discountPercent > 0 && (
-                        <div className="flex justify-between text-sm text-primary">
-                          <span>{discountPercent}% Discount</span>
-                          <span>-£{discountAmount.toFixed(2)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between font-bebas text-xl uppercase pt-2 border-t border-border">
-                        <span>Total</span>
+                      <div className="flex justify-between font-bebas text-xl uppercase">
+                        <span>Monthly Total</span>
                         <span className="text-primary">£{totalPrice.toFixed(2)}/mo</span>
                       </div>
                     </div>
