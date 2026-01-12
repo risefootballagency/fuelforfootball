@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { PlayersSubmenu } from "@/components/PlayersSubmenu";
 import { ReactNode } from "react";
 
 interface ServicePageLayoutProps {
@@ -9,6 +10,7 @@ interface ServicePageLayoutProps {
   subtitle?: string;
   heroImage?: string;
   heroVideo?: string;
+  showSubmenu?: boolean;
 }
 
 export const ServicePageLayout = ({ 
@@ -17,7 +19,8 @@ export const ServicePageLayout = ({
   title, 
   subtitle,
   heroImage,
-  heroVideo
+  heroVideo,
+  showSubmenu = true
 }: ServicePageLayoutProps) => {
   const hasMedia = heroImage || heroVideo;
 
@@ -25,6 +28,9 @@ export const ServicePageLayout = ({
     <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-20 md:pt-24">
+        {/* Players Submenu */}
+        {showSubmenu && <PlayersSubmenu />}
+        
         {/* Hero Section */}
         <section className="relative py-16 md:py-24 overflow-hidden">
           {/* Media Background */}
