@@ -4013,6 +4013,36 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_documents: {
+        Row: {
+          content: string | null
+          created_at: string
+          created_by: string | null
+          doc_type: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          doc_type?: string
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          doc_type?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff_goals: {
         Row: {
           assigned_to: string[] | null
