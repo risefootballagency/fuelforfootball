@@ -93,12 +93,12 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
         </div>
       </div>
 
-      {/* Center Section - Static Player Image */}
-      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      {/* Center Section - Static Player Image - positioned to not overlap nav */}
+      <div className="absolute top-0 left-0 right-0 bottom-[200px] md:bottom-[180px] flex items-center justify-center z-10 pointer-events-none">
         <img 
           src="/assets/player-base.png" 
           alt="" 
-          className="h-[60vh] md:h-[70vh] object-contain opacity-90"
+          className="h-[50vh] md:h-[60vh] object-contain opacity-90"
         />
       </div>
 

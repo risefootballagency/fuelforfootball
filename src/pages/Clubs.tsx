@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 const Clubs = () => {
   const { t } = useLanguage();

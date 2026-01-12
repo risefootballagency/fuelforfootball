@@ -7,6 +7,8 @@ import { getLocalizedPath } from "@/lib/localizedRoutes";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HoverText } from "@/components/HoverText";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { AskQuestionDialog } from "@/components/AskQuestionDialog";
 import {
   Carousel,
   CarouselContent,
@@ -128,19 +130,21 @@ export default function DailyFuel() {
       <main className="flex-1 pt-32 pb-16 touch-pan-y overflow-x-hidden">
         <div className="container mx-auto px-4">
           {/* Page Title */}
-          <div className="text-center mb-12 space-y-3 animate-fade-in">
-            <div className="inline-block">
-              <span className="text-sm font-bebas uppercase tracking-widest text-primary border border-primary/30 px-6 py-2 rounded-full">
-                {t('btl.badge', 'Educational Content')}
-              </span>
+          <ScrollReveal>
+            <div className="text-center mb-12 space-y-3">
+              <div className="inline-block">
+                <span className="text-sm font-bebas uppercase tracking-widest text-primary border border-primary/30 px-6 py-2 rounded-full">
+                  {t('btl.badge', 'Educational Content')}
+                </span>
+              </div>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-bebas uppercase tracking-wider text-foreground mb-4">
+                {t('btl.title_part1', 'Daily')} <span className="text-primary">{t('btl.title_part2', 'Fuel')}</span>
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                {t('btl.subtitle', 'Expert insights, tactical breakdowns, and educational content to fuel your football development.')}
+              </p>
             </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bebas uppercase tracking-wider text-foreground mb-4">
-              {t('btl.title_part1', 'Daily')} <span className="text-primary">{t('btl.title_part2', 'Fuel')}</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {t('btl.subtitle', 'Expert insights, tactical breakdowns, and educational content to fuel your football development.')}
-            </p>
-          </div>
+          </ScrollReveal>
 
           {/* Category Filters */}
           <div className="mb-6 pb-4 border-b border-border/50 overflow-x-auto">
@@ -255,28 +259,48 @@ export default function DailyFuel() {
             </Carousel>
           )}
 
-          {/* RISE Broadcast Advertisement */}
-          <section className="py-8">
-            <div className="max-w-3xl mx-auto p-8 rounded-lg border border-primary/20 bg-primary/5 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent"></div>
-              <div className="text-center relative z-10">
-                <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary mb-3">
-                  {t('btl.broadcast_title', 'Join Our Broadcast Channel')}
-                </h2>
-                <p className="text-foreground mb-6 text-base md:text-lg leading-relaxed">
-                  {t('btl.broadcast_description', 'Get exclusive insights, early access to content, and direct updates from our team.')}
-                </p>
-                <a
-                  href="https://www.instagram.com/channel/AbY33s3ZhuxaNwuo/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-background font-bebas uppercase tracking-wider text-lg hover:bg-primary/90 hover:scale-105 transition-all rounded shadow-lg"
-                >
-                  <HoverText text={t('btl.join_channel', 'Join Channel')} />
-                </a>
+          {/* Ask Question CTA */}
+          <ScrollReveal delay={0.2}>
+            <section className="py-8">
+              <div className="max-w-3xl mx-auto p-8 rounded-lg border border-primary/20 bg-card/50 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent"></div>
+                <div className="text-center relative z-10">
+                  <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary mb-3">
+                    {t('btl.question_title', 'Have a Question?')}
+                  </h2>
+                  <p className="text-muted-foreground mb-6 text-base md:text-lg leading-relaxed">
+                    {t('btl.question_description', 'Ask our experts about any topic covered in Daily Fuel articles.')}
+                  </p>
+                  <AskQuestionDialog triggerClassName="inline-flex items-center gap-2 px-8 py-4 bg-primary text-background font-bebas uppercase tracking-wider text-lg hover:bg-primary/90 hover:scale-105 transition-all rounded shadow-lg" />
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          </ScrollReveal>
+
+          {/* Broadcast Advertisement */}
+          <ScrollReveal delay={0.3}>
+            <section className="py-8">
+              <div className="max-w-3xl mx-auto p-8 rounded-lg border border-primary/20 bg-primary/5 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent"></div>
+                <div className="text-center relative z-10">
+                  <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary mb-3">
+                    {t('btl.broadcast_title', 'Join Our Broadcast Channel')}
+                  </h2>
+                  <p className="text-foreground mb-6 text-base md:text-lg leading-relaxed">
+                    {t('btl.broadcast_description', 'Get exclusive insights, early access to content, and direct updates from our team.')}
+                  </p>
+                  <a
+                    href="https://www.instagram.com/channel/AbY33s3ZhuxaNwuo/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-background font-bebas uppercase tracking-wider text-lg hover:bg-primary/90 hover:scale-105 transition-all rounded shadow-lg"
+                  >
+                    <HoverText text={t('btl.join_channel', 'Join Channel')} />
+                  </a>
+                </div>
+              </div>
+            </section>
+          </ScrollReveal>
         </div>
       </main>
       <Footer />
