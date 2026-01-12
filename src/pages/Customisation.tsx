@@ -8,6 +8,7 @@ import { LocalizedLink } from "@/components/LocalizedLink";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import { FeaturedServicesPanel } from "@/components/FeaturedServicesPanel";
 import { 
   ChevronRight,
   Check, 
@@ -202,6 +203,18 @@ const Customisation = () => {
   const selectedCategoryServices = selectedCategory 
     ? filteredServicesByCategory[selectedCategory] || []
     : [];
+
+  // Get featured services for empty state
+  const featuredServices = useMemo(() => {
+    return services.slice(0, 3).map(s => ({
+      id: s.id,
+      name: s.name,
+      price: s.price,
+      image_url: s.image_url,
+      description: s.description,
+      badge: null,
+    }));
+  }, [services]);
 
   // Get featured images from selected services
   const selectedImages = useMemo(() => {
@@ -463,19 +476,18 @@ const Customisation = () => {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex-1 flex items-center justify-center h-full p-8"
+                  className="flex-1 h-full"
                 >
-                  <div className="text-center max-w-sm">
-                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                      <ChevronRight className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <h3 className="font-bebas text-xl uppercase tracking-wider mb-2 text-muted-foreground">
-                      Select a Category
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Choose from the categories on the left to view available services
-                    </p>
-                  </div>
+                  <FeaturedServicesPanel
+                    services={featuredServices}
+                    onServiceClick={(service) => {
+                      // Find and select the category for this service
+                      const fullService = services.find(s => s.id === service.id);
+                      if (fullService) {
+                        setSelectedCategory(fullService.category);
+                      }
+                    }}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

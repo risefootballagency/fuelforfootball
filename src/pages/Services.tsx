@@ -7,6 +7,8 @@ import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithP
 import { ShopHeader } from "@/components/ShopHeader";
 import { ShopServicesSidebar } from "@/components/ShopServicesSidebar";
 import { ServiceDetailPanel } from "@/components/ServiceDetailPanel";
+import { ServiceCard } from "@/components/ServiceCard";
+import { FeaturedServicesPanel } from "@/components/FeaturedServicesPanel";
 import { AnimatePresence } from "framer-motion";
 import fffLogo from "@/assets/fff_logo.png";
 
@@ -117,12 +119,12 @@ const Services = () => {
     return filtered;
   }, [services, selectedCategory, selectedPrice, sortBy]);
 
-  const formatPrice = (price: number, options: unknown) => {
-    const optionsArray = options as { name: string; price: number }[] | null;
-    const hasOptions = optionsArray && Array.isArray(optionsArray) && optionsArray.length > 0;
-    const prefix = hasOptions ? "From " : "";
-    return `${prefix}£${price.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
+  // Get featured services for empty state
+  const featuredServices = useMemo(() => {
+    return services
+      .filter(s => s.badge || s.ribbon)
+      .slice(0, 3);
+  }, [services]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -240,76 +242,33 @@ const Services = () => {
               )}
 
               {/* Services Grid */}
-              {!loading && (
+              {!loading && selectedCategory !== "All" && (
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
                   {filteredServices.map((service) => (
-                    <div
+                    <ServiceCard
                       key={service.id}
+                      id={service.id}
+                      name={service.name}
+                      category={service.category}
+                      price={service.price}
+                      imageUrl={service.image_url}
+                      description={service.description}
+                      badge={service.badge}
+                      ribbon={service.ribbon}
+                      options={service.options}
                       onClick={() => setSelectedService(service)}
-                      className="group cursor-pointer block"
-                    >
-                      {/* Card */}
-                      <div className="relative bg-card border border-primary/30 md:border-2 rounded-lg overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/20">
-                        {/* Top Badge with Logo */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10">
-                          <div className="relative">
-                            {/* Logo circle */}
-                            <div className="w-6 h-6 md:w-10 md:h-10 rounded-full bg-background border border-primary md:border-2 flex items-center justify-center -mb-1 md:-mb-2 mx-auto relative z-20">
-                              <img src={fffLogo} alt="FFF" className="w-4 h-4 md:w-6 md:h-6 object-contain" />
-                            </div>
-                            {/* Banner */}
-                            <div className="bg-primary px-1.5 md:px-3 py-0.5 md:py-1 rounded-b-lg">
-                              <span className="text-[7px] md:text-[10px] font-bebas uppercase tracking-wider text-primary-foreground whitespace-nowrap">
-                                {service.badge || service.name.toUpperCase()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Ribbon */}
-                        {service.ribbon && (
-                          <div className="absolute top-8 md:top-14 right-0.5 md:right-2 z-10 bg-destructive text-destructive-foreground text-[8px] md:text-xs font-bebas uppercase px-1 md:px-2 py-0.5 md:py-1 rounded">
-                            {service.ribbon}
-                          </div>
-                        )}
-
-                        {/* Service Image */}
-                        <div className="aspect-[3/4] pt-8 md:pt-12 p-1.5 md:p-4">
-                          <div className="w-full h-full rounded-lg overflow-hidden border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/20 flex items-center justify-center">
-                            {service.image_url ? (
-                              <img
-                                src={service.image_url}
-                                alt={service.name}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                              />
-                            ) : (
-                              <div className="text-center p-2 md:p-4">
-                                <img src={fffLogo} alt="FFF" className="w-10 h-10 md:w-16 md:h-16 object-contain mx-auto opacity-30" />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Change The Game text */}
-                        <div className="text-center py-1.5 md:py-2">
-                          <span className="text-[9px] md:text-xs font-bebas uppercase tracking-widest text-muted-foreground italic">
-                            Change The Game
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Service Info (outside card) */}
-                      <div className="mt-1.5 md:mt-4 text-center px-1">
-                        <h3 className="font-bebas text-xs md:text-lg uppercase tracking-wider text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                          {service.name}
-                        </h3>
-                        <div className="w-4 md:w-8 h-px bg-primary/50 mx-auto my-1 md:my-2" />
-                        <p className="text-[10px] md:text-sm text-muted-foreground">
-                          {formatPrice(service.price, service.options)}
-                        </p>
-                      </div>
-                    </div>
+                    />
                   ))}
+                </div>
+              )}
+
+              {/* Featured Services - When no category selected */}
+              {!loading && selectedCategory === "All" && (
+                <div className="max-w-2xl mx-auto">
+                  <FeaturedServicesPanel
+                    services={featuredServices.length > 0 ? featuredServices : services.slice(0, 3)}
+                    onServiceClick={(service) => setSelectedService(service as Service)}
+                  />
                 </div>
               )}
 
