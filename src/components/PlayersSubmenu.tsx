@@ -76,14 +76,14 @@ export const PlayersSubmenu = ({ className = "" }: PlayersSubmenuProps) => {
                 <div className="px-2 md:px-6 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-[10px] md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center justify-center gap-0.5 md:gap-1.5 border-r border-[#c4a000]/20 last:border-r-0 w-full cursor-pointer">
                   {item.label} <ChevronDown className="w-2.5 h-2.5 md:w-3 md:h-3 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
-                {/* Glass-morphism Dropdown with smart positioning */}
+                {/* Glass-morphism Dropdown with smart positioning - mobile uses left-0 for all */}
                 <div 
-                  className={`absolute top-full min-w-[280px] md:min-w-[320px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pt-2 ${
+                  className={`absolute top-full min-w-[280px] md:min-w-[320px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pt-2 left-0 md:left-auto ${
                     isFirst 
-                      ? 'left-0' 
+                      ? 'md:left-0' 
                       : isLast 
-                        ? 'right-0' 
-                        : 'left-1/2 -translate-x-1/2'
+                        ? 'md:right-0 md:left-auto' 
+                        : 'md:left-1/2 md:-translate-x-1/2'
                   }`}
                 >
                   <div className="backdrop-blur-xl bg-black/70 border border-white/10 rounded-lg shadow-2xl overflow-hidden">

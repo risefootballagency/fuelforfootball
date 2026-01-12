@@ -578,7 +578,7 @@ const Index = () => {
               <h2 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider text-foreground mb-4">
                 <span className="text-primary">5</span>D PLAY
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">Not just what you do—but how unpredictable and intelligent you are doing it</p>
+              <p className="text-muted-foreground max-w-2xl mx-auto">Not just what you do - but how unpredictable and intelligent you are doing it</p>
             </div>
 
             {/* 5D Levels - Visual Progression */}
@@ -667,7 +667,7 @@ const Index = () => {
                   SKILLS THAT <span className="text-primary">LEVEL UP</span>
                 </h2>
                 <p className="text-lg text-muted-foreground mb-8">
-                  We develop for where you're going—not just where you are.
+                  We develop for where you're going - not just where you are.
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 p-4 border-l-4 border-primary/30 bg-card/20">

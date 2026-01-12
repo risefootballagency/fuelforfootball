@@ -61,7 +61,7 @@ export const PlayerRollingSlider = ({
           Players Who <span className="text-primary">Took Action</span>
         </h2>
         <p className="text-center text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-          They stopped waiting. They stopped hoping. They started training with us—and now they play at the highest level.
+          They stopped waiting. They stopped hoping. They started training with us - and now they play at the highest level.
         </p>
       </div>
 
