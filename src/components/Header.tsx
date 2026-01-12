@@ -144,6 +144,7 @@ const routeToRole: Record<string, string> = {
   '/coaches': 'coaches',
   '/business': 'business',
   '/media': 'media',
+  '/learnmore': 'players',
 };
 
 interface HeaderProps {
@@ -204,8 +205,12 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
   const realisePotentialImages = [realisePotentialSessions, realisePotentialPaos, realisePotentialReport, realisePotentialAnalysis];
   
   useEffect(() => {
-    const topBarPaths = ['/', '/players', '/scouts', '/clubs', '/agents', '/coaches', '/business', '/media'];
-    setShowTopBar(topBarPaths.includes(location.pathname));
+    const topBarPaths = ['/', '/players', '/scouts', '/clubs', '/agents', '/coaches', '/business', '/media', '/learnmore'];
+    // Check both current path and English equivalent for localized routes
+    const currentPath = location.pathname;
+    const englishPath = getEnglishPath(currentPath);
+    const shouldShow = topBarPaths.includes(currentPath) || topBarPaths.includes(englishPath);
+    setShowTopBar(shouldShow);
   }, [location.pathname]);
   
   useEffect(() => {

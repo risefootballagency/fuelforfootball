@@ -11,8 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { toast } from "@/hooks/use-toast";
 
-// Build version - update this to verify deployments
-const BUILD_VERSION = "v2024.11.27.002";
+// Build version removed from display per design requirements
 
 export const Footer = () => {
   const [connectOpen, setConnectOpen] = useState(false);
@@ -296,9 +295,6 @@ export const Footer = () => {
               </Link>
             </div>
           </div>
-          <p className="text-[9px] md:text-[10px] text-mint-dim/40 text-center mt-4">
-            Build: {BUILD_VERSION}
-          </p>
         </div>
       </div>
     </footer>
