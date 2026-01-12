@@ -194,7 +194,7 @@ const PerformanceReport = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title={`${analysis.player_name} vs ${analysis.opponent} - Performance Report | RISE Football`}
+        title={`${analysis.player_name} vs ${analysis.opponent} - Performance Report | Fuel For Football`}
         description={`Detailed performance analysis for ${analysis.player_name} in the match against ${analysis.opponent} on ${new Date(analysis.analysis_date).toLocaleDateString('en-GB')}. R90 Score: ${analysis.minutes_played ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2) : 'N/A'}.`}
       />
       {!isAuthenticated && (

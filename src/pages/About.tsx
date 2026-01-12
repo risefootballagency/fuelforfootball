@@ -12,8 +12,8 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title="About RISE - Premier Football Agency | Player Representation"
-        description="RISE Football Agency is a premier sports management agency specializing in football player representation. Founded on integrity, dedication, and excellence."
+        title="About Fuel For Football - Performance Consultancy | Player Development"
+        description="Fuel For Football is football's leading performance consultancy. We help players, coaches, and clubs reach their full potential through elite training and development."
         image="/og-preview-about.png"
         url="/about"
       />
@@ -82,10 +82,10 @@ const About = () => {
               </h2>
               <div className="space-y-4 md:space-y-6 text-sm md:text-lg text-muted-foreground">
                 <p>
-                  RISE Football Agency is the best agency for developing talents and guiding them to the top. We are committed to nurturing talent and maximizing the potential of every athlete we work with.
+                  Fuel For Football is the leading performance consultancy for developing talents and guiding them to the top. We are committed to nurturing talent and maximizing the potential of every athlete we work with.
                 </p>
                 <p>
-                  Founded on firsthand experience as players and coaches, RISE has established itself as a trusted partner for players at all stages of their careers.
+                  Founded on firsthand experience as players and coaches, Fuel For Football has established itself as a trusted partner for players at all stages of their careers.
                 </p>
               </div>
               

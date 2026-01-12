@@ -31,9 +31,9 @@ export const EmailResponseDialog = ({
   recipientName,
   submissionType,
 }: EmailResponseDialogProps) => {
-  const [subject, setSubject] = useState(`Response from RISE Football - ${submissionType}`);
+  const [subject, setSubject] = useState(`Response from Fuel For Football - ${submissionType}`);
   const [message, setMessage] = useState(
-    `Dear ${recipientName},\n\nThank you for your interest in RISE Football. We have received your submission and wanted to reach out to you personally.\n\n\n\nBest regards,\nThe RISE Team\n\nRISE Football\nRealising Potential`
+    `Dear ${recipientName},\n\nThank you for your interest in Fuel For Football. We have received your submission and wanted to reach out to you personally.\n\n\n\nBest regards,\nThe Fuel For Football Team\n\nFuel For Football\nChange The Game`
   );
   const [sending, setSending] = useState(false);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
@@ -124,7 +124,7 @@ export const EmailResponseDialog = ({
       toast.success("Email sent successfully!");
       onOpenChange(false);
       setMessage(
-        `Dear ${recipientName},\n\nThank you for your interest in RISE Football. We have received your submission and wanted to reach out to you personally.\n\n\n\nBest regards,\nThe RISE Team\n\nRISE Football\nRealising Potential`
+        `Dear ${recipientName},\n\nThank you for your interest in Fuel For Football. We have received your submission and wanted to reach out to you personally.\n\n\n\nBest regards,\nThe Fuel For Football Team\n\nFuel For Football\nChange The Game`
       );
     } catch (error: any) {
       console.error("Error sending email:", error);
