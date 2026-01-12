@@ -205,51 +205,55 @@ const Players = () => {
     { image: "https://static.wixstatic.com/media/e2ec89_1f3e61bf392a4cdc8a8f02483a6c5c29~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_1f3e61bf392a4cdc8a8f02483a6c5c29~mv2.png", title: "Performance Efficiency Report", link: "/services/data" },
   ];
 
-  // Navigation items for the full-width submenu
+  // Navigation items for the full-width submenu with descriptions
   const navItems = [
     {
       label: "General",
       hasDropdown: true,
       items: [
-        { label: "Consultation", link: "/services/consultation" },
-        { label: "Pro Performance", link: "/services/pro-performance" },
-        { label: "Elite Performance", link: "/services/elite-performance" },
+        { label: "Consultation", link: "/services/consultation", description: "One-on-one expert guidance to identify your development needs and create a personalized pathway." },
+        { label: "Pro Performance", link: "/services/pro-performance", description: "Our flagship programme for professional players seeking elite-level holistic development." },
+        { label: "Elite Performance", link: "/services/elite-performance", description: "Comprehensive training for aspiring professionals ready to take the next step." },
       ]
     },
     {
       label: "Holistic",
       hasDropdown: true,
       items: [
-        { label: "Pro Performance", link: "/services/pro-performance" },
-        { label: "Elite Performance", link: "/services/elite-performance" },
-        { label: "Mentorship", link: "/services/mentorship" },
+        { label: "Pro Performance", link: "/services/pro-performance", description: "Full-spectrum development covering tactical, technical, physical and mental pillars." },
+        { label: "Elite Performance", link: "/services/elite-performance", description: "Structured progression across all performance areas for emerging talent." },
+        { label: "Mentorship", link: "/services/mentorship", description: "Ongoing support and guidance from experienced football performance specialists." },
       ]
     },
     {
       label: "Tactical",
       hasDropdown: true,
       items: [
-        { label: "Tactical Overview", link: "/services/tactical" },
-        { label: "Action Reports", link: "/services/action-reports" },
+        { label: "Tactical Overview", link: "/services/tactical", description: "Video analysis and tactical education to enhance decision-making and game intelligence." },
+        { label: "Action Reports", link: "/services/action-reports", description: "Detailed breakdown of your on-ball actions with specific improvement recommendations." },
       ]
     },
     {
       label: "Technical",
-      hasDropdown: false,
-      link: "/services/technical"
+      hasDropdown: true,
+      items: [
+        { label: "Technical Training", link: "/services/technical", description: "Master your touch, improve finishing and develop unpredictable skills to beat opponents." },
+      ]
     },
     {
       label: "Mental",
-      hasDropdown: false,
-      link: "/services/mental"
+      hasDropdown: true,
+      items: [
+        { label: "Psychological Performance", link: "/services/mental", description: "Build mental resilience, focus and confidence to perform consistently under pressure." },
+      ]
     },
     {
       label: "Physical",
       hasDropdown: true,
       items: [
-        { label: "Strength, Power & Speed", link: "/services/strength-power-speed" },
-        { label: "Conditioning", link: "/services/conditioning" },
-        { label: "Nutrition", link: "/services/nutrition" },
+        { label: "Strength, Power & Speed", link: "/services/strength-power-speed", description: "Develop explosive power and acceleration to dominate physical battles on the pitch." },
+        { label: "Conditioning", link: "/services/conditioning", description: "Build endurance and work capacity to maintain peak performance throughout matches." },
+        { label: "Nutrition", link: "/services/nutrition", description: "Optimize your diet to fuel training, recovery and match-day performance." },
       ]
     },
   ];
@@ -279,37 +283,35 @@ const Players = () => {
           title="FUEL FOR FOOTBALL"
         />
 
-        {/* Full-Width Navigation Submenu - wraps to two lines on mobile */}
+        {/* Full-Width Navigation Submenu - Modern Glass Dropdowns */}
         <nav className="bg-[#0a3622] border-2 border-[#0a3622]">
           <div className="w-full">
             <div className="flex flex-wrap justify-center">
               {navItems.map((item, index) => (
-                item.hasDropdown ? (
-                  <div key={index} className="group relative w-1/3 md:w-auto md:flex-1">
-                    <div className="px-2 md:px-6 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-[10px] md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center justify-center gap-0.5 md:gap-1.5 border-r border-[#c4a000]/20 last:border-r-0 w-full cursor-pointer">
-                      {item.label} <ChevronDown className="w-2.5 h-2.5 md:w-3 md:h-3 group-hover:rotate-180 transition-transform" />
-                    </div>
-                    <div className="absolute left-0 top-full min-w-[180px] bg-[#0a3622] border-2 border-[#0a3622] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg">
+                <div key={index} className="group relative w-1/3 md:w-auto md:flex-1">
+                  <div className="px-2 md:px-6 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-[10px] md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 inline-flex items-center justify-center gap-0.5 md:gap-1.5 border-r border-[#c4a000]/20 last:border-r-0 w-full cursor-pointer">
+                    {item.label} <ChevronDown className="w-2.5 h-2.5 md:w-3 md:h-3 group-hover:rotate-180 transition-transform duration-300" />
+                  </div>
+                  {/* Glass-morphism Dropdown */}
+                  <div className="absolute left-0 md:left-1/2 md:-translate-x-1/2 top-full min-w-[280px] md:min-w-[320px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pt-2">
+                    <div className="backdrop-blur-xl bg-black/70 border border-white/10 rounded-lg shadow-2xl overflow-hidden">
                       {item.items?.map((subItem, subIndex) => (
                         <Link
                           key={subIndex}
                           to={subItem.link}
-                          className="block px-4 py-2 text-white hover:bg-[#c4a000] hover:text-[#0a3622] font-bebas uppercase tracking-wider"
+                          className="block px-5 py-4 hover:bg-white/10 transition-colors duration-200 border-b border-white/5 last:border-b-0"
                         >
-                          {subItem.label}
+                          <span className="block text-white font-bebas uppercase tracking-wider text-sm md:text-base">
+                            {subItem.label}
+                          </span>
+                          <span className="block text-white/60 text-xs md:text-sm font-sans mt-1 leading-relaxed">
+                            {subItem.description}
+                          </span>
                         </Link>
                       ))}
                     </div>
                   </div>
-                ) : (
-                  <Link
-                    key={index}
-                    to={item.link || "#"}
-                    className="w-1/3 md:w-auto md:flex-1 px-2 md:px-6 py-2 md:py-3 text-[#c4a000] font-bebas uppercase tracking-widest text-[10px] md:text-sm hover:bg-[#c4a000] hover:text-[#0a3622] transition-all duration-300 text-center border-r border-[#c4a000]/20 last:border-r-0"
-                  >
-                    {item.label}
-                  </Link>
-                )
+                </div>
               ))}
             </div>
           </div>
