@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -281,7 +281,7 @@ export const DocsSection = () => {
           placeholder="Write your content here... (Supports Markdown formatting)"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full min-h-[calc(100vh-400px)] p-4 rounded-lg border bg-background font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full min-h-[calc(100vh-400px)] p-4 rounded-lg border bg-background font-sans text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
         />
 
         {/* Action buttons */}
