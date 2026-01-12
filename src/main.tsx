@@ -61,15 +61,27 @@ import { VersionManager } from "./lib/versionManager";
 // Skip version check during development to prevent reload loops
 const isDev = import.meta.env.DEV;
 
-// Only do version checks in production
+// Only run version checks on staff routes to avoid slow loading on public pages
+const isStaffRoute = () => {
+  const path = window.location.pathname;
+  return path === '/staff' || path.startsWith('/staff/');
+};
+
+// Only do version checks in production AND on staff routes
 const initializeApp = async () => {
   if (isDev) {
     console.log('[App] Development mode - skipping version check');
     return;
   }
   
+  // Skip version check for non-staff routes to speed up loading
+  if (!isStaffRoute()) {
+    console.log('[App] Public page - skipping version check for faster load');
+    return;
+  }
+  
   try {
-    console.log('[App] Checking for updates...');
+    console.log('[App] Staff page - checking for updates...');
     const versionInfo = await VersionManager.initialize(true);
     
     if (versionInfo.hasUpdate) {
@@ -84,8 +96,8 @@ const initializeApp = async () => {
   }
 };
 
-// Run version check immediately (only in production)
-if (!isDev) {
+// Run version check immediately (only in production and staff routes)
+if (!isDev && isStaffRoute()) {
   initializeApp();
 }
 
