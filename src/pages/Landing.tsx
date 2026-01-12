@@ -227,7 +227,7 @@ function LandingContent() {
       
       
       {/* Top Center Logo - disappears on xray or when hovering CHANGE THE GAME area */}
-      <div className={`absolute top-4 md:top-6 z-[1] transition-opacity duration-500 left-1/2 -translate-x-1/2 ${xrayState.isActive || topLogoHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`absolute top-4 md:top-6 z-[1] transition-opacity duration-500 w-full flex justify-center ${xrayState.isActive || topLogoHovered ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         {/* Desktop */}
         <div className="hidden md:block">
           <img src={fffLogo} alt="Fuel For Football" className="h-[55px] w-auto" loading="eager" fetchPriority="high" />
@@ -254,14 +254,14 @@ function LandingContent() {
       </div>
       
       {/* Staff, Scout & Portal links - subtle top right */}
-      <div className="absolute top-6 md:top-8 right-4 md:right-8 z-50 flex items-center gap-3">
-        <Link to="/staff" className="text-light-green/20 hover:text-light-green/50 text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
+      <div className="absolute top-6 md:top-8 right-4 md:right-8 z-50 flex items-center gap-2 md:gap-3">
+        <Link to="/staff" className="text-light-green/30 hover:text-light-green/60 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
           {t("header.staff", "Staff")}
         </Link>
-        <button onClick={() => navigateToRole("/scouts")} className="text-light-green/20 hover:text-light-green/50 text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
+        <button onClick={() => navigateToRole("/scouts")} className="text-light-green/30 hover:text-light-green/60 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
           {t("landing.nav_scouts", "Scout")}
         </button>
-        <LocalizedLink to="/portal" className="text-light-green/20 hover:text-light-green/50 text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
+        <LocalizedLink to="/portal" className="text-light-green/30 hover:text-light-green/60 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
           {t("header.portal", "Portal")}
         </LocalizedLink>
       </div>
@@ -364,15 +364,15 @@ function LandingContent() {
                 </nav>
               </div>
               
-              {/* Language Selector - Mobile only - single instance */}
-              <div className="flex flex-col items-center pt-1">
+              {/* Language Selector - Mobile only - single instance, centered */}
+              <div className="flex justify-center w-full pt-2">
                 <div className="scale-[1.2]">
                   <LanguageMapSelector onOpenChange={setLanguagePopupOpen} />
                 </div>
               </div>
               
               {/* Select role text - mobile */}
-              <div className="text-center pt-0">
+              <div className="text-center pt-1 w-full">
                 <span className="text-[10px] font-bebas uppercase tracking-[0.15em] text-[hsl(var(--mint)/0.4)]">
                   {t("landing.select_role_enter", "Select Your Role To Enter Site")}
                 </span>
