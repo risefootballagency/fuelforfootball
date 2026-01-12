@@ -23,6 +23,7 @@ const Tactical = () => {
     <ServicePageLayout
       category="TACTICAL"
       title="SEE THE GAME\nBEFORE IT HAPPENS"
+      heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
 

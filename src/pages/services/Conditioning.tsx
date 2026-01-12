@@ -21,6 +21,7 @@ const Conditioning = () => {
     <ServicePageLayout
       category="CONDITIONING"
       title="THE CAPACITY TO\nCOVER EVERY BLADE"
+      heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
 

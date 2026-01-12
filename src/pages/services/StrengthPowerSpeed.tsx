@@ -22,6 +22,7 @@ const StrengthPowerSpeed = () => {
     <ServicePageLayout
       category="STRENGTH, POWER & SPEED"
       title="RUN LIKE A SPORTS CAR\nNOT A HATCHBACK"
+      heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
 
