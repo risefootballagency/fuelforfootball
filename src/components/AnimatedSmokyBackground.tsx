@@ -1,106 +1,137 @@
 import { useEffect, useRef } from "react";
 
 export const AnimatedSmokyBackground = ({ className = '' }: { className?: string }) => {
-  // Brand mint color #c5db9e = rgba(197, 219, 158, opacity)
+  // Forest green smoke effect - deep emerald tones matching reference
   return (
-    <div className={`absolute inset-0 z-0 overflow-hidden bg-[#0a1a0a] ${className}`}>
-      {/* Base gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0d2818]/80 via-[#0a1a0a] to-[#051005]" />
+    <div className={`absolute inset-0 z-0 overflow-hidden bg-[#050d08] ${className}`}>
+      {/* Base gradient - deeper forest green */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a1f12]/90 via-[#061109] to-[#030806]" />
       
-      {/* Animated smoke layers using brand mint #c5db9e */}
+      {/* Noise texture overlay for organic feel */}
+      <div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
+      
+      {/* Animated smoke layers - forest green palette */}
       <div className="absolute inset-0">
-        {/* Layer 1 - Large dominant smoke streaks */}
+        {/* Layer 1 - Large dominant smoke clouds */}
         <div 
           className="absolute w-[300%] h-[300%]"
           style={{
             background: `
-              radial-gradient(ellipse 120% 80% at 15% 25%, rgba(197, 219, 158, 0.5) 0%, transparent 60%),
-              radial-gradient(ellipse 100% 70% at 75% 50%, rgba(197, 219, 158, 0.45) 0%, transparent 55%),
-              radial-gradient(ellipse 140% 90% at 35% 85%, rgba(180, 205, 140, 0.5) 0%, transparent 65%)
+              radial-gradient(ellipse 150% 100% at 10% 80%, rgba(45, 90, 60, 0.7) 0%, rgba(30, 70, 45, 0.3) 40%, transparent 70%),
+              radial-gradient(ellipse 120% 80% at 80% 20%, rgba(35, 80, 50, 0.6) 0%, rgba(25, 60, 40, 0.2) 45%, transparent 65%),
+              radial-gradient(ellipse 100% 120% at 50% 100%, rgba(50, 100, 70, 0.5) 0%, transparent 60%)
             `,
-            animation: 'smokeMove1 25s ease-in-out infinite',
+            animation: 'smokeMove1 30s ease-in-out infinite',
+            filter: 'blur(40px)',
           }}
         />
         
-        {/* Layer 2 - Medium bold streaks */}
+        {/* Layer 2 - Mid-tone swirling mist */}
         <div 
           className="absolute w-[300%] h-[300%]"
           style={{
             background: `
-              radial-gradient(ellipse 110% 75% at 55% 35%, rgba(197, 219, 158, 0.45) 0%, transparent 60%),
-              radial-gradient(ellipse 90% 60% at 25% 65%, rgba(210, 230, 175, 0.4) 0%, transparent 55%),
-              radial-gradient(ellipse 130% 85% at 85% 15%, rgba(180, 205, 140, 0.45) 0%, transparent 60%)
+              radial-gradient(ellipse 100% 80% at 70% 60%, rgba(40, 85, 55, 0.6) 0%, transparent 55%),
+              radial-gradient(ellipse 80% 100% at 20% 30%, rgba(55, 110, 75, 0.5) 0%, transparent 50%),
+              radial-gradient(ellipse 120% 70% at 90% 80%, rgba(35, 75, 50, 0.55) 0%, transparent 60%)
             `,
-            animation: 'smokeMove2 20s ease-in-out infinite',
+            animation: 'smokeMove2 25s ease-in-out infinite',
+            filter: 'blur(50px)',
           }}
         />
         
-        {/* Layer 3 - Prominent wisps */}
+        {/* Layer 3 - Lighter accent wisps */}
         <div 
           className="absolute w-[250%] h-[250%]"
           style={{
             background: `
-              radial-gradient(ellipse 80% 55% at 45% 45%, rgba(210, 230, 175, 0.5) 0%, transparent 50%),
-              radial-gradient(ellipse 70% 50% at 15% 35%, rgba(220, 238, 190, 0.45) 0%, transparent 45%),
-              radial-gradient(ellipse 85% 60% at 80% 70%, rgba(197, 219, 158, 0.5) 0%, transparent 50%)
+              radial-gradient(ellipse 90% 70% at 30% 70%, rgba(70, 130, 90, 0.45) 0%, transparent 50%),
+              radial-gradient(ellipse 70% 90% at 75% 40%, rgba(60, 120, 80, 0.4) 0%, transparent 45%),
+              radial-gradient(ellipse 100% 60% at 15% 50%, rgba(80, 140, 100, 0.35) 0%, transparent 55%)
             `,
-            animation: 'smokeMove3 15s ease-in-out infinite',
+            animation: 'smokeMove3 20s ease-in-out infinite',
+            filter: 'blur(35px)',
           }}
         />
         
-        {/* Layer 4 - Large floating clouds */}
+        {/* Layer 4 - Deep shadow clouds */}
         <div 
           className="absolute w-[200%] h-[200%]"
           style={{
             background: `
-              radial-gradient(circle at 20% 30%, rgba(220, 238, 190, 0.4) 0%, transparent 35%),
-              radial-gradient(circle at 70% 50%, rgba(230, 245, 210, 0.35) 0%, transparent 30%),
-              radial-gradient(circle at 40% 80%, rgba(220, 238, 190, 0.4) 0%, transparent 32%)
+              radial-gradient(circle at 25% 75%, rgba(20, 50, 30, 0.8) 0%, transparent 40%),
+              radial-gradient(circle at 80% 30%, rgba(15, 40, 25, 0.7) 0%, transparent 35%),
+              radial-gradient(circle at 50% 50%, rgba(25, 55, 35, 0.6) 0%, transparent 45%)
             `,
-            animation: 'smokeMove4 30s ease-in-out infinite',
+            animation: 'smokeMove4 35s ease-in-out infinite',
+            filter: 'blur(60px)',
+          }}
+        />
+        
+        {/* Layer 5 - Bright highlight wisps */}
+        <div 
+          className="absolute w-[200%] h-[200%]"
+          style={{
+            background: `
+              radial-gradient(ellipse 60% 40% at 60% 80%, rgba(90, 150, 110, 0.3) 0%, transparent 50%),
+              radial-gradient(ellipse 50% 60% at 20% 20%, rgba(100, 160, 120, 0.25) 0%, transparent 45%)
+            `,
+            animation: 'smokeMove5 18s ease-in-out infinite',
+            filter: 'blur(30px)',
           }}
         />
       </div>
       
-      {/* Vignette overlay */}
+      {/* Vignette overlay - stronger edges */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at center, transparent 30%, rgba(5, 16, 5, 0.6) 100%)',
+          background: 'radial-gradient(ellipse 80% 80% at center, transparent 20%, rgba(3, 8, 5, 0.7) 80%, rgba(2, 5, 3, 0.95) 100%)',
         }}
       />
       
       <style>{`
         @keyframes smokeMove1 {
           0% { transform: translate(0%, 0%) scale(1) rotate(0deg); }
-          20% { transform: translate(-8%, 4%) scale(1.08) rotate(2deg); }
-          40% { transform: translate(-15%, -3%) scale(1.03) rotate(-1deg); }
-          60% { transform: translate(-5%, 8%) scale(1.12) rotate(3deg); }
-          80% { transform: translate(-12%, 2%) scale(0.98) rotate(-2deg); }
+          20% { transform: translate(-10%, 6%) scale(1.1) rotate(1deg); }
+          40% { transform: translate(-18%, -4%) scale(1.05) rotate(-2deg); }
+          60% { transform: translate(-8%, 10%) scale(1.15) rotate(2deg); }
+          80% { transform: translate(-15%, 3%) scale(0.95) rotate(-1deg); }
           100% { transform: translate(0%, 0%) scale(1) rotate(0deg); }
         }
         
         @keyframes smokeMove2 {
           0% { transform: translate(-5%, -5%) scale(1.02) rotate(0deg); }
-          25% { transform: translate(5%, 3%) scale(0.95) rotate(-3deg); }
-          50% { transform: translate(-10%, 8%) scale(1.1) rotate(2deg); }
-          75% { transform: translate(3%, -6%) scale(1.05) rotate(-1deg); }
+          25% { transform: translate(8%, 5%) scale(0.92) rotate(-2deg); }
+          50% { transform: translate(-12%, 10%) scale(1.12) rotate(3deg); }
+          75% { transform: translate(5%, -8%) scale(1.08) rotate(-1deg); }
           100% { transform: translate(-5%, -5%) scale(1.02) rotate(0deg); }
         }
         
         @keyframes smokeMove3 {
           0% { transform: translate(0%, 0%) scale(1) rotate(0deg); }
-          33% { transform: translate(-20%, 5%) scale(1.15) rotate(4deg); }
-          66% { transform: translate(-8%, -8%) scale(0.92) rotate(-3deg); }
+          33% { transform: translate(-25%, 8%) scale(1.18) rotate(3deg); }
+          66% { transform: translate(-10%, -10%) scale(0.88) rotate(-4deg); }
           100% { transform: translate(0%, 0%) scale(1) rotate(0deg); }
         }
         
         @keyframes smokeMove4 {
-          0% { transform: translate(0%, 0%) scale(1); opacity: 0.2; }
-          25% { transform: translate(-15%, 10%) scale(1.2); opacity: 0.35; }
-          50% { transform: translate(-25%, -5%) scale(1.1); opacity: 0.25; }
-          75% { transform: translate(-10%, 15%) scale(1.25); opacity: 0.4; }
-          100% { transform: translate(0%, 0%) scale(1); opacity: 0.2; }
+          0% { transform: translate(0%, 0%) scale(1); opacity: 0.6; }
+          25% { transform: translate(-18%, 12%) scale(1.25); opacity: 0.8; }
+          50% { transform: translate(-30%, -8%) scale(1.15); opacity: 0.5; }
+          75% { transform: translate(-12%, 18%) scale(1.3); opacity: 0.75; }
+          100% { transform: translate(0%, 0%) scale(1); opacity: 0.6; }
+        }
+        
+        @keyframes smokeMove5 {
+          0% { transform: translate(0%, 0%) scale(1); opacity: 0.3; }
+          50% { transform: translate(-15%, 5%) scale(1.1); opacity: 0.5; }
+          100% { transform: translate(0%, 0%) scale(1); opacity: 0.3; }
         }
       `}</style>
     </div>
