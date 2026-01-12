@@ -32,6 +32,9 @@ import { UpdatesManagement } from "@/components/staff/UpdatesManagement";
 import { StaffSchedule } from "@/components/staff/StaffSchedule";
 import { StaffOverview } from "@/components/staff/StaffOverview";
 import { GoalsTasksManagement } from "@/components/staff/GoalsTasksManagement";
+import { VisionBoardSection } from "@/components/staff/VisionBoardSection";
+import { FocusedTasksSection } from "@/components/staff/FocusedTasksSection";
+import { StaffNotificationsDropdown } from "@/components/staff/StaffNotificationsDropdown";
 import { StaffAvailabilityManagement } from "@/components/staff/StaffAvailabilityManagement";
 import { StaffSchedulesManagement } from "@/components/staff/StaffSchedulesManagement";
 import { MarketingManagement } from "@/components/staff/MarketingManagement";
@@ -65,6 +68,11 @@ import { SalesManagement } from "@/components/staff/SalesManagement";
 import { ContractSignature } from "@/components/staff/ContractSignature";
 import { VersionManager } from "@/lib/versionManager";
 import { RetentionTracker, SalesTracker, OutreachTracker, SalesHub, TimeManagement } from "@/components/staff/sales";
+import { JobsManagement } from "@/components/staff/JobsManagement";
+import { PartnersManagement } from "@/components/staff/PartnersManagement";
+import { MarketingTipsManagement } from "@/components/staff/MarketingTipsManagement";
+import { PressReleasesManagement } from "@/components/staff/PressReleasesManagement";
+import PageLoading from "@/components/PageLoading";
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
@@ -117,7 +125,7 @@ const Staff = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMarketeer, setIsMarketeer] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | null>('overview');
+  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'jobs' | 'partners' | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Enable staff notifications
@@ -442,11 +450,7 @@ const Staff = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   // Show login form if not authenticated
@@ -549,6 +553,8 @@ const Staff = () => {
       icon: Calendar,
       sections: [
         { id: 'overview', title: 'Overview', icon: Calendar },
+        { id: 'focusedtasks', title: 'Focused Tasks', icon: Target },
+        { id: 'visionboard', title: 'Vision Board', icon: Target },
         { id: 'goalstasks', title: 'Goals & Tasks', icon: Target },
         { id: 'staffschedules', title: 'Staff Schedules', icon: Users },
       ],
@@ -602,9 +608,11 @@ const Staff = () => {
       sections: [
         { id: 'marketing', title: 'Marketing', icon: Megaphone },
         { id: 'marketingideas', title: 'Ideas', icon: Target },
+        { id: 'marketingtips', title: 'Tips & Lessons', icon: Target },
         { id: 'contentcreator', title: 'Content Creator', icon: Film },
         { id: 'blog', title: 'News Articles', icon: Newspaper },
         { id: 'dailyfuel', title: 'Daily Fuel', icon: FileText },
+        { id: 'pressreleases', title: 'Press Releases', icon: Newspaper },
         { id: 'openaccess', title: 'Open Access', icon: FileText },
         { id: 'visitors', title: 'Site Visitors', icon: Eye },
       ]
@@ -646,6 +654,8 @@ const Staff = () => {
         { id: 'contracts', title: 'Contracts', icon: FileCheck },
         { id: 'languages', title: 'Languages', icon: Languages },
         ...(isAdmin ? [
+          { id: 'jobs', title: 'Jobs', icon: FileCheck },
+          { id: 'partners', title: 'Partners', icon: Network },
           { id: 'sitemanagement', title: 'Site Management', icon: Settings },
           { id: 'passwords', title: 'Player Passwords', icon: Lock },
           { id: 'staffaccounts', title: 'Staff Accounts', icon: Shield },
@@ -965,6 +975,8 @@ const Staff = () => {
                     </div>
                   )}
                   {expandedSection === 'goalstasks' && <GoalsTasksManagement />}
+                  {expandedSection === 'visionboard' && <VisionBoardSection />}
+                  {expandedSection === 'focusedtasks' && <FocusedTasksSection />}
                   {expandedSection === 'staffschedules' && <StaffSchedulesManagement />}
                   {expandedSection === 'playerlist' && <PlayerList isAdmin={isAdmin} />}
                   {expandedSection === 'players' && <PlayerManagement isAdmin={isAdmin} />}
@@ -979,8 +991,10 @@ const Staff = () => {
                   {expandedSection === 'marketing' && <MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
                   {expandedSection === 'contentcreator' && <ContentCreator />}
                   {expandedSection === 'marketingideas' && <MarketingIdeas />}
+                  {expandedSection === 'marketingtips' && <MarketingTipsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'blog' && <BlogManagement isAdmin={isAdmin} />}
                   {expandedSection === 'dailyfuel' && <DailyFuelManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'pressreleases' && <PressReleasesManagement isAdmin={isAdmin} />}
                   {expandedSection === 'openaccess' && <OpenAccessManagement />}
                   {expandedSection === 'submissions' && <FormSubmissionsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'visitors' && <SiteVisitorsManagement isAdmin={isAdmin} />}
@@ -1004,6 +1018,8 @@ const Staff = () => {
                   {expandedSection === 'contracts' && <ContractSignature />}
                   {expandedSection === 'languages' && <LanguagesManagement isAdmin={isAdmin} />}
                   {expandedSection === 'sitemanagement' && isAdmin && <SiteManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'jobs' && isAdmin && <JobsManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'partners' && isAdmin && <PartnersManagement isAdmin={isAdmin} />}
                   {expandedSection === 'passwords' && isAdmin && <PlayerPasswordManagement />}
                   {expandedSection === 'staffaccounts' && isAdmin && <StaffAccountManagement />}
                   {expandedSection === 'pwainstall' && isAdmin && <StaffPWAInstall />}

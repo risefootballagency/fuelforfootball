@@ -851,6 +851,51 @@ export type Database = {
         }
         Relationships: []
       }
+      focused_tasks: {
+        Row: {
+          actual_minutes: number | null
+          assigned_to: string | null
+          category: string | null
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          estimated_minutes: number | null
+          id: string
+          priority: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          actual_minutes?: number | null
+          assigned_to?: string | null
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          actual_minutes?: number | null
+          assigned_to?: string | null
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       form_submissions: {
         Row: {
           created_at: string
@@ -1052,6 +1097,51 @@ export type Database = {
           },
         ]
       }
+      jobs: {
+        Row: {
+          application_url: string | null
+          created_at: string | null
+          department: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          location: string | null
+          requirements: string | null
+          salary_range: string | null
+          title: string
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          application_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          requirements?: string | null
+          salary_range?: string | null
+          title: string
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          application_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          requirements?: string | null
+          salary_range?: string | null
+          title?: string
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       legal_documents: {
         Row: {
           category: string
@@ -1250,6 +1340,51 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_tips: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string | null
+          created_by: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_lesson: boolean | null
+          published: boolean | null
+          title: string
+          updated_at: string | null
+          video_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_lesson?: boolean | null
+          published?: boolean | null
+          title: string
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_lesson?: boolean | null
+          published?: boolean | null
+          title?: string
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           analyses: boolean
@@ -1441,6 +1576,54 @@ export type Database = {
           new_prospects_actual?: number | null
           new_prospects_target?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      partners: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          notes: string | null
+          status: string | null
+          type: string | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          notes?: string | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          notes?: string | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -2436,6 +2619,45 @@ export type Database = {
           phase?: string
           position?: string
           subcategory?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      press_releases: {
+        Row: {
+          author_id: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          publish_date: string | null
+          published: boolean | null
+          summary: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          publish_date?: string | null
+          published?: boolean | null
+          summary?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          publish_date?: string | null
+          published?: boolean | null
+          summary?: string | null
+          title?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -4047,6 +4269,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      vision_board_items: {
+        Row: {
+          action_plan: string | null
+          assigned_to: string[] | null
+          category: string
+          created_at: string | null
+          created_by: string | null
+          display_order: number | null
+          id: string
+          notes: string | null
+          progress: number | null
+          status: string | null
+          target_date: string | null
+          updated_at: string | null
+          vision: string
+        }
+        Insert: {
+          action_plan?: string | null
+          assigned_to?: string[] | null
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          notes?: string | null
+          progress?: number | null
+          status?: string | null
+          target_date?: string | null
+          updated_at?: string | null
+          vision: string
+        }
+        Update: {
+          action_plan?: string | null
+          assigned_to?: string[] | null
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          notes?: string | null
+          progress?: number | null
+          status?: string | null
+          target_date?: string | null
+          updated_at?: string | null
+          vision?: string
+        }
+        Relationships: []
       }
       web_push_subscriptions: {
         Row: {
