@@ -11,6 +11,9 @@ import { VideoHeroBanner } from "@/components/VideoHeroBanner";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { PlayerRollingSlider } from "@/components/PlayerRollingSlider";
 import { PlayersSubmenu } from "@/components/PlayersSubmenu";
+import { WhatsAppPulse } from "@/components/WhatsAppPulse";
+import { EliteMessaging, PropagandaBanner } from "@/components/EliteMessaging";
+import { MetricBanner } from "@/components/PropagandaMetrics";
 
 // Service Section Component with Carousel
 const ServiceSection = ({
@@ -499,24 +502,39 @@ const Players = () => {
           </div>
         </section>
 
+        {/* Propaganda Banner */}
+        <PropagandaBanner />
+
+        {/* FOMO Messaging */}
+        <EliteMessaging variant="exclusivity" className="bg-card/30" />
+
+        {/* Metric Banner */}
+        <MetricBanner />
+
         {/* Bottom CTA Section */}
         <section className="py-10 md:py-24 border-t border-border/50 bg-[#fafafa]">
           <div className="container mx-auto text-center max-w-3xl">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6" style={{ color: '#008240' }}>
-              Ready to Elevate Your Game?
+              The Window Is Closing
             </h2>
             <p className="text-base md:text-lg mb-6 md:mb-8" style={{ color: '#008240' }}>
-              Get in touch to discuss how we can help you reach your full potential as a footballer.
+              Your peak years are limited. The scouts are watching now—not later. Take action before it's too late.
             </p>
-            <Link to="/contact">
-              <Button size="lg" className="gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider">
-                Contact Us
-                <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <WhatsAppPulse position="inline" message="Speak to us now" showDelay={0} />
+              <Link to="/contact">
+                <Button size="lg" variant="outline" className="gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider">
+                  Contact Us
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
       </main>
+      
+      {/* Floating WhatsApp CTA */}
+      <WhatsAppPulse showDelay={8000} />
       
       <Footer />
     </div>

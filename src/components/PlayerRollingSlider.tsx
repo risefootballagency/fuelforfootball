@@ -54,11 +54,14 @@ export const PlayerRollingSlider = ({
   return (
     <section className="py-12 md:py-20 bg-gradient-to-b from-card/40 via-background to-background overflow-hidden">
       <div className="container mx-auto px-4 mb-8 md:mb-12">
+        <span className="text-xs font-bebas uppercase tracking-[0.3em] text-primary/60 block mb-2 text-center">
+          Anonymous Results
+        </span>
         <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-4">
-          {title}
+          Players Who <span className="text-primary">Took Action</span>
         </h2>
         <p className="text-center text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-          {subtitle}
+          They stopped waiting. They stopped hoping. They started training with us—and now they play at the highest level.
         </p>
       </div>
 
@@ -91,11 +94,11 @@ export const PlayerRollingSlider = ({
                 {/* Glossy Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/20 z-10 pointer-events-none" />
                 
-                {/* Player Image */}
+                {/* Player Image - GRAYSCALE for anonymity */}
                 <img 
                   src={player.image} 
-                  alt={player.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  alt="Elite Player"
+                  className="w-full h-full object-cover transition-all duration-500 grayscale group-hover:grayscale-0 group-hover:scale-110"
                   loading="lazy"
                 />
                 
@@ -103,16 +106,14 @@ export const PlayerRollingSlider = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
               </div>
 
-              {/* Player Info */}
+              {/* Anonymous Hover Info - No names */}
               <div className="mt-3 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <p className="font-bebas text-sm md:text-base text-foreground tracking-wider">
-                  {player.name}
+                <p className="font-bebas text-sm md:text-base text-primary tracking-wider">
+                  FUELLED
                 </p>
-                {player.club && (
-                  <p className="text-xs text-primary">
-                    {player.club}
-                  </p>
-                )}
+                <p className="text-xs text-muted-foreground">
+                  Professional
+                </p>
               </div>
             </motion.div>
           ))}
@@ -121,6 +122,13 @@ export const PlayerRollingSlider = ({
         {/* Fade edges */}
         <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-background to-transparent pointer-events-none z-10" />
         <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+      </div>
+
+      {/* FOMO CTA */}
+      <div className="text-center mt-8">
+        <p className="text-xs text-muted-foreground italic mb-2">
+          While you're reading this, they're training.
+        </p>
       </div>
     </section>
   );
