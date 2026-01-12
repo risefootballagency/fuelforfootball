@@ -96,42 +96,42 @@ const Players = () => {
       icon: Target,
       title: "Tactical",
       description: "Sharpen your decision-making and see the game in a different light. Read several passes ahead of play to consistently gain the advantage over your matchups.",
-      link: "/services/tactical",
+      link: "/tactical",
       image: "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg"
     },
     {
       icon: Brain,
       title: "Psychological",
       description: "Develop mental skills in consistency, commitment, confidence, resilience, and focus. Outwill opponents to overcome skill differences and dominate on the pitch.",
-      link: "/services/mental",
+      link: "/mental",
       image: "https://static.wixstatic.com/media/c4f4b1_aed8df24614a45b29533fede6bae55c7~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/gran.jpg"
     },
     {
       icon: Lightbulb,
       title: "Technical",
       description: "Master your touch, be more unpredictable and finish at will. Consistently deal with difficult balls into you and find ways to open up into what you do best.",
-      link: "/services/technical",
+      link: "/technical",
       image: "https://static.wixstatic.com/media/c4f4b1_c627e66f4e68449590b6f4f745b91472~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/got.jpg"
     },
     {
       icon: Dumbbell,
       title: "Physical",
       description: "Become stronger, faster and more powerful to dominate on the pitch. Condition and develop a capacity for training to progress more quickly and reduce injuries.",
-      link: "/services/strength-power-speed",
+      link: "/strength-power-speed",
       image: "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Copy%20of%20We%20play%20out%20from%20the%20back%20to%20advance%20into%20the%20opposition%20half_%20We%20then%20play%20throug.jpg"
     }
   ];
 
   const services = [
-    { name: "Pro Performance", link: "/services/pro-performance" },
-    { name: "Elite Performance", link: "/services/elite-performance" },
-    { name: "Tactical", link: "/services/tactical" },
-    { name: "Conditioning", link: "/services/conditioning" },
-    { name: "Strength, Power & Speed", link: "/services/strength-power-speed" },
-    { name: "Nutrition", link: "/services/nutrition" },
-    { name: "Consultation", link: "/services/consultation" },
-    { name: "Data Report", link: "/services/data" },
-    { name: "Technical", link: "/services/technical" },
+    { name: "Pro Performance", link: "/pro-performance" },
+    { name: "Elite Performance", link: "/elite-performance" },
+    { name: "Tactical", link: "/tactical" },
+    { name: "Conditioning", link: "/conditioning" },
+    { name: "Strength, Power & Speed", link: "/strength-power-speed" },
+    { name: "Nutrition", link: "/nutrition" },
+    { name: "Consultation", link: "/consultation" },
+    { name: "Data Report", link: "/analysis" },
+    { name: "Technical", link: "/technical" },
   ];
 
   const needsAnalysisSteps = [
@@ -159,51 +159,51 @@ const Players = () => {
 
   // Tactical Analysis Products
   const tacticalProducts = [
-    { image: "https://static.wixstatic.com/media/c4f4b1_290b7878ef8a4b2b9291117f1a47f12c~mv2.png/v1/fill/w_314,h_314,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_290b7878ef8a4b2b9291117f1a47f12c~mv2.png", title: "European Match Analysis Package", link: "/services/tactical" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_0644d43020e245e2a593e50e9242d8f4~mv2.png/v1/fill/w_314,h_314,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_0644d43020e245e2a593e50e9242d8f4~mv2.png", title: "Match Analysis (Pre & Post)", link: "/services/tactical" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_0644d43020e245e2a593e50e9242d8f4~mv2.png/v1/fill/w_314,h_314,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_0644d43020e245e2a593e50e9242d8f4~mv2.png", title: "Pre-Match Opposition Analysis", link: "/services/tactical" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_c3df57964c5242608b1ccd7430431fb9~mv2.png/v1/fill/w_314,h_314,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_c3df57964c5242608b1ccd7430431fb9~mv2.png", title: "Post-Match Analysis", link: "/services/tactical" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_290b7878ef8a4b2b9291117f1a47f12c~mv2.png/v1/fill/w_314,h_314,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_290b7878ef8a4b2b9291117f1a47f12c~mv2.png", title: "European Match Analysis Package", link: "/tactical" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_0644d43020e245e2a593e50e9242d8f4~mv2.png/v1/fill/w_314,h_314,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_0644d43020e245e2a593e50e9242d8f4~mv2.png", title: "Match Analysis (Pre & Post)", link: "/tactical" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_0644d43020e245e2a593e50e9242d8f4~mv2.png/v1/fill/w_314,h_314,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_0644d43020e245e2a593e50e9242d8f4~mv2.png", title: "Pre-Match Opposition Analysis", link: "/tactical" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_c3df57964c5242608b1ccd7430431fb9~mv2.png/v1/fill/w_314,h_314,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_c3df57964c5242608b1ccd7430431fb9~mv2.png", title: "Post-Match Analysis", link: "/tactical" },
   ];
 
   // Psychological Products
   const psychologicalProducts = [
-    { image: "https://static.wixstatic.com/media/c4f4b1_ec7282c95805482aaf5d9909b260c8ee~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_ec7282c95805482aaf5d9909b260c8ee~mv2.png", title: "Fuelled Elite Coaching", link: "/services/mental" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_121be4d22e6244d48dd94cacbf7bcf8c~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_121be4d22e6244d48dd94cacbf7bcf8c~mv2.png", title: "Psychological Performance", link: "/services/mental" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_f85124e6d69542e4b4329bacafb454a3~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_f85124e6d69542e4b4329bacafb454a3~mv2.png", title: "Psychological Development", link: "/services/mental" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_2acec297d8d647188b1d38bd5fa71f69~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2acec297d8d647188b1d38bd5fa71f69~mv2.png", title: "Consultation", link: "/services/consultation" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_ec7282c95805482aaf5d9909b260c8ee~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_ec7282c95805482aaf5d9909b260c8ee~mv2.png", title: "Fuelled Elite Coaching", link: "/mental" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_121be4d22e6244d48dd94cacbf7bcf8c~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_121be4d22e6244d48dd94cacbf7bcf8c~mv2.png", title: "Psychological Performance", link: "/mental" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_f85124e6d69542e4b4329bacafb454a3~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_f85124e6d69542e4b4329bacafb454a3~mv2.png", title: "Psychological Development", link: "/mental" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_2acec297d8d647188b1d38bd5fa71f69~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2acec297d8d647188b1d38bd5fa71f69~mv2.png", title: "Consultation", link: "/consultation" },
   ];
 
   // Technical Products
   const technicalProducts = [
-    { image: "https://static.wixstatic.com/media/c4f4b1_913034088e8646d79d725095677b0b1a~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_913034088e8646d79d725095677b0b1a~mv2.png", title: "Recovery, Injury Prevention & Mobility", link: "/services/technical" },
-    { image: "https://static.wixstatic.com/media/e2ec89_74879ef601434395a9d63a2a8888c97a~mv2.jpg/v1/fill/w_312,h_312,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_74879ef601434395a9d63a2a8888c97a~mv2.jpg", title: "Technical Programming", link: "/services/technical" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_3572b859d7e04a29a183836a276c0028~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_3572b859d7e04a29a183836a276c0028~mv2.png", title: "Technical Training", link: "/services/technical" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_913034088e8646d79d725095677b0b1a~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_913034088e8646d79d725095677b0b1a~mv2.png", title: "Recovery, Injury Prevention & Mobility", link: "/technical" },
+    { image: "https://static.wixstatic.com/media/e2ec89_74879ef601434395a9d63a2a8888c97a~mv2.jpg/v1/fill/w_312,h_312,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_74879ef601434395a9d63a2a8888c97a~mv2.jpg", title: "Technical Programming", link: "/technical" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_3572b859d7e04a29a183836a276c0028~mv2.png/v1/fill/w_312,h_312,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_3572b859d7e04a29a183836a276c0028~mv2.png", title: "Technical Training", link: "/technical" },
   ];
 
   // SPS Products
   const spsProducts = [
-    { image: "https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_305,h_305,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png", title: "Strength, Power & Speed Training", link: "/services/strength-power-speed" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png/v1/fill/w_305,h_305,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png", title: "Strength, Power & Speed Programming", link: "/services/strength-power-speed" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_305,h_305,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png", title: "Strength, Power & Speed Training", link: "/strength-power-speed" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png/v1/fill/w_305,h_305,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png", title: "Strength, Power & Speed Programming", link: "/strength-power-speed" },
   ];
 
   // Conditioning Products
   const conditioningProducts = [
-    { image: "https://static.wixstatic.com/media/c4f4b1_ff883ecdb84447798addc2bef1be7c2b~mv2.png/v1/fill/w_310,h_310,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_ff883ecdb84447798addc2bef1be7c2b~mv2.png", title: "Conditioning Programming", link: "/services/conditioning" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_017fa5479b0149dc8131970689d6d548~mv2.png/v1/fill/w_310,h_310,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_017fa5479b0149dc8131970689d6d548~mv2.png", title: "Conditioning Training", link: "/services/conditioning" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_ff883ecdb84447798addc2bef1be7c2b~mv2.png/v1/fill/w_310,h_310,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_ff883ecdb84447798addc2bef1be7c2b~mv2.png", title: "Conditioning Programming", link: "/conditioning" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_017fa5479b0149dc8131970689d6d548~mv2.png/v1/fill/w_310,h_310,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_017fa5479b0149dc8131970689d6d548~mv2.png", title: "Conditioning Training", link: "/conditioning" },
   ];
 
   // Nutrition Products
   const nutritionProducts = [
-    { image: "https://static.wixstatic.com/media/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png", title: "Nutrition Programming & Recipes", link: "/services/nutrition" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png", title: "Nutrition Review", link: "/services/nutrition" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png", title: "Nutrition Programming", link: "/services/nutrition" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png", title: "Nutrition Programming & Recipes", link: "/nutrition" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png", title: "Nutrition Review", link: "/nutrition" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png", title: "Nutrition Programming", link: "/nutrition" },
   ];
 
   // Data Products
   const dataProducts = [
-    { image: "https://static.wixstatic.com/media/e2ec89_721d94e739554b42bcee3366201be597~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_721d94e739554b42bcee3366201be597~mv2.png", title: "Player Review", link: "/services/data" },
-    { image: "https://static.wixstatic.com/media/c4f4b1_68b329be4c5c4e78aa25bd6129bd4bc5~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_68b329be4c5c4e78aa25bd6129bd4bc5~mv2.png", title: "Transfer Efficiency Report", link: "/services/data" },
-    { image: "https://static.wixstatic.com/media/e2ec89_1f3e61bf392a4cdc8a8f02483a6c5c29~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_1f3e61bf392a4cdc8a8f02483a6c5c29~mv2.png", title: "Performance Efficiency Report", link: "/services/data" },
+    { image: "https://static.wixstatic.com/media/e2ec89_721d94e739554b42bcee3366201be597~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_721d94e739554b42bcee3366201be597~mv2.png", title: "Player Review", link: "/analysis" },
+    { image: "https://static.wixstatic.com/media/c4f4b1_68b329be4c5c4e78aa25bd6129bd4bc5~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_68b329be4c5c4e78aa25bd6129bd4bc5~mv2.png", title: "Transfer Efficiency Report", link: "/analysis" },
+    { image: "https://static.wixstatic.com/media/e2ec89_1f3e61bf392a4cdc8a8f02483a6c5c29~mv2.png/v1/fill/w_311,h_311,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_1f3e61bf392a4cdc8a8f02483a6c5c29~mv2.png", title: "Performance Efficiency Report", link: "/analysis" },
   ];
 
   return (
@@ -369,7 +369,7 @@ const Players = () => {
             link: "/daily-fuel"
           }}
           dailyFuelDescription="Breaking down the game with an advanced lens, showing technical breakdowns and discussing important tactical ideas from the POV of the player."
-          learnMoreLink="/services/tactical"
+          learnMoreLink="/tactical"
           learnMoreText="Tactical"
         />
 
@@ -385,7 +385,7 @@ const Players = () => {
             link: "/daily-fuel"
           }}
           dailyFuelDescription="Talking through the power of the mind and the specific interventions you can use to develop mental skills and will."
-          learnMoreLink="/services/mental"
+          learnMoreLink="/mental"
           learnMoreText="Psychology"
           reverse
         />
@@ -402,7 +402,7 @@ const Players = () => {
             link: "/daily-fuel"
           }}
           dailyFuelDescription="Detailing a more scientific approach to developing technical ability ranging from training paradigms to the specific techniques to apply."
-          learnMoreLink="/services/technical"
+          learnMoreLink="/technical"
           learnMoreText="Technical"
         />
 
@@ -418,7 +418,7 @@ const Players = () => {
             link: "/daily-fuel"
           }}
           dailyFuelDescription="Debunking the many myths that surround developing physically for Football and discussing the principles that underpin all effective training."
-          learnMoreLink="/services/strength-power-speed"
+          learnMoreLink="/strength-power-speed"
           learnMoreText="S.P.S."
           reverse
         />
@@ -435,7 +435,7 @@ const Players = () => {
             link: "/daily-fuel"
           }}
           dailyFuelDescription="Covering the full spectrum of the energy system and each type of endurance as it relates back to performance on the Football pitch."
-          learnMoreLink="/services/conditioning"
+          learnMoreLink="/conditioning"
           learnMoreText="Conditioning"
         />
 
@@ -451,7 +451,7 @@ const Players = () => {
             link: "/daily-fuel"
           }}
           dailyFuelDescription="A view of nutrition for performance; ranging from body composition, hydration protocols, match day prep and recovery strategies to the nuances such as eating disorders."
-          learnMoreLink="/services/nutrition"
+          learnMoreLink="/nutrition"
           learnMoreText="Nutrition"
           reverse
         />
@@ -468,7 +468,7 @@ const Players = () => {
             link: "/daily-fuel"
           }}
           dailyFuelDescription="Talking through the data and statistical side of the game to decipher what is important, what is a waste of your time and everything in between."
-          learnMoreLink="/services/data"
+          learnMoreLink="/analysis"
           learnMoreText="Data"
         />
 

@@ -15,44 +15,44 @@ const navItems: NavItem[] = [
   {
     label: "General",
     items: [
-      { label: "Consultation", link: "/services/consultation", description: "One-on-one expert guidance to identify your development needs and create a personalized pathway." },
-      { label: "Pro Performance", link: "/services/pro-performance", description: "Our flagship programme for professional players seeking elite-level holistic development." },
-      { label: "Elite Performance", link: "/services/elite-performance", description: "Comprehensive training for aspiring professionals ready to take the next step." },
+      { label: "Consultation", link: "/consultation", description: "One-on-one expert guidance to identify your development needs and create a personalized pathway." },
+      { label: "Pro Performance", link: "/pro-performance", description: "Our flagship programme for professional players seeking elite-level holistic development." },
+      { label: "Elite Performance", link: "/elite-performance", description: "Comprehensive training for aspiring professionals ready to take the next step." },
     ]
   },
   {
     label: "Holistic",
     items: [
-      { label: "Pro Performance", link: "/services/pro-performance", description: "Full-spectrum development covering tactical, technical, physical and mental pillars." },
-      { label: "Elite Performance", link: "/services/elite-performance", description: "Structured progression across all performance areas for emerging talent." },
-      { label: "Mentorship", link: "/services/mentorship", description: "Ongoing support and guidance from experienced football performance specialists." },
+      { label: "Pro Performance", link: "/pro-performance", description: "Full-spectrum development covering tactical, technical, physical and mental pillars." },
+      { label: "Elite Performance", link: "/elite-performance", description: "Structured progression across all performance areas for emerging talent." },
+      { label: "Mentorship", link: "/mentorship", description: "Ongoing support and guidance from experienced football performance specialists." },
     ]
   },
   {
     label: "Tactical",
     items: [
-      { label: "Tactical Overview", link: "/services/tactical", description: "Video analysis and tactical education to enhance decision-making and game intelligence." },
-      { label: "Action Reports", link: "/services/action-reports", description: "Detailed breakdown of your on-ball actions with specific improvement recommendations." },
+      { label: "Tactical Overview", link: "/tactical", description: "Video analysis and tactical education to enhance decision-making and game intelligence." },
+      { label: "Action Reports", link: "/action-reports", description: "Detailed breakdown of your on-ball actions with specific improvement recommendations." },
     ]
   },
   {
     label: "Technical",
     items: [
-      { label: "Technical Training", link: "/services/technical", description: "Master your touch, improve finishing and develop unpredictable skills to beat opponents." },
+      { label: "Technical Training", link: "/technical", description: "Master your touch, improve finishing and develop unpredictable skills to beat opponents." },
     ]
   },
   {
     label: "Mental",
     items: [
-      { label: "Psychological Performance", link: "/services/mental", description: "Build mental resilience, focus and confidence to perform consistently under pressure." },
+      { label: "Psychological Performance", link: "/mental", description: "Build mental resilience, focus and confidence to perform consistently under pressure." },
     ]
   },
   {
     label: "Physical",
     items: [
-      { label: "Strength, Power & Speed", link: "/services/strength-power-speed", description: "Develop explosive power and acceleration to dominate physical battles on the pitch." },
-      { label: "Conditioning", link: "/services/conditioning", description: "Build endurance and work capacity to maintain peak performance throughout matches." },
-      { label: "Nutrition", link: "/services/nutrition", description: "Optimize your diet to fuel training, recovery and match-day performance." },
+      { label: "Strength, Power & Speed", link: "/strength-power-speed", description: "Develop explosive power and acceleration to dominate physical battles on the pitch." },
+      { label: "Conditioning", link: "/conditioning", description: "Build endurance and work capacity to maintain peak performance throughout matches." },
+      { label: "Nutrition", link: "/nutrition", description: "Optimize your diet to fuel training, recovery and match-day performance." },
     ]
   },
 ];

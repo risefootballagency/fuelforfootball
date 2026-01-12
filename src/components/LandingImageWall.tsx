@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { useXRay } from "@/contexts/XRayContext";
 
 interface WallImage {
@@ -75,7 +75,7 @@ export const LandingImageWall = () => {
   
   useEffect(() => {
     const fetchImages = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await sharedSupabase
         .from("marketing_gallery")
         .select("id, file_url, title")
         .eq("folder", "landing")
