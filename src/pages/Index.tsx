@@ -332,7 +332,7 @@ const Index = () => {
                       {t("home.scouting_point_2_title", "Future-Focused Scouting")}
                     </h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {t("home.scouting_point_2_desc", "Novel scouting based on qualities that level up through the game—not just what works now, but what scales with a player's career.")}
+                      {t("home.scouting_point_2_desc", "Novel scouting based on qualities that level up through the game. Not just what works now, but what scales with a player's career.")}
                     </p>
                   </div>
                 </div>
@@ -351,7 +351,7 @@ const Index = () => {
                       {t("home.scouting_point_3_title", "Complete Player Knowledge")}
                     </h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {t("home.scouting_point_3_desc", "For any professional or academy player, we intend to know not just who they are—but how they play, what makes them tick, and what qualities they have that level up.")}
+                      {t("home.scouting_point_3_desc", "For any professional or academy player, we intend to know not just who they are, but how they play, what makes them tick, and what qualities they have that level up.")}
                     </p>
                   </div>
                 </div>

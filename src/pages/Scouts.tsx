@@ -439,7 +439,7 @@ const Scouts = () => {
                 </span>
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
-                We scout every major European market. Wherever talent emerges, we have eyes on the ground—and we're looking for scouts who know their region.
+                We scout every major European market. Wherever talent emerges, we have eyes on the ground. We are looking for scouts who know their region.
               </p>
             </div>
 
@@ -466,7 +466,7 @@ const Scouts = () => {
                     Deep Understanding
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    We don't just watch players—we analyze their tactical intelligence, technical ability, and mental attributes through comprehensive match analysis.
+                    We do not just watch players. We analyse their tactical intelligence, technical ability, and mental attributes through comprehensive match analysis.
                   </p>
                 </div>
               </Card>
