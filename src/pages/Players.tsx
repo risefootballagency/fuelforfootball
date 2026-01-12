@@ -263,8 +263,8 @@ const Players = () => {
       
       <main className="pt-20 md:pt-28">
         {/* Title Bar */}
-        <section className="relative overflow-hidden py-2 md:py-4 border-b border-border/50 bg-glossy-green">
-          <div className="container mx-auto relative z-10 flex items-center justify-center min-h-[40px] md:min-h-[auto]">
+        <section className="relative overflow-hidden border-b border-border/50 bg-glossy-green">
+          <div className="container mx-auto relative z-10 flex items-center justify-center py-3 md:py-4">
             <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-primary-foreground leading-none">
               Players
             </h1>
