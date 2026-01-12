@@ -14,7 +14,7 @@ import { PlayersSubmenu } from "@/components/PlayersSubmenu";
 import { WhatsAppPulse } from "@/components/WhatsAppPulse";
 import { EliteMessaging, PropagandaBanner } from "@/components/EliteMessaging";
 import { MetricBanner } from "@/components/PropagandaMetrics";
-import { BrandFadeOverlay } from "@/components/BrandFadeOverlay";
+
 
 // Service Section Component with Carousel
 const ServiceSection = ({
@@ -212,9 +212,6 @@ const Players = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Porsche-style brand fade overlay */}
-      <BrandFadeOverlay duration={1.2} delay={0.2} />
-      
       <SEO 
         title="Players - Football Performance Services | Fuel For Football"
         description="Fuel For Football is Football's leading performance consultancy. We work with Premier League and Football League players, offering strength, speed, power development, psychological performance sessions and game analysis."
