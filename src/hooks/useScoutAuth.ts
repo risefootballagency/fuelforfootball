@@ -33,10 +33,11 @@ export const useScoutAuth = () => {
       }
 
       try {
+        // Use case-insensitive email matching
         const { data, error } = await supabase
           .from("scouts")
           .select("*")
-          .eq("email", scoutEmail)
+          .ilike("email", scoutEmail.toLowerCase().trim())
           .maybeSingle();
 
         if (error || !data) {
