@@ -1,16 +1,30 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export const LandingCursor = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isVisible, setIsVisible] = useState(false);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const isVisibleRef = useRef(false);
 
   useEffect(() => {
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+
     const handleMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      setIsVisible(true);
+      // Direct DOM manipulation - no React re-renders
+      cursor.style.left = `${e.clientX}px`;
+      cursor.style.top = `${e.clientY}px`;
+
+      if (!isVisibleRef.current) {
+        isVisibleRef.current = true;
+        cursor.style.opacity = '1';
+      }
     };
 
-    const handleMouseLeave = () => setIsVisible(false);
+    const handleMouseLeave = () => {
+      isVisibleRef.current = false;
+      if (cursor) {
+        cursor.style.opacity = '0';
+      }
+    };
 
     window.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseleave', handleMouseLeave);
@@ -21,15 +35,13 @@ export const LandingCursor = () => {
     };
   }, []);
 
-  if (!isVisible) return null;
-
   return (
     <div
-      className="fixed pointer-events-none z-[3]"
+      ref={cursorRef}
+      className="fixed pointer-events-none z-[3] opacity-0"
       style={{
-        left: position.x,
-        top: position.y,
         transform: 'translate(-50%, -50%)',
+        willChange: 'left, top',
       }}
     >
       {/* Mint green dot cursor */}
