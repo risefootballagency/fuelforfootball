@@ -579,12 +579,12 @@ const Players = () => {
         <MetricBanner />
 
         {/* Bottom CTA Section */}
-        <section className="py-5 md:py-12 border-t border-border/50 bg-[#fafafa]">
+        <section className="py-5 md:py-12 border-t border-border/50 bg-muted/50">
           <div className="container mx-auto text-center max-w-3xl">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6" style={{ color: '#008240' }}>
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6 text-primary">
               The Window Is Closing
             </h2>
-            <p className="text-base md:text-lg mb-6 md:mb-8" style={{ color: '#008240' }}>
+            <p className="text-base md:text-lg mb-6 md:mb-8 text-primary">
               Your peak years are limited. The scouts are watching now, not later. Take action before it's too late.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
