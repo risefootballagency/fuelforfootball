@@ -39,7 +39,7 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, hoverEffect = false, children, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, hoverEffect = true, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     
     // Process children to wrap string text with HoverText when hoverEffect is enabled
