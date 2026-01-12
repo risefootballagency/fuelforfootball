@@ -4,8 +4,9 @@ import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Edit, FileText, LineChart, Video, Calendar, Plus, DollarSign, User, Trash2, Eye, TrendingUp, GripVertical, ChevronLeft, ChevronRight, Image as ImageIcon, X, Download } from "lucide-react";
+import { Edit, FileText, LineChart, Video, Calendar, Plus, DollarSign, User, Trash2, Eye, TrendingUp, GripVertical, ChevronLeft, ChevronRight, ChevronDown, Image as ImageIcon, X, Download } from "lucide-react";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";
 import { PerformanceActionsDialog } from "./PerformanceActionsDialog";
 import { CreatePerformanceReportDialog } from "./CreatePerformanceReportDialog";
@@ -1138,11 +1139,12 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   
   const selectedPlayerSeasonStats = selectedPlayer ? getSeasonStats(selectedPlayer) : null;
 
-  // Group players by representation status in order: represented, mandated, other
+  // Group players by representation status in order: Fuel For Football first, then represented, mandated, other
   const groupedPlayers = {
-    represented: players.filter(p => p.representation_status === 'represented'),
-    mandated: players.filter(p => p.representation_status === 'mandated'),
-    other: players.filter(p => p.representation_status === 'other' || !p.representation_status),
+    fuelForFootball: players.filter(p => p.category === 'Fuel For Football'),
+    represented: players.filter(p => p.representation_status === 'represented' && p.category !== 'Fuel For Football'),
+    mandated: players.filter(p => p.representation_status === 'mandated' && p.category !== 'Fuel For Football'),
+    other: players.filter(p => (p.representation_status === 'other' || !p.representation_status) && p.category !== 'Fuel For Football' && p.category !== 'Scouted'),
   };
 
   // Group players by category
@@ -1150,10 +1152,26 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     scouted: players.filter(p => p.category === 'Scouted'),
   };
 
+  // Collapsible state for each category (Fuel For Football is never collapsed)
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+
+  const toggleCategory = (category: string) => {
+    setCollapsedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center py-8">Loading players...</div>;
   }
 
+  const fuelForFootballPlayers = groupedPlayers.fuelForFootball;
   const representedPlayers = groupedPlayers.represented;
   const mandatedPlayers = groupedPlayers.mandated;
   const otherPlayers = groupedPlayers.other;
@@ -1168,6 +1186,18 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
             <SelectValue placeholder="Select a player" />
           </SelectTrigger>
           <SelectContent>
+            {fuelForFootballPlayers.length > 0 && (
+              <>
+                <div className="px-2 py-1.5 text-xs font-semibold text-primary">
+                  Fuel For Football
+                </div>
+                {fuelForFootballPlayers.map((player) => (
+                  <SelectItem key={player.id} value={player.id}>
+                    {player.name}
+                  </SelectItem>
+                ))}
+              </>
+            )}
             {representedPlayers.length > 0 && (
               <>
                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
@@ -1210,6 +1240,31 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
 
       {/* Desktop Inner Player Sidebar */}
       <div className="hidden md:flex w-20 flex-col gap-2 overflow-y-auto border-r pr-2">
+        {/* Fuel For Football Players - Always first */}
+        {fuelForFootballPlayers.map((player) => (
+          <button
+            key={player.id}
+            ref={(el) => (playerRefs.current[player.id] = el)}
+            onClick={() => handlePlayerSelect(player.id)}
+            className={`relative group transition-all ${
+              selectedPlayerId === player.id 
+                ? 'opacity-100 ring-2 ring-primary' 
+                : 'opacity-40 hover:opacity-70'
+            } ${autoSelectedFromUrl && selectedPlayerId === player.id ? 'animate-pulse' : ''}`}
+            title={player.name}
+          >
+            <Avatar className="w-14 h-14">
+              <AvatarImage src={player.image_url || undefined} alt={player.name} className="object-cover" />
+              <AvatarFallback className="text-xs">{(player.name || '').split(' ').filter(n => n).map(n => n[0]).join('') || '??'}</AvatarFallback>
+            </Avatar>
+          </button>
+        ))}
+        
+        {/* Gold border separator */}
+        {fuelForFootballPlayers.length > 0 && representedPlayers.length > 0 && (
+          <div className="h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent my-2" />
+        )}
+        
         {/* Represented Players */}
         {representedPlayers.map((player) => (
           <button
@@ -1323,245 +1378,352 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
               </Button>
             </div>
             
-            {/* Represented Players */}
+            {/* Fuel For Football Players - Always visible, not collapsible */}
+            {fuelForFootballPlayers.length > 0 && (
+              <div className="border border-primary/30 rounded-lg overflow-hidden">
+                <div className="px-4 py-3 bg-primary/10 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base md:text-lg font-semibold text-primary">Fuel For Football</h3>
+                    <span className="text-xs text-muted-foreground">({fuelForFootballPlayers.length})</span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-2 md:gap-4">
+                    {fuelForFootballPlayers.map((player) => {
+                      const playerStats = stats[player.id];
+                      return (
+                        <Card 
+                          key={player.id} 
+                          className="cursor-pointer hover:shadow-lg transition-all overflow-hidden"
+                          onClick={() => handlePlayerSelect(player.id)}
+                        >
+                          <div className="flex flex-col sm:flex-row h-full">
+                            <div className="w-full h-40 sm:w-32 sm:h-auto flex-shrink-0 relative">
+                              <img 
+                                src={player.image_url || undefined} 
+                                alt={player.name}
+                                className="absolute inset-0 w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 flex flex-col p-3 sm:p-4">
+                              <div className="flex-1 space-y-1">
+                                <h3 className="font-semibold text-sm sm:text-base md:text-lg truncate">{player.name}</h3>
+                                <p className="text-xs sm:text-sm text-muted-foreground">{player.position}</p>
+                                <div className="flex flex-wrap items-center gap-1 text-[11px] sm:text-xs text-muted-foreground">
+                                  <span>{player.age}y</span>
+                                  <span>•</span>
+                                  <span className="truncate max-w-[8rem] sm:max-w-none">{player.nationality}</span>
+                                </div>
+                                {player.club && (
+                                  <div className="flex items-center gap-2 text-[11px] sm:text-xs">
+                                    {player.club_logo && (
+                                      <img src={player.club_logo} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0" />
+                                    )}
+                                    <span className="text-muted-foreground truncate max-w-[9rem] sm:max-w-none">{player.club}</span>
+                                  </div>
+                                )}
+                              </div>
+                              {playerStats && (
+                                <div className="grid grid-cols-2 gap-1 sm:gap-2 text-center text-[10px] sm:text-xs pt-2 mt-2 border-t border-border/50">
+                                  <div>
+                                    <div className="font-semibold text-sm sm:text-base">{playerStats.matches || 0}</div>
+                                    <div className="text-muted-foreground text-[10px] sm:text-xs">Matches</div>
+                                  </div>
+                                  <div>
+                                    <div className="font-semibold text-sm sm:text-base">{playerStats.minutes || 0}</div>
+                                    <div className="text-muted-foreground text-[10px] sm:text-xs">Minutes</div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Represented Players - Collapsible */}
             {representedPlayers.length > 0 && (
-              <div>
-                <h3 className="text-base md:text-lg font-semibold mb-3 text-primary">Represented</h3>
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-2 md:gap-4">
-                  {representedPlayers.map((player) => {
-                    const playerStats = stats[player.id];
-                    return (
-                      <Card 
-                        key={player.id} 
-                        className="cursor-pointer hover:shadow-lg transition-all overflow-hidden"
-                        onClick={() => handlePlayerSelect(player.id)}
-                      >
-                        <div className="flex flex-col sm:flex-row h-full">
-                          {/* Image Section - Top on mobile, Left on desktop */}
-                          <div className="w-full h-40 sm:w-32 sm:h-auto flex-shrink-0 relative">
-                            <img 
-                              src={player.image_url || undefined} 
-                              alt={player.name}
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
-                          </div>
-                          
-                          {/* Content Section - Bottom on mobile, Right on desktop */}
-                          <div className="flex-1 flex flex-col p-3 sm:p-4">
-                            <div className="flex-1 space-y-1">
-                              <h3 className="font-semibold text-sm sm:text-base md:text-lg truncate">{player.name}</h3>
-                              <p className="text-xs sm:text-sm text-muted-foreground">{player.position}</p>
-                              <div className="flex flex-wrap items-center gap-1 text-[11px] sm:text-xs text-muted-foreground">
-                                <span>{player.age}y</span>
-                                <span>•</span>
-                                <span className="truncate max-w-[8rem] sm:max-w-none">{player.nationality}</span>
-                              </div>
-                              
-                              {player.club && (
-                                <div className="flex items-center gap-2 text-[11px] sm:text-xs">
-                                  {player.club_logo && (
-                                    <img src={player.club_logo} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0" />
+              <Collapsible open={!collapsedCategories.has('represented')}>
+                <div className="border rounded-lg overflow-hidden">
+                  <CollapsibleTrigger 
+                    className="w-full px-4 py-3 bg-muted/50 hover:bg-muted/70 transition-colors flex items-center justify-between cursor-pointer"
+                    onClick={() => toggleCategory('represented')}
+                  >
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base md:text-lg font-semibold text-primary">Represented</h3>
+                      <span className="text-xs text-muted-foreground">({representedPlayers.length})</span>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${collapsedCategories.has('represented') ? '-rotate-90' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="p-4">
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-2 md:gap-4">
+                        {representedPlayers.map((player) => {
+                          const playerStats = stats[player.id];
+                          return (
+                            <Card 
+                              key={player.id} 
+                              className="cursor-pointer hover:shadow-lg transition-all overflow-hidden"
+                              onClick={() => handlePlayerSelect(player.id)}
+                            >
+                              <div className="flex flex-col sm:flex-row h-full">
+                                <div className="w-full h-40 sm:w-32 sm:h-auto flex-shrink-0 relative">
+                                  <img 
+                                    src={player.image_url || undefined} 
+                                    alt={player.name}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1 flex flex-col p-3 sm:p-4">
+                                  <div className="flex-1 space-y-1">
+                                    <h3 className="font-semibold text-sm sm:text-base md:text-lg truncate">{player.name}</h3>
+                                    <p className="text-xs sm:text-sm text-muted-foreground">{player.position}</p>
+                                    <div className="flex flex-wrap items-center gap-1 text-[11px] sm:text-xs text-muted-foreground">
+                                      <span>{player.age}y</span>
+                                      <span>•</span>
+                                      <span className="truncate max-w-[8rem] sm:max-w-none">{player.nationality}</span>
+                                    </div>
+                                    {player.club && (
+                                      <div className="flex items-center gap-2 text-[11px] sm:text-xs">
+                                        {player.club_logo && (
+                                          <img src={player.club_logo} alt="" className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0" />
+                                        )}
+                                        <span className="text-muted-foreground truncate max-w-[9rem] sm:max-w-none">{player.club}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {playerStats && (
+                                    <div className="grid grid-cols-2 gap-1 sm:gap-2 text-center text-[10px] sm:text-xs pt-2 mt-2 border-t border-border/50">
+                                      <div>
+                                        <div className="font-semibold text-sm sm:text-base">{playerStats.matches || 0}</div>
+                                        <div className="text-muted-foreground text-[10px] sm:text-xs">Matches</div>
+                                      </div>
+                                      <div>
+                                        <div className="font-semibold text-sm sm:text-base">{playerStats.minutes || 0}</div>
+                                        <div className="text-muted-foreground text-[10px] sm:text-xs">Minutes</div>
+                                      </div>
+                                    </div>
                                   )}
-                                  <span className="text-muted-foreground truncate max-w-[9rem] sm:max-w-none">{player.club}</span>
-                                </div>
-                              )}
-                            </div>
-                            
-                            {playerStats && (
-                              <div className="grid grid-cols-2 gap-1 sm:gap-2 text-center text-[10px] sm:text-xs pt-2 mt-2 border-t border-border/50">
-                                <div>
-                                  <div className="font-semibold text-sm sm:text-base">{playerStats.matches || 0}</div>
-                                  <div className="text-muted-foreground text-[10px] sm:text-xs">Matches</div>
-                                </div>
-                                <div>
-                                  <div className="font-semibold text-sm sm:text-base">{playerStats.minutes || 0}</div>
-                                  <div className="text-muted-foreground text-[10px] sm:text-xs">Minutes</div>
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      </Card>
-                    );
-                  })}
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-              </div>
+              </Collapsible>
             )}
 
-            {/* Gold Border Separator */}
-            {groupedPlayers.represented.length > 0 && groupedPlayers.mandated.length > 0 && (
-              <div className="h-1 bg-gradient-to-r from-transparent via-gold to-transparent rounded-full" />
-            )}
-
-            {/* Mandated Players */}
+            {/* Mandated Players - Collapsible */}
             {mandatedPlayers.length > 0 && (
-              <div>
-                <h3 className="text-base md:text-lg font-semibold mb-4 text-primary">Mandated</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                  {mandatedPlayers.map((player) => {
-                    const playerStats = stats[player.id];
-                    return (
-                      <Card 
-                        key={player.id} 
-                        className="cursor-pointer hover:shadow-lg transition-all"
-                        onClick={() => handlePlayerSelect(player.id)}
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start gap-3">
-                            <Avatar className="w-16 h-16">
-                              <AvatarImage src={player.image_url || undefined} alt={player.name} className="object-cover" />
-                              <AvatarFallback>{(player.name || '').split(' ').filter(n => n).map(n => n[0]).join('') || '??'}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold truncate">{player.name}</h3>
-                              <p className="text-sm text-muted-foreground">{player.position}</p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                <span>{player.age}y</span>
-                                <span>•</span>
-                                <span>{player.nationality}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          {player.club && (
-                            <div className="flex items-center gap-2 text-sm mb-3">
-                              {player.club_logo && (
-                                <img src={player.club_logo} alt="" className="w-5 h-5 object-contain" />
-                              )}
-                              <span className="text-muted-foreground">{player.club}</span>
-                            </div>
-                          )}
-                          {playerStats && (
-                            <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                              <div>
-                                <div className="font-semibold text-lg">{playerStats.matches || 0}</div>
-                                <div className="text-muted-foreground">Matches</div>
-                              </div>
-                              <div>
-                                <div className="font-semibold text-lg">{playerStats.minutes || 0}</div>
-                                <div className="text-muted-foreground">Minutes</div>
-                              </div>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+              <Collapsible open={!collapsedCategories.has('mandated')}>
+                <div className="border rounded-lg overflow-hidden">
+                  <CollapsibleTrigger 
+                    className="w-full px-4 py-3 bg-muted/50 hover:bg-muted/70 transition-colors flex items-center justify-between cursor-pointer"
+                    onClick={() => toggleCategory('mandated')}
+                  >
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base md:text-lg font-semibold text-primary">Mandated</h3>
+                      <span className="text-xs text-muted-foreground">({mandatedPlayers.length})</span>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${collapsedCategories.has('mandated') ? '-rotate-90' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                        {mandatedPlayers.map((player) => {
+                          const playerStats = stats[player.id];
+                          return (
+                            <Card 
+                              key={player.id} 
+                              className="cursor-pointer hover:shadow-lg transition-all"
+                              onClick={() => handlePlayerSelect(player.id)}
+                            >
+                              <CardHeader className="pb-3">
+                                <div className="flex items-start gap-3">
+                                  <Avatar className="w-16 h-16">
+                                    <AvatarImage src={player.image_url || undefined} alt={player.name} className="object-cover" />
+                                    <AvatarFallback>{(player.name || '').split(' ').filter(n => n).map(n => n[0]).join('') || '??'}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold truncate">{player.name}</h3>
+                                    <p className="text-sm text-muted-foreground">{player.position}</p>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                                      <span>{player.age}y</span>
+                                      <span>•</span>
+                                      <span>{player.nationality}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardHeader>
+                              <CardContent>
+                                {player.club && (
+                                  <div className="flex items-center gap-2 text-sm mb-3">
+                                    {player.club_logo && (
+                                      <img src={player.club_logo} alt="" className="w-5 h-5 object-contain" />
+                                    )}
+                                    <span className="text-muted-foreground">{player.club}</span>
+                                  </div>
+                                )}
+                                {playerStats && (
+                                  <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                                    <div>
+                                      <div className="font-semibold text-lg">{playerStats.matches || 0}</div>
+                                      <div className="text-muted-foreground">Matches</div>
+                                    </div>
+                                    <div>
+                                      <div className="font-semibold text-lg">{playerStats.minutes || 0}</div>
+                                      <div className="text-muted-foreground">Minutes</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-              </div>
+              </Collapsible>
             )}
 
-            {/* Gold Border Separator */}
-            {groupedPlayers.mandated.length > 0 && groupedPlayers.other.length > 0 && (
-              <div className="h-1 bg-gradient-to-r from-transparent via-gold to-transparent rounded-full" />
-            )}
-
-            {/* Other Players */}
-            {groupedPlayers.other.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-4 text-primary">Other</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                  {groupedPlayers.other.map((player) => {
-                    const playerStats = stats[player.id];
-                    return (
-                      <Card 
-                        key={player.id} 
-                        className="cursor-pointer hover:shadow-lg transition-all"
-                        onClick={() => handlePlayerSelect(player.id)}
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start gap-3">
-                            <Avatar className="w-16 h-16">
-                              <AvatarImage src={player.image_url || undefined} alt={player.name} className="object-cover" />
-                              <AvatarFallback>{(player.name || '').split(' ').filter(n => n).map(n => n[0]).join('') || '??'}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold truncate">{player.name}</h3>
-                              <p className="text-sm text-muted-foreground">{player.position}</p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                <span>{player.age}y</span>
-                                <span>•</span>
-                                <span>{player.nationality}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          {playerStats && (
-                            <div className="grid grid-cols-2 gap-4 text-center">
-                              <div>
-                                <div className="font-semibold text-lg">{playerStats.matches || 0}</div>
-                                <div className="text-muted-foreground">Matches</div>
-                              </div>
-                              <div>
-                                <div className="font-semibold text-lg">{playerStats.minutes || 0}</div>
-                                <div className="text-muted-foreground">Minutes</div>
-                              </div>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+            {/* Other Players - Collapsible */}
+            {otherPlayers.length > 0 && (
+              <Collapsible open={!collapsedCategories.has('other')}>
+                <div className="border rounded-lg overflow-hidden">
+                  <CollapsibleTrigger 
+                    className="w-full px-4 py-3 bg-muted/50 hover:bg-muted/70 transition-colors flex items-center justify-between cursor-pointer"
+                    onClick={() => toggleCategory('other')}
+                  >
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base md:text-lg font-semibold text-primary">Other</h3>
+                      <span className="text-xs text-muted-foreground">({otherPlayers.length})</span>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${collapsedCategories.has('other') ? '-rotate-90' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                        {otherPlayers.map((player) => {
+                          const playerStats = stats[player.id];
+                          return (
+                            <Card 
+                              key={player.id} 
+                              className="cursor-pointer hover:shadow-lg transition-all"
+                              onClick={() => handlePlayerSelect(player.id)}
+                            >
+                              <CardHeader className="pb-3">
+                                <div className="flex items-start gap-3">
+                                  <Avatar className="w-16 h-16">
+                                    <AvatarImage src={player.image_url || undefined} alt={player.name} className="object-cover" />
+                                    <AvatarFallback>{(player.name || '').split(' ').filter(n => n).map(n => n[0]).join('') || '??'}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold truncate">{player.name}</h3>
+                                    <p className="text-sm text-muted-foreground">{player.position}</p>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                                      <span>{player.age}y</span>
+                                      <span>•</span>
+                                      <span>{player.nationality}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="pt-0">
+                                {playerStats && (
+                                  <div className="grid grid-cols-2 gap-4 text-center">
+                                    <div>
+                                      <div className="font-semibold text-lg">{playerStats.matches || 0}</div>
+                                      <div className="text-muted-foreground">Matches</div>
+                                    </div>
+                                    <div>
+                                      <div className="font-semibold text-lg">{playerStats.minutes || 0}</div>
+                                      <div className="text-muted-foreground">Minutes</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-              </div>
+              </Collapsible>
             )}
 
-            {/* Gold Border Separator */}
-            {groupedPlayers.other.length > 0 && scoutedPlayers.length > 0 && (
-              <div className="h-1 bg-gradient-to-r from-transparent via-gold to-transparent rounded-full" />
-            )}
-
-            {/* Scouted Players */}
+            {/* Scouted Players - Collapsible */}
             {scoutedPlayers.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-4 text-primary">Scouted</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                  {scoutedPlayers.map((player) => {
-                    const playerStats = stats[player.id];
-                    return (
-                      <Card 
-                        key={player.id} 
-                        className="cursor-pointer hover:shadow-lg transition-all"
-                        onClick={() => handlePlayerSelect(player.id)}
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start gap-3">
-                            <Avatar className="w-16 h-16">
-                              <AvatarImage src={player.image_url || undefined} alt={player.name} className="object-cover" />
-                              <AvatarFallback>{(player.name || '').split(' ').filter(n => n).map(n => n[0]).join('') || '??'}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold truncate">{player.name}</h3>
-                              <p className="text-sm text-muted-foreground">{player.position}</p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                <span>{player.age}y</span>
-                                <span>•</span>
-                                <span>{player.nationality}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          {playerStats && (
-                            <div className="grid grid-cols-2 gap-4 text-center">
-                              <div>
-                                <div className="font-semibold text-lg">{playerStats.matches || 0}</div>
-                                <div className="text-muted-foreground">Matches</div>
-                              </div>
-                              <div>
-                                <div className="font-semibold text-lg">{playerStats.minutes || 0}</div>
-                                <div className="text-muted-foreground">Minutes</div>
-                              </div>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+              <Collapsible open={!collapsedCategories.has('scouted')}>
+                <div className="border rounded-lg overflow-hidden">
+                  <CollapsibleTrigger 
+                    className="w-full px-4 py-3 bg-muted/50 hover:bg-muted/70 transition-colors flex items-center justify-between cursor-pointer"
+                    onClick={() => toggleCategory('scouted')}
+                  >
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base md:text-lg font-semibold text-primary">Scouted</h3>
+                      <span className="text-xs text-muted-foreground">({scoutedPlayers.length})</span>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${collapsedCategories.has('scouted') ? '-rotate-90' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                        {scoutedPlayers.map((player) => {
+                          const playerStats = stats[player.id];
+                          return (
+                            <Card 
+                              key={player.id} 
+                              className="cursor-pointer hover:shadow-lg transition-all"
+                              onClick={() => handlePlayerSelect(player.id)}
+                            >
+                              <CardHeader className="pb-3">
+                                <div className="flex items-start gap-3">
+                                  <Avatar className="w-16 h-16">
+                                    <AvatarImage src={player.image_url || undefined} alt={player.name} className="object-cover" />
+                                    <AvatarFallback>{(player.name || '').split(' ').filter(n => n).map(n => n[0]).join('') || '??'}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold truncate">{player.name}</h3>
+                                    <p className="text-sm text-muted-foreground">{player.position}</p>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                                      <span>{player.age}y</span>
+                                      <span>•</span>
+                                      <span>{player.nationality}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="pt-0">
+                                {playerStats && (
+                                  <div className="grid grid-cols-2 gap-4 text-center">
+                                    <div>
+                                      <div className="font-semibold text-lg">{playerStats.matches || 0}</div>
+                                      <div className="text-muted-foreground">Matches</div>
+                                    </div>
+                                    <div>
+                                      <div className="font-semibold text-lg">{playerStats.minutes || 0}</div>
+                                      <div className="text-muted-foreground">Minutes</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </CollapsibleContent>
                 </div>
-              </div>
+              </Collapsible>
             )}
           </div>
         ) : !selectedPlayer ? (
