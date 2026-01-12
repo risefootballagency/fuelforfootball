@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 
 export interface CartItem {
   id: string;
@@ -10,6 +10,12 @@ export interface CartItem {
   quantity: number;
 }
 
+interface CartNotificationState {
+  show: boolean;
+  itemName?: string;
+  itemPrice?: number;
+}
+
 interface CartContextType {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "id" | "quantity">) => void;
@@ -18,6 +24,8 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  notification: CartNotificationState;
+  dismissNotification: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -34,9 +42,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
+  const [notification, setNotification] = useState<CartNotificationState>({
+    show: false,
+  });
+
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items]);
+
+  const dismissNotification = useCallback(() => {
+    setNotification({ show: false });
+  }, []);
 
   const addItem = (newItem: Omit<CartItem, "id" | "quantity">) => {
     setItems((prev) => {
@@ -54,6 +70,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       // Add new item
       return [...prev, { ...newItem, id: crypto.randomUUID(), quantity: 1 }];
+    });
+
+    // Show notification
+    setNotification({
+      show: true,
+      itemName: newItem.name,
+      itemPrice: newItem.price,
     });
   };
 
@@ -80,7 +103,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice }}
+      value={{ 
+        items, 
+        addItem, 
+        removeItem, 
+        updateQuantity, 
+        clearCart, 
+        totalItems, 
+        totalPrice,
+        notification,
+        dismissNotification,
+      }}
     >
       {children}
     </CartContext.Provider>

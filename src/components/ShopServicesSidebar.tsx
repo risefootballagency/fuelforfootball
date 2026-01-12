@@ -55,6 +55,52 @@ export const ShopServicesSidebar = ({
   return (
     <aside className="w-64 flex-shrink-0 sticky top-24 h-fit">
       <div className="bg-background border border-border rounded-lg overflow-hidden">
+        {/* Build Your Package - TOP */}
+        <div className="p-4 border-b border-border">
+          <LocalizedLink
+            to="/customisation"
+            className="flex items-center gap-3 py-3 px-4 bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 rounded-lg transition-all group"
+          >
+            <Sparkles className="w-5 h-5 text-primary" />
+            <div className="flex-1">
+              <span className="font-bebas uppercase tracking-wider text-foreground block text-sm">
+                Build Your Package
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                Custom programme
+              </span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
+          </LocalizedLink>
+        </div>
+
+        {/* Cart Section - TOP */}
+        <div className="p-4 border-b border-border">
+          <LocalizedLink
+            to="/cart"
+            className="flex items-center justify-between py-3 px-4 bg-primary/10 hover:bg-primary/20 rounded-lg transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <ShoppingCart className="w-5 h-5 text-primary" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
+              <span className="font-bebas text-sm uppercase tracking-wider text-foreground">
+                Basket
+              </span>
+            </div>
+            {totalItems > 0 && (
+              <span className="text-sm font-medium text-foreground">
+                £{totalPrice.toFixed(2)}
+              </span>
+            )}
+          </LocalizedLink>
+        </div>
+
         {/* Categories Section */}
         <div className="p-4">
           <h3 className="font-bebas text-lg uppercase tracking-wider text-foreground mb-4">
@@ -157,38 +203,8 @@ export const ShopServicesSidebar = ({
           </>
         )}
 
-        {/* Cart Section */}
-        <div className="p-4">
-          <LocalizedLink
-            to="/cart"
-            className="flex items-center justify-between py-3 px-4 bg-primary/10 hover:bg-primary/20 rounded-lg transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <ShoppingCart className="w-5 h-5 text-primary" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </div>
-              <span className="font-bebas text-sm uppercase tracking-wider text-foreground">
-                Basket
-              </span>
-            </div>
-            {totalItems > 0 && (
-              <span className="text-sm font-medium text-foreground">
-                £{totalPrice.toFixed(2)}
-              </span>
-            )}
-          </LocalizedLink>
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-border" />
-
         {/* Back to Players Button */}
-        <div className="p-4">
+        <div className="p-4 border-t border-border">
           <LocalizedLink
             to="/players"
             className="flex items-center gap-2 py-2 px-3 text-xs text-muted-foreground hover:text-primary transition-colors"
