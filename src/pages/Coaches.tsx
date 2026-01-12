@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroSlider } from "@/components/HeroSlider";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import bannerHero from "@/assets/banner-hero.jpg";
 import coachesSection from "@/assets/coaches-section.png";
 import coachesNetwork from "@/assets/coaches-network.jpg";

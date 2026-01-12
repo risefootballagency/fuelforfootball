@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +13,9 @@ import { linkPlayerNames, usePlayerNames } from "@/lib/playerLinking";
 import { useArticleServiceRecommendation } from "@/hooks/useArticleServiceRecommendation";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { ServiceQuickAddWidget } from "@/components/ServiceQuickAddWidget";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { AskQuestionDialog } from "@/components/AskQuestionDialog";
+
 interface NewsArticle {
   id: string;
   title: string;
@@ -139,6 +143,18 @@ const ArticleView = ({ article }: { article: NewsArticle }) => {
             <ServiceQuickAddWidget service={recommendedService} />
           </div>
         )}
+
+        {/* Ask a Question */}
+        <div className="mt-8 pt-6 border-t border-border">
+          <h3 className="font-bebas text-lg text-muted-foreground uppercase tracking-wider mb-3">
+            Have a Question About This Article?
+          </h3>
+          <AskQuestionDialog 
+            articleId={article.id} 
+            articleTitle={article.title}
+            triggerClassName="inline-flex items-center gap-2 px-6 py-3 bg-primary text-background font-bebas uppercase tracking-wider hover:bg-primary/90 transition-all rounded"
+          />
+        </div>
       </article>
     </>
   );
@@ -334,6 +350,7 @@ const News = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

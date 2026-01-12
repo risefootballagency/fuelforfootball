@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/HeroSlider";
 import { ServiceCarousel } from "@/components/ServiceCarousel";
 import { VideoHeroBanner } from "@/components/VideoHeroBanner";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 // Service Section Component with Carousel
 const ServiceSection = ({

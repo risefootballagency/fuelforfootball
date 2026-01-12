@@ -12,6 +12,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import ScoutingNetworkMap from "@/components/ScoutingNetworkMap";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroSlider } from "@/components/HeroSlider";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import bannerHero from "@/assets/banner-hero.jpg";
 
 const domainConfig = {
@@ -679,7 +680,7 @@ const Scouts = () => {
                 className="font-bebas uppercase tracking-wider text-lg px-8 py-5 hover:scale-105 transition-all rounded-xl"
                 asChild
               >
-                <a href="mailto:contact@riseagency.com">
+                <a href="mailto:info@fuelforfootball.com">
                   <Mail className="mr-2 h-5 w-5" />
                   {t('scouts.email_us')}
                 </a>
@@ -726,7 +727,7 @@ const Scouts = () => {
                   className="font-bebas uppercase tracking-wider text-lg px-10 py-5 hover:scale-105 transition-all rounded-xl"
                   asChild
                 >
-                  <a href="mailto:contact@riseagency.com">
+                  <a href="mailto:info@fuelforfootball.com">
                     <Mail className="mr-2 h-5 w-5" />
                     {t('scouts.email_contact')}
                   </a>

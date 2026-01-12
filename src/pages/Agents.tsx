@@ -6,6 +6,7 @@ import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { TrendingUp, Handshake, Scale, Shield, Star, Heart, ArrowRight } from "lucide-react";
 import { HeroSlider } from "@/components/HeroSlider";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import bannerHero from "@/assets/banner-hero.jpg";
 
 const Agents = () => {
