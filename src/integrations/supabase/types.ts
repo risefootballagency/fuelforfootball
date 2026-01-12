@@ -3560,6 +3560,48 @@ export type Database = {
         }
         Relationships: []
       }
+      service_audit: {
+        Row: {
+          average_duration_minutes: number
+          category: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          hourly_value: number | null
+          id: string
+          is_active: boolean | null
+          price: number
+          service_name: string
+          updated_at: string
+        }
+        Insert: {
+          average_duration_minutes?: number
+          category?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          hourly_value?: number | null
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          service_name: string
+          updated_at?: string
+        }
+        Update: {
+          average_duration_minutes?: number
+          category?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          hourly_value?: number | null
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          service_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       service_catalog: {
         Row: {
           badge: string | null
