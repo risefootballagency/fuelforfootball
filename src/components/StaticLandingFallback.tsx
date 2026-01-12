@@ -71,20 +71,23 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
       <div className="absolute inset-0 bg-gradient-to-b from-[hsl(147,40%,7%)] via-[hsl(147,40%,5%)] to-[hsl(147,40%,7%)]" />
 
       {/* Top Section */}
-      <div className="absolute top-4 left-0 right-0 z-20 flex items-center justify-between px-4">
-        <LanguageMapSelector />
-        
+      <div className="absolute top-4 left-0 right-0 z-20 flex items-center justify-center px-4">
+        {/* Centered Logo */}
         <img 
           src={fffLogo} 
           alt="Fuel for Football" 
           className="h-10 md:h-12 object-contain"
         />
         
-        <div className="flex items-center gap-3 text-xs">
-          <Link to="/staff" className="text-[hsl(var(--mint)/0.5)] hover:text-primary transition-colors uppercase tracking-wider font-bebas">
+        {/* Staff, Scout & Portal links - top right */}
+        <div className="absolute right-4 flex items-center gap-2 text-[10px] md:text-xs">
+          <Link to="/staff" className="text-[hsl(var(--mint)/0.3)] hover:text-[hsl(var(--mint)/0.6)] transition-colors uppercase tracking-wider font-bebas">
             {t("header.staff", "Staff")}
           </Link>
-          <Link to="/portal" className="text-[hsl(var(--mint)/0.5)] hover:text-primary transition-colors uppercase tracking-wider font-bebas">
+          <button onClick={() => navigateToRole("/scouts")} className="text-[hsl(var(--mint)/0.3)] hover:text-[hsl(var(--mint)/0.6)] transition-colors uppercase tracking-wider font-bebas">
+            {t("landing.nav_scouts", "Scout")}
+          </button>
+          <Link to="/portal" className="text-[hsl(var(--mint)/0.3)] hover:text-[hsl(var(--mint)/0.6)] transition-colors uppercase tracking-wider font-bebas">
             {t("header.portal", "Portal")}
           </Link>
         </div>
@@ -192,12 +195,13 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
             </div>
           </div>
 
-          <div className="text-center">
+          {/* Language Selector centered - single instance */}
+          <div className="flex justify-center w-full">
             <LanguageMapSelector />
-            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bebas mt-2">
-              {t("landing.select_role_enter", "Select Your Role To Enter Site")}
-            </p>
           </div>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bebas mt-2 text-center">
+            {t("landing.select_role_enter", "Select Your Role To Enter Site")}
+          </p>
         </div>
       </div>
 
