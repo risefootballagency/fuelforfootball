@@ -24,6 +24,9 @@ import playersNetwork from "@/assets/players-network.jpg";
 import clubsNetwork from "@/assets/clubs-network.jpg";
 import scoutsNetwork from "@/assets/scouts-network.jpg";
 import coachesNetwork from "@/assets/coaches-network.jpg";
+import { WhatsAppPulse } from "@/components/WhatsAppPulse";
+import { EliteMessaging, PropagandaBanner, ShadowyEliteSection } from "@/components/EliteMessaging";
+import { MetricBanner } from "@/components/PropagandaMetrics";
 
 const domainConfig = {
   Physical: { icon: Activity, color: "text-red-500", bgColor: "bg-red-500/10", borderColor: "border-red-500/20", solidBg: "bg-red-500" },
@@ -919,8 +922,16 @@ const Index = () => {
           </div>
         </section>
 
-
         {/* CTA Section moved above News */}
+
+        {/* FOMO Messaging Section */}
+        <EliteMessaging variant="challenge" className="bg-muted/20" />
+
+        {/* Shadowy Elite Section */}
+        <ShadowyEliteSection />
+
+        {/* Propaganda Banner */}
+        <PropagandaBanner />
 
         {/* RISE Broadcast Advertisement */}
         <section className="py-12 md:py-16 px-4 bg-muted/30">
@@ -934,7 +945,7 @@ const Index = () => {
                   </span>
                 </div>
                 <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary">
-                  {t("home.join_broadcast", "Join RISE Broadcast on Instagram")}
+                  {t("home.join_broadcast", "Join FFF Broadcast on Instagram")}
                 </h2>
                 <p className="text-foreground mb-6 text-base md:text-lg leading-relaxed">
                   {t("home.broadcast_desc", "Get daily updates on agency insights, performance optimization, coaching systems, and player development strategies")}
@@ -951,7 +962,14 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Final Urgency CTA */}
+        <EliteMessaging variant="urgency" className="bg-background" />
       </div>
+      
+      {/* Floating WhatsApp CTA */}
+      <WhatsAppPulse showDelay={5000} />
+      
       <Footer />
     </>
   );

@@ -6,6 +6,8 @@ import { SEO } from "@/components/SEO";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { InfoBoxWithPlayerBg, PLAYER_BG_IMAGES } from "@/components/InfoBoxWithPlayerBg";
 import bannerHero from "@/assets/banner-hero.jpg";
+import { WhatsAppPulse } from "@/components/WhatsAppPulse";
+import { EliteMessaging, PropagandaBanner } from "@/components/EliteMessaging";
 
 const About = () => {
   const { t } = useLanguage();
@@ -186,7 +188,10 @@ const About = () => {
           </div>
         </InfoBoxWithPlayerBg>
 
-        {/* CTA Section */}
+        {/* Propaganda Banner */}
+        <PropagandaBanner />
+
+        {/* CTA Section - Updated with FOMO messaging */}
         <InfoBoxWithPlayerBg
           playerImage={PLAYER_BG_IMAGES[0]}
           className="py-10 md:py-16 bg-muted/30"
@@ -195,17 +200,26 @@ const About = () => {
         >
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 md:mb-6">
-              {t('about.cta_title')}
+              While You Wait, Others Train
             </h2>
-            <p className="text-base md:text-xl text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto">
-              {t('about.cta_subtitle')}
+            <p className="text-base md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Every day you hesitate is another day your competition gets ahead. The players who made it didn't wait for the perfect moment.
             </p>
-            <Button asChild size="lg" className="btn-shine font-bebas uppercase tracking-wider">
-              <Link to="/contact">{t('about.cta_button')}</Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <WhatsAppPulse position="inline" message="Take action now" showDelay={0} />
+              <Button asChild size="lg" variant="outline" className="font-bebas uppercase tracking-wider">
+                <Link to="/contact">{t('about.cta_button')}</Link>
+              </Button>
+            </div>
           </div>
         </InfoBoxWithPlayerBg>
+
+        {/* Final FOMO Section */}
+        <EliteMessaging variant="fomo" className="bg-background" />
       </main>
+
+      {/* Floating WhatsApp CTA */}
+      <WhatsAppPulse showDelay={6000} />
 
       <Footer />
     </div>
