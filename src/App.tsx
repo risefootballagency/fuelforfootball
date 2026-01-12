@@ -152,18 +152,18 @@ const App = () => {
                     {createLocalizedRoutes('/cart', <Cart />)}
                     {createLocalizedRoutes('/jobs', <Jobs />)}
                     
-                    {createLocalizedRoutes('/services/mentorship', <Mentorship />)}
-                    {createLocalizedRoutes('/services/consultation', <Consultation />)}
-                    {createLocalizedRoutes('/services/pro-performance', <ProPerformance />)}
-                    {createLocalizedRoutes('/services/elite-performance', <ElitePerformance />)}
-                    {createLocalizedRoutes('/services/tactical', <Tactical />)}
-                    {createLocalizedRoutes('/services/action-reports', <ActionReports />)}
-                    {createLocalizedRoutes('/services/technical', <Technical />)}
-                    {createLocalizedRoutes('/services/mental', <Mental />)}
-                    {createLocalizedRoutes('/services/strength-power-speed', <StrengthPowerSpeed />)}
-                    {createLocalizedRoutes('/services/conditioning', <Conditioning />)}
-                    {createLocalizedRoutes('/services/nutrition', <Nutrition />)}
-                    {createLocalizedRoutes('/services/analysis', <Analysis />)}
+                    {createLocalizedRoutes('/mentorship', <Mentorship />)}
+                    {createLocalizedRoutes('/consultation', <Consultation />)}
+                    {createLocalizedRoutes('/pro-performance', <ProPerformance />)}
+                    {createLocalizedRoutes('/elite-performance', <ElitePerformance />)}
+                    {createLocalizedRoutes('/tactical', <Tactical />)}
+                    {createLocalizedRoutes('/action-reports', <ActionReports />)}
+                    {createLocalizedRoutes('/technical', <Technical />)}
+                    {createLocalizedRoutes('/mental', <Mental />)}
+                    {createLocalizedRoutes('/strength-power-speed', <StrengthPowerSpeed />)}
+                    {createLocalizedRoutes('/conditioning', <Conditioning />)}
+                    {createLocalizedRoutes('/nutrition', <Nutrition />)}
+                    {createLocalizedRoutes('/analysis', <Analysis />)}
                     {createLocalizedDynamicRoutes('/service/:slug', <ServiceDetail />)}
                     
                     {/* Staff/Admin routes */}
