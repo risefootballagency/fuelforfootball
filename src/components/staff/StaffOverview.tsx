@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Target, CheckSquare, Users, Calendar, Link2, TrendingUp, Settings, RotateCcw, Layers, Plus, Search, Megaphone, ClipboardList, BarChart3, FileText, Mail, Dumbbell, Bell, Clock, FolderOpen, MessageSquare, Briefcase, Globe, Receipt, UserPlus, Activity, Timer, Zap, Focus, Brain, ListTodo, Gauge, Workflow, Kanban, GitBranch, Repeat, Flag, Milestone, Trophy, Sparkles, Loader2 } from "lucide-react";
+import { Target, CheckSquare, Users, Calendar, Link2, TrendingUp, Settings, RotateCcw, Layers, Plus, Search, Megaphone, ClipboardList, BarChart3, FileText, Mail, Dumbbell, Bell, Clock, FolderOpen, MessageSquare, Briefcase, Globe, Receipt, UserPlus, Activity, Timer, Zap, Focus, Brain, ListTodo, Gauge, Workflow, Kanban, GitBranch, Repeat, Flag, Milestone, Trophy, Sparkles, Loader2, FileIcon, Table2 } from "lucide-react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,6 +25,8 @@ import { IdeasNotesWidget } from "./widgets/IdeasNotesWidget";
 import { FormSubmissionsWidget } from "./widgets/FormSubmissionsWidget";
 import { ProductivityInsightsWidget } from "./widgets/ProductivityInsightsWidget";
 import { QuickLinksWidget } from "./widgets/QuickLinksWidget";
+import { DocsWidget } from "./widgets/DocsWidget";
+import { SheetsWidget } from "./widgets/SheetsWidget";
 
 interface Goal {
   id: string;
@@ -79,6 +81,9 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
   { id: "documents", title: "Recent Documents", icon: FolderOpen, defaultVisible: false },
   { id: "deadlines", title: "Upcoming Deadlines", icon: Clock, defaultVisible: false },
   { id: "projects", title: "Active Projects", icon: Briefcase, defaultVisible: false },
+  // Documents & Productivity
+  { id: "docs", title: "Docs", icon: FileIcon, defaultVisible: false },
+  { id: "sheets", title: "Sheets", icon: Table2, defaultVisible: false },
   // Advanced Productivity
   { id: "pomodoro", title: "Focus Timer", icon: Timer, defaultVisible: false },
   { id: "habits", title: "Daily Habits", icon: Repeat, defaultVisible: false },
@@ -1030,6 +1035,12 @@ export const StaffOverview = ({ isAdmin, userId }: { isAdmin: boolean; userId?: 
 
       case "kanban":
         return <KanbanWidget />;
+
+      case "docs":
+        return <DocsWidget />;
+
+      case "sheets":
+        return <SheetsWidget />;
 
       case "sprints":
         return (

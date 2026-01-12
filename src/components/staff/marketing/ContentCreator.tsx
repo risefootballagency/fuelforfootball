@@ -2,19 +2,32 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarIcon, Palette, Lightbulb, Sparkles, Instagram, Twitter, Facebook, Linkedin, Hash, MessageSquare, ExternalLink, Inbox } from "lucide-react";
+import { Calendar as CalendarIcon, Palette, Lightbulb, Sparkles, Instagram, Twitter, Facebook, Linkedin, Hash, MessageSquare, ExternalLink, Inbox, PlusCircle } from "lucide-react";
 import { IdeasReview } from "./IdeasReview";
+import { MarketingIdeas } from "./MarketingIdeas";
 
 export const ContentCreator = () => {
   return (
-    <Tabs defaultValue="tools" className="w-full">
+    <Tabs defaultValue="ideas" className="w-full">
       <TabsList className="mb-6">
-        <TabsTrigger value="tools">Content Tools</TabsTrigger>
         <TabsTrigger value="ideas">
-          <Inbox className="w-4 h-4 mr-2" />
-          Review Ideas
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Ideas
         </TabsTrigger>
+        <TabsTrigger value="review">
+          <Inbox className="w-4 h-4 mr-2" />
+          Review Submissions
+        </TabsTrigger>
+        <TabsTrigger value="tools">Content Tools</TabsTrigger>
       </TabsList>
+
+      <TabsContent value="ideas">
+        <MarketingIdeas />
+      </TabsContent>
+
+      <TabsContent value="review">
+        <IdeasReview />
+      </TabsContent>
 
       <TabsContent value="tools">
         <div className="space-y-6">
@@ -260,10 +273,6 @@ export const ContentCreator = () => {
             </CardContent>
           </Card>
         </div>
-      </TabsContent>
-
-      <TabsContent value="ideas">
-        <IdeasReview />
       </TabsContent>
     </Tabs>
   );

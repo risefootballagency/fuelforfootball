@@ -607,9 +607,8 @@ const Staff = () => {
       locked: false,
       sections: [
         { id: 'marketing', title: 'Marketing', icon: Megaphone },
-        { id: 'marketingideas', title: 'Ideas', icon: Target },
-        { id: 'marketingtips', title: 'Tips & Lessons', icon: Target },
         { id: 'contentcreator', title: 'Content Creator', icon: Film },
+        { id: 'marketingtips', title: 'Tips & Lessons', icon: Target },
         { id: 'blog', title: 'News Articles', icon: Newspaper },
         { id: 'dailyfuel', title: 'Daily Fuel', icon: FileText },
         { id: 'pressreleases', title: 'Press Releases', icon: Newspaper },
