@@ -53,6 +53,7 @@ const PayLink = lazy(() => import("./pages/PayLink"));
 const Cart = lazy(() => import("./pages/Cart"));
 const FluidCursor = lazy(() => import("./components/FluidCursor"));
 const SignContract = lazy(() => import("./pages/SignContract"));
+const Jobs = lazy(() => import("./pages/Jobs"));
 
 // Service pages
 const Mentorship = lazy(() => import("./pages/services/Mentorship"));
@@ -149,6 +150,7 @@ const App = () => {
                     {createLocalizedRoutes('/portal', <Dashboard />)}
                     {createLocalizedRoutes('/shop', <Shop />)}
                     {createLocalizedRoutes('/cart', <Cart />)}
+                    {createLocalizedRoutes('/jobs', <Jobs />)}
                     
                     {createLocalizedRoutes('/services/mentorship', <Mentorship />)}
                     {createLocalizedRoutes('/services/consultation', <Consultation />)}

@@ -162,7 +162,7 @@ export default function TermsOfService() {
                 If you have any questions about these Terms of Service, please contact us at:
               </p>
               <div className="mt-4 space-y-2 text-muted-foreground">
-                <p>Email: <a href="mailto:jolon.levene@risefootballagency.com" className="text-primary hover:underline">jolon.levene@risefootballagency.com</a></p>
+                <p>Email: <a href="mailto:jolon.levene@fuelforfootball.com" className="text-primary hover:underline">jolon.levene@fuelforfootball.com</a></p>
                 <p>WhatsApp: <a href="http://wa.link/mabnsw" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Contact via WhatsApp</a></p>
               </div>
             </section>
