@@ -1119,8 +1119,15 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               formData={formData}
               setFormData={setFormData}
               handleImageUpload={handleImageUpload}
+              handleVideoUpload={handleVideoUpload}
               uploadingImage={uploadingImage}
               analysisType="pre-match"
+              players={players}
+              selectedPlayerId={selectedPlayerId}
+              setSelectedPlayerId={setSelectedPlayerId}
+              performanceReports={performanceReports}
+              selectedPerformanceReportId={selectedPerformanceReportId}
+              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
             />
 
             <AnalysisSchemeSection
@@ -1189,8 +1196,15 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               formData={formData}
               setFormData={setFormData}
               handleImageUpload={handleImageUpload}
+              handleVideoUpload={handleVideoUpload}
               uploadingImage={uploadingImage}
               analysisType="post-match"
+              players={players}
+              selectedPlayerId={selectedPlayerId}
+              setSelectedPlayerId={setSelectedPlayerId}
+              performanceReports={performanceReports}
+              selectedPerformanceReportId={selectedPerformanceReportId}
+              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
             />
 
             <AnalysisPointsSection
@@ -1288,25 +1302,34 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               Manage the example writing styles used by the AI to generate prose for each analysis type.
             </p>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={() => { setExamplesCategory('pre-match'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('pre-match', 'point'); setSettingsDialogOpen(false); }}>
-                Pre-Match Point Examples
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('pre-match-p1' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('pre-match-p1', 'point'); setSettingsDialogOpen(false); }}>
+                Pre-Match Point First Paragraph
               </Button>
-              <Button variant="outline" onClick={() => { setExamplesCategory('pre-match'); setExamplesType('overview'); setExamplesDialogOpen(true); fetchExamples('pre-match', 'overview'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('pre-match-p2' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('pre-match-p2', 'point'); setSettingsDialogOpen(false); }}>
+                Pre-Match Point Second Paragraph
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('post-match-p1' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('post-match-p1', 'point'); setSettingsDialogOpen(false); }}>
+                Post-Match Point First Paragraph
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('post-match-p2' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('post-match-p2', 'point'); setSettingsDialogOpen(false); }}>
+                Post-Match Point Second Paragraph
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('scheme-p1' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('scheme-p1', 'point'); setSettingsDialogOpen(false); }}>
+                Schemes First Paragraph
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('scheme-p2' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('scheme-p2', 'point'); setSettingsDialogOpen(false); }}>
+                Schemes Second Paragraph
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('pre-match'); setExamplesType('overview'); setExamplesDialogOpen(true); fetchExamples('pre-match', 'overview'); setSettingsDialogOpen(false); }}>
                 Pre-Match Overview Examples
               </Button>
-              <Button variant="outline" onClick={() => { setExamplesCategory('post-match'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('post-match', 'point'); setSettingsDialogOpen(false); }}>
-                Post-Match Point Examples
-              </Button>
-              <Button variant="outline" onClick={() => { setExamplesCategory('post-match'); setExamplesType('overview'); setExamplesDialogOpen(true); fetchExamples('post-match', 'overview'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('post-match'); setExamplesType('overview'); setExamplesDialogOpen(true); fetchExamples('post-match', 'overview'); setSettingsDialogOpen(false); }}>
                 Post-Match Overview Examples
               </Button>
-              <Button variant="outline" onClick={() => { setExamplesCategory('concept'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('concept', 'point'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('concept'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('concept', 'point'); setSettingsDialogOpen(false); }}>
                 Concept Examples
               </Button>
-              <Button variant="outline" onClick={() => { setExamplesCategory('scheme'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('scheme', 'point'); setSettingsDialogOpen(false); }}>
-                Scheme Examples
-              </Button>
-              <Button variant="outline" onClick={() => { setExamplesCategory('other'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('other', 'point'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('other'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('other', 'point'); setSettingsDialogOpen(false); }}>
                 Other Examples
               </Button>
             </div>

@@ -59,7 +59,7 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
   { id: "quicklinks", title: "Quick Links", icon: Link2, defaultVisible: true },
   { id: "financial", title: "Financial Projection", icon: TrendingUp, defaultVisible: true },
   { id: "schedule", title: "Schedule Calendar", icon: Calendar, defaultVisible: true },
-  { id: "represented", title: "Represented Players", icon: Users, defaultVisible: true },
+  { id: "represented", title: "Fuel For Football Players", icon: Users, defaultVisible: true },
   // General
   { id: "notifications", title: "Recent Notifications", icon: Bell, defaultVisible: false },
   { id: "activity", title: "Activity Feed", icon: Activity, defaultVisible: false },
@@ -358,10 +358,11 @@ export const StaffOverview = ({ isAdmin, userId }: { isAdmin: boolean; userId?: 
 
   useEffect(() => {
     const fetchPlayers = async () => {
+      // Fetch Fuel For Football players category
       const { data, error } = await supabase
         .from('players')
         .select('*')
-        .eq('representation_status', 'represented')
+        .eq('category', 'Fuel For Football')
         .order('name');
       
       if (data && !error) {
