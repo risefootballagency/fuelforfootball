@@ -1,18 +1,52 @@
-import greenSmokyBackground from "@/assets/green-smoky-background.png";
+// FFF Brand Grass/Smoky Background Assets
+import grassTextureFull from "@/assets/grass-texture-full.png";
+import grassSmoky1 from "@/assets/grass-smoky-1.png";
+import grassSmoky2 from "@/assets/grass-smoky-2.png";
+import grassSmoky3 from "@/assets/grass-smoky-3.png";
+import grassSmoky4 from "@/assets/grass-smoky-4.png";
+import grassSmoky5 from "@/assets/grass-smoky-5.png";
+import grassSmoky6 from "@/assets/grass-smoky-6.png";
+import grassSmoky7 from "@/assets/grass-smoky-7.png";
+import grassSmoky8 from "@/assets/grass-smoky-8.png";
+
+// Export all grass backgrounds for use across the site
+export const GRASS_BACKGROUNDS = {
+  textureFull: grassTextureFull,
+  smoky1: grassSmoky1,
+  smoky2: grassSmoky2,
+  smoky3: grassSmoky3,
+  smoky4: grassSmoky4,
+  smoky5: grassSmoky5,
+  smoky6: grassSmoky6,
+  smoky7: grassSmoky7,
+  smoky8: grassSmoky8,
+} as const;
+
+// Wide/banner smoky backgrounds (good for dividers, headers)
+export const WIDE_BACKGROUNDS = [grassSmoky1, grassSmoky2, grassSmoky3, grassSmoky4, grassSmoky5, grassSmoky6, grassSmoky7];
+
+// Darker corner backgrounds (good for sections with content overlay)
+export const DARK_BACKGROUNDS = [grassSmoky7, grassSmoky8];
+
+// Full texture background (good for full-page backgrounds)
+export const FULL_TEXTURE = grassTextureFull;
 
 interface GrassBackgroundProps {
-  variant?: 'top' | 'bottom' | 'divider' | 'section';
+  variant?: 'top' | 'bottom' | 'divider' | 'section' | 'hero' | 'card';
   className?: string;
+  backgroundIndex?: number; // Select specific smoky background (0-7)
 }
 
-export const GrassBackground = ({ variant = 'divider', className = '' }: GrassBackgroundProps) => {
+export const GrassBackground = ({ variant = 'divider', className = '', backgroundIndex = 0 }: GrassBackgroundProps) => {
+  const smokyBg = WIDE_BACKGROUNDS[backgroundIndex % WIDE_BACKGROUNDS.length];
+
   if (variant === 'top') {
     return (
-      <div className={`w-full overflow-hidden ${className}`}>
+      <div className={`w-full overflow-hidden h-16 md:h-24 ${className}`}>
         <img 
-          src="https://static.wixstatic.com/media/c4f4b1_03f449f904434796adf7c54c2d929f78~mv2.png/v1/fill/w_1904,h_52,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_03f449f904434796adf7c54c2d929f78~mv2.png"
+          src={smokyBg}
           alt=""
-          className="w-full h-auto object-cover"
+          className="w-full h-full object-cover"
           aria-hidden="true"
         />
       </div>
@@ -21,11 +55,11 @@ export const GrassBackground = ({ variant = 'divider', className = '' }: GrassBa
 
   if (variant === 'bottom') {
     return (
-      <div className={`w-full overflow-hidden rotate-180 ${className}`}>
+      <div className={`w-full overflow-hidden rotate-180 h-16 md:h-24 ${className}`}>
         <img 
-          src="https://static.wixstatic.com/media/c4f4b1_03f449f904434796adf7c54c2d929f78~mv2.png/v1/fill/w_1904,h_52,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_03f449f904434796adf7c54c2d929f78~mv2.png"
+          src={smokyBg}
           alt=""
-          className="w-full h-auto object-cover"
+          className="w-full h-full object-cover"
           aria-hidden="true"
         />
       </div>
@@ -34,14 +68,44 @@ export const GrassBackground = ({ variant = 'divider', className = '' }: GrassBa
 
   if (variant === 'divider') {
     return (
-      <div className={`w-full overflow-hidden ${className}`}>
+      <div className={`w-full overflow-hidden h-12 md:h-16 ${className}`}>
         <img 
-          src="https://static.wixstatic.com/media/c4f4b1_152388c2eb9241f48863776d6ca92aff~mv2.jpg/v1/crop/x_0,y_113,w_2000,h_107/fill/w_1904,h_66,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Background%20Header.jpg"
+          src={smokyBg}
           alt=""
-          className="w-full h-auto object-cover"
+          className="w-full h-full object-cover"
           aria-hidden="true"
         />
       </div>
+    );
+  }
+
+  if (variant === 'hero') {
+    return (
+      <div 
+        className={`absolute inset-0 z-0 ${className}`}
+        style={{
+          backgroundImage: `url(${grassTextureFull})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+        aria-hidden="true"
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background" />
+      </div>
+    );
+  }
+
+  if (variant === 'card') {
+    return (
+      <div 
+        className={`absolute inset-0 z-0 opacity-30 ${className}`}
+        style={{
+          backgroundImage: `url(${DARK_BACKGROUNDS[backgroundIndex % DARK_BACKGROUNDS.length]})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+        aria-hidden="true"
+      />
     );
   }
 
@@ -50,7 +114,7 @@ export const GrassBackground = ({ variant = 'divider', className = '' }: GrassBa
     <div 
       className={`absolute inset-0 z-0 ${className}`}
       style={{
-        backgroundImage: `url('https://static.wixstatic.com/media/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg/v1/fill/w_1904,h_800,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_8bec300b742b42df84829849d26331f1~mv2.jpg')`,
+        backgroundImage: `url(${smokyBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -59,12 +123,30 @@ export const GrassBackground = ({ variant = 'divider', className = '' }: GrassBa
   );
 };
 
-export const SmokyBackground = ({ className = '' }: { className?: string }) => {
+// Smoky section background component for use in content sections
+export const SmokyBackground = ({ className = '', backgroundIndex = 0 }: { className?: string; backgroundIndex?: number }) => {
+  const bg = WIDE_BACKGROUNDS[backgroundIndex % WIDE_BACKGROUNDS.length];
+  
   return (
     <div 
       className={`absolute inset-0 z-0 ${className}`}
       style={{
-        backgroundImage: `url(${greenSmokyBackground})`,
+        backgroundImage: `url(${bg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+      aria-hidden="true"
+    />
+  );
+};
+
+// Full grass texture background
+export const GrassTextureBackground = ({ className = '' }: { className?: string }) => {
+  return (
+    <div 
+      className={`absolute inset-0 z-0 ${className}`}
+      style={{
+        backgroundImage: `url(${grassTextureFull})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
