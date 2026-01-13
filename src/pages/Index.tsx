@@ -98,8 +98,8 @@ const Index = () => {
   return (
     <>
       <SEO 
-        title="Fuel For Football - Elite Football Representation & Performance"
-        description="Fuel For Football scouts across professional football in Europe. We have guided many Premier League players to success through their development journey with expert representation and performance optimization."
+        title="Fuel For Football - Elite Performance Consultancy"
+        description="Fuel For Football is a performance consultancy focusing on player development and performance, working with Premier League and European players."
         image="/og-preview-home.png"
         url="/"
       />
@@ -112,11 +112,11 @@ const Index = () => {
           <div className="container mx-auto max-w-7xl relative z-10">
             <div className="text-center space-y-6">
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bebas uppercase tracking-wider mb-0">
-                <span className="text-foreground">{t("home.hero_title_1", "REALISE")} </span>
-                <span className="text-primary">{t("home.hero_title_2", "POTENTIAL")}</span>
+                <span className="text-foreground">{t("home.hero_title_1", "CHANGE")} </span>
+                <span className="text-accent">{t("home.hero_title_2", "THE GAME")}</span>
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light tracking-wide italic !mt-0">
-                {t("home.hero_subtitle", "Elite Football Representation & Performance Optimisation")}
+              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light tracking-wide !mt-0">
+                {t("home.hero_subtitle", "Football's leading performance consultancy, focusing on player development and performance.")}
               </p>
               
               {/* Capability Accordion */}
@@ -135,33 +135,32 @@ const Index = () => {
           <div className="container mx-auto max-w-7xl">
             <div className="text-center mb-6">
               <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-4">
-                HOW WE <span className="text-primary">FUEL</span>
+                HOW WE <span className="text-accent">FUEL</span>
               </h2>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents.
+              <p className="text-base text-muted-foreground max-w-3xl mx-auto">
+                We use our team of coaches to offer several services to players, ranging from power development, to psychological performance sessions and game analysis. All our services are tailored to your individual response to stimuli.
               </p>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Players Card */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {/* Players Card - Card style matching Services/Customisation */}
               <Link 
                 to="/players"
-                className="group relative overflow-hidden rounded-2xl border-2 border-border hover:border-primary/50 bg-card/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300"
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img 
                     src={playersNetwork} 
                     alt="Players" 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-2">PLAYERS</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    We collaborate with players to enhance their performance and unlock their true potential, ensuring they reach new heights in their careers.
+                <div className="p-4 md:p-6">
+                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-title mb-2 group-hover:text-accent transition-colors">PLAYERS</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-3">
+                    We collaborate with players to enhance their performance and unlock their true potential.
                   </p>
-                  <span className="text-sm font-bebas uppercase tracking-wider text-primary group-hover:underline">
+                  <span className="text-xs font-bebas uppercase tracking-wider text-accent">
                     LEARN MORE →
                   </span>
                 </div>
@@ -170,22 +169,21 @@ const Index = () => {
               {/* Coaches Card */}
               <Link 
                 to="/coaches"
-                className="group relative overflow-hidden rounded-2xl border-2 border-border hover:border-primary/50 bg-card/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300"
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img 
                     src={coachesNetwork} 
                     alt="Coaches" 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-2">COACHES</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    We support coaches in decision-making from behind the scenes, both tactically and in retaining control over the dressing room.
+                <div className="p-4 md:p-6">
+                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-title mb-2 group-hover:text-accent transition-colors">COACHES</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-3">
+                    We support coaches in decision-making from behind the scenes, both tactically and strategically.
                   </p>
-                  <span className="text-sm font-bebas uppercase tracking-wider text-primary group-hover:underline">
+                  <span className="text-xs font-bebas uppercase tracking-wider text-accent">
                     LEARN MORE →
                   </span>
                 </div>
@@ -194,22 +192,21 @@ const Index = () => {
               {/* Agents Card */}
               <Link 
                 to="/agents"
-                className="group relative overflow-hidden rounded-2xl border-2 border-border hover:border-primary/50 bg-card/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300"
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img 
                     src={scoutsNetwork} 
                     alt="Agents" 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-2">AGENTS</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    We help agents create transfer opportunities by showcasing their players' strengths and developing their skillset to increase market value.
+                <div className="p-4 md:p-6">
+                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-title mb-2 group-hover:text-accent transition-colors">AGENTS</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-3">
+                    We help agents create transfer opportunities by developing players' value.
                   </p>
-                  <span className="text-sm font-bebas uppercase tracking-wider text-primary group-hover:underline">
+                  <span className="text-xs font-bebas uppercase tracking-wider text-accent">
                     LEARN MORE →
                   </span>
                 </div>
@@ -218,22 +215,21 @@ const Index = () => {
               {/* Clubs Card */}
               <Link 
                 to="/clubs"
-                className="group relative overflow-hidden rounded-2xl border-2 border-border hover:border-primary/50 bg-card/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300"
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img 
                     src={clubsNetwork} 
                     alt="Clubs" 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-3xl font-bebas uppercase tracking-wider text-primary mb-2">CLUBS</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    We maximise club efficiency by identifying and resolving issues for smooth operations. Our long-term strategising ensures sustained success.
+                <div className="p-4 md:p-6">
+                  <h3 className="text-2xl font-bebas uppercase tracking-wider text-title mb-2 group-hover:text-accent transition-colors">CLUBS</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-3">
+                    We maximise club efficiency and ensure sustained success through strategic planning.
                   </p>
-                  <span className="text-sm font-bebas uppercase tracking-wider text-primary group-hover:underline">
+                  <span className="text-xs font-bebas uppercase tracking-wider text-accent">
                     LEARN MORE →
                   </span>
                 </div>

@@ -12,6 +12,7 @@ import { useLandingFolderImages } from "@/hooks/useLandingFolderImages";
 import { motion } from "framer-motion";
 import { ChevronDown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BRAND_CONTENT } from "@/data/brandContent";
 
 const SECTIONS = [
   { id: "philosophy", label: "Philosophy" },
@@ -149,94 +150,138 @@ const About = () => {
         <section 
           ref={(el) => (sectionRefs.current.philosophy = el)}
           id="philosophy"
-          className="py-16 md:py-24"
+          className="py-6 md:py-10"
         >
-          {/* Statement */}
-          <div className="container mx-auto px-4 mb-16 md:mb-24">
+          {/* Statement - Using brand content */}
+          <div className="container mx-auto px-4 mb-8 md:mb-12">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-8 leading-tight">
-                A player's potential is not defined by where they start. It is defined by the system around them.
+              <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-6 leading-tight text-title">
+                {BRAND_CONTENT.tagline}
               </h2>
-              <p className="text-lg md:text-xl text-muted-foreground">
-                We built the first consultancy that integrates performance science, tactical analysis, and career development into one unified discipline.
+              <p className="text-base md:text-lg text-muted-foreground mb-4">
+                {BRAND_CONTENT.overview}
+              </p>
+              <p className="text-sm md:text-base text-muted-foreground">
+                {BRAND_CONTENT.valueProposition}
               </p>
             </div>
           </div>
 
-          {/* Philosophy Image Grid */}
-          <div className="grid md:grid-cols-2 gap-px bg-border/30">
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-              {galleryImages[1] && (
-                <img 
-                  src={galleryImages[1].file_url}
-                  alt="Performance consultancy"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6 md:p-10">
-                <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-white mb-2">
-                  Performance First
-                </h3>
-                <p className="text-sm md:text-base text-white/70 max-w-md">
-                  We are committed to exclusive quality from the first assessment to match day. Every detail matters in developing elite footballers.
-                </p>
+          {/* Philosophy Image Grid - Card style matching Services/Customisation */}
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-card border border-border/50 group">
+                {galleryImages[1] && (
+                  <img 
+                    src={galleryImages[1].file_url}
+                    alt="Performance consultancy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-4 md:p-6">
+                  <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-title mb-2">
+                    Tailored Training
+                  </h3>
+                  <p className="text-xs md:text-sm text-foreground/80 max-w-md">
+                    {BRAND_CONTENT.quotes.individual}
+                  </p>
+                </div>
+              </div>
+              <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-card border border-border/50 group">
+                {galleryImages[2] && (
+                  <img 
+                    src={galleryImages[2].file_url}
+                    alt="Attention to detail"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-4 md:p-6">
+                  <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-title mb-2">
+                    Attention to Detail
+                  </h3>
+                  <p className="text-xs md:text-sm text-foreground/80 max-w-md">
+                    {BRAND_CONTENT.quotes.attention}
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-              {galleryImages[2] && (
-                <img 
-                  src={galleryImages[2].file_url}
-                  alt="Attention to detail"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6 md:p-10">
-                <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-white mb-2">
-                  Attention to Detail
-                </h3>
-                <p className="text-sm md:text-base text-white/70 max-w-md">
-                  The experience and passion of our team always results in something extraordinary: players full of confidence who fully meet their potential.
-                </p>
-              </div>
+          </div>
+
+          {/* Services Overview */}
+          <div className="container mx-auto px-4 py-8 md:py-12">
+            <div className="bg-card border border-border/50 rounded-lg p-6 md:p-8">
+              <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-title mb-4">
+                Our Services
+              </h3>
+              <p className="text-sm md:text-base text-muted-foreground mb-4">
+                {BRAND_CONTENT.servicesOverview}
+              </p>
+              <p className="text-sm md:text-base text-muted-foreground">
+                {BRAND_CONTENT.teamCulture}
+              </p>
             </div>
           </div>
 
           {/* Quote */}
-          <div className="container mx-auto px-4 py-16 md:py-24">
-            <blockquote className="max-w-3xl mx-auto text-center">
-              <p className="text-2xl md:text-4xl font-bebas uppercase tracking-wider italic mb-6">
+          <div className="container mx-auto px-4 py-6 md:py-10">
+            <blockquote className="max-w-3xl mx-auto text-center bg-primary/10 border border-accent/20 rounded-lg p-6 md:p-8">
+              <p className="text-xl md:text-3xl font-bebas uppercase tracking-wider italic mb-4 text-title">
                 "In the beginning, I looked around but could not find the support I was dreaming of. So we decided to build it ourselves."
               </p>
-              <cite className="text-sm text-muted-foreground not-italic">
+              <cite className="text-sm text-accent not-italic font-medium">
                 Jolon Levene, Founder
               </cite>
             </blockquote>
           </div>
         </section>
 
-        {/* Pioneers Section */}
+        {/* Pioneers Section - The Problem We Solve */}
         <section 
           ref={(el) => (sectionRefs.current.pioneers = el)}
           id="pioneers"
-          className="py-16 md:py-24 bg-muted/30"
+          className="py-6 md:py-10 bg-card/30 border-y border-border/30"
         >
-          <div className="container mx-auto px-4 mb-12">
-            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4">
-              The First to Do This.
+          <div className="container mx-auto px-4 mb-6 md:mb-8">
+            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 text-title">
+              Why We Exist.
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              We pioneered the integrated approach to player development. No one else was combining elite performance coaching with advanced scouting and tactical analysis.
+            <p className="text-base text-muted-foreground max-w-3xl">
+              {BRAND_CONTENT.problemStatement}
             </p>
           </div>
 
-          {/* Timeline Cards */}
+          {/* The Challenge - Card style matching Customisation/Services */}
+          <div className="container mx-auto px-4 mb-6 md:mb-8">
+            <div className="bg-card border border-border/50 rounded-lg p-4 md:p-6">
+              <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-accent mb-3">
+                The Challenge
+              </h3>
+              <p className="text-sm md:text-base text-muted-foreground">
+                {BRAND_CONTENT.clubChallenge}
+              </p>
+            </div>
+          </div>
+
+          {/* The Solution */}
+          <div className="container mx-auto px-4 mb-6 md:mb-8">
+            <div className="bg-primary/10 border border-accent/30 rounded-lg p-4 md:p-6">
+              <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-accent mb-3">
+                Our Solution
+              </h3>
+              <p className="text-sm md:text-base text-foreground">
+                {BRAND_CONTENT.solution}
+              </p>
+            </div>
+          </div>
+
+          {/* Timeline Cards - Cleaner card style */}
           <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
               {/* How it started */}
-              <div className="group">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-lg mb-4">
+              <div className="bg-card border border-border/50 rounded-lg overflow-hidden group">
+                <div className="relative aspect-[4/3] overflow-hidden">
                   {galleryImages[3] && (
                     <img 
                       src={galleryImages[3].file_url}
@@ -245,17 +290,19 @@ const About = () => {
                     />
                   )}
                 </div>
-                <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider mb-2">
-                  How it started.
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  We started as players. We became coaches. We developed performance teams around Premier League talents. We saw firsthand what separates good players from great ones.
-                </p>
+                <div className="p-4">
+                  <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider mb-2 text-title">
+                    How it started.
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    We started as players. We became coaches. We developed performance teams around Premier League talents.
+                  </p>
+                </div>
               </div>
 
               {/* From 2015 */}
-              <div className="group">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-lg mb-4">
+              <div className="bg-card border border-border/50 rounded-lg overflow-hidden group">
+                <div className="relative aspect-[4/3] overflow-hidden">
                   {galleryImages[4] && (
                     <img 
                       src={galleryImages[4].file_url}
@@ -264,17 +311,19 @@ const About = () => {
                     />
                   )}
                 </div>
-                <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider mb-2">
-                  From 2015.
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  We pioneered the integrated approach, combining elite performance coaching with advanced scouting and tactical education. We were the first to do this.
-                </p>
+                <div className="p-4">
+                  <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider mb-2 text-title">
+                    From 2015.
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    We pioneered the integrated approach, combining elite performance coaching with advanced tactical education.
+                  </p>
+                </div>
               </div>
 
               {/* Today */}
-              <div className="group">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-lg mb-4">
+              <div className="bg-card border border-border/50 rounded-lg overflow-hidden group">
+                <div className="relative aspect-[4/3] overflow-hidden">
                   {galleryImages[5] && (
                     <img 
                       src={galleryImages[5].file_url}
@@ -283,12 +332,14 @@ const About = () => {
                     />
                   )}
                 </div>
-                <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider mb-2">
-                  Today.
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Now the model has been proven. Our players compete at the highest levels across Europe. The industry is catching up, but we are still ahead.
-                </p>
+                <div className="p-4">
+                  <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider mb-2 text-title">
+                    Today.
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    {BRAND_CONTENT.clientRoster}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
