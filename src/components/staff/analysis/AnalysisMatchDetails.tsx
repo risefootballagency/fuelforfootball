@@ -9,6 +9,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
@@ -21,8 +28,15 @@ interface MatchDetailsProps {
   formData: any;
   setFormData: (data: any) => void;
   handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>, field: string, pointIndex?: number, isMultiple?: boolean, matchupIndex?: number) => Promise<void>;
+  handleVideoUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   uploadingImage: boolean;
   analysisType: "pre-match" | "post-match";
+  players: any[];
+  selectedPlayerId: string;
+  setSelectedPlayerId: (id: string) => void;
+  performanceReports: any[];
+  selectedPerformanceReportId: string;
+  setSelectedPerformanceReportId: (id: string) => void;
   defaultOpen?: boolean;
 }
 
@@ -30,8 +44,15 @@ export const AnalysisMatchDetails = ({
   formData,
   setFormData,
   handleImageUpload,
+  handleVideoUpload,
   uploadingImage,
   analysisType,
+  players,
+  selectedPlayerId,
+  setSelectedPlayerId,
+  performanceReports,
+  selectedPerformanceReportId,
+  setSelectedPerformanceReportId,
   defaultOpen = false,
 }: MatchDetailsProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -90,9 +111,81 @@ export const AnalysisMatchDetails = ({
         <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-4 space-y-4">
+        {/* Title - shared for both types */}
+        <div>
+          <Label>Title</Label>
+          <Input
+            value={formData.title || ""}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            placeholder="Analysis title..."
+          />
+        </div>
+
+        {/* Video URL and Upload */}
+        <div>
+          <Label>Video URL (Optional)</Label>
+          <Input
+            value={formData.video_url || ""}
+            onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+            placeholder="Video URL or upload below..."
+          />
+        </div>
+        <div>
+          <Label>Or Upload Video</Label>
+          <Input
+            type="file"
+            accept="video/*"
+            onChange={handleVideoUpload}
+            disabled={uploadingImage}
+          />
+        </div>
+
+        {/* Link to Player Performance Report */}
+        <div className="border-t pt-4 mt-4">
+          <h4 className="font-medium mb-3">Link to Player Performance Report</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label>Player</Label>
+              <Select value={selectedPlayerId} onValueChange={setSelectedPlayerId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select player" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {players.map((player) => (
+                    <SelectItem key={player.id} value={player.id}>
+                      {player.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Performance Report</Label>
+              <Select 
+                value={selectedPerformanceReportId} 
+                onValueChange={setSelectedPerformanceReportId}
+                disabled={!selectedPlayerId || selectedPlayerId === "none"}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select report" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {performanceReports.map((report) => (
+                    <SelectItem key={report.id} value={report.id}>
+                      {report.opponent} - {new Date(report.analysis_date).toLocaleDateString()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
         {analysisType === "pre-match" ? (
           <>
-            <div>
+            <div className="border-t pt-4">
               <Label>Match Date</Label>
               <Input
                 type="date"

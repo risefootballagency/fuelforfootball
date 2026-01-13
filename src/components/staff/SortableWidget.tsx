@@ -4,7 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GripVertical, Maximize2, Minimize2 } from "lucide-react";
-import marbleOverlay from "@/assets/smudged-marble-overlay.png";
+import grassTexture from "@/assets/grass-smoky-3.png";
 import { cn } from "@/lib/utils";
 
 export interface WidgetLayout {
@@ -145,29 +145,27 @@ export const SortableWidget = ({
       <div className="fixed inset-0 z-50 bg-background p-4 pt-20 overflow-auto">
         <Card className="h-full flex flex-col border-border/50 bg-card/50 backdrop-blur-sm relative overflow-hidden">
           <div
-            className="absolute inset-0 opacity-20 pointer-events-none z-0"
+            className="absolute inset-0 opacity-40 pointer-events-none z-0"
             style={{
-              backgroundImage: `url(${marbleOverlay})`,
+              backgroundImage: `url(${grassTexture})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              mixBlendMode: "overlay",
             }}
           />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-border/30 px-3 py-2 relative z-10 overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-primary/20 px-3 py-2 relative z-10 overflow-hidden">
             <div
-              className="absolute inset-0 opacity-30 pointer-events-none z-0"
+              className="absolute inset-0 opacity-60 pointer-events-none z-0"
               style={{
-                backgroundImage: `url(${marbleOverlay})`,
+                backgroundImage: `url(${grassTexture})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                mixBlendMode: "overlay",
               }}
             />
             <div className="flex items-center gap-2 relative z-10">
               <div className="p-1.5 rounded bg-primary/10 border border-primary/20">
                 <Icon className="w-3.5 h-3.5 text-primary" />
               </div>
-              <CardTitle className="text-xs font-semibold tracking-tight uppercase text-muted-foreground">
+              <CardTitle className="text-xs font-semibold tracking-tight uppercase text-title-text drop-shadow-sm">
                 {title}
               </CardTitle>
             </div>
@@ -206,22 +204,20 @@ export const SortableWidget = ({
     >
       <Card className="h-full flex flex-col border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/30 hover:shadow-lg relative overflow-hidden">
         <div
-          className="absolute inset-0 opacity-20 pointer-events-none z-0"
+          className="absolute inset-0 opacity-40 pointer-events-none z-0"
           style={{
-            backgroundImage: `url(${marbleOverlay})`,
+            backgroundImage: `url(${grassTexture})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            mixBlendMode: "overlay",
           }}
         />
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-border/30 px-3 py-2 relative z-10 overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-primary/20 px-3 py-2 relative z-10 overflow-hidden">
           <div
-            className="absolute inset-0 opacity-30 pointer-events-none z-0"
+            className="absolute inset-0 opacity-60 pointer-events-none z-0"
             style={{
-              backgroundImage: `url(${marbleOverlay})`,
+              backgroundImage: `url(${grassTexture})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              mixBlendMode: "overlay",
             }}
           />
           <div className="flex items-center gap-2 relative z-10">
@@ -231,12 +227,12 @@ export const SortableWidget = ({
               {...listeners}
               className="p-1 rounded cursor-grab hover:bg-primary/10 active:cursor-grabbing"
             >
-              <GripVertical className="w-3.5 h-3.5 text-muted-foreground" />
+              <GripVertical className="w-3.5 h-3.5 text-title-text/70" />
             </div>
             <div className="p-1.5 rounded bg-primary/10 border border-primary/20">
               <Icon className="w-3.5 h-3.5 text-primary" />
             </div>
-            <CardTitle className="text-xs font-semibold tracking-tight uppercase text-muted-foreground">
+            <CardTitle className="text-xs font-semibold tracking-tight uppercase text-title-text drop-shadow-sm">
               {title}
             </CardTitle>
           </div>
@@ -249,7 +245,7 @@ export const SortableWidget = ({
             }}
             className="h-6 w-6 p-0 hover:bg-primary/10 relative z-20"
           >
-            <Maximize2 className="h-3 w-3" />
+            <Maximize2 className="h-3 w-3 text-title-text/70" />
           </Button>
         </CardHeader>
         <CardContent className="flex-1 overflow-hidden hover:overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent pt-3 px-3 pb-3 relative z-10">
