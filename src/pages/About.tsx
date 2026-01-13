@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { ChevronDown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BRAND_CONTENT } from "@/data/brandContent";
+import { GrassBackground, SmokyBackground } from "@/components/GrassBackground";
 
 const SECTIONS = [
   { id: "philosophy", label: "Philosophy" },
@@ -237,13 +238,17 @@ const About = () => {
           </div>
         </section>
 
+        {/* Grass Divider */}
+        <GrassBackground variant="divider" backgroundIndex={0} />
+
         {/* Pioneers Section - The Problem We Solve */}
         <section 
           ref={(el) => (sectionRefs.current.pioneers = el)}
           id="pioneers"
-          className="py-6 md:py-10 bg-card/30 border-y border-border/30"
+          className="py-6 md:py-10 bg-card/30 border-y border-border/30 relative overflow-hidden"
         >
-          <div className="container mx-auto px-4 mb-6 md:mb-8">
+          <SmokyBackground backgroundIndex={3} className="opacity-30" />
+          <div className="container mx-auto px-4 mb-6 md:mb-8 relative z-10">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 text-title">
               Why We Exist.
             </h2>
@@ -253,7 +258,7 @@ const About = () => {
           </div>
 
           {/* The Challenge - Card style matching Customisation/Services */}
-          <div className="container mx-auto px-4 mb-6 md:mb-8">
+          <div className="container mx-auto px-4 mb-6 md:mb-8 relative z-10">
             <div className="bg-card border border-border/50 rounded-lg p-4 md:p-6">
               <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-accent mb-3">
                 The Challenge
@@ -265,7 +270,7 @@ const About = () => {
           </div>
 
           {/* The Solution */}
-          <div className="container mx-auto px-4 mb-6 md:mb-8">
+          <div className="container mx-auto px-4 mb-6 md:mb-8 relative z-10">
             <div className="bg-primary/10 border border-accent/30 rounded-lg p-4 md:p-6">
               <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-accent mb-3">
                 Our Solution
@@ -277,7 +282,7 @@ const About = () => {
           </div>
 
           {/* Timeline Cards - Cleaner card style */}
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 relative z-10">
             <div className="grid md:grid-cols-3 gap-4 md:gap-6">
               {/* How it started */}
               <div className="bg-card border border-border/50 rounded-lg overflow-hidden group">
@@ -345,7 +350,7 @@ const About = () => {
           </div>
 
           {/* Stats Banner */}
-          <div className="container mx-auto px-4 mt-16 md:mt-24">
+          <div className="container mx-auto px-4 mt-16 md:mt-24 relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               <div className="text-center">
                 <div className="text-4xl md:text-6xl font-bebas text-primary">74</div>
@@ -366,6 +371,9 @@ const About = () => {
             </div>
           </div>
         </section>
+
+        {/* Grass Divider */}
+        <GrassBackground variant="divider" backgroundIndex={4} />
 
         {/* Talent Section */}
         <section 

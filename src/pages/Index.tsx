@@ -27,6 +27,7 @@ import coachesNetwork from "@/assets/coaches-network.jpg";
 import { WhatsAppPulse } from "@/components/WhatsAppPulse";
 import { EliteMessaging, PropagandaBanner, ShadowyEliteSection } from "@/components/EliteMessaging";
 import { MetricBanner } from "@/components/PropagandaMetrics";
+import { GrassBackground, SmokyBackground } from "@/components/GrassBackground";
 
 const domainConfig = {
   Physical: { icon: Activity, color: "text-red-500", bgColor: "bg-red-500/10", borderColor: "border-red-500/20", solidBg: "bg-red-500" },
@@ -129,6 +130,9 @@ const Index = () => {
 
         {/* Player Marquee - Fuelling The Best */}
         <PlayerMarquee />
+
+        {/* Grass Divider */}
+        <GrassBackground variant="divider" backgroundIndex={0} />
 
         {/* HOW WE FUEL Section */}
         <section className="py-6 md:py-8 px-4 bg-gradient-to-b from-background to-muted/20">
@@ -238,6 +242,9 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Grass Divider */}
+        <GrassBackground variant="divider" backgroundIndex={1} />
+
         {/* INSIDE:ACCESS Section */}
         {translatedInsideAccess.length > 0 && (
           <section className="py-6 md:py-8 px-4 bg-background/80 backdrop-blur-sm">
@@ -275,6 +282,9 @@ const Index = () => {
             </div>
           </section>
         )}
+
+        {/* Grass Divider */}
+        <GrassBackground variant="divider" backgroundIndex={2} />
 
         {/* Club Network Map Section */}
         <section className="py-6 md:py-8 px-4 bg-background/90 backdrop-blur-sm">
