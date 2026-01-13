@@ -16,6 +16,7 @@ import { MetricBanner } from "@/components/PropagandaMetrics";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { BRAND_CONTENT } from "@/data/brandContent";
+import { GrassBackground, SmokyBackground } from "@/components/GrassBackground";
 
 // Dynamic Hero Slider that fetches images from landing folder
 const DynamicHeroSlider = () => {
@@ -351,6 +352,9 @@ const Players = () => {
           </div>
         </section>
 
+        {/* Grass Divider */}
+        <GrassBackground variant="divider" backgroundIndex={0} />
+
         {/* Hero Slider - with images from landing folder */}
         <DynamicHeroSlider />
 
@@ -365,6 +369,9 @@ const Players = () => {
             </p>
           </div>
         </section>
+
+        {/* Grass Divider */}
+        <GrassBackground variant="divider" backgroundIndex={1} />
 
         {/* Choose Your Fuel Section - immediately after */}
         <section className="py-4 md:py-8 bg-background">
