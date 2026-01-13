@@ -55,9 +55,9 @@ export const Footer = () => {
       </div>
 
       {/* Partners Section */}
-      <div className="bg-[hsl(120_40%_10%)] py-6 md:py-8 border-b border-primary/10">
+      <div className="bg-[hsl(120_40%_10%)] py-6 md:py-8 border-b border-border/10">
         <div className="container mx-auto px-4">
-          <h3 className="font-bebas text-sm md:text-lg uppercase tracking-widest text-primary text-center mb-3 md:mb-4">
+          <h3 className="font-bebas text-sm md:text-lg uppercase tracking-widest text-title text-center mb-3 md:mb-4">
             Partners
           </h3>
           <div className="flex justify-center items-center gap-8 md:gap-12 flex-wrap">
@@ -79,38 +79,38 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-6xl mx-auto mb-5 md:mb-6">
           {/* Quick Links */}
           <div className="text-center md:text-left">
-            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-mint mb-4 md:mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-title mb-4 md:mb-6">
               {t("footer.quick_links", "Quick Links")}
             </h3>
             <div className="grid grid-cols-2 gap-x-4 md:gap-x-6 gap-y-2 md:gap-y-3 max-w-xs mx-auto md:mx-0">
-              <Link to="/" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <Link to="/" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Home
               </Link>
-              <LocalizedLink to="/players" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/players" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Players
               </LocalizedLink>
-              <LocalizedLink to="/clubs" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/clubs" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Clubs
               </LocalizedLink>
-              <LocalizedLink to="/coaches" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/coaches" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Coaches
               </LocalizedLink>
-              <LocalizedLink to="/scouts" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/scouts" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Scouts
               </LocalizedLink>
-              <LocalizedLink to="/services" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/services" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Services
               </LocalizedLink>
-              <LocalizedLink to="/shop" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/shop" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Shop
               </LocalizedLink>
-              <LocalizedLink to="/daily-fuel" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/daily-fuel" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Daily Fuel
               </LocalizedLink>
-              <LocalizedLink to="/about" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/about" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 About
               </LocalizedLink>
-              <LocalizedLink to="/contact" className="text-sm text-mint-dim hover:text-primary transition-colors py-1">
+              <LocalizedLink to="/contact" className="text-sm text-mint-dim hover:text-accent transition-colors py-1">
                 Contact
               </LocalizedLink>
             </div>
@@ -118,7 +118,7 @@ export const Footer = () => {
 
           {/* Get In Touch */}
           <div className="text-center md:text-left">
-            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-mint mb-4 md:mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-title mb-4 md:mb-6">
               {t("footer.get_in_touch", "Get In Touch")}
             </h3>
             
@@ -126,18 +126,18 @@ export const Footer = () => {
             <div className="space-y-3 md:space-y-4 mb-5 md:mb-6 flex flex-col items-center md:items-start">
               <a
                 href="mailto:info@fuelforfootball.com"
-                className="flex items-center gap-3 text-mint-dim hover:text-primary transition-colors text-sm py-1"
+                className="flex items-center gap-3 text-mint-dim hover:text-accent transition-colors text-sm py-1"
               >
-                <Mail className="w-4 h-4 text-primary" />
+                <Mail className="w-4 h-4 text-accent" />
                 <span>info@fuelforfootball.com</span>
               </a>
               <a
                 href="https://wa.me/447742431806"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 text-mint-dim hover:text-primary transition-colors text-sm py-1"
+                className="flex items-center gap-3 text-mint-dim hover:text-accent transition-colors text-sm py-1"
               >
-                <FaWhatsapp className="w-4 h-4 text-primary" />
+                <FaWhatsapp className="w-4 h-4 text-accent" />
                 <span>+44 7742431806</span>
               </a>
             </div>
@@ -167,7 +167,7 @@ export const Footer = () => {
 
           {/* Follow Us */}
           <div className="text-center md:text-left">
-            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-mint mb-4 md:mb-6">
+            <h3 className="font-bebas text-xl md:text-2xl uppercase tracking-wider text-title mb-4 md:mb-6">
               {t("footer.follow_us", "Follow Us")}
             </h3>
             <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto md:mx-0">
@@ -175,73 +175,73 @@ export const Footer = () => {
                 href="https://www.instagram.com/FuelForFootball"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2.5 md:p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
+                className="flex items-center gap-2 p-2.5 md:p-3 bg-card hover:bg-card/80 rounded-lg border border-border/20 hover:border-accent/40 transition-all group"
               >
-                <FaInstagram className="w-4 h-4 text-primary" />
-                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Instagram</span>
+                <FaInstagram className="w-4 h-4 text-accent" />
+                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors">Instagram</span>
               </a>
               <a
                 href="https://x.com/fuelforfootball"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2.5 md:p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
+                className="flex items-center gap-2 p-2.5 md:p-3 bg-card hover:bg-card/80 rounded-lg border border-border/20 hover:border-accent/40 transition-all group"
               >
-                <FaTwitter className="w-4 h-4 text-primary" />
-                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Twitter</span>
+                <FaTwitter className="w-4 h-4 text-accent" />
+                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors">Twitter</span>
               </a>
               <a
                 href="https://www.linkedin.com/company/fuel-for-football"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2.5 md:p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
+                className="flex items-center gap-2 p-2.5 md:p-3 bg-card hover:bg-card/80 rounded-lg border border-border/20 hover:border-accent/40 transition-all group"
               >
-                <FaLinkedin className="w-4 h-4 text-primary" />
-                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">LinkedIn</span>
+                <FaLinkedin className="w-4 h-4 text-accent" />
+                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors">LinkedIn</span>
               </a>
               <a
                 href="https://www.youtube.com/@FuelForFootball"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2.5 md:p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
+                className="flex items-center gap-2 p-2.5 md:p-3 bg-card hover:bg-card/80 rounded-lg border border-border/20 hover:border-accent/40 transition-all group"
               >
-                <FaYoutube className="w-4 h-4 text-primary" />
-                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">YouTube</span>
+                <FaYoutube className="w-4 h-4 text-accent" />
+                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors">YouTube</span>
               </a>
               <a
                 href="https://www.facebook.com/fuelforfooty"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2.5 md:p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
+                className="flex items-center gap-2 p-2.5 md:p-3 bg-card hover:bg-card/80 rounded-lg border border-border/20 hover:border-accent/40 transition-all group"
               >
-                <FaFacebook className="w-4 h-4 text-primary" />
-                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Facebook</span>
+                <FaFacebook className="w-4 h-4 text-accent" />
+                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors">Facebook</span>
               </a>
               <a
                 href="https://open.spotify.com/show/1Ep6k8p6j4rMT1a0AFqX8C"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2.5 md:p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
+                className="flex items-center gap-2 p-2.5 md:p-3 bg-card hover:bg-card/80 rounded-lg border border-border/20 hover:border-accent/40 transition-all group"
               >
-                <FaSpotify className="w-4 h-4 text-primary" />
-                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Podcast</span>
+                <FaSpotify className="w-4 h-4 text-accent" />
+                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors">Podcast</span>
               </a>
               <a
                 href="#"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2.5 md:p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
+                className="flex items-center gap-2 p-2.5 md:p-3 bg-card hover:bg-card/80 rounded-lg border border-border/20 hover:border-accent/40 transition-all group"
               >
-                <FaTelegram className="w-4 h-4 text-primary" />
-                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Telegram</span>
+                <FaTelegram className="w-4 h-4 text-accent" />
+                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors">Telegram</span>
               </a>
               <a
                 href="#"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2.5 md:p-3 bg-primary/5 hover:bg-primary/10 rounded-lg border border-primary/20 hover:border-primary/40 transition-all group"
+                className="flex items-center gap-2 p-2.5 md:p-3 bg-card hover:bg-card/80 rounded-lg border border-border/20 hover:border-accent/40 transition-all group"
               >
-                <FaSnapchatGhost className="w-4 h-4 text-primary" />
-                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-mint group-hover:text-primary transition-colors">Snapchat</span>
+                <FaSnapchatGhost className="w-4 h-4 text-accent" />
+                <span className="text-[10px] md:text-xs font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors">Snapchat</span>
               </a>
             </div>
           </div>
