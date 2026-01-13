@@ -1,7 +1,9 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { ChevronDown } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Plus, X } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -16,10 +18,17 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 
+interface Matchup {
+  name: string;
+  shirt_number: string;
+  image_url: string;
+}
+
 interface OverviewSectionProps {
   formData: any;
   setFormData: (data: any) => void;
   handleVideoUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>, field: string, pointIndex?: number, isMultiple?: boolean, matchupIndex?: number) => Promise<void>;
   uploadingImage: boolean;
   players: any[];
   selectedPlayerId: string;
@@ -28,12 +37,17 @@ interface OverviewSectionProps {
   selectedPerformanceReportId: string;
   setSelectedPerformanceReportId: (id: string) => void;
   analysisType: "pre-match" | "post-match" | "concept";
+  addMatchup?: () => void;
+  removeMatchup?: (index: number) => void;
+  updateMatchup?: (index: number, field: string, value: string) => void;
+  defaultOpen?: boolean;
 }
 
 export const AnalysisOverviewSection = ({
   formData,
   setFormData,
   handleVideoUpload,
+  handleImageUpload,
   uploadingImage,
   players,
   selectedPlayerId,
@@ -42,8 +56,12 @@ export const AnalysisOverviewSection = ({
   selectedPerformanceReportId,
   setSelectedPerformanceReportId,
   analysisType,
+  addMatchup,
+  removeMatchup,
+  updateMatchup,
+  defaultOpen = false,
 }: OverviewSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -52,14 +70,91 @@ export const AnalysisOverviewSection = ({
         <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-4 space-y-4">
-        <div>
-          <Label>Title</Label>
-          <Input
-            value={formData.title || ""}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="Analysis title..."
-          />
-        </div>
+        {/* Pre-match specific fields moved from Match Details */}
+        {analysisType === "pre-match" && (
+          <>
+            <div>
+              <Label>Key Details</Label>
+              <Textarea
+                value={formData.key_details || ""}
+                onChange={(e) => setFormData({ ...formData, key_details: e.target.value })}
+                placeholder="Key tactical information about the match..."
+              />
+            </div>
+
+            <div>
+              <Label>Opposition Strengths</Label>
+              <Textarea
+                value={formData.opposition_strengths || ""}
+                onChange={(e) => setFormData({ ...formData, opposition_strengths: e.target.value })}
+                placeholder="• Strong aerial presence&#10;• Fast counter attacks&#10;• Set piece threat"
+              />
+            </div>
+
+            <div>
+              <Label>Opposition Weaknesses</Label>
+              <Textarea
+                value={formData.opposition_weaknesses || ""}
+                onChange={(e) => setFormData({ ...formData, opposition_weaknesses: e.target.value })}
+                placeholder="• Weak on the left flank&#10;• Slow to transition&#10;• Vulnerable to through balls"
+              />
+            </div>
+
+            {addMatchup && removeMatchup && updateMatchup && (
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <Label>Matchups</Label>
+                  <Button size="sm" onClick={addMatchup}>
+                    <Plus className="w-4 h-4 mr-1" /> Add Matchup
+                  </Button>
+                </div>
+                {formData.matchups?.map((matchup: Matchup, index: number) => (
+                  <Card key={index} className="p-4 mb-2">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-2 flex-1">
+                        <Input
+                          placeholder="Player Name"
+                          value={matchup.name}
+                          onChange={(e) => updateMatchup(index, "name", e.target.value)}
+                        />
+                        <Input
+                          placeholder="Shirt Number"
+                          value={matchup.shirt_number}
+                          onChange={(e) => updateMatchup(index, "shirt_number", e.target.value)}
+                        />
+                        <div>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e, "matchup_image", undefined, false, index)}
+                            disabled={uploadingImage}
+                          />
+                          {matchup.image_url && (
+                            <img src={matchup.image_url} alt="Matchup" className="mt-2 w-20 h-20 object-cover rounded" />
+                          )}
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => removeMatchup(index)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Post-match specific fields - Key Details moved here */}
+        {analysisType === "post-match" && (
+          <div>
+            <Label>Key Details</Label>
+            <Textarea
+              value={formData.key_details || ""}
+              onChange={(e) => setFormData({ ...formData, key_details: e.target.value })}
+            />
+          </div>
+        )}
 
         {analysisType === "concept" && (
           <>

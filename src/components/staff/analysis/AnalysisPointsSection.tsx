@@ -16,6 +16,7 @@ interface Point {
   paragraph_1: string;
   paragraph_2: string;
   images: string[];
+  video_url?: string;
 }
 
 interface PointsSectionProps {
@@ -25,11 +26,13 @@ interface PointsSectionProps {
   removePoint: (index: number) => void;
   updatePoint: (index: number, field: keyof Point, value: any) => void;
   handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>, field: string, pointIndex?: number, isMultiple?: boolean) => Promise<void>;
+  handleVideoUploadForPoint: (event: React.ChangeEvent<HTMLInputElement>, pointIndex: number) => Promise<void>;
   removeImageFromPoint: (pointIndex: number, imageIndex: number) => void;
   uploadingImage: boolean;
   generateWithAI: (field: string, pointIndex?: number) => Promise<void>;
   aiGenerating: boolean;
   analysisType: "pre-match" | "post-match" | "concept";
+  defaultOpen?: boolean;
 }
 
 export const AnalysisPointsSection = ({
@@ -39,13 +42,15 @@ export const AnalysisPointsSection = ({
   removePoint,
   updatePoint,
   handleImageUpload,
+  handleVideoUploadForPoint,
   removeImageFromPoint,
   uploadingImage,
   generateWithAI,
   aiGenerating,
   analysisType,
+  defaultOpen = false,
 }: PointsSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -155,6 +160,29 @@ export const AnalysisPointsSection = ({
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <Label>Video (Optional)</Label>
+                <Input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => handleVideoUploadForPoint(e, index)}
+                  disabled={uploadingImage}
+                />
+                <Input
+                  value={point.video_url || ""}
+                  onChange={(e) => updatePoint(index, "video_url", e.target.value)}
+                  placeholder="Or paste video URL..."
+                  className="mt-2"
+                />
+                {point.video_url && (
+                  <video 
+                    src={point.video_url} 
+                    controls 
+                    className="mt-2 max-w-xs rounded"
+                  />
+                )}
               </div>
             </div>
           </Card>

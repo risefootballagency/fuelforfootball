@@ -25,6 +25,10 @@ interface SchemeSectionProps {
   generateWithAI: (field: string, pointIndex?: number) => Promise<void>;
   aiGenerating: boolean;
   formationTemplates: Record<string, Array<{x: number, y: number, position: string}>>;
+  handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>, field: string) => Promise<void>;
+  handleVideoUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  uploadingImage: boolean;
+  defaultOpen?: boolean;
 }
 
 export const AnalysisSchemeSection = ({
@@ -35,8 +39,12 @@ export const AnalysisSchemeSection = ({
   generateWithAI,
   aiGenerating,
   formationTemplates,
+  handleImageUpload,
+  handleVideoUpload,
+  uploadingImage,
+  defaultOpen = false,
 }: SchemeSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -46,13 +54,13 @@ export const AnalysisSchemeSection = ({
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-4 space-y-4">
         <div>
-          <Label>Select Formation</Label>
+          <Label>Select Scheme</Label>
           <Select 
             value={formData.selected_scheme || ""} 
             onValueChange={handleSchemeChange}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Choose a formation" />
+              <SelectValue placeholder="Choose a scheme" />
             </SelectTrigger>
             <SelectContent>
               {Object.keys(formationTemplates).map((formation) => (
@@ -137,6 +145,35 @@ export const AnalysisSchemeSection = ({
             </div>
           </div>
         )}
+
+        <div>
+          <Label>Scheme Image</Label>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleImageUpload(e, "scheme_image_url")}
+            disabled={uploadingImage}
+          />
+          {formData.scheme_image_url && (
+            <img src={formData.scheme_image_url} alt="Scheme" className="mt-2 max-w-xs rounded" />
+          )}
+        </div>
+
+        <div>
+          <Label>Or Upload Video</Label>
+          <Input
+            type="file"
+            accept="video/*"
+            onChange={handleVideoUpload}
+            disabled={uploadingImage}
+          />
+          <Input
+            value={formData.scheme_video_url || ""}
+            onChange={(e) => setFormData({ ...formData, scheme_video_url: e.target.value })}
+            placeholder="Or paste video URL..."
+            className="mt-2"
+          />
+        </div>
 
         <div>
           <Label>Title</Label>
