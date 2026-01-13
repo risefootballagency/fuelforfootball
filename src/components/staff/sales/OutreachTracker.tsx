@@ -300,41 +300,41 @@ export function OutreachTracker() {
       </div>
 
       {/* Target Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3 mb-3">
-              <UserPlus className="h-6 w-6 text-blue-500" />
+          <CardContent className="p-3 sm:pt-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <UserPlus className="h-4 w-4 sm:h-6 sm:w-6 text-blue-500" />
               <div>
-                <p className="text-2xl font-bold">{targets?.new_prospects_actual || 0}/{targets?.new_prospects_target || 0}</p>
-                <p className="text-sm text-muted-foreground">New Prospects</p>
+                <p className="text-base sm:text-2xl font-bold">{targets?.new_prospects_actual || 0}/{targets?.new_prospects_target || 0}</p>
+                <p className="text-[10px] sm:text-sm text-muted-foreground">Prospects</p>
               </div>
             </div>
-            <Progress value={Math.min(100, prospectsProgress)} className="h-2" />
+            <Progress value={Math.min(100, prospectsProgress)} className="h-1.5 sm:h-2" />
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3 mb-3">
-              <Phone className="h-6 w-6 text-orange-500" />
+          <CardContent className="p-3 sm:pt-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <Phone className="h-4 w-4 sm:h-6 sm:w-6 text-orange-500" />
               <div>
-                <p className="text-2xl font-bold">{targets?.follow_ups_actual || 0}/{targets?.follow_ups_target || 0}</p>
-                <p className="text-sm text-muted-foreground">Follow Ups</p>
+                <p className="text-base sm:text-2xl font-bold">{targets?.follow_ups_actual || 0}/{targets?.follow_ups_target || 0}</p>
+                <p className="text-[10px] sm:text-sm text-muted-foreground">Follow Ups</p>
               </div>
             </div>
-            <Progress value={Math.min(100, followUpsProgress)} className="h-2" />
+            <Progress value={Math.min(100, followUpsProgress)} className="h-1.5 sm:h-2" />
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3 mb-3">
-              <MessageSquare className="h-6 w-6 text-green-500" />
+          <CardContent className="p-3 sm:pt-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <MessageSquare className="h-4 w-4 sm:h-6 sm:w-6 text-green-500" />
               <div>
-                <p className="text-2xl font-bold">{targets?.conversions_actual || 0}/{targets?.conversions_target || 0}</p>
-                <p className="text-sm text-muted-foreground">Conversions</p>
+                <p className="text-base sm:text-2xl font-bold">{targets?.conversions_actual || 0}/{targets?.conversions_target || 0}</p>
+                <p className="text-[10px] sm:text-sm text-muted-foreground">Conversions</p>
               </div>
             </div>
-            <Progress value={Math.min(100, conversionsProgress)} className="h-2" />
+            <Progress value={Math.min(100, conversionsProgress)} className="h-1.5 sm:h-2" />
           </CardContent>
         </Card>
       </div>
@@ -474,41 +474,41 @@ export function OutreachTracker() {
         </Dialog>
       </div>
 
-      {/* Prospects Table */}
+      {/* Prospects Table - Mobile Responsive */}
       <Card>
         <CardHeader>
-          <CardTitle>Prospects</CardTitle>
+          <CardTitle className="text-base sm:text-lg">Prospects</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Contact</TableHead>
-                <TableHead>Next Follow Up</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-xs">Name</TableHead>
+                <TableHead className="hidden sm:table-cell text-xs">Source</TableHead>
+                <TableHead className="text-xs">Status</TableHead>
+                <TableHead className="hidden md:table-cell text-xs">Last</TableHead>
+                <TableHead className="hidden md:table-cell text-xs">Next</TableHead>
+                <TableHead className="text-right text-xs">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {prospects.map((prospect) => (
                 <TableRow key={prospect.id}>
-                  <TableCell>
+                  <TableCell className="max-w-[120px]">
                     <div>
-                      <p className="font-medium">{prospect.prospect_name}</p>
+                      <p className="font-medium text-xs sm:text-sm truncate">{prospect.prospect_name}</p>
                       {prospect.contact_email && (
-                        <p className="text-sm text-muted-foreground">{prospect.contact_email}</p>
+                        <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{prospect.contact_email}</p>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="capitalize">{prospect.source || "-"}</TableCell>
+                  <TableCell className="hidden sm:table-cell capitalize text-xs">{prospect.source || "-"}</TableCell>
                   <TableCell>
                     <Select 
                       value={prospect.status} 
                       onValueChange={(v) => handleStatusChange(prospect, v)}
                     >
-                      <SelectTrigger className="w-32 h-8">
+                      <SelectTrigger className="w-20 sm:w-32 h-7 sm:h-8 text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -521,25 +521,25 @@ export function OutreachTracker() {
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell text-xs">
                     {prospect.last_contact_date ? format(parseISO(prospect.last_contact_date), "dd MMM") : "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell text-xs">
                     {prospect.next_follow_up ? format(parseISO(prospect.next_follow_up), "dd MMM") : "-"}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(prospect)}>
-                      <Edit className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditDialog(prospect)}>
+                      <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(prospect.id)}>
-                      <Trash2 className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(prospect.id)}>
+                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
               {prospects.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8 text-sm">
                     No prospects yet. Add your first prospect above.
                   </TableCell>
                 </TableRow>

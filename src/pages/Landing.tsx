@@ -339,22 +339,22 @@ function LandingContent() {
             transform: 'translateY(-25px) translateX(-4px)'
           }}>
               
-              {/* Action buttons row - mobile */}
+              {/* Action links row - mobile */}
               <div className="flex gap-2 mb-3 w-full max-w-xs justify-center">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowRepresentation(true)}
+                  onClick={() => navigateToRole("/players/daily-fuel")}
                   className="font-bebas uppercase tracking-wider text-xs border-[hsl(var(--mint)/0.4)] text-[hsl(var(--mint)/0.8)] hover:text-primary hover:border-primary bg-transparent"
                 >
-                  {t("landing.represent_me", "Represent Me")}
+                  {t("landing.daily_fuel", "Daily Fuel")}
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => setShowDeclareInterest(true)}
+                  onClick={() => navigateToRole("/players/services")}
                   className="font-bebas uppercase tracking-wider text-xs"
                 >
-                  {t("landing.declare_interest", "Declare Interest")}
+                  {t("landing.services", "Services")}
                 </Button>
               </div>
               

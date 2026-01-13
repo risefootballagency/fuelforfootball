@@ -134,7 +134,7 @@ export const PlayerPositionalGuides = () => {
 
   return (
     <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
-      <CardHeader marble>
+      <CardHeader className="bg-[hsl(127,78%,8%)] bg-[url('/grass-smoky-3.png')] bg-cover bg-center bg-no-repeat border-b-2 border-[hsl(var(--accent))] p-3 min-h-[60px] flex items-center">
         <div className="container mx-auto px-4">
           <CardTitle className="font-heading tracking-tight flex items-center gap-2">
             <Map className="w-5 h-5" />

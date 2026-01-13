@@ -299,7 +299,7 @@ export const VisionBoardSection = () => {
       </div>
 
       {/* Category Progress Overview */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
         {CATEGORIES.map(cat => {
           const Icon = cat.icon;
           const progress = getProgressByCategory(cat.id);
@@ -310,17 +310,17 @@ export const VisionBoardSection = () => {
               className={`cursor-pointer transition-all hover:shadow-md ${selectedCategory === cat.id ? 'ring-2 ring-primary' : ''}`}
               onClick={() => setSelectedCategory(selectedCategory === cat.id ? 'all' : cat.id)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className={`p-1.5 rounded ${cat.color}`}>
-                    <Icon className="h-4 w-4 text-white" />
+              <CardContent className="p-2 sm:p-4">
+                <div className="flex items-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                  <div className={`p-1 sm:p-1.5 rounded ${cat.color}`}>
+                    <Icon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <span className="text-sm font-medium">{cat.label}</span>
+                  <span className="text-xs sm:text-sm font-medium truncate">{cat.label}</span>
                 </div>
-                <Progress value={progress} className="h-2 mb-1" />
-                <div className="flex justify-between text-xs text-muted-foreground">
+                <Progress value={progress} className="h-1.5 sm:h-2 mb-1" />
+                <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground">
                   <span>{progress}%</span>
-                  <span>{count} items</span>
+                  <span>{count}</span>
                 </div>
               </CardContent>
             </Card>
@@ -330,10 +330,10 @@ export const VisionBoardSection = () => {
 
       {/* Filter Tabs */}
       <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+        <TabsList className="flex-wrap h-auto">
+          <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
           {CATEGORIES.map(cat => (
-            <TabsTrigger key={cat.id} value={cat.id}>{cat.label}</TabsTrigger>
+            <TabsTrigger key={cat.id} value={cat.id} className="text-xs sm:text-sm">{cat.label}</TabsTrigger>
           ))}
         </TabsList>
       </Tabs>

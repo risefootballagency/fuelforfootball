@@ -1377,7 +1377,7 @@ const Dashboard = () => {
       </header>
 
       {/* Subheader with Options */}
-      <div id="subheader" className="bg-background lg:bg-background bg-[url('/smudged-marble-header.png')] lg:bg-none bg-cover bg-center bg-no-repeat border-b border-border/50">
+      <div id="subheader" className="bg-background">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-2 h-12">
             <DropdownMenu>

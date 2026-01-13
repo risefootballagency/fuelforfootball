@@ -215,12 +215,12 @@ export function SalesHub() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+        <TabsList className="flex-wrap h-auto">
+          <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
           {CONTENT_TYPES.map(type => (
-            <TabsTrigger key={type.value} value={type.value} className="flex items-center gap-1">
-              <type.icon className="h-4 w-4" />
-              {type.label}
+            <TabsTrigger key={type.value} value={type.value} className="flex items-center gap-1 text-xs sm:text-sm">
+              <type.icon className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">{type.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>

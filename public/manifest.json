@@ -1,23 +1,22 @@
 {
-  "name": "RISE Football Agency",
-  "short_name": "RISE",
+  "name": "Fuel For Football",
+  "short_name": "FFF",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#C8A871",
+  "background_color": "#09380e",
+  "theme_color": "#ffc805",
   "icons": [
     {
-      "src": "/lovable-uploads/icon-192x192.png",
+      "src": "/fff-app-logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/lovable-uploads/icon-512x512.png",
+      "src": "/fff-app-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ]
 }
-
