@@ -1,9 +1,17 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, BookOpen } from "lucide-react";
 
 const PlayersIntro = () => {
   const navigate = useNavigate();
+  const [hoveredCard, setHoveredCard] = useState<'left' | 'right' | null>(null);
+
+  const getCardFlex = (card: 'left' | 'right') => {
+    if (hoveredCard === null) return 1;
+    if (hoveredCard === card) return 3;
+    return 1;
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -23,13 +31,23 @@ const PlayersIntro = () => {
       <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 md:p-8">
         {/* Left - Learn More */}
         <motion.div
-          className="flex-1 relative overflow-hidden rounded-2xl cursor-pointer group"
+          className="relative overflow-hidden rounded-2xl cursor-pointer group"
           initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          whileHover={{ scale: 1.02 }}
+          animate={{ 
+            opacity: 1, 
+            x: 0,
+            flex: getCardFlex('left')
+          }}
+          transition={{ 
+            duration: 0.5, 
+            ease: [0.23, 1, 0.32, 1],
+            flex: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
+          }}
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate("/players")}
+          onMouseEnter={() => setHoveredCard('left')}
+          onMouseLeave={() => setHoveredCard(null)}
+          style={{ minHeight: '300px' }}
         >
           {/* Background gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-[hsl(120,80%,8%)] via-[hsl(120,70%,12%)] to-[hsl(120,60%,18%)]" />
@@ -81,13 +99,23 @@ const PlayersIntro = () => {
 
         {/* Right - Services */}
         <motion.div
-          className="flex-1 relative overflow-hidden rounded-2xl cursor-pointer group"
+          className="relative overflow-hidden rounded-2xl cursor-pointer group"
           initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          whileHover={{ scale: 1.02 }}
+          animate={{ 
+            opacity: 1, 
+            x: 0,
+            flex: getCardFlex('right')
+          }}
+          transition={{ 
+            duration: 0.5, 
+            ease: [0.23, 1, 0.32, 1],
+            flex: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
+          }}
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate("/players/services")}
+          onMouseEnter={() => setHoveredCard('right')}
+          onMouseLeave={() => setHoveredCard(null)}
+          style={{ minHeight: '300px' }}
         >
           {/* Background gradient - Orange/Gold theme */}
           <div className="absolute inset-0 bg-gradient-to-br from-[hsl(36,100%,15%)] via-[hsl(36,90%,20%)] to-[hsl(36,80%,25%)]" />
@@ -146,7 +174,7 @@ const PlayersIntro = () => {
         transition={{ delay: 0.8 }}
       >
         <p className="text-muted-foreground text-sm tracking-widest uppercase">
-          Fuel Your Potential
+          Change The Game
         </p>
       </motion.footer>
     </div>
