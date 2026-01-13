@@ -1558,7 +1558,6 @@ const Dashboard = () => {
                     {activeTab === "invoices" && "Key Documents"}
                     {activeTab === "updates" && "Updates"}
                     {activeTab === "highlights" && "Highlights"}
-                    {activeTab === "transfer-hub" && "Transfer Hub"}
                   </span>
                   <ChevronDown className="ml-2 h-5 w-5" />
                 </Button>
@@ -1599,18 +1598,6 @@ const Dashboard = () => {
                   className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
                 >
                   Highlights
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setActiveTab("transfer-hub")}
-                  className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
-                >
-                  Transfer Hub
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setShowProfileModal(true)}
-                  className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
-                >
-                  View Profile
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
