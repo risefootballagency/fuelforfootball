@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -125,7 +126,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
   const [editMode, setEditMode] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [examplesDialogOpen, setExamplesDialogOpen] = useState(false);
-  const [examplesCategory, setExamplesCategory] = useState<'pre-match' | 'post-match' | 'concept' | 'other' | 'scheme'>('pre-match');
+  const [examplesCategory, setExamplesCategory] = useState<string>('pre-match');
   const [examplesType, setExamplesType] = useState<'point' | 'overview'>('point');
   const [examples, setExamples] = useState<any[]>([]);
   const [editingExample, setEditingExample] = useState<any | null>(null);
@@ -595,7 +596,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
   const fetchExamples = async (category: string, type: 'point' | 'overview' = 'point') => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await localSupabase
         .from('analysis_point_examples')
         .select('*')
         .eq('category', category)
@@ -617,7 +618,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
           : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
         
-        const { error } = await supabase
+        const { error } = await localSupabase
           .from('analysis_point_examples')
           .update(dataToUpdate)
           .eq('id', editingExample.id);
@@ -629,7 +630,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
           : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
         
-        const { error } = await supabase
+        const { error } = await localSupabase
           .from('analysis_point_examples')
           .insert(dataToInsert);
 
@@ -650,7 +651,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     if (!confirm('Delete this example?')) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await localSupabase
         .from('analysis_point_examples')
         .delete()
         .eq('id', id);

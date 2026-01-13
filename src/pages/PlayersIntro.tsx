@@ -71,15 +71,29 @@ const PlayersIntro = () => {
                 <span className="text-sm font-medium text-primary">Discover Our Approach</span>
               </motion.div>
               
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ transform: 'scaleY(1.15)' }}>
+              <motion.h2 
+                className="font-bold text-white mb-4" 
+                style={{ transform: 'scaleY(1.15)' }}
+                animate={{ fontSize: hoveredCard === 'left' ? '4rem' : '2.5rem' }}
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              >
                 Learn How
                 <br />
                 <span className="text-primary">We Work</span>
-              </h2>
+              </motion.h2>
               
-              <p className="text-lg text-white/70 max-w-md">
-                Discover our methodology, philosophy, and how we fuel players to reach their full potential.
-              </p>
+              <motion.p 
+                className="text-white/70 max-w-md"
+                animate={{ 
+                  fontSize: hoveredCard === 'left' ? '1.25rem' : '1rem',
+                  opacity: hoveredCard === 'left' ? 1 : 0.8
+                }}
+                transition={{ duration: 0.4 }}
+              >
+                {hoveredCard === 'left' 
+                  ? "Discover our unique methodology and philosophy. Learn how we analyse performance, design personalised programmes, and fuel players to reach their full potential through data-driven insights and elite coaching."
+                  : "Discover our methodology, philosophy, and how we fuel players to reach their full potential."}
+              </motion.p>
             </div>
             
             <motion.div 
