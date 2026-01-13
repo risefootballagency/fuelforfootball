@@ -1635,7 +1635,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">{editingExample ? 'Edit' : 'Add'} Example</CardTitle>
+                <CardTitle className="text-lg">{editingExample ? 'Edit Example' : 'Add Example'}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {examplesType === 'overview' ? (
@@ -1664,7 +1664,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
                 )}
                 <div className="flex gap-2">
                   <Button onClick={handleSaveExample}>
-                    {editingExample ? 'Update' : 'Add'} Example
+                    {editingExample ? 'Update Example' : 'Add Example'}
                   </Button>
                   {editingExample && (
                     <Button 

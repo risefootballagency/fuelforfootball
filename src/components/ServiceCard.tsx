@@ -40,12 +40,18 @@ export const ServiceCard = ({
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group cursor-pointer block"
+      className="group cursor-pointer block relative"
+      initial={false}
       animate={{
-        scale: isHovered ? 1.03 : 1,
-        zIndex: isHovered ? 10 : 1,
+        scale: isHovered ? 1.08 : 1,
+        zIndex: isHovered ? 20 : 1,
       }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      transition={{ 
+        duration: 0.3, 
+        ease: [0.23, 1, 0.32, 1],
+        scale: { type: "spring", stiffness: 300, damping: 20 }
+      }}
+      style={{ transformOrigin: "center center" }}
     >
       {/* Card */}
       <div className={cn(
@@ -93,7 +99,7 @@ export const ServiceCard = ({
               </div>
             )}
             
-            {/* Hover overlay with details */}
+      {/* Hover overlay with details */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: isHovered ? 1 : 0 }}
@@ -105,12 +111,12 @@ export const ServiceCard = ({
               </p>
               {description && (
                 <p className="text-[10px] md:text-xs text-foreground/80 line-clamp-3 leading-relaxed">
-                  {description}
+                  {description.replace(/<[^>]*>/g, '')}
                 </p>
               )}
               <div className="mt-2 md:mt-3 pt-2 border-t border-primary/20">
-                <span className="text-[9px] md:text-xs text-primary font-medium uppercase tracking-wider">
-                  Click to view details
+                <span className="text-[9px] md:text-xs text-primary font-bebas uppercase tracking-widest hover:text-primary/80 transition-colors">
+                  VIEW DETAILS
                 </span>
               </div>
             </motion.div>
