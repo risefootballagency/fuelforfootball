@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Bold } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -12,15 +12,18 @@ import {
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
+interface StrengthPoint {
+  color: 'green' | 'amber' | 'red';
+  text: string;
+}
+
 interface MatchDetailsProps {
   formData: any;
   setFormData: (data: any) => void;
   handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>, field: string, pointIndex?: number, isMultiple?: boolean, matchupIndex?: number) => Promise<void>;
   uploadingImage: boolean;
   analysisType: "pre-match" | "post-match";
-  addMatchup?: () => void;
-  removeMatchup?: (index: number) => void;
-  updateMatchup?: (index: number, field: string, value: string) => void;
+  defaultOpen?: boolean;
 }
 
 export const AnalysisMatchDetails = ({
@@ -29,11 +32,56 @@ export const AnalysisMatchDetails = ({
   handleImageUpload,
   uploadingImage,
   analysisType,
-  addMatchup,
-  removeMatchup,
-  updateMatchup,
+  defaultOpen = false,
 }: MatchDetailsProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  // Parse strengths_improvements into structured format
+  const parseStrengthPoints = (): StrengthPoint[] => {
+    if (formData.strength_points && Array.isArray(formData.strength_points)) {
+      return formData.strength_points;
+    }
+    // Default to 3 empty points
+    return [
+      { color: 'green', text: '' },
+      { color: 'amber', text: '' },
+      { color: 'red', text: '' }
+    ];
+  };
+
+  const [strengthPoints, setStrengthPoints] = useState<StrengthPoint[]>(parseStrengthPoints);
+
+  const updateStrengthPoint = (index: number, field: 'color' | 'text', value: string) => {
+    const updated = [...strengthPoints];
+    updated[index] = { ...updated[index], [field]: value as any };
+    setStrengthPoints(updated);
+    
+    // Convert to legacy format for saving
+    const legacyFormat = updated.map(p => `${p.color.charAt(0).toUpperCase() + p.color.slice(1)}: ${p.text}`).join(' | ');
+    setFormData({ ...formData, strengths_improvements: legacyFormat, strength_points: updated });
+  };
+
+  const addStrengthPoint = () => {
+    const updated = [...strengthPoints, { color: 'green' as const, text: '' }];
+    setStrengthPoints(updated);
+    setFormData({ ...formData, strength_points: updated });
+  };
+
+  const removeStrengthPoint = (index: number) => {
+    const updated = strengthPoints.filter((_, i) => i !== index);
+    setStrengthPoints(updated);
+    const legacyFormat = updated.map(p => `${p.color.charAt(0).toUpperCase() + p.color.slice(1)}: ${p.text}`).join(' | ');
+    setFormData({ ...formData, strengths_improvements: legacyFormat, strength_points: updated });
+  };
+
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case 'green': return 'bg-green-500';
+      case 'amber': return 'bg-amber-500';
+      case 'red': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -52,14 +100,54 @@ export const AnalysisMatchDetails = ({
                 onChange={(e) => setFormData({ ...formData, match_date: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label>Home Team</Label>
+            
+            {/* Teams and Score on one line */}
+            <div className="flex items-end gap-2 flex-wrap">
+              <div className="flex-1 min-w-[120px]">
+                <div className="flex items-center gap-2 mb-1">
+                  <Label>Home Team</Label>
+                  <Button
+                    type="button"
+                    variant={formData.home_team_bold ? "default" : "outline"}
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => setFormData({ ...formData, home_team_bold: !formData.home_team_bold })}
+                    title="Bold (player's team)"
+                  >
+                    <Bold className="w-3 h-3" />
+                  </Button>
+                </div>
                 <Input
                   value={formData.home_team || ""}
                   onChange={(e) => setFormData({ ...formData, home_team: e.target.value })}
+                  className={formData.home_team_bold ? "font-bold" : ""}
                 />
-                <Label className="mt-2">Home Team Logo</Label>
+              </div>
+              <div className="flex-1 min-w-[120px]">
+                <div className="flex items-center gap-2 mb-1">
+                  <Label>Away Team</Label>
+                  <Button
+                    type="button"
+                    variant={formData.away_team_bold ? "default" : "outline"}
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => setFormData({ ...formData, away_team_bold: !formData.away_team_bold })}
+                    title="Bold (player's team)"
+                  >
+                    <Bold className="w-3 h-3" />
+                  </Button>
+                </div>
+                <Input
+                  value={formData.away_team || ""}
+                  onChange={(e) => setFormData({ ...formData, away_team: e.target.value })}
+                  className={formData.away_team_bold ? "font-bold" : ""}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label>Home Team Logo</Label>
                 <Input
                   type="file"
                   accept="image/*"
@@ -71,12 +159,7 @@ export const AnalysisMatchDetails = ({
                 )}
               </div>
               <div>
-                <Label>Away Team</Label>
-                <Input
-                  value={formData.away_team || ""}
-                  onChange={(e) => setFormData({ ...formData, away_team: e.target.value })}
-                />
-                <Label className="mt-2">Away Team Logo</Label>
+                <Label>Away Team Logo</Label>
                 <Input
                   type="file"
                   accept="image/*"
@@ -109,76 +192,6 @@ export const AnalysisMatchDetails = ({
                 />
               </div>
             </div>
-
-            <div>
-              <Label>Key Details</Label>
-              <Textarea
-                value={formData.key_details || ""}
-                onChange={(e) => setFormData({ ...formData, key_details: e.target.value })}
-                placeholder="Key tactical information about the match..."
-              />
-            </div>
-
-            <div>
-              <Label>Opposition Strengths</Label>
-              <Textarea
-                value={formData.opposition_strengths || ""}
-                onChange={(e) => setFormData({ ...formData, opposition_strengths: e.target.value })}
-                placeholder="• Strong aerial presence&#10;• Fast counter attacks&#10;• Set piece threat"
-              />
-            </div>
-
-            <div>
-              <Label>Opposition Weaknesses</Label>
-              <Textarea
-                value={formData.opposition_weaknesses || ""}
-                onChange={(e) => setFormData({ ...formData, opposition_weaknesses: e.target.value })}
-                placeholder="• Weak on the left flank&#10;• Slow to transition&#10;• Vulnerable to through balls"
-              />
-            </div>
-
-            {addMatchup && removeMatchup && updateMatchup && (
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <Label>Matchups</Label>
-                  <Button size="sm" onClick={addMatchup}>
-                    <Plus className="w-4 h-4 mr-1" /> Add Matchup
-                  </Button>
-                </div>
-                {formData.matchups?.map((matchup: any, index: number) => (
-                  <Card key={index} className="p-4 mb-2">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-2 flex-1">
-                        <Input
-                          placeholder="Player Name"
-                          value={matchup.name}
-                          onChange={(e) => updateMatchup(index, "name", e.target.value)}
-                        />
-                        <Input
-                          placeholder="Shirt Number"
-                          value={matchup.shirt_number}
-                          onChange={(e) => updateMatchup(index, "shirt_number", e.target.value)}
-                        />
-                        <div>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, "matchup_image", undefined, false, index)}
-                            disabled={uploadingImage}
-                          />
-                          {matchup.image_url && (
-                            <img src={matchup.image_url} alt="Matchup" className="mt-2 w-20 h-20 object-cover rounded" />
-                          )}
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => removeMatchup(index)}>
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
           </>
         ) : (
           <>
@@ -194,57 +207,110 @@ export const AnalysisMatchDetails = ({
                 <img src={formData.player_image_url} alt="Player" className="mt-2 max-w-xs" />
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label>Home Team</Label>
+            
+            {/* Teams and Score all on one line */}
+            <div className="flex items-end gap-2 flex-wrap">
+              <div className="flex-1 min-w-[100px]">
+                <div className="flex items-center gap-2 mb-1">
+                  <Label className="text-sm">Home Team</Label>
+                  <Button
+                    type="button"
+                    variant={formData.home_team_bold ? "default" : "outline"}
+                    size="sm"
+                    className="h-5 w-5 p-0"
+                    onClick={() => setFormData({ ...formData, home_team_bold: !formData.home_team_bold })}
+                    title="Bold (player's team)"
+                  >
+                    <Bold className="w-3 h-3" />
+                  </Button>
+                </div>
                 <Input
                   value={formData.home_team || ""}
                   onChange={(e) => setFormData({ ...formData, home_team: e.target.value })}
+                  className={formData.home_team_bold ? "font-bold" : ""}
                 />
               </div>
-              <div>
-                <Label>Home Score</Label>
+              <div className="w-14">
+                <Label className="text-sm">Score</Label>
                 <Input
                   type="number"
-                  value={formData.home_score || ""}
+                  min="0"
+                  max="99"
+                  value={formData.home_score ?? ""}
                   onChange={(e) => setFormData({ ...formData, home_score: parseInt(e.target.value) || undefined })}
+                  className={`text-center ${formData.home_team_bold ? "font-bold" : ""}`}
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label>Away Team</Label>
+              <div className="w-14">
+                <Label className="text-sm">Score</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  max="99"
+                  value={formData.away_score ?? ""}
+                  onChange={(e) => setFormData({ ...formData, away_score: parseInt(e.target.value) || undefined })}
+                  className={`text-center ${formData.away_team_bold ? "font-bold" : ""}`}
+                />
+              </div>
+              <div className="flex-1 min-w-[100px]">
+                <div className="flex items-center gap-2 mb-1">
+                  <Label className="text-sm">Away Team</Label>
+                  <Button
+                    type="button"
+                    variant={formData.away_team_bold ? "default" : "outline"}
+                    size="sm"
+                    className="h-5 w-5 p-0"
+                    onClick={() => setFormData({ ...formData, away_team_bold: !formData.away_team_bold })}
+                    title="Bold (player's team)"
+                  >
+                    <Bold className="w-3 h-3" />
+                  </Button>
+                </div>
                 <Input
                   value={formData.away_team || ""}
                   onChange={(e) => setFormData({ ...formData, away_team: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Away Score</Label>
-                <Input
-                  type="number"
-                  value={formData.away_score || ""}
-                  onChange={(e) => setFormData({ ...formData, away_score: parseInt(e.target.value) || undefined })}
+                  className={formData.away_team_bold ? "font-bold" : ""}
                 />
               </div>
             </div>
+
+            {/* Strengths & Areas for Improvement */}
             <div>
-              <Label>Key Details</Label>
-              <Textarea
-                value={formData.key_details || ""}
-                onChange={(e) => setFormData({ ...formData, key_details: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Strengths & Areas For Improvement</Label>
-              <p className="text-xs text-muted-foreground mb-2">
-                Format: Green: text | Yellow: text | Red: text
-              </p>
-              <Textarea
-                value={formData.strengths_improvements || ""}
-                onChange={(e) => setFormData({ ...formData, strengths_improvements: e.target.value })}
-                placeholder="Green: Great positioning | Yellow: Work on first touch | Red: Needs better decision making"
-              />
+              <div className="flex justify-between items-center mb-2">
+                <Label>Strengths & Areas For Improvement</Label>
+                <Button variant="outline" size="sm" onClick={addStrengthPoint}>
+                  <Plus className="w-4 h-4 mr-1" /> Add Point
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {strengthPoints.map((point, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      {(['green', 'amber', 'red'] as const).map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => updateStrengthPoint(index, 'color', color)}
+                          className={`w-6 h-6 rounded ${getColorClass(color)} ${
+                            point.color === color ? 'ring-2 ring-offset-2 ring-foreground' : 'opacity-50 hover:opacity-75'
+                          } transition-all`}
+                        />
+                      ))}
+                    </div>
+                    <Input
+                      value={point.text}
+                      onChange={(e) => updateStrengthPoint(index, 'text', e.target.value)}
+                      placeholder="Enter point..."
+                      className="flex-1"
+                    />
+                    {strengthPoints.length > 1 && (
+                      <Button variant="ghost" size="sm" onClick={() => removeStrengthPoint(index)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}

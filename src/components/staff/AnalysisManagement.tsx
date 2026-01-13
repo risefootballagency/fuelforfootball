@@ -438,6 +438,38 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     }
   };
 
+  const handleVideoUploadForPoint = async (event: React.ChangeEvent<HTMLInputElement>, pointIndex: number) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("analysis-videos")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("analysis-videos").getPublicUrl(filePath);
+
+      const updatedPoints = [...(formData.points || [])];
+      updatedPoints[pointIndex] = { ...updatedPoints[pointIndex], video_url: publicUrl };
+      setFormData({ ...formData, points: updatedPoints });
+      toast.success("Video uploaded successfully");
+    } catch (error: any) {
+      toast.error("Failed to upload video");
+      console.error(error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSave = async () => {
     try {
       const dataToSave = {
@@ -479,7 +511,18 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
         }
       }
 
-      handleCloseDialog();
+      // Keep dialog open, just refresh the data
+      if (!editingAnalysis) {
+        // If this was a new analysis, set it as editing so subsequent saves update it
+        const { data: newAnalysis } = await supabase
+          .from("analyses")
+          .select("*")
+          .eq("id", analysisId)
+          .single();
+        if (newAnalysis) {
+          setEditingAnalysis(newAnalysis as Analysis);
+        }
+      }
       fetchAnalyses();
       fetchLinkedPlayers();
     } catch (error: any) {
@@ -1078,9 +1121,6 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               handleImageUpload={handleImageUpload}
               uploadingImage={uploadingImage}
               analysisType="pre-match"
-              addMatchup={addMatchup}
-              removeMatchup={removeMatchup}
-              updateMatchup={updateMatchup}
             />
 
             <AnalysisSchemeSection
@@ -1091,6 +1131,9 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               generateWithAI={generateWithAI}
               aiGenerating={aiGenerating}
               formationTemplates={formationTemplates}
+              handleImageUpload={handleImageUpload}
+              handleVideoUpload={handleVideoUpload}
+              uploadingImage={uploadingImage}
             />
 
             <AnalysisPointsSection
@@ -1100,6 +1143,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               removePoint={removePoint}
               updatePoint={updatePoint}
               handleImageUpload={handleImageUpload}
+              handleVideoUploadForPoint={handleVideoUploadForPoint}
               removeImageFromPoint={removeImageFromPoint}
               uploadingImage={uploadingImage}
               generateWithAI={generateWithAI}
@@ -1111,6 +1155,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               formData={formData}
               setFormData={setFormData}
               handleVideoUpload={handleVideoUpload}
+              handleImageUpload={handleImageUpload}
               uploadingImage={uploadingImage}
               players={players}
               selectedPlayerId={selectedPlayerId}
@@ -1119,6 +1164,9 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               selectedPerformanceReportId={selectedPerformanceReportId}
               setSelectedPerformanceReportId={setSelectedPerformanceReportId}
               analysisType="pre-match"
+              addMatchup={addMatchup}
+              removeMatchup={removeMatchup}
+              updateMatchup={updateMatchup}
             />
           </div>
 
@@ -1152,6 +1200,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               removePoint={removePoint}
               updatePoint={updatePoint}
               handleImageUpload={handleImageUpload}
+              handleVideoUploadForPoint={handleVideoUploadForPoint}
               removeImageFromPoint={removeImageFromPoint}
               uploadingImage={uploadingImage}
               generateWithAI={generateWithAI}
@@ -1163,6 +1212,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               formData={formData}
               setFormData={setFormData}
               handleVideoUpload={handleVideoUpload}
+              handleImageUpload={handleImageUpload}
               uploadingImage={uploadingImage}
               players={players}
               selectedPlayerId={selectedPlayerId}
@@ -1193,6 +1243,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               formData={formData}
               setFormData={setFormData}
               handleVideoUpload={handleVideoUpload}
+              handleImageUpload={handleImageUpload}
               uploadingImage={uploadingImage}
               players={players}
               selectedPlayerId={selectedPlayerId}
@@ -1210,6 +1261,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               removePoint={removePoint}
               updatePoint={updatePoint}
               handleImageUpload={handleImageUpload}
+              handleVideoUploadForPoint={handleVideoUploadForPoint}
               removeImageFromPoint={removeImageFromPoint}
               uploadingImage={uploadingImage}
               generateWithAI={generateWithAI}
