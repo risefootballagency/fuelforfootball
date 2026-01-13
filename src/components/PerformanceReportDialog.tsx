@@ -73,7 +73,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
             players!inner (name)
           `)
           .eq("id", id)
-          .single(),
+          .maybeSingle(),
         supabase
           .from("performance_report_actions")
           .select("*")
@@ -83,17 +83,21 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
 
       if (analysisResult.error) throw analysisResult.error;
 
-      setAnalysis({
-        id: analysisResult.data.id,
-        analysis_date: analysisResult.data.analysis_date,
-        opponent: analysisResult.data.opponent || "",
-        result: analysisResult.data.result || "",
-        r90_score: analysisResult.data.r90_score,
-        minutes_played: analysisResult.data.minutes_played,
-        player_name: analysisResult.data.players?.name || "Unknown Player",
-        striker_stats: analysisResult.data.striker_stats as StrikerStats | null,
-        performance_overview: analysisResult.data.performance_overview,
-      });
+      if (analysisResult.data) {
+        setAnalysis({
+          id: analysisResult.data.id,
+          analysis_date: analysisResult.data.analysis_date,
+          opponent: analysisResult.data.opponent || "",
+          result: analysisResult.data.result || "",
+          r90_score: analysisResult.data.r90_score,
+          minutes_played: analysisResult.data.minutes_played,
+          player_name: analysisResult.data.players?.name || "Unknown Player",
+          striker_stats: analysisResult.data.striker_stats as StrikerStats | null,
+          performance_overview: analysisResult.data.performance_overview,
+        });
+      } else {
+        setAnalysis(null);
+      }
 
       if (actionsResult.error) throw actionsResult.error;
       setActions(actionsResult.data || []);

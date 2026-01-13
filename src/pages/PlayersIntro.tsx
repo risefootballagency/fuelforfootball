@@ -9,8 +9,8 @@ const PlayersIntro = () => {
 
   const getCardFlex = (card: 'left' | 'right') => {
     if (hoveredCard === null) return 1;
-    if (hoveredCard === card) return 3;
-    return 1;
+    if (hoveredCard === card) return 1.85; // 65%
+    return 1; // 35%
   };
 
   return (
