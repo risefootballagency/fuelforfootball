@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade } from "@/lib/gradeCalculations";
 import { Download, X } from "lucide-react";
 import { toast } from "sonner";
@@ -66,15 +66,15 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
     try {
       // Fetch both in parallel for faster loading
       const [analysisResult, actionsResult] = await Promise.all([
-        supabase
+        sharedSupabase
           .from("player_analysis")
           .select(`
             *,
-            players!inner (name)
+            players (name)
           `)
           .eq("id", id)
           .maybeSingle(),
-        supabase
+        sharedSupabase
           .from("performance_report_actions")
           .select("*")
           .eq("analysis_id", id)

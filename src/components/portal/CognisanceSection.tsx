@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { Brain, Shuffle, ChevronLeft, ChevronRight, RotateCcw, Target, Lightbulb, BookOpen, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -92,15 +92,15 @@ export function CognisanceSection({ playerId, playerPosition }: CognisanceSectio
     
     const normalizedPosition = positionMap[playerPosition] || playerPosition;
     
-    const { data, error } = await supabase
+    const { data, error } = await sharedSupabase
       .from("tactical_schemes")
       .select("*")
       .eq("position", normalizedPosition);
     
     if (!error && data) {
-      setSchemes(data);
-      const teamSchemes = [...new Set(data.map(s => s.team_scheme))];
-      const oppositionSchemes = [...new Set(data.map(s => s.opposition_scheme))];
+      setSchemes(data as SchemeData[]);
+      const teamSchemes = [...new Set(data.map((s: any) => s.team_scheme as string))];
+      const oppositionSchemes = [...new Set(data.map((s: any) => s.opposition_scheme as string))];
       setAvailableTeamSchemes(teamSchemes);
       setAvailableOppositionSchemes(oppositionSchemes);
     }
@@ -109,7 +109,7 @@ export function CognisanceSection({ playerId, playerPosition }: CognisanceSectio
   // Fetch concepts linked to the player
   const fetchConcepts = useCallback(async () => {
     // Get player_analysis records with concept type
-    const { data: analysisData } = await supabase
+    const { data: analysisData } = await sharedSupabase
       .from("player_analysis")
       .select("analysis_writer_id")
       .eq("player_id", playerId);
@@ -117,19 +117,19 @@ export function CognisanceSection({ playerId, playerPosition }: CognisanceSectio
     if (!analysisData || analysisData.length === 0) return;
     
     const linkedIds = analysisData
-      .filter(a => a.analysis_writer_id)
-      .map(a => a.analysis_writer_id);
+      .filter((a: any) => a.analysis_writer_id)
+      .map((a: any) => a.analysis_writer_id);
     
     if (linkedIds.length === 0) return;
     
-    const { data: conceptsData } = await supabase
+    const { data: conceptsData } = await sharedSupabase
       .from("analyses")
       .select("*")
       .in("id", linkedIds)
       .eq("analysis_type", "concept");
     
     if (conceptsData) {
-      setConcepts(conceptsData.map(c => ({
+      setConcepts(conceptsData.map((c: any) => ({
         id: c.id,
         title: c.title || "Untitled Concept",
         points: Array.isArray(c.points) ? c.points : [],
@@ -140,7 +140,7 @@ export function CognisanceSection({ playerId, playerPosition }: CognisanceSectio
 
   // Fetch pre-match analyses linked to the player
   const fetchPreMatchAnalyses = useCallback(async () => {
-    const { data: analysisData } = await supabase
+    const { data: analysisData } = await sharedSupabase
       .from("player_analysis")
       .select("analysis_writer_id")
       .eq("player_id", playerId);
@@ -148,19 +148,19 @@ export function CognisanceSection({ playerId, playerPosition }: CognisanceSectio
     if (!analysisData || analysisData.length === 0) return;
     
     const linkedIds = analysisData
-      .filter(a => a.analysis_writer_id)
-      .map(a => a.analysis_writer_id);
+      .filter((a: any) => a.analysis_writer_id)
+      .map((a: any) => a.analysis_writer_id);
     
     if (linkedIds.length === 0) return;
     
-    const { data: preMatchData } = await supabase
+    const { data: preMatchData } = await sharedSupabase
       .from("analyses")
       .select("*")
       .in("id", linkedIds)
       .eq("analysis_type", "pre-match");
     
     if (preMatchData) {
-      setPreMatchAnalyses(preMatchData.map(p => ({
+      setPreMatchAnalyses(preMatchData.map((p: any) => ({
         id: p.id,
         title: p.title || "Untitled Pre-Match",
         opposition_strengths: p.opposition_strengths,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -68,7 +68,7 @@ export const PlayerPositionalGuides = () => {
   const fetchGuides = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await sharedSupabase
         .from('positional_guides')
         .select('*')
         .eq('position', selectedPosition)
@@ -85,7 +85,7 @@ export const PlayerPositionalGuides = () => {
 
   const fetchMedia = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await sharedSupabase
         .from('positional_guide_media')
         .select('*')
         .eq('position', selectedPosition)
