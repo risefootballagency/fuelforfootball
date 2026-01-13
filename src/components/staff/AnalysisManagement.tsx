@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, X, Upload, Sparkles, Database, Copy } from "lucide-react";
+import { Pencil, Trash2, Plus, X, Upload, Sparkles, Database, Copy, Settings, Eye, Users } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -125,6 +125,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     tweakInstructions: ''
   });
   const [editMode, setEditMode] = useState(false);
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [examplesDialogOpen, setExamplesDialogOpen] = useState(false);
   const [examplesCategory, setExamplesCategory] = useState<'pre-match' | 'post-match' | 'concept' | 'other' | 'scheme'>('pre-match');
   const [examplesType, setExamplesType] = useState<'point' | 'overview'>('point');
@@ -137,6 +138,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     content: '',
     notes: ''
   });
+  const [linkedPlayers, setLinkedPlayers] = useState<Record<string, any[]>>({});
 
   // Form states
   const [formData, setFormData] = useState<Partial<Analysis>>({
@@ -222,6 +224,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
   useEffect(() => {
     fetchAnalyses();
     fetchPlayers();
+    fetchLinkedPlayers();
   }, []);
 
   useEffect(() => {
@@ -276,6 +279,34 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
       setPerformanceReports(data || []);
     } catch (error: any) {
       console.error("Failed to fetch performance reports:", error);
+    }
+  };
+
+  // Fetch which players each analysis is linked to (via player_analysis.analysis_writer_id)
+  const fetchLinkedPlayers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("player_analysis")
+        .select("analysis_writer_id, player_id, players(name)")
+        .not("analysis_writer_id", "is", null);
+
+      if (error) throw error;
+      
+      // Group by analysis_writer_id
+      const grouped: Record<string, any[]> = {};
+      (data || []).forEach((item: any) => {
+        const analysisId = item.analysis_writer_id;
+        if (!grouped[analysisId]) {
+          grouped[analysisId] = [];
+        }
+        grouped[analysisId].push({
+          playerId: item.player_id,
+          playerName: item.players?.name || 'Unknown Player'
+        });
+      });
+      setLinkedPlayers(grouped);
+    } catch (error: any) {
+      console.error("Failed to fetch linked players:", error);
     }
   };
 
@@ -771,6 +802,42 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     }
   };
 
+      {/* Settings Dialog for Examples */}
+      <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Analysis Settings</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Manage the example writing styles used by the AI to generate prose for each analysis type.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={() => { setExamplesCategory('pre-match'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('pre-match', 'point'); setSettingsDialogOpen(false); }}>
+                Pre-Match Point Examples
+              </Button>
+              <Button variant="outline" onClick={() => { setExamplesCategory('pre-match'); setExamplesType('overview'); setExamplesDialogOpen(true); fetchExamples('pre-match', 'overview'); setSettingsDialogOpen(false); }}>
+                Pre-Match Overview Examples
+              </Button>
+              <Button variant="outline" onClick={() => { setExamplesCategory('post-match'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('post-match', 'point'); setSettingsDialogOpen(false); }}>
+                Post-Match Point Examples
+              </Button>
+              <Button variant="outline" onClick={() => { setExamplesCategory('post-match'); setExamplesType('overview'); setExamplesDialogOpen(true); fetchExamples('post-match', 'overview'); setSettingsDialogOpen(false); }}>
+                Post-Match Overview Examples
+              </Button>
+              <Button variant="outline" onClick={() => { setExamplesCategory('concept'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('concept', 'point'); setSettingsDialogOpen(false); }}>
+                Concept Examples
+              </Button>
+              <Button variant="outline" onClick={() => { setExamplesCategory('scheme'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('scheme', 'point'); setSettingsDialogOpen(false); }}>
+                Scheme Examples
+              </Button>
+              <Button variant="outline" onClick={() => { setExamplesCategory('other'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('other', 'point'); setSettingsDialogOpen(false); }}>
+                Other Examples
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
   const generateWithAI = async (field: string, pointIndex?: number) => {
     setAiGenerating(true);
@@ -945,6 +1012,19 @@ Title: ${formData.scheme_title || 'Not specified'}`;
 
   return (
     <div className="space-y-4">
+      {/* Header with Settings button */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Analysis</h2>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setSettingsDialogOpen(true)}
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          Settings
+        </Button>
+      </div>
+
       <Tabs defaultValue="pre-match" className="space-y-4">
         <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
           <TabsList className="inline-flex w-max md:w-full md:grid md:grid-cols-4 gap-1 h-auto p-1">
@@ -969,14 +1049,14 @@ Title: ${formData.scheme_title || 'Not specified'}`;
               variant="outline"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              AI Pre-Match Overview Writer
+              AI Overview Writer
             </Button>
             <Button 
               onClick={() => setAiWriter({ ...aiWriter, open: true, category: 'pre-match', paragraph1Info: '', paragraph2Info: '' })}
               variant="outline"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              AI Pre-Match Point Writer
+              AI Point Writer
             </Button>
             <Button 
               onClick={() => setSchemeWriter({ open: true, schemeInfo: '' })}
@@ -985,89 +1065,56 @@ Title: ${formData.scheme_title || 'Not specified'}`;
               <Sparkles className="w-4 h-4 mr-2" />
               AI Scheme Writer
             </Button>
-            <Button 
-              onClick={() => {
-                setExamplesCategory('pre-match');
-                setExamplesType('point');
-                setExamplesDialogOpen(true);
-                fetchExamples('pre-match', 'point');
-              }}
-              variant="outline"
-            >
-              Point Examples
-            </Button>
-            <Button 
-              onClick={() => {
-                setExamplesCategory('pre-match');
-                setExamplesType('overview');
-                setExamplesDialogOpen(true);
-                fetchExamples('pre-match', 'overview');
-              }}
-              variant="outline"
-            >
-              Overview Examples
-            </Button>
-            <Button 
-              onClick={() => {
-                setExamplesCategory('scheme');
-                setExamplesType('point');
-                setExamplesDialogOpen(true);
-                fetchExamples('scheme', 'point');
-              }}
-              variant="outline"
-            >
-              Scheme Examples
-            </Button>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-2">
             {analyses.filter(a => a.analysis_type === "pre-match").map((analysis) => (
-              <Card key={analysis.id}>
-                <CardHeader>
-                  <CardTitle className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div className="flex-1">
-                      <span className="text-sm text-muted-foreground mr-2">Pre-Match</span>
-                      <span className="text-sm sm:text-base">
-                        {analysis.title || `${analysis.home_team} vs ${analysis.away_team}`}
-                      </span>
+              <div 
+                key={analysis.id}
+                className="flex items-center justify-between p-3 bg-card border border-border/50 rounded-lg hover:border-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">
+                      {analysis.title || `${analysis.home_team} vs ${analysis.away_team}`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(analysis.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  {linkedPlayers[analysis.id] && linkedPlayers[analysis.id].length > 0 && (
+                    <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground">
+                      <Users className="w-3 h-3" />
+                      <span>{linkedPlayers[analysis.id].map(p => p.playerName).join(', ')}</span>
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open(`/analysis/${analysis.id}`, '_blank')}
-                        className="flex-1 sm:flex-initial"
-                      >
-                        View Analysis
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleOpenDialog("pre-match", analysis)}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      {isAdmin && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(analysis.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Created: {new Date(analysis.created_at).toLocaleDateString()}
-                  </p>
-                  {analysis.key_details && (
-                    <p className="text-sm mt-2">{analysis.key_details}</p>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(`/analysis/${analysis.id}`, '_blank')}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleOpenDialog("pre-match", analysis)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(analysis.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         </TabsContent>
@@ -1086,87 +1133,53 @@ Title: ${formData.scheme_title || 'Not specified'}`;
               variant="outline"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              AI Post-Match Overview Writer
+              AI Overview Writer
             </Button>
             <Button 
               onClick={() => setAiWriter({ ...aiWriter, open: true, category: 'post-match', paragraph1Info: '', paragraph2Info: '' })}
               variant="outline"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              AI Post-Match Point Writer
-            </Button>
-            <Button 
-              onClick={() => {
-                setExamplesCategory('post-match');
-                setExamplesType('point');
-                setExamplesDialogOpen(true);
-                fetchExamples('post-match', 'point');
-              }}
-              variant="outline"
-            >
-              Point Examples
-            </Button>
-            <Button 
-              onClick={() => {
-                setExamplesCategory('post-match');
-                setExamplesType('overview');
-                setExamplesDialogOpen(true);
-                fetchExamples('post-match', 'overview');
-              }}
-              variant="outline"
-            >
-              Overview Examples
+              AI Point Writer
             </Button>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-2">
             {analyses.filter(a => a.analysis_type === "post-match").map((analysis) => (
-              <Card key={analysis.id}>
-                <CardHeader>
-                  <CardTitle className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div className="flex-1">
-                      <span className="text-sm text-muted-foreground mr-2">Post-Match</span>
-                      <span className="text-sm sm:text-base">
-                        {analysis.title || `${analysis.home_team} vs ${analysis.away_team}`}
-                      </span>
+              <div 
+                key={analysis.id}
+                className="flex items-center justify-between p-3 bg-card border border-border/50 rounded-lg hover:border-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">
+                      {analysis.title || `${analysis.home_team} vs ${analysis.away_team}`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(analysis.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  {linkedPlayers[analysis.id] && linkedPlayers[analysis.id].length > 0 && (
+                    <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground">
+                      <Users className="w-3 h-3" />
+                      <span>{linkedPlayers[analysis.id].map(p => p.playerName).join(', ')}</span>
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open(`/analysis/${analysis.id}`, '_blank')}
-                        className="flex-1 sm:flex-initial"
-                      >
-                        View Analysis
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleOpenDialog("post-match", analysis)}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      {isAdmin && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(analysis.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Created: {new Date(analysis.created_at).toLocaleDateString()}
-                  </p>
-                  {analysis.key_details && (
-                    <p className="text-sm mt-2">{analysis.key_details}</p>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => window.open(`/analysis/${analysis.id}`, '_blank')}>
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleOpenDialog("post-match", analysis)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  {isAdmin && (
+                    <Button variant="ghost" size="sm" onClick={() => handleDelete(analysis.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         </TabsContent>
