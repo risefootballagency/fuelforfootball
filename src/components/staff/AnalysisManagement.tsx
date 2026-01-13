@@ -130,11 +130,8 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
   const [examples, setExamples] = useState<any[]>([]);
   const [editingExample, setEditingExample] = useState<any | null>(null);
   const [exampleFormData, setExampleFormData] = useState({
-    title: '',
     paragraph_1: '',
-    paragraph_2: '',
-    content: '',
-    notes: ''
+    content: ''
   });
   const [linkedPlayers, setLinkedPlayers] = useState<Record<string, any[]>>({});
 
@@ -616,31 +613,31 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
   const handleSaveExample = async () => {
     try {
       if (editingExample) {
+        const dataToUpdate = examplesType === 'overview' 
+          ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
+          : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
+        
         const { error } = await supabase
           .from('analysis_point_examples')
-          .update({
-            ...exampleFormData,
-            category: examplesCategory,
-            example_type: examplesType
-          })
+          .update(dataToUpdate)
           .eq('id', editingExample.id);
 
         if (error) throw error;
         toast.success('Example updated');
       } else {
+        const dataToInsert = examplesType === 'overview'
+          ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
+          : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
+        
         const { error } = await supabase
           .from('analysis_point_examples')
-          .insert({
-            ...exampleFormData,
-            category: examplesCategory,
-            example_type: examplesType
-          });
+          .insert(dataToInsert);
 
         if (error) throw error;
         toast.success('Example added');
       }
 
-      setExampleFormData({ title: '', paragraph_1: '', paragraph_2: '', content: '', notes: '' });
+      setExampleFormData({ paragraph_1: '', content: '' });
       setEditingExample(null);
       fetchExamples(examplesCategory, examplesType);
     } catch (error: any) {
@@ -674,17 +671,86 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
       let context = '';
       let type = '';
 
-      if (field === 'scheme_paragraph_1' || field === 'scheme_paragraph_2') {
-        context = `Analysis Type: ${analysisType}\nTeams: ${formData.home_team} vs ${formData.away_team}\nTitle: ${formData.scheme_title || 'Not specified'}`;
-        prompt = `Write a detailed tactical analysis paragraph for this match.`;
+      if (field === 'scheme_paragraph_1') {
+        const schemeCategory = 'scheme-p1';
+        const { data: styleExamples } = await supabase
+          .from('analysis_point_examples')
+          .select('paragraph_1')
+          .eq('category', schemeCategory)
+          .eq('example_type', 'point')
+          .limit(3);
+
+        const exampleContext = styleExamples && styleExamples.length > 0
+          ? `\n\nExample writing style references for scheme first paragraph:\n${styleExamples.map((ex, i) => 
+              `Example ${i + 1}: ${ex.paragraph_1 || ''}`
+            ).join('\n\n')}`
+          : '';
+
+        context = `Analysis Type: ${analysisType}\nTeams: ${formData.home_team} vs ${formData.away_team}\nTitle: ${formData.scheme_title || 'Not specified'}${exampleContext}`;
+        prompt = `Write a detailed tactical analysis first paragraph for this match scheme. Match the writing style shown in the examples.`;
+        type = 'analysis-paragraph';
+      } else if (field === 'scheme_paragraph_2') {
+        const schemeCategory = 'scheme-p2';
+        const { data: styleExamples } = await supabase
+          .from('analysis_point_examples')
+          .select('paragraph_1')
+          .eq('category', schemeCategory)
+          .eq('example_type', 'point')
+          .limit(3);
+
+        const exampleContext = styleExamples && styleExamples.length > 0
+          ? `\n\nExample writing style references for scheme second paragraph:\n${styleExamples.map((ex, i) => 
+              `Example ${i + 1}: ${ex.paragraph_1 || ''}`
+            ).join('\n\n')}`
+          : '';
+
+        context = `Analysis Type: ${analysisType}\nTeams: ${formData.home_team} vs ${formData.away_team}\nTitle: ${formData.scheme_title || 'Not specified'}\nFirst Paragraph: ${formData.scheme_paragraph_1 || 'Not written yet'}${exampleContext}`;
+        prompt = `Write a detailed tactical analysis second paragraph for this match scheme, building on the first paragraph. Match the writing style shown in the examples.`;
         type = 'analysis-paragraph';
       } else if (field === 'point_title') {
         prompt = `Create a concise, professional title for a match analysis section.`;
         type = 'analysis-point-title';
-      } else if (field === 'point_paragraph_1' || field === 'point_paragraph_2') {
+    } else if (field === 'point_paragraph_1') {
         const point = formData.points?.[pointIndex!];
-        context = `Section Title: ${point?.title || 'Not specified'}`;
-        prompt = `Write a detailed analysis paragraph for this section.`;
+        const paragraphCategory = `${analysisType}-p1`;
+        
+        // Fetch style examples for this specific paragraph type
+        const { data: styleExamples } = await supabase
+          .from('analysis_point_examples')
+          .select('paragraph_1')
+          .eq('category', paragraphCategory)
+          .eq('example_type', 'point')
+          .limit(3);
+
+        const exampleContext = styleExamples && styleExamples.length > 0
+          ? `\n\nExample writing style references for first paragraph:\n${styleExamples.map((ex, i) => 
+              `Example ${i + 1}: ${ex.paragraph_1 || ''}`
+            ).join('\n\n')}`
+          : '';
+
+        context = `Section Title: ${point?.title || 'Not specified'}${exampleContext}`;
+        prompt = `Write a detailed analysis first paragraph for this section. Match the writing style shown in the examples.`;
+        type = 'analysis-paragraph';
+      } else if (field === 'point_paragraph_2') {
+        const point = formData.points?.[pointIndex!];
+        const paragraphCategory = `${analysisType}-p2`;
+        
+        // Fetch style examples for this specific paragraph type
+        const { data: styleExamples } = await supabase
+          .from('analysis_point_examples')
+          .select('paragraph_1')
+          .eq('category', paragraphCategory)
+          .eq('example_type', 'point')
+          .limit(3);
+
+        const exampleContext = styleExamples && styleExamples.length > 0
+          ? `\n\nExample writing style references for second paragraph:\n${styleExamples.map((ex, i) => 
+              `Example ${i + 1}: ${ex.paragraph_1 || ''}`
+            ).join('\n\n')}`
+          : '';
+
+        context = `Section Title: ${point?.title || 'Not specified'}\nFirst Paragraph: ${point?.paragraph_1 || 'Not written yet'}${exampleContext}`;
+        prompt = `Write a detailed analysis second paragraph for this section, building on the first paragraph context. Match the writing style shown in the examples.`;
         type = 'analysis-paragraph';
       }
 
@@ -782,18 +848,28 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
     setAiGenerating(true);
     try {
-      const { data: styleExamples } = await supabase
+      // Fetch examples from both scheme-p1 and scheme-p2 categories
+      const { data: p1Examples } = await supabase
         .from('analysis_point_examples')
-        .select('paragraph_1, paragraph_2')
-        .eq('category', 'scheme')
+        .select('paragraph_1')
+        .eq('category', 'scheme-p1')
         .eq('example_type', 'point')
-        .limit(3);
+        .limit(2);
 
-      const exampleContext = styleExamples && styleExamples.length > 0
-        ? `\n\nExample scheme writing style references:\n${styleExamples.map((ex, i) => 
-            `Example ${i + 1}:\nParagraph 1: ${ex.paragraph_1 || ''}\nParagraph 2: ${ex.paragraph_2 || ''}`
-          ).join('\n\n')}`
-        : '';
+      const { data: p2Examples } = await supabase
+        .from('analysis_point_examples')
+        .select('paragraph_1')
+        .eq('category', 'scheme-p2')
+        .eq('example_type', 'point')
+        .limit(2);
+
+      let exampleContext = '';
+      if (p1Examples && p1Examples.length > 0) {
+        exampleContext += `\n\nFirst paragraph style examples:\n${p1Examples.map((ex, i) => `${i + 1}: ${ex.paragraph_1 || ''}`).join('\n')}`;
+      }
+      if (p2Examples && p2Examples.length > 0) {
+        exampleContext += `\n\nSecond paragraph style examples:\n${p2Examples.map((ex, i) => `${i + 1}: ${ex.paragraph_1 || ''}`).join('\n')}`;
+      }
 
       const { data, error } = await supabase.functions.invoke('ai-write', {
         body: {
@@ -1562,17 +1638,9 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
                 <CardTitle className="text-lg">{editingExample ? 'Edit' : 'Add'} Example</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label>Title (Optional)</Label>
-                  <Input
-                    value={exampleFormData.title}
-                    onChange={(e) => setExampleFormData({ ...exampleFormData, title: e.target.value })}
-                    placeholder="e.g., Defensive Positioning Analysis"
-                  />
-                </div>
                 {examplesType === 'overview' ? (
                   <div>
-                    <Label>Overview Paragraph</Label>
+                    <Label>Overview Paragraph Example</Label>
                     <Textarea
                       value={exampleFormData.content}
                       onChange={(e) => setExampleFormData({ ...exampleFormData, content: e.target.value })}
@@ -1581,36 +1649,19 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
                     />
                   </div>
                 ) : (
-                  <>
-                    <div>
-                      <Label>Paragraph 1</Label>
-                      <Textarea
-                        value={exampleFormData.paragraph_1}
-                        onChange={(e) => setExampleFormData({ ...exampleFormData, paragraph_1: e.target.value })}
-                        placeholder="Example paragraph showing desired writing style..."
-                        rows={4}
-                      />
-                    </div>
-                    <div>
-                      <Label>Paragraph 2</Label>
-                      <Textarea
-                        value={exampleFormData.paragraph_2}
-                        onChange={(e) => setExampleFormData({ ...exampleFormData, paragraph_2: e.target.value })}
-                        placeholder="Example paragraph showing desired writing style..."
-                        rows={4}
-                      />
-                    </div>
-                  </>
+                  <div>
+                    <Label>Paragraph Example</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Enter an example paragraph that demonstrates the desired writing style for this category.
+                    </p>
+                    <Textarea
+                      value={exampleFormData.paragraph_1}
+                      onChange={(e) => setExampleFormData({ ...exampleFormData, paragraph_1: e.target.value })}
+                      placeholder="Example paragraph showing desired writing style..."
+                      rows={6}
+                    />
+                  </div>
                 )}
-                <div>
-                  <Label>Notes (Optional)</Label>
-                  <Textarea
-                    value={exampleFormData.notes}
-                    onChange={(e) => setExampleFormData({ ...exampleFormData, notes: e.target.value })}
-                    placeholder="Notes about this example..."
-                    rows={2}
-                  />
-                </div>
                 <div className="flex gap-2">
                   <Button onClick={handleSaveExample}>
                     {editingExample ? 'Update' : 'Add'} Example
@@ -1620,7 +1671,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
                       variant="outline" 
                       onClick={() => {
                         setEditingExample(null);
-                        setExampleFormData({ title: '', paragraph_1: '', paragraph_2: '', content: '', notes: '' });
+                        setExampleFormData({ paragraph_1: '', content: '' });
                       }}
                     >
                       Cancel Edit
@@ -1637,21 +1688,18 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
               ) : (
                 examples.map((example) => (
                   <Card key={example.id}>
-                    <CardHeader>
-                      <CardTitle className="text-sm flex justify-between items-start">
-                        <span>{example.title || 'Untitled Example'}</span>
-                        <div className="flex gap-2">
+                    <CardContent className="pt-4">
+                      <div className="flex justify-between items-start gap-4">
+                        <p className="text-sm flex-1">{example.paragraph_1 || example.content || 'No content'}</p>
+                        <div className="flex gap-2 flex-shrink-0">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => {
                               setEditingExample(example);
                               setExampleFormData({
-                                title: example.title || '',
                                 paragraph_1: example.paragraph_1 || '',
-                                paragraph_2: example.paragraph_2 || '',
-                                content: example.content || '',
-                                notes: example.notes || ''
+                                content: example.content || ''
                               });
                             }}
                           >
@@ -1663,13 +1711,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
                             </Button>
                           )}
                         </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {example.content && <p className="text-sm">{example.content}</p>}
-                      {example.paragraph_1 && <p className="text-sm">{example.paragraph_1}</p>}
-                      {example.paragraph_2 && <p className="text-sm">{example.paragraph_2}</p>}
-                      {example.notes && <p className="text-xs text-muted-foreground italic">{example.notes}</p>}
+                      </div>
                     </CardContent>
                   </Card>
                 ))
