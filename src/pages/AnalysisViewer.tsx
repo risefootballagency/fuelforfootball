@@ -3,11 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { ArrowLeft, ChevronDown, Play, FileText, Target, Users, Lightbulb, Award, TrendingUp, Shield } from "lucide-react";
+import { ArrowLeft, ChevronDown, Play, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import vsBadge from "@/assets/vs-badge.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import fffLogo from "@/assets/fff_logo.png";
 
 interface Analysis {
   id: string;
@@ -43,6 +49,13 @@ interface Analysis {
   video_url: string | null;
 }
 
+// Brand colors
+const BRAND = {
+  gold: "#fdc61b",
+  darkGreen: "#12571e",
+  contentBg: "#c7d4ca",
+};
+
 // Section IDs for quick navigation
 const SECTION_IDS = {
   overview: "section-overview",
@@ -65,7 +78,41 @@ const PlayerKit = ({ primaryColor, secondaryColor, number }: { primaryColor: str
   </svg>
 );
 
-// Grass section wrapper
+// Tactical symbols SVG background
+const TacticalSymbols = () => (
+  <svg 
+    className="absolute inset-0 w-full h-full pointer-events-none"
+    preserveAspectRatio="xMidYMid slice"
+  >
+    <defs>
+      <pattern id="tacticalPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+        {/* X symbols */}
+        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.12">
+          <line x1="20" y1="20" x2="40" y2="40" />
+          <line x1="40" y1="20" x2="20" y2="40" />
+        </g>
+        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.1">
+          <line x1="120" y1="80" x2="140" y2="100" />
+          <line x1="140" y1="80" x2="120" y2="100" />
+        </g>
+        {/* O symbols */}
+        <circle cx="80" cy="30" r="12" stroke={BRAND.gold} strokeWidth="2" fill="none" opacity="0.1" />
+        <circle cx="160" cy="160" r="15" stroke={BRAND.gold} strokeWidth="2" fill="none" opacity="0.12" />
+        {/* Arrows */}
+        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.08" fill="none">
+          <path d="M50 120 L80 120 L75 115 M80 120 L75 125" />
+          <path d="M150 50 L150 80 L145 75 M150 80 L155 75" />
+        </g>
+        {/* Dashed lines */}
+        <line x1="10" y1="150" x2="60" y2="180" stroke={BRAND.gold} strokeWidth="1.5" strokeDasharray="8 4" opacity="0.08" />
+        <line x1="100" y1="10" x2="180" y2="50" stroke={BRAND.gold} strokeWidth="1.5" strokeDasharray="8 4" opacity="0.1" />
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#tacticalPattern)" />
+  </svg>
+);
+
+// Grass section wrapper with tactical symbols
 const GrassSection = ({ 
   children, 
   id,
@@ -79,44 +126,90 @@ const GrassSection = ({
     id={id}
     className={`relative w-full ${className}`}
     style={{
-      backgroundImage: `url('/grass-section-bg.png')`,
+      backgroundImage: `url('/analysis-grass-bg.png')`,
       backgroundSize: 'cover',
       backgroundPosition: 'center'
     }}
   >
-    <div className="px-4 md:px-6 py-6 md:py-8">
+    <TacticalSymbols />
+    <div className="relative px-4 md:px-6 py-6 md:py-8">
       {children}
     </div>
+    {/* White separator line */}
+    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/60" />
   </section>
 );
 
-// Content card with rounded corners on grass background
+// Section title with grass effect and green overlay
+const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => (
+  <div className="relative mb-4">
+    {/* Dark green bar */}
+    <div 
+      className="py-2.5 md:py-3"
+      style={{ backgroundColor: BRAND.darkGreen }}
+    >
+      {/* Grass effect bar on top */}
+      <div 
+        className="absolute inset-x-0 -top-2 h-3 md:h-4"
+        style={{
+          backgroundImage: `url('/analysis-grass-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center bottom'
+        }}
+      />
+      <div className="flex items-center justify-center gap-3">
+        {icon === "plus" && (
+          <Plus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
+        )}
+        {icon === "minus" && (
+          <Minus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
+        )}
+        <h2 
+          className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center"
+          style={{ color: BRAND.gold }}
+        >
+          {title}
+        </h2>
+      </div>
+    </div>
+  </div>
+);
+
+// Content card with the correct background
 const ContentCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={`bg-muted/95 backdrop-blur-sm rounded-lg p-4 md:p-6 ${className}`}>
+  <div 
+    className={`rounded-lg p-4 md:p-6 ${className}`}
+    style={{ backgroundColor: BRAND.contentBg }}
+  >
     {children}
   </div>
 );
 
-// Auto-expanding section that opens when scrolled into view
+// Auto-expanding section that opens when scrolled into view (no auto-scroll)
 const AutoExpandSection = ({ 
   title, 
   children, 
   id,
   defaultOpen = false,
-  icon: Icon
+  icon
 }: { 
   title: string; 
   children: React.ReactNode; 
   id?: string;
   defaultOpen?: boolean;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: "plus" | "minus" | null;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { margin: "-20% 0px -60% 0px" });
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   useEffect(() => {
-    setIsOpen(isInView);
+    // Only auto-open, don't auto-scroll
+    if (isInView && !isOpen) {
+      setIsOpen(true);
+    } else if (!isInView && isOpen && !defaultOpen) {
+      setIsOpen(false);
+    }
   }, [isInView]);
 
   return (
@@ -131,17 +224,15 @@ const AutoExpandSection = ({
       >
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full bg-primary/90 backdrop-blur-sm rounded-t-lg py-3 md:py-4 flex items-center justify-center gap-3 transition-all hover:bg-primary"
+          className="w-full"
         >
-          {Icon && <Icon className="w-5 h-5 text-black" />}
-          <h2 className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-black">
-            {title}
-          </h2>
+          <SectionTitle title={title} icon={icon} />
           <motion.div
+            className="flex justify-center -mt-2 mb-2"
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            <ChevronDown className="w-5 h-5 text-black" />
+            <ChevronDown className="w-5 h-5" style={{ color: BRAND.gold }} />
           </motion.div>
         </button>
         <AnimatePresence initial={false}>
@@ -152,7 +243,7 @@ const AutoExpandSection = ({
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              <ContentCard className="rounded-t-none">
+              <ContentCard>
                 {children}
               </ContentCard>
             </motion.div>
@@ -180,8 +271,8 @@ const TextReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?
   );
 };
 
-// VS Header Component with split colors and logos behind team names
-const VSHeader = ({ 
+// Main Header with FFF Logo, branding, and VS component
+const AnalysisHeader = ({ 
   homeTeam, 
   awayTeam, 
   homeLogo, 
@@ -208,26 +299,82 @@ const VSHeader = ({
   
   return (
     <motion.div 
-      className="w-full"
+      className="w-full relative"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
+      style={{ 
+        borderLeft: `4px solid ${BRAND.gold}`,
+        borderRight: `4px solid ${BRAND.gold}`,
+        borderTop: `4px solid ${BRAND.gold}`,
+      }}
     >
-      {/* Back Button - centered at top */}
-      <div className="flex justify-center py-4 bg-background">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="bg-background/80 backdrop-blur-sm border-primary/30 hover:bg-primary hover:text-black"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
+      {/* Top section with logo and back button */}
+      <div 
+        className="relative py-4 px-4"
+        style={{
+          backgroundImage: `url('/analysis-grass-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        {/* Club logos positioned either side of back button */}
+        <div className="absolute left-4 top-8 md:top-6 w-16 h-16 md:w-24 md:h-24 z-10">
+          {homeLogo && (
+            <img 
+              src={homeLogo} 
+              alt="" 
+              className="w-full h-full object-contain drop-shadow-lg"
+            />
+          )}
+        </div>
+        <div className="absolute right-4 top-8 md:top-6 w-16 h-16 md:w-24 md:h-24 z-10">
+          {awayLogo && (
+            <img 
+              src={awayLogo} 
+              alt="" 
+              className="w-full h-full object-contain drop-shadow-lg"
+            />
+          )}
+        </div>
+
+        {/* Center content - Logo, tagline, back button */}
+        <div className="flex flex-col items-center justify-center">
+          {/* FFF Logo */}
+          <img 
+            src={fffLogo} 
+            alt="Fuel For Football" 
+            className="w-16 h-16 md:w-20 md:h-20 object-contain mb-1"
+          />
+          
+          {/* Brand text */}
+          <div className="text-center mb-2">
+            <h1 className="text-white text-sm md:text-base font-bebas tracking-wider uppercase">
+              Fuel For Football
+            </h1>
+            <p 
+              className="text-xs md:text-sm font-bebas italic tracking-wide"
+              style={{ color: BRAND.gold }}
+            >
+              Change The Game
+            </p>
+          </div>
+
+          {/* Back Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+        </div>
       </div>
 
-      {/* VS Design Component */}
-      <div className="relative h-24 md:h-32 overflow-hidden">
+      {/* VS Design Component with team colors */}
+      <div className="relative h-20 md:h-28 overflow-visible">
         {/* Left Side - Home Team Color */}
         <div 
           className="absolute left-0 top-0 bottom-0 w-1/2"
@@ -236,15 +383,17 @@ const VSHeader = ({
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
           }}
         >
-          {/* Home Team Logo - Behind Text */}
+          {/* Home Team Logo - Behind and popping out from top */}
           {homeLogo && (
-            <div className="absolute right-8 md:right-12 top-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 opacity-30">
+            <div 
+              className="absolute -top-8 md:-top-12 left-1/2 -translate-x-1/2 w-20 h-20 md:w-28 md:h-28 opacity-40 z-0"
+            >
               <img src={homeLogo} alt="" className="w-full h-full object-contain" />
             </div>
           )}
           {/* Home Team Name */}
-          <div className="absolute inset-0 flex items-center justify-center pr-8 md:pr-16">
-            <span className="text-xl md:text-3xl lg:text-4xl font-bebas text-white tracking-wide uppercase text-center px-4">
+          <div className="absolute inset-0 flex items-center justify-center pr-4 md:pr-8">
+            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2 relative z-10">
               {homeTeam}
             </span>
           </div>
@@ -258,77 +407,112 @@ const VSHeader = ({
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
           }}
         >
-          {/* Away Team Logo - Behind Text */}
+          {/* Away Team Logo - Behind and popping out from top */}
           {awayLogo && (
-            <div className="absolute left-8 md:left-12 top-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 opacity-30">
+            <div 
+              className="absolute -top-8 md:-top-12 left-1/2 -translate-x-1/2 w-20 h-20 md:w-28 md:h-28 opacity-40 z-0"
+            >
               <img src={awayLogo} alt="" className="w-full h-full object-contain" />
             </div>
           )}
           {/* Away Team Name */}
-          <div className="absolute inset-0 flex items-center justify-center pl-8 md:pl-16">
-            <span className="text-xl md:text-3xl lg:text-4xl font-bebas text-white tracking-wide uppercase text-center px-4">
+          <div className="absolute inset-0 flex items-center justify-center pl-4 md:pl-8">
+            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2 relative z-10">
               {awayTeam}
             </span>
           </div>
         </div>
 
         {/* VS Badge - Center */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           {isPostMatch && homeScore !== null && awayScore !== null ? (
-            <div className="bg-primary rounded-full w-16 h-16 md:w-20 md:h-20 flex items-center justify-center shadow-lg">
-              <span className="text-black text-xl md:text-2xl font-bebas font-bold">
+            <div 
+              className="rounded-full w-14 h-14 md:w-18 md:h-18 flex items-center justify-center shadow-lg border-2 border-white"
+              style={{ backgroundColor: BRAND.gold }}
+            >
+              <span className="text-black text-lg md:text-xl font-bebas font-bold">
                 {homeScore} - {awayScore}
               </span>
             </div>
           ) : (
-            <div className="bg-black rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center border-4 border-white shadow-lg">
-              <span className="text-white text-lg md:text-xl font-bebas font-bold">VS</span>
+            <div className="bg-black rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border-3 border-white shadow-lg">
+              <span className="text-white text-base md:text-lg font-bebas font-bold">VS</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Match Date */}
-      {matchDate && (
-        <div className="bg-muted text-center py-2 md:py-3">
-          <span className="text-foreground/80 font-bebas tracking-wider text-sm md:text-lg">
-            {new Date(matchDate).toLocaleDateString('en-GB', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
+      {/* Match Date and Teams Line */}
+      <div 
+        className="text-center py-2 md:py-3"
+        style={{ backgroundColor: BRAND.darkGreen }}
+      >
+        <span className="text-white font-bebas tracking-wider text-xs md:text-sm">
+          {homeTeam} – {awayTeam}
+        </span>
+        {matchDate && (
+          <span className="block text-white/80 text-xs mt-0.5">
+            ({new Date(matchDate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            })})
           </span>
-        </div>
-      )}
+        )}
+      </div>
     </motion.div>
   );
 };
 
-// Quick Navigation Bar
-const QuickNav = ({ sections }: { sections: { id: string; label: string; icon: React.ComponentType<{ className?: string }> }[] }) => (
+// Quick Navigation Dropdown
+const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string }[] }) => (
   <motion.div 
-    className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border"
+    className="sticky top-0 z-40 py-2 px-4"
+    style={{ 
+      backgroundColor: BRAND.darkGreen,
+      borderLeft: `4px solid ${BRAND.gold}`,
+      borderRight: `4px solid ${BRAND.gold}`,
+    }}
     initial={{ opacity: 0, y: -10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.5 }}
   >
-    <div className="flex overflow-x-auto gap-1 md:gap-2 p-2 md:p-3 justify-center">
-      {sections.map((section) => (
-        <Button
-          key={section.id}
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            const el = document.getElementById(section.id);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
-          className="flex-shrink-0 text-xs md:text-sm hover:bg-primary/20"
+    <div className="flex justify-center">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs md:text-sm border-white/30 hover:bg-white/10"
+            style={{ 
+              backgroundColor: 'transparent',
+              color: BRAND.gold,
+              borderColor: BRAND.gold
+            }}
+          >
+            Jump to Section
+            <ChevronDown className="w-4 h-4 ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent 
+          className="min-w-[200px]"
+          style={{ backgroundColor: BRAND.darkGreen, borderColor: BRAND.gold }}
         >
-          <section.icon className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-          <span className="hidden sm:inline">{section.label}</span>
-        </Button>
-      ))}
+          {sections.map((section) => (
+            <DropdownMenuItem
+              key={section.id}
+              onClick={() => {
+                const el = document.getElementById(section.id);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="cursor-pointer hover:bg-white/10 text-white"
+              style={{ color: BRAND.gold }}
+            >
+              {section.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   </motion.div>
 );
@@ -347,7 +531,6 @@ const AnalysisViewer = () => {
 
   const fetchAnalysis = async () => {
     try {
-      // Fetch without auth restrictions - the shared database analyses table should have public SELECT policy
       const { data, error } = await supabase
         .from("analyses")
         .select("*")
@@ -420,26 +603,45 @@ const AnalysisViewer = () => {
 
   // Build quick nav sections based on available content
   const navSections = [];
-  if (analysis.key_details) navSections.push({ id: SECTION_IDS.overview, label: "Overview", icon: FileText });
-  if (analysis.opposition_strengths) navSections.push({ id: SECTION_IDS.strengths, label: "Strengths", icon: Shield });
-  if (analysis.opposition_weaknesses) navSections.push({ id: SECTION_IDS.weaknesses, label: "Weaknesses", icon: Target });
-  if (analysis.matchups?.length > 0) navSections.push({ id: SECTION_IDS.matchups, label: "Matchups", icon: Users });
-  if (analysis.scheme_title || analysis.selected_scheme) navSections.push({ id: SECTION_IDS.scheme, label: "Scheme", icon: TrendingUp });
-  if (analysis.strengths_improvements) navSections.push({ id: SECTION_IDS.improvements, label: "Improvements", icon: Award });
+  if (analysis.key_details) navSections.push({ id: SECTION_IDS.overview, label: "Overview" });
+  if (analysis.opposition_strengths) navSections.push({ id: SECTION_IDS.strengths, label: "Opposition Strengths" });
+  if (analysis.opposition_weaknesses) navSections.push({ id: SECTION_IDS.weaknesses, label: "Opposition Weaknesses" });
+  if (analysis.matchups?.length > 0) navSections.push({ id: SECTION_IDS.matchups, label: "Potential Matchups" });
+  if (analysis.scheme_title || analysis.selected_scheme) navSections.push({ id: SECTION_IDS.scheme, label: "Scheme" });
+  if (analysis.strengths_improvements) navSections.push({ id: SECTION_IDS.improvements, label: "Improvements" });
+  // Add points to nav
+  if (analysis.points && analysis.points.length > 0) {
+    analysis.points.forEach((point: any, index: number) => {
+      navSections.push({ id: `section-point-${index}`, label: point.title });
+    });
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div 
+      className="min-h-screen bg-background relative"
+    >
+      {/* Gold border lines running down sides - but only below the header */}
+      <div 
+        className="fixed top-0 bottom-0 left-[4px] w-[4px] z-30 pointer-events-none"
+        style={{ backgroundColor: BRAND.gold }}
+      />
+      <div 
+        className="fixed top-0 bottom-0 right-[4px] w-[4px] z-30 pointer-events-none"
+        style={{ backgroundColor: BRAND.gold }}
+      />
+
       {/* Video Button - Fixed */}
       {analysis.video_url && (
         <motion.div 
-          className="fixed bottom-4 right-4 z-50"
+          className="fixed bottom-4 right-8 z-50"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
         >
           <Button
             onClick={() => window.open(analysis.video_url!, '_blank')}
-            className="btn-shine font-bebas uppercase tracking-wider shadow-lg"
+            className="font-bebas uppercase tracking-wider shadow-lg"
+            style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Play className="w-4 h-4 mr-2" />
             Watch Video
@@ -447,11 +649,11 @@ const AnalysisViewer = () => {
         </motion.div>
       )}
 
-      <main className="w-full">
+      <main className="w-full mx-auto" style={{ marginLeft: '4px', marginRight: '4px', maxWidth: 'calc(100% - 8px)' }}>
         {/* Pre-Match Content */}
         {isPreMatch && (
           <div className="w-full">
-            <VSHeader
+            <AnalysisHeader
               homeTeam={analysis.home_team}
               awayTeam={analysis.away_team}
               homeLogo={analysis.home_team_logo}
@@ -461,13 +663,19 @@ const AnalysisViewer = () => {
               matchDate={analysis.match_date}
             />
 
-            {/* Quick Nav */}
-            {navSections.length > 0 && <QuickNav sections={navSections} />}
+            {/* Quick Nav Dropdown */}
+            {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
 
-            {/* Match Image */}
+            {/* Match Image - with gold border */}
             {analysis.match_image_url && (
               <ScrollReveal className="w-full">
-                <div className="w-full">
+                <div 
+                  className="w-full"
+                  style={{ 
+                    borderLeft: `4px solid ${BRAND.gold}`,
+                    borderRight: `4px solid ${BRAND.gold}`,
+                  }}
+                >
                   <img 
                     src={analysis.match_image_url} 
                     alt="Match" 
@@ -479,9 +687,9 @@ const AnalysisViewer = () => {
 
             {/* Overview Section */}
             {analysis.key_details && (
-              <AutoExpandSection title="Overview" id={SECTION_IDS.overview} icon={FileText}>
+              <AutoExpandSection title="Overview" id={SECTION_IDS.overview}>
                 <TextReveal>
-                  <p className="text-foreground leading-relaxed whitespace-pre-wrap text-base md:text-lg">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-base md:text-lg">
                     {analysis.key_details}
                   </p>
                 </TextReveal>
@@ -490,17 +698,20 @@ const AnalysisViewer = () => {
 
             {/* Opposition Strengths */}
             {analysis.opposition_strengths && (
-              <AutoExpandSection title="Opposition Strengths" id={SECTION_IDS.strengths} icon={Shield}>
+              <AutoExpandSection title="Opposition Strengths" id={SECTION_IDS.strengths} icon="plus">
                 <div className="space-y-3">
                   {analysis.opposition_strengths.split('\n').filter(line => line.trim()).map((line, idx) => {
                     const cleanLine = line.trim().replace(/^[-•]\s*/, '');
                     return (
                       <TextReveal key={idx} delay={idx * 0.1}>
-                        <div className="flex items-start gap-3 bg-primary/10 p-3 md:p-4 rounded-lg">
-                          <div className="bg-primary rounded-full w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-black font-bold text-sm md:text-lg">✓</span>
+                        <div className="flex items-start gap-3">
+                          <div 
+                            className="rounded-full w-6 h-6 md:w-8 md:h-8 flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: BRAND.gold }}
+                          >
+                            <Plus className="w-4 h-4 md:w-5 md:h-5 text-black" />
                           </div>
-                          <p className="text-foreground text-sm md:text-base leading-relaxed pt-1">{cleanLine}</p>
+                          <p className="text-black text-sm md:text-base leading-relaxed pt-0.5 italic">{cleanLine}</p>
                         </div>
                       </TextReveal>
                     );
@@ -511,17 +722,20 @@ const AnalysisViewer = () => {
 
             {/* Opposition Weaknesses */}
             {analysis.opposition_weaknesses && (
-              <AutoExpandSection title="Opposition Weaknesses" id={SECTION_IDS.weaknesses} icon={Target}>
+              <AutoExpandSection title="Opposition Weaknesses" id={SECTION_IDS.weaknesses} icon="minus">
                 <div className="space-y-3">
                   {analysis.opposition_weaknesses.split('\n').filter(line => line.trim()).map((line, idx) => {
                     const cleanLine = line.trim().replace(/^[-•]\s*/, '');
                     return (
                       <TextReveal key={idx} delay={idx * 0.1}>
-                        <div className="flex items-start gap-3 bg-accent/10 p-3 md:p-4 rounded-lg">
-                          <div className="bg-accent rounded-full w-8 h-8 md:w-10 md:h-10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-black font-bold text-sm md:text-lg">!</span>
+                        <div className="flex items-start gap-3">
+                          <div 
+                            className="rounded-full w-6 h-6 md:w-8 md:h-8 flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: BRAND.gold }}
+                          >
+                            <Minus className="w-4 h-4 md:w-5 md:h-5 text-black" />
                           </div>
-                          <p className="text-foreground text-sm md:text-base leading-relaxed pt-1">{cleanLine}</p>
+                          <p className="text-black text-sm md:text-base leading-relaxed pt-0.5 italic">{cleanLine}</p>
                         </div>
                       </TextReveal>
                     );
@@ -530,14 +744,14 @@ const AnalysisViewer = () => {
               </AutoExpandSection>
             )}
 
-            {/* Key Matchups */}
+            {/* Key Matchups - Transparent background */}
             {analysis.matchups && analysis.matchups.length > 0 && (
-              <AutoExpandSection title="Potential Matchup(s)" id={SECTION_IDS.matchups} icon={Users}>
-                <div className="flex justify-center items-center gap-4 md:gap-8 flex-wrap">
+              <AutoExpandSection title="Potential Matchup(s)" id={SECTION_IDS.matchups}>
+                <div className="flex justify-center items-center gap-4 md:gap-8 flex-wrap bg-transparent">
                   {analysis.matchups.map((matchup: any, index: number) => (
                     <TextReveal key={index} delay={index * 0.15}>
-                      <div className="text-center w-32 md:w-44">
-                        <div className="mb-2 md:mb-3 rounded-lg overflow-hidden border-2 border-primary/30 bg-muted aspect-square flex items-center justify-center shadow-lg">
+                      <div className="text-center w-28 md:w-40">
+                        <div className="mb-2 md:mb-3 rounded-lg overflow-hidden border-2 aspect-square flex items-center justify-center shadow-lg" style={{ borderColor: BRAND.gold }}>
                           {matchup.image_url ? (
                             <img
                               src={matchup.image_url}
@@ -545,12 +759,12 @@ const AnalysisViewer = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="text-muted-foreground text-xs md:text-sm">No image</div>
+                            <div className="text-black/50 text-xs md:text-sm bg-white/50 w-full h-full flex items-center justify-center">No image</div>
                           )}
                         </div>
-                        <p className="font-bold text-foreground text-sm md:text-lg">{matchup.name}</p>
+                        <p className="font-bold text-black text-sm md:text-lg">{matchup.name}</p>
                         {matchup.shirt_number && (
-                          <p className="text-xs md:text-sm text-primary font-semibold">
+                          <p className="text-xs md:text-sm font-semibold" style={{ color: BRAND.darkGreen }}>
                             #{matchup.shirt_number}
                           </p>
                         )}
@@ -563,11 +777,11 @@ const AnalysisViewer = () => {
 
             {/* Scheme Section */}
             {(analysis.scheme_title || analysis.selected_scheme) && (
-              <AutoExpandSection title={analysis.scheme_title || "Tactical Scheme"} id={SECTION_IDS.scheme} icon={TrendingUp}>
+              <AutoExpandSection title={analysis.scheme_title || "Tactical Scheme"} id={SECTION_IDS.scheme}>
                 <div className="space-y-4 md:space-y-6">
                   {analysis.scheme_paragraph_1 && (
                     <TextReveal>
-                      <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                      <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                         {analysis.scheme_paragraph_1}
                       </p>
                     </TextReveal>
@@ -575,7 +789,7 @@ const AnalysisViewer = () => {
                   
                   {analysis.selected_scheme && (
                     <TextReveal delay={0.2}>
-                      <div className="relative bg-gradient-to-b from-green-700 to-green-800 rounded-lg p-4 md:p-8 min-h-[400px] md:min-h-[600px] border-4 border-white/20 shadow-xl">
+                      <div className="relative bg-gradient-to-b from-green-700 to-green-800 rounded-lg p-4 md:p-8 min-h-[400px] md:min-h-[600px] border-4 shadow-xl" style={{ borderColor: BRAND.gold }}>
                         <div className="text-white text-center mb-4 text-xl md:text-2xl font-bebas tracking-wider">
                           {analysis.selected_scheme}
                         </div>
@@ -620,7 +834,7 @@ const AnalysisViewer = () => {
                   
                   {analysis.scheme_paragraph_2 && (
                     <TextReveal delay={0.3}>
-                      <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                      <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                         {analysis.scheme_paragraph_2}
                       </p>
                     </TextReveal>
@@ -636,12 +850,12 @@ const AnalysisViewer = () => {
                   <AutoExpandSection 
                     key={index} 
                     title={point.title}
-                    icon={Lightbulb}
+                    id={`section-point-${index}`}
                   >
                     <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
                         <TextReveal>
-                          <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_1}
                           </p>
                         </TextReveal>
@@ -654,7 +868,8 @@ const AnalysisViewer = () => {
                                 key={imgIndex}
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full max-w-4xl rounded-lg shadow-md"
+                                className="w-full max-w-4xl rounded-lg shadow-md border-2"
+                                style={{ borderColor: BRAND.gold }}
                               />
                             ))}
                           </div>
@@ -662,7 +877,7 @@ const AnalysisViewer = () => {
                       )}
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
-                          <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_2}
                           </p>
                         </TextReveal>
@@ -678,7 +893,7 @@ const AnalysisViewer = () => {
         {/* Post-Match Content */}
         {isPostMatch && (
           <div className="w-full">
-            <VSHeader
+            <AnalysisHeader
               homeTeam={analysis.home_team}
               awayTeam={analysis.away_team}
               homeLogo={analysis.home_team_logo}
@@ -691,13 +906,19 @@ const AnalysisViewer = () => {
               isPostMatch
             />
 
-            {/* Quick Nav */}
-            {navSections.length > 0 && <QuickNav sections={navSections} />}
+            {/* Quick Nav Dropdown */}
+            {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
 
             {/* Player Image */}
             {analysis.player_image_url && (
               <ScrollReveal className="w-full">
-                <div className="w-full">
+                <div 
+                  className="w-full"
+                  style={{ 
+                    borderLeft: `4px solid ${BRAND.gold}`,
+                    borderRight: `4px solid ${BRAND.gold}`,
+                  }}
+                >
                   <img
                     src={analysis.player_image_url}
                     alt="Player"
@@ -709,9 +930,9 @@ const AnalysisViewer = () => {
 
             {/* Overview */}
             {analysis.key_details && (
-              <AutoExpandSection title="Overview" id={SECTION_IDS.overview} icon={FileText}>
+              <AutoExpandSection title="Overview" id={SECTION_IDS.overview}>
                 <TextReveal>
-                  <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                     {analysis.key_details}
                   </p>
                 </TextReveal>
@@ -720,9 +941,9 @@ const AnalysisViewer = () => {
 
             {/* Strengths & Improvements */}
             {analysis.strengths_improvements && (
-              <AutoExpandSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements} icon={Award}>
+              <AutoExpandSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements}>
                 <TextReveal>
-                  <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                     {analysis.strengths_improvements}
                   </p>
                 </TextReveal>
@@ -736,12 +957,12 @@ const AnalysisViewer = () => {
                   <AutoExpandSection 
                     key={index} 
                     title={point.title}
-                    icon={Lightbulb}
+                    id={`section-point-${index}`}
                   >
                     <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
                         <TextReveal>
-                          <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_1}
                           </p>
                         </TextReveal>
@@ -754,7 +975,8 @@ const AnalysisViewer = () => {
                                 key={imgIndex}
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full max-w-4xl rounded-lg shadow-md"
+                                className="w-full max-w-4xl rounded-lg shadow-md border-2"
+                                style={{ borderColor: BRAND.gold }}
                               />
                             ))}
                           </div>
@@ -762,7 +984,7 @@ const AnalysisViewer = () => {
                       )}
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
-                          <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_2}
                           </p>
                         </TextReveal>
@@ -780,17 +1002,41 @@ const AnalysisViewer = () => {
           <div className="w-full">
             {/* Header */}
             <motion.div 
-              className="py-4 bg-background"
+              className="py-4"
+              style={{
+                backgroundImage: `url('/analysis-grass-bg.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                borderLeft: `4px solid ${BRAND.gold}`,
+                borderRight: `4px solid ${BRAND.gold}`,
+                borderTop: `4px solid ${BRAND.gold}`,
+              }}
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="flex justify-center mb-4">
+              <div className="flex flex-col items-center">
+                <img 
+                  src={fffLogo} 
+                  alt="Fuel For Football" 
+                  className="w-16 h-16 md:w-20 md:h-20 object-contain mb-1"
+                />
+                <div className="text-center mb-2">
+                  <h1 className="text-white text-sm md:text-base font-bebas tracking-wider uppercase">
+                    Fuel For Football
+                  </h1>
+                  <p 
+                    className="text-xs md:text-sm font-bebas italic tracking-wide"
+                    style={{ color: BRAND.gold }}
+                  >
+                    Change The Game
+                  </p>
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => navigate(-1)}
-                  className="bg-background/80 backdrop-blur-sm border-primary/30 hover:bg-primary hover:text-black"
+                  className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
@@ -801,10 +1047,13 @@ const AnalysisViewer = () => {
             <GrassSection>
               <ContentCard>
                 <div className="text-center">
-                  <span className="text-xs md:text-sm font-bebas uppercase tracking-widest text-primary border border-primary/30 px-3 py-1 rounded-full inline-block mb-3">
+                  <span 
+                    className="text-xs md:text-sm font-bebas uppercase tracking-widest px-3 py-1 rounded-full inline-block mb-3"
+                    style={{ backgroundColor: BRAND.gold, color: 'black' }}
+                  >
                     Concept
                   </span>
-                  <h1 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-foreground">
+                  <h1 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-black">
                     {analysis.title || "Concept Analysis"}
                   </h1>
                 </div>
@@ -812,9 +1061,9 @@ const AnalysisViewer = () => {
             </GrassSection>
 
             {analysis.concept && (
-              <AutoExpandSection title="Concept" defaultOpen icon={Lightbulb}>
+              <AutoExpandSection title="Concept" defaultOpen>
                 <TextReveal>
-                  <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                     {analysis.concept}
                   </p>
                 </TextReveal>
@@ -822,9 +1071,9 @@ const AnalysisViewer = () => {
             )}
 
             {analysis.explanation && (
-              <AutoExpandSection title="Explanation" icon={FileText}>
+              <AutoExpandSection title="Explanation">
                 <TextReveal>
-                  <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                     {analysis.explanation}
                   </p>
                 </TextReveal>
@@ -837,12 +1086,12 @@ const AnalysisViewer = () => {
                   <AutoExpandSection 
                     key={index} 
                     title={point.title}
-                    icon={Lightbulb}
+                    id={`section-point-${index}`}
                   >
                     <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
                         <TextReveal>
-                          <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_1}
                           </p>
                         </TextReveal>
@@ -855,7 +1104,8 @@ const AnalysisViewer = () => {
                                 key={imgIndex}
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full rounded-lg"
+                                className="w-full rounded-lg border-2"
+                                style={{ borderColor: BRAND.gold }}
                               />
                             ))}
                           </div>
@@ -863,7 +1113,7 @@ const AnalysisViewer = () => {
                       )}
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
-                          <p className="text-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_2}
                           </p>
                         </TextReveal>
@@ -875,9 +1125,6 @@ const AnalysisViewer = () => {
             )}
           </div>
         )}
-
-        {/* Footer spacing */}
-        <div className="h-20 bg-background" />
       </main>
     </div>
   );
