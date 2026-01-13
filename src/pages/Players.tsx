@@ -15,6 +15,7 @@ import { EliteMessaging, PropagandaBanner } from "@/components/EliteMessaging";
 import { MetricBanner } from "@/components/PropagandaMetrics";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { BRAND_CONTENT } from "@/data/brandContent";
 
 // Dynamic Hero Slider that fetches images from landing folder
 const DynamicHeroSlider = () => {
@@ -311,11 +312,11 @@ const Players = () => {
         <section className="py-5 md:py-12 bg-card/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
           <div className="container mx-auto relative z-10">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-8">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-title mb-4 md:mb-8">
               What We Do
             </h2>
-            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-4xl mx-auto mb-8 md:mb-16">
-              At Fuel For Football, we cover every aspect of performance across all four corners of the game. Our tailored programs help you make smarter decisions, refine your technical skills, and build the mental resilience needed to consistently outplay your opponents. Through our comprehensive approach, we ensure you are always prepared and confident, enabling you to dominate every match. Longer-term, we reduce injury risk, develop faster, and maximise potential.
+            <p className="text-center text-muted-foreground text-sm md:text-base max-w-4xl mx-auto mb-8 md:mb-16">
+              {BRAND_CONTENT.overview} {BRAND_CONTENT.valueProposition}
             </p>
 
             {/* Four Corners Grid */}
