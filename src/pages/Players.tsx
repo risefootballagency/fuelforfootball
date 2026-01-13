@@ -298,7 +298,7 @@ const Players = () => {
         {/* Title Bar - Now below video */}
         <section className="relative overflow-hidden border-b border-border/50 bg-glossy-green">
           <div className="container mx-auto relative z-10 flex items-center justify-center py-3 md:py-4">
-            <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-primary-foreground leading-none">
+            <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-title leading-none">
               Players
             </h1>
           </div>
@@ -581,10 +581,10 @@ const Players = () => {
         {/* Bottom CTA Section */}
         <section className="py-5 md:py-12 border-t border-border/50 bg-muted/50">
           <div className="container mx-auto text-center max-w-3xl">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6 text-primary">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6 text-title">
               The Window Is Closing
             </h2>
-            <p className="text-base md:text-lg mb-6 md:mb-8 text-primary">
+            <p className="text-base md:text-lg mb-6 md:mb-8 text-foreground">
               Your peak years are limited. The scouts are watching now, not later. Take action before it's too late.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

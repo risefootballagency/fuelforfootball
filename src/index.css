@@ -24,26 +24,48 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* FFF Brand Colors */
-    /* Header green: #00914a */
-    /* Dark background: #010101 */
-    /* Light background: #fafafa */
-    /* Text green: #008240 */
+    /* ===== SEMANTIC TOKEN SYSTEM =====
+     * 
+     * USAGE RULES:
+     * - title-text: All titles/headings text color
+     * - title-bg: Title bar/header strip backgrounds
+     * - primary: Primary button backgrounds, main CTA surfaces
+     * - primary-foreground: Text on primary backgrounds
+     * - accent: Highlights, links, badges, emphasis elements ONLY
+     * - accent-foreground: Text on accent backgrounds
+     * - card/card-foreground: Card surfaces and their text
+     * 
+     * DO NOT use accent for general text or main surfaces.
+     * DO NOT use primary for accent-intended elements.
+     */
+
+    /* FFF Brand Colors Reference */
+    /* Header green: #00914a → 152 100% 28% */
+    /* Dark background: #010101 → 0 0% 0.4% */
+    /* Light background: #fafafa → 0 0% 98% */
+    /* Text green: #008240 → 150 100% 25% */
 
     /* Default: Dark theme */
     --background: 0 0% 0.4%;
     --foreground: 0 0% 98%;
 
-    /* Cards & panels */
+    /* Cards & panels - use for card surfaces */
     --card: 0 0% 3%;
     --card-foreground: 0 0% 98%;
 
     --popover: 0 0% 2%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary: FFF Header Green #00914a */
+    /* PRIMARY: For buttons, main CTAs, primary action surfaces */
+    /* FFF Header Green #00914a */
     --primary: 152 100% 28%;
     --primary-foreground: 0 0% 98%;
+
+    /* TITLE TOKENS: Distinct from primary for independent branding control */
+    /* Title text color - white/light for dark theme */
+    --title-text: 0 0% 98%;
+    /* Title background - uses FFF green for title bars */
+    --title-bg: 152 100% 28%;
 
     /* Secondary */
     --secondary: 0 0% 10%;
@@ -52,9 +74,10 @@ All colors MUST be HSL.
     --muted: 0 0% 8%;
     --muted-foreground: 0 0% 65%;
 
-    /* Accent: FFF Green */
-    --accent: 152 100% 28%;
-    --accent-foreground: 0 0% 98%;
+    /* ACCENT: For highlights, links, badges, active states ONLY */
+    /* FFF Orange/Gold for accent - distinct from primary green */
+    --accent: 36 100% 50%;
+    --accent-foreground: 0 0% 5%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -66,18 +89,15 @@ All colors MUST be HSL.
     --radius: 0.625rem;
 
     /* FFF Brand Tokens */
-    /* Header green: #00914a */
     --fff-green: 152 100% 28%;
     --fff-green-dark: 150 100% 25%;
-
-    /* Light theme text green: #008240 */
     --fff-text-green: 150 100% 25%;
 
     /* Background colors */
     --fff-dark: 0 0% 0.4%;
     --fff-light: 0 0% 98%;
 
-    /* Legacy aliases - now using FFF orange/yellow */
+    /* Gold/Orange accent tokens */
     --gold: 36 100% 50%;
     --gold-muted: 36 90% 45%;
     --mint: 82 46% 74%;
@@ -102,6 +122,8 @@ All colors MUST be HSL.
       rgba(255, 255, 255, 0.05) 50%,
       rgba(0, 0, 0, 0.1) 100%
     );
+    
+    /* Legacy text tokens - mapped to new system */
     --text-primary: 0 0% 98%;
     --text-secondary: 0 0% 70%;
     --light-green: 152 100% 28%;
@@ -989,13 +1011,53 @@ a:hover .hover-text-letter-clone,
   transform: translateX(100%);
 }
 
-/* Section title styling */
+/* ===== SEMANTIC TITLE/TEXT UTILITY CLASSES =====
+ * 
+ * USAGE RULES:
+ * - .text-title: Use for ALL titles/headings (maps to --title-text)
+ * - .bg-title-bg: Use for title bar/header backgrounds (maps to --title-bg)
+ * - .text-accent-link: Use for accent links/highlights only
+ * - Never use text-primary for titles - use text-title instead
+ * - Never use bg-primary for title backgrounds - use bg-title-bg instead
+ */
+
+/* Title text - distinct from primary for independent control */
+.text-title {
+  color: hsl(var(--title-text));
+}
+
+/* Title background - distinct from accent for independent control */
+.bg-title-bg {
+  background-color: hsl(var(--title-bg));
+}
+
+/* Accent for links and highlights only */
+.text-accent-link {
+  color: hsl(var(--accent));
+}
+
+.text-accent-link:hover {
+  color: hsl(var(--accent) / 0.8);
+}
+
+/* Section title styling - now uses title token */
 .section-title {
-  @apply text-4xl md:text-5xl lg:text-6xl font-display uppercase tracking-wider text-foreground mb-4;
+  @apply text-4xl md:text-5xl lg:text-6xl font-display uppercase tracking-wider mb-4;
+  color: hsl(var(--title-text));
 }
 
 .section-subtitle {
   @apply text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed;
+}
+
+/* Page title bar - uses title-bg token */
+.page-title-bar {
+  background-color: hsl(var(--title-bg));
+  @apply py-3 md:py-4 border-b border-border/50;
+}
+
+.page-title-bar h1 {
+  color: hsl(var(--title-text));
 }
 
 /* Premium hover underline */
