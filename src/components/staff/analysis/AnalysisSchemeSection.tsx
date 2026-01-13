@@ -1,0 +1,189 @@
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Sparkles, ChevronDown } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
+
+interface SchemeSectionProps {
+  formData: any;
+  setFormData: (data: any) => void;
+  handleSchemeChange: (scheme: string) => void;
+  updateStartingXIPlayer: (index: number, field: 'surname' | 'number', value: string) => void;
+  generateWithAI: (field: string, pointIndex?: number) => Promise<void>;
+  aiGenerating: boolean;
+  formationTemplates: Record<string, Array<{x: number, y: number, position: string}>>;
+}
+
+export const AnalysisSchemeSection = ({
+  formData,
+  setFormData,
+  handleSchemeChange,
+  updateStartingXIPlayer,
+  generateWithAI,
+  aiGenerating,
+  formationTemplates,
+}: SchemeSectionProps) => {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+        <h3 className="font-semibold text-lg">SCHEMES</h3>
+        <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pt-4 space-y-4">
+        <div>
+          <Label>Select Formation</Label>
+          <Select 
+            value={formData.selected_scheme || ""} 
+            onValueChange={handleSchemeChange}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Choose a formation" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.keys(formationTemplates).map((formation) => (
+                <SelectItem key={formation} value={formation}>
+                  {formation}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {formData.selected_scheme && formData.starting_xi && formData.starting_xi.length > 0 && (
+          <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label>Kit Primary Color</Label>
+                <Input
+                  type="color"
+                  value={formData.kit_primary_color || '#FFD700'}
+                  onChange={(e) => setFormData({ ...formData, kit_primary_color: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Kit Secondary Color</Label>
+                <Input
+                  type="color"
+                  value={formData.kit_secondary_color || '#000000'}
+                  onChange={(e) => setFormData({ ...formData, kit_secondary_color: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <Label className="mb-2 block">Starting XI Preview</Label>
+            <div className="relative bg-green-700 rounded-lg p-4 sm:p-8 min-h-[300px] sm:min-h-[400px]">
+              <div className="text-white text-center mb-2 text-lg font-bold">
+                {formData.selected_scheme}
+              </div>
+              {formData.starting_xi.map((player: any, index: number) => (
+                <div
+                  key={index}
+                  className="absolute"
+                  style={{
+                    left: `${player.x}%`,
+                    top: `${player.y}%`,
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                >
+                  <svg width="48" height="48" viewBox="0 0 100 100" className="drop-shadow-lg mb-1">
+                    <path d="M30 25 L25 35 L25 65 L30 75 L70 75 L75 65 L75 35 L70 25 Z" fill={formData.kit_primary_color || '#FFD700'} stroke={formData.kit_secondary_color || '#000000'} strokeWidth="3"/>
+                    <rect x="42" y="25" width="16" height="50" fill={formData.kit_secondary_color || '#000000'} opacity="0.8"/>
+                    <circle cx="50" cy="25" r="8" fill={formData.kit_primary_color || '#FFD700'} stroke={formData.kit_secondary_color || '#000000'} strokeWidth="2"/>
+                    <text x="50" y="55" textAnchor="middle" fontSize="24" fontWeight="bold" fill="white" stroke="black" strokeWidth="1.5">
+                      {player.number || '0'}
+                    </text>
+                  </svg>
+                  <div className="bg-black/80 text-white px-1 py-0.5 rounded text-[8px] font-bold text-center whitespace-nowrap">
+                    {player.surname || player.position}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
+              <Label>Enter Player Details</Label>
+              {formData.starting_xi.map((player: any, index: number) => (
+                <div key={index} className="flex flex-col sm:grid sm:grid-cols-3 gap-2 items-start sm:items-center bg-muted p-2 rounded">
+                  <span className="text-xs font-medium">{player.position}</span>
+                  <Input
+                    placeholder="Surname"
+                    value={player.surname}
+                    onChange={(e) => updateStartingXIPlayer(index, 'surname', e.target.value)}
+                    className="h-8 text-xs w-full"
+                  />
+                  <Input
+                    placeholder="No."
+                    value={player.number}
+                    onChange={(e) => updateStartingXIPlayer(index, 'number', e.target.value)}
+                    className="h-8 text-xs w-full"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <Label>Title</Label>
+          <Input
+            value={formData.scheme_title || ""}
+            onChange={(e) => setFormData({ ...formData, scheme_title: e.target.value })}
+          />
+        </div>
+        <div>
+          <div className="flex items-center justify-between">
+            <Label>Paragraph 1</Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => generateWithAI('scheme_paragraph_1')}
+              disabled={aiGenerating}
+            >
+              <Sparkles className="w-3 h-3 mr-1" />
+              {aiGenerating ? 'Generating...' : 'Use AI'}
+            </Button>
+          </div>
+          <Textarea
+            value={formData.scheme_paragraph_1 || ""}
+            onChange={(e) => setFormData({ ...formData, scheme_paragraph_1: e.target.value })}
+          />
+        </div>
+        <div>
+          <div className="flex items-center justify-between">
+            <Label>Paragraph 2</Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => generateWithAI('scheme_paragraph_2')}
+              disabled={aiGenerating}
+            >
+              <Sparkles className="w-3 h-3 mr-1" />
+              {aiGenerating ? 'Generating...' : 'Use AI'}
+            </Button>
+          </div>
+          <Textarea
+            value={formData.scheme_paragraph_2 || ""}
+            onChange={(e) => setFormData({ ...formData, scheme_paragraph_2: e.target.value })}
+          />
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
