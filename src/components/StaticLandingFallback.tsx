@@ -122,19 +122,19 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
 
           <div className="flex items-center gap-4">
             <Button
-              onClick={() => setShowRepresentation(true)}
+              onClick={() => navigateToRole("/players/daily-fuel")}
               variant="outline"
               className="font-bebas uppercase tracking-wider border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground"
               style={{ borderRadius: '20px' }}
             >
-              {t("landing.represent_me", "Represent Me")}
+              {t("landing.daily_fuel", "Daily Fuel")}
             </Button>
             <Button
-              onClick={() => setShowDeclareInterest(true)}
+              onClick={() => navigateToRole("/players/services")}
               className="btn-shine font-bebas uppercase tracking-wider"
               style={{ borderRadius: '20px' }}
             >
-              {t("landing.declare_interest", "Declare Interest In Star")}
+              {t("landing.services", "Services")}
             </Button>
           </div>
 
@@ -147,19 +147,19 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
         <div className="md:hidden flex flex-col items-center gap-4 px-4">
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setShowRepresentation(true)}
+              onClick={() => navigateToRole("/players/daily-fuel")}
               variant="outline"
               size="sm"
               className="font-bebas uppercase tracking-wider border-primary/50 text-primary hover:bg-primary/10 text-xs px-3 h-7"
             >
-              {t("landing.represent_me", "Represent Me")}
+              {t("landing.daily_fuel", "Daily Fuel")}
             </Button>
             <Button
-              onClick={() => setShowDeclareInterest(true)}
+              onClick={() => navigateToRole("/players/services")}
               size="sm"
               className="btn-shine font-bebas uppercase tracking-wider text-xs px-3 h-7"
             >
-              {t("landing.declare_interest_short", "Declare Interest")}
+              {t("landing.services", "Services")}
             </Button>
           </div>
 

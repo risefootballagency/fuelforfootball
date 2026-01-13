@@ -1,11 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.rise.riseapp',
-  appName: 'riseagency',
+  appId: 'app.lovable.ac8f5c3b6b5b4f199b616f9621e5d7ab',
+  appName: 'Fuel For Football',
   webDir: 'dist',
   server: {
-    url: 'https://3f4a1ae9-5919-4d5b-a171-1795b6399352.lovableproject.com?forceHideBadge=true',
+    url: 'https://ac8f5c3b-6b5b-4f19-9b61-6f9621e5d7ab.lovableproject.com?forceHideBadge=true',
     cleartext: true
   },
   plugins: {

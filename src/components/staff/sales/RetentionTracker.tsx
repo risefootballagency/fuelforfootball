@@ -241,59 +241,59 @@ export function RetentionTracker() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Users className="h-8 w-8 text-primary" />
+          <CardContent className="p-3 sm:pt-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Users className="h-5 w-5 sm:h-8 sm:w-8 text-primary" />
               <div>
-                <p className="text-2xl font-bold">{activeClients}</p>
-                <p className="text-sm text-muted-foreground">Active Clients</p>
+                <p className="text-lg sm:text-2xl font-bold">{activeClients}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Active</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Target className="h-8 w-8 text-orange-500" />
+          <CardContent className="p-3 sm:pt-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Target className="h-5 w-5 sm:h-8 sm:w-8 text-orange-500" />
               <div>
-                <p className="text-2xl font-bold">{targets?.outreach_actual || 0}/{targets?.outreach_target || 0}</p>
-                <p className="text-sm text-muted-foreground">Outreach This Month</p>
+                <p className="text-lg sm:text-2xl font-bold">{targets?.outreach_actual || 0}/{targets?.outreach_target || 0}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Outreach</p>
               </div>
             </div>
             {targets && targets.outreach_target > 0 && (
-              <Progress value={(targets.outreach_actual / targets.outreach_target) * 100} className="mt-2" />
+              <Progress value={(targets.outreach_actual / targets.outreach_target) * 100} className="mt-2 h-1.5 sm:h-2" />
             )}
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="h-8 w-8 text-green-500" />
+          <CardContent className="p-3 sm:pt-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-green-500" />
               <div>
-                <p className="text-2xl font-bold">{targets?.conversion_actual || 0}/{targets?.conversion_target || 0}</p>
-                <p className="text-sm text-muted-foreground">Conversions</p>
+                <p className="text-lg sm:text-2xl font-bold">{targets?.conversion_actual || 0}/{targets?.conversion_target || 0}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Conversions</p>
               </div>
             </div>
             {targets && targets.conversion_target > 0 && (
-              <Progress value={(targets.conversion_actual / targets.conversion_target) * 100} className="mt-2" />
+              <Progress value={(targets.conversion_actual / targets.conversion_target) * 100} className="mt-2 h-1.5 sm:h-2" />
             )}
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="text-2xl">£</div>
+          <CardContent className="p-3 sm:pt-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="text-lg sm:text-2xl">£</div>
               <div>
-                <p className="text-2xl font-bold">£{(targets?.sales_actual || 0).toLocaleString()}</p>
-                <p className="text-sm text-muted-foreground">/ £{(targets?.sales_target || 0).toLocaleString()} target</p>
+                <p className="text-lg sm:text-2xl font-bold">£{(targets?.sales_actual || 0).toLocaleString()}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">/ £{(targets?.sales_target || 0).toLocaleString()}</p>
               </div>
             </div>
             {targets && targets.sales_target > 0 && (
-              <Progress value={(targets.sales_actual / targets.sales_target) * 100} className="mt-2" />
+              <Progress value={(targets.sales_actual / targets.sales_target) * 100} className="mt-2 h-1.5 sm:h-2" />
             )}
           </CardContent>
         </Card>
