@@ -133,9 +133,9 @@ export const ServiceDetailPanel = ({ service, onClose }: ServiceDetailPanelProps
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-medium">{option.name}</span>
+                          <span className="font-medium">{option.name || 'Option'}</span>
                           <span className="font-bebas text-lg text-primary">
-                            £{option.price.toFixed(2)}
+                            £{(option.price ?? 0).toFixed(2)}
                           </span>
                         </div>
                       </button>
@@ -150,7 +150,7 @@ export const ServiceDetailPanel = ({ service, onClose }: ServiceDetailPanelProps
                   {hasOptions ? 'Selected price' : 'Price'}
                 </span>
                 <div className="font-bebas text-4xl text-primary">
-                  £{activePrice.toFixed(2)}
+                  £{(activePrice ?? 0).toFixed(2)}
                 </div>
               </div>
 
