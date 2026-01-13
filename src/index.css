@@ -31,125 +31,120 @@ All colors MUST be HSL.
      * - title-bg: Title bar/header strip backgrounds
      * - primary: Primary button backgrounds, main CTA surfaces
      * - primary-foreground: Text on primary backgrounds
-     * - accent: Highlights, links, badges, emphasis elements ONLY
+     * - accent: Highlights, links, badges, emphasis elements ONLY (gold)
      * - accent-foreground: Text on accent backgrounds
      * - card/card-foreground: Card surfaces and their text
      * 
-     * DO NOT use accent for general text or main surfaces.
-     * DO NOT use primary for accent-intended elements.
+     * FFF BRAND COLORS:
+     * - Green: #09380e → 127 78% 13%
+     * - Gold: #ffc805 → 47 100% 51%
+     * - White: #f5f5f5 → 0 0% 96%
      */
 
-    /* FFF Brand Colors Reference */
-    /* Header green: #00914a → 152 100% 28% */
-    /* Dark background: #010101 → 0 0% 0.4% */
-    /* Light background: #fafafa → 0 0% 98% */
-    /* Text green: #008240 → 150 100% 25% */
+    /* Default: Dark theme with FFF brand colors */
+    --background: 127 78% 3%;
+    --foreground: 0 0% 96%;
 
-    /* Default: Dark theme */
-    --background: 108 100% 4%;
-    --foreground: 0 0% 98%;
+    /* Cards & panels - dark green tinted */
+    --card: 127 60% 5%;
+    --card-foreground: 0 0% 96%;
 
-    /* Cards & panels - use for card surfaces */
-    --card: 0 0% 3%;
-    --card-foreground: 0 0% 98%;
+    --popover: 127 60% 4%;
+    --popover-foreground: 0 0% 96%;
 
-    --popover: 0 0% 2%;
-    --popover-foreground: 0 0% 98%;
-
-    /* PRIMARY: For buttons, main CTAs, primary action surfaces */
-    /* FFF Header Green #00914a */
-    --primary: 127 42% 49%;
-    --primary-foreground: 0 0% 98%;
+    /* PRIMARY: FFF Brand Green #09380e */
+    --primary: 127 78% 13%;
+    --primary-foreground: 0 0% 96%;
 
     /* TITLE TOKENS: Distinct from primary for independent branding control */
-    /* Title text color - white/light for dark theme */
-    --title-text: 0 0% 98%;
-    /* Title background - uses FFF green for title bars */
-    --title-bg: 152 100% 28%;
+    /* Title text color - white/light */
+    --title-text: 0 0% 96%;
+    /* Title background - FFF green for title bars */
+    --title-bg: 127 78% 13%;
 
-    /* Secondary */
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 98%;
+    /* Secondary - slightly lighter green */
+    --secondary: 127 60% 8%;
+    --secondary-foreground: 0 0% 96%;
 
-    --muted: 0 0% 8%;
+    --muted: 127 40% 10%;
     --muted-foreground: 0 0% 65%;
 
-    /* ACCENT: For highlights, links, badges, active states ONLY */
-    /* FFF Orange/Gold for accent - distinct from primary green */
-    --accent: 50 93% 46%;
-    --accent-foreground: 0 0% 5%;
+    /* ACCENT: FFF Gold #ffc805 - for highlights, links, badges ONLY */
+    --accent: 47 100% 51%;
+    --accent-foreground: 127 78% 13%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 10%;
-    --ring: 152 100% 28%;
+    --border: 127 40% 15%;
+    --input: 127 50% 10%;
+    --ring: 47 100% 51%;
 
     --radius: 0.625rem;
 
-    /* FFF Brand Tokens */
-    --fff-green: 152 100% 28%;
-    --fff-green-dark: 150 100% 25%;
-    --fff-text-green: 150 100% 25%;
+    /* FFF Brand Tokens - exact hex references */
+    --fff-green: 127 78% 13%;
+    --fff-green-dark: 127 78% 8%;
+    --fff-green-light: 127 60% 20%;
+    --fff-text-green: 127 78% 13%;
 
     /* Background colors */
-    --fff-dark: 0 0% 0.4%;
-    --fff-light: 0 0% 98%;
+    --fff-dark: 127 78% 2%;
+    --fff-light: 0 0% 96%;
 
-    /* Gold/Orange accent tokens */
-    --gold: 36 100% 50%;
-    --gold-muted: 36 90% 45%;
+    /* Gold accent tokens - FFF Gold #ffc805 */
+    --gold: 47 100% 51%;
+    --gold-muted: 47 90% 45%;
     --mint: 82 46% 74%;
     --mint-dim: 82 40% 60%;
 
-    /* FFF Orange/Gold accent for hover states */
-    --fff-orange: 36 100% 50%;
-    --fff-gold: 36 100% 50%;
-    --accent-gold: 36 100% 50%;
-    --accent-gold-dim: 36 90% 35%;
+    /* FFF Gold accent for hover states */
+    --fff-orange: 47 100% 51%;
+    --fff-gold: 47 100% 51%;
+    --accent-gold: 47 100% 51%;
+    --accent-gold-dim: 47 90% 40%;
 
-    /* Glossy green gradient for headers */
+    /* Glossy green gradient for headers - using FFF brand green */
     --glossy-green: linear-gradient(
       180deg,
-      hsl(152, 100%, 32%) 0%,
-      hsl(152, 100%, 28%) 40%,
-      hsl(152, 100%, 24%) 100%
+      hsl(127, 78%, 16%) 0%,
+      hsl(127, 78%, 13%) 40%,
+      hsl(127, 78%, 10%) 100%
     );
     --glossy-green-shine: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.05) 50%,
-      rgba(0, 0, 0, 0.1) 100%
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.04) 50%,
+      rgba(0, 0, 0, 0.15) 100%
     );
 
     /* Legacy text tokens - mapped to new system */
-    --text-primary: 0 0% 98%;
+    --text-primary: 0 0% 96%;
     --text-secondary: 0 0% 70%;
-    --light-green: 152 100% 28%;
-    --light-green-dim: 150 100% 25%;
-    --bg-dark: 0 0% 0.4%;
-    --bg-card: 0 0% 3%;
+    --light-green: 127 78% 13%;
+    --light-green-dim: 127 60% 10%;
+    --bg-dark: 127 78% 2%;
+    --bg-card: 127 60% 5%;
 
     /* Dark UI elements */
-    --header-bg: 152 100% 28%;
-    --footer-bg: 0 0% 0.4%;
-    --table-bg: 0 0% 3%;
-    --tab-bg: 0 0% 5%;
+    --header-bg: 127 78% 13%;
+    --footer-bg: 127 78% 2%;
+    --table-bg: 127 60% 5%;
+    --tab-bg: 127 50% 6%;
     --scrollbar-width: 0px;
-    --chart-1: 255 91% 76%;
-    --chart-2: 270 95% 75%;
-    --chart-3: 234 89% 73%;
-    --chart-4: 258 89% 66%;
-    --chart-5: 240 3% 46%;
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 240 5% 10%;
-    --sidebar-primary: 258 89% 66%;
-    --sidebar-primary-foreground: 250 100% 97%;
-    --sidebar-accent: 240 5% 33%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4% 83%;
-    --sidebar-ring: 258 89% 66%;
+    --chart-1: 47 100% 51%;
+    --chart-2: 127 78% 40%;
+    --chart-3: 47 90% 60%;
+    --chart-4: 127 60% 30%;
+    --chart-5: 0 0% 46%;
+    --sidebar: 127 78% 10%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 47 100% 51%;
+    --sidebar-primary-foreground: 127 78% 13%;
+    --sidebar-accent: 47 100% 51%;
+    --sidebar-accent-foreground: 127 78% 13%;
+    --sidebar-border: 127 40% 20%;
+    --sidebar-ring: 47 100% 51%;
     --font-sans: 'Montserrat', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     --font-serif: 'Cormorant Garamond', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
@@ -165,38 +160,39 @@ All colors MUST be HSL.
     --spacing: 0.25rem;
   }
   .dark {
-    --background: 240 5% 10%;
-    --foreground: 0 0% 98%;
-    --card: 240 3% 15%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 5% 26%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 255 91% 76%;
-    --primary-foreground: 261 72% 22%;
-    --secondary: 240 3% 46%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3% 46%;
-    --muted-foreground: 0 0% 98%;
-    --accent: 273 86% 20%;
-    --accent-foreground: 270 95% 75%;
+    /* Dark theme - same as root, FFF brand colors */
+    --background: 127 78% 3%;
+    --foreground: 0 0% 96%;
+    --card: 127 60% 5%;
+    --card-foreground: 0 0% 96%;
+    --popover: 127 60% 6%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 127 78% 13%;
+    --primary-foreground: 0 0% 96%;
+    --secondary: 127 60% 8%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 127 40% 10%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 47 100% 51%;
+    --accent-foreground: 127 78% 13%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 85% 97%;
-    --border: 240 5% 33%;
-    --input: 240 5% 33%;
-    --ring: 255 91% 76%;
-    --chart-1: 252 94% 85%;
-    --chart-2: 269 97% 85%;
-    --chart-3: 229 93% 81%;
-    --chart-4: 255 91% 76%;
-    --chart-5: 240 3% 46%;
-    --sidebar: 240 3% 15%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 255 91% 76%;
-    --sidebar-primary-foreground: 261 72% 22%;
-    --sidebar-accent: 270 95% 75%;
-    --sidebar-accent-foreground: 273 86% 20%;
-    --sidebar-border: 240 5% 33%;
-    --sidebar-ring: 255 91% 76%;
+    --border: 127 40% 15%;
+    --input: 127 50% 10%;
+    --ring: 47 100% 51%;
+    --chart-1: 47 100% 51%;
+    --chart-2: 127 78% 40%;
+    --chart-3: 47 90% 60%;
+    --chart-4: 127 60% 30%;
+    --chart-5: 0 0% 46%;
+    --sidebar: 127 78% 10%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 47 100% 51%;
+    --sidebar-primary-foreground: 127 78% 13%;
+    --sidebar-accent: 47 100% 51%;
+    --sidebar-accent-foreground: 127 78% 13%;
+    --sidebar-border: 127 40% 20%;
+    --sidebar-ring: 47 100% 51%;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-sm: 10px 10px 50px 10px hsla(0, 0%, 0%, 0.1);
