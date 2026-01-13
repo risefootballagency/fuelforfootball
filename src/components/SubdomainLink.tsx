@@ -9,9 +9,10 @@ interface SubdomainLinkProps {
   role: Exclude<RoleSubdomain, null>;
   children: React.ReactNode;
   className?: string;
+  title?: string;
 }
 
-export const SubdomainLink = ({ role, children, className }: SubdomainLinkProps) => {
+export const SubdomainLink = ({ role, children, className, title }: SubdomainLinkProps) => {
   const { getRoleUrl } = useRoleSubdomain();
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ export const SubdomainLink = ({ role, children, className }: SubdomainLinkProps)
     : getRoleUrl(role);
   
   return (
-    <a href={href} onClick={handleClick} className={className}>
+    <a href={href} onClick={handleClick} className={className} title={title}>
       {children}
     </a>
   );

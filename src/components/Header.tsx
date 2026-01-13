@@ -483,7 +483,7 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
 
           {/* Utility icons - animate from top bar into header */}
           {showTopBar && <>
-              {/* Left side icons - positioned relative to menu button */}
+          {/* Left side icons - positioned relative to menu button */}
               <div className="fixed flex items-center gap-1 md:gap-2 z-[90]" style={{
               left: getLeftIconOffset(),
               top: isScrolled ? "calc(0.75rem - 2px)" : "clamp(56px, 15vw, 82px)",
@@ -491,21 +491,55 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
               pointerEvents: isScrolled ? "auto" : "none",
               transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
             }}>
-                <Link to="/contact" className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" title={t("header.contact_us", "Contact Us")}>
-                  <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
-                  <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
-                    {t("header.contact_us", "Contact Us")}
-                  </span>
-                </Link>
-                <button onClick={() => setDeclareInterestOpen(true)} className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" title={t("header.declare_interest_short", "Declare Interest")}>
-                  <Users className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
-                  <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
-                    {t("header.declare_interest_short", "Declare Interest")}
-                  </span>
-                </button>
+                {subHeaderConfig.left.map((item, index) => {
+                  const IconComponent = item.icon;
+                  const label = t(item.labelKey, item.fallback);
+                  
+                  if (item.type === 'link') {
+                    return pathToRole[item.to!] ? (
+                      <SubdomainLink 
+                        key={`scrolled-left-${index}`}
+                        role={pathToRole[item.to!]} 
+                        className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" 
+                        title={label}
+                      >
+                        <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                          {label}
+                        </span>
+                      </SubdomainLink>
+                    ) : (
+                      <LocalizedLink 
+                        key={`scrolled-left-${index}`}
+                        to={item.to!} 
+                        className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" 
+                        title={label}
+                      >
+                        <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                          {label}
+                        </span>
+                      </LocalizedLink>
+                    );
+                  } else {
+                    return (
+                      <button 
+                        key={`scrolled-left-${index}`}
+                        onClick={() => handleSubHeaderAction(item.action)} 
+                        className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" 
+                        title={label}
+                      >
+                        <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                          {label}
+                        </span>
+                      </button>
+                    );
+                  }
+                })}
               </div>
               
-              {/* Right side icons - positioned relative to RISE WITH US button */}
+              {/* Right side icons - positioned relative to cart */}
               <div className="fixed flex items-center gap-1 md:gap-2 z-[90]" style={{
               right: getRightIconOffset(),
               top: isScrolled ? "calc(0.75rem - 2px)" : "clamp(56px, 15vw, 82px)",
@@ -513,18 +547,52 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
               pointerEvents: isScrolled ? "auto" : "none",
               transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
             }}>
-                <button onClick={() => setRepresentationOpen(true)} className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" title={t("header.request_representation", "Request Representation")}>
-                  <Handshake className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
-                  <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
-                    {t("header.request_representation", "Request Representation")}
-                  </span>
-                </button>
-                <LocalizedLink to="/login" className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" title={t("header.portal", "Portal")}>
-                  <LogIn className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
-                  <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
-                    {t("header.portal", "Portal")}
-                  </span>
-                </LocalizedLink>
+                {subHeaderConfig.right.map((item, index) => {
+                  const IconComponent = item.icon;
+                  const label = t(item.labelKey, item.fallback);
+                  
+                  if (item.type === 'link') {
+                    return pathToRole[item.to!] ? (
+                      <SubdomainLink 
+                        key={`scrolled-right-${index}`}
+                        role={pathToRole[item.to!]} 
+                        className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" 
+                        title={label}
+                      >
+                        <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                          {label}
+                        </span>
+                      </SubdomainLink>
+                    ) : (
+                      <LocalizedLink 
+                        key={`scrolled-right-${index}`}
+                        to={item.to!} 
+                        className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" 
+                        title={label}
+                      >
+                        <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                          {label}
+                        </span>
+                      </LocalizedLink>
+                    );
+                  } else {
+                    return (
+                      <button 
+                        key={`scrolled-right-${index}`}
+                        onClick={() => handleSubHeaderAction(item.action)} 
+                        className="group p-1.5 md:p-2 rounded-full hover:bg-primary/10 transition-all duration-300 flex items-center gap-1.5 overflow-hidden" 
+                        title={label}
+                      >
+                        <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                          {label}
+                        </span>
+                      </button>
+                    );
+                  }
+                })}
               </div>
             </>}
 
