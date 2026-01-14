@@ -535,18 +535,11 @@ const AnalysisViewer = () => {
         .from("analyses")
         .select("*")
         .eq("id", analysisId)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Supabase error:", error);
         throw error;
-      }
-      
-      if (!data) {
-        console.error("Analysis not found or access denied for ID:", analysisId);
-        toast.error("Analysis not found or you don't have permission to view it.");
-        setLoading(false);
-        return;
       }
       
       const parsedAnalysis: Analysis = {

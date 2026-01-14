@@ -992,11 +992,7 @@ const Dashboard = () => {
           .select("*")
           .in("id", linkedAnalysisIds);
 
-        if (allAnalysesError) {
-          console.error("Error fetching linked analyses:", allAnalysesError);
-        }
-
-        if (allAnalysesData && allAnalysesData.length > 0) {
+        if (!allAnalysesError && allAnalysesData) {
           // Separate concepts from other analyses and normalize
           const normalizedConcepts = allAnalysesData
             .filter(a => a.analysis_type === "concept")
