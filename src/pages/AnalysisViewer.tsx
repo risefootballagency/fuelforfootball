@@ -1,23 +1,19 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { ArrowLeft, ChevronDown, Play, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import fffLogo from "@/assets/fff-app-logo.png";
-
-// Brand colors
-const GOLD = "#fdc61b";
-const DARK_GREEN = "#12571e";
-const CONTENT_BG = "#c7d4ca";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import fffLogo from "@/assets/fff_logo.png";
 
 interface Analysis {
   id: string;
@@ -53,37 +49,22 @@ interface Analysis {
   video_url: string | null;
 }
 
-// Tactical symbols SVG for background
-const TacticalSymbols = () => (
-  <svg className="absolute inset-0 w-full h-full opacity-15 pointer-events-none" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <pattern id="tacticalPattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
-        {/* X symbols */}
-        <g stroke={GOLD} strokeWidth="2" fill="none">
-          <line x1="10" y1="10" x2="25" y2="25" />
-          <line x1="25" y1="10" x2="10" y2="25" />
-        </g>
-        <g stroke={GOLD} strokeWidth="2" fill="none">
-          <line x1="85" y1="70" x2="100" y2="85" />
-          <line x1="100" y1="70" x2="85" y2="85" />
-        </g>
-        {/* O symbols */}
-        <circle cx="60" cy="20" r="10" stroke={GOLD} strokeWidth="2" fill="none" />
-        <circle cx="30" cy="90" r="8" stroke={GOLD} strokeWidth="2" fill="none" />
-        {/* Arrows */}
-        <g stroke={GOLD} strokeWidth="2" fill="none">
-          <line x1="70" y1="50" x2="100" y2="50" />
-          <polyline points="92,44 100,50 92,56" />
-        </g>
-        <g stroke={GOLD} strokeWidth="2" fill="none">
-          <path d="M 10,60 Q 25,45 40,60" />
-          <polyline points="35,54 40,60 34,64" />
-        </g>
-      </pattern>
-    </defs>
-    <rect width="100%" height="100%" fill="url(#tacticalPattern)" />
-  </svg>
-);
+// Brand colors
+const BRAND = {
+  gold: "#fdc61b",
+  darkGreen: "#12571e",
+  contentBg: "#c7d4ca",
+};
+
+// Section IDs for quick navigation
+const SECTION_IDS = {
+  overview: "section-overview",
+  strengths: "section-strengths",
+  weaknesses: "section-weaknesses",
+  matchups: "section-matchups",
+  scheme: "section-scheme",
+  improvements: "section-improvements",
+};
 
 // Kit SVG Component
 const PlayerKit = ({ primaryColor, secondaryColor, number }: { primaryColor: string; secondaryColor: string; number: string }) => (
@@ -97,142 +78,179 @@ const PlayerKit = ({ primaryColor, secondaryColor, number }: { primaryColor: str
   </svg>
 );
 
-// Section title bar with grass texture
-const SectionTitleBar = ({ title }: { title: string }) => (
-  <div className="relative overflow-hidden rounded-lg">
-    {/* Dark green accent bar on top */}
-    <div className="h-2" style={{ backgroundColor: DARK_GREEN }} />
-    {/* Grass texture title bar */}
+// Tactical symbols SVG background
+const TacticalSymbols = () => (
+  <svg 
+    className="absolute inset-0 w-full h-full pointer-events-none"
+    preserveAspectRatio="xMidYMid slice"
+  >
+    <defs>
+      <pattern id="tacticalPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+        {/* X symbols */}
+        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.12">
+          <line x1="20" y1="20" x2="40" y2="40" />
+          <line x1="40" y1="20" x2="20" y2="40" />
+        </g>
+        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.1">
+          <line x1="120" y1="80" x2="140" y2="100" />
+          <line x1="140" y1="80" x2="120" y2="100" />
+        </g>
+        {/* O symbols */}
+        <circle cx="80" cy="30" r="12" stroke={BRAND.gold} strokeWidth="2" fill="none" opacity="0.1" />
+        <circle cx="160" cy="160" r="15" stroke={BRAND.gold} strokeWidth="2" fill="none" opacity="0.12" />
+        {/* Arrows */}
+        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.08" fill="none">
+          <path d="M50 120 L80 120 L75 115 M80 120 L75 125" />
+          <path d="M150 50 L150 80 L145 75 M150 80 L155 75" />
+        </g>
+        {/* Dashed lines */}
+        <line x1="10" y1="150" x2="60" y2="180" stroke={BRAND.gold} strokeWidth="1.5" strokeDasharray="8 4" opacity="0.08" />
+        <line x1="100" y1="10" x2="180" y2="50" stroke={BRAND.gold} strokeWidth="1.5" strokeDasharray="8 4" opacity="0.1" />
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#tacticalPattern)" />
+  </svg>
+);
+
+// Grass section wrapper with tactical symbols
+const GrassSection = ({ 
+  children, 
+  id,
+  className = "" 
+}: { 
+  children: React.ReactNode; 
+  id?: string;
+  className?: string;
+}) => (
+  <section 
+    id={id}
+    className={`relative w-full ${className}`}
+    style={{
+      backgroundImage: `url('/analysis-grass-bg.png')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }}
+  >
+    <TacticalSymbols />
+    <div className="relative px-4 md:px-6 py-6 md:py-8">
+      {children}
+    </div>
+    {/* White separator line */}
+    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/60" />
+  </section>
+);
+
+// Section title with grass effect and green overlay
+const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => (
+  <div className="relative mb-4">
+    {/* Dark green bar */}
     <div 
-      className="py-3 md:py-4 bg-cover bg-center"
-      style={{ backgroundImage: `url('/analysis-grass-bg.png')` }}
+      className="py-2.5 md:py-3"
+      style={{ backgroundColor: BRAND.darkGreen }}
     >
-      <h2 
-        className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center"
-        style={{ color: GOLD }}
-      >
-        {title}
-      </h2>
+      {/* Grass effect bar on top */}
+      <div 
+        className="absolute inset-x-0 -top-2 h-3 md:h-4"
+        style={{
+          backgroundImage: `url('/analysis-grass-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center bottom'
+        }}
+      />
+      <div className="flex items-center justify-center gap-3">
+        {icon === "plus" && (
+          <Plus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
+        )}
+        {icon === "minus" && (
+          <Minus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
+        )}
+        <h2 
+          className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center"
+          style={{ color: BRAND.gold }}
+        >
+          {title}
+        </h2>
+      </div>
     </div>
   </div>
 );
 
-// Content card with proper styling
+// Content card with the correct background
 const ContentCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <div 
     className={`rounded-lg p-4 md:p-6 ${className}`}
-    style={{ backgroundColor: CONTENT_BG }}
+    style={{ backgroundColor: BRAND.contentBg }}
   >
-    <div className="text-black">
-      {children}
-    </div>
+    {children}
   </div>
 );
 
-// Auto-expanding section component
+// Auto-expanding section that opens when scrolled into view (no auto-scroll)
 const AutoExpandSection = ({ 
   title, 
   children, 
   id,
   defaultOpen = false,
-  isStrength = false,
-  isWeakness = false,
+  icon
 }: { 
   title: string; 
   children: React.ReactNode; 
   id?: string;
   defaultOpen?: boolean;
-  isStrength?: boolean;
-  isWeakness?: boolean;
+  icon?: "plus" | "minus" | null;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { margin: "-30% 0px -50% 0px" });
+  const isInView = useInView(ref, { margin: "-20% 0px -60% 0px" });
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   useEffect(() => {
+    // Only auto-open, don't auto-scroll
     if (isInView && !isOpen) {
       setIsOpen(true);
+    } else if (!isInView && isOpen && !defaultOpen) {
+      setIsOpen(false);
     }
   }, [isInView]);
 
   return (
-    <section id={id} className="relative">
-      {/* White separator line */}
-      <div className="h-px bg-white/60" />
-      
-      {/* Grass background section */}
-      <div 
-        ref={ref}
-        className="relative py-4 md:py-6 px-6 md:px-8 bg-cover bg-center"
-        style={{ backgroundImage: `url('/analysis-grass-bg.png')` }}
+    <GrassSection id={id}>
+      <motion.div 
+        ref={ref} 
+        className="w-full overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ once: true }}
       >
-        {/* Tactical symbols background */}
-        <TacticalSymbols />
-        
-        <motion.div 
-          className="relative z-10"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full"
         >
-          {/* Title bar - clickable */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="w-full mb-4"
+          <SectionTitle title={title} icon={icon} />
+          <motion.div
+            className="flex justify-center -mt-2 mb-2"
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className="relative overflow-hidden rounded-lg">
-              {/* Dark green accent on top */}
-              <div className="h-2" style={{ backgroundColor: DARK_GREEN }} />
-              {/* Grass texture bar */}
-              <div 
-                className="py-3 md:py-4 bg-cover bg-center flex items-center justify-center gap-3"
-                style={{ backgroundImage: `url('/analysis-grass-bg.png')` }}
-              >
-                {isStrength && (
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: GOLD }}>
-                    <Plus className="w-4 h-4 text-black" />
-                  </div>
-                )}
-                {isWeakness && (
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: GOLD }}>
-                    <Minus className="w-4 h-4 text-black" />
-                  </div>
-                )}
-                <h2 
-                  className="text-xl md:text-2xl font-bebas uppercase tracking-widest"
-                  style={{ color: GOLD }}
-                >
-                  {title}
-                </h2>
-                <motion.div
-                  animate={{ rotate: isOpen ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ChevronDown className="w-5 h-5" style={{ color: GOLD }} />
-                </motion.div>
-              </div>
-            </div>
-          </button>
-
-          {/* Content */}
-          <AnimatePresence initial={false}>
-            {isOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-              >
-                <ContentCard>
-                  {children}
-                </ContentCard>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </div>
-    </section>
+            <ChevronDown className="w-5 h-5" style={{ color: BRAND.gold }} />
+          </motion.div>
+        </button>
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+            >
+              <ContentCard>
+                {children}
+              </ContentCard>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </GrassSection>
   );
 };
 
@@ -253,7 +271,7 @@ const TextReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?
   );
 };
 
-// Header component with FFF logo, back button, and VS design
+// Main Header with FFF Logo, branding, and VS component
 const AnalysisHeader = ({ 
   homeTeam, 
   awayTeam, 
@@ -264,8 +282,7 @@ const AnalysisHeader = ({
   homeScore,
   awayScore,
   matchDate,
-  isPostMatch = false,
-  matchImageUrl
+  isPostMatch = false
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -277,50 +294,78 @@ const AnalysisHeader = ({
   awayScore?: number | null;
   matchDate?: string | null;
   isPostMatch?: boolean;
-  matchImageUrl?: string | null;
 }) => {
   const navigate = useNavigate();
   
   return (
     <motion.div 
       className="w-full relative"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      style={{ borderColor: GOLD, borderWidth: '3px', borderStyle: 'solid' }}
+      style={{ 
+        borderLeft: `4px solid ${BRAND.gold}`,
+        borderRight: `4px solid ${BRAND.gold}`,
+        borderTop: `4px solid ${BRAND.gold}`,
+      }}
     >
-      {/* Top section with logo and back button - grass background */}
+      {/* Top section with logo and back button */}
       <div 
-        className="relative py-4 md:py-6 bg-cover bg-center"
-        style={{ backgroundImage: `url('/analysis-grass-bg.png')` }}
+        className="relative py-4 px-4"
+        style={{
+          backgroundImage: `url('/analysis-grass-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
       >
-        {/* Tactical symbols */}
-        <TacticalSymbols />
-        
-        <div className="relative z-10 flex flex-col items-center gap-3">
+        {/* Club logos positioned either side of back button */}
+        <div className="absolute left-4 top-8 md:top-6 w-16 h-16 md:w-24 md:h-24 z-10">
+          {homeLogo && (
+            <img 
+              src={homeLogo} 
+              alt="" 
+              className="w-full h-full object-contain drop-shadow-lg"
+            />
+          )}
+        </div>
+        <div className="absolute right-4 top-8 md:top-6 w-16 h-16 md:w-24 md:h-24 z-10">
+          {awayLogo && (
+            <img 
+              src={awayLogo} 
+              alt="" 
+              className="w-full h-full object-contain drop-shadow-lg"
+            />
+          )}
+        </div>
+
+        {/* Center content - Logo, tagline, back button */}
+        <div className="flex flex-col items-center justify-center">
           {/* FFF Logo */}
           <img 
             src={fffLogo} 
             alt="Fuel For Football" 
-            className="w-16 h-16 md:w-20 md:h-20 object-contain"
+            className="w-16 h-16 md:w-20 md:h-20 object-contain mb-1"
           />
           
           {/* Brand text */}
-          <div className="text-center">
-            <h1 className="text-white font-bebas text-lg md:text-xl tracking-wider uppercase">
+          <div className="text-center mb-2">
+            <h1 className="text-white text-sm md:text-base font-bebas tracking-wider uppercase">
               Fuel For Football
             </h1>
-            <p className="text-sm md:text-base italic" style={{ color: GOLD }}>
+            <p 
+              className="text-xs md:text-sm font-bebas italic tracking-wide"
+              style={{ color: BRAND.gold }}
+            >
               Change The Game
             </p>
           </div>
-          
-          {/* Back button */}
+
+          {/* Back Button */}
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate(-1)}
-            className="bg-black/50 backdrop-blur-sm text-white border-white/30 hover:bg-white hover:text-black"
+            className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
@@ -328,141 +373,148 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Team logos positioned to pop out above color bars */}
-      <div className="relative">
-        {/* Logos container - positioned above the color bars */}
-        <div className="absolute left-0 right-0 -top-8 md:-top-12 z-20 flex justify-between px-4 md:px-8">
-          {/* Home Team Logo */}
+      {/* VS Design Component with team colors */}
+      <div className="relative h-20 md:h-28 overflow-visible">
+        {/* Left Side - Home Team Color */}
+        <div 
+          className="absolute left-0 top-0 bottom-0 w-1/2"
+          style={{ 
+            backgroundColor: homeBgColor || '#1a1a1a',
+            clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
+          }}
+        >
+          {/* Home Team Logo - Behind and popping out from top */}
           {homeLogo && (
-            <div className="w-16 h-20 md:w-24 md:h-28">
-              <img 
-                src={homeLogo} 
-                alt={homeTeam || "Home"} 
-                className="w-full h-full object-contain drop-shadow-lg"
-              />
+            <div 
+              className="absolute -top-8 md:-top-12 left-1/2 -translate-x-1/2 w-20 h-20 md:w-28 md:h-28 opacity-40 z-0"
+            >
+              <img src={homeLogo} alt="" className="w-full h-full object-contain" />
             </div>
           )}
-          {/* Away Team Logo */}
-          {awayLogo && (
-            <div className="w-16 h-20 md:w-24 md:h-28">
-              <img 
-                src={awayLogo} 
-                alt={awayTeam || "Away"} 
-                className="w-full h-full object-contain drop-shadow-lg"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* VS Color Bars */}
-        <div className="relative h-16 md:h-20 overflow-hidden">
-          {/* Left Side - Home Team Color */}
-          <div 
-            className="absolute left-0 top-0 bottom-0 w-1/2 flex items-center justify-center"
-            style={{ backgroundColor: homeBgColor || '#1a1a1a' }}
-          >
-            <span className="text-lg md:text-2xl font-bebas text-white tracking-wider uppercase text-center px-2">
+          {/* Home Team Name */}
+          <div className="absolute inset-0 flex items-center justify-center pr-4 md:pr-8">
+            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2 relative z-10">
               {homeTeam}
             </span>
           </div>
+        </div>
 
-          {/* Right Side - Away Team Color */}
-          <div 
-            className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center"
-            style={{ backgroundColor: awayBgColor || '#8B0000' }}
-          >
-            <span className="text-lg md:text-2xl font-bebas text-white tracking-wider uppercase text-center px-2">
+        {/* Right Side - Away Team Color */}
+        <div 
+          className="absolute right-0 top-0 bottom-0 w-1/2"
+          style={{ 
+            backgroundColor: awayBgColor || '#8B0000',
+            clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
+          }}
+        >
+          {/* Away Team Logo - Behind and popping out from top */}
+          {awayLogo && (
+            <div 
+              className="absolute -top-8 md:-top-12 left-1/2 -translate-x-1/2 w-20 h-20 md:w-28 md:h-28 opacity-40 z-0"
+            >
+              <img src={awayLogo} alt="" className="w-full h-full object-contain" />
+            </div>
+          )}
+          {/* Away Team Name */}
+          <div className="absolute inset-0 flex items-center justify-center pl-4 md:pl-8">
+            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2 relative z-10">
               {awayTeam}
             </span>
           </div>
-
-          {/* Center divider / Score */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-            {isPostMatch && homeScore !== null && awayScore !== null ? (
-              <div 
-                className="rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shadow-lg border-2 border-white"
-                style={{ backgroundColor: DARK_GREEN }}
-              >
-                <span className="text-white text-lg md:text-xl font-bebas font-bold">
-                  {homeScore} - {awayScore}
-                </span>
-              </div>
-            ) : (
-              <div className="w-1 h-full bg-white" />
-            )}
-          </div>
         </div>
 
-        {/* Match Date */}
-        {matchDate && (
-          <div 
-            className="text-center py-2"
-            style={{ backgroundColor: DARK_GREEN }}
-          >
-            <span className="text-white font-bebas tracking-wider text-sm md:text-base">
-              ({new Date(matchDate).toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              })})
-            </span>
-          </div>
-        )}
+        {/* VS Badge - Center */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+          {isPostMatch && homeScore !== null && awayScore !== null ? (
+            <div 
+              className="rounded-full w-14 h-14 md:w-18 md:h-18 flex items-center justify-center shadow-lg border-2 border-white"
+              style={{ backgroundColor: BRAND.gold }}
+            >
+              <span className="text-black text-lg md:text-xl font-bebas font-bold">
+                {homeScore} - {awayScore}
+              </span>
+            </div>
+          ) : (
+            <div className="bg-black rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border-3 border-white shadow-lg">
+              <span className="text-white text-base md:text-lg font-bebas font-bold">VS</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Match Image - still part of header */}
-      {matchImageUrl && (
-        <div className="w-full">
-          <img 
-            src={matchImageUrl} 
-            alt="Match" 
-            className="w-full max-h-[40vh] md:max-h-[50vh] object-cover"
-          />
-        </div>
-      )}
+      {/* Match Date and Teams Line */}
+      <div 
+        className="text-center py-2 md:py-3"
+        style={{ backgroundColor: BRAND.darkGreen }}
+      >
+        <span className="text-white font-bebas tracking-wider text-xs md:text-sm">
+          {homeTeam} – {awayTeam}
+        </span>
+        {matchDate && (
+          <span className="block text-white/80 text-xs mt-0.5">
+            ({new Date(matchDate).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            })})
+          </span>
+        )}
+      </div>
     </motion.div>
   );
 };
 
 // Quick Navigation Dropdown
-const QuickNavDropdown = ({ sections, onSelect }: { 
-  sections: { id: string; label: string }[];
-  onSelect: (id: string) => void;
-}) => (
-  <div 
-    className="sticky top-0 z-40 py-3 px-4"
-    style={{ backgroundColor: DARK_GREEN }}
+const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string }[] }) => (
+  <motion.div 
+    className="sticky top-0 z-40 py-2 px-4"
+    style={{ 
+      backgroundColor: BRAND.darkGreen,
+      borderLeft: `4px solid ${BRAND.gold}`,
+      borderRight: `4px solid ${BRAND.gold}`,
+    }}
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.5 }}
   >
-    <Select onValueChange={onSelect}>
-      <SelectTrigger 
-        className="w-full max-w-xs mx-auto text-sm font-bebas uppercase tracking-wider"
-        style={{ 
-          backgroundColor: 'rgba(0,0,0,0.3)', 
-          borderColor: GOLD,
-          color: GOLD 
-        }}
-      >
-        <SelectValue placeholder="Jump to Section..." />
-      </SelectTrigger>
-      <SelectContent 
-        style={{ 
-          backgroundColor: DARK_GREEN,
-          borderColor: GOLD 
-        }}
-      >
-        {sections.map((section) => (
-          <SelectItem 
-            key={section.id} 
-            value={section.id}
-            className="font-bebas uppercase tracking-wider cursor-pointer"
-            style={{ color: GOLD }}
+    <div className="flex justify-center">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs md:text-sm border-white/30 hover:bg-white/10"
+            style={{ 
+              backgroundColor: 'transparent',
+              color: BRAND.gold,
+              borderColor: BRAND.gold
+            }}
           >
-            {section.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
+            Jump to Section
+            <ChevronDown className="w-4 h-4 ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent 
+          className="min-w-[200px]"
+          style={{ backgroundColor: BRAND.darkGreen, borderColor: BRAND.gold }}
+        >
+          {sections.map((section) => (
+            <DropdownMenuItem
+              key={section.id}
+              onClick={() => {
+                const el = document.getElementById(section.id);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="cursor-pointer hover:bg-white/10 text-white"
+              style={{ color: BRAND.gold }}
+            >
+              {section.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  </motion.div>
 );
 
 const AnalysisViewer = () => {
@@ -515,11 +567,6 @@ const AnalysisViewer = () => {
     }
   };
 
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -554,36 +601,39 @@ const AnalysisViewer = () => {
   const isPostMatch = analysis.analysis_type === "post-match";
   const isConcept = analysis.analysis_type === "concept";
 
-  // Build sections for dropdown
-  const navSections: { id: string; label: string }[] = [];
-  if (analysis.key_details) navSections.push({ id: "section-overview", label: "Overview" });
-  if (analysis.opposition_strengths) navSections.push({ id: "section-strengths", label: "Opposition Strengths" });
-  if (analysis.opposition_weaknesses) navSections.push({ id: "section-weaknesses", label: "Opposition Weaknesses" });
-  if (analysis.matchups?.length > 0) navSections.push({ id: "section-matchups", label: "Potential Matchups" });
-  if (analysis.scheme_title || analysis.selected_scheme) navSections.push({ id: "section-scheme", label: analysis.scheme_title || "Tactical Scheme" });
-  if (analysis.strengths_improvements) navSections.push({ id: "section-improvements", label: "Strengths & Improvements" });
+  // Build quick nav sections based on available content
+  const navSections = [];
+  if (analysis.key_details) navSections.push({ id: SECTION_IDS.overview, label: "Overview" });
+  if (analysis.opposition_strengths) navSections.push({ id: SECTION_IDS.strengths, label: "Opposition Strengths" });
+  if (analysis.opposition_weaknesses) navSections.push({ id: SECTION_IDS.weaknesses, label: "Opposition Weaknesses" });
+  if (analysis.matchups?.length > 0) navSections.push({ id: SECTION_IDS.matchups, label: "Potential Matchups" });
+  if (analysis.scheme_title || analysis.selected_scheme) navSections.push({ id: SECTION_IDS.scheme, label: "Scheme" });
+  if (analysis.strengths_improvements) navSections.push({ id: SECTION_IDS.improvements, label: "Improvements" });
+  // Add points to nav
   if (analysis.points && analysis.points.length > 0) {
-    analysis.points.forEach((point: any, idx: number) => {
-      navSections.push({ id: `section-point-${idx}`, label: point.title });
+    analysis.points.forEach((point: any, index: number) => {
+      navSections.push({ id: `section-point-${index}`, label: point.title });
     });
   }
 
   return (
-    <div className="min-h-screen bg-background relative">
-      {/* Gold vertical lines - 4px from edges */}
+    <div 
+      className="min-h-screen bg-background relative"
+    >
+      {/* Gold border lines running down sides - but only below the header */}
       <div 
-        className="fixed left-1 top-0 bottom-0 w-0.5 z-30 pointer-events-none"
-        style={{ backgroundColor: GOLD }}
+        className="fixed top-0 bottom-0 left-[4px] w-[4px] z-30 pointer-events-none"
+        style={{ backgroundColor: BRAND.gold }}
       />
       <div 
-        className="fixed right-1 top-0 bottom-0 w-0.5 z-30 pointer-events-none"
-        style={{ backgroundColor: GOLD }}
+        className="fixed top-0 bottom-0 right-[4px] w-[4px] z-30 pointer-events-none"
+        style={{ backgroundColor: BRAND.gold }}
       />
 
       {/* Video Button - Fixed */}
       {analysis.video_url && (
         <motion.div 
-          className="fixed bottom-4 right-4 z-50"
+          className="fixed bottom-4 right-8 z-50"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
@@ -591,7 +641,7 @@ const AnalysisViewer = () => {
           <Button
             onClick={() => window.open(analysis.video_url!, '_blank')}
             className="font-bebas uppercase tracking-wider shadow-lg"
-            style={{ backgroundColor: GOLD, color: 'black' }}
+            style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Play className="w-4 h-4 mr-2" />
             Watch Video
@@ -599,8 +649,7 @@ const AnalysisViewer = () => {
         </motion.div>
       )}
 
-      {/* Main content - inset from gold lines */}
-      <main className="w-full mx-auto" style={{ padding: '0 8px' }}>
+      <main className="w-full mx-auto" style={{ marginLeft: '4px', marginRight: '4px', maxWidth: 'calc(100% - 8px)' }}>
         {/* Pre-Match Content */}
         {isPreMatch && (
           <div className="w-full">
@@ -612,19 +661,35 @@ const AnalysisViewer = () => {
               homeBgColor={analysis.home_team_bg_color}
               awayBgColor={analysis.away_team_bg_color}
               matchDate={analysis.match_date}
-              matchImageUrl={analysis.match_image_url}
             />
 
             {/* Quick Nav Dropdown */}
-            {navSections.length > 0 && (
-              <QuickNavDropdown sections={navSections} onSelect={scrollToSection} />
+            {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
+
+            {/* Match Image - with gold border */}
+            {analysis.match_image_url && (
+              <ScrollReveal className="w-full">
+                <div 
+                  className="w-full"
+                  style={{ 
+                    borderLeft: `4px solid ${BRAND.gold}`,
+                    borderRight: `4px solid ${BRAND.gold}`,
+                  }}
+                >
+                  <img 
+                    src={analysis.match_image_url} 
+                    alt="Match" 
+                    className="w-full max-h-[50vh] md:max-h-[60vh] object-cover"
+                  />
+                </div>
+              </ScrollReveal>
             )}
 
             {/* Overview Section */}
             {analysis.key_details && (
-              <AutoExpandSection title="Overview" id="section-overview" defaultOpen>
+              <AutoExpandSection title="Overview" id={SECTION_IDS.overview}>
                 <TextReveal>
-                  <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-base md:text-lg">
                     {analysis.key_details}
                   </p>
                 </TextReveal>
@@ -633,7 +698,7 @@ const AnalysisViewer = () => {
 
             {/* Opposition Strengths */}
             {analysis.opposition_strengths && (
-              <AutoExpandSection title="Opposition Strengths" id="section-strengths" isStrength>
+              <AutoExpandSection title="Opposition Strengths" id={SECTION_IDS.strengths} icon="plus">
                 <div className="space-y-3">
                   {analysis.opposition_strengths.split('\n').filter(line => line.trim()).map((line, idx) => {
                     const cleanLine = line.trim().replace(/^[-•]\s*/, '');
@@ -641,12 +706,12 @@ const AnalysisViewer = () => {
                       <TextReveal key={idx} delay={idx * 0.1}>
                         <div className="flex items-start gap-3">
                           <div 
-                            className="rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5"
-                            style={{ backgroundColor: GOLD }}
+                            className="rounded-full w-6 h-6 md:w-8 md:h-8 flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: BRAND.gold }}
                           >
-                            <span className="text-black font-bold text-sm">•</span>
+                            <Plus className="w-4 h-4 md:w-5 md:h-5 text-black" />
                           </div>
-                          <p className="text-sm md:text-base leading-relaxed italic">{cleanLine}</p>
+                          <p className="text-black text-sm md:text-base leading-relaxed pt-0.5 italic">{cleanLine}</p>
                         </div>
                       </TextReveal>
                     );
@@ -657,7 +722,7 @@ const AnalysisViewer = () => {
 
             {/* Opposition Weaknesses */}
             {analysis.opposition_weaknesses && (
-              <AutoExpandSection title="Opposition Weaknesses" id="section-weaknesses" isWeakness>
+              <AutoExpandSection title="Opposition Weaknesses" id={SECTION_IDS.weaknesses} icon="minus">
                 <div className="space-y-3">
                   {analysis.opposition_weaknesses.split('\n').filter(line => line.trim()).map((line, idx) => {
                     const cleanLine = line.trim().replace(/^[-•]\s*/, '');
@@ -665,12 +730,12 @@ const AnalysisViewer = () => {
                       <TextReveal key={idx} delay={idx * 0.1}>
                         <div className="flex items-start gap-3">
                           <div 
-                            className="rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5"
-                            style={{ backgroundColor: GOLD }}
+                            className="rounded-full w-6 h-6 md:w-8 md:h-8 flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: BRAND.gold }}
                           >
-                            <span className="text-black font-bold text-sm">•</span>
+                            <Minus className="w-4 h-4 md:w-5 md:h-5 text-black" />
                           </div>
-                          <p className="text-sm md:text-base leading-relaxed italic">{cleanLine}</p>
+                          <p className="text-black text-sm md:text-base leading-relaxed pt-0.5 italic">{cleanLine}</p>
                         </div>
                       </TextReveal>
                     );
@@ -679,14 +744,14 @@ const AnalysisViewer = () => {
               </AutoExpandSection>
             )}
 
-            {/* Key Matchups - transparent background */}
+            {/* Key Matchups - Transparent background */}
             {analysis.matchups && analysis.matchups.length > 0 && (
-              <AutoExpandSection title="Potential Matchup(s)" id="section-matchups">
+              <AutoExpandSection title="Potential Matchup(s)" id={SECTION_IDS.matchups}>
                 <div className="flex justify-center items-center gap-4 md:gap-8 flex-wrap bg-transparent">
                   {analysis.matchups.map((matchup: any, index: number) => (
                     <TextReveal key={index} delay={index * 0.15}>
-                      <div className="text-center w-28 md:w-36">
-                        <div className="mb-2 rounded-lg overflow-hidden border-2 aspect-square flex items-center justify-center shadow-lg bg-white/50" style={{ borderColor: GOLD }}>
+                      <div className="text-center w-28 md:w-40">
+                        <div className="mb-2 md:mb-3 rounded-lg overflow-hidden border-2 aspect-square flex items-center justify-center shadow-lg" style={{ borderColor: BRAND.gold }}>
                           {matchup.image_url ? (
                             <img
                               src={matchup.image_url}
@@ -694,12 +759,12 @@ const AnalysisViewer = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="text-gray-500 text-xs">No image</div>
+                            <div className="text-black/50 text-xs md:text-sm bg-white/50 w-full h-full flex items-center justify-center">No image</div>
                           )}
                         </div>
-                        <p className="font-bold text-sm md:text-base">{matchup.name}</p>
+                        <p className="font-bold text-black text-sm md:text-lg">{matchup.name}</p>
                         {matchup.shirt_number && (
-                          <p className="text-xs font-semibold" style={{ color: DARK_GREEN }}>
+                          <p className="text-xs md:text-sm font-semibold" style={{ color: BRAND.darkGreen }}>
                             #{matchup.shirt_number}
                           </p>
                         )}
@@ -712,11 +777,11 @@ const AnalysisViewer = () => {
 
             {/* Scheme Section */}
             {(analysis.scheme_title || analysis.selected_scheme) && (
-              <AutoExpandSection title={analysis.scheme_title || "Tactical Scheme"} id="section-scheme">
+              <AutoExpandSection title={analysis.scheme_title || "Tactical Scheme"} id={SECTION_IDS.scheme}>
                 <div className="space-y-4 md:space-y-6">
                   {analysis.scheme_paragraph_1 && (
                     <TextReveal>
-                      <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                      <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                         {analysis.scheme_paragraph_1}
                       </p>
                     </TextReveal>
@@ -724,7 +789,7 @@ const AnalysisViewer = () => {
                   
                   {analysis.selected_scheme && (
                     <TextReveal delay={0.2}>
-                      <div className="relative bg-gradient-to-b from-green-700 to-green-800 rounded-lg p-4 md:p-8 min-h-[350px] md:min-h-[500px] border-4 border-white/20 shadow-xl">
+                      <div className="relative bg-gradient-to-b from-green-700 to-green-800 rounded-lg p-4 md:p-8 min-h-[400px] md:min-h-[600px] border-4 shadow-xl" style={{ borderColor: BRAND.gold }}>
                         <div className="text-white text-center mb-4 text-xl md:text-2xl font-bebas tracking-wider">
                           {analysis.selected_scheme}
                         </div>
@@ -732,27 +797,31 @@ const AnalysisViewer = () => {
                         <div className="absolute inset-4 md:inset-8 border-2 border-white/30 rounded-lg"></div>
                         <div className="absolute inset-x-4 md:inset-x-8 top-1/2 h-0.5 bg-white/30"></div>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-20 md:h-20 border-2 border-white/30 rounded-full"></div>
+                        <div className="absolute left-1/2 -translate-x-1/2 top-4 md:top-8 w-32 md:w-48 h-16 md:h-24 border-2 border-white/30 border-t-0"></div>
+                        <div className="absolute left-1/2 -translate-x-1/2 top-4 md:top-8 w-16 md:w-24 h-8 md:h-12 border-2 border-white/30 border-t-0"></div>
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-8 w-32 md:w-48 h-16 md:h-24 border-2 border-white/30 border-b-0"></div>
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-8 w-16 md:w-24 h-8 md:h-12 border-2 border-white/30 border-b-0"></div>
                         
                         {analysis.starting_xi && analysis.starting_xi.length > 0 && (
                           <div className="absolute inset-0 p-4 md:p-8">
                             {analysis.starting_xi.map((player: any, index: number) => (
                               <div
                                 key={index}
-                                className="absolute flex flex-col items-center gap-0.5"
+                                className="absolute flex flex-col items-center gap-0.5 md:gap-1"
                                 style={{
                                   left: `${player.x}%`,
                                   top: `${player.y}%`,
                                   transform: 'translate(-50%, -50%)'
                                 }}
                               >
-                                <div className="scale-50 md:scale-75">
+                                <div className="scale-50 md:scale-100">
                                   <PlayerKit 
                                     primaryColor={analysis.kit_primary_color || '#FFD700'}
                                     secondaryColor={analysis.kit_secondary_color || '#000000'}
                                     number={player.number || '0'}
                                   />
                                 </div>
-                                <div className="bg-black/80 text-white px-1.5 py-0.5 rounded text-[9px] md:text-xs font-bold whitespace-nowrap">
+                                <div className="bg-black/80 text-white px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs font-bold whitespace-nowrap">
                                   {player.surname || player.position}
                                 </div>
                               </div>
@@ -765,7 +834,7 @@ const AnalysisViewer = () => {
                   
                   {analysis.scheme_paragraph_2 && (
                     <TextReveal delay={0.3}>
-                      <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                      <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                         {analysis.scheme_paragraph_2}
                       </p>
                     </TextReveal>
@@ -783,10 +852,10 @@ const AnalysisViewer = () => {
                     title={point.title}
                     id={`section-point-${index}`}
                   >
-                    <div className="space-y-4">
+                    <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
                         <TextReveal>
-                          <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_1}
                           </p>
                         </TextReveal>
@@ -799,8 +868,8 @@ const AnalysisViewer = () => {
                                 key={imgIndex}
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full max-w-3xl rounded-lg shadow-md"
-                                style={{ border: `2px solid ${GOLD}` }}
+                                className="w-full max-w-4xl rounded-lg shadow-md border-2"
+                                style={{ borderColor: BRAND.gold }}
                               />
                             ))}
                           </div>
@@ -808,7 +877,7 @@ const AnalysisViewer = () => {
                       )}
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
-                          <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_2}
                           </p>
                         </TextReveal>
@@ -835,19 +904,35 @@ const AnalysisViewer = () => {
               awayScore={analysis.away_score}
               matchDate={analysis.match_date}
               isPostMatch
-              matchImageUrl={analysis.player_image_url}
             />
 
             {/* Quick Nav Dropdown */}
-            {navSections.length > 0 && (
-              <QuickNavDropdown sections={navSections} onSelect={scrollToSection} />
+            {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
+
+            {/* Player Image */}
+            {analysis.player_image_url && (
+              <ScrollReveal className="w-full">
+                <div 
+                  className="w-full"
+                  style={{ 
+                    borderLeft: `4px solid ${BRAND.gold}`,
+                    borderRight: `4px solid ${BRAND.gold}`,
+                  }}
+                >
+                  <img
+                    src={analysis.player_image_url}
+                    alt="Player"
+                    className="w-full max-h-[40vh] md:max-h-[50vh] object-cover"
+                  />
+                </div>
+              </ScrollReveal>
             )}
 
             {/* Overview */}
             {analysis.key_details && (
-              <AutoExpandSection title="Overview" id="section-overview" defaultOpen>
+              <AutoExpandSection title="Overview" id={SECTION_IDS.overview}>
                 <TextReveal>
-                  <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                     {analysis.key_details}
                   </p>
                 </TextReveal>
@@ -856,9 +941,9 @@ const AnalysisViewer = () => {
 
             {/* Strengths & Improvements */}
             {analysis.strengths_improvements && (
-              <AutoExpandSection title="Strengths & Areas for Improvement" id="section-improvements">
+              <AutoExpandSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements}>
                 <TextReveal>
-                  <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                     {analysis.strengths_improvements}
                   </p>
                 </TextReveal>
@@ -874,10 +959,10 @@ const AnalysisViewer = () => {
                     title={point.title}
                     id={`section-point-${index}`}
                   >
-                    <div className="space-y-4">
+                    <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
                         <TextReveal>
-                          <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_1}
                           </p>
                         </TextReveal>
@@ -890,8 +975,8 @@ const AnalysisViewer = () => {
                                 key={imgIndex}
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full max-w-3xl rounded-lg shadow-md"
-                                style={{ border: `2px solid ${GOLD}` }}
+                                className="w-full max-w-4xl rounded-lg shadow-md border-2"
+                                style={{ borderColor: BRAND.gold }}
                               />
                             ))}
                           </div>
@@ -899,7 +984,7 @@ const AnalysisViewer = () => {
                       )}
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
-                          <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_2}
                           </p>
                         </TextReveal>
@@ -917,29 +1002,33 @@ const AnalysisViewer = () => {
           <div className="w-full">
             {/* Header */}
             <motion.div 
-              className="relative py-6 bg-cover bg-center"
-              style={{ 
+              className="py-4"
+              style={{
                 backgroundImage: `url('/analysis-grass-bg.png')`,
-                borderColor: GOLD, 
-                borderWidth: '3px', 
-                borderStyle: 'solid' 
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                borderLeft: `4px solid ${BRAND.gold}`,
+                borderRight: `4px solid ${BRAND.gold}`,
+                borderTop: `4px solid ${BRAND.gold}`,
               }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <TacticalSymbols />
-              <div className="relative z-10 flex flex-col items-center gap-3">
+              <div className="flex flex-col items-center">
                 <img 
                   src={fffLogo} 
                   alt="Fuel For Football" 
-                  className="w-16 h-16 md:w-20 md:h-20 object-contain"
+                  className="w-16 h-16 md:w-20 md:h-20 object-contain mb-1"
                 />
-                <div className="text-center">
-                  <h1 className="text-white font-bebas text-lg md:text-xl tracking-wider uppercase">
+                <div className="text-center mb-2">
+                  <h1 className="text-white text-sm md:text-base font-bebas tracking-wider uppercase">
                     Fuel For Football
                   </h1>
-                  <p className="text-sm md:text-base italic" style={{ color: GOLD }}>
+                  <p 
+                    className="text-xs md:text-sm font-bebas italic tracking-wide"
+                    style={{ color: BRAND.gold }}
+                  >
                     Change The Game
                   </p>
                 </div>
@@ -947,7 +1036,7 @@ const AnalysisViewer = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => navigate(-1)}
-                  className="bg-black/50 backdrop-blur-sm text-white border-white/30 hover:bg-white hover:text-black"
+                  className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
@@ -955,15 +1044,26 @@ const AnalysisViewer = () => {
               </div>
             </motion.div>
 
-            {/* Title Section */}
-            <div className="py-4">
-              <SectionTitleBar title={analysis.title || "Concept Analysis"} />
-            </div>
+            <GrassSection>
+              <ContentCard>
+                <div className="text-center">
+                  <span 
+                    className="text-xs md:text-sm font-bebas uppercase tracking-widest px-3 py-1 rounded-full inline-block mb-3"
+                    style={{ backgroundColor: BRAND.gold, color: 'black' }}
+                  >
+                    Concept
+                  </span>
+                  <h1 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-black">
+                    {analysis.title || "Concept Analysis"}
+                  </h1>
+                </div>
+              </ContentCard>
+            </GrassSection>
 
             {analysis.concept && (
               <AutoExpandSection title="Concept" defaultOpen>
                 <TextReveal>
-                  <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                     {analysis.concept}
                   </p>
                 </TextReveal>
@@ -973,7 +1073,7 @@ const AnalysisViewer = () => {
             {analysis.explanation && (
               <AutoExpandSection title="Explanation">
                 <TextReveal>
-                  <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                  <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                     {analysis.explanation}
                   </p>
                 </TextReveal>
@@ -986,11 +1086,12 @@ const AnalysisViewer = () => {
                   <AutoExpandSection 
                     key={index} 
                     title={point.title}
+                    id={`section-point-${index}`}
                   >
-                    <div className="space-y-4">
+                    <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
                         <TextReveal>
-                          <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_1}
                           </p>
                         </TextReveal>
@@ -1003,8 +1104,8 @@ const AnalysisViewer = () => {
                                 key={imgIndex}
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full rounded-lg"
-                                style={{ border: `2px solid ${GOLD}` }}
+                                className="w-full rounded-lg border-2"
+                                style={{ borderColor: BRAND.gold }}
                               />
                             ))}
                           </div>
@@ -1012,7 +1113,7 @@ const AnalysisViewer = () => {
                       )}
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
-                          <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                          <p className="text-black leading-relaxed whitespace-pre-wrap text-sm md:text-lg">
                             {point.paragraph_2}
                           </p>
                         </TextReveal>
