@@ -860,51 +860,40 @@ const AnalysisViewer = () => {
               </ExpandableSection>
             )}
 
-            {/* Key Matchups - FULLY TRANSPARENT - NO BACKGROUND BOX/BORDER */}
+            {/* Key Matchups - Uses ExpandableSection for consistent auto-close behavior */}
             {analysis.matchups && analysis.matchups.length > 0 && (
-              <section 
+              <ExpandableSection 
+                title="Potential Matchup(s)" 
                 id={SECTION_IDS.matchups}
-                className="relative w-full"
-                style={{
-                  backgroundImage: `url('/analysis-page-bg.png')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
+                transparentContent
               >
-                <TacticalSymbols />
-              <div className="relative px-4 md:px-6 pt-3 md:pt-4 pb-2 md:pb-3">
-                <button className="w-full">
-                  <SectionTitle title="Potential Matchup(s)" />
-                </button>
-                <div className="flex justify-center items-center gap-3 md:gap-6 flex-wrap py-2">
-                    {analysis.matchups.map((matchup: any, index: number) => (
-                      <TextReveal key={index} delay={index * 0.15}>
-                        <div className="text-center w-24 md:w-36">
-                          {/* Image container - NO border, NO background - fully transparent */}
-                          <div className="mb-3 md:mb-4 rounded-lg overflow-hidden aspect-square flex items-center justify-center shadow-xl">
-                            {matchup.image_url ? (
-                              <img
-                                src={matchup.image_url}
-                                alt={matchup.name}
-                                className="w-full h-full object-cover rounded-lg"
-                              />
-                            ) : (
-                              <div className="text-white/50 text-xs md:text-sm w-full h-full flex items-center justify-center">No image</div>
-                            )}
-                          </div>
-                          <p className="font-bold text-base md:text-xl text-white drop-shadow-lg">{matchup.name}</p>
-                          {matchup.shirt_number && (
-                            <p className="text-sm md:text-base font-semibold" style={{ color: BRAND.gold }}>
-                              #{matchup.shirt_number}
-                            </p>
+                <div className="flex justify-center items-center gap-3 md:gap-6 flex-wrap">
+                  {analysis.matchups.map((matchup: any, index: number) => (
+                    <TextReveal key={index} delay={index * 0.15}>
+                      <div className="text-center w-24 md:w-36">
+                        {/* Image container - NO border, NO background - fully transparent */}
+                        <div className="mb-3 md:mb-4 rounded-lg overflow-hidden aspect-square flex items-center justify-center shadow-xl">
+                          {matchup.image_url ? (
+                            <img
+                              src={matchup.image_url}
+                              alt={matchup.name}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="text-white/50 text-xs md:text-sm w-full h-full flex items-center justify-center">No image</div>
                           )}
                         </div>
-                      </TextReveal>
-                    ))}
-                  </div>
+                        <p className="font-bold text-base md:text-xl text-white drop-shadow-lg">{matchup.name}</p>
+                        {matchup.shirt_number && (
+                          <p className="text-sm md:text-base font-semibold" style={{ color: BRAND.gold }}>
+                            #{matchup.shirt_number}
+                          </p>
+                        )}
+                      </div>
+                    </TextReveal>
+                  ))}
                 </div>
-                {/* Removed white separator line */}
-              </section>
+              </ExpandableSection>
             )}
 
             {/* Scheme Section */}
@@ -1041,14 +1030,14 @@ const AnalysisViewer = () => {
             {/* Quick Nav Dropdown */}
             {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
 
-            {/* Player Image - object-contain to avoid cropping */}
+            {/* Player Image - square aspect ratio */}
             {analysis.player_image_url && (
               <ScrollReveal className="w-full">
-                <div className="w-full">
+                <div className="w-full aspect-square overflow-hidden">
                   <img
                     src={analysis.player_image_url}
                     alt="Player"
-                    className="w-full object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </ScrollReveal>
