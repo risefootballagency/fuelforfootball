@@ -3,7 +3,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Plus, X } from "lucide-react";
+import { ChevronDown, Plus, X, Crop } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { ImageCropDialog } from "../ImageCropDialog";
 
 interface Matchup {
   name: string;
@@ -62,8 +63,34 @@ export const AnalysisOverviewSection = ({
   defaultOpen = false,
 }: OverviewSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState("");
+  const [cropMatchupIndex, setCropMatchupIndex] = useState<number | null>(null);
+
+  const handleMatchupImageSelect = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result as string);
+      setCropMatchupIndex(index);
+      setCropDialogOpen(true);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    if (cropMatchupIndex === null) return;
+    const file = new File([croppedBlob], `matchup-${cropMatchupIndex}.png`, { type: 'image/png' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    const syntheticEvent = { target: { files: dataTransfer.files } } as React.ChangeEvent<HTMLInputElement>;
+    await handleImageUpload(syntheticEvent, "matchup_image", undefined, false, cropMatchupIndex);
+  };
 
   return (
+    <>
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
         <h3 className="font-semibold text-lg">OVERVIEW</h3>
@@ -123,10 +150,13 @@ export const AnalysisOverviewSection = ({
                           onChange={(e) => updateMatchup(index, "shirt_number", e.target.value)}
                         />
                         <div>
+                          <Label className="text-xs flex items-center gap-1 mb-1">
+                            Photo <Crop className="w-3 h-3" />
+                          </Label>
                           <Input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => handleImageUpload(e, "matchup_image", undefined, false, index)}
+                            onChange={(e) => handleMatchupImageSelect(e, index)}
                             disabled={uploadingImage}
                           />
                           {matchup.image_url && (
@@ -239,5 +269,15 @@ export const AnalysisOverviewSection = ({
         </div>
       </CollapsibleContent>
     </Collapsible>
+    
+    <ImageCropDialog
+      open={cropDialogOpen}
+      onOpenChange={setCropDialogOpen}
+      imageSrc={cropImageSrc}
+      onCropComplete={handleCropComplete}
+      aspectRatio={1}
+      title="Crop Matchup Image"
+    />
+    </>
   );
 };

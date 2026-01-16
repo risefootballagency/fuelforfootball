@@ -245,8 +245,7 @@ const ExpandableSection = ({
           </AnimatePresence>
         </motion.div>
       </div>
-      {/* White separator line at bottom - 2px matching gold, 35% opacity */}
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/35" />
+      {/* Removed white separator line */}
     </section>
   );
 };
@@ -386,9 +385,9 @@ const AnalysisHeader = ({
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
           }}
         >
-          {/* Home Team Name - centered */}
+          {/* Home Team Name - centered, consistent text size */}
           <div className="flex-1 flex items-end justify-center pb-2 pr-4 md:pr-8">
-            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2">
+            <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center px-2">
               {homeTeam}
             </span>
           </div>
@@ -402,9 +401,9 @@ const AnalysisHeader = ({
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
           }}
         >
-          {/* Away Team Name - centered */}
+          {/* Away Team Name - centered, consistent text size */}
           <div className="flex-1 flex items-end justify-center pb-2 pl-4 md:pl-8">
-            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2">
+            <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center px-2">
               {awayTeam}
             </span>
           </div>
@@ -435,7 +434,7 @@ const AnalysisHeader = ({
           className="text-center py-2"
           style={{ backgroundColor: '#0a2e12' }}
         >
-          <span className="text-white font-bebas tracking-wider text-base md:text-lg">
+          <span className="text-white font-bebas tracking-wider text-sm md:text-base">
             {new Date(matchDate).toLocaleDateString('en-GB', {
               weekday: 'long',
               day: '2-digit',
@@ -449,7 +448,7 @@ const AnalysisHeader = ({
   );
 };
 
-// Quick Navigation Dropdown - ALWAYS opens downward, horizontal layout for sections
+// Quick Navigation Dropdown - Full width, smoky grass background, consistent text
 const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string }[] }) => {
   // Separate key info sections from points
   const keyInfoSections = sections.filter(s => 
@@ -464,9 +463,9 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
 
   return (
     <motion.div 
-      className="sticky top-0 z-40 py-3 px-4"
+      className="sticky top-0 z-40 py-2"
       style={{ 
-        backgroundImage: `url('/analysis-page-bg.png')`,
+        backgroundImage: `url('/analysis-grass-bg.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}
@@ -474,39 +473,47 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
     >
-      <div className="flex justify-center">
+      {/* Dark overlay for smoky effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 pointer-events-none" />
+      
+      <div className="relative flex justify-center px-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="text-xl md:text-2xl px-8 py-4 font-bebas tracking-wider hover:bg-white/10 transition-colors"
+              className="text-base md:text-lg px-6 py-2 font-bebas tracking-wider hover:bg-white/10 transition-colors"
               style={{ 
-                backgroundColor: BRAND.darkGreen,
+                backgroundColor: 'rgba(9, 56, 14, 0.9)',
                 color: 'white',
                 borderColor: BRAND.gold,
                 borderWidth: '2px'
               }}
             >
               Jump to Section
-              <ChevronDown className="w-5 h-5 ml-3" />
+              <ChevronDown className="w-4 h-4 ml-2" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
-            className="w-[90vw] max-w-[500px] max-h-[70vh] overflow-y-auto z-50 p-5"
+            className="w-[96vw] max-w-none max-h-[70vh] overflow-y-auto z-50 p-4 md:p-6"
             style={{ 
-              backgroundColor: BRAND.darkGreen,
+              backgroundImage: `url('/analysis-grass-bg.png')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
               borderColor: BRAND.gold,
               borderWidth: '2px'
             }}
             side="bottom"
             align="center"
-            sideOffset={8}
+            sideOffset={4}
             avoidCollisions={false}
           >
-            {/* Key Info Sections - centered, one per line */}
+            {/* Dark smoky overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 pointer-events-none rounded-md" />
+            
+            {/* Key Info Sections - centered, horizontal wrap */}
             {keyInfoSections.length > 0 && (
-              <div className="mb-4 text-center">
-                <div className="py-2 text-base md:text-lg uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
+              <div className="relative mb-4 text-center">
+                <div className="py-1 text-sm md:text-base uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
                   Key Info
                 </div>
                 <div className="flex flex-wrap justify-center gap-2">
@@ -519,8 +526,12 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
                           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
                       }}
-                      className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-lg md:text-xl py-2 px-4 rounded-md bg-black/30"
-                      style={{ color: 'white' }}
+                      className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-sm md:text-base py-1.5 px-3 rounded-md border"
+                      style={{ 
+                        color: 'white',
+                        backgroundColor: 'rgba(9, 56, 14, 0.8)',
+                        borderColor: `${BRAND.gold}60`
+                      }}
                     >
                       {section.label}
                     </DropdownMenuItem>
@@ -532,15 +543,15 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
             {/* Divider */}
             {keyInfoSections.length > 0 && pointSections.length > 0 && (
               <div 
-                className="my-4 h-[2px]"
-                style={{ backgroundColor: BRAND.gold, opacity: 0.5 }}
+                className="relative my-3 h-[1px]"
+                style={{ backgroundColor: BRAND.gold, opacity: 0.4 }}
               />
             )}
             
             {/* Points Sections - centered, wrap to multiple lines */}
             {pointSections.length > 0 && (
-              <div className="text-center">
-                <div className="py-2 text-base md:text-lg uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
+              <div className="relative text-center">
+                <div className="py-1 text-sm md:text-base uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
                   Analysis Points
                 </div>
                 <div className="flex flex-wrap justify-center gap-2">
@@ -553,8 +564,12 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
                           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
                       }}
-                      className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-lg md:text-xl py-2 px-4 rounded-md bg-black/30"
-                      style={{ color: 'white' }}
+                      className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-sm md:text-base py-1.5 px-3 rounded-md border"
+                      style={{ 
+                        color: 'white',
+                        backgroundColor: 'rgba(9, 56, 14, 0.8)',
+                        borderColor: `${BRAND.gold}60`
+                      }}
                     >
                       {section.label}
                     </DropdownMenuItem>

@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, X, Bold } from "lucide-react";
+import { Plus, X, Bold, Crop } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,7 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { ImageCropDialog } from "../ImageCropDialog";
 
 interface StrengthPoint {
   color: 'green' | 'amber' | 'red';
@@ -56,8 +57,43 @@ export const AnalysisMatchDetails = ({
   defaultOpen = false,
 }: MatchDetailsProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  
+  // Crop dialog state
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string>("");
+  const [cropField, setCropField] = useState<string>("");
+  const homeLogoInputRef = useRef<HTMLInputElement>(null);
+  const awayLogoInputRef = useRef<HTMLInputElement>(null);
 
-  // Parse strengths_improvements into structured format
+  const handleLogoFileSelect = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result as string);
+      setCropField(field);
+      setCropDialogOpen(true);
+    };
+    reader.readAsDataURL(file);
+    
+    // Reset input so the same file can be selected again
+    event.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    // Create a synthetic event with the cropped blob as a file
+    const file = new File([croppedBlob], `cropped-${cropField}.png`, { type: 'image/png' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    
+    // Create a minimal synthetic event
+    const syntheticEvent = {
+      target: { files: dataTransfer.files }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    await handleImageUpload(syntheticEvent, cropField);
+  };
   const parseStrengthPoints = (): StrengthPoint[] => {
     if (formData.strength_points && Array.isArray(formData.strength_points)) {
       return formData.strength_points;
@@ -105,6 +141,7 @@ export const AnalysisMatchDetails = ({
   };
 
   return (
+    <>
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
         <h3 className="font-semibold text-lg">MATCH DETAILS</h3>
@@ -240,11 +277,16 @@ export const AnalysisMatchDetails = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label>Home Team Logo</Label>
+                <Label className="flex items-center gap-2">
+                  Home Team Logo
+                  <Crop className="w-3 h-3 text-muted-foreground" />
+                </Label>
+                <p className="text-xs text-muted-foreground mb-1">Click to upload &amp; crop</p>
                 <Input
+                  ref={homeLogoInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, "home_team_logo")}
+                  onChange={(e) => handleLogoFileSelect(e, "home_team_logo")}
                   disabled={uploadingImage}
                 />
                 {formData.home_team_logo && (
@@ -252,11 +294,16 @@ export const AnalysisMatchDetails = ({
                 )}
               </div>
               <div>
-                <Label>Away Team Logo</Label>
+                <Label className="flex items-center gap-2">
+                  Away Team Logo
+                  <Crop className="w-3 h-3 text-muted-foreground" />
+                </Label>
+                <p className="text-xs text-muted-foreground mb-1">Click to upload &amp; crop</p>
                 <Input
+                  ref={awayLogoInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, "away_team_logo")}
+                  onChange={(e) => handleLogoFileSelect(e, "away_team_logo")}
                   disabled={uploadingImage}
                 />
                 {formData.away_team_logo && (
@@ -409,5 +456,16 @@ export const AnalysisMatchDetails = ({
         )}
       </CollapsibleContent>
     </Collapsible>
+    
+    {/* Image Crop Dialog */}
+    <ImageCropDialog
+      open={cropDialogOpen}
+      onOpenChange={setCropDialogOpen}
+      imageSrc={cropImageSrc}
+      onCropComplete={handleCropComplete}
+      aspectRatio={1}
+      title="Crop Club Logo"
+    />
+    </>
   );
 };
