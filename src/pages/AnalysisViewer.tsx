@@ -203,7 +203,7 @@ const ExpandableSection = ({
       id={id}
       className="relative w-full"
       style={{
-        backgroundImage: `url('/analysis-grass-bg.png')`,
+        backgroundImage: `url('/analysis-page-bg.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}
@@ -264,7 +264,7 @@ const TextReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?
   </motion.div>
 );
 
-// Main Header - ONE set of club logos, 4x size, vertically aligned with team names
+// Main Header - ONE set of club logos BEHIND color bars, double size, higher up
 const AnalysisHeader = ({ 
   homeTeam, 
   awayTeam, 
@@ -297,7 +297,7 @@ const AnalysisHeader = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       style={{ 
-        border: `4px solid ${BRAND.gold}`,
+        border: `2px solid ${BRAND.gold}`,
       }}
     >
       {/* Top section with logo, tagline, back button */}
@@ -314,15 +314,15 @@ const AnalysisHeader = ({
           <img 
             src={fffLogo} 
             alt="Fuel For Football" 
-            className="w-20 h-20 md:w-28 md:h-28 object-contain mb-2"
+            className="w-24 h-24 md:w-36 md:h-36 object-contain mb-2"
           />
           
           {/* Brand text - proper font */}
-          <h1 className="text-white text-lg md:text-2xl font-bebas tracking-widest uppercase mb-1">
+          <h1 className="text-white text-xl md:text-3xl font-bebas tracking-widest uppercase mb-1">
             FUEL FOR FOOTBALL
           </h1>
           <p 
-            className="text-base md:text-xl font-bebas tracking-wider uppercase mb-4"
+            className="text-lg md:text-2xl font-bebas tracking-wider uppercase mb-4"
             style={{ color: BRAND.gold }}
           >
             CHANGE THE GAME
@@ -341,11 +341,27 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Team colors bar with SINGLE set of logos - 4x size, popping out from top */}
-      <div className="relative h-28 md:h-36">
-        {/* Left Side - Home Team Color */}
+      {/* Team colors bar with logos BEHIND the color containers */}
+      <div className="relative h-28 md:h-36 overflow-visible">
+        {/* Club logos - BEHIND color bars (z-0), double size, higher up */}
+        {homeLogo && (
+          <div 
+            className="absolute left-[12%] md:left-[15%] -top-16 md:-top-20 w-40 h-40 md:w-56 md:h-56 z-0"
+          >
+            <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
+          </div>
+        )}
+        {awayLogo && (
+          <div 
+            className="absolute right-[12%] md:right-[15%] -top-16 md:-top-20 w-40 h-40 md:w-56 md:h-56 z-0"
+          >
+            <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
+          </div>
+        )}
+
+        {/* Left Side - Home Team Color - ABOVE logos (z-10) */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-1/2"
+          className="absolute left-0 top-0 bottom-0 w-1/2 z-10"
           style={{ 
             backgroundColor: homeBgColor || '#1a1a1a',
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
@@ -359,9 +375,9 @@ const AnalysisHeader = ({
           </div>
         </div>
 
-        {/* Right Side - Away Team Color */}
+        {/* Right Side - Away Team Color - ABOVE logos (z-10) */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-1/2"
+          className="absolute right-0 top-0 bottom-0 w-1/2 z-10"
           style={{ 
             backgroundColor: awayBgColor || '#8B0000',
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
@@ -375,25 +391,7 @@ const AnalysisHeader = ({
           </div>
         </div>
 
-        {/* Home Club Logo - popping out from TOP, 4x larger, aligned with team name */}
-        {homeLogo && (
-          <div 
-            className="absolute left-[15%] md:left-[18%] -top-10 md:-top-14 w-28 h-28 md:w-40 md:h-40 z-10"
-          >
-            <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
-          </div>
-        )}
-
-        {/* Away Club Logo - popping out from TOP, 4x larger, aligned with team name */}
-        {awayLogo && (
-          <div 
-            className="absolute right-[15%] md:right-[18%] -top-10 md:-top-14 w-28 h-28 md:w-40 md:h-40 z-10"
-          >
-            <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
-          </div>
-        )}
-
-        {/* VS Badge - Center */}
+        {/* VS Badge - Center - highest z-index */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           {isPostMatch && homeScore !== null && awayScore !== null ? (
             <div 
@@ -591,13 +589,13 @@ const AnalysisViewer = () => {
     <div 
       className="min-h-screen relative"
       style={{
-        backgroundImage: `url('/analysis-grass-bg.png')`,
+        backgroundImage: `url('/analysis-page-bg.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Gold inset vertical lines - 4px from edges, 2px thickness */}
+      {/* Gold inset vertical lines - 4px from edges, 2px thickness - connect with header border */}
       <div 
         className="fixed top-0 bottom-0 left-[4px] w-[2px] z-10 pointer-events-none"
         style={{ backgroundColor: BRAND.gold }}
