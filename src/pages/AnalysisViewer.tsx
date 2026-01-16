@@ -172,7 +172,7 @@ const ContentCard = ({ children, className = "", transparent = false }: { childr
   </div>
 );
 
-// Section component that auto-opens on scroll down, closes when scrolling past
+// Section component that auto-opens on scroll DOWN only, stays open when scrolling up
 const ExpandableSection = ({ 
   title, 
   children, 
@@ -189,13 +189,17 @@ const ExpandableSection = ({
   transparentContent?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [hasBeenOpened, setHasBeenOpened] = useState(defaultOpen);
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { margin: "-20% 0px -40% 0px" });
   
-  // Auto-open when in view, close when scrolling past
+  // Auto-open when scrolling INTO view (down), but don't close when scrolling up
   useEffect(() => {
-    setIsOpen(isInView);
-  }, [isInView]);
+    if (isInView && !hasBeenOpened) {
+      setIsOpen(true);
+      setHasBeenOpened(true);
+    }
+  }, [isInView, hasBeenOpened]);
 
   return (
     <section 
@@ -828,14 +832,14 @@ const AnalysisViewer = () => {
                 }}
               >
                 <TacticalSymbols />
-                <div className="relative px-4 md:px-6 py-6 md:py-8">
+                <div className="relative px-4 md:px-6 py-4 md:py-6">
                   <button className="w-full">
                     <SectionTitle title="Potential Matchup(s)" />
                   </button>
-                  <div className="flex justify-center items-center gap-6 md:gap-10 flex-wrap py-4">
+                  <div className="flex justify-center items-center gap-4 md:gap-8 flex-wrap py-3">
                     {analysis.matchups.map((matchup: any, index: number) => (
                       <TextReveal key={index} delay={index * 0.15}>
-                        <div className="text-center w-32 md:w-44">
+                        <div className="text-center w-24 md:w-36">
                           {/* Image container - NO border, NO background - fully transparent */}
                           <div className="mb-3 md:mb-4 rounded-lg overflow-hidden aspect-square flex items-center justify-center shadow-xl">
                             {matchup.image_url ? (
@@ -859,8 +863,7 @@ const AnalysisViewer = () => {
                     ))}
                   </div>
                 </div>
-                {/* White separator line at bottom - 2px, 35% opacity */}
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/35" />
+                {/* Removed white separator line */}
               </section>
             )}
 

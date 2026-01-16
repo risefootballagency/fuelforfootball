@@ -277,6 +277,7 @@ export const AnalysisOverviewSection = ({
       onCropComplete={handleCropComplete}
       aspectRatio={1}
       title="Crop Matchup Image"
+      showBackgroundRemoval={true}
     />
     </>
   );
