@@ -306,7 +306,9 @@ const AnalysisHeader = ({
   homeScore,
   awayScore,
   matchDate,
-  isPostMatch = false
+  isPostMatch = false,
+  onSave,
+  isSaving = false
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -318,6 +320,8 @@ const AnalysisHeader = ({
   awayScore?: number | null;
   matchDate?: string | null;
   isPostMatch?: boolean;
+  onSave?: () => void;
+  isSaving?: boolean;
 }) => {
   const navigate = useNavigate();
   
@@ -334,9 +338,9 @@ const AnalysisHeader = ({
         style={{ backgroundColor: BRAND.gold }}
       />
       
-      {/* Top section - COMPACT height, uses REALISTIC grass (analysis-page-bg) with fades */}
+      {/* Top section - COMPACT, with buttons integrated */}
       <div 
-        className="relative py-3 px-4"
+        className="relative py-2 px-3"
         style={{
           backgroundImage: `url('/analysis-page-bg.png')`,
           backgroundSize: 'cover',
@@ -344,24 +348,46 @@ const AnalysisHeader = ({
         }}
       >
         {/* Top fade gradient */}
-        <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
         {/* Bottom fade gradient */}
-        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+        
+        {/* Back button - top left */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="absolute left-3 top-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
+        >
+          <ArrowLeft className="w-3 h-3 mr-1" />
+          Back
+        </Button>
+        
+        {/* Save button - top right */}
+        {onSave && (
+          <Button
+            onClick={onSave}
+            disabled={isSaving}
+            size="sm"
+            className="absolute right-3 top-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
+            style={{ backgroundColor: BRAND.gold, color: 'black' }}
+          >
+            <Download className="w-3 h-3 mr-1" />
+            {isSaving ? 'Saving...' : 'Save'}
+          </Button>
+        )}
         
         <div className="relative flex flex-col items-center justify-center">
-          {/* FFF Logo - reduced */}
           <img 
             src={fffLogo} 
             alt="Fuel For Football" 
-            className="w-14 h-14 md:w-16 md:h-16 object-contain"
+            className="w-10 h-10 md:w-12 md:h-12 object-contain"
           />
-          
-          {/* Brand text - compact */}
-          <h1 className="text-white text-sm md:text-base font-bebas tracking-widest uppercase">
+          <h1 className="text-white text-xs md:text-sm font-bebas tracking-widest uppercase">
             FUEL FOR FOOTBALL
           </h1>
           <p 
-            className="text-xs md:text-sm font-bebas tracking-wider uppercase"
+            className="text-[10px] md:text-xs font-bebas tracking-wider uppercase"
             style={{ color: BRAND.gold }}
           >
             CHANGE THE GAME
@@ -383,23 +409,19 @@ const AnalysisHeader = ({
         {/* Bottom fade */}
         <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
         
-        {/* Club logos - BEHIND color bars (z-0), same x/y axis positioning */}
+        {/* Club logos - centered at 25% and 75% (center of each half) */}
         {homeLogo && (
-          <div 
-            className="absolute left-[20%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-28 h-28 md:w-40 md:h-40 z-0"
-          >
+          <div className="absolute left-[25%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-24 h-24 md:w-36 md:h-36 z-0">
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
-          <div 
-            className="absolute right-[20%] top-1/2 -translate-y-1/2 translate-x-1/2 w-28 h-28 md:w-40 md:h-40 z-0"
-          >
+          <div className="absolute left-[75%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-24 h-24 md:w-36 md:h-36 z-0">
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
 
-        {/* Left Side - Home Team Color - ABOVE logos (z-10) */}
+        {/* Left Side - Home Team Color */}
         <div 
           className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-center"
           style={{ 
@@ -407,13 +429,12 @@ const AnalysisHeader = ({
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
           }}
         >
-          {/* Home Team Name - centered both axes */}
-          <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center pr-6 md:pr-10">
+          <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center">
             {homeTeam}
           </span>
         </div>
 
-        {/* Right Side - Away Team Color - ABOVE logos (z-10) */}
+        {/* Right Side - Away Team Color */}
         <div 
           className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-center"
           style={{ 
@@ -421,8 +442,7 @@ const AnalysisHeader = ({
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
           }}
         >
-          {/* Away Team Name - centered both axes */}
-          <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center pl-6 md:pl-10">
+          <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center">
             {awayTeam}
           </span>
         </div>
@@ -767,28 +787,6 @@ const AnalysisViewer = () => {
         style={{ backgroundColor: BRAND.gold }}
       />
 
-      {/* Top bar with Back and Save buttons */}
-      <div className="w-full px-[8px] py-2 flex items-center justify-between">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-3 text-sm"
-        >
-          <ArrowLeft className="w-3 h-3 mr-1" />
-          Back
-        </Button>
-        <Button
-          onClick={handleSaveAsImage}
-          disabled={isSaving}
-          size="sm"
-          className="font-bebas uppercase tracking-wider shadow-lg text-xs"
-          style={{ backgroundColor: BRAND.gold, color: 'black' }}
-        >
-          <Download className="w-3 h-3 mr-1" />
-          {isSaving ? 'Saving...' : 'Save'}
-        </Button>
-      </div>
 
       {/* Video Button - Fixed */}
       {analysis.video_url && (
@@ -822,6 +820,8 @@ const AnalysisViewer = () => {
               homeBgColor={analysis.home_team_bg_color}
               awayBgColor={analysis.away_team_bg_color}
               matchDate={analysis.match_date}
+              onSave={handleSaveAsImage}
+              isSaving={isSaving}
             />
 
             {/* Quick Nav Dropdown */}
@@ -1064,6 +1064,8 @@ const AnalysisViewer = () => {
               awayScore={analysis.away_score}
               matchDate={analysis.match_date}
               isPostMatch
+              onSave={handleSaveAsImage}
+              isSaving={isSaving}
             />
 
             {/* Quick Nav Dropdown */}
