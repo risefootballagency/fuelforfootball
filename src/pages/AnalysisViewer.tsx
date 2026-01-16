@@ -353,30 +353,19 @@ const AnalysisHeader = ({
           <img 
             src={fffLogo} 
             alt="Fuel For Football" 
-            className="w-16 h-16 md:w-20 md:h-20 object-contain mb-1"
+            className="w-14 h-14 md:w-16 md:h-16 object-contain"
           />
           
           {/* Brand text - compact */}
-          <h1 className="text-white text-base md:text-lg font-bebas tracking-widest uppercase">
+          <h1 className="text-white text-sm md:text-base font-bebas tracking-widest uppercase">
             FUEL FOR FOOTBALL
           </h1>
           <p 
-            className="text-sm md:text-base font-bebas tracking-wider uppercase mb-2"
+            className="text-xs md:text-sm font-bebas tracking-wider uppercase"
             style={{ color: BRAND.gold }}
           >
             CHANGE THE GAME
           </p>
-
-          {/* Back Button - smaller */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-3 text-sm"
-          >
-            <ArrowLeft className="w-3 h-3 mr-1" />
-            Back
-          </Button>
         </div>
       </div>
 
@@ -394,17 +383,17 @@ const AnalysisHeader = ({
         {/* Bottom fade */}
         <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
         
-        {/* Club logos - BEHIND color bars (z-0), centered with team name */}
+        {/* Club logos - BEHIND color bars (z-0), same x/y axis positioning */}
         {homeLogo && (
           <div 
-            className="absolute left-[15%] md:left-[18%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-32 h-32 md:w-48 md:h-48 z-0 -mt-16 md:-mt-24"
+            className="absolute left-[20%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-28 h-28 md:w-40 md:h-40 z-0"
           >
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
           <div 
-            className="absolute right-[15%] md:right-[18%] top-1/2 -translate-y-1/2 translate-x-1/2 w-32 h-32 md:w-48 md:h-48 z-0 -mt-16 md:-mt-24"
+            className="absolute right-[20%] top-1/2 -translate-y-1/2 translate-x-1/2 w-28 h-28 md:w-40 md:h-40 z-0"
           >
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
@@ -778,13 +767,17 @@ const AnalysisViewer = () => {
         style={{ backgroundColor: BRAND.gold }}
       />
 
-      {/* Save As Button - Fixed top right */}
-      <motion.div 
-        className="fixed top-4 right-8 z-50"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.5 }}
-      >
+      {/* Top bar with Back and Save buttons */}
+      <div className="w-full px-[8px] py-2 flex items-center justify-between">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-3 text-sm"
+        >
+          <ArrowLeft className="w-3 h-3 mr-1" />
+          Back
+        </Button>
         <Button
           onClick={handleSaveAsImage}
           disabled={isSaving}
@@ -795,7 +788,7 @@ const AnalysisViewer = () => {
           <Download className="w-3 h-3 mr-1" />
           {isSaving ? 'Saving...' : 'Save'}
         </Button>
-      </motion.div>
+      </div>
 
       {/* Video Button - Fixed */}
       {analysis.video_url && (
