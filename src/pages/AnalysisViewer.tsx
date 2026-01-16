@@ -129,7 +129,7 @@ const TacticalSymbols = () => (
   </svg>
 );
 
-// Section title with grass image background - NO GREEN CAP
+// Section title with grass image background - NO GREEN CAP, with gold border
 const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => (
   <div className="relative mb-4">
     <div 
@@ -137,7 +137,8 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
       style={{
         backgroundImage: `url('/analysis-grass-bg.png')`,
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        border: `2px solid ${BRAND.gold}`
       }}
     >
       <div className="py-3 md:py-4 px-4">
@@ -294,20 +295,28 @@ const AnalysisHeader = ({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      style={{ 
-        border: `2px solid ${BRAND.gold}`,
-      }}
     >
-      {/* Top section with logo, tagline, back button - realistic grass background */}
+      {/* Top gold border that connects with side lines - positioned at 4px from edge */}
+      <div 
+        className="absolute top-0 left-[4px] right-[4px] h-[2px] z-20"
+        style={{ backgroundColor: BRAND.gold }}
+      />
+      
+      {/* Top section with logo, tagline, back button - OLD grass (analysis-grass-bg) */}
       <div 
         className="relative py-6 px-4"
         style={{
-          backgroundImage: `url('/analysis-page-bg.png')`,
+          backgroundImage: `url('/analysis-grass-bg.png')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        <div className="flex flex-col items-center justify-center">
+        {/* Top fade gradient */}
+        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+        {/* Bottom fade gradient */}
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+        
+        <div className="relative flex flex-col items-center justify-center">
           {/* FFF Logo - larger */}
           <img 
             src={fffLogo} 
@@ -341,17 +350,17 @@ const AnalysisHeader = ({
 
       {/* Team colors bar with logos BEHIND the color containers - only bottom third visible */}
       <div className="relative h-28 md:h-36 overflow-visible">
-        {/* Club logos - BEHIND color bars (z-0), moved up so only bottom third is behind containers */}
+        {/* Club logos - BEHIND color bars (z-0), moved MUCH higher up so only bottom third is behind containers */}
         {homeLogo && (
           <div 
-            className="absolute left-[8%] md:left-[12%] -top-32 md:-top-44 w-44 h-44 md:w-64 md:h-64 z-0"
+            className="absolute left-[8%] md:left-[12%] -top-52 md:-top-72 w-52 h-52 md:w-80 md:h-80 z-0"
           >
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
           <div 
-            className="absolute right-[8%] md:right-[12%] -top-32 md:-top-44 w-44 h-44 md:w-64 md:h-64 z-0"
+            className="absolute right-[8%] md:right-[12%] -top-52 md:-top-72 w-52 h-52 md:w-80 md:h-80 z-0"
           >
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
@@ -359,14 +368,14 @@ const AnalysisHeader = ({
 
         {/* Left Side - Home Team Color - ABOVE logos (z-10) */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-1/2 z-10"
+          className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex flex-col"
           style={{ 
             backgroundColor: homeBgColor || '#1a1a1a',
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
           }}
         >
-          {/* Home Team Name */}
-          <div className="absolute inset-0 flex items-center justify-center pr-6 md:pr-10">
+          {/* Home Team Name - centered under where logo shows */}
+          <div className="flex-1 flex items-end justify-center pb-2 md:pb-3 pr-6 md:pr-10">
             <span className="text-xl md:text-3xl lg:text-4xl font-bebas text-white tracking-wide uppercase text-center px-2">
               {homeTeam}
             </span>
@@ -375,14 +384,14 @@ const AnalysisHeader = ({
 
         {/* Right Side - Away Team Color - ABOVE logos (z-10) */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-1/2 z-10"
+          className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex flex-col"
           style={{ 
             backgroundColor: awayBgColor || '#8B0000',
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
           }}
         >
-          {/* Away Team Name */}
-          <div className="absolute inset-0 flex items-center justify-center pl-6 md:pl-10">
+          {/* Away Team Name - centered under where logo shows */}
+          <div className="flex-1 flex items-end justify-center pb-2 md:pb-3 pl-6 md:pl-10">
             <span className="text-xl md:text-3xl lg:text-4xl font-bebas text-white tracking-wide uppercase text-center px-2">
               {awayTeam}
             </span>
@@ -408,11 +417,11 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Match Date Line - ONLY date, no repeated team names */}
+      {/* Match Date Line - ONLY date, no repeated team names - DARKER brand green */}
       {matchDate && (
         <div 
           className="text-center py-3 md:py-4"
-          style={{ backgroundColor: BRAND.darkGreen }}
+          style={{ backgroundColor: '#0a2e12' }}
         >
           <span className="text-white font-bebas tracking-wider text-lg md:text-xl">
             {new Date(matchDate).toLocaleDateString('en-GB', {
@@ -428,7 +437,7 @@ const AnalysisHeader = ({
   );
 };
 
-// Quick Navigation Dropdown - opens downwards, larger text, visually separated sections
+// Quick Navigation Dropdown - ALWAYS opens downward, horizontal layout for sections
 const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string }[] }) => {
   // Separate key info sections from points
   const keyInfoSections = sections.filter(s => 
@@ -471,7 +480,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
-            className="min-w-[280px] max-h-[70vh] overflow-y-auto z-50 p-2"
+            className="min-w-[400px] md:min-w-[600px] max-h-[70vh] overflow-y-auto z-50 p-4"
             style={{ 
               backgroundImage: `url('/analysis-grass-bg.png')`,
               backgroundSize: 'cover',
@@ -481,57 +490,66 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
             }}
             side="bottom"
             align="center"
+            sideOffset={8}
           >
-            {/* Key Info Sections */}
+            {/* Key Info Sections - horizontal layout */}
             {keyInfoSections.length > 0 && (
-              <>
-                <div className="px-3 py-2 text-xs uppercase tracking-widest opacity-70" style={{ color: BRAND.gold }}>
+              <div className="mb-4">
+                <div className="px-2 py-2 text-sm uppercase tracking-widest font-bebas" style={{ color: BRAND.gold }}>
                   Key Info
                 </div>
-                {keyInfoSections.map((section) => (
-                  <DropdownMenuItem
-                    key={section.id}
-                    onClick={() => {
-                      const el = document.getElementById(section.id);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }}
-                    className="cursor-pointer hover:bg-black/30 font-bebas tracking-wide text-lg py-3 px-4 rounded-md my-1"
-                    style={{ color: BRAND.gold }}
-                  >
-                    {section.label}
-                  </DropdownMenuItem>
-                ))}
-              </>
+                <div className="flex flex-wrap gap-2">
+                  {keyInfoSections.map((section) => (
+                    <DropdownMenuItem
+                      key={section.id}
+                      onClick={() => {
+                        const el = document.getElementById(section.id);
+                        if (el) {
+                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                      className="cursor-pointer hover:bg-black/40 font-bebas tracking-wide text-base md:text-lg py-2 px-4 rounded-md border"
+                      style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}
+                    >
+                      {section.label}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              </div>
             )}
             
-            {/* Points Sections */}
+            {/* Divider */}
+            {keyInfoSections.length > 0 && pointSections.length > 0 && (
+              <div 
+                className="my-3 h-[2px] mx-2"
+                style={{ backgroundColor: BRAND.gold, opacity: 0.5 }}
+              />
+            )}
+            
+            {/* Points Sections - horizontal layout */}
             {pointSections.length > 0 && (
-              <>
-                <div 
-                  className="my-3 h-[1px] mx-2"
-                  style={{ backgroundColor: BRAND.gold, opacity: 0.4 }}
-                />
-                <div className="px-3 py-2 text-xs uppercase tracking-widest opacity-70" style={{ color: BRAND.gold }}>
+              <div>
+                <div className="px-2 py-2 text-sm uppercase tracking-widest font-bebas" style={{ color: BRAND.gold }}>
                   Analysis Points
                 </div>
-                {pointSections.map((section) => (
-                  <DropdownMenuItem
-                    key={section.id}
-                    onClick={() => {
-                      const el = document.getElementById(section.id);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }}
-                    className="cursor-pointer hover:bg-black/30 font-bebas tracking-wide text-lg py-3 px-4 rounded-md my-1"
-                    style={{ color: BRAND.gold }}
-                  >
-                    {section.label}
-                  </DropdownMenuItem>
-                ))}
-              </>
+                <div className="flex flex-wrap gap-2">
+                  {pointSections.map((section) => (
+                    <DropdownMenuItem
+                      key={section.id}
+                      onClick={() => {
+                        const el = document.getElementById(section.id);
+                        if (el) {
+                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                      className="cursor-pointer hover:bg-black/40 font-bebas tracking-wide text-base md:text-lg py-2 px-4 rounded-md border"
+                      style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}
+                    >
+                      {section.label}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              </div>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -768,35 +786,51 @@ const AnalysisViewer = () => {
               </ExpandableSection>
             )}
 
-            {/* Key Matchups - Fully transparent, no box */}
+            {/* Key Matchups - FULLY TRANSPARENT BACKGROUND - NO BOX AT ALL */}
             {analysis.matchups && analysis.matchups.length > 0 && (
-              <ExpandableSection title="Potential Matchup(s)" id={SECTION_IDS.matchups} transparentContent>
-                <div className="flex justify-center items-center gap-6 md:gap-10 flex-wrap py-4">
-                  {analysis.matchups.map((matchup: any, index: number) => (
-                    <TextReveal key={index} delay={index * 0.15}>
-                      <div className="text-center w-32 md:w-44">
-                        <div className="mb-3 md:mb-4 rounded-lg overflow-hidden border-2 aspect-square flex items-center justify-center shadow-xl" style={{ borderColor: BRAND.gold, backgroundColor: 'white' }}>
-                          {matchup.image_url ? (
-                            <img
-                              src={matchup.image_url}
-                              alt={matchup.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-black/50 text-xs md:text-sm w-full h-full flex items-center justify-center">No image</div>
+              <section 
+                id={SECTION_IDS.matchups}
+                className="relative w-full"
+                style={{
+                  backgroundImage: `url('/analysis-page-bg.png')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+              >
+                <TacticalSymbols />
+                <div className="relative px-4 md:px-6 py-6 md:py-8">
+                  <button className="w-full">
+                    <SectionTitle title="Potential Matchup(s)" />
+                  </button>
+                  <div className="flex justify-center items-center gap-6 md:gap-10 flex-wrap py-4">
+                    {analysis.matchups.map((matchup: any, index: number) => (
+                      <TextReveal key={index} delay={index * 0.15}>
+                        <div className="text-center w-32 md:w-44">
+                          <div className="mb-3 md:mb-4 rounded-lg overflow-hidden border-2 aspect-square flex items-center justify-center shadow-xl bg-white/10" style={{ borderColor: BRAND.gold }}>
+                            {matchup.image_url ? (
+                              <img
+                                src={matchup.image_url}
+                                alt={matchup.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="text-white/50 text-xs md:text-sm w-full h-full flex items-center justify-center">No image</div>
+                            )}
+                          </div>
+                          <p className="font-bold text-base md:text-xl text-white drop-shadow-lg">{matchup.name}</p>
+                          {matchup.shirt_number && (
+                            <p className="text-sm md:text-base font-semibold" style={{ color: BRAND.gold }}>
+                              #{matchup.shirt_number}
+                            </p>
                           )}
                         </div>
-                        <p className="font-bold text-base md:text-xl text-white drop-shadow-lg">{matchup.name}</p>
-                        {matchup.shirt_number && (
-                          <p className="text-sm md:text-base font-semibold" style={{ color: BRAND.gold }}>
-                            #{matchup.shirt_number}
-                          </p>
-                        )}
-                      </div>
-                    </TextReveal>
-                  ))}
+                      </TextReveal>
+                    ))}
+                  </div>
                 </div>
-              </ExpandableSection>
+                {/* White separator line at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/70" />
+              </section>
             )}
 
             {/* Scheme Section */}
@@ -1150,6 +1184,27 @@ const AnalysisViewer = () => {
             )}
           </div>
         )}
+        
+        {/* Back to Top Button */}
+        <motion.div 
+          className="flex justify-center py-8"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <Button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="font-bebas uppercase tracking-wider text-lg px-8 py-4"
+            style={{ 
+              backgroundColor: BRAND.gold, 
+              color: 'black',
+              border: `2px solid ${BRAND.gold}`
+            }}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2 rotate-90" />
+            Back to Top
+          </Button>
+        </motion.div>
       </main>
     </div>
   );
