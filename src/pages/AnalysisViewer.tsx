@@ -170,7 +170,7 @@ const ContentCard = ({ children, className = "", transparent = false }: { childr
   </div>
 );
 
-// Section component that auto-opens on scroll (NO screen hijacking)
+// Section component that auto-opens on scroll down, closes when scrolling past
 const ExpandableSection = ({ 
   title, 
   children, 
@@ -188,13 +188,11 @@ const ExpandableSection = ({
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { margin: "-20% 0px -60% 0px" });
+  const isInView = useInView(sectionRef, { margin: "-20% 0px -40% 0px" });
   
-  // Auto-open when in view (no scrolling, just opens)
+  // Auto-open when in view, close when scrolling past
   useEffect(() => {
-    if (isInView && !isOpen) {
-      setIsOpen(true);
-    }
+    setIsOpen(isInView);
   }, [isInView]);
 
   return (
@@ -300,11 +298,11 @@ const AnalysisHeader = ({
         border: `2px solid ${BRAND.gold}`,
       }}
     >
-      {/* Top section with logo, tagline, back button */}
+      {/* Top section with logo, tagline, back button - realistic grass background */}
       <div 
         className="relative py-6 px-4"
         style={{
-          backgroundImage: `url('/analysis-grass-bg.png')`,
+          backgroundImage: `url('/analysis-page-bg.png')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
@@ -341,19 +339,19 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Team colors bar with logos BEHIND the color containers */}
+      {/* Team colors bar with logos BEHIND the color containers - only bottom third visible */}
       <div className="relative h-28 md:h-36 overflow-visible">
-        {/* Club logos - BEHIND color bars (z-0), double size, higher up */}
+        {/* Club logos - BEHIND color bars (z-0), moved up so only bottom third is behind containers */}
         {homeLogo && (
           <div 
-            className="absolute left-[12%] md:left-[15%] -top-16 md:-top-20 w-40 h-40 md:w-56 md:h-56 z-0"
+            className="absolute left-[8%] md:left-[12%] -top-32 md:-top-44 w-44 h-44 md:w-64 md:h-64 z-0"
           >
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
           <div 
-            className="absolute right-[12%] md:right-[15%] -top-16 md:-top-20 w-40 h-40 md:w-56 md:h-56 z-0"
+            className="absolute right-[8%] md:right-[12%] -top-32 md:-top-44 w-44 h-44 md:w-64 md:h-64 z-0"
           >
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
@@ -430,61 +428,117 @@ const AnalysisHeader = ({
   );
 };
 
-// Quick Navigation Dropdown - cleaner styling
-const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string }[] }) => (
-  <motion.div 
-    className="sticky top-0 z-40 py-3 px-4"
-    style={{ 
-      backgroundImage: `url('/analysis-grass-bg.png')`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }}
-    initial={{ opacity: 0, y: -10 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.5 }}
-  >
-    <div className="flex justify-center">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-sm md:text-base font-bebas tracking-wider hover:bg-black/20 transition-colors"
+// Quick Navigation Dropdown - opens downwards, larger text, visually separated sections
+const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string }[] }) => {
+  // Separate key info sections from points
+  const keyInfoSections = sections.filter(s => 
+    s.id.includes('overview') || 
+    s.id.includes('strengths') || 
+    s.id.includes('weaknesses') || 
+    s.id.includes('matchups') ||
+    s.id.includes('scheme') ||
+    s.id.includes('improvements')
+  );
+  const pointSections = sections.filter(s => s.id.includes('point'));
+
+  return (
+    <motion.div 
+      className="sticky top-0 z-40 py-4 px-4"
+      style={{ 
+        backgroundImage: `url('/analysis-page-bg.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5 }}
+    >
+      <div className="flex justify-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="text-lg md:text-xl px-6 py-3 font-bebas tracking-wider hover:bg-black/30 transition-colors"
+              style={{ 
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                color: BRAND.gold,
+                borderColor: BRAND.gold,
+                borderWidth: '2px'
+              }}
+            >
+              Jump to Section
+              <ChevronDown className="w-5 h-5 ml-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            className="min-w-[280px] max-h-[70vh] overflow-y-auto z-50 p-2"
             style={{ 
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              color: BRAND.gold,
+              backgroundImage: `url('/analysis-grass-bg.png')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
               borderColor: BRAND.gold,
               borderWidth: '2px'
             }}
+            side="bottom"
+            align="center"
           >
-            Jump to Section
-            <ChevronDown className="w-4 h-4 ml-2" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent 
-          className="min-w-[220px] max-h-[60vh] overflow-y-auto z-50"
-          style={{ backgroundColor: '#0a2615', borderColor: BRAND.gold }}
-        >
-          {sections.map((section) => (
-            <DropdownMenuItem
-              key={section.id}
-              onClick={() => {
-                const el = document.getElementById(section.id);
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
-              className="cursor-pointer hover:bg-white/10 font-bebas tracking-wide"
-              style={{ color: BRAND.gold }}
-            >
-              {section.label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  </motion.div>
-);
+            {/* Key Info Sections */}
+            {keyInfoSections.length > 0 && (
+              <>
+                <div className="px-3 py-2 text-xs uppercase tracking-widest opacity-70" style={{ color: BRAND.gold }}>
+                  Key Info
+                </div>
+                {keyInfoSections.map((section) => (
+                  <DropdownMenuItem
+                    key={section.id}
+                    onClick={() => {
+                      const el = document.getElementById(section.id);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                    className="cursor-pointer hover:bg-black/30 font-bebas tracking-wide text-lg py-3 px-4 rounded-md my-1"
+                    style={{ color: BRAND.gold }}
+                  >
+                    {section.label}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            )}
+            
+            {/* Points Sections */}
+            {pointSections.length > 0 && (
+              <>
+                <div 
+                  className="my-3 h-[1px] mx-2"
+                  style={{ backgroundColor: BRAND.gold, opacity: 0.4 }}
+                />
+                <div className="px-3 py-2 text-xs uppercase tracking-widest opacity-70" style={{ color: BRAND.gold }}>
+                  Analysis Points
+                </div>
+                {pointSections.map((section) => (
+                  <DropdownMenuItem
+                    key={section.id}
+                    onClick={() => {
+                      const el = document.getElementById(section.id);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                    className="cursor-pointer hover:bg-black/30 font-bebas tracking-wide text-lg py-3 px-4 rounded-md my-1"
+                    style={{ color: BRAND.gold }}
+                  >
+                    {section.label}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </motion.div>
+  );
+};
 
 const AnalysisViewer = () => {
   const { analysisId } = useParams();
@@ -714,14 +768,14 @@ const AnalysisViewer = () => {
               </ExpandableSection>
             )}
 
-            {/* Key Matchups - Transparent background */}
+            {/* Key Matchups - Fully transparent, no box */}
             {analysis.matchups && analysis.matchups.length > 0 && (
               <ExpandableSection title="Potential Matchup(s)" id={SECTION_IDS.matchups} transparentContent>
-                <div className="flex justify-center items-center gap-4 md:gap-8 flex-wrap">
+                <div className="flex justify-center items-center gap-6 md:gap-10 flex-wrap py-4">
                   {analysis.matchups.map((matchup: any, index: number) => (
                     <TextReveal key={index} delay={index * 0.15}>
-                      <div className="text-center w-28 md:w-40">
-                        <div className="mb-2 md:mb-3 rounded-lg overflow-hidden border-2 aspect-square flex items-center justify-center shadow-lg" style={{ borderColor: BRAND.gold, backgroundColor: 'white' }}>
+                      <div className="text-center w-32 md:w-44">
+                        <div className="mb-3 md:mb-4 rounded-lg overflow-hidden border-2 aspect-square flex items-center justify-center shadow-xl" style={{ borderColor: BRAND.gold, backgroundColor: 'white' }}>
                           {matchup.image_url ? (
                             <img
                               src={matchup.image_url}
@@ -732,9 +786,9 @@ const AnalysisViewer = () => {
                             <div className="text-black/50 text-xs md:text-sm w-full h-full flex items-center justify-center">No image</div>
                           )}
                         </div>
-                        <p className="font-bold text-sm md:text-lg text-white drop-shadow-md">{matchup.name}</p>
+                        <p className="font-bold text-base md:text-xl text-white drop-shadow-lg">{matchup.name}</p>
                         {matchup.shirt_number && (
-                          <p className="text-xs md:text-sm font-semibold" style={{ color: BRAND.gold }}>
+                          <p className="text-sm md:text-base font-semibold" style={{ color: BRAND.gold }}>
                             #{matchup.shirt_number}
                           </p>
                         )}
