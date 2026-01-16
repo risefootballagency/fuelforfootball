@@ -381,7 +381,7 @@ const AnalysisHeader = ({
 
       {/* Team colors bar with logos BEHIND the color containers - using OLD grass (analysis-grass-bg) behind VS */}
       <div 
-        className="relative h-20 md:h-28 overflow-visible"
+        className="relative h-10 md:h-14 overflow-visible"
         style={{
           backgroundImage: `url('/analysis-grass-bg.png')`,
           backgroundSize: 'cover',
@@ -389,21 +389,21 @@ const AnalysisHeader = ({
         }}
       >
         {/* Top fade */}
-        <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-[5]" />
+        <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-[5]" />
         {/* Bottom fade */}
-        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
+        <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
         
         {/* Club logos - BEHIND color bars (z-0), positioned so ONLY bottom third is visible */}
         {homeLogo && (
           <div 
-            className="absolute left-[8%] md:left-[12%] -top-36 md:-top-52 w-48 h-48 md:w-72 md:h-72 z-0"
+            className="absolute left-[8%] md:left-[12%] -top-40 md:-top-56 w-48 h-48 md:w-72 md:h-72 z-0"
           >
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
           <div 
-            className="absolute right-[8%] md:right-[12%] -top-36 md:-top-52 w-48 h-48 md:w-72 md:h-72 z-0"
+            className="absolute right-[8%] md:right-[12%] -top-40 md:-top-56 w-48 h-48 md:w-72 md:h-72 z-0"
           >
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
