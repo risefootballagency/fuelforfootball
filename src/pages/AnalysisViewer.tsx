@@ -172,7 +172,7 @@ const ContentCard = ({ children, className = "", transparent = false }: { childr
   </div>
 );
 
-// Section component that auto-opens on scroll DOWN only, stays open when scrolling up
+// Section component that auto-opens on scroll DOWN only, closes when scrolling off screen
 const ExpandableSection = ({ 
   title, 
   children, 
@@ -189,17 +189,45 @@ const ExpandableSection = ({
   transparentContent?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  const [hasBeenOpened, setHasBeenOpened] = useState(defaultOpen);
+  const [wasManuallyToggled, setWasManuallyToggled] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { margin: "-20% 0px -40% 0px" });
+  const isInView = useInView(sectionRef, { margin: "-10% 0px -30% 0px" });
   
-  // Auto-open when scrolling INTO view (down), but don't close when scrolling up
+  // Track scroll direction and auto-open/close
   useEffect(() => {
-    if (isInView && !hasBeenOpened) {
-      setIsOpen(true);
-      setHasBeenOpened(true);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const isScrollingDown = currentScrollY > lastScrollY;
+      setLastScrollY(currentScrollY);
+      
+      // Only auto-manage if not manually toggled
+      if (!wasManuallyToggled) {
+        if (isInView && isScrollingDown && !isOpen) {
+          // Auto-open when scrolling DOWN into view
+          setIsOpen(true);
+        } else if (!isInView && isOpen) {
+          // Close when scrolling off screen
+          setIsOpen(false);
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isInView, isOpen, lastScrollY, wasManuallyToggled]);
+  
+  // Reset manual toggle flag when section goes off screen
+  useEffect(() => {
+    if (!isInView) {
+      setWasManuallyToggled(false);
     }
-  }, [isInView, hasBeenOpened]);
+  }, [isInView]);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+    setWasManuallyToggled(true);
+  };
 
   return (
     <section 
@@ -213,7 +241,7 @@ const ExpandableSection = ({
       }}
     >
       <TacticalSymbols />
-      <div className="relative px-4 md:px-6 py-6 md:py-8">
+      <div className="relative px-4 md:px-6 pt-4 md:pt-5 pb-2 md:pb-3">
         <motion.div 
           className="w-full overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
@@ -222,7 +250,7 @@ const ExpandableSection = ({
           viewport={{ once: true }}
         >
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={handleToggle}
             className="w-full"
           >
             <SectionTitle title={title} icon={icon} />
@@ -250,7 +278,6 @@ const ExpandableSection = ({
           </AnimatePresence>
         </motion.div>
       </div>
-      {/* Removed white separator line */}
     </section>
   );
 };
@@ -455,6 +482,9 @@ const AnalysisHeader = ({
 
 // Quick Navigation Dropdown - Full width, smoky grass background, consistent text
 const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string }[] }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
   // Separate key info sections from points
   const keyInfoSections = sections.filter(s => 
     s.id.includes('overview') || 
@@ -466,8 +496,28 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   );
   const pointSections = sections.filter(s => s.id.includes('point'));
 
+  // Scroll dropdown into view when opened
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      setTimeout(() => {
+        dropdownRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+  }, [isOpen]);
+
+  const handleNavigate = (sectionId: string) => {
+    setIsOpen(false);
+    setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }
+    }, 50);
+  };
+
   return (
     <motion.div 
+      ref={dropdownRef}
       className="sticky top-0 z-40 py-2"
       style={{ 
         backgroundImage: `url('/analysis-grass-bg.png')`,
@@ -482,7 +532,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 pointer-events-none" />
       
       <div className="relative flex justify-center px-4">
-        <DropdownMenu>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
@@ -510,7 +560,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
             side="bottom"
             align="center"
             sideOffset={4}
-            avoidCollisions={false}
+            avoidCollisions={true}
           >
             {/* Dark smoky overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 pointer-events-none rounded-md" />
@@ -525,12 +575,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
                   {keyInfoSections.map((section) => (
                     <DropdownMenuItem
                       key={section.id}
-                      onClick={() => {
-                        const el = document.getElementById(section.id);
-                        if (el) {
-                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                      }}
+                      onClick={() => handleNavigate(section.id)}
                       className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-sm md:text-base py-1.5 px-3 rounded-md border"
                       style={{ 
                         color: 'white',
@@ -563,12 +608,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
                   {pointSections.map((section) => (
                     <DropdownMenuItem
                       key={section.id}
-                      onClick={() => {
-                        const el = document.getElementById(section.id);
-                        if (el) {
-                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                      }}
+                      onClick={() => handleNavigate(section.id)}
                       className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-sm md:text-base py-1.5 px-3 rounded-md border"
                       style={{ 
                         color: 'white',
@@ -832,11 +872,11 @@ const AnalysisViewer = () => {
                 }}
               >
                 <TacticalSymbols />
-                <div className="relative px-4 md:px-6 py-4 md:py-6">
-                  <button className="w-full">
-                    <SectionTitle title="Potential Matchup(s)" />
-                  </button>
-                  <div className="flex justify-center items-center gap-4 md:gap-8 flex-wrap py-3">
+              <div className="relative px-4 md:px-6 pt-3 md:pt-4 pb-2 md:pb-3">
+                <button className="w-full">
+                  <SectionTitle title="Potential Matchup(s)" />
+                </button>
+                <div className="flex justify-center items-center gap-3 md:gap-6 flex-wrap py-2">
                     {analysis.matchups.map((matchup: any, index: number) => (
                       <TextReveal key={index} delay={index * 0.15}>
                         <div className="text-center w-24 md:w-36">
