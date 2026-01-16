@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { ArrowLeft, ChevronDown, Play, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import {
   DropdownMenu,
@@ -78,72 +78,60 @@ const PlayerKit = ({ primaryColor, secondaryColor, number }: { primaryColor: str
   </svg>
 );
 
-// Tactical symbols SVG background - subtle on grass sections
+// Tactical symbols SVG background - football analysis style
 const TacticalSymbols = () => (
   <svg 
     className="absolute inset-0 w-full h-full pointer-events-none"
     preserveAspectRatio="xMidYMid slice"
   >
     <defs>
-      <pattern id="tacticalPattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-        {/* X symbols */}
-        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.08">
-          <line x1="20" y1="20" x2="40" y2="40" />
-          <line x1="40" y1="20" x2="20" y2="40" />
+      <pattern id="tacticalPattern" x="0" y="0" width="300" height="300" patternUnits="userSpaceOnUse">
+        {/* Player position markers (circles with X) */}
+        <g opacity="0.06">
+          <circle cx="50" cy="50" r="18" stroke={BRAND.gold} strokeWidth="2" fill="none" />
+          <line x1="38" y1="38" x2="62" y2="62" stroke={BRAND.gold} strokeWidth="2" />
+          <line x1="62" y1="38" x2="38" y2="62" stroke={BRAND.gold} strokeWidth="2" />
         </g>
-        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.06">
-          <line x1="120" y1="80" x2="140" y2="100" />
-          <line x1="140" y1="80" x2="120" y2="100" />
+        
+        {/* Defensive block (rectangle) */}
+        <rect x="180" y="40" width="40" height="25" stroke={BRAND.gold} strokeWidth="2" fill="none" opacity="0.05" />
+        
+        {/* Movement arrows */}
+        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.07" fill="none">
+          <path d="M80 150 L140 150" strokeDasharray="8 4" />
+          <polygon points="140,145 150,150 140,155" fill={BRAND.gold} />
         </g>
-        {/* O symbols */}
-        <circle cx="80" cy="30" r="12" stroke={BRAND.gold} strokeWidth="2" fill="none" opacity="0.07" />
-        <circle cx="160" cy="160" r="15" stroke={BRAND.gold} strokeWidth="2" fill="none" opacity="0.09" />
-        {/* Arrows */}
-        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.05" fill="none">
-          <path d="M50 120 L80 120 L75 115 M80 120 L75 125" />
-          <path d="M150 50 L150 80 L145 75 M150 80 L155 75" />
+        
+        <g stroke={BRAND.gold} strokeWidth="2" opacity="0.06" fill="none">
+          <path d="M200 180 L200 240" />
+          <polygon points="195,240 200,252 205,240" fill={BRAND.gold} />
         </g>
-        {/* Dashed lines */}
-        <line x1="10" y1="150" x2="60" y2="180" stroke={BRAND.gold} strokeWidth="1.5" strokeDasharray="8 4" opacity="0.06" />
-        <line x1="100" y1="10" x2="180" y2="50" stroke={BRAND.gold} strokeWidth="1.5" strokeDasharray="8 4" opacity="0.07" />
+        
+        {/* Passing lane (curved arrow) */}
+        <path d="M40 200 Q100 160 160 200" stroke={BRAND.gold} strokeWidth="2" fill="none" strokeDasharray="6 3" opacity="0.05" />
+        
+        {/* Zone shading triangle */}
+        <polygon points="250,120 290,180 210,180" stroke={BRAND.gold} strokeWidth="1.5" fill="none" opacity="0.04" />
+        
+        {/* Player marker (filled circle) */}
+        <circle cx="120" cy="250" r="10" fill={BRAND.gold} opacity="0.05" />
+        
+        {/* Pressing trigger line */}
+        <line x1="20" y1="280" x2="100" y2="280" stroke={BRAND.gold} strokeWidth="2" strokeDasharray="15 5" opacity="0.06" />
+        
+        {/* Formation dots */}
+        <circle cx="260" cy="260" r="6" fill={BRAND.gold} opacity="0.07" />
+        <circle cx="280" cy="280" r="6" fill={BRAND.gold} opacity="0.07" />
+        <circle cx="240" cy="280" r="6" fill={BRAND.gold} opacity="0.07" />
       </pattern>
     </defs>
     <rect width="100%" height="100%" fill="url(#tacticalPattern)" />
   </svg>
 );
 
-// Grass section wrapper with tactical symbols
-const GrassSection = ({ 
-  children, 
-  id,
-  className = "" 
-}: { 
-  children: React.ReactNode; 
-  id?: string;
-  className?: string;
-}) => (
-  <section 
-    id={id}
-    className={`relative w-full ${className}`}
-    style={{
-      backgroundImage: `url('/analysis-grass-bg.png')`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }}
-  >
-    <TacticalSymbols />
-    <div className="relative px-4 md:px-6 py-6 md:py-8">
-      {children}
-    </div>
-    {/* White separator line at bottom of grass sections */}
-    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/70" />
-  </section>
-);
-
-// Section title with grass image background (full cover, rounded), green cap, gold text
+// Section title with grass image background - NO GREEN CAP
 const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => (
   <div className="relative mb-4">
-    {/* Main title bar with grass background */}
     <div 
       className="relative rounded-lg overflow-hidden"
       style={{
@@ -152,14 +140,7 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
         backgroundPosition: 'center'
       }}
     >
-      {/* Green cap band on top for legibility */}
-      <div 
-        className="absolute inset-x-0 top-0 h-2"
-        style={{ backgroundColor: BRAND.darkGreen }}
-      />
-      
-      {/* Title content */}
-      <div className="py-3 md:py-4 px-4 pt-4 md:pt-5">
+      <div className="py-3 md:py-4 px-4">
         <div className="flex items-center justify-center gap-3">
           {icon === "plus" && (
             <Plus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
@@ -189,7 +170,7 @@ const ContentCard = ({ children, className = "", transparent = false }: { childr
   </div>
 );
 
-// Section component that expands on click (no auto-scroll)
+// Section component that auto-opens on scroll (NO screen hijacking)
 const ExpandableSection = ({ 
   title, 
   children, 
@@ -206,45 +187,68 @@ const ExpandableSection = ({
   transparentContent?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(sectionRef, { margin: "-20% 0px -60% 0px" });
+  
+  // Auto-open when in view (no scrolling, just opens)
+  useEffect(() => {
+    if (isInView && !isOpen) {
+      setIsOpen(true);
+    }
+  }, [isInView]);
 
   return (
-    <GrassSection id={id}>
-      <motion.div 
-        className="w-full overflow-hidden"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        viewport={{ once: true }}
-      >
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full"
+    <section 
+      ref={sectionRef}
+      id={id}
+      className="relative w-full"
+      style={{
+        backgroundImage: `url('/analysis-grass-bg.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
+      <TacticalSymbols />
+      <div className="relative px-4 md:px-6 py-6 md:py-8">
+        <motion.div 
+          className="w-full overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
         >
-          <SectionTitle title={title} icon={icon} />
-          <motion.div
-            className="flex justify-center -mt-2 mb-2"
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full"
           >
-            <ChevronDown className="w-5 h-5" style={{ color: BRAND.gold }} />
-          </motion.div>
-        </button>
-        <AnimatePresence initial={false}>
-          {isOpen && (
+            <SectionTitle title={title} icon={icon} />
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="flex justify-center -mt-2 mb-2"
+              animate={{ rotate: isOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <ContentCard transparent={transparentContent}>
-                {children}
-              </ContentCard>
+              <ChevronDown className="w-5 h-5" style={{ color: BRAND.gold }} />
             </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </GrassSection>
+          </button>
+          <AnimatePresence initial={false}>
+            {isOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+              >
+                <ContentCard transparent={transparentContent}>
+                  {children}
+                </ContentCard>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+      {/* White separator line at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/70" />
+    </section>
   );
 };
 
@@ -260,7 +264,7 @@ const TextReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?
   </motion.div>
 );
 
-// Main Header with FFF Logo, branding, club logos pop-out, and VS component
+// Main Header - ONE set of club logos, 4x size, vertically aligned with team names
 const AnalysisHeader = ({ 
   homeTeam, 
   awayTeam, 
@@ -296,97 +300,60 @@ const AnalysisHeader = ({
         border: `4px solid ${BRAND.gold}`,
       }}
     >
-      {/* Top section with logo and back button */}
+      {/* Top section with logo, tagline, back button */}
       <div 
-        className="relative py-4 px-4"
+        className="relative py-6 px-4"
         style={{
           backgroundImage: `url('/analysis-grass-bg.png')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        {/* Center content - Logo, tagline, back button */}
-        <div className="flex flex-col items-center justify-center relative z-20">
-          {/* FFF Logo */}
+        <div className="flex flex-col items-center justify-center">
+          {/* FFF Logo - larger */}
           <img 
             src={fffLogo} 
             alt="Fuel For Football" 
-            className="w-16 h-16 md:w-20 md:h-20 object-contain mb-1"
+            className="w-20 h-20 md:w-28 md:h-28 object-contain mb-2"
           />
           
-          {/* Brand text */}
-          <div className="text-center mb-2">
-            <h1 className="text-white text-sm md:text-base font-bebas tracking-wider uppercase">
-              Fuel For Football
-            </h1>
-            <p 
-              className="text-xs md:text-sm font-bebas italic tracking-wide"
-              style={{ color: BRAND.gold }}
-            >
-              Change The Game
-            </p>
-          </div>
+          {/* Brand text - proper font */}
+          <h1 className="text-white text-lg md:text-2xl font-bebas tracking-widest uppercase mb-1">
+            FUEL FOR FOOTBALL
+          </h1>
+          <p 
+            className="text-base md:text-xl font-bebas tracking-wider uppercase mb-4"
+            style={{ color: BRAND.gold }}
+          >
+            CHANGE THE GAME
+          </p>
 
-          {/* Back Button Row with Club Logos on sides */}
-          <div className="flex items-center justify-center gap-4 md:gap-8 w-full max-w-md">
-            {/* Home Club Logo - Left of back button */}
-            <div className="w-14 h-14 md:w-20 md:h-20 flex-shrink-0">
-              {homeLogo && (
-                <img 
-                  src={homeLogo} 
-                  alt="" 
-                  className="w-full h-full object-contain drop-shadow-lg"
-                />
-              )}
-            </div>
-
-            {/* Back Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(-1)}
-              className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white flex-shrink-0"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-
-            {/* Away Club Logo - Right of back button */}
-            <div className="w-14 h-14 md:w-20 md:h-20 flex-shrink-0">
-              {awayLogo && (
-                <img 
-                  src={awayLogo} 
-                  alt="" 
-                  className="w-full h-full object-contain drop-shadow-lg"
-                />
-              )}
-            </div>
-          </div>
+          {/* Back Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
         </div>
       </div>
 
-      {/* VS Design Component with team colors - logos pop out from behind */}
-      <div className="relative h-24 md:h-32 overflow-visible">
+      {/* Team colors bar with SINGLE set of logos - 4x size, popping out from top */}
+      <div className="relative h-28 md:h-36">
         {/* Left Side - Home Team Color */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-1/2 overflow-hidden"
+          className="absolute left-0 top-0 bottom-0 w-1/2"
           style={{ 
             backgroundColor: homeBgColor || '#1a1a1a',
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
           }}
         >
-          {/* Home Team Logo - positioned to pop out from top */}
-          {homeLogo && (
-            <div 
-              className="absolute -top-10 md:-top-14 left-1/2 -translate-x-1/2 w-24 h-24 md:w-32 md:h-32 z-0"
-              style={{ opacity: 0.5 }}
-            >
-              <img src={homeLogo} alt="" className="w-full h-full object-contain" />
-            </div>
-          )}
           {/* Home Team Name */}
-          <div className="absolute inset-0 flex items-center justify-center pr-4 md:pr-8 z-10">
-            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2">
+          <div className="absolute inset-0 flex items-center justify-center pr-6 md:pr-10">
+            <span className="text-xl md:text-3xl lg:text-4xl font-bebas text-white tracking-wide uppercase text-center px-2">
               {homeTeam}
             </span>
           </div>
@@ -394,76 +361,85 @@ const AnalysisHeader = ({
 
         {/* Right Side - Away Team Color */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden"
+          className="absolute right-0 top-0 bottom-0 w-1/2"
           style={{ 
             backgroundColor: awayBgColor || '#8B0000',
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
           }}
         >
-          {/* Away Team Logo - positioned to pop out from top */}
-          {awayLogo && (
-            <div 
-              className="absolute -top-10 md:-top-14 left-1/2 -translate-x-1/2 w-24 h-24 md:w-32 md:h-32 z-0"
-              style={{ opacity: 0.5 }}
-            >
-              <img src={awayLogo} alt="" className="w-full h-full object-contain" />
-            </div>
-          )}
           {/* Away Team Name */}
-          <div className="absolute inset-0 flex items-center justify-center pl-4 md:pl-8 z-10">
-            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2">
+          <div className="absolute inset-0 flex items-center justify-center pl-6 md:pl-10">
+            <span className="text-xl md:text-3xl lg:text-4xl font-bebas text-white tracking-wide uppercase text-center px-2">
               {awayTeam}
             </span>
           </div>
         </div>
 
+        {/* Home Club Logo - popping out from TOP, 4x larger, aligned with team name */}
+        {homeLogo && (
+          <div 
+            className="absolute left-[15%] md:left-[18%] -top-10 md:-top-14 w-28 h-28 md:w-40 md:h-40 z-10"
+          >
+            <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
+          </div>
+        )}
+
+        {/* Away Club Logo - popping out from TOP, 4x larger, aligned with team name */}
+        {awayLogo && (
+          <div 
+            className="absolute right-[15%] md:right-[18%] -top-10 md:-top-14 w-28 h-28 md:w-40 md:h-40 z-10"
+          >
+            <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
+          </div>
+        )}
+
         {/* VS Badge - Center */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           {isPostMatch && homeScore !== null && awayScore !== null ? (
             <div 
-              className="rounded-full w-14 h-14 md:w-18 md:h-18 flex items-center justify-center shadow-lg border-2 border-white"
+              className="rounded-full w-16 h-16 md:w-20 md:h-20 flex items-center justify-center shadow-lg border-2 border-white"
               style={{ backgroundColor: BRAND.gold }}
             >
-              <span className="text-black text-lg md:text-xl font-bebas font-bold">
+              <span className="text-black text-xl md:text-2xl font-bebas font-bold">
                 {homeScore} - {awayScore}
               </span>
             </div>
           ) : (
-            <div className="bg-black rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border-3 border-white shadow-lg">
-              <span className="text-white text-base md:text-lg font-bebas font-bold">VS</span>
+            <div className="bg-black rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center border-3 border-white shadow-lg">
+              <span className="text-white text-lg md:text-xl font-bebas font-bold">VS</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Match Date Line */}
-      <div 
-        className="text-center py-2 md:py-3"
-        style={{ backgroundColor: BRAND.darkGreen }}
-      >
-        <span className="text-white font-bebas tracking-wider text-xs md:text-sm">
-          {homeTeam} – {awayTeam}
-        </span>
-        {matchDate && (
-          <span className="block text-white/80 text-xs mt-0.5">
-            ({new Date(matchDate).toLocaleDateString('en-GB', {
+      {/* Match Date Line - ONLY date, no repeated team names */}
+      {matchDate && (
+        <div 
+          className="text-center py-3 md:py-4"
+          style={{ backgroundColor: BRAND.darkGreen }}
+        >
+          <span className="text-white font-bebas tracking-wider text-lg md:text-xl">
+            {new Date(matchDate).toLocaleDateString('en-GB', {
+              weekday: 'long',
               day: '2-digit',
-              month: '2-digit',
+              month: 'long',
               year: 'numeric'
-            })})
+            })}
           </span>
-        )}
-      </div>
+        </div>
+      )}
     </motion.div>
   );
 };
 
-// Quick Navigation Dropdown (replaces icon row)
+// Quick Navigation Dropdown - cleaner styling
 const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string }[] }) => (
   <motion.div 
     className="sticky top-0 z-40 py-3 px-4"
     style={{ 
-      backgroundColor: BRAND.darkGreen,
+      backgroundImage: `url('/analysis-grass-bg.png')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
     }}
     initial={{ opacity: 0, y: -10 }}
     animate={{ opacity: 1, y: 0 }}
@@ -475,9 +451,9 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
           <Button
             variant="outline"
             size="sm"
-            className="text-xs md:text-sm hover:bg-white/10"
+            className="text-sm md:text-base font-bebas tracking-wider hover:bg-black/20 transition-colors"
             style={{ 
-              backgroundColor: 'transparent',
+              backgroundColor: 'rgba(0,0,0,0.5)',
               color: BRAND.gold,
               borderColor: BRAND.gold,
               borderWidth: '2px'
@@ -488,8 +464,8 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
-          className="min-w-[220px] max-h-[60vh] overflow-y-auto"
-          style={{ backgroundColor: BRAND.darkGreen, borderColor: BRAND.gold }}
+          className="min-w-[220px] max-h-[60vh] overflow-y-auto z-50"
+          style={{ backgroundColor: '#0a2615', borderColor: BRAND.gold }}
         >
           {sections.map((section) => (
             <DropdownMenuItem
@@ -500,7 +476,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
                   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
               }}
-              className="cursor-pointer hover:bg-white/10"
+              className="cursor-pointer hover:bg-white/10 font-bebas tracking-wide"
               style={{ color: BRAND.gold }}
             >
               {section.label}
@@ -612,8 +588,16 @@ const AnalysisViewer = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background relative">
-      {/* Gold inset vertical lines - 4px from edges, 2px thickness - below header */}
+    <div 
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `url('/analysis-grass-bg.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Gold inset vertical lines - 4px from edges, 2px thickness */}
       <div 
         className="fixed top-0 bottom-0 left-[4px] w-[2px] z-10 pointer-events-none"
         style={{ backgroundColor: BRAND.gold }}
@@ -643,7 +627,7 @@ const AnalysisViewer = () => {
       )}
 
       {/* Main content wrapper - padded to stay inside the inset lines */}
-      <main className="w-full mx-auto px-[6px]">
+      <main className="w-full mx-auto px-[8px]">
         {/* Pre-Match Content */}
         {isPreMatch && (
           <div className="w-full">
@@ -660,14 +644,14 @@ const AnalysisViewer = () => {
             {/* Quick Nav Dropdown */}
             {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
 
-            {/* Match Image */}
+            {/* Match Image - full width of content area */}
             {analysis.match_image_url && (
               <ScrollReveal className="w-full">
                 <div className="w-full">
                   <img 
                     src={analysis.match_image_url} 
                     alt="Match" 
-                    className="w-full max-h-[50vh] md:max-h-[60vh] object-cover"
+                    className="w-full object-contain"
                   />
                 </div>
               </ScrollReveal>
@@ -750,9 +734,9 @@ const AnalysisViewer = () => {
                             <div className="text-black/50 text-xs md:text-sm w-full h-full flex items-center justify-center">No image</div>
                           )}
                         </div>
-                        <p className="font-bold text-sm md:text-lg" style={{ color: BRAND.bodyText }}>{matchup.name}</p>
+                        <p className="font-bold text-sm md:text-lg text-white drop-shadow-md">{matchup.name}</p>
                         {matchup.shirt_number && (
-                          <p className="text-xs md:text-sm font-semibold" style={{ color: BRAND.darkGreen }}>
+                          <p className="text-xs md:text-sm font-semibold" style={{ color: BRAND.gold }}>
                             #{matchup.shirt_number}
                           </p>
                         )}
@@ -856,7 +840,7 @@ const AnalysisViewer = () => {
                                 key={imgIndex}
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full max-w-4xl rounded-lg shadow-md border-2"
+                                className="w-full rounded-lg shadow-md border-2"
                                 style={{ borderColor: BRAND.gold }}
                               />
                             ))}
@@ -897,14 +881,14 @@ const AnalysisViewer = () => {
             {/* Quick Nav Dropdown */}
             {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
 
-            {/* Player Image */}
+            {/* Player Image - object-contain to avoid cropping */}
             {analysis.player_image_url && (
               <ScrollReveal className="w-full">
                 <div className="w-full">
                   <img
                     src={analysis.player_image_url}
                     alt="Player"
-                    className="w-full max-h-[40vh] md:max-h-[50vh] object-cover"
+                    className="w-full object-contain"
                   />
                 </div>
               </ScrollReveal>
@@ -957,7 +941,7 @@ const AnalysisViewer = () => {
                                 key={imgIndex}
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full max-w-4xl rounded-lg shadow-md border-2"
+                                className="w-full rounded-lg shadow-md border-2"
                                 style={{ borderColor: BRAND.gold }}
                               />
                             ))}
@@ -984,7 +968,7 @@ const AnalysisViewer = () => {
           <div className="w-full">
             {/* Header */}
             <motion.div 
-              className="py-4"
+              className="py-6"
               style={{
                 backgroundImage: `url('/analysis-grass-bg.png')`,
                 backgroundSize: 'cover',
@@ -999,19 +983,17 @@ const AnalysisViewer = () => {
                 <img 
                   src={fffLogo} 
                   alt="Fuel For Football" 
-                  className="w-16 h-16 md:w-20 md:h-20 object-contain mb-1"
+                  className="w-20 h-20 md:w-28 md:h-28 object-contain mb-2"
                 />
-                <div className="text-center mb-2">
-                  <h1 className="text-white text-sm md:text-base font-bebas tracking-wider uppercase">
-                    Fuel For Football
-                  </h1>
-                  <p 
-                    className="text-xs md:text-sm font-bebas italic tracking-wide"
-                    style={{ color: BRAND.gold }}
-                  >
-                    Change The Game
-                  </p>
-                </div>
+                <h1 className="text-white text-lg md:text-2xl font-bebas tracking-widest uppercase mb-1">
+                  FUEL FOR FOOTBALL
+                </h1>
+                <p 
+                  className="text-base md:text-xl font-bebas tracking-wider uppercase mb-4"
+                  style={{ color: BRAND.gold }}
+                >
+                  CHANGE THE GAME
+                </p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -1024,21 +1006,32 @@ const AnalysisViewer = () => {
               </div>
             </motion.div>
 
-            <GrassSection>
-              <ContentCard>
-                <div className="text-center">
-                  <span 
-                    className="text-xs md:text-sm font-bebas uppercase tracking-widest px-3 py-1 rounded-full inline-block mb-3"
-                    style={{ backgroundColor: BRAND.gold, color: 'black' }}
-                  >
-                    Concept
-                  </span>
-                  <h1 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider" style={{ color: BRAND.bodyText }}>
-                    {analysis.title || "Concept Analysis"}
-                  </h1>
-                </div>
-              </ContentCard>
-            </GrassSection>
+            <section 
+              className="relative w-full py-6"
+              style={{
+                backgroundImage: `url('/analysis-grass-bg.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              <TacticalSymbols />
+              <div className="relative px-4 md:px-6">
+                <ContentCard>
+                  <div className="text-center">
+                    <span 
+                      className="text-xs md:text-sm font-bebas uppercase tracking-widest px-3 py-1 rounded-full inline-block mb-3"
+                      style={{ backgroundColor: BRAND.gold, color: 'black' }}
+                    >
+                      Concept
+                    </span>
+                    <h1 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider" style={{ color: BRAND.bodyText }}>
+                      {analysis.title || "Concept Analysis"}
+                    </h1>
+                  </div>
+                </ContentCard>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/70" />
+            </section>
 
             {analysis.concept && (
               <ExpandableSection title="Concept" defaultOpen>
@@ -1078,7 +1071,7 @@ const AnalysisViewer = () => {
                       )}
                       {point.images && point.images.length > 0 && (
                         <TextReveal delay={0.15}>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="flex flex-col gap-4">
                             {point.images.map((img: string, imgIndex: number) => (
                               <img
                                 key={imgIndex}
