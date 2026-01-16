@@ -2097,7 +2097,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => navigate(`/analysis/${analysis.id}`)}
+                                    onClick={() => navigate(`/analysis/${analysis.home_team || 'home'}-vs-${analysis.away_team || 'away'}-${analysis.id}`.toLowerCase().replace(/[^a-z0-9\-\/]+/g, '-'))}
                                     className="w-full sm:w-auto"
                                   >
                                     View

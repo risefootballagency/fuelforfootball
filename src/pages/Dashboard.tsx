@@ -1753,7 +1753,7 @@ const Dashboard = () => {
                                     variant="outline" 
                                     size="sm"
                                     onClick={() => {
-                                      navigate(`/analysis/${analysis.analysis_writer_id}`);
+                                      navigate(`/analysis/${(analysis.analysis_writer_data?.home_team || 'home').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-vs-${(analysis.analysis_writer_data?.away_team || 'away').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${analysis.analysis_writer_id}`);
                                     }}
                                     className={`text-xs border-0 ${
                                       analysis.analysis_writer_data.analysis_type === "pre-match" 

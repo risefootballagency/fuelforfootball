@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { ArrowLeft, ChevronDown, Play, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
+import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import {
@@ -585,10 +586,13 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
 };
 
 const AnalysisViewer = () => {
-  const { analysisId } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  
+  // Extract the UUID from the slug (supports both old UUID-only and new team-vs-team-uuid formats)
+  const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
 
   useEffect(() => {
     if (analysisId) {
