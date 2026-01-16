@@ -245,8 +245,8 @@ const ExpandableSection = ({
           </AnimatePresence>
         </motion.div>
       </div>
-      {/* White separator line at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/70" />
+      {/* White separator line at bottom - 2px matching gold, 35% opacity */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/35" />
     </section>
   );
 };
@@ -296,71 +296,83 @@ const AnalysisHeader = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Top gold border that connects with side lines - positioned at 4px from edge */}
+      {/* Top gold border that connects with side lines - at 4px from edge, same 2px thickness */}
       <div 
         className="absolute top-0 left-[4px] right-[4px] h-[2px] z-20"
         style={{ backgroundColor: BRAND.gold }}
       />
       
-      {/* Top section with logo, tagline, back button - OLD grass (analysis-grass-bg) */}
+      {/* Top section - COMPACT height, uses REALISTIC grass (analysis-page-bg) with fades */}
       <div 
-        className="relative py-6 px-4"
+        className="relative py-3 px-4"
+        style={{
+          backgroundImage: `url('/analysis-page-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        {/* Top fade gradient */}
+        <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
+        {/* Bottom fade gradient */}
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+        
+        <div className="relative flex flex-col items-center justify-center">
+          {/* FFF Logo - reduced */}
+          <img 
+            src={fffLogo} 
+            alt="Fuel For Football" 
+            className="w-16 h-16 md:w-20 md:h-20 object-contain mb-1"
+          />
+          
+          {/* Brand text - compact */}
+          <h1 className="text-white text-base md:text-lg font-bebas tracking-widest uppercase">
+            FUEL FOR FOOTBALL
+          </h1>
+          <p 
+            className="text-sm md:text-base font-bebas tracking-wider uppercase mb-2"
+            style={{ color: BRAND.gold }}
+          >
+            CHANGE THE GAME
+          </p>
+
+          {/* Back Button - smaller */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-3 text-sm"
+          >
+            <ArrowLeft className="w-3 h-3 mr-1" />
+            Back
+          </Button>
+        </div>
+      </div>
+
+      {/* Team colors bar with logos BEHIND the color containers - using OLD grass (analysis-grass-bg) behind VS */}
+      <div 
+        className="relative h-20 md:h-28 overflow-visible"
         style={{
           backgroundImage: `url('/analysis-grass-bg.png')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        {/* Top fade gradient */}
-        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
-        {/* Bottom fade gradient */}
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+        {/* Top fade */}
+        <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-[5]" />
+        {/* Bottom fade */}
+        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
         
-        <div className="relative flex flex-col items-center justify-center">
-          {/* FFF Logo - larger */}
-          <img 
-            src={fffLogo} 
-            alt="Fuel For Football" 
-            className="w-24 h-24 md:w-36 md:h-36 object-contain mb-2"
-          />
-          
-          {/* Brand text - proper font */}
-          <h1 className="text-white text-xl md:text-3xl font-bebas tracking-widest uppercase mb-1">
-            FUEL FOR FOOTBALL
-          </h1>
-          <p 
-            className="text-lg md:text-2xl font-bebas tracking-wider uppercase mb-4"
-            style={{ color: BRAND.gold }}
-          >
-            CHANGE THE GAME
-          </p>
-
-          {/* Back Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-        </div>
-      </div>
-
-      {/* Team colors bar with logos BEHIND the color containers - only bottom third visible */}
-      <div className="relative h-28 md:h-36 overflow-visible">
-        {/* Club logos - BEHIND color bars (z-0), moved MUCH higher up so only bottom third is behind containers */}
+        {/* Club logos - BEHIND color bars (z-0), positioned so ONLY bottom third is visible */}
         {homeLogo && (
           <div 
-            className="absolute left-[8%] md:left-[12%] -top-52 md:-top-72 w-52 h-52 md:w-80 md:h-80 z-0"
+            className="absolute left-[8%] md:left-[12%] -top-36 md:-top-52 w-48 h-48 md:w-72 md:h-72 z-0"
           >
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
           <div 
-            className="absolute right-[8%] md:right-[12%] -top-52 md:-top-72 w-52 h-52 md:w-80 md:h-80 z-0"
+            className="absolute right-[8%] md:right-[12%] -top-36 md:-top-52 w-48 h-48 md:w-72 md:h-72 z-0"
           >
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
@@ -374,9 +386,9 @@ const AnalysisHeader = ({
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
           }}
         >
-          {/* Home Team Name - centered under where logo shows */}
-          <div className="flex-1 flex items-end justify-center pb-2 md:pb-3 pr-6 md:pr-10">
-            <span className="text-xl md:text-3xl lg:text-4xl font-bebas text-white tracking-wide uppercase text-center px-2">
+          {/* Home Team Name - centered */}
+          <div className="flex-1 flex items-end justify-center pb-2 pr-4 md:pr-8">
+            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2">
               {homeTeam}
             </span>
           </div>
@@ -390,9 +402,9 @@ const AnalysisHeader = ({
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
           }}
         >
-          {/* Away Team Name - centered under where logo shows */}
-          <div className="flex-1 flex items-end justify-center pb-2 md:pb-3 pl-6 md:pl-10">
-            <span className="text-xl md:text-3xl lg:text-4xl font-bebas text-white tracking-wide uppercase text-center px-2">
+          {/* Away Team Name - centered */}
+          <div className="flex-1 flex items-end justify-center pb-2 pl-4 md:pl-8">
+            <span className="text-lg md:text-2xl lg:text-3xl font-bebas text-white tracking-wide uppercase text-center px-2">
               {awayTeam}
             </span>
           </div>
@@ -402,28 +414,28 @@ const AnalysisHeader = ({
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           {isPostMatch && homeScore !== null && awayScore !== null ? (
             <div 
-              className="rounded-full w-16 h-16 md:w-20 md:h-20 flex items-center justify-center shadow-lg border-2 border-white"
+              className="rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shadow-lg border-2 border-white"
               style={{ backgroundColor: BRAND.gold }}
             >
-              <span className="text-black text-xl md:text-2xl font-bebas font-bold">
+              <span className="text-black text-lg md:text-xl font-bebas font-bold">
                 {homeScore} - {awayScore}
               </span>
             </div>
           ) : (
-            <div className="bg-black rounded-full w-14 h-14 md:w-16 md:h-16 flex items-center justify-center border-3 border-white shadow-lg">
-              <span className="text-white text-lg md:text-xl font-bebas font-bold">VS</span>
+            <div className="bg-black rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border-2 border-white shadow-lg">
+              <span className="text-white text-base md:text-lg font-bebas font-bold">VS</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Match Date Line - ONLY date, no repeated team names - DARKER brand green */}
+      {/* Match Date Line - ONLY date, compact, DARKER brand green */}
       {matchDate && (
         <div 
-          className="text-center py-3 md:py-4"
+          className="text-center py-2"
           style={{ backgroundColor: '#0a2e12' }}
         >
-          <span className="text-white font-bebas tracking-wider text-lg md:text-xl">
+          <span className="text-white font-bebas tracking-wider text-base md:text-lg">
             {new Date(matchDate).toLocaleDateString('en-GB', {
               weekday: 'long',
               day: '2-digit',
@@ -452,7 +464,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
 
   return (
     <motion.div 
-      className="sticky top-0 z-40 py-4 px-4"
+      className="sticky top-0 z-40 py-3 px-4"
       style={{ 
         backgroundImage: `url('/analysis-page-bg.png')`,
         backgroundSize: 'cover',
@@ -467,10 +479,10 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="text-lg md:text-xl px-6 py-3 font-bebas tracking-wider hover:bg-black/30 transition-colors"
+              className="text-xl md:text-2xl px-8 py-4 font-bebas tracking-wider hover:bg-white/10 transition-colors"
               style={{ 
-                backgroundColor: 'rgba(0,0,0,0.6)',
-                color: BRAND.gold,
+                backgroundColor: BRAND.darkGreen,
+                color: 'white',
                 borderColor: BRAND.gold,
                 borderWidth: '2px'
               }}
@@ -480,25 +492,24 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
-            className="min-w-[400px] md:min-w-[600px] max-h-[70vh] overflow-y-auto z-50 p-4"
+            className="w-[90vw] max-w-[500px] max-h-[70vh] overflow-y-auto z-50 p-5"
             style={{ 
-              backgroundImage: `url('/analysis-grass-bg.png')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundColor: BRAND.darkGreen,
               borderColor: BRAND.gold,
               borderWidth: '2px'
             }}
             side="bottom"
             align="center"
             sideOffset={8}
+            avoidCollisions={false}
           >
-            {/* Key Info Sections - horizontal layout */}
+            {/* Key Info Sections - centered, one per line */}
             {keyInfoSections.length > 0 && (
-              <div className="mb-4">
-                <div className="px-2 py-2 text-sm uppercase tracking-widest font-bebas" style={{ color: BRAND.gold }}>
+              <div className="mb-4 text-center">
+                <div className="py-2 text-base md:text-lg uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
                   Key Info
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   {keyInfoSections.map((section) => (
                     <DropdownMenuItem
                       key={section.id}
@@ -508,8 +519,8 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
                           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
                       }}
-                      className="cursor-pointer hover:bg-black/40 font-bebas tracking-wide text-base md:text-lg py-2 px-4 rounded-md border"
-                      style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}
+                      className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-lg md:text-xl py-2 px-4 rounded-md bg-black/30"
+                      style={{ color: 'white' }}
                     >
                       {section.label}
                     </DropdownMenuItem>
@@ -521,18 +532,18 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
             {/* Divider */}
             {keyInfoSections.length > 0 && pointSections.length > 0 && (
               <div 
-                className="my-3 h-[2px] mx-2"
+                className="my-4 h-[2px]"
                 style={{ backgroundColor: BRAND.gold, opacity: 0.5 }}
               />
             )}
             
-            {/* Points Sections - horizontal layout */}
+            {/* Points Sections - centered, wrap to multiple lines */}
             {pointSections.length > 0 && (
-              <div>
-                <div className="px-2 py-2 text-sm uppercase tracking-widest font-bebas" style={{ color: BRAND.gold }}>
+              <div className="text-center">
+                <div className="py-2 text-base md:text-lg uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
                   Analysis Points
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   {pointSections.map((section) => (
                     <DropdownMenuItem
                       key={section.id}
@@ -542,8 +553,8 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
                           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
                       }}
-                      className="cursor-pointer hover:bg-black/40 font-bebas tracking-wide text-base md:text-lg py-2 px-4 rounded-md border"
-                      style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}
+                      className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-lg md:text-xl py-2 px-4 rounded-md bg-black/30"
+                      style={{ color: 'white' }}
                     >
                       {section.label}
                     </DropdownMenuItem>
@@ -786,7 +797,7 @@ const AnalysisViewer = () => {
               </ExpandableSection>
             )}
 
-            {/* Key Matchups - FULLY TRANSPARENT BACKGROUND - NO BOX AT ALL */}
+            {/* Key Matchups - FULLY TRANSPARENT - NO BACKGROUND BOX/BORDER */}
             {analysis.matchups && analysis.matchups.length > 0 && (
               <section 
                 id={SECTION_IDS.matchups}
@@ -806,12 +817,13 @@ const AnalysisViewer = () => {
                     {analysis.matchups.map((matchup: any, index: number) => (
                       <TextReveal key={index} delay={index * 0.15}>
                         <div className="text-center w-32 md:w-44">
-                          <div className="mb-3 md:mb-4 rounded-lg overflow-hidden border-2 aspect-square flex items-center justify-center shadow-xl bg-white/10" style={{ borderColor: BRAND.gold }}>
+                          {/* Image container - NO border, NO background - fully transparent */}
+                          <div className="mb-3 md:mb-4 rounded-lg overflow-hidden aspect-square flex items-center justify-center shadow-xl">
                             {matchup.image_url ? (
                               <img
                                 src={matchup.image_url}
                                 alt={matchup.name}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover rounded-lg"
                               />
                             ) : (
                               <div className="text-white/50 text-xs md:text-sm w-full h-full flex items-center justify-center">No image</div>
@@ -828,8 +840,8 @@ const AnalysisViewer = () => {
                     ))}
                   </div>
                 </div>
-                {/* White separator line at bottom */}
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/70" />
+                {/* White separator line at bottom - 2px, 35% opacity */}
+                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/35" />
               </section>
             )}
 
@@ -1116,7 +1128,7 @@ const AnalysisViewer = () => {
                   </div>
                 </ContentCard>
               </div>
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/70" />
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/35" />
             </section>
 
             {analysis.concept && (
@@ -1185,7 +1197,7 @@ const AnalysisViewer = () => {
           </div>
         )}
         
-        {/* Back to Top Button */}
+        {/* Back to Top Button - INSTANT scroll */}
         <motion.div 
           className="flex justify-center py-8"
           initial={{ opacity: 0 }}
@@ -1193,7 +1205,7 @@ const AnalysisViewer = () => {
           viewport={{ once: true }}
         >
           <Button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}
             className="font-bebas uppercase tracking-wider text-lg px-8 py-4"
             style={{ 
               backgroundColor: BRAND.gold, 
