@@ -178,7 +178,7 @@ const App = () => {
                     <Route path="/scout-portal" element={<ScoutPortal />} />
                     <Route path="/realise-potential" element={<RealisePotential />} />
                     <Route path="/performance-report/:slug" element={<PerformanceReport />} />
-                    <Route path="/analysis/:analysisId" element={<AnalysisViewer />} />
+                    <Route path="/analysis/:slug" element={<AnalysisViewer />} />
                     <Route path="/import-program" element={<ImportProgramCSV />} />
                     <Route path="/replace-program" element={<ReplaceProgram />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />

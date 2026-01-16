@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, X, Sparkles, Database, Copy, Settings, Eye, Users } from "lucide-react";
+import { createAnalysisSlug } from "@/lib/urlHelpers";
 import {
   Dialog,
   DialogContent,
@@ -1102,7 +1103,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           )}
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/analysis/${analysis.id}`)}>
+          <Button variant="ghost" size="sm" onClick={() => navigate(createAnalysisSlug(analysis.home_team, analysis.away_team, analysis.id))}>
             <Eye className="w-4 h-4" />
           </Button>
           <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(type, analysis)}>
