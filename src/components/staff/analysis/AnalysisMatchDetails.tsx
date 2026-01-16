@@ -64,6 +64,7 @@ export const AnalysisMatchDetails = ({
   const [cropField, setCropField] = useState<string>("");
   const homeLogoInputRef = useRef<HTMLInputElement>(null);
   const awayLogoInputRef = useRef<HTMLInputElement>(null);
+  const matchImageInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogoFileSelect = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
     const file = event.target.files?.[0];
@@ -345,6 +346,29 @@ export const AnalysisMatchDetails = ({
               />
               {formData.player_image_url && (
                 <img src={formData.player_image_url} alt="Player" className="mt-2 max-w-xs" />
+              )}
+            </div>
+            
+            {/* Match Image with crop/position support */}
+            <div>
+              <Label className="flex items-center gap-2">
+                Match Image
+                <Crop className="w-3 h-3 text-muted-foreground" />
+              </Label>
+              <p className="text-xs text-muted-foreground mb-1">Square format - position the key part of the image</p>
+              <Input
+                ref={matchImageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleLogoFileSelect(e, "match_image_url")}
+                disabled={uploadingImage}
+              />
+              {formData.match_image_url && (
+                <div className="mt-2">
+                  <div className="w-32 h-32 overflow-hidden rounded-lg border-2 border-muted">
+                    <img src={formData.match_image_url} alt="Match" className="w-full h-full object-cover" />
+                  </div>
+                </div>
               )}
             </div>
             
