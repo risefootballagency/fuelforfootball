@@ -1,12 +1,13 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { ArrowLeft, ChevronDown, Play, Plus, Minus } from "lucide-react";
+import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download } from "lucide-react";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import html2canvas from "html2canvas";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -393,17 +394,17 @@ const AnalysisHeader = ({
         {/* Bottom fade */}
         <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
         
-        {/* Club logos - BEHIND color bars (z-0), positioned so ONLY bottom third is visible */}
+        {/* Club logos - BEHIND color bars (z-0), centered with team name */}
         {homeLogo && (
           <div 
-            className="absolute left-[8%] md:left-[12%] -top-40 md:-top-56 w-48 h-48 md:w-72 md:h-72 z-0"
+            className="absolute left-[15%] md:left-[18%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-32 h-32 md:w-48 md:h-48 z-0 -mt-16 md:-mt-24"
           >
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
           <div 
-            className="absolute right-[8%] md:right-[12%] -top-40 md:-top-56 w-48 h-48 md:w-72 md:h-72 z-0"
+            className="absolute right-[15%] md:right-[18%] top-1/2 -translate-y-1/2 translate-x-1/2 w-32 h-32 md:w-48 md:h-48 z-0 -mt-16 md:-mt-24"
           >
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
@@ -411,34 +412,30 @@ const AnalysisHeader = ({
 
         {/* Left Side - Home Team Color - ABOVE logos (z-10) */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex flex-col"
+          className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-center"
           style={{ 
             backgroundColor: homeBgColor || '#1a1a1a',
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
           }}
         >
-          {/* Home Team Name - centered, consistent text size */}
-          <div className="flex-1 flex items-end justify-center pb-2 pr-4 md:pr-8">
-            <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center px-2">
-              {homeTeam}
-            </span>
-          </div>
+          {/* Home Team Name - centered both axes */}
+          <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center pr-6 md:pr-10">
+            {homeTeam}
+          </span>
         </div>
 
         {/* Right Side - Away Team Color - ABOVE logos (z-10) */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex flex-col"
+          className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-center"
           style={{ 
             backgroundColor: awayBgColor || '#8B0000',
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
           }}
         >
-          {/* Away Team Name - centered, consistent text size */}
-          <div className="flex-1 flex items-end justify-center pb-2 pl-4 md:pl-8">
-            <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center px-2">
-              {awayTeam}
-            </span>
-          </div>
+          {/* Away Team Name - centered both axes */}
+          <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center pl-6 md:pl-10">
+            {awayTeam}
+          </span>
         </div>
 
         {/* VS Badge - Center - highest z-index */}
@@ -634,9 +631,39 @@ const AnalysisViewer = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const pageRef = useRef<HTMLDivElement>(null);
   
   // Extract the UUID from the slug (supports both old UUID-only and new team-vs-team-uuid formats)
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
+
+  const handleSaveAsImage = useCallback(async () => {
+    if (!pageRef.current || !analysis) return;
+    
+    setIsSaving(true);
+    try {
+      const canvas = await html2canvas(pageRef.current, {
+        backgroundColor: '#0a1f0d',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+      });
+      
+      const link = document.createElement('a');
+      const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.png`;
+      link.download = fileName.replace(/\s+/g, '-').toLowerCase();
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      
+      toast.success('Analysis saved as image!');
+    } catch (error) {
+      console.error('Error saving image:', error);
+      toast.error('Failed to save image');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [analysis]);
 
   useEffect(() => {
     if (analysisId) {
@@ -751,6 +778,25 @@ const AnalysisViewer = () => {
         style={{ backgroundColor: BRAND.gold }}
       />
 
+      {/* Save As Button - Fixed top right */}
+      <motion.div 
+        className="fixed top-4 right-8 z-50"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Button
+          onClick={handleSaveAsImage}
+          disabled={isSaving}
+          size="sm"
+          className="font-bebas uppercase tracking-wider shadow-lg text-xs"
+          style={{ backgroundColor: BRAND.gold, color: 'black' }}
+        >
+          <Download className="w-3 h-3 mr-1" />
+          {isSaving ? 'Saving...' : 'Save'}
+        </Button>
+      </motion.div>
+
       {/* Video Button - Fixed */}
       {analysis.video_url && (
         <motion.div 
@@ -771,7 +817,7 @@ const AnalysisViewer = () => {
       )}
 
       {/* Main content wrapper - padded to stay inside the inset lines */}
-      <main className="w-full mx-auto px-[8px]">
+      <main ref={pageRef} className="w-full mx-auto px-[8px]">
         {/* Pre-Match Content */}
         {isPreMatch && (
           <div className="w-full">
