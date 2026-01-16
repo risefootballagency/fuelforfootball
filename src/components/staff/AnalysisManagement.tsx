@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,7 @@ interface AnalysisManagementProps {
 }
 
 export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
+  const navigate = useNavigate();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [preMatchDialogOpen, setPreMatchDialogOpen] = useState(false);
@@ -1100,7 +1102,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           )}
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => window.open(`/analysis/${analysis.id}`, '_blank')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/analysis/${analysis.id}`)}>
             <Eye className="w-4 h-4" />
           </Button>
           <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(type, analysis)}>
