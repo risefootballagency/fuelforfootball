@@ -102,7 +102,7 @@ const ServiceSection = ({
       {hasTitleBackground ? (
         <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-12 md:mb-16">
           <div 
-            className="w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8 overflow-hidden"
+            className="w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8 overflow-hidden border-y-4 border-accent"
             style={{
               backgroundImage: `url('/grass-bg-smoky.png')`,
               backgroundSize: 'cover',

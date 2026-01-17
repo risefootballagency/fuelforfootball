@@ -81,7 +81,7 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 96%;
 
     --muted: 127 40% 10%;
-    --muted-foreground: 0 0% 65%;
+    --muted-foreground: 0 0% 75%;
 
     /* ACCENT: FFF Gold #ffc805 - for highlights, links, badges ONLY */
     --accent: 47 100% 51%;
