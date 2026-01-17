@@ -735,8 +735,10 @@ const AnalysisViewer = () => {
       // Wait for layout recalculation
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const scrollHeight = element.scrollHeight;
-      const scrollWidth = element.scrollWidth || element.offsetWidth;
+      // Get the actual content dimensions
+      const rect = element.getBoundingClientRect();
+      const contentWidth = element.offsetWidth;
+      const contentHeight = element.scrollHeight;
       
       const canvas = await html2canvas(element, {
         backgroundColor: '#0a1f0d',
@@ -744,13 +746,23 @@ const AnalysisViewer = () => {
         useCORS: true,
         allowTaint: true,
         logging: false,
-        width: scrollWidth,
-        height: scrollHeight,
+        width: contentWidth,
+        height: contentHeight,
+        x: 0,
+        y: 0,
         scrollX: 0,
-        scrollY: 0,
-        windowWidth: scrollWidth,
-        windowHeight: scrollHeight,
-        onclone: (clonedDoc) => {
+        scrollY: -window.scrollY,
+        onclone: (clonedDoc, clonedElement) => {
+          // Hide fixed elements that shouldn't be in PDF
+          const fixedElements = clonedDoc.querySelectorAll('.fixed, [class*="fixed"]');
+          fixedElements.forEach((el: any) => {
+            el.style.display = 'none';
+          });
+          
+          // Remove padding from the main container for clean capture
+          clonedElement.style.padding = '0';
+          clonedElement.style.margin = '0';
+          
           // Add style to disable all animations in the clone
           const style = clonedDoc.createElement('style');
           style.textContent = `
@@ -759,6 +771,9 @@ const AnalysisViewer = () => {
               transition: none !important; 
               opacity: 1 !important;
               transform: none !important;
+            }
+            .fixed, [class*="fixed"] {
+              display: none !important;
             }
             [data-expandable] {
               display: block !important;
@@ -769,7 +784,7 @@ const AnalysisViewer = () => {
           `;
           clonedDoc.head.appendChild(style);
           
-          // Force visibility on all elements
+          // Force visibility on all expandable content
           const allElements = clonedDoc.querySelectorAll('[data-expandable], [data-expandable] *');
           allElements.forEach((el: any) => {
             el.style.display = el.style.display === 'none' ? 'block' : el.style.display;
@@ -785,9 +800,10 @@ const AnalysisViewer = () => {
         throw new Error('Canvas is empty');
       }
       
-      // Single page PDF - fit all content on one page
-      const pdfWidth = 210; // A4 width in mm as base
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      // Single page PDF - fit all content on one page with proper aspect ratio
+      const pdfWidth = 210; // A4 width in mm
+      const aspectRatio = canvas.height / canvas.width;
+      const pdfHeight = pdfWidth * aspectRatio;
       
       // Create single-page PDF with custom height to fit all content
       const pdf = new jsPDF({
