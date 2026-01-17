@@ -116,17 +116,27 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                       <Button
                         size="sm"
                         onClick={(e) => handleAddToCart(product, index, e)}
-                        className={`flex-1 text-xs transition-all relative overflow-hidden ${
+                        className={`flex-1 text-xs transition-all relative overflow-hidden text-white font-semibold border-0 ${
                           addedItems.has(index) 
                             ? "bg-green-600 hover:bg-green-700" 
                             : ""
                         }`}
-                        style={!addedItems.has(index) ? {
-                          backgroundImage: `url('/grass-smoky-3.png')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                        } : undefined}
                       >
+                        {/* Green smoky background */}
+                        {!addedItems.has(index) && (
+                          <div 
+                            className="absolute inset-0 z-0"
+                            style={{
+                              backgroundImage: `url('/grass-smoky-3.png')`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                            }}
+                          />
+                        )}
+                        {/* Dark overlay for text contrast */}
+                        {!addedItems.has(index) && (
+                          <div className="absolute inset-0 bg-black/30 z-0" />
+                        )}
                         <span className="relative z-10 flex items-center justify-center">
                           {addedItems.has(index) ? (
                             <>

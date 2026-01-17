@@ -97,25 +97,26 @@ const ServiceSection = ({
   reverse?: boolean;
   hasTitleBackground?: boolean;
 }) => (
-  <section id={id} className="py-6 md:py-10 bg-card/30 border-y border-border/30">
+  <section id={id} className="pt-10 md:pt-16 pb-6 md:pb-10 bg-card/30">
     <div className="container mx-auto">
       {hasTitleBackground ? (
-        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-10 md:mb-14">
+        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-12 md:mb-16">
           <div 
-            className="w-screen relative left-1/2 -translate-x-1/2 py-4 md:py-6"
+            className="w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8"
             style={{
               backgroundImage: `url('/grass-smoky-3.png')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           >
-            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-white container mx-auto drop-shadow-lg">
+            <div className="absolute inset-0 bg-black/25" />
+            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-white container mx-auto drop-shadow-lg relative z-10">
               {title}
             </h2>
           </div>
         </div>
       ) : (
-        <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-10 md:mb-14">
+        <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-12 md:mb-16">
           {title}
         </h2>
       )}
@@ -128,7 +129,7 @@ const ServiceSection = ({
         
         {/* Description and Daily Fuel */}
         <div className={`space-y-6 ${reverse ? 'lg:order-1' : ''}`}>
-          <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+          <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-8">
             {description}
           </p>
           
@@ -359,9 +360,6 @@ const Players = () => {
           </div>
         </section>
 
-        {/* Spacing */}
-        <div className="h-4 md:h-6" />
-
         {/* Hero Slider - with images from landing folder */}
         <DynamicHeroSlider />
 
@@ -376,9 +374,6 @@ const Players = () => {
             </p>
           </div>
         </section>
-
-        {/* Spacing */}
-        <div className="h-4 md:h-6" />
 
         {/* Choose Your Fuel Section - immediately after */}
         <section className="py-4 md:py-8 bg-background">
