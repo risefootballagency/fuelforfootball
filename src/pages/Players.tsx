@@ -132,13 +132,23 @@ const ServiceSection = ({
             {description}
           </p>
           
-          <Link to={learnMoreLink}>
+          <Link to={learnMoreLink} className="block w-full">
             <Button 
               hoverEffect
-              className="font-bebas uppercase tracking-wider text-sm bg-accent hover:bg-accent/90 text-black"
+              className="w-full justify-center font-bebas uppercase tracking-wider text-sm text-white relative overflow-hidden border-2 border-accent"
             >
-              {learnMoreText.toUpperCase()}
-              <ArrowRight className="w-4 h-4" />
+              <div 
+                className="absolute inset-0 z-0"
+                style={{
+                  backgroundImage: `url('/grass-bg-smoky.png')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {learnMoreText.toUpperCase()}
+                <ArrowRight className="w-4 h-4" />
+              </span>
             </Button>
           </Link>
           
@@ -559,17 +569,37 @@ const Players = () => {
               Consider a <strong>Consultation</strong>, which runs like any good doctor's appointment. We discuss your game and get into the intricacies of your situation, to be able to provide a strong understanding of what to do and a comprehensive plan of action. Equally, our <strong>Player Efficiency Report</strong> can give a direct view on how you can improve in line with what clubs scout and make recruitment decisions based on.
             </p>
             
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-              <Link to="/services/consultation">
-                <Button size="lg" className="gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider">
-                  Book a Consultation
-                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+            <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 max-w-2xl mx-auto">
+              <Link to="/services/consultation" className="flex-1">
+                <Button size="lg" className="w-full gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider relative overflow-hidden text-white border-2 border-accent">
+                  <div 
+                    className="absolute inset-0 z-0"
+                    style={{
+                      backgroundImage: `url('/grass-bg-smoky.png')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    Book a Consultation
+                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                  </span>
                 </Button>
               </Link>
-              <Link to="/services/data">
-                <Button size="lg" variant="outline" className="gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider">
-                  Performance Efficiency Report
-                  <ExternalLink className="w-4 h-4 md:w-5 md:h-5" />
+              <Link to="/services/data" className="flex-1">
+                <Button size="lg" className="w-full gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider relative overflow-hidden text-white border-2 border-accent">
+                  <div 
+                    className="absolute inset-0 z-0"
+                    style={{
+                      backgroundImage: `url('/grass-bg-smoky.png')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    Performance Efficiency Report
+                    <ExternalLink className="w-4 h-4 md:w-5 md:h-5" />
+                  </span>
                 </Button>
               </Link>
             </div>
@@ -594,12 +624,22 @@ const Players = () => {
             <p className="text-base md:text-lg mb-6 md:mb-8 text-foreground">
               Your peak years are limited. The scouts are watching now, not later. Take action before it's too late.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-2xl mx-auto">
               <WhatsAppPulse position="inline" message="Speak to us now" showDelay={0} />
-              <Link to="/contact">
-                <Button size="lg" variant="outline" className="gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider">
-                  Contact Us
-                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+              <Link to="/contact" className="flex-1">
+                <Button size="lg" className="w-full gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider relative overflow-hidden text-white border-2 border-accent">
+                  <div 
+                    className="absolute inset-0 z-0"
+                    style={{
+                      backgroundImage: `url('/grass-bg-smoky.png')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    Contact Us
+                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                  </span>
                 </Button>
               </Link>
             </div>

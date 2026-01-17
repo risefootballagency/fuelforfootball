@@ -60,13 +60,23 @@ export const WhatsAppPulse = ({
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="group inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#128C7E] text-white px-6 py-3 rounded-full font-bebas uppercase tracking-wider transition-all duration-300 hover:scale-105"
+        className="group relative inline-flex items-center justify-center gap-3 text-white px-8 py-4 rounded-lg font-bebas uppercase tracking-wider transition-all duration-300 hover:scale-105 overflow-hidden border-2 border-accent w-full sm:w-auto"
       >
-        <MessageCircle className="w-5 h-5" />
-        <span>{message}</span>
-        {showUrgency && (
-          <span className="text-xs opacity-80 normal-case font-sans">• Response in minutes</span>
-        )}
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `url('/grass-bg-smoky.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <span className="relative z-10 flex items-center gap-3">
+          <MessageCircle className="w-5 h-5" />
+          <span>{message}</span>
+          {showUrgency && (
+            <span className="text-xs opacity-80 normal-case font-sans">• Response in minutes</span>
+          )}
+        </span>
       </a>
     );
   }
