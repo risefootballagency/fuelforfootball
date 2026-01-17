@@ -488,24 +488,24 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - at very top, aligned with home club logo x-axis, 12px from top */}
+        {/* Back button - at very top, aligned with home club logo x-axis, 16px from top */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-4 md:left-8 top-3 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
+          className="absolute left-4 md:left-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
         >
           <ArrowLeft className="w-3 h-3 mr-1" />
           Back
         </Button>
         
-        {/* Save button - at very top, aligned with away club logo x-axis, 12px from top */}
+        {/* Save button - at very top, aligned with away club logo x-axis, 16px from top */}
         {onSave && (
           <Button
             onClick={onSave}
             disabled={isSaving}
             size="sm"
-            className="absolute right-4 md:right-8 top-3 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
+            className="absolute right-4 md:right-8 top-4 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
             style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Download className="w-3 h-3 mr-1" />
@@ -694,7 +694,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
       
       <motion.div 
         ref={dropdownRef}
-        className="relative py-8 mt-8"
+        className="relative py-5 mt-5"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -919,10 +919,45 @@ const AnalysisViewer = () => {
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       
-      const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.pdf`;
-      pdf.save(fileName.replace(/\s+/g, '-').toLowerCase());
+      // Generate the PDF as a blob
+      const pdfBlob = pdf.output('blob');
+      const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.pdf`.replace(/\s+/g, '-').toLowerCase();
       
-      toast.success('Analysis saved as PDF!');
+      // Upload to Supabase storage
+      const filePath = `analysis-pdfs/${analysis.id}/${fileName}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('analyses')
+        .upload(filePath, pdfBlob, {
+          contentType: 'application/pdf',
+          upsert: true
+        });
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        // Still save locally if upload fails
+        pdf.save(fileName);
+        toast.warning('PDF saved locally. Cloud upload failed.');
+      } else {
+        // Get the public URL
+        const { data: urlData } = supabase.storage
+          .from('analyses')
+          .getPublicUrl(filePath);
+        
+        // Update the analysis record with the PDF URL
+        const { error: updateError } = await supabase
+          .from('analyses')
+          .update({ pdf_url: urlData.publicUrl })
+          .eq('id', analysis.id);
+        
+        if (updateError) {
+          console.error('Update error:', updateError);
+        }
+        
+        // Also save locally
+        pdf.save(fileName);
+        toast.success('PDF saved and uploaded!');
+      }
     } catch (error) {
       console.error('Error saving PDF:', error);
       toast.error('Failed to save PDF. Please try again.');
@@ -1449,8 +1484,8 @@ const AnalysisViewer = () => {
                                   transform: 'translate(-50%, -50%)'
                                 }}
                               >
-                                {/* Almost double the kit size - scale-75 to scale-100 on mobile, scale-90 to scale-150 on larger */}
-                                <div className="scale-75 md:scale-100 lg:scale-125 drop-shadow-xl">
+                              {/* Kit sizes increased by 25% */}
+                                <div className="scale-95 md:scale-125 lg:scale-150 drop-shadow-xl">
                                   <PlayerKit 
                                     primaryColor={analysis.kit_primary_color || '#FFD700'}
                                     secondaryColor={analysis.kit_secondary_color || '#000000'}
