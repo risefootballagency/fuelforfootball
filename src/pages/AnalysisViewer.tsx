@@ -1055,42 +1055,34 @@ const AnalysisViewer = () => {
                       className="w-full h-full object-cover object-top"
                     />
                     
-                    {/* Upward Gold Arch Frame at bottom with grass sides */}
-                    <div className="absolute bottom-0 left-0 right-0" style={{ height: '18%' }}>
-                      {/* Grass coming up the sides */}
+                    {/* Gold Arch Frame at bottom with grass visible below the arch */}
+                    <div className="absolute bottom-0 left-0 right-0" style={{ height: '20%' }}>
+                      {/* Grass background at the very bottom - visible through the arch curve */}
                       <div 
-                        className="absolute bottom-0 left-0 w-1/4 h-full"
+                        className="absolute bottom-0 left-0 right-0 h-full"
                         style={{
                           backgroundImage: `url('/analysis-page-bg.png')`,
                           backgroundSize: 'cover',
-                          backgroundPosition: 'right center'
-                        }}
-                      />
-                      <div 
-                        className="absolute bottom-0 right-0 w-1/4 h-full"
-                        style={{
-                          backgroundImage: `url('/analysis-page-bg.png')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'left center'
+                          backgroundPosition: 'top center'
                         }}
                       />
                       
-                      {/* Secondary transparent arch (outer) - curves DOWN */}
+                      {/* Secondary transparent arch (outer) - curves DOWN with rounded bottom */}
                       <svg 
                         className="absolute bottom-0 left-0 right-0 w-full h-full"
-                        viewBox="0 0 400 70" 
+                        viewBox="0 0 400 80" 
                         preserveAspectRatio="none"
                       >
-                        <path d="M0,0 Q200,55 400,0 L400,70 L0,70 Z" fill="rgba(253,198,27,0.25)" />
+                        <path d="M0,5 Q200,60 400,5 L400,60 Q200,80 0,60 Z" fill="rgba(253,198,27,0.25)" />
                       </svg>
                       
-                      {/* Main gold arch - curves DOWN like reference image */}
+                      {/* Main gold arch - curves DOWN at top, curves UP at bottom (arched bottom half) */}
                       <svg 
                         className="absolute bottom-0 left-0 right-0 w-full h-full"
-                        viewBox="0 0 400 70" 
+                        viewBox="0 0 400 80" 
                         preserveAspectRatio="none"
                       >
-                        <path d="M0,10 Q200,70 400,10 L400,70 L0,70 Z" fill="#fdc61b" />
+                        <path d="M0,15 Q200,65 400,15 L400,55 Q200,75 0,55 Z" fill="#fdc61b" />
                       </svg>
                     </div>
                   </div>
@@ -1110,9 +1102,8 @@ const AnalysisViewer = () => {
                       >
                         {/* Dark overlay for smoky effect */}
                         <div className="absolute inset-0 bg-black/40 rounded-full" />
-                        <h2 
-                          className="relative text-xl md:text-2xl lg:text-3xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
-                          style={{ color: BRAND.gold }}
+                      <h2 
+                          className="relative text-xl md:text-2xl lg:text-3xl font-bebas uppercase tracking-widest text-center drop-shadow-md text-white"
                         >
                           <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
                         </h2>
@@ -1193,28 +1184,62 @@ const AnalysisViewer = () => {
                 transparentContent
                 forceOpen={isSaving}
               >
-                <div className="flex justify-center items-center gap-3 md:gap-6 flex-wrap">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {analysis.matchups.map((matchup: any, index: number) => (
                     <TextReveal key={index} delay={index * 0.15}>
-                      <div className="text-center w-24 md:w-36">
-                        {/* Image container - NO border, NO background - fully transparent */}
-                        <div className="mb-3 md:mb-4 rounded-lg overflow-hidden aspect-square flex items-center justify-center shadow-xl">
-                          {matchup.image_url ? (
-                            <img
-                              src={matchup.image_url}
-                              alt={matchup.name}
-                              className="w-full h-full object-cover rounded-lg"
-                            />
-                          ) : (
-                            <div className="text-white/50 text-xs md:text-sm w-full h-full flex items-center justify-center">No image</div>
+                      <div 
+                        className="relative rounded-xl overflow-hidden"
+                        style={{
+                          backgroundImage: `url('/Smoky-Background.png')`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          border: `2px solid ${BRAND.gold}`,
+                          boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+                        }}
+                      >
+                        {/* Dark overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60 pointer-events-none" />
+                        
+                        <div className="relative p-4 md:p-5">
+                          {/* Top section with image and name */}
+                          <div className="flex items-start gap-4">
+                            {/* Player image */}
+                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden flex-shrink-0 shadow-lg" style={{ border: `2px solid ${BRAND.gold}` }}>
+                              {matchup.image_url ? (
+                                <img
+                                  src={matchup.image_url}
+                                  alt={matchup.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-black/40 flex items-center justify-center text-white/50 text-xs">
+                                  No image
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Name and number */}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bebas text-lg md:text-xl uppercase tracking-wide text-white drop-shadow-lg leading-tight">
+                                {matchup.name?.toUpperCase()}
+                              </h3>
+                              {matchup.shirt_number && (
+                                <p className="text-2xl md:text-3xl font-bold mt-1" style={{ color: BRAND.gold }}>
+                                  #{matchup.shirt_number}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Notes section */}
+                          {matchup.notes && (
+                            <div className="mt-4 pt-3" style={{ borderTop: `1px solid ${BRAND.gold}40` }}>
+                              <p className="text-sm md:text-base text-white/90 leading-relaxed">
+                                {matchup.notes}
+                              </p>
+                            </div>
                           )}
                         </div>
-                        <p className="font-bold text-base md:text-xl text-white drop-shadow-lg">{matchup.name}</p>
-                        {matchup.shirt_number && (
-                          <p className="text-sm md:text-base font-semibold" style={{ color: BRAND.gold }}>
-                            #{matchup.shirt_number}
-                          </p>
-                        )}
                       </div>
                     </TextReveal>
                   ))}

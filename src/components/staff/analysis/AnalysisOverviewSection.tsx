@@ -23,6 +23,7 @@ interface Matchup {
   name: string;
   shirt_number: string;
   image_url: string;
+  notes?: string;
 }
 
 interface OverviewSectionProps {
@@ -162,6 +163,15 @@ export const AnalysisOverviewSection = ({
                           {matchup.image_url && (
                             <img src={matchup.image_url} alt="Matchup" className="mt-2 w-20 h-20 object-cover rounded" />
                           )}
+                        </div>
+                        <div>
+                          <Label className="text-xs mb-1">Notes (brief intro to player)</Label>
+                          <Textarea
+                            placeholder="Brief introduction to this player..."
+                            value={matchup.notes || ""}
+                            onChange={(e) => updateMatchup(index, "notes", e.target.value)}
+                            rows={2}
+                          />
                         </div>
                       </div>
                       <Button variant="ghost" size="sm" onClick={() => removeMatchup(index)}>
