@@ -77,7 +77,7 @@ export const AnalysisSchemeSection = ({
             {/* Kit Customisation */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
               <div>
-                <Label>Primary Color</Label>
+                <Label>Primary Colour</Label>
                 <Input
                   type="color"
                   value={formData.kit_primary_color || '#FFD700'}
@@ -85,7 +85,7 @@ export const AnalysisSchemeSection = ({
                 />
               </div>
               <div>
-                <Label>Secondary Color</Label>
+                <Label>Secondary Colour</Label>
                 <Input
                   type="color"
                   value={formData.kit_secondary_color || '#000000'}
@@ -93,7 +93,7 @@ export const AnalysisSchemeSection = ({
                 />
               </div>
               <div>
-                <Label>Collar/Trim Color</Label>
+                <Label>Collar/Trim Colour</Label>
                 <Input
                   type="color"
                   value={formData.kit_collar_color || '#FFFFFF'}
@@ -101,7 +101,7 @@ export const AnalysisSchemeSection = ({
                 />
               </div>
               <div>
-                <Label>Number Color</Label>
+                <Label>Number Colour</Label>
                 <Input
                   type="color"
                   value={formData.kit_number_color || '#FFFFFF'}

@@ -63,8 +63,11 @@ export type Database = {
           home_team_logo: string | null
           id: string
           key_details: string | null
+          kit_collar_color: string | null
+          kit_number_color: string | null
           kit_primary_color: string | null
           kit_secondary_color: string | null
+          kit_stripe_style: string | null
           match_date: string | null
           match_image_url: string | null
           matchups: Json | null
@@ -72,6 +75,7 @@ export type Database = {
           opposition_weaknesses: string | null
           player_image_url: string | null
           player_name: string | null
+          player_team: string | null
           points: Json | null
           scheme_image_url: string | null
           scheme_paragraph_1: string | null
@@ -102,8 +106,11 @@ export type Database = {
           home_team_logo?: string | null
           id?: string
           key_details?: string | null
+          kit_collar_color?: string | null
+          kit_number_color?: string | null
           kit_primary_color?: string | null
           kit_secondary_color?: string | null
+          kit_stripe_style?: string | null
           match_date?: string | null
           match_image_url?: string | null
           matchups?: Json | null
@@ -111,6 +118,7 @@ export type Database = {
           opposition_weaknesses?: string | null
           player_image_url?: string | null
           player_name?: string | null
+          player_team?: string | null
           points?: Json | null
           scheme_image_url?: string | null
           scheme_paragraph_1?: string | null
@@ -141,8 +149,11 @@ export type Database = {
           home_team_logo?: string | null
           id?: string
           key_details?: string | null
+          kit_collar_color?: string | null
+          kit_number_color?: string | null
           kit_primary_color?: string | null
           kit_secondary_color?: string | null
+          kit_stripe_style?: string | null
           match_date?: string | null
           match_image_url?: string | null
           matchups?: Json | null
@@ -150,6 +161,7 @@ export type Database = {
           opposition_weaknesses?: string | null
           player_image_url?: string | null
           player_name?: string | null
+          player_team?: string | null
           points?: Json | null
           scheme_image_url?: string | null
           scheme_paragraph_1?: string | null

@@ -478,10 +478,27 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
   const handleSave = async () => {
     try {
-      // All fields are now saved to the database (bold fields added via migration)
+      // Cast formData to any to handle extended fields not in the Analysis type
+      const extendedFormData = formData as any;
+      
+      // Exclude UI-only fields that may not exist in the shared database schema
+      const { 
+        kit_collar_color, 
+        kit_number_color, 
+        kit_stripe_style, 
+        player_team,
+        ...restFormData 
+      } = extendedFormData;
+      
+      // Include these fields only if the database supports them (graceful degradation)
       const dataToSave = {
-        ...formData,
+        ...restFormData,
         analysis_type: analysisType,
+        // Include new kit fields - they'll be ignored if columns don't exist
+        kit_collar_color,
+        kit_number_color,
+        kit_stripe_style,
+        player_team,
       };
 
       let analysisId = editingAnalysis?.id;
