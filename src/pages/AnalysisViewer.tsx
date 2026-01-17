@@ -407,24 +407,24 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - aligned with home club logo x-axis */}
+        {/* Back button - at very top, aligned with home club logo x-axis */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-2 md:left-4 bottom-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
+          className="absolute left-2 md:left-4 top-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
         >
           <ArrowLeft className="w-3 h-3 mr-1" />
           Back
         </Button>
         
-        {/* Save button - aligned with away club logo x-axis */}
+        {/* Save button - at very top, aligned with away club logo x-axis */}
         {onSave && (
           <Button
             onClick={onSave}
             disabled={isSaving}
             size="sm"
-            className="absolute right-2 md:right-4 bottom-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
+            className="absolute right-2 md:right-4 top-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
             style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Download className="w-3 h-3 mr-1" />
@@ -432,21 +432,12 @@ const AnalysisHeader = ({
           </Button>
         )}
         
-        <div className="relative flex flex-col items-center justify-center">
+        <div className="relative flex items-center justify-center py-2">
           <img 
             src={fffLogo} 
             alt="Fuel For Football" 
-            className="w-10 h-10 md:w-12 md:h-12 object-contain"
+            className="w-16 h-16 md:w-20 md:h-20 object-contain"
           />
-          <h1 className="text-white text-xs md:text-sm font-bebas tracking-widest uppercase">
-            FUEL FOR FOOTBALL
-          </h1>
-          <p 
-            className="text-[10px] md:text-xs font-bebas tracking-wider uppercase"
-            style={{ color: BRAND.gold }}
-          >
-            CHANGE THE GAME
-          </p>
         </div>
       </div>
 
@@ -591,118 +582,128 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   };
 
   return (
-    <motion.div 
-      ref={dropdownRef}
-      className="sticky top-0 z-40 py-2"
-      style={{ 
-        backgroundImage: `url('/analysis-grass-bg.png')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5 }}
-    >
-      {/* Dark overlay for smoky effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 pointer-events-none" />
-      
-      <div className="relative flex justify-center px-4">
-        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="text-base md:text-lg px-6 py-2 font-bebas tracking-wider hover:bg-white/10 transition-colors"
+    <div>
+      <motion.div 
+        ref={dropdownRef}
+        className="sticky top-0 z-40 py-2"
+        style={{ 
+          backgroundImage: `url('/analysis-grass-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        {/* Dark overlay for smoky effect */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 pointer-events-none" />
+        
+        <div className="relative flex justify-center px-4">
+          <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="text-base md:text-lg px-6 py-2 font-bebas tracking-wider hover:bg-white/10 transition-colors"
+                style={{ 
+                  backgroundImage: `url('/Smoky-Background.png')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  color: 'white',
+                  borderColor: BRAND.gold,
+                  borderWidth: '2px'
+                }}
+              >
+                Jump to Section
+                <ChevronDown className="w-4 h-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              className="w-[96vw] max-w-none max-h-[70vh] overflow-y-auto z-50 p-4 md:p-6"
               style={{ 
                 backgroundImage: `url('/Smoky-Background.png')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                color: 'white',
                 borderColor: BRAND.gold,
                 borderWidth: '2px'
               }}
+              side="bottom"
+              align="center"
+              sideOffset={4}
+              avoidCollisions={true}
             >
-              Jump to Section
-              <ChevronDown className="w-4 h-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            className="w-[96vw] max-w-none max-h-[70vh] overflow-y-auto z-50 p-4 md:p-6"
-            style={{ 
-              backgroundImage: `url('/Smoky-Background.png')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              borderColor: BRAND.gold,
-              borderWidth: '2px'
-            }}
-            side="bottom"
-            align="center"
-            sideOffset={4}
-            avoidCollisions={true}
-          >
-            {/* Dark smoky overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 pointer-events-none rounded-md" />
-            
-            {/* Key Info Sections - centered, horizontal wrap */}
-            {keyInfoSections.length > 0 && (
-              <div className="relative mb-4 text-center">
-                <div className="py-1 text-sm md:text-base uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
-                  Key Info
+              {/* Dark smoky overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 pointer-events-none rounded-md" />
+              
+              {/* Key Info Sections - centered, horizontal wrap */}
+              {keyInfoSections.length > 0 && (
+                <div className="relative mb-4 text-center">
+                  <div className="py-1 text-sm md:text-base uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
+                    Key Info
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {keyInfoSections.map((section) => (
+                      <DropdownMenuItem
+                        key={section.id}
+                        onClick={() => handleNavigate(section.id)}
+                        className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-sm md:text-base py-1.5 px-3 rounded-md border"
+                        style={{ 
+                          color: 'white',
+                          backgroundColor: 'rgba(9, 56, 14, 0.8)',
+                          borderColor: `${BRAND.gold}60`
+                        }}
+                      >
+                        {section.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {keyInfoSections.map((section) => (
-                    <DropdownMenuItem
-                      key={section.id}
-                      onClick={() => handleNavigate(section.id)}
-                      className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-sm md:text-base py-1.5 px-3 rounded-md border"
-                      style={{ 
-                        color: 'white',
-                        backgroundColor: 'rgba(9, 56, 14, 0.8)',
-                        borderColor: `${BRAND.gold}60`
-                      }}
-                    >
-                      {section.label}
-                    </DropdownMenuItem>
-                  ))}
+              )}
+              
+              {/* Divider */}
+              {keyInfoSections.length > 0 && pointSections.length > 0 && (
+                <div 
+                  className="relative my-3 h-[1px]"
+                  style={{ backgroundColor: BRAND.gold, opacity: 0.4 }}
+                />
+              )}
+              
+              {/* Points Sections - centered, wrap to multiple lines */}
+              {pointSections.length > 0 && (
+                <div className="relative text-center">
+                  <div className="py-1 text-sm md:text-base uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
+                    Analysis Points
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {pointSections.map((section) => (
+                      <DropdownMenuItem
+                        key={section.id}
+                        onClick={() => handleNavigate(section.id)}
+                        className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-sm md:text-base py-1.5 px-3 rounded-md border"
+                        style={{ 
+                          color: 'white',
+                          backgroundColor: 'rgba(9, 56, 14, 0.8)',
+                          borderColor: `${BRAND.gold}60`
+                        }}
+                      >
+                        {section.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-            
-            {/* Divider */}
-            {keyInfoSections.length > 0 && pointSections.length > 0 && (
-              <div 
-                className="relative my-3 h-[1px]"
-                style={{ backgroundColor: BRAND.gold, opacity: 0.4 }}
-              />
-            )}
-            
-            {/* Points Sections - centered, wrap to multiple lines */}
-            {pointSections.length > 0 && (
-              <div className="relative text-center">
-                <div className="py-1 text-sm md:text-base uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
-                  Analysis Points
-                </div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {pointSections.map((section) => (
-                    <DropdownMenuItem
-                      key={section.id}
-                      onClick={() => handleNavigate(section.id)}
-                      className="cursor-pointer hover:bg-white/20 font-bebas tracking-wide text-sm md:text-base py-1.5 px-3 rounded-md border"
-                      style={{ 
-                        color: 'white',
-                        backgroundColor: 'rgba(9, 56, 14, 0.8)',
-                        borderColor: `${BRAND.gold}60`
-                      }}
-                    >
-                      {section.label}
-                    </DropdownMenuItem>
-                  ))}
-                </div>
-              </div>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </motion.div>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </motion.div>
+      
+      {/* Gradient fade from #0a2e12 to transparent - fades into match image */}
+      <div 
+        className="h-16 md:h-24 w-full"
+        style={{
+          background: 'linear-gradient(to bottom, #0a2e12 0%, transparent 100%)'
+        }}
+      />
+    </div>
   );
 };
 
@@ -1054,44 +1055,44 @@ const AnalysisViewer = () => {
                       alt={analysis.player_name || "Match"}
                       className="w-full h-full object-cover object-top"
                     />
-                    
-                    {/* Gold Arch Frame at bottom with grass visible below the arch */}
-                    <div className="absolute bottom-0 left-0 right-0" style={{ height: '20%' }}>
-                      {/* Grass background at the very bottom - visible through the arch curve */}
-                      <div 
-                        className="absolute bottom-0 left-0 right-0 h-full"
-                        style={{
-                          backgroundImage: `url('/analysis-page-bg.png')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'top center'
-                        }}
-                      />
-                      
-                      {/* Secondary transparent arch (outer) - curves DOWN with rounded bottom */}
-                      <svg 
-                        className="absolute bottom-0 left-0 right-0 w-full h-full"
-                        viewBox="0 0 400 80" 
-                        preserveAspectRatio="none"
-                      >
-                        <path d="M0,5 Q200,60 400,5 L400,60 Q200,80 0,60 Z" fill="rgba(253,198,27,0.25)" />
-                      </svg>
-                      
-                      {/* Main gold arch - curves DOWN at top, curves UP at bottom (arched bottom half) */}
-                      <svg 
-                        className="absolute bottom-0 left-0 right-0 w-full h-full"
-                        viewBox="0 0 400 80" 
-                        preserveAspectRatio="none"
-                      >
-                        <path d="M0,15 Q200,65 400,15 L400,55 Q200,75 0,55 Z" fill="#fdc61b" />
-                      </svg>
-                    </div>
                   </div>
                   
-                  {/* Player name with smaller oval smoky background */}
-                  <div className="relative px-4 -mt-2">
-                    <div className="flex justify-center">
+                  {/* Gold Arch - positioned so its center aligns with the bottom of the image */}
+                  <div className="relative w-full" style={{ marginTop: '-10%' }}>
+                    {/* Grass background visible below the arch */}
+                    <div 
+                      className="absolute inset-0"
+                      style={{
+                        backgroundImage: `url('/analysis-page-bg.png')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'top center'
+                      }}
+                    />
+                    
+                    {/* Secondary transparent arch (outer) */}
+                    <svg 
+                      className="relative w-full"
+                      viewBox="0 0 400 80" 
+                      preserveAspectRatio="none"
+                      style={{ height: '80px' }}
+                    >
+                      <path d="M0,5 Q200,60 400,5 L400,60 Q200,80 0,60 Z" fill="rgba(253,198,27,0.25)" />
+                    </svg>
+                    
+                    {/* Main gold arch - curves DOWN at top, curves UP at bottom */}
+                    <svg 
+                      className="absolute inset-0 w-full"
+                      viewBox="0 0 400 80" 
+                      preserveAspectRatio="none"
+                      style={{ height: '80px' }}
+                    >
+                      <path d="M0,15 Q200,65 400,15 L400,55 Q200,75 0,55 Z" fill="#fdc61b" />
+                    </svg>
+                    
+                    {/* Player name positioned on top of the arch */}
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
                       <div 
-                        className="relative overflow-hidden rounded-full px-8 md:px-12 py-3 md:py-4"
+                        className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
                         style={{
                           backgroundImage: `url('/grass-bg-smoky.png')`,
                           backgroundSize: 'cover',
@@ -1102,17 +1103,14 @@ const AnalysisViewer = () => {
                       >
                         {/* Dark overlay for smoky effect */}
                         <div className="absolute inset-0 bg-black/40 rounded-full" />
-                      <h2 
-                          className="relative text-xl md:text-2xl lg:text-3xl font-bebas uppercase tracking-widest text-center drop-shadow-md text-white"
+                        <h2 
+                          className="relative text-lg md:text-2xl lg:text-3xl font-bebas uppercase tracking-widest text-center drop-shadow-md text-white"
                         >
                           <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
                         </h2>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Bottom padding */}
-                  <div className="h-6 md:h-8" />
                 </div>
               </ScrollReveal>
             )}
