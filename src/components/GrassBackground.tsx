@@ -1,5 +1,12 @@
-// FFF Brand Grass/Smoky Background Assets
+// FFF Brand Background Assets
+// Renamed for clarity:
+// - Grass-Background.png = actual grass field texture
+// - Smoky-Background.png = green smoky atmosphere
+// - grass-smoky-1 through 8 = variations of smoky green
+
 import grassTextureFull from "@/assets/grass-texture-full.png";
+import GrassBackgroundImg from "@/assets/Grass-Background.png";
+import SmokyBackgroundImg from "@/assets/Smoky-Background.png";
 import grassSmoky1 from "@/assets/grass-smoky-1.png";
 import grassSmoky2 from "@/assets/grass-smoky-2.png";
 import grassSmoky3 from "@/assets/grass-smoky-3.png";
@@ -9,9 +16,11 @@ import grassSmoky6 from "@/assets/grass-smoky-6.png";
 import grassSmoky7 from "@/assets/grass-smoky-7.png";
 import grassSmoky8 from "@/assets/grass-smoky-8.png";
 
-// Export all grass backgrounds for use across the site
+// Export all backgrounds for use across the site
 export const GRASS_BACKGROUNDS = {
   textureFull: grassTextureFull,
+  grassBackground: GrassBackgroundImg, // Actual grass field texture
+  smokyBackground: SmokyBackgroundImg, // Green smoky atmosphere
   smoky1: grassSmoky1,
   smoky2: grassSmoky2,
   smoky3: grassSmoky3,

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, BookOpen } from "lucide-react";
-import grassField from "@/assets/grass-field-texture.png";
+import GrassBackground from "@/assets/Grass-Background.png";
 import grassSmoky from "@/assets/grass-smoky-3.png";
 
 const PlayersIntro = () => {
@@ -53,7 +53,7 @@ const PlayersIntro = () => {
         >
           {/* Background image - grass field */}
           <img 
-            src={grassField} 
+            src={GrassBackground} 
             alt="" 
             className="absolute inset-0 w-full h-full object-cover"
           />

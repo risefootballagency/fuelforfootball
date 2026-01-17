@@ -706,8 +706,10 @@ All colors MUST be HSL.
     opacity: 0.3;
   }
 
-  /* Glossy green header effect - Dark grass green */
-  .bg-glossy-green {
+  /* Gloss Background - Glossy green header effect - Dark grass green */
+  /* Also known as: bg-glossy-green, Gloss-Background */
+  .bg-glossy-green,
+  .bg-gloss-background {
     background: linear-gradient(
       180deg,
       hsl(120, 80%, 8%) 0%,

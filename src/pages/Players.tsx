@@ -16,7 +16,7 @@ import { MetricBanner } from "@/components/PropagandaMetrics";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { BRAND_CONTENT } from "@/data/brandContent";
-import { GrassBackground, SmokyBackground } from "@/components/GrassBackground";
+import { GrassBackground, SmokyBackground, GRASS_BACKGROUNDS } from "@/components/GrassBackground";
 import { HoverText } from "@/components/HoverText";
 
 // Dynamic Hero Slider that fetches images from landing folder
@@ -349,20 +349,31 @@ const Players = () => {
                 <Link 
                   key={index}
                   to={corner.link}
-                  className="group bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300"
+                  className="group relative overflow-hidden rounded-lg border-2 border-accent hover:border-accent transition-all duration-300"
                 >
-                  <div className="aspect-video overflow-hidden">
+                  {/* Grass Background */}
+                  <div 
+                    className="absolute inset-0 z-0"
+                    style={{
+                      backgroundImage: `url(${GRASS_BACKGROUNDS.grassBackground})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/40 z-[1]" />
+                  
+                  <div className="aspect-video overflow-hidden relative z-[2]">
                     <img 
                       src={corner.image} 
                       alt={corner.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="p-3 md:p-6">
-                    <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-wider text-foreground mb-2 md:mb-3 group-hover:text-primary transition-colors">
+                  <div className="p-3 md:p-6 relative z-[2]">
+                    <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-wider text-white mb-2 md:mb-3 group-hover:text-accent transition-colors">
                       {corner.title}
                     </h3>
-                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-2 md:mb-4 line-clamp-3 md:line-clamp-none">
+                    <p className="text-white/80 text-xs md:text-sm leading-relaxed mb-2 md:mb-4 line-clamp-3 md:line-clamp-none">
                       {corner.description}
                     </p>
                     <Button variant="link" className="p-0 h-auto text-accent text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all">
