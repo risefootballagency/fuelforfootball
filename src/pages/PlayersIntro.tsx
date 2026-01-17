@@ -2,8 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, BookOpen } from "lucide-react";
-import grassSmoky from "@/assets/grass-bg-smoky.png";
-import grassTexture from "@/assets/grass-2.png";
+import grassSmoky from "@/assets/grass-smoky-3.png";
+import grassTexture from "@/assets/grass-smoky-1.png";
 
 const PlayersIntro = () => {
   const navigate = useNavigate();
