@@ -106,7 +106,7 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                         {product.title}
                       </h4>
                       {product.description && (
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+                        <p className="text-sm text-muted-foreground mb-3">
                           {product.description}
                         </p>
                       )}
@@ -201,7 +201,7 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
 
       {/* Dot Indicators */}
       {products.length > 1 && (
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="flex justify-center gap-2 mt-2">
           {products.map((_, index) => (
             <button
               key={index}

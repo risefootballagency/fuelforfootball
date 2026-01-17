@@ -9,12 +9,6 @@ const PlayersIntro = () => {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState<'left' | 'right' | null>(null);
 
-  const getCardFlex = (card: 'left' | 'right') => {
-    if (hoveredCard === null) return 1;
-    if (hoveredCard === card) return 1.85; // 65%
-    return 1; // 35%
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header with FFF branding */}
@@ -33,18 +27,10 @@ const PlayersIntro = () => {
       <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 md:p-8">
         {/* Left - Learn More */}
         <motion.div
-          className="relative overflow-hidden rounded-2xl cursor-pointer group border-4 border-accent"
+          className="relative overflow-hidden rounded-2xl cursor-pointer group border-4 border-accent flex-1"
           initial={{ opacity: 0, x: -50 }}
-          animate={{ 
-            opacity: 1, 
-            x: 0,
-            flex: getCardFlex('left')
-          }}
-          transition={{ 
-            duration: 0.5, 
-            ease: [0.23, 1, 0.32, 1],
-            flex: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
-          }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate("/players")}
           onMouseEnter={() => setHoveredCard('left')}
@@ -55,9 +41,15 @@ const PlayersIntro = () => {
           <img 
             src={GrassBackground} 
             alt="" 
-            className="absolute inset-0 w-full h-full object-cover"
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+              hoveredCard === 'right' ? 'grayscale' : ''
+            }`}
           />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className={`absolute inset-0 transition-all duration-500 ${
+            hoveredCard === 'left' 
+              ? 'bg-gradient-to-t from-accent/30 via-black/20 to-transparent' 
+              : 'bg-black/40'
+          }`} />
           
           {/* Content */}
           <div className="relative h-full flex flex-col justify-between p-8 md:p-12 min-h-[300px] md:min-h-[400px]">
@@ -108,18 +100,10 @@ const PlayersIntro = () => {
 
         {/* Right - Services */}
         <motion.div
-          className="relative overflow-hidden rounded-2xl cursor-pointer group border-4 border-accent"
+          className="relative overflow-hidden rounded-2xl cursor-pointer group border-4 border-accent flex-1"
           initial={{ opacity: 0, x: 50 }}
-          animate={{ 
-            opacity: 1, 
-            x: 0,
-            flex: getCardFlex('right')
-          }}
-          transition={{ 
-            duration: 0.5, 
-            ease: [0.23, 1, 0.32, 1],
-            flex: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
-          }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate("/players/services")}
           onMouseEnter={() => setHoveredCard('right')}
@@ -130,9 +114,15 @@ const PlayersIntro = () => {
           <img 
             src={grassSmoky} 
             alt="" 
-            className="absolute inset-0 w-full h-full object-cover"
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+              hoveredCard === 'left' ? 'grayscale' : ''
+            }`}
           />
-          <div className="absolute inset-0 bg-black/30" />
+          <div className={`absolute inset-0 transition-all duration-500 ${
+            hoveredCard === 'right' 
+              ? 'bg-gradient-to-t from-accent/30 via-black/20 to-transparent' 
+              : 'bg-black/30'
+          }`} />
           
           {/* Content */}
           <div className="relative h-full flex flex-col justify-between p-8 md:p-12 min-h-[300px] md:min-h-[400px]">
