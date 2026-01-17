@@ -101,24 +101,33 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                     <h4 className="text-base md:text-lg font-bebas uppercase tracking-wider text-white line-clamp-2">
                       {product.title}
                     </h4>
-                    <div className="flex flex-col gap-2 w-full">
+                    <div className="flex gap-2 w-full">
                       <Button
                         asChild
                         size="sm"
-                        variant="outline"
-                        className="w-full justify-center bg-accent/90 backdrop-blur-sm border-accent text-black hover:bg-accent hover:text-black text-xs font-semibold py-2"
+                        className="flex-1 justify-center text-xs font-semibold py-2 relative overflow-hidden text-white border-2 border-accent"
                       >
                         <Link to={product.link} className="flex items-center justify-center">
-                          Learn More
-                          <ArrowRight className="w-3 h-3 ml-1" />
+                          <div 
+                            className="absolute inset-0 z-0"
+                            style={{
+                              backgroundImage: `url('/grass-bg-smoky.png')`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                            }}
+                          />
+                          <span className="relative z-10 flex items-center justify-center">
+                            Learn More
+                            <ArrowRight className="w-3 h-3 ml-1" />
+                          </span>
                         </Link>
                       </Button>
                       <Button
                         size="sm"
                         onClick={(e) => handleAddToCart(product, index, e)}
-                        className={`w-full justify-center text-xs transition-all relative overflow-hidden text-white font-semibold border-0 py-2 ${
+                        className={`flex-1 justify-center text-xs transition-all relative overflow-hidden text-white font-semibold border-2 border-accent py-2 ${
                           addedItems.has(index) 
-                            ? "bg-green-600 hover:bg-green-700" 
+                            ? "bg-green-600 hover:bg-green-700 border-green-600" 
                             : ""
                         }`}
                       >
