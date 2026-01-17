@@ -2,8 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, BookOpen } from "lucide-react";
+import grassField from "@/assets/grass-field-texture.png";
 import grassSmoky from "@/assets/grass-smoky-3.png";
-import grassTexture from "@/assets/grass-smoky-1.png";
 
 const PlayersIntro = () => {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ const PlayersIntro = () => {
   const getCardFlex = (card: 'left' | 'right') => {
     if (hoveredCard === null) return 1;
     if (hoveredCard === card) return 1.85; // 65%
-    return 1; // 35%
+    return 0.54; // 35%
   };
 
   return (
@@ -51,64 +51,58 @@ const PlayersIntro = () => {
           onMouseLeave={() => setHoveredCard(null)}
           style={{ minHeight: '300px' }}
         >
-          {/* Background image - smoky green */}
+          {/* Background image - grass field */}
           <img 
-            src={grassSmoky} 
+            src={grassField} 
             alt="" 
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-black/40" />
           
           {/* Content */}
           <div className="relative h-full flex flex-col justify-between p-8 md:p-12 min-h-[300px] md:min-h-[400px]">
             <div>
               <motion.div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/30 border border-accent/50 mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <BookOpen className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Discover Our Approach</span>
+                <BookOpen className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium text-accent">Discover Our Approach</span>
               </motion.div>
               
-              <motion.h2 
-                className="font-bold text-white mb-4" 
+              <h2 
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4" 
                 style={{ transform: 'scaleY(1.15)' }}
-                animate={{ fontSize: hoveredCard === 'left' ? '4rem' : '2.5rem' }}
-                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
               >
                 Learn How
                 <br />
-                <span className="text-primary">We Work</span>
-              </motion.h2>
+                <span className="text-accent">We Work</span>
+              </h2>
               
-              <motion.p 
-                className="text-white/70 max-w-md"
-                animate={{ 
-                  fontSize: hoveredCard === 'left' ? '1.25rem' : '1rem',
-                  opacity: hoveredCard === 'left' ? 1 : 0.8
-                }}
-                transition={{ duration: 0.4 }}
-              >
-                {hoveredCard === 'left' 
-                  ? "Discover our unique methodology and philosophy. Learn how we analyse performance, design personalised programmes, and fuel players to reach their full potential through data-driven insights and elite coaching."
-                  : "Discover our methodology, philosophy, and how we fuel players to reach their full potential."}
-              </motion.p>
+              <p className="text-lg text-white/80 max-w-md">
+                Discover our methodology, philosophy, and how we fuel players to reach their full potential.
+              </p>
             </div>
             
-            <motion.div 
-              className="flex items-center gap-3 text-primary font-semibold text-lg group-hover:gap-5 transition-all duration-300"
+            <motion.button
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-lg font-semibold text-lg text-white border-2 border-accent group-hover:gap-5 transition-all duration-300"
+              style={{ 
+                backgroundImage: `url(${grassSmoky})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
               whileHover={{ x: 10 }}
             >
               <span>Explore Our Story</span>
               <ArrowRight className="w-6 h-6" />
-            </motion.div>
+            </motion.button>
           </div>
           
           {/* Hover glow effect */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-accent/20 to-transparent" />
           </div>
         </motion.div>
 
@@ -132,9 +126,9 @@ const PlayersIntro = () => {
           onMouseLeave={() => setHoveredCard(null)}
           style={{ minHeight: '300px' }}
         >
-          {/* Background image - grass texture */}
+          {/* Background image - smoky green */}
           <img 
-            src={grassTexture} 
+            src={grassSmoky} 
             alt="" 
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -144,38 +138,43 @@ const PlayersIntro = () => {
           <div className="relative h-full flex flex-col justify-between p-8 md:p-12 min-h-[300px] md:min-h-[400px]">
             <div>
               <motion.div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(36,100%,50%)]/20 border border-[hsl(36,100%,50%)]/30 mb-6"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/30 border border-accent/50 mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <Sparkles className="w-4 h-4 text-[hsl(36,100%,50%)]" />
-                <span className="text-sm font-medium text-[hsl(36,100%,50%)]">Premium Services</span>
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium text-accent">Premium Services</span>
               </motion.div>
               
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ transform: 'scaleY(1.15)' }}>
                 View Our
                 <br />
-                <span className="text-[hsl(36,100%,50%)]">Services</span>
+                <span className="text-accent">Services</span>
               </h2>
               
-              <p className="text-lg text-white/70 max-w-md">
+              <p className="text-lg text-white/80 max-w-md">
                 Explore our comprehensive range of performance services designed to elevate every aspect of your game.
               </p>
             </div>
             
-            <motion.div 
-              className="flex items-center gap-3 text-[hsl(36,100%,50%)] font-semibold text-lg group-hover:gap-5 transition-all duration-300"
+            <motion.button
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-lg font-semibold text-lg text-white border-2 border-accent group-hover:gap-5 transition-all duration-300"
+              style={{ 
+                backgroundImage: `url(${grassSmoky})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
               whileHover={{ x: 10 }}
             >
               <span>Browse Services</span>
               <ArrowRight className="w-6 h-6" />
-            </motion.div>
+            </motion.button>
           </div>
           
           {/* Hover glow effect */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-t from-[hsl(36,100%,50%)]/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-accent/20 to-transparent" />
           </div>
         </motion.div>
       </div>
