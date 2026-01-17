@@ -180,7 +180,8 @@ const ExpandableSection = ({
   id,
   defaultOpen = false,
   icon,
-  transparentContent = false
+  transparentContent = false,
+  forceOpen = false
 }: { 
   title: string; 
   children: React.ReactNode; 
@@ -188,8 +189,16 @@ const ExpandableSection = ({
   defaultOpen?: boolean;
   icon?: "plus" | "minus" | null;
   transparentContent?: boolean;
+  forceOpen?: boolean;
 }) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [isOpen, setIsOpen] = useState(defaultOpen || forceOpen);
+  
+  // Force open when forceOpen prop changes
+  useEffect(() => {
+    if (forceOpen) {
+      setIsOpen(true);
+    }
+  }, [forceOpen]);
   const [wasManuallyToggled, setWasManuallyToggled] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -409,14 +418,14 @@ const AnalysisHeader = ({
         {/* Bottom fade */}
         <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
         
-        {/* Club logos - centered at 25% and 75% (center of each half) */}
+        {/* Club logos - centered at 25% and 75% (center of each half), moved up by 12px */}
         {homeLogo && (
-          <div className="absolute left-[25%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-24 h-24 md:w-36 md:h-36 z-0">
+          <div className="absolute left-[25%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-24 h-24 md:w-36 md:h-36 z-0 -mt-3">
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
-          <div className="absolute left-[75%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-24 h-24 md:w-36 md:h-36 z-0">
+          <div className="absolute left-[75%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-24 h-24 md:w-36 md:h-36 z-0 -mt-3">
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
@@ -650,6 +659,10 @@ const AnalysisViewer = () => {
     if (!pageRef.current || !analysis) return;
     
     setIsSaving(true);
+    
+    // Wait for React to re-render with all sections open
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     try {
       const canvas = await html2canvas(pageRef.current, {
         backgroundColor: '#0a1f0d',
@@ -660,9 +673,9 @@ const AnalysisViewer = () => {
       });
       
       const link = document.createElement('a');
-      const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.png`;
+      const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.webp`;
       link.download = fileName.replace(/\s+/g, '-').toLowerCase();
-      link.href = canvas.toDataURL('image/png');
+      link.href = canvas.toDataURL('image/webp', 0.9);
       link.click();
       
       toast.success('Analysis saved as image!');
@@ -824,8 +837,8 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
             />
 
-            {/* Quick Nav Dropdown */}
-            {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
+            {/* Quick Nav Dropdown - hidden when saving */}
+            {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
             {/* Match Image - full width of content area */}
             {analysis.match_image_url && (
@@ -842,7 +855,7 @@ const AnalysisViewer = () => {
 
             {/* Overview Section */}
             {analysis.key_details && (
-              <ExpandableSection title="Overview" id={SECTION_IDS.overview}>
+              <ExpandableSection title="Overview" id={SECTION_IDS.overview} forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-base md:text-lg" style={{ color: BRAND.bodyText }}>
                     {analysis.key_details}
@@ -853,7 +866,7 @@ const AnalysisViewer = () => {
 
             {/* Opposition Strengths */}
             {analysis.opposition_strengths && (
-              <ExpandableSection title="Opposition Strengths" id={SECTION_IDS.strengths} icon="plus">
+              <ExpandableSection title="Opposition Strengths" id={SECTION_IDS.strengths} icon="plus" forceOpen={isSaving}>
                 <div className="space-y-3">
                   {analysis.opposition_strengths.split('\n').filter(line => line.trim()).map((line, idx) => {
                     const cleanLine = line.trim().replace(/^[-•]\s*/, '');
@@ -877,7 +890,7 @@ const AnalysisViewer = () => {
 
             {/* Opposition Weaknesses */}
             {analysis.opposition_weaknesses && (
-              <ExpandableSection title="Opposition Weaknesses" id={SECTION_IDS.weaknesses} icon="minus">
+              <ExpandableSection title="Opposition Weaknesses" id={SECTION_IDS.weaknesses} icon="minus" forceOpen={isSaving}>
                 <div className="space-y-3">
                   {analysis.opposition_weaknesses.split('\n').filter(line => line.trim()).map((line, idx) => {
                     const cleanLine = line.trim().replace(/^[-•]\s*/, '');
@@ -905,6 +918,7 @@ const AnalysisViewer = () => {
                 title="Potential Matchup(s)" 
                 id={SECTION_IDS.matchups}
                 transparentContent
+                forceOpen={isSaving}
               >
                 <div className="flex justify-center items-center gap-3 md:gap-6 flex-wrap">
                   {analysis.matchups.map((matchup: any, index: number) => (
@@ -937,7 +951,7 @@ const AnalysisViewer = () => {
 
             {/* Scheme Section */}
             {(analysis.scheme_title || analysis.selected_scheme) && (
-              <ExpandableSection title={analysis.scheme_title || "Tactical Scheme"} id={SECTION_IDS.scheme}>
+              <ExpandableSection title={analysis.scheme_title || "Tactical Scheme"} id={SECTION_IDS.scheme} forceOpen={isSaving}>
                 <div className="space-y-4 md:space-y-6">
                   {analysis.scheme_paragraph_1 && (
                     <TextReveal>
@@ -1011,6 +1025,7 @@ const AnalysisViewer = () => {
                     key={index} 
                     title={point.title}
                     id={`section-point-${index}`}
+                    forceOpen={isSaving}
                   >
                     <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
@@ -1068,8 +1083,8 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
             />
 
-            {/* Quick Nav Dropdown */}
-            {navSections.length > 0 && <QuickNavDropdown sections={navSections} />}
+            {/* Quick Nav Dropdown - hidden when saving */}
+            {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
             {/* Player Image - square aspect ratio */}
             {analysis.player_image_url && (
@@ -1086,7 +1101,7 @@ const AnalysisViewer = () => {
 
             {/* Overview */}
             {analysis.key_details && (
-              <ExpandableSection title="Overview" id={SECTION_IDS.overview}>
+              <ExpandableSection title="Overview" id={SECTION_IDS.overview} forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
                     {analysis.key_details}
@@ -1097,7 +1112,7 @@ const AnalysisViewer = () => {
 
             {/* Strengths & Improvements */}
             {analysis.strengths_improvements && (
-              <ExpandableSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements}>
+              <ExpandableSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements} forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
                     {analysis.strengths_improvements}
@@ -1114,6 +1129,7 @@ const AnalysisViewer = () => {
                     key={index} 
                     title={point.title}
                     id={`section-point-${index}`}
+                    forceOpen={isSaving}
                   >
                     <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
@@ -1224,7 +1240,7 @@ const AnalysisViewer = () => {
             </section>
 
             {analysis.concept && (
-              <ExpandableSection title="Concept" defaultOpen>
+              <ExpandableSection title="Concept" defaultOpen forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
                     {analysis.concept}
@@ -1234,7 +1250,7 @@ const AnalysisViewer = () => {
             )}
 
             {analysis.explanation && (
-              <ExpandableSection title="Explanation">
+              <ExpandableSection title="Explanation" forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
                     {analysis.explanation}
@@ -1250,6 +1266,7 @@ const AnalysisViewer = () => {
                     key={index} 
                     title={point.title}
                     id={`section-point-${index}`}
+                    forceOpen={isSaving}
                   >
                     <div className="space-y-4 md:space-y-6">
                       {point.paragraph_1 && (
