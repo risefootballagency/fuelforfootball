@@ -30,6 +30,8 @@ interface Analysis {
   title: string | null;
   home_team?: string | null;
   away_team?: string | null;
+  home_team_bold?: boolean | null;
+  away_team_bold?: boolean | null;
   match_date?: string | null;
   home_team_logo?: string | null;
   away_team_logo?: string | null;
@@ -57,6 +59,7 @@ interface Analysis {
   points?: any[];
   video_url?: string | null;
   created_at: string;
+  player_name?: string | null;
 }
 
 interface Point {
