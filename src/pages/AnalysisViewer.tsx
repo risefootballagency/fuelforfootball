@@ -256,6 +256,14 @@ const ExpandableSection = ({
           backgroundPosition: 'center'
         }}
       >
+        {/* Shader vignette overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.25) 100%)',
+            mixBlendMode: 'multiply'
+          }}
+        />
         <TacticalSymbols />
         <div className="relative px-4 md:px-6 pt-4 md:pt-5 pb-2 md:pb-3">
           <div className="w-full">
@@ -284,6 +292,14 @@ const ExpandableSection = ({
         backgroundPosition: 'center'
       }}
     >
+      {/* Shader vignette overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.25) 100%)',
+          mixBlendMode: 'multiply'
+        }}
+      />
       <TacticalSymbols />
       <div className="relative px-4 md:px-6 pt-4 md:pt-5 pb-2 md:pb-3">
         <motion.div 
@@ -994,8 +1010,17 @@ const AnalysisViewer = () => {
                     backgroundPosition: 'center'
                   }}
                 >
+                  {/* Subtle shader overlay for premium look */}
+                  <div 
+                    className="absolute inset-0 pointer-events-none z-10"
+                    style={{
+                      background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.3) 100%)',
+                      mixBlendMode: 'multiply'
+                    }}
+                  />
+                  
                   {/* Image container - square aspect ratio */}
-                  <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
+                  <div className="relative w-full z-0" style={{ aspectRatio: '1/1' }}>
                     <img
                       src={analysis.player_image_url || analysis.match_image_url}
                       alt={analysis.player_name || "Match"}
@@ -1005,26 +1030,43 @@ const AnalysisViewer = () => {
                     {/* Thick Gold Arch Frame at bottom */}
                     <svg 
                       className="absolute bottom-0 left-0 right-0 w-full"
-                      style={{ height: '15%' }}
-                      viewBox="0 0 400 60" 
+                      style={{ height: '12%' }}
+                      viewBox="0 0 400 50" 
                       preserveAspectRatio="none"
                     >
-                      <path d="M0,60 L0,50 Q200,5 400,50 L400,60 Z" fill="#fdc61b" />
+                      <path d="M0,50 L0,40 Q200,5 400,40 L400,50 Z" fill="#fdc61b" />
                     </svg>
                   </div>
                   
-                  {/* Player name - same style as point titles */}
-                  <div className="px-4 py-6 md:py-8">
+                  {/* Player name with arched grass background matching gold arch */}
+                  <div className="relative px-4 -mt-2">
+                    <svg 
+                      className="absolute top-0 left-4 right-4 w-[calc(100%-2rem)] mx-auto"
+                      style={{ height: '30px' }}
+                      viewBox="0 0 400 30" 
+                      preserveAspectRatio="none"
+                    >
+                      <defs>
+                        <pattern id="grassPattern" patternUnits="userSpaceOnUse" width="400" height="100">
+                          <image href="/analysis-grass-bg.png" width="400" height="100" preserveAspectRatio="xMidYMid slice" />
+                        </pattern>
+                      </defs>
+                      <path d="M0,30 L0,25 Q200,0 400,25 L400,30 Z" fill="url(#grassPattern)" />
+                      <path d="M0,30 L0,25 Q200,0 400,25 L400,30 Z" fill="none" stroke="#fdc61b" strokeWidth="2" />
+                    </svg>
                     <div 
-                      className="relative rounded-lg overflow-hidden mx-auto max-w-2xl"
+                      className="relative overflow-hidden mx-auto"
                       style={{
                         backgroundImage: `url('/analysis-grass-bg.png')`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
-                        border: `2px solid ${BRAND.gold}`
+                        borderLeft: `2px solid ${BRAND.gold}`,
+                        borderRight: `2px solid ${BRAND.gold}`,
+                        borderBottom: `2px solid ${BRAND.gold}`,
+                        marginTop: '28px'
                       }}
                     >
-                      <div className="py-3 md:py-4 px-4">
+                      <div className="py-4 md:py-5 px-6">
                         <h2 
                           className="text-2xl md:text-3xl lg:text-4xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
                           style={{ color: BRAND.gold }}
@@ -1034,6 +1076,9 @@ const AnalysisViewer = () => {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Bottom padding */}
+                  <div className="h-6 md:h-8" />
                 </div>
               </ScrollReveal>
             )}
