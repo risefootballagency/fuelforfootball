@@ -70,6 +70,7 @@ interface Matchup {
   name: string;
   shirt_number: string;
   image_url: string;
+  notes?: string;
 }
 
 interface AIWriterState {
