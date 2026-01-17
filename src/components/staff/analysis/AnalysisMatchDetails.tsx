@@ -178,49 +178,6 @@ export const AnalysisMatchDetails = ({
           />
         </div>
 
-        {/* Link to Player Performance Report */}
-        <div className="border-t pt-4 mt-4">
-          <h4 className="font-medium mb-3">Link to Player Performance Report</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label>Player</Label>
-              <Select value={selectedPlayerId} onValueChange={setSelectedPlayerId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select player" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {players.map((player) => (
-                    <SelectItem key={player.id} value={player.id}>
-                      {player.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Performance Report</Label>
-              <Select 
-                value={selectedPerformanceReportId} 
-                onValueChange={setSelectedPerformanceReportId}
-                disabled={!selectedPlayerId || selectedPlayerId === "none"}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select report" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {performanceReports.map((report) => (
-                    <SelectItem key={report.id} value={report.id}>
-                      {report.opponent} - {new Date(report.analysis_date).toLocaleDateString()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
         {analysisType === "pre-match" ? (
           <>
             <div className="border-t pt-4">
@@ -332,6 +289,29 @@ export const AnalysisMatchDetails = ({
                   onChange={(e) => setFormData({ ...formData, away_team_bg_color: e.target.value })}
                 />
               </div>
+            </div>
+
+            {/* Match Image for pre-match */}
+            <div>
+              <Label className="flex items-center gap-2">
+                Match Image
+                <Crop className="w-3 h-3 text-muted-foreground" />
+              </Label>
+              <p className="text-xs text-muted-foreground mb-1">Square format (1:1) - appears in match header</p>
+              <Input
+                ref={matchImageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleLogoFileSelect(e, "match_image_url")}
+                disabled={uploadingImage}
+              />
+              {formData.match_image_url && (
+                <div className="mt-2">
+                  <div className="w-24 h-24 overflow-hidden rounded-lg border-2 border-muted">
+                    <img src={formData.match_image_url} alt="Match" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              )}
             </div>
           </>
         ) : (

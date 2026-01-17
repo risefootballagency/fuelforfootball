@@ -235,48 +235,6 @@ export const AnalysisOverviewSection = ({
             disabled={uploadingImage}
           />
         </div>
-
-        <div className="border-t pt-4 mt-4">
-          <h4 className="font-medium mb-3">Link to Player Performance Report</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label>Player</Label>
-              <Select value={selectedPlayerId} onValueChange={setSelectedPlayerId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select player" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {players.map((player) => (
-                    <SelectItem key={player.id} value={player.id}>
-                      {player.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Performance Report</Label>
-              <Select 
-                value={selectedPerformanceReportId} 
-                onValueChange={setSelectedPerformanceReportId}
-                disabled={!selectedPlayerId || selectedPlayerId === "none"}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select report" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {performanceReports.map((report) => (
-                    <SelectItem key={report.id} value={report.id}>
-                      {report.opponent} - {new Date(report.analysis_date).toLocaleDateString()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
       </CollapsibleContent>
     </Collapsible>
     
