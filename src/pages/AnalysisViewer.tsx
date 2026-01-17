@@ -71,17 +71,85 @@ const SECTION_IDS = {
   improvements: "section-improvements",
 };
 
-// Kit SVG Component
-const PlayerKit = ({ primaryColor, secondaryColor, number }: { primaryColor: string; secondaryColor: string; number: string }) => (
-  <svg width="80" height="80" viewBox="0 0 100 100" className="drop-shadow-lg">
-    <path d="M30 25 L25 35 L25 65 L30 75 L70 75 L75 65 L75 35 L70 25 Z" fill={primaryColor} stroke={secondaryColor} strokeWidth="2"/>
-    <rect x="42" y="25" width="16" height="50" fill={secondaryColor} opacity="0.8"/>
-    <circle cx="50" cy="25" r="8" fill={primaryColor} stroke={secondaryColor} strokeWidth="2"/>
-    <text x="50" y="55" textAnchor="middle" fontSize="24" fontWeight="bold" fill="white" stroke="black" strokeWidth="1">
-      {number}
-    </text>
-  </svg>
-);
+// Enhanced Kit SVG Component with more styling options
+interface KitProps {
+  primaryColor: string;
+  secondaryColor: string;
+  collarColor?: string;
+  stripeStyle?: 'none' | 'thin' | 'thick' | 'halves';
+  number: string;
+}
+
+const PlayerKit = ({ primaryColor, secondaryColor, collarColor, stripeStyle = 'thick', number }: KitProps) => {
+  const collar = collarColor || secondaryColor;
+  
+  return (
+    <svg width="80" height="80" viewBox="0 0 100 100" className="drop-shadow-lg">
+      <defs>
+        {/* Pattern for thin stripes */}
+        <pattern id={`thinStripes-${number}`} patternUnits="userSpaceOnUse" width="6" height="100">
+          <rect width="3" height="100" fill={primaryColor} />
+          <rect x="3" width="3" height="100" fill={secondaryColor} />
+        </pattern>
+        {/* Pattern for thick stripes */}
+        <pattern id={`thickStripes-${number}`} patternUnits="userSpaceOnUse" width="20" height="100">
+          <rect width="10" height="100" fill={primaryColor} />
+          <rect x="10" width="10" height="100" fill={secondaryColor} />
+        </pattern>
+      </defs>
+      
+      {/* Main shirt body */}
+      <path 
+        d="M25 30 L20 40 L20 75 L30 80 L70 80 L80 75 L80 40 L75 30 L65 25 L60 28 L40 28 L35 25 Z" 
+        fill={stripeStyle === 'thin' ? `url(#thinStripes-${number})` : 
+              stripeStyle === 'thick' ? `url(#thickStripes-${number})` :
+              stripeStyle === 'halves' ? primaryColor : primaryColor}
+        stroke={secondaryColor} 
+        strokeWidth="1.5"
+      />
+      
+      {/* Halves - right side overlay */}
+      {stripeStyle === 'halves' && (
+        <path 
+          d="M50 28 L60 28 L65 25 L75 30 L80 40 L80 75 L70 80 L50 80 Z" 
+          fill={secondaryColor}
+        />
+      )}
+      
+      {/* Sleeves */}
+      <path d="M20 40 L10 50 L15 60 L20 55 Z" fill={primaryColor} stroke={secondaryColor} strokeWidth="1"/>
+      <path d="M80 40 L90 50 L85 60 L80 55 Z" fill={stripeStyle === 'halves' ? secondaryColor : primaryColor} stroke={secondaryColor} strokeWidth="1"/>
+      
+      {/* Collar - V-neck style */}
+      <path d="M40 28 L50 38 L60 28" fill="none" stroke={collar} strokeWidth="3" strokeLinecap="round"/>
+      <path d="M42 26 L50 34 L58 26" fill="none" stroke={collar} strokeWidth="2"/>
+      
+      {/* Collar base */}
+      <ellipse cx="50" cy="26" rx="12" ry="4" fill={collar} />
+      
+      {/* Number on shirt */}
+      <text 
+        x="50" 
+        y="60" 
+        textAnchor="middle" 
+        fontSize="22" 
+        fontWeight="bold" 
+        fill="white" 
+        stroke="black" 
+        strokeWidth="0.8"
+        fontFamily="Arial Black, sans-serif"
+      >
+        {number}
+      </text>
+      
+      {/* Subtle shading for depth */}
+      <path 
+        d="M25 30 L20 40 L20 75 L30 80 L35 75 L35 35 Z" 
+        fill="rgba(0,0,0,0.1)"
+      />
+    </svg>
+  );
+};
 
 // Tactical symbols SVG background - football analysis style
 const TacticalSymbols = () => (
@@ -1025,9 +1093,6 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
             />
 
-            {/* Quick Nav Dropdown - hidden when saving */}
-            {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
-
             {/* Player/Match Image with Premium Gold Arch Frame */}
             {(analysis.player_image_url || analysis.match_image_url) && (
               <ScrollReveal className="w-full">
@@ -1039,6 +1104,14 @@ const AnalysisViewer = () => {
                     backgroundPosition: 'center'
                   }}
                 >
+                  {/* Green fade gradient overlay - doubled height, layered ON TOP of match image */}
+                  <div 
+                    className="absolute inset-x-0 top-0 h-32 md:h-48 z-20 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(to bottom, #0a2e12 0%, transparent 100%)'
+                    }}
+                  />
+                  
                   {/* Subtle shader overlay for premium look */}
                   <div 
                     className="absolute inset-0 pointer-events-none z-10"
@@ -1057,8 +1130,8 @@ const AnalysisViewer = () => {
                     />
                   </div>
                   
-                  {/* Gold Arch - positioned so its center aligns with the bottom of the image */}
-                  <div className="relative w-full" style={{ marginTop: '-10%' }}>
+                  {/* Gold Arch - TRIPLED height (240px), positioned so its center aligns with the bottom of the image */}
+                  <div className="relative w-full" style={{ marginTop: '-15%' }}>
                     {/* Grass background visible below the arch */}
                     <div 
                       className="absolute inset-0"
@@ -1072,21 +1145,21 @@ const AnalysisViewer = () => {
                     {/* Secondary transparent arch (outer) */}
                     <svg 
                       className="relative w-full"
-                      viewBox="0 0 400 80" 
+                      viewBox="0 0 400 240" 
                       preserveAspectRatio="none"
-                      style={{ height: '80px' }}
+                      style={{ height: '240px' }}
                     >
-                      <path d="M0,5 Q200,60 400,5 L400,60 Q200,80 0,60 Z" fill="rgba(253,198,27,0.25)" />
+                      <path d="M0,15 Q200,180 400,15 L400,180 Q200,240 0,180 Z" fill="rgba(253,198,27,0.25)" />
                     </svg>
                     
-                    {/* Main gold arch - curves DOWN at top, curves UP at bottom */}
+                    {/* Main gold arch - curves DOWN at top, curves UP at bottom - TRIPLED size */}
                     <svg 
                       className="absolute inset-0 w-full"
-                      viewBox="0 0 400 80" 
+                      viewBox="0 0 400 240" 
                       preserveAspectRatio="none"
-                      style={{ height: '80px' }}
+                      style={{ height: '240px' }}
                     >
-                      <path d="M0,15 Q200,65 400,15 L400,55 Q200,75 0,55 Z" fill="#fdc61b" />
+                      <path d="M0,45 Q200,195 400,45 L400,165 Q200,225 0,165 Z" fill="#fdc61b" />
                     </svg>
                     
                     {/* Player name positioned on top of the arch */}
@@ -1114,6 +1187,9 @@ const AnalysisViewer = () => {
                 </div>
               </ScrollReveal>
             )}
+
+            {/* Quick Nav Dropdown - MOVED below player name, hidden when saving */}
+            {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
             {/* Overview Section */}
             {analysis.key_details && (
@@ -1261,18 +1337,68 @@ const AnalysisViewer = () => {
                   
                   {analysis.selected_scheme && (
                     <TextReveal delay={0.2}>
-                      <div className="relative bg-gradient-to-b from-green-700 to-green-800 rounded-lg p-4 md:p-8 min-h-[400px] md:min-h-[600px] border-4 shadow-xl" style={{ borderColor: BRAND.gold }}>
-                        <div className="text-white text-center mb-4 text-xl md:text-2xl font-bebas tracking-wider">
-                          {analysis.selected_scheme}
+                      <div 
+                        className="relative rounded-lg min-h-[400px] md:min-h-[600px] border-4 shadow-xl overflow-hidden" 
+                        style={{ 
+                          borderColor: BRAND.gold,
+                          background: 'linear-gradient(180deg, #1a5c2a 0%, #0d4a1c 30%, #0a3d16 70%, #082f10 100%)'
+                        }}
+                      >
+                        {/* Grass texture overlay */}
+                        <div 
+                          className="absolute inset-0 opacity-30 pointer-events-none"
+                          style={{
+                            backgroundImage: `url('/analysis-grass-bg.png')`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            mixBlendMode: 'overlay'
+                          }}
+                        />
+                        
+                        {/* Formation name - top left, angled, premium styling */}
+                        <div className="absolute top-3 left-3 md:top-4 md:left-4 z-20">
+                          <div 
+                            className="relative px-4 md:px-6 py-2 md:py-3 rounded-lg shadow-xl"
+                            style={{
+                              background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 100%)',
+                              border: `2px solid ${BRAND.gold}`,
+                              transform: 'skewX(-5deg)'
+                            }}
+                          >
+                            <span 
+                              className="font-bebas text-2xl md:text-4xl tracking-[0.15em] uppercase drop-shadow-lg"
+                              style={{ 
+                                color: BRAND.gold,
+                                transform: 'skewX(5deg)',
+                                display: 'inline-block',
+                                textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                              }}
+                            >
+                              {analysis.selected_scheme}
+                            </span>
+                          </div>
                         </div>
+                        
                         {/* Field markings */}
-                        <div className="absolute inset-4 md:inset-8 border-2 border-white/30 rounded-lg"></div>
-                        <div className="absolute inset-x-4 md:inset-x-8 top-1/2 h-0.5 bg-white/30"></div>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-20 md:h-20 border-2 border-white/30 rounded-full"></div>
-                        <div className="absolute left-1/2 -translate-x-1/2 top-4 md:top-8 w-32 md:w-48 h-16 md:h-24 border-2 border-white/30 border-t-0"></div>
-                        <div className="absolute left-1/2 -translate-x-1/2 top-4 md:top-8 w-16 md:w-24 h-8 md:h-12 border-2 border-white/30 border-t-0"></div>
-                        <div className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-8 w-32 md:w-48 h-16 md:h-24 border-2 border-white/30 border-b-0"></div>
-                        <div className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-8 w-16 md:w-24 h-8 md:h-12 border-2 border-white/30 border-b-0"></div>
+                        <div className="absolute inset-4 md:inset-8 border-2 border-white/40 rounded-lg"></div>
+                        <div className="absolute inset-x-4 md:inset-x-8 top-1/2 h-0.5 bg-white/40"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 border-2 border-white/40 rounded-full"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 md:w-3 md:h-3 bg-white/50 rounded-full"></div>
+                        {/* Top penalty area */}
+                        <div className="absolute left-1/2 -translate-x-1/2 top-4 md:top-8 w-32 md:w-48 h-16 md:h-24 border-2 border-white/40 border-t-0"></div>
+                        <div className="absolute left-1/2 -translate-x-1/2 top-4 md:top-8 w-16 md:w-24 h-8 md:h-12 border-2 border-white/40 border-t-0"></div>
+                        {/* Top goal */}
+                        <div className="absolute left-1/2 -translate-x-1/2 top-4 md:top-8 w-10 md:w-14 h-2 bg-white/30 rounded-b"></div>
+                        {/* Bottom penalty area */}
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-8 w-32 md:w-48 h-16 md:h-24 border-2 border-white/40 border-b-0"></div>
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-8 w-16 md:w-24 h-8 md:h-12 border-2 border-white/40 border-b-0"></div>
+                        {/* Bottom goal */}
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-4 md:bottom-8 w-10 md:w-14 h-2 bg-white/30 rounded-t"></div>
+                        {/* Corner arcs */}
+                        <div className="absolute top-4 left-4 md:top-8 md:left-8 w-4 h-4 md:w-6 md:h-6 border-b-2 border-r-2 border-white/40 rounded-br-full"></div>
+                        <div className="absolute top-4 right-4 md:top-8 md:right-8 w-4 h-4 md:w-6 md:h-6 border-b-2 border-l-2 border-white/40 rounded-bl-full"></div>
+                        <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 w-4 h-4 md:w-6 md:h-6 border-t-2 border-r-2 border-white/40 rounded-tr-full"></div>
+                        <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 w-4 h-4 md:w-6 md:h-6 border-t-2 border-l-2 border-white/40 rounded-tl-full"></div>
                         
                         {analysis.starting_xi && analysis.starting_xi.length > 0 && (
                           <div className="absolute inset-0 p-4 md:p-8">
@@ -1286,14 +1412,22 @@ const AnalysisViewer = () => {
                                   transform: 'translate(-50%, -50%)'
                                 }}
                               >
-                                <div className="scale-50 md:scale-100">
+                                <div className="scale-50 md:scale-100 drop-shadow-xl">
                                   <PlayerKit 
                                     primaryColor={analysis.kit_primary_color || '#FFD700'}
                                     secondaryColor={analysis.kit_secondary_color || '#000000'}
+                                    stripeStyle="thick"
                                     number={player.number || '0'}
                                   />
                                 </div>
-                                <div className="bg-black/80 text-white px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs font-bold whitespace-nowrap -mt-1 md:-mt-2">
+                                <div 
+                                  className="px-2 md:px-3 py-0.5 md:py-1 rounded text-[10px] md:text-xs font-bold whitespace-nowrap -mt-1 md:-mt-2 shadow-lg"
+                                  style={{
+                                    background: 'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.8) 100%)',
+                                    color: 'white',
+                                    border: `1px solid ${BRAND.gold}40`
+                                  }}
+                                >
                                   {player.surname || player.position}
                                 </div>
                               </div>
