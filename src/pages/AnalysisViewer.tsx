@@ -710,6 +710,7 @@ const AnalysisViewer = () => {
 
   const fetchAnalysis = async () => {
     try {
+      // Fetch analysis data
       const { data, error } = await supabase
         .from("analyses")
         .select("*")
@@ -721,8 +722,21 @@ const AnalysisViewer = () => {
         throw error;
       }
       
+      // Fetch linked player name via player_analysis
+      let playerName: string | null = null;
+      const { data: linkedData } = await supabase
+        .from("player_analysis")
+        .select("players(name)")
+        .eq("analysis_writer_id", analysisId)
+        .maybeSingle();
+      
+      if (linkedData?.players) {
+        playerName = (linkedData.players as any).name;
+      }
+      
       const parsedAnalysis: Analysis = {
         ...data,
+        player_name: playerName,
         match_date: data.match_date || null,
         home_team_logo: data.home_team_logo || null,
         away_team_logo: data.away_team_logo || null,
