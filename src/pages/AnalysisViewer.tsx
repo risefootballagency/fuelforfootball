@@ -1022,6 +1022,54 @@ const AnalysisViewer = () => {
             {/* Quick Nav Dropdown - hidden when saving */}
             {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
+            {/* Player Image with Premium Gold Arch Frame */}
+            {analysis.player_image_url && (
+              <ScrollReveal className="w-full">
+                <div className="relative w-full overflow-hidden">
+                  {/* Player image container - square aspect ratio */}
+                  <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
+                    <img
+                      src={analysis.player_image_url}
+                      alt={analysis.player_name || "Player"}
+                      className="w-full h-full object-cover object-top"
+                    />
+                    
+                    {/* Thick Gold Arch Frame at bottom */}
+                    <svg 
+                      className="absolute bottom-0 left-0 right-0 w-full"
+                      style={{ height: '20%' }}
+                      viewBox="0 0 400 80" 
+                      preserveAspectRatio="none"
+                    >
+                      <path d="M0,80 L0,60 Q200,0 400,60 L400,80 Z" fill="#fdc61b" />
+                      <path d="M0,80 L0,68 Q200,12 400,68 L400,80 Z" fill="#0a1f0d" />
+                    </svg>
+                  </div>
+                  
+                  {/* Grass background with player name */}
+                  <div 
+                    className="relative py-6 md:py-10"
+                    style={{
+                      backgroundImage: `url('/analysis-grass-bg.png')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center top',
+                      marginTop: '-2px'
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/60 pointer-events-none" />
+                    <div className="relative text-center px-4">
+                      <h2 
+                        className="text-3xl md:text-5xl lg:text-6xl font-bebas uppercase tracking-[0.2em] drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
+                        style={{ color: '#fdc61b' }}
+                      >
+                        <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            )}
+
             {/* Match Image - full width of content area */}
             {analysis.match_image_url && (
               <ScrollReveal className="w-full">
