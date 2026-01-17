@@ -12,7 +12,7 @@ interface ImageCropDialogProps {
   onOpenChange: (open: boolean) => void;
   imageSrc: string;
   onCropComplete: (croppedBlob: Blob) => void;
-  aspectRatio?: number;
+  aspectRatio?: number; // Optional - if undefined, allows free aspect ratio
   title?: string;
   showBackgroundRemoval?: boolean;
   cropHeight?: number; // Optional fixed crop height for landscape crops
@@ -92,15 +92,19 @@ export const ImageCropDialog = ({
   onOpenChange,
   imageSrc,
   onCropComplete,
-  aspectRatio = 1,
+  aspectRatio,
   title = "Crop Image",
   showBackgroundRemoval = false,
   cropHeight
 }: ImageCropDialogProps) => {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
+  // Allow zoom out for logos (min 0.5) and standard zoom for match images
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [removeBackgroundEnabled, setRemoveBackgroundEnabled] = useState(false);
+  
+  // Flexible aspect = undefined means the user can adjust freely
+  const isFlexibleAspect = aspectRatio === undefined;
 
   const onCropChange = useCallback((location: Point) => {
     setCrop(location);
@@ -202,16 +206,17 @@ export const ImageCropDialog = ({
             onZoomChange={onZoomChange}
             onCropComplete={onCropAreaChange}
             showGrid={true}
+            minZoom={isFlexibleAspect ? 0.5 : 1}
           />
         </div>
         
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label className="text-sm">Zoom</Label>
+            <Label className="text-sm">Zoom {isFlexibleAspect && "(zoom out to include more)"}</Label>
             <Slider
               value={[zoom]}
               onValueChange={(values) => setZoom(values[0])}
-              min={1}
+              min={isFlexibleAspect ? 0.5 : 1}
               max={3}
               step={0.1}
               className="w-full"
