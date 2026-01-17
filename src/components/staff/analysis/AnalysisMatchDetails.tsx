@@ -336,7 +336,17 @@ export const AnalysisMatchDetails = ({
           </>
         ) : (
           <>
-            {/* Player name is auto-derived from linked player_analysis */}
+            {/* Player Name - stored directly on analysis for display */}
+            <div>
+              <Label>Player Name (for display)</Label>
+              <Input
+                value={formData.player_name || ""}
+                onChange={(e) => setFormData({ ...formData, player_name: e.target.value })}
+                placeholder="Enter player's full name (e.g. JAROSLAV SVOBODA)..."
+              />
+              <p className="text-xs text-muted-foreground mt-1">This name will appear below the player image</p>
+            </div>
+            
             <div>
               <Label>Player Image (Optional)</Label>
               <Input
