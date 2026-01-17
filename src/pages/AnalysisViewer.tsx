@@ -391,9 +391,9 @@ const AnalysisHeader = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Top gold border that connects with side lines - at 4px from edge, same 2px thickness */}
+      {/* Top gold border that connects with side lines - at 6px from edge, same 2px thickness */}
       <div 
-        className="absolute top-0 left-[4px] right-[4px] h-[2px] z-20"
+        className="absolute top-0 left-[6px] right-[6px] h-[2px] z-20"
         style={{ backgroundColor: BRAND.gold }}
       />
       
@@ -468,14 +468,14 @@ const AnalysisHeader = ({
         {/* Bottom fade */}
         <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
         
-        {/* Club logos - centered at 25% and 75% (center of each half), moved up by 12px */}
+        {/* Club logos - positioned at outer edges, IN FRONT of color containers */}
         {homeLogo && (
-          <div className="absolute left-[25%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-24 h-24 md:w-36 md:h-36 z-0 -mt-3">
+          <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-20 h-20 md:w-28 md:h-28 z-20 -mt-2">
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
-          <div className="absolute left-[75%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-24 h-24 md:w-36 md:h-36 z-0 -mt-3">
+          <div className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-20 h-20 md:w-28 md:h-28 z-20 -mt-2">
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
@@ -965,13 +965,13 @@ const AnalysisViewer = () => {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Gold inset vertical lines - 4px from edges, 2px thickness - connect with header border */}
+      {/* Gold inset vertical lines - 6px from edges, 2px thickness - connect with header border */}
       <div 
-        className="fixed top-0 bottom-0 left-[4px] w-[2px] z-10 pointer-events-none"
+        className="fixed top-0 bottom-0 left-[6px] w-[2px] z-10 pointer-events-none"
         style={{ backgroundColor: BRAND.gold }}
       />
       <div 
-        className="fixed top-0 bottom-0 right-[4px] w-[2px] z-10 pointer-events-none"
+        className="fixed top-0 bottom-0 right-[6px] w-[2px] z-10 pointer-events-none"
         style={{ backgroundColor: BRAND.gold }}
       />
 
@@ -1054,37 +1054,23 @@ const AnalysisViewer = () => {
                     </svg>
                   </div>
                   
-                  {/* Player name with arched grass background matching gold arch */}
+                  {/* Player name with smaller oval smoky background */}
                   <div className="relative px-4 -mt-2">
-                    <svg 
-                      className="absolute top-0 left-4 right-4 w-[calc(100%-2rem)] mx-auto"
-                      style={{ height: '30px' }}
-                      viewBox="0 0 400 30" 
-                      preserveAspectRatio="none"
-                    >
-                      <defs>
-                        <pattern id="grassPattern" patternUnits="userSpaceOnUse" width="400" height="100">
-                          <image href="/analysis-grass-bg.png" width="400" height="100" preserveAspectRatio="xMidYMid slice" />
-                        </pattern>
-                      </defs>
-                      <path d="M0,30 L0,25 Q200,0 400,25 L400,30 Z" fill="url(#grassPattern)" />
-                      <path d="M0,30 L0,25 Q200,0 400,25 L400,30 Z" fill="none" stroke="#fdc61b" strokeWidth="2" />
-                    </svg>
-                    <div 
-                      className="relative overflow-hidden mx-auto"
-                      style={{
-                        backgroundImage: `url('/analysis-grass-bg.png')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        borderLeft: `2px solid ${BRAND.gold}`,
-                        borderRight: `2px solid ${BRAND.gold}`,
-                        borderBottom: `2px solid ${BRAND.gold}`,
-                        marginTop: '28px'
-                      }}
-                    >
-                      <div className="py-4 md:py-5 px-6">
+                    <div className="flex justify-center">
+                      <div 
+                        className="relative overflow-hidden rounded-full px-8 md:px-12 py-3 md:py-4"
+                        style={{
+                          backgroundImage: `url('/grass-bg-smoky.png')`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          border: `2px solid ${BRAND.gold}`,
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
+                        }}
+                      >
+                        {/* Dark overlay for smoky effect */}
+                        <div className="absolute inset-0 bg-black/40 rounded-full" />
                         <h2 
-                          className="text-2xl md:text-3xl lg:text-4xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
+                          className="relative text-xl md:text-2xl lg:text-3xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
                           style={{ color: BRAND.gold }}
                         >
                           <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
