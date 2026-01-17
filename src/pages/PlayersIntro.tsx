@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, BookOpen } from "lucide-react";
+import grassSmoky from "@/assets/grass-bg-smoky.png";
+import grassTexture from "@/assets/grass-2.png";
 
 const PlayersIntro = () => {
   const navigate = useNavigate();
@@ -31,7 +33,7 @@ const PlayersIntro = () => {
       <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 md:p-8">
         {/* Left - Learn More */}
         <motion.div
-          className="relative overflow-hidden rounded-2xl cursor-pointer group"
+          className="relative overflow-hidden rounded-2xl cursor-pointer group border-4 border-accent"
           initial={{ opacity: 0, x: -50 }}
           animate={{ 
             opacity: 1, 
@@ -49,14 +51,12 @@ const PlayersIntro = () => {
           onMouseLeave={() => setHoveredCard(null)}
           style={{ minHeight: '300px' }}
         >
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(120,80%,8%)] via-[hsl(120,70%,12%)] to-[hsl(120,60%,18%)]" />
-          
-          {/* Subtle pattern overlay */}
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, hsl(var(--primary)) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
+          {/* Background image - smoky green */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${grassSmoky})` }}
+          />
+          <div className="absolute inset-0 bg-black/30" />
           
           {/* Content */}
           <div className="relative h-full flex flex-col justify-between p-8 md:p-12 min-h-[300px] md:min-h-[400px]">
@@ -113,7 +113,7 @@ const PlayersIntro = () => {
 
         {/* Right - Services */}
         <motion.div
-          className="relative overflow-hidden rounded-2xl cursor-pointer group"
+          className="relative overflow-hidden rounded-2xl cursor-pointer group border-4 border-accent"
           initial={{ opacity: 0, x: 50 }}
           animate={{ 
             opacity: 1, 
@@ -131,14 +131,12 @@ const PlayersIntro = () => {
           onMouseLeave={() => setHoveredCard(null)}
           style={{ minHeight: '300px' }}
         >
-          {/* Background gradient - Orange/Gold theme */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(36,100%,15%)] via-[hsl(36,90%,20%)] to-[hsl(36,80%,25%)]" />
-          
-          {/* Subtle pattern overlay */}
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, hsl(36,100%,50%) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
+          {/* Background image - grass texture */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${grassTexture})` }}
+          />
+          <div className="absolute inset-0 bg-black/30" />
           
           {/* Content */}
           <div className="relative h-full flex flex-col justify-between p-8 md:p-12 min-h-[300px] md:min-h-[400px]">
