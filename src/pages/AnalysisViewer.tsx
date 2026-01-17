@@ -769,58 +769,19 @@ const AnalysisViewer = () => {
         throw new Error('Canvas is empty');
       }
       
-      // A4 dimensions in mm
-      const a4Width = 210;
-      const a4Height = 297;
+      // Single page PDF - fit all content on one page
+      const pdfWidth = 210; // A4 width in mm as base
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
-      // Calculate how the content fits
-      const imgWidth = a4Width;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // Create multi-page PDF if content is taller than one page
+      // Create single-page PDF with custom height to fit all content
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: [pdfWidth, pdfHeight]
       });
       
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      
-      if (imgHeight <= a4Height) {
-        // Single page
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-      } else {
-        // Multi-page: split the image
-        let remainingHeight = imgHeight;
-        let position = 0;
-        let pageNum = 0;
-        
-        while (remainingHeight > 0) {
-          if (pageNum > 0) {
-            pdf.addPage();
-          }
-          
-          // Calculate source position in the original canvas
-          const sourceY = (position / imgHeight) * canvas.height;
-          const sourceHeight = Math.min((a4Height / imgHeight) * canvas.height, canvas.height - sourceY);
-          
-          // Create a temporary canvas for this page slice
-          const pageCanvas = document.createElement('canvas');
-          pageCanvas.width = canvas.width;
-          pageCanvas.height = sourceHeight;
-          const ctx = pageCanvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(canvas, 0, sourceY, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
-            const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.95);
-            const pageImgHeight = (sourceHeight * imgWidth) / canvas.width;
-            pdf.addImage(pageImgData, 'JPEG', 0, 0, imgWidth, pageImgHeight);
-          }
-          
-          position += a4Height;
-          remainingHeight -= a4Height;
-          pageNum++;
-        }
-      }
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       
       const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.pdf`;
       pdf.save(fileName.replace(/\s+/g, '-').toLowerCase());
@@ -1022,15 +983,15 @@ const AnalysisViewer = () => {
             {/* Quick Nav Dropdown - hidden when saving */}
             {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
-            {/* Player Image with Premium Gold Arch Frame */}
-            {analysis.player_image_url && (
+            {/* Player/Match Image with Premium Gold Arch Frame */}
+            {(analysis.player_image_url || analysis.match_image_url) && (
               <ScrollReveal className="w-full">
                 <div className="relative w-full overflow-hidden">
-                  {/* Player image container - square aspect ratio */}
+                  {/* Image container - square aspect ratio */}
                   <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
                     <img
-                      src={analysis.player_image_url}
-                      alt={analysis.player_name || "Player"}
+                      src={analysis.player_image_url || analysis.match_image_url}
+                      alt={analysis.player_name || "Match"}
                       className="w-full h-full object-cover object-top"
                     />
                     
@@ -1066,19 +1027,6 @@ const AnalysisViewer = () => {
                       </h2>
                     </div>
                   </div>
-                </div>
-              </ScrollReveal>
-            )}
-
-            {/* Match Image - full width of content area */}
-            {analysis.match_image_url && (
-              <ScrollReveal className="w-full">
-                <div className="w-full">
-                  <img 
-                    src={analysis.match_image_url} 
-                    alt="Match" 
-                    className="w-full object-contain"
-                  />
                 </div>
               </ScrollReveal>
             )}
