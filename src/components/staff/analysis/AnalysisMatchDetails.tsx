@@ -337,6 +337,14 @@ export const AnalysisMatchDetails = ({
         ) : (
           <>
             <div>
+              <Label>Player Name</Label>
+              <Input
+                value={formData.player_name || ""}
+                onChange={(e) => setFormData({ ...formData, player_name: e.target.value })}
+                placeholder="Enter player's full name..."
+              />
+            </div>
+            <div>
               <Label>Player Image (Optional)</Label>
               <Input
                 type="file"
