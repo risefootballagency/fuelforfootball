@@ -26,7 +26,6 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
     loop: true,
     skipSnaps: false,
     align: "center",
-    containScroll: false,
   });
 
   const scrollPrev = useCallback(() => {
@@ -87,25 +86,36 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
               key={index}
               className="flex-[0_0_100%] min-w-0 px-0"
             >
-              <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
-                <div className="aspect-square overflow-hidden bg-muted relative">
-                  <img 
-                    src={product.image} 
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Gradient overlay for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  {/* Title and buttons overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
-                    <h4 className="text-base md:text-lg font-bebas uppercase tracking-wider text-white line-clamp-2">
-                      {product.title}
-                    </h4>
-                    <div className="flex gap-2 w-full">
+              {/* Desktop: Side by side layout */}
+              <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300">
+                <div className="flex flex-col md:flex-row">
+                  {/* Square Image - Half width on desktop */}
+                  <div className="w-full md:w-1/2 aspect-square overflow-hidden bg-muted relative flex-shrink-0">
+                    <img 
+                      src={product.image} 
+                      alt={product.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  {/* Content - Half width on desktop */}
+                  <div className="w-full md:w-1/2 p-4 md:p-6 flex flex-col justify-between bg-card">
+                    <div>
+                      <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-3">
+                        {product.title}
+                      </h4>
+                      {product.price && (
+                        <p className="text-accent font-semibold mb-4">
+                          {product.currency || "£"}{product.price}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
                       <Button
                         asChild
                         size="sm"
-                        className="flex-1 justify-center text-xs font-semibold py-2 relative overflow-hidden text-white border-2 border-accent"
+                        className="w-full justify-center text-xs font-semibold py-2 relative overflow-hidden text-white border-2 border-accent"
                       >
                         <Link to={product.link} className="flex items-center justify-center">
                           <div 
@@ -125,7 +135,7 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                       <Button
                         size="sm"
                         onClick={(e) => handleAddToCart(product, index, e)}
-                        className={`flex-1 justify-center text-xs transition-all relative overflow-hidden text-white font-semibold border-2 border-accent py-2 ${
+                        className={`w-full justify-center text-xs transition-all relative overflow-hidden text-white font-semibold border-2 border-accent py-2 ${
                           addedItems.has(index) 
                             ? "bg-green-600 hover:bg-green-700 border-green-600" 
                             : ""
@@ -170,34 +180,31 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
         <>
           <button
             onClick={scrollPrev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/20 transition-all opacity-0 group-hover:opacity-100"
-            aria-label="Previous product"
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background border border-border/50"
           >
-            <ChevronLeft className="w-5 h-5 text-white" />
+            <ChevronLeft className="w-4 h-4 text-foreground" />
           </button>
           <button
             onClick={scrollNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/20 transition-all opacity-0 group-hover:opacity-100"
-            aria-label="Next product"
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background border border-border/50"
           >
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight className="w-4 h-4 text-foreground" />
           </button>
         </>
       )}
 
-      {/* Dots Indicator */}
+      {/* Dot Indicators */}
       {products.length > 1 && (
-        <div className="flex justify-center gap-1.5 mt-3">
+        <div className="flex justify-center gap-2 mt-4">
           {products.map((_, index) => (
             <button
               key={index}
               onClick={() => emblaApi?.scrollTo(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              className={`w-2 h-2 rounded-full transition-all ${
                 index === selectedIndex
-                  ? "bg-primary w-6"
+                  ? "bg-accent w-4"
                   : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
               }`}
-              aria-label={`Go to product ${index + 1}`}
             />
           ))}
         </div>
