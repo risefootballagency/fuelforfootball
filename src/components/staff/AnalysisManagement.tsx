@@ -474,8 +474,11 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
   const handleSave = async () => {
     try {
+      // Exclude UI-only fields that don't exist in the shared database
+      const { home_team_bold, away_team_bold, ...restFormData } = formData as any;
+      
       const dataToSave = {
-        ...formData,
+        ...restFormData,
         analysis_type: analysisType,
       };
 
