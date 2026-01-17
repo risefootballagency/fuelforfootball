@@ -843,19 +843,16 @@ const AnalysisViewer = () => {
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
+  // contentRef removed - PDF now uses pure jsPDF rendering from data
   
   // Extract the UUID from the slug (supports both old UUID-only and new team-vs-team-uuid formats)
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
 
   const handleSaveAsPdf = useCallback(async () => {
-    if (!analysis || !contentRef.current) return;
+    if (!analysis) return;
     
     setIsSaving(true);
-    toast.info('Preparing PDF... Expanding all sections.');
-    
-    // Wait for sections to fully expand and animations to settle
-    await new Promise(r => setTimeout(r, 600));
+    toast.info('Generating PDF...');
     
     try {
       const fileName = analysis.home_team && analysis.away_team
@@ -866,7 +863,33 @@ const AnalysisViewer = () => {
             .replace(/\s+/g, '-')
             .toLowerCase();
       
-      await exportAnalysisPdf(contentRef.current, fileName);
+      // Build PDF data object from analysis
+      const pdfData = {
+        homeTeam: analysis.home_team || '',
+        awayTeam: analysis.away_team || '',
+        matchDate: analysis.match_date || '',
+        playerName: analysis.player_name || '',
+        playerTeam: analysis.player_team,
+        keyDetails: analysis.key_details || '',
+        oppositionStrengths: analysis.opposition_strengths || '',
+        oppositionWeaknesses: analysis.opposition_weaknesses || '',
+        matchups: Array.isArray(analysis.matchups) ? analysis.matchups : [],
+        scheme: {
+          title: analysis.scheme_title || '',
+          formation: analysis.selected_scheme || '',
+          paragraphs: [
+            analysis.scheme_paragraph_1 || '',
+            analysis.scheme_paragraph_2 || ''
+          ].filter(Boolean)
+        },
+        points: Array.isArray(analysis.points) ? analysis.points : [],
+        strengthsImprovements: analysis.strengths_improvements || '',
+        matchImageUrl: analysis.match_image_url || analysis.player_image_url || null,
+        homeScore: analysis.home_score,
+        awayScore: analysis.away_score
+      };
+      
+      await exportAnalysisPdf(pdfData, fileName);
       toast.success('PDF saved!');
     } catch (error) {
       console.error('PDF export error:', error);
@@ -1048,7 +1071,7 @@ const AnalysisViewer = () => {
       )}
 
       {/* Main content wrapper - padded to stay inside the inset lines */}
-      <main ref={contentRef} data-pdf-content className="w-full mx-auto px-[8px]">
+      <main className="w-full mx-auto px-[8px]">
         {/* Pre-Match Content */}
         {isPreMatch && (
           <div className="w-full">
