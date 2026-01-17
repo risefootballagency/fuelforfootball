@@ -444,7 +444,7 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
           <Drawer direction="top" preventScrollRestoration={false} shouldScaleBackground={false}>
             <DrawerTrigger asChild>
               <button className="group relative flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all duration-300 ease-out w-12 h-12 md:w-14 md:h-14" aria-label="Toggle menu">
-                <svg className="text-primary group-hover:text-foreground transition-all duration-300 ease-out w-7 h-7 md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg className="text-white group-hover:text-primary transition-all duration-300 ease-out w-7 h-7 md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <line x1="4" y1="8" x2="20" y2="8" className="origin-center transition-transform duration-300 group-hover:rotate-[-45deg]" />
                   <line x1="2" y1="16" x2="18" y2="16" className="origin-center transition-transform duration-300 group-hover:rotate-[-45deg] group-hover:translate-x-1" />
                 </svg>
@@ -504,7 +504,7 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
                         title={label}
                       >
                         <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
-                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white group-hover:text-white whitespace-nowrap overflow-hidden">
                           {label}
                         </span>
                       </SubdomainLink>
@@ -516,7 +516,7 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
                         title={label}
                       >
                         <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
-                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white group-hover:text-white whitespace-nowrap overflow-hidden">
                           {label}
                         </span>
                       </LocalizedLink>
@@ -530,7 +530,7 @@ export const Header = ({ shouldFade = false }: HeaderProps) => {
                         title={label}
                       >
                         <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white/80 group-hover:text-primary transition-colors flex-shrink-0" />
-                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white/80 group-hover:text-primary whitespace-nowrap overflow-hidden">
+                        <span className="max-w-0 md:group-hover:max-w-xs transition-all duration-300 text-xs font-bebas uppercase tracking-wider text-white group-hover:text-white whitespace-nowrap overflow-hidden">
                           {label}
                         </span>
                       </button>
