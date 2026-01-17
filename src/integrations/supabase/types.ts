@@ -50,6 +50,7 @@ export type Database = {
           away_score: number | null
           away_team: string | null
           away_team_bg_color: string | null
+          away_team_bold: boolean | null
           away_team_logo: string | null
           concept: string | null
           created_at: string
@@ -58,6 +59,7 @@ export type Database = {
           home_score: number | null
           home_team: string | null
           home_team_bg_color: string | null
+          home_team_bold: boolean | null
           home_team_logo: string | null
           id: string
           key_details: string | null
@@ -87,6 +89,7 @@ export type Database = {
           away_score?: number | null
           away_team?: string | null
           away_team_bg_color?: string | null
+          away_team_bold?: boolean | null
           away_team_logo?: string | null
           concept?: string | null
           created_at?: string
@@ -95,6 +98,7 @@ export type Database = {
           home_score?: number | null
           home_team?: string | null
           home_team_bg_color?: string | null
+          home_team_bold?: boolean | null
           home_team_logo?: string | null
           id?: string
           key_details?: string | null
@@ -124,6 +128,7 @@ export type Database = {
           away_score?: number | null
           away_team?: string | null
           away_team_bg_color?: string | null
+          away_team_bold?: boolean | null
           away_team_logo?: string | null
           concept?: string | null
           created_at?: string
@@ -132,6 +137,7 @@ export type Database = {
           home_score?: number | null
           home_team?: string | null
           home_team_bg_color?: string | null
+          home_team_bold?: boolean | null
           home_team_logo?: string | null
           id?: string
           key_details?: string | null

@@ -31,6 +31,8 @@ interface Analysis {
   away_team_logo: string | null;
   home_team_bg_color: string | null;
   away_team_bg_color: string | null;
+  home_team_bold: boolean | null;
+  away_team_bold: boolean | null;
   selected_scheme: string | null;
   starting_xi: any;
   kit_primary_color: string | null;
@@ -441,7 +443,9 @@ const AnalysisHeader = ({
   matchDate,
   isPostMatch = false,
   onSave,
-  isSaving = false
+  isSaving = false,
+  homeTeamBold = false,
+  awayTeamBold = false
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -455,6 +459,8 @@ const AnalysisHeader = ({
   isPostMatch?: boolean;
   onSave?: () => void;
   isSaving?: boolean;
+  homeTeamBold?: boolean;
+  awayTeamBold?: boolean;
 }) => {
   const navigate = useNavigate();
   
@@ -481,24 +487,24 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - at very top, aligned with home club logo x-axis, 4px more padding */}
+        {/* Back button - at very top, aligned with home club logo x-axis, 8px more padding */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-3 md:left-6 top-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
+          className="absolute left-4 md:left-8 top-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
         >
           <ArrowLeft className="w-3 h-3 mr-1" />
           Back
         </Button>
         
-        {/* Save button - at very top, aligned with away club logo x-axis, 4px more padding */}
+        {/* Save button - at very top, aligned with away club logo x-axis, 8px more padding */}
         {onSave && (
           <Button
             onClick={onSave}
             disabled={isSaving}
             size="sm"
-            className="absolute right-3 md:right-6 top-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
+            className="absolute right-4 md:right-8 top-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
             style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Download className="w-3 h-3 mr-1" />
@@ -515,17 +521,13 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Team colors bar with logos BEHIND the color containers - dark green background behind VS */}
+      {/* Team colors bar with logos BEHIND the color containers - dark green background behind VS, NO fades to blend with date section */}
       <div 
         className="relative h-10 md:h-14 overflow-visible"
         style={{
           backgroundColor: '#0a2e12'
         }}
       >
-        {/* Top fade */}
-        <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-black/40 to-transparent pointer-events-none z-[5]" />
-        {/* Bottom fade */}
-        <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[5]" />
         
         {/* Club logos - positioned at outer edges, IN FRONT of color containers */}
         {homeLogo && (
@@ -547,7 +549,13 @@ const AnalysisHeader = ({
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
           }}
         >
-          <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center">
+          <span 
+            className={`text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center ${homeTeamBold ? 'font-bold' : ''}`}
+            style={{
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
+              fontWeight: homeTeamBold ? 700 : 400
+            }}
+          >
             {homeTeam}
           </span>
         </div>
@@ -560,7 +568,13 @@ const AnalysisHeader = ({
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
           }}
         >
-          <span className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center">
+          <span 
+            className={`text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center ${awayTeamBold ? 'font-bold' : ''}`}
+            style={{
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
+              fontWeight: awayTeamBold ? 700 : 400
+            }}
+          >
             {awayTeam}
           </span>
         </div>
@@ -584,7 +598,7 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Match Date Line - ONLY date, compact, DARKER brand green, italic and larger */}
+      {/* Match Date Line - ONLY date, compact, DARKER brand green, italic and larger with shade */}
       {matchDate && (
         <div 
           className="text-center py-2"
@@ -593,7 +607,7 @@ const AnalysisHeader = ({
           <span 
             className="text-white font-bebas tracking-wider text-base md:text-lg italic"
             style={{
-              textShadow: '0 0 10px rgba(253,198,27,0.6), 0 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(253,198,27,0.3)'
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
           >
             {new Date(matchDate).toLocaleDateString('en-GB', {
@@ -1091,6 +1105,8 @@ const AnalysisViewer = () => {
               matchDate={analysis.match_date}
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
+              homeTeamBold={analysis.home_team_bold || false}
+              awayTeamBold={analysis.away_team_bold || false}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - arch directly on bottom of image */}
@@ -1123,37 +1139,43 @@ const AnalysisViewer = () => {
                   
                   {/* Image container with gold arch DIRECTLY at the bottom */}
                   <div className="relative w-full z-0">
-                    <div className="relative w-full" style={{ aspectRatio: '1/1', maxHeight: '100vw' }}>
+                    <div className="relative w-full" style={{ height: '250px', maxHeight: '250px' }}>
                       <img
                         src={analysis.player_image_url || analysis.match_image_url}
                         alt={analysis.player_name || "Match"}
                         className="w-full h-full object-cover object-top"
                       />
                       
-                      {/* Gold Arch positioned at BOTTOM of the match image - middle of arch aligned with image bottom */}
+                      {/* Gold Arch positioned at BOTTOM of the match image - mirrored (arch going up AND down) */}
                       <div className="absolute -bottom-[120px] md:-bottom-[150px] left-0 right-0 z-30">
-                        {/* Secondary transparent arch (outer) */}
+                        {/* Secondary transparent arch (outer) - mirrored vertically */}
                         <svg 
                           className="w-full"
                           viewBox="0 0 400 300" 
                           preserveAspectRatio="none"
                           style={{ height: '300px' }}
                         >
-                          <path d="M0,0 Q200,240 400,0 L400,210 Q200,300 0,210 Z" fill="rgba(253,198,27,0.25)" />
+                          {/* Top arch (curves up) */}
+                          <path d="M0,150 Q200,30 400,150" fill="none" stroke="rgba(253,198,27,0.25)" strokeWidth="90" />
+                          {/* Bottom arch (curves down - mirrored) */}
+                          <path d="M0,150 Q200,270 400,150" fill="none" stroke="rgba(253,198,27,0.25)" strokeWidth="90" />
                         </svg>
                         
-                        {/* Main gold arch band */}
+                        {/* Main gold arch band - mirrored vertically */}
                         <svg 
                           className="absolute inset-0 w-full"
                           viewBox="0 0 400 300" 
                           preserveAspectRatio="none"
                           style={{ height: '300px' }}
                         >
-                          <path d="M0,45 Q200,255 400,45 L400,180 Q200,285 0,180 Z" fill="#fdc61b" />
+                          {/* Top arch (curves up) */}
+                          <path d="M0,135 Q200,45 400,135 L400,165 Q200,75 0,165 Z" fill="#fdc61b" />
+                          {/* Bottom arch (curves down - mirrored) */}
+                          <path d="M0,135 Q200,225 400,135 L400,165 Q200,255 0,165 Z" fill="#fdc61b" />
                         </svg>
                         
                         {/* Player name positioned on top of the arch */}
-                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '45%' }}>
+                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '0' }}>
                           <div 
                             className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
                             style={{
@@ -1520,6 +1542,8 @@ const AnalysisViewer = () => {
               isPostMatch
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
+              homeTeamBold={analysis.home_team_bold || false}
+              awayTeamBold={analysis.away_team_bold || false}
             />
 
             {/* Player Image with Premium Gold Arch Frame */}

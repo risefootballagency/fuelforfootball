@@ -360,13 +360,13 @@ export const AnalysisMatchDetails = ({
               )}
             </div>
             
-            {/* Match Image with crop/position support */}
+            {/* Match Image with crop/position support - limited to 250px height */}
             <div>
               <Label className="flex items-center gap-2">
                 Match Image
                 <Crop className="w-3 h-3 text-muted-foreground" />
               </Label>
-              <p className="text-xs text-muted-foreground mb-1">Square format - position the key part of the image</p>
+              <p className="text-xs text-muted-foreground mb-1">Wide format (16:9) - limited to 250px height in viewer</p>
               <Input
                 ref={matchImageInputRef}
                 type="file"
@@ -376,7 +376,7 @@ export const AnalysisMatchDetails = ({
               />
               {formData.match_image_url && (
                 <div className="mt-2">
-                  <div className="w-32 h-32 overflow-hidden rounded-lg border-2 border-muted">
+                  <div className="w-48 h-[106px] overflow-hidden rounded-lg border-2 border-muted">
                     <img src={formData.match_image_url} alt="Match" className="w-full h-full object-cover" />
                   </div>
                 </div>
@@ -492,14 +492,15 @@ export const AnalysisMatchDetails = ({
       </CollapsibleContent>
     </Collapsible>
     
-    {/* Image Crop Dialog */}
+    {/* Image Crop Dialog - dynamic aspect ratio based on field */}
     <ImageCropDialog
       open={cropDialogOpen}
       onOpenChange={setCropDialogOpen}
       imageSrc={cropImageSrc}
       onCropComplete={handleCropComplete}
-      aspectRatio={1}
-      title="Crop Club Logo"
+      aspectRatio={cropField === 'match_image_url' ? 16/9 : 1}
+      title={cropField === 'match_image_url' ? 'Crop Match Image (16:9, max 250px height)' : 'Crop Club Logo'}
+      cropHeight={cropField === 'match_image_url' ? 250 : undefined}
     />
     </>
   );
