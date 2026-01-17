@@ -10,6 +10,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* PDF Print Mode - Disable all animations when generating PDF */
+[data-printing] * {
+  animation: none !important;
+  transition: none !important;
+  opacity: 1 !important;
+}
+
+[data-printing] [data-expandable] {
+  display: block !important;
+  max-height: none !important;
+  overflow: visible !important;
+  height: auto !important;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

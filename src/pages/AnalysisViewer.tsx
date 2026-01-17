@@ -695,21 +695,39 @@ const AnalysisViewer = () => {
     setIsSaving(true);
     toast.info('Preparing PDF... Please wait');
     
-    // Wait longer for React to re-render with all sections open and images to load
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Scroll to top before capture
+    window.scrollTo(0, 0);
+    
+    // Add printing attribute to disable animations
+    document.body.setAttribute('data-printing', 'true');
+    
+    // Wait for React to re-render with all sections open
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     try {
-      // Get the actual scrollable content
       const element = pageRef.current;
+      
+      // Force all expandable sections open before measuring
+      const expandableSections = element.querySelectorAll('[data-expandable]');
+      expandableSections.forEach((section: any) => {
+        section.style.display = 'block';
+        section.style.maxHeight = 'none';
+        section.style.overflow = 'visible';
+        section.style.height = 'auto';
+      });
+      
+      // Wait for layout recalculation
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       const scrollHeight = element.scrollHeight;
-      const scrollWidth = element.scrollWidth;
+      const scrollWidth = element.scrollWidth || element.offsetWidth;
       
       const canvas = await html2canvas(element, {
         backgroundColor: '#0a1f0d',
-        scale: 1.5,
+        scale: 2,
         useCORS: true,
         allowTaint: true,
-        logging: true,
+        logging: false,
         width: scrollWidth,
         height: scrollHeight,
         scrollX: 0,
@@ -717,16 +735,33 @@ const AnalysisViewer = () => {
         windowWidth: scrollWidth,
         windowHeight: scrollHeight,
         onclone: (clonedDoc) => {
-          // Ensure all expandable sections are visible in the clone
-          const clonedElement = clonedDoc.body.querySelector('[data-pdf-content]');
-          if (clonedElement) {
-            const sections = clonedElement.querySelectorAll('[data-expandable]');
-            sections.forEach((section: any) => {
-              section.style.display = 'block';
-              section.style.maxHeight = 'none';
-              section.style.overflow = 'visible';
-            });
-          }
+          // Add style to disable all animations in the clone
+          const style = clonedDoc.createElement('style');
+          style.textContent = `
+            * { 
+              animation: none !important; 
+              transition: none !important; 
+              opacity: 1 !important;
+              transform: none !important;
+            }
+            [data-expandable] {
+              display: block !important;
+              max-height: none !important;
+              overflow: visible !important;
+              height: auto !important;
+            }
+          `;
+          clonedDoc.head.appendChild(style);
+          
+          // Force visibility on all elements
+          const allElements = clonedDoc.querySelectorAll('[data-expandable], [data-expandable] *');
+          allElements.forEach((el: any) => {
+            el.style.display = el.style.display === 'none' ? 'block' : el.style.display;
+            el.style.opacity = '1';
+            el.style.visibility = 'visible';
+            el.style.maxHeight = 'none';
+            el.style.overflow = 'visible';
+          });
         }
       });
       
@@ -734,18 +769,58 @@ const AnalysisViewer = () => {
         throw new Error('Canvas is empty');
       }
       
-      // Calculate PDF dimensions (A4 width, dynamic height)
-      const imgWidth = 210; // A4 width in mm
+      // A4 dimensions in mm
+      const a4Width = 210;
+      const a4Height = 297;
+      
+      // Calculate how the content fits
+      const imgWidth = a4Width;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
+      // Create multi-page PDF if content is taller than one page
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [imgWidth, imgHeight]
+        format: 'a4'
       });
       
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      
+      if (imgHeight <= a4Height) {
+        // Single page
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      } else {
+        // Multi-page: split the image
+        let remainingHeight = imgHeight;
+        let position = 0;
+        let pageNum = 0;
+        
+        while (remainingHeight > 0) {
+          if (pageNum > 0) {
+            pdf.addPage();
+          }
+          
+          // Calculate source position in the original canvas
+          const sourceY = (position / imgHeight) * canvas.height;
+          const sourceHeight = Math.min((a4Height / imgHeight) * canvas.height, canvas.height - sourceY);
+          
+          // Create a temporary canvas for this page slice
+          const pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = sourceHeight;
+          const ctx = pageCanvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(canvas, 0, sourceY, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
+            const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.95);
+            const pageImgHeight = (sourceHeight * imgWidth) / canvas.width;
+            pdf.addImage(pageImgData, 'JPEG', 0, 0, imgWidth, pageImgHeight);
+          }
+          
+          position += a4Height;
+          remainingHeight -= a4Height;
+          pageNum++;
+        }
+      }
       
       const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.pdf`;
       pdf.save(fileName.replace(/\s+/g, '-').toLowerCase());
@@ -755,6 +830,7 @@ const AnalysisViewer = () => {
       console.error('Error saving PDF:', error);
       toast.error('Failed to save PDF. Please try again.');
     } finally {
+      document.body.removeAttribute('data-printing');
       setIsSaving(false);
     }
   }, [analysis]);
@@ -1192,52 +1268,58 @@ const AnalysisViewer = () => {
             {/* Quick Nav Dropdown - hidden when saving */}
             {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
-            {/* Player Image with curved gold frame and name */}
+            {/* Player Image with Premium Gold Arch Frame */}
             {analysis.player_image_url && (
               <ScrollReveal className="w-full">
-                <div className="relative w-full">
-                  {/* Player image container - square */}
-                  <div className="w-full overflow-hidden" style={{ paddingBottom: '100%', position: 'relative' }}>
+                <div className="relative w-full overflow-hidden">
+                  {/* Player image container - square aspect ratio */}
+                  <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
                     <img
                       src={analysis.player_image_url}
                       alt={analysis.player_name || "Player"}
-                      className="absolute inset-0 w-full h-full object-cover object-top"
+                      className="w-full h-full object-cover object-top"
                     />
-                  </div>
-                  
-                  {/* Gold arch curve overlay at bottom of image */}
-                  <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24 overflow-hidden pointer-events-none">
+                    
+                    {/* Thick Gold Arch Frame at bottom - creates the premium curved border effect */}
                     <svg 
-                      viewBox="0 0 400 100" 
-                      className="w-full h-full" 
+                      className="absolute bottom-0 left-0 right-0 w-full"
+                      style={{ height: '20%' }}
+                      viewBox="0 0 400 80" 
                       preserveAspectRatio="none"
                     >
+                      {/* Background fill that connects to the grass section */}
                       <path
-                        d="M0,100 L0,80 Q200,0 400,80 L400,100 Z"
+                        d="M0,80 L0,60 Q200,0 400,60 L400,80 Z"
                         fill={BRAND.gold}
+                      />
+                      {/* Inner curve for thickness effect */}
+                      <path
+                        d="M0,80 L0,68 Q200,12 400,68 L400,80 Z"
+                        fill="#0a1f0d"
                       />
                     </svg>
                   </div>
                   
-                  {/* Grass continuation below the arch */}
+                  {/* Grass background area with player name */}
                   <div 
-                    className="relative py-4 md:py-6"
+                    className="relative py-6 md:py-10"
                     style={{
                       backgroundImage: `url('/analysis-grass-bg.png')`,
                       backgroundSize: 'cover',
-                      backgroundPosition: 'center top'
+                      backgroundPosition: 'center top',
+                      marginTop: '-2px'
                     }}
                   >
-                    {/* Dark overlay for readability */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40 pointer-events-none" />
+                    {/* Dark overlay for contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/60 pointer-events-none" />
                     
-                    {/* Player name centered */}
-                    <div className="relative text-center">
+                    {/* Player name in GOLD CAPITALS with HoverText effect */}
+                    <div className="relative text-center px-4">
                       <h2 
-                        className="text-2xl md:text-4xl font-bebas uppercase tracking-widest drop-shadow-lg"
+                        className="text-3xl md:text-5xl lg:text-6xl font-bebas uppercase tracking-[0.2em] drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
                         style={{ color: BRAND.gold }}
                       >
-                        {analysis.player_name || "PLAYER NAME"}
+                        <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
                       </h2>
                     </div>
                   </div>
