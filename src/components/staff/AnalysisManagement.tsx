@@ -498,17 +498,19 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
         ...restFormData 
       } = extendedFormData;
       
-      // Try to save with all fields first
-      const dataToSaveWithNewFields = {
+      // Build the data object - only include new fields if they have values
+      const dataToSaveWithNewFields: Record<string, any> = {
         ...restFormData,
         analysis_type: analysisType,
-        kit_collar_color,
-        kit_number_color,
-        kit_stripe_style,
-        player_team,
       };
       
-      // Fallback data without new fields
+      // Only add new fields if they have actual values
+      if (kit_collar_color !== undefined) dataToSaveWithNewFields.kit_collar_color = kit_collar_color;
+      if (kit_number_color !== undefined) dataToSaveWithNewFields.kit_number_color = kit_number_color;
+      if (kit_stripe_style !== undefined) dataToSaveWithNewFields.kit_stripe_style = kit_stripe_style;
+      if (player_team !== undefined) dataToSaveWithNewFields.player_team = player_team;
+      
+      // Fallback data without new fields - clean copy
       const dataToSaveWithoutNewFields = {
         ...restFormData,
         analysis_type: analysisType,

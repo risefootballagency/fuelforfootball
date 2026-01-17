@@ -555,16 +555,16 @@ const AnalysisHeader = ({
 
         {/* Left Side - Home Team Color */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex items-center"
+          className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-end"
           style={{ 
             backgroundColor: homeBgColor || '#1a1a1a',
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)',
             opacity: isAwayPlayerTeam && !isHomePlayerTeam ? 0.7 : 1
           }}
         >
-        {/* Team name with proper margins to avoid logo overlap */}
+        {/* Team name - positioned to the right side, leaving space from VS circle and logo */}
           <span 
-            className="text-[10px] xs:text-xs sm:text-sm md:text-lg lg:text-xl font-bebas text-white tracking-wide uppercase text-center truncate pl-[20vw] pr-2 w-full"
+            className="text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl font-bebas text-white tracking-wide uppercase truncate ml-[22vw] mr-[12vw]"
             style={{
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
@@ -575,16 +575,16 @@ const AnalysisHeader = ({
 
         {/* Right Side - Away Team Color */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex items-center"
+          className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-start"
           style={{ 
             backgroundColor: awayBgColor || '#8B0000',
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)',
             opacity: isHomePlayerTeam && !isAwayPlayerTeam ? 0.7 : 1
           }}
         >
-        {/* Team name with proper margins to avoid logo overlap */}
+        {/* Team name - positioned to the left side, leaving space from VS circle and logo */}
           <span 
-            className="text-[10px] xs:text-xs sm:text-sm md:text-lg lg:text-xl font-bebas text-white tracking-wide uppercase text-center truncate pl-2 pr-[20vw] w-full"
+            className="text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl font-bebas text-white tracking-wide uppercase truncate ml-[12vw] mr-[22vw]"
             style={{
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
@@ -680,29 +680,36 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
     requestAnimationFrame(() => {
       const el = document.getElementById(sectionId);
       if (el) {
-        // First scroll to position the element
-        const targetY = el.getBoundingClientRect().top + window.scrollY - 80;
-        window.scrollTo({
-          top: targetY,
-          behavior: 'instant' as ScrollBehavior
-        });
+        // Click button first to start opening
+        const sectionButton = el.querySelector('button');
+        if (sectionButton) {
+          sectionButton.click();
+        }
         
-        // Then click the button to open the section after scrolling
-        requestAnimationFrame(() => {
-          const sectionButton = el.querySelector('button');
-          if (sectionButton) {
-            sectionButton.click();
-          }
+        // Wait for animation, then scroll to final position
+        // Use longer delay for sections near end of page
+        setTimeout(() => {
+          // Get document height and section position
+          const docHeight = document.documentElement.scrollHeight;
+          const sectionTop = el.getBoundingClientRect().top + window.scrollY;
           
-          // Final scroll adjustment after section opens
-          setTimeout(() => {
-            const newTargetY = el.getBoundingClientRect().top + window.scrollY - 80;
+          // For sections near bottom (within last 500px), scroll to very bottom first
+          if (sectionTop > docHeight - 800) {
             window.scrollTo({
-              top: newTargetY,
+              top: docHeight,
               behavior: 'instant' as ScrollBehavior
             });
-          }, 150);
-        });
+          }
+          
+          // Then position the section
+          setTimeout(() => {
+            const finalY = el.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({
+              top: Math.max(0, finalY),
+              behavior: 'instant' as ScrollBehavior
+            });
+          }, 100);
+        }, 200);
       }
     });
   };
@@ -1519,7 +1526,9 @@ const AnalysisViewer = () => {
                                   <PlayerKit 
                                     primaryColor={analysis.kit_primary_color || '#FFD700'}
                                     secondaryColor={analysis.kit_secondary_color || '#000000'}
-                                    stripeStyle="thick"
+                                    collarColor={analysis.kit_collar_color || undefined}
+                                    numberColor={analysis.kit_number_color || 'white'}
+                                    stripeStyle={(analysis.kit_stripe_style as any) || 'thick'}
                                     number={player.number || '0'}
                                   />
                                 </div>
