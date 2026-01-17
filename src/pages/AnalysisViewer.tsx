@@ -488,24 +488,24 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - at very top, aligned with home club logo x-axis, 8px more padding */}
+        {/* Back button - at very top, aligned with home club logo x-axis, 12px from top */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-4 md:left-8 top-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
+          className="absolute left-4 md:left-8 top-3 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
         >
           <ArrowLeft className="w-3 h-3 mr-1" />
           Back
         </Button>
         
-        {/* Save button - at very top, aligned with away club logo x-axis, 8px more padding */}
+        {/* Save button - at very top, aligned with away club logo x-axis, 12px from top */}
         {onSave && (
           <Button
             onClick={onSave}
             disabled={isSaving}
             size="sm"
-            className="absolute right-4 md:right-8 top-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
+            className="absolute right-4 md:right-8 top-3 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
             style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Download className="w-3 h-3 mr-1" />
@@ -694,7 +694,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
       
       <motion.div 
         ref={dropdownRef}
-        className="relative py-3"
+        className="relative py-8 mt-8"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
