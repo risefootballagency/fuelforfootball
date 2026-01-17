@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { BRAND_CONTENT } from "@/data/brandContent";
 import { GrassBackground, SmokyBackground } from "@/components/GrassBackground";
+import { HoverText } from "@/components/HoverText";
 
 // Dynamic Hero Slider that fetches images from landing folder
 const DynamicHeroSlider = () => {
@@ -101,8 +102,9 @@ const ServiceSection = ({
     <div className="container mx-auto">
       {hasTitleBackground ? (
         <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-12 md:mb-16">
-          <div 
-            className="w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8 overflow-hidden border-y-4 border-accent"
+          <Link 
+            to={learnMoreLink}
+            className="block w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8 overflow-hidden border-y-4 border-accent cursor-pointer hover:opacity-90 transition-opacity"
             style={{
               backgroundImage: `url('/grass-bg-smoky.png')`,
               backgroundSize: 'cover',
@@ -110,70 +112,74 @@ const ServiceSection = ({
             }}
           >
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-white container mx-auto drop-shadow-lg relative z-10">
-              {title}
+              <HoverText text={title} />
             </h2>
-          </div>
+          </Link>
         </div>
       ) : (
-        <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-12 md:mb-16">
-          {title}
-        </h2>
+        <Link to={learnMoreLink} className="block mb-12 md:mb-16 hover:opacity-80 transition-opacity">
+          <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground">
+            <HoverText text={title} />
+          </h2>
+        </Link>
       )}
       
-      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start ${reverse ? 'lg:flex-row-reverse' : ''}`}>
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-stretch ${reverse ? 'lg:flex-row-reverse' : ''}`}>
         {/* Products Carousel */}
-        <div className={`${reverse ? 'lg:order-2' : ''}`}>
+        <div className={`h-full ${reverse ? 'lg:order-2' : ''}`}>
           <ServiceCarousel products={products} />
         </div>
         
         {/* Description and Daily Fuel */}
-        <div className={`space-y-6 ${reverse ? 'lg:order-1' : ''}`}>
-          <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-8">
+        <div className={`flex flex-col h-full ${reverse ? 'lg:order-1' : ''}`}>
+          <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-6 flex-grow">
             {description}
           </p>
           
-          <Link to={learnMoreLink} className="block w-full">
-            <Button 
-              hoverEffect
-              className="w-full justify-center font-bebas uppercase tracking-wider text-sm text-white relative overflow-hidden border-2 border-accent"
-            >
-              <div 
-                className="absolute inset-0 z-0"
-                style={{
-                  backgroundImage: `url('/grass-bg-smoky.png')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              />
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                {learnMoreText.toUpperCase()}
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            </Button>
-          </Link>
-          
-          {dailyFuelArticle && (
-            <div className="mt-8 pt-6 border-t border-border/30">
-              <p className="text-xs uppercase tracking-widest text-primary mb-3 font-bebas">Daily Fuel</p>
-              <Link to={dailyFuelArticle.link} className="flex gap-4 group">
-                <img 
-                  src={dailyFuelArticle.image} 
-                  alt={dailyFuelArticle.title}
-                  className="w-20 h-20 md:w-24 md:h-24 object-cover rounded"
+          <div className="mt-auto space-y-6">
+            <Link to={learnMoreLink} className="block w-full">
+              <Button 
+                hoverEffect
+                className="w-full justify-center font-bebas uppercase tracking-wider text-sm text-white relative overflow-hidden border-2 border-accent"
+              >
+                <div 
+                  className="absolute inset-0 z-0"
+                  style={{
+                    backgroundImage: `url('/grass-bg-smoky.png')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
                 />
-                <div>
-                  <h4 className="font-bebas uppercase tracking-wider text-foreground group-hover:text-primary transition-colors mb-2">
-                    {dailyFuelArticle.title}
-                  </h4>
-                  {dailyFuelDescription && (
-                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-2">
-                      {dailyFuelDescription}
-                    </p>
-                  )}
-                </div>
-              </Link>
-            </div>
-          )}
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <HoverText text={learnMoreText.toUpperCase()} />
+                  <ArrowRight className="w-4 h-4" />
+                </span>
+              </Button>
+            </Link>
+          
+            {dailyFuelArticle && (
+              <div className="pt-6 border-t border-border/30">
+                <p className="text-xs uppercase tracking-widest text-primary mb-3 font-bebas">Daily Fuel</p>
+                <Link to={dailyFuelArticle.link} className="flex gap-4 group">
+                  <img 
+                    src={dailyFuelArticle.image} 
+                    alt={dailyFuelArticle.title}
+                    className="w-20 h-20 md:w-24 md:h-24 object-cover rounded"
+                  />
+                  <div>
+                    <h4 className="font-bebas uppercase tracking-wider text-foreground group-hover:text-primary transition-colors mb-2">
+                      {dailyFuelArticle.title}
+                    </h4>
+                    {dailyFuelDescription && (
+                      <p className="text-muted-foreground text-xs md:text-sm line-clamp-2">
+                        {dailyFuelDescription}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
