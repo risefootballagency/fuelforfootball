@@ -499,8 +499,8 @@ export const AnalysisMatchDetails = ({
       imageSrc={cropImageSrc}
       onCropComplete={handleCropComplete}
       aspectRatio={cropField === 'match_image_url' ? 16/9 : 1}
-      title={cropField === 'match_image_url' ? 'Crop Match Image (16:9, max 250px height)' : 'Crop Club Logo'}
-      cropHeight={cropField === 'match_image_url' ? 250 : undefined}
+      title={cropField === 'match_image_url' ? 'Crop Match Image (16:9, max 400px height)' : 'Crop Club Logo'}
+      cropHeight={cropField === 'match_image_url' ? 400 : undefined}
     />
     </>
   );

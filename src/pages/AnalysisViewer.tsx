@@ -1137,45 +1137,50 @@ const AnalysisViewer = () => {
                     }}
                   />
                   
-                  {/* Image container with gold arch DIRECTLY at the bottom */}
+                  {/* Image container with gold arch band that merges image into grass background */}
                   <div className="relative w-full z-0">
-                    <div className="relative w-full" style={{ height: '250px', maxHeight: '250px' }}>
+                    <div className="relative w-full" style={{ height: '400px', maxHeight: '400px' }}>
                       <img
                         src={analysis.player_image_url || analysis.match_image_url}
                         alt={analysis.player_name || "Match"}
                         className="w-full h-full object-cover object-top"
                       />
                       
-                      {/* Gold Arch positioned at BOTTOM of the match image - mirrored (arch going up AND down) */}
-                      <div className="absolute -bottom-[120px] md:-bottom-[150px] left-0 right-0 z-30">
-                        {/* Secondary transparent arch (outer) - mirrored vertically */}
+                      {/* Gold band positioned at bottom of image - solid fill to merge into grass */}
+                      <div className="absolute bottom-0 left-0 right-0 z-30">
+                        {/* Outer glow/transparent layer */}
                         <svg 
                           className="w-full"
-                          viewBox="0 0 400 300" 
+                          viewBox="0 0 400 80" 
                           preserveAspectRatio="none"
-                          style={{ height: '300px' }}
+                          style={{ height: '80px' }}
                         >
-                          {/* Top arch (curves up) */}
-                          <path d="M0,150 Q200,30 400,150" fill="none" stroke="rgba(253,198,27,0.25)" strokeWidth="90" />
-                          {/* Bottom arch (curves down - mirrored) */}
-                          <path d="M0,150 Q200,270 400,150" fill="none" stroke="rgba(253,198,27,0.25)" strokeWidth="90" />
+                          {/* Curved gold band with full solid middle */}
+                          <defs>
+                            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" stopColor="rgba(253,198,27,0.3)" />
+                              <stop offset="30%" stopColor="#fdc61b" />
+                              <stop offset="70%" stopColor="#fdc61b" />
+                              <stop offset="100%" stopColor="rgba(253,198,27,0.3)" />
+                            </linearGradient>
+                          </defs>
+                          {/* Full curved gold band - arch shape with solid filled center */}
+                          <path d="M0,0 Q200,50 400,0 L400,80 L0,80 Z" fill="url(#goldGradient)" />
                         </svg>
                         
-                        {/* Main gold arch band - mirrored vertically */}
+                        {/* Main solid gold arch band overlay */}
                         <svg 
                           className="absolute inset-0 w-full"
-                          viewBox="0 0 400 300" 
+                          viewBox="0 0 400 80" 
                           preserveAspectRatio="none"
-                          style={{ height: '300px' }}
+                          style={{ height: '80px' }}
                         >
-                          {/* Top arch (curves up) */}
-                          <path d="M0,135 Q200,45 400,135 L400,165 Q200,75 0,165 Z" fill="#fdc61b" />
-                          {/* Bottom arch (curves down - mirrored) */}
-                          <path d="M0,135 Q200,225 400,135 L400,165 Q200,255 0,165 Z" fill="#fdc61b" />
+                          {/* Thick curved gold band - solid arch with filled center */}
+                          <path d="M0,10 Q200,60 400,10 L400,45 Q200,85 0,45 Z" fill="#fdc61b" />
                         </svg>
                         
-                        {/* Player name positioned on top of the arch */}
-                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '0' }}>
+                        {/* Player name positioned centered on the arch */}
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
                           <div 
                             className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
                             style={{
