@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import fffLogo from "@/assets/fff_logo.png";
+import smokyBackground from "@/assets/Smoky-Background.png";
 
 interface Analysis {
   id: string;
@@ -592,9 +593,9 @@ const AnalysisHeader = ({
             </div>
           ) : (
             <div 
-              className="rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border-2 border-white shadow-lg overflow-hidden"
+              className="relative rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border-2 border-white shadow-lg overflow-hidden"
               style={{
-                backgroundImage: `url('/Smoky-Background.png')`,
+                backgroundImage: `url(${smokyBackground})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
               }}
@@ -1154,21 +1155,30 @@ const AnalysisViewer = () => {
                         className="w-full h-full object-cover object-top"
                       />
                       
-                      {/* Gold band positioned at bottom of image - fully solid to hide image edge */}
+                      {/* Gold arch with transparent outer glow and solid center - positioned at bottom of image */}
                       <div className="absolute bottom-0 left-0 right-0 z-30">
-                        {/* Solid gold arch band - completely covers bottom edge of image */}
+                        {/* Outer transparent glow arch - fades naturally into image */}
                         <svg 
                           className="w-full"
-                          viewBox="0 0 400 100" 
+                          viewBox="0 0 400 120" 
                           preserveAspectRatio="none"
-                          style={{ height: '100px' }}
+                          style={{ height: '120px' }}
                         >
-                          {/* Solid curved gold band - arch shape that fully covers bottom of image */}
-                          <path d="M0,0 Q200,40 400,0 L400,100 L0,100 Z" fill="#fdc61b" />
+                          <defs>
+                            <linearGradient id="goldFadeUp" x1="0%" y1="100%" x2="0%" y2="0%">
+                              <stop offset="0%" stopColor="#fdc61b" />
+                              <stop offset="60%" stopColor="rgba(253,198,27,0.4)" />
+                              <stop offset="100%" stopColor="rgba(253,198,27,0)" />
+                            </linearGradient>
+                          </defs>
+                          {/* Transparent outer arch for natural fade */}
+                          <path d="M0,20 Q200,70 400,20 L400,120 L0,120 Z" fill="url(#goldFadeUp)" />
+                          {/* Solid gold arch band - main visible arch */}
+                          <path d="M0,50 Q200,90 400,50 L400,120 L0,120 Z" fill="#fdc61b" />
                         </svg>
                         
                         {/* Player name positioned centered on the arch */}
-                        <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ paddingTop: '30px' }}>
                           <div 
                             className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
                             style={{
@@ -1188,6 +1198,26 @@ const AnalysisViewer = () => {
                             </h2>
                           </div>
                         </div>
+                      </div>
+                      
+                      {/* Downward arch below the image - extends into grass */}
+                      <div className="absolute -bottom-[60px] left-0 right-0 z-20">
+                        <svg 
+                          className="w-full"
+                          viewBox="0 0 400 60" 
+                          preserveAspectRatio="none"
+                          style={{ height: '60px' }}
+                        >
+                          <defs>
+                            <linearGradient id="goldFadeDown" x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" stopColor="#fdc61b" />
+                              <stop offset="40%" stopColor="rgba(253,198,27,0.4)" />
+                              <stop offset="100%" stopColor="rgba(253,198,27,0)" />
+                            </linearGradient>
+                          </defs>
+                          {/* Downward curving arch that fades into grass */}
+                          <path d="M0,0 L400,0 Q200,60 0,0 Z" fill="url(#goldFadeDown)" />
+                        </svg>
                       </div>
                     </div>
                   </div>
