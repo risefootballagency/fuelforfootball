@@ -52,9 +52,10 @@ const PlayersIntro = () => {
           style={{ minHeight: '300px' }}
         >
           {/* Background image - smoky green */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${grassSmoky})` }}
+          <img 
+            src={grassSmoky} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/30" />
           
@@ -132,9 +133,10 @@ const PlayersIntro = () => {
           style={{ minHeight: '300px' }}
         >
           {/* Background image - grass texture */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${grassTexture})` }}
+          <img 
+            src={grassTexture} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/30" />
           
