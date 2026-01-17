@@ -779,32 +779,37 @@ const AnalysisViewer = () => {
         throw error;
       }
       
-      // Fetch linked player name via player_analysis - try both analysis_writer_id and check for player directly
-      let playerName: string | null = null;
+      // Player name: First check if it's stored directly on the analysis, then fallback to player_analysis join
+      let playerName: string | null = data.player_name || null;
       
-      // First try: check if this analysis is linked via analysis_writer_id
-      const { data: linkedData1 } = await supabase
-        .from("player_analysis")
-        .select("player_id, players(name)")
-        .eq("analysis_writer_id", analysisId)
-        .maybeSingle();
-      
-      if (linkedData1?.players) {
-        playerName = (linkedData1.players as any).name;
-      }
-      
-      // Second try: check if this analysis was created for a player (via fixture linkage)
-      if (!playerName && data.fixture_id) {
-        const { data: fixturePlayer } = await supabase
+      // If no direct player_name, try to fetch via player_analysis linkage
+      if (!playerName) {
+        // Try: check if this analysis is linked via analysis_writer_id
+        const { data: linkedData1 } = await supabase
           .from("player_analysis")
-          .select("players(name)")
-          .eq("fixture_id", data.fixture_id)
+          .select("player_id, players(name)")
+          .eq("analysis_writer_id", analysisId)
           .maybeSingle();
         
-        if (fixturePlayer?.players) {
-          playerName = (fixturePlayer.players as any).name;
+        if (linkedData1?.players) {
+          playerName = (linkedData1.players as any).name;
+        }
+        
+        // Second try: check if this analysis was created for a player (via fixture linkage)
+        if (!playerName && data.fixture_id) {
+          const { data: fixturePlayer } = await supabase
+            .from("player_analysis")
+            .select("players(name)")
+            .eq("fixture_id", data.fixture_id)
+            .maybeSingle();
+          
+          if (fixturePlayer?.players) {
+            playerName = (fixturePlayer.players as any).name;
+          }
         }
       }
+      
+      console.log("Player name resolved:", playerName);
       
       const parsedAnalysis: Analysis = {
         ...data,
