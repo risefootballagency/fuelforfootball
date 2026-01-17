@@ -1198,45 +1198,47 @@ const AnalysisViewer = () => {
                         {/* Dark overlay */}
                         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60 pointer-events-none" />
                         
-                        <div className="relative p-4 md:p-5">
-                          {/* Top section with image and name */}
-                          <div className="flex items-start gap-4">
-                            {/* Player image */}
-                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden flex-shrink-0 shadow-lg" style={{ border: `2px solid ${BRAND.gold}` }}>
-                              {matchup.image_url ? (
-                                <img
-                                  src={matchup.image_url}
-                                  alt={matchup.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-black/40 flex items-center justify-center text-white/50 text-xs">
-                                  No image
-                                </div>
-                              )}
-                            </div>
-                            
-                            {/* Name and number */}
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-bebas text-lg md:text-xl uppercase tracking-wide text-white drop-shadow-lg leading-tight">
-                                {matchup.name?.toUpperCase()}
-                              </h3>
-                              {matchup.shirt_number && (
-                                <p className="text-2xl md:text-3xl font-bold mt-1" style={{ color: BRAND.gold }}>
-                                  #{matchup.shirt_number}
-                                </p>
-                              )}
-                            </div>
+                        {/* Horizontal layout with full-height image on left */}
+                        <div className="relative flex">
+                          {/* Player image - spans full height from bottom to top border */}
+                          <div className="w-28 md:w-32 flex-shrink-0 self-stretch">
+                            {matchup.image_url ? (
+                              <img
+                                src={matchup.image_url}
+                                alt={matchup.name}
+                                className="w-full h-full object-cover object-top"
+                                style={{ minHeight: '100%' }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-black/40 flex items-center justify-center text-white/50 text-xs min-h-[120px]">
+                                No image
+                              </div>
+                            )}
                           </div>
                           
-                          {/* Notes section */}
-                          {matchup.notes && (
-                            <div className="mt-4 pt-3" style={{ borderTop: `1px solid ${BRAND.gold}40` }}>
-                              <p className="text-sm md:text-base text-white/90 leading-relaxed">
-                                {matchup.notes}
+                          {/* Content to the right of image */}
+                          <div className="flex-1 p-4 md:p-5 flex flex-col justify-center">
+                            {/* Name */}
+                            <h3 className="font-bebas text-lg md:text-xl uppercase tracking-wide text-white drop-shadow-lg leading-tight">
+                              {matchup.name?.toUpperCase()}
+                            </h3>
+                            
+                            {/* Number */}
+                            {matchup.shirt_number && (
+                              <p className="text-2xl md:text-3xl font-bold mt-1" style={{ color: BRAND.gold }}>
+                                #{matchup.shirt_number}
                               </p>
-                            </div>
-                          )}
+                            )}
+                            
+                            {/* Notes */}
+                            {matchup.notes && (
+                              <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${BRAND.gold}40` }}>
+                                <p className="text-sm md:text-base text-white/90 leading-relaxed">
+                                  {matchup.notes}
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </TextReveal>
