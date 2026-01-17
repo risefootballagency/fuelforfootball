@@ -101,22 +101,22 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                     <h4 className="text-base md:text-lg font-bebas uppercase tracking-wider text-white line-clamp-2">
                       {product.title}
                     </h4>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 w-full">
                       <Button
                         asChild
                         size="sm"
                         variant="outline"
-                        className="flex-1 bg-accent/90 backdrop-blur-sm border-accent text-black hover:bg-accent hover:text-black text-xs font-semibold"
+                        className="w-full justify-center bg-accent/90 backdrop-blur-sm border-accent text-black hover:bg-accent hover:text-black text-xs font-semibold py-2"
                       >
-                        <Link to={product.link}>
-                          <ArrowRight className="w-3 h-3 mr-1" />
+                        <Link to={product.link} className="flex items-center justify-center">
                           Learn More
+                          <ArrowRight className="w-3 h-3 ml-1" />
                         </Link>
                       </Button>
                       <Button
                         size="sm"
                         onClick={(e) => handleAddToCart(product, index, e)}
-                        className={`flex-1 text-xs transition-all relative overflow-hidden text-white font-semibold border-0 ${
+                        className={`w-full justify-center text-xs transition-all relative overflow-hidden text-white font-semibold border-0 py-2 ${
                           addedItems.has(index) 
                             ? "bg-green-600 hover:bg-green-700" 
                             : ""
@@ -127,15 +127,11 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                           <div 
                             className="absolute inset-0 z-0"
                             style={{
-                              backgroundImage: `url('/grass-smoky-3.png')`,
+                              backgroundImage: `url('/grass-bg-smoky.png')`,
                               backgroundSize: 'cover',
                               backgroundPosition: 'center',
                             }}
                           />
-                        )}
-                        {/* Dark overlay for text contrast */}
-                        {!addedItems.has(index) && (
-                          <div className="absolute inset-0 bg-black/30 z-0" />
                         )}
                         <span className="relative z-10 flex items-center justify-center">
                           {addedItems.has(index) ? (

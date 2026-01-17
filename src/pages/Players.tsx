@@ -102,14 +102,13 @@ const ServiceSection = ({
       {hasTitleBackground ? (
         <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-12 md:mb-16">
           <div 
-            className="w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8"
+            className="w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8 overflow-hidden"
             style={{
-              backgroundImage: `url('/grass-smoky-3.png')`,
+              backgroundImage: `url('/grass-bg-smoky.png')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           >
-            <div className="absolute inset-0 bg-black/25" />
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-white container mx-auto drop-shadow-lg relative z-10">
               {title}
             </h2>
