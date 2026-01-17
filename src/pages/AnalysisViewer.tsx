@@ -564,8 +564,9 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the right side, leaving space from VS circle and logo */}
           <span 
-            className="text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl font-bebas text-white tracking-wide uppercase truncate ml-[22vw] mr-[12vw]"
+            className="font-bebas text-white tracking-wide uppercase truncate ml-[22vw] mr-[12vw]"
             style={{
+              fontSize: 'clamp(0.625rem, 2.5vw, 1.5rem)',
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
           >
@@ -584,8 +585,9 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the left side, leaving space from VS circle and logo */}
           <span 
-            className="text-xs sm:text-sm md:text-base lg:text-xl xl:text-2xl font-bebas text-white tracking-wide uppercase truncate ml-[12vw] mr-[22vw]"
+            className="font-bebas text-white tracking-wide uppercase truncate ml-[12vw] mr-[22vw]"
             style={{
+              fontSize: 'clamp(0.625rem, 2.5vw, 1.5rem)',
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
           >
