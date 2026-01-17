@@ -843,19 +843,30 @@ const AnalysisViewer = () => {
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const pageRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   
   // Extract the UUID from the slug (supports both old UUID-only and new team-vs-team-uuid formats)
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
 
   const handleSaveAsPdf = useCallback(async () => {
-    if (!analysis) return;
+    if (!analysis || !contentRef.current) return;
     
     setIsSaving(true);
-    toast.info('Generating PDF...');
+    toast.info('Preparing PDF... Expanding all sections.');
+    
+    // Wait for sections to fully expand and animations to settle
+    await new Promise(r => setTimeout(r, 600));
     
     try {
-      await exportAnalysisPdf(analysis);
+      const fileName = analysis.home_team && analysis.away_team
+        ? `${analysis.home_team}-vs-${analysis.away_team}-analysis.pdf`
+            .replace(/\s+/g, '-')
+            .toLowerCase()
+        : `${analysis.title || 'analysis'}.pdf`
+            .replace(/\s+/g, '-')
+            .toLowerCase();
+      
+      await exportAnalysisPdf(contentRef.current, fileName);
       toast.success('PDF saved!');
     } catch (error) {
       console.error('PDF export error:', error);
@@ -1037,7 +1048,7 @@ const AnalysisViewer = () => {
       )}
 
       {/* Main content wrapper - padded to stay inside the inset lines */}
-      <main ref={pageRef} data-pdf-content className="w-full mx-auto px-[8px]">
+      <main ref={contentRef} data-pdf-content className="w-full mx-auto px-[8px]">
         {/* Pre-Match Content */}
         {isPreMatch && (
           <div className="w-full">
