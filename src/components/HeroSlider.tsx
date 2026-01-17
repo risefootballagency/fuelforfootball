@@ -18,7 +18,7 @@ export const HeroSlider = ({ slides, autoplayDelay = 5000 }: HeroSliderProps) =>
   const [selectedIndex, setSelectedIndex] = useState(0);
   
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, skipSnaps: false },
+    { loop: true, skipSnaps: false, align: "center", containScroll: false },
     [Autoplay({ delay: autoplayDelay, stopOnInteraction: false })]
   );
 

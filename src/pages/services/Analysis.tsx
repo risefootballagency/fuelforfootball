@@ -45,7 +45,7 @@ const Analysis = () => {
               <p className="text-xs text-muted-foreground mb-2">Example Pre-Match Analysis: Slovakia vs England (30/06/24)</p>
               <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
               <LocalizedLink to="/contact">
-                <Button className="font-bebas tracking-wider">REQUEST A QUOTE</Button>
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">REQUEST A QUOTE</Button>
               </LocalizedLink>
             </div>
           </div>
@@ -98,7 +98,7 @@ const Analysis = () => {
               <p className="text-xs text-muted-foreground mb-2">Example Post-Match Analysis: Máté Sajbán vs Debrecen (13/08/23)</p>
               <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
               <LocalizedLink to="/contact">
-                <Button className="font-bebas tracking-wider">REQUEST A QUOTE</Button>
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">REQUEST A QUOTE</Button>
               </LocalizedLink>
             </div>
           </div>
@@ -125,7 +125,7 @@ const Analysis = () => {
               <p className="text-xs text-muted-foreground mb-2">Example Positional Guide: Winger Positioning & Movement</p>
               <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
               <LocalizedLink to="/contact">
-                <Button className="font-bebas tracking-wider">REQUEST A QUOTE</Button>
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">REQUEST A QUOTE</Button>
               </LocalizedLink>
             </div>
           </div>
@@ -178,7 +178,7 @@ const Analysis = () => {
               <p className="text-xs text-muted-foreground mb-2">Example Player Efficiency Report: Michael Mulligan (23/24)</p>
               <p className="font-bebas text-xl text-primary mb-4">From £95.00</p>
               <LocalizedLink to="/contact">
-                <Button className="font-bebas tracking-wider">REQUEST A QUOTE</Button>
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">REQUEST A QUOTE</Button>
               </LocalizedLink>
             </div>
           </div>

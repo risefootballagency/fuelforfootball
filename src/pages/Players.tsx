@@ -100,15 +100,22 @@ const ServiceSection = ({
   <section id={id} className="py-6 md:py-10 bg-card/30 border-y border-border/30">
     <div className="container mx-auto">
       {hasTitleBackground ? (
-        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-8 md:mb-12">
-          <div className="w-screen relative left-1/2 -translate-x-1/2 bg-primary/10 py-4 md:py-6">
-            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground container mx-auto">
+        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-10 md:mb-14">
+          <div 
+            className="w-screen relative left-1/2 -translate-x-1/2 py-4 md:py-6"
+            style={{
+              backgroundImage: `url('/grass-smoky-3.png')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-white container mx-auto drop-shadow-lg">
               {title}
             </h2>
           </div>
         </div>
       ) : (
-        <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-8 md:mb-12">
+        <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-10 md:mb-14">
           {title}
         </h2>
       )}
@@ -128,7 +135,7 @@ const ServiceSection = ({
           <Link to={learnMoreLink}>
             <Button 
               hoverEffect
-              className="font-bebas uppercase tracking-wider text-sm"
+              className="font-bebas uppercase tracking-wider text-sm bg-accent hover:bg-accent/90 text-black"
             >
               {learnMoreText.toUpperCase()}
               <ArrowRight className="w-4 h-4" />
@@ -213,22 +220,22 @@ const Players = () => {
     {
       number: "1",
       title: "Identification of key areas",
-      items: ["Inform us of what you are working on or need to improve", "Discuss this in depth with us through a consultation call"]
+      description: "Inform us of what you are working on or need to improve, and discuss this in depth with us through a consultation call."
     },
     {
       number: "2",
       title: "Discussion of individualised approach",
-      items: ["Helping you to understand the factors which affect your individual case and what we recommend to maximise your development"]
+      description: "Helping you to understand the factors which affect your individual case and what we recommend to maximise your development."
     },
     {
       number: "3",
       title: "Take Action",
-      items: ["More Specific Testing", "Footage Gathering", "Further Discussion"]
+      description: "Undertake more specific testing, gather footage of your performances, and engage in further discussion to identify the best path forward."
     },
     {
       number: "4",
       title: "Be Fuelled",
-      items: ["Learn", "Apply", "Outperform", "Review", "Fuel"]
+      description: "Learn from our expertise, apply the insights to your game, outperform your competition, review your progress, and fuel your continued development."
     }
   ];
 
@@ -342,7 +349,7 @@ const Players = () => {
                     <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-2 md:mb-4 line-clamp-3 md:line-clamp-none">
                       {corner.description}
                     </p>
-                    <Button variant="link" className="p-0 h-auto text-primary text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all">
+                    <Button variant="link" className="p-0 h-auto text-accent text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all">
                       LEARN MORE <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                     </Button>
                   </div>
@@ -352,8 +359,8 @@ const Players = () => {
           </div>
         </section>
 
-        {/* Grass Divider */}
-        <GrassBackground variant="divider" backgroundIndex={0} />
+        {/* Spacing */}
+        <div className="h-4 md:h-6" />
 
         {/* Hero Slider - with images from landing folder */}
         <DynamicHeroSlider />
@@ -370,8 +377,8 @@ const Players = () => {
           </div>
         </section>
 
-        {/* Grass Divider */}
-        <GrassBackground variant="divider" backgroundIndex={1} />
+        {/* Spacing */}
+        <div className="h-4 md:h-6" />
 
         {/* Choose Your Fuel Section - immediately after */}
         <section className="py-4 md:py-8 bg-background">
@@ -411,17 +418,15 @@ const Players = () => {
                   key={index}
                   className="text-center p-4 rounded-lg border border-border/30 bg-card/50"
                 >
-                  <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 md:mb-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <span className="text-2xl md:text-3xl font-bebas text-primary">{step.number}</span>
+                  <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 md:mb-6 rounded-full bg-accent/20 flex items-center justify-center border-2 border-accent/50">
+                    <span className="text-2xl md:text-3xl font-bebas text-accent">{step.number}</span>
                   </div>
                   <h3 className="text-base md:text-xl font-bebas uppercase tracking-wider text-foreground mb-2 md:mb-4">
                     {step.title}
                   </h3>
-                  <ul className="text-muted-foreground text-xs md:text-sm space-y-1 md:space-y-2">
-                    {step.items.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
+                  <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">
+                    {step.description}
+                  </p>
                 </div>
               ))}
             </div>

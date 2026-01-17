@@ -105,7 +105,7 @@ const Tactical = () => {
         <div className="max-w-4xl mx-auto mt-8 text-center">
           <p className="font-bebas text-xl md:text-2xl text-primary mb-4">From £85.00</p>
           <LocalizedLink to="/analysis">
-            <Button className="font-bebas tracking-wider">
+            <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">
               Learn More
             </Button>
           </LocalizedLink>
