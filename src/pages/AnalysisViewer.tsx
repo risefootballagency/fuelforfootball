@@ -550,7 +550,7 @@ const AnalysisHeader = ({
           }}
         >
           <span 
-            className={`text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center ${homeTeamBold ? 'font-bold' : ''}`}
+            className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center"
             style={{
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
               fontWeight: homeTeamBold ? 700 : 400
@@ -569,7 +569,7 @@ const AnalysisHeader = ({
           }}
         >
           <span 
-            className={`text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center ${awayTeamBold ? 'font-bold' : ''}`}
+            className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center"
             style={{
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
               fontWeight: awayTeamBold ? 700 : 400
@@ -579,7 +579,7 @@ const AnalysisHeader = ({
           </span>
         </div>
 
-        {/* VS Badge - Center - highest z-index */}
+        {/* VS Badge - Center - highest z-index, smoky background */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           {isPostMatch && homeScore !== null && awayScore !== null ? (
             <div 
@@ -591,8 +591,16 @@ const AnalysisHeader = ({
               </span>
             </div>
           ) : (
-            <div className="bg-black rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border-2 border-white shadow-lg">
-              <span className="text-white text-base md:text-lg font-bebas font-bold">VS</span>
+            <div 
+              className="rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border-2 border-white shadow-lg overflow-hidden"
+              style={{
+                backgroundImage: `url('/Smoky-Background.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              <div className="absolute inset-0 bg-black/30" />
+              <span className="relative text-white text-base md:text-lg font-bebas font-bold">VS</span>
             </div>
           )}
         </div>
@@ -1146,37 +1154,17 @@ const AnalysisViewer = () => {
                         className="w-full h-full object-cover object-top"
                       />
                       
-                      {/* Gold band positioned at bottom of image - solid fill to merge into grass */}
+                      {/* Gold band positioned at bottom of image - fully solid to hide image edge */}
                       <div className="absolute bottom-0 left-0 right-0 z-30">
-                        {/* Outer glow/transparent layer */}
+                        {/* Solid gold arch band - completely covers bottom edge of image */}
                         <svg 
                           className="w-full"
-                          viewBox="0 0 400 80" 
+                          viewBox="0 0 400 100" 
                           preserveAspectRatio="none"
-                          style={{ height: '80px' }}
+                          style={{ height: '100px' }}
                         >
-                          {/* Curved gold band with full solid middle */}
-                          <defs>
-                            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                              <stop offset="0%" stopColor="rgba(253,198,27,0.3)" />
-                              <stop offset="30%" stopColor="#fdc61b" />
-                              <stop offset="70%" stopColor="#fdc61b" />
-                              <stop offset="100%" stopColor="rgba(253,198,27,0.3)" />
-                            </linearGradient>
-                          </defs>
-                          {/* Full curved gold band - arch shape with solid filled center */}
-                          <path d="M0,0 Q200,50 400,0 L400,80 L0,80 Z" fill="url(#goldGradient)" />
-                        </svg>
-                        
-                        {/* Main solid gold arch band overlay */}
-                        <svg 
-                          className="absolute inset-0 w-full"
-                          viewBox="0 0 400 80" 
-                          preserveAspectRatio="none"
-                          style={{ height: '80px' }}
-                        >
-                          {/* Thick curved gold band - solid arch with filled center */}
-                          <path d="M0,10 Q200,60 400,10 L400,45 Q200,85 0,45 Z" fill="#fdc61b" />
+                          {/* Solid curved gold band - arch shape that fully covers bottom of image */}
+                          <path d="M0,0 Q200,40 400,0 L400,100 L0,100 Z" fill="#fdc61b" />
                         </svg>
                         
                         {/* Player name positioned centered on the arch */}
