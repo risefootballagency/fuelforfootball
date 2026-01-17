@@ -242,10 +242,41 @@ const ExpandableSection = ({
     setWasManuallyToggled(true);
   };
 
+  // When forceOpen (for PDF), render content directly without animation
+  if (forceOpen) {
+    return (
+      <section 
+        ref={sectionRef}
+        id={id}
+        data-expandable
+        className="relative w-full"
+        style={{
+          backgroundImage: `url('/analysis-page-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        <TacticalSymbols />
+        <div className="relative px-4 md:px-6 pt-4 md:pt-5 pb-2 md:pb-3">
+          <div className="w-full">
+            <SectionTitle title={title} icon={icon} />
+            <div className="flex justify-center -mt-2 mb-2">
+              <ChevronDown className="w-5 h-5" style={{ color: BRAND.gold, transform: 'rotate(180deg)' }} />
+            </div>
+            <ContentCard transparent={transparentContent}>
+              {children}
+            </ContentCard>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section 
       ref={sectionRef}
       id={id}
+      data-expandable
       className="relative w-full"
       style={{
         backgroundImage: `url('/analysis-page-bg.png')`,
@@ -662,33 +693,59 @@ const AnalysisViewer = () => {
     if (!pageRef.current || !analysis) return;
     
     setIsSaving(true);
+    toast.info('Preparing PDF... Please wait');
     
-    // Wait for React to re-render with all sections open
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Wait longer for React to re-render with all sections open and images to load
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
     try {
-      const canvas = await html2canvas(pageRef.current, {
+      // Get the actual scrollable content
+      const element = pageRef.current;
+      const scrollHeight = element.scrollHeight;
+      const scrollWidth = element.scrollWidth;
+      
+      const canvas = await html2canvas(element, {
         backgroundColor: '#0a1f0d',
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         allowTaint: true,
-        logging: false,
-        windowHeight: pageRef.current.scrollHeight,
-        height: pageRef.current.scrollHeight
+        logging: true,
+        width: scrollWidth,
+        height: scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: scrollWidth,
+        windowHeight: scrollHeight,
+        onclone: (clonedDoc) => {
+          // Ensure all expandable sections are visible in the clone
+          const clonedElement = clonedDoc.body.querySelector('[data-pdf-content]');
+          if (clonedElement) {
+            const sections = clonedElement.querySelectorAll('[data-expandable]');
+            sections.forEach((section: any) => {
+              section.style.display = 'block';
+              section.style.maxHeight = 'none';
+              section.style.overflow = 'visible';
+            });
+          }
+        }
       });
+      
+      if (canvas.width === 0 || canvas.height === 0) {
+        throw new Error('Canvas is empty');
+      }
       
       // Calculate PDF dimensions (A4 width, dynamic height)
       const imgWidth = 210; // A4 width in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       const pdf = new jsPDF({
-        orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
+        orientation: 'portrait',
         unit: 'mm',
         format: [imgWidth, imgHeight]
       });
       
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       
       const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.pdf`;
       pdf.save(fileName.replace(/\s+/g, '-').toLowerCase());
@@ -696,7 +753,7 @@ const AnalysisViewer = () => {
       toast.success('Analysis saved as PDF!');
     } catch (error) {
       console.error('Error saving PDF:', error);
-      toast.error('Failed to save PDF');
+      toast.error('Failed to save PDF. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -722,16 +779,31 @@ const AnalysisViewer = () => {
         throw error;
       }
       
-      // Fetch linked player name via player_analysis
+      // Fetch linked player name via player_analysis - try both analysis_writer_id and check for player directly
       let playerName: string | null = null;
-      const { data: linkedData } = await supabase
+      
+      // First try: check if this analysis is linked via analysis_writer_id
+      const { data: linkedData1 } = await supabase
         .from("player_analysis")
-        .select("players(name)")
+        .select("player_id, players(name)")
         .eq("analysis_writer_id", analysisId)
         .maybeSingle();
       
-      if (linkedData?.players) {
-        playerName = (linkedData.players as any).name;
+      if (linkedData1?.players) {
+        playerName = (linkedData1.players as any).name;
+      }
+      
+      // Second try: check if this analysis was created for a player (via fixture linkage)
+      if (!playerName && data.fixture_id) {
+        const { data: fixturePlayer } = await supabase
+          .from("player_analysis")
+          .select("players(name)")
+          .eq("fixture_id", data.fixture_id)
+          .maybeSingle();
+        
+        if (fixturePlayer?.players) {
+          playerName = (fixturePlayer.players as any).name;
+        }
       }
       
       const parsedAnalysis: Analysis = {
@@ -850,7 +922,7 @@ const AnalysisViewer = () => {
       )}
 
       {/* Main content wrapper - padded to stay inside the inset lines */}
-      <main ref={pageRef} className="w-full mx-auto px-[8px]">
+      <main ref={pageRef} data-pdf-content className="w-full mx-auto px-[8px]">
         {/* Pre-Match Content */}
         {isPreMatch && (
           <div className="w-full">
