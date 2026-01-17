@@ -71,71 +71,72 @@ const SECTION_IDS = {
   improvements: "section-improvements",
 };
 
-// Enhanced Kit SVG Component with more styling options
+// Enhanced Kit SVG Component with more styling options - THINNER design
 interface KitProps {
   primaryColor: string;
   secondaryColor: string;
   collarColor?: string;
+  numberColor?: string;
   stripeStyle?: 'none' | 'thin' | 'thick' | 'halves';
   number: string;
 }
 
-const PlayerKit = ({ primaryColor, secondaryColor, collarColor, stripeStyle = 'thick', number }: KitProps) => {
+const PlayerKit = ({ primaryColor, secondaryColor, collarColor, numberColor = 'white', stripeStyle = 'thick', number }: KitProps) => {
   const collar = collarColor || secondaryColor;
   
   return (
-    <svg width="80" height="80" viewBox="0 0 100 100" className="drop-shadow-lg">
+    <svg width="50" height="60" viewBox="0 0 100 120" className="drop-shadow-lg">
       <defs>
         {/* Pattern for thin stripes */}
-        <pattern id={`thinStripes-${number}`} patternUnits="userSpaceOnUse" width="6" height="100">
-          <rect width="3" height="100" fill={primaryColor} />
-          <rect x="3" width="3" height="100" fill={secondaryColor} />
+        <pattern id={`thinStripes-${number}`} patternUnits="userSpaceOnUse" width="6" height="120">
+          <rect width="3" height="120" fill={primaryColor} />
+          <rect x="3" width="3" height="120" fill={secondaryColor} />
         </pattern>
         {/* Pattern for thick stripes */}
-        <pattern id={`thickStripes-${number}`} patternUnits="userSpaceOnUse" width="20" height="100">
-          <rect width="10" height="100" fill={primaryColor} />
-          <rect x="10" width="10" height="100" fill={secondaryColor} />
+        <pattern id={`thickStripes-${number}`} patternUnits="userSpaceOnUse" width="16" height="120">
+          <rect width="8" height="120" fill={primaryColor} />
+          <rect x="8" width="8" height="120" fill={secondaryColor} />
         </pattern>
       </defs>
       
-      {/* Main shirt body */}
+      {/* Main shirt body - THINNER proportions */}
       <path 
-        d="M25 30 L20 40 L20 75 L30 80 L70 80 L80 75 L80 40 L75 30 L65 25 L60 28 L40 28 L35 25 Z" 
+        d="M30 28 L25 38 L25 95 L35 100 L65 100 L75 95 L75 38 L70 28 L62 24 L58 28 L42 28 L38 24 Z" 
         fill={stripeStyle === 'thin' ? `url(#thinStripes-${number})` : 
               stripeStyle === 'thick' ? `url(#thickStripes-${number})` :
               stripeStyle === 'halves' ? primaryColor : primaryColor}
         stroke={secondaryColor} 
-        strokeWidth="1.5"
+        strokeWidth="2"
       />
       
       {/* Halves - right side overlay */}
       {stripeStyle === 'halves' && (
         <path 
-          d="M50 28 L60 28 L65 25 L75 30 L80 40 L80 75 L70 80 L50 80 Z" 
+          d="M50 28 L58 28 L62 24 L70 28 L75 38 L75 95 L65 100 L50 100 Z" 
           fill={secondaryColor}
         />
       )}
       
-      {/* Sleeves */}
-      <path d="M20 40 L10 50 L15 60 L20 55 Z" fill={primaryColor} stroke={secondaryColor} strokeWidth="1"/>
-      <path d="M80 40 L90 50 L85 60 L80 55 Z" fill={stripeStyle === 'halves' ? secondaryColor : primaryColor} stroke={secondaryColor} strokeWidth="1"/>
+      {/* Sleeves - thinner and tighter */}
+      <path d="M25 38 L18 48 L22 58 L25 52 Z" fill={primaryColor} stroke={secondaryColor} strokeWidth="1.5"/>
+      <path d="M75 38 L82 48 L78 58 L75 52 Z" fill={stripeStyle === 'halves' ? secondaryColor : primaryColor} stroke={secondaryColor} strokeWidth="1.5"/>
       
       {/* Collar - V-neck style */}
-      <path d="M40 28 L50 38 L60 28" fill="none" stroke={collar} strokeWidth="3" strokeLinecap="round"/>
-      <path d="M42 26 L50 34 L58 26" fill="none" stroke={collar} strokeWidth="2"/>
+      <path d="M42 28 L50 40 L58 28" fill="none" stroke={collar} strokeWidth="3" strokeLinecap="round"/>
+      <path d="M44 26 L50 36 L56 26" fill="none" stroke={collar} strokeWidth="2"/>
       
       {/* Collar base */}
-      <ellipse cx="50" cy="26" rx="12" ry="4" fill={collar} />
+      <ellipse cx="50" cy="25" rx="10" ry="3" fill={collar} />
       
-      {/* Number on shirt */}
+      {/* Number on shirt - with editable color */}
       <text 
         x="50" 
-        y="60" 
+        y="72" 
         textAnchor="middle" 
-        fontSize="22" 
+        fontSize="26" 
         fontWeight="bold" 
-        fill="white" 
-        stroke="black" 
+        fill={numberColor}
+        stroke={numberColor === 'white' || numberColor === '#ffffff' || numberColor === '#FFFFFF' ? 'black' : 'rgba(0,0,0,0.3)'}
         strokeWidth="0.8"
         fontFamily="Arial Black, sans-serif"
       >
@@ -144,8 +145,13 @@ const PlayerKit = ({ primaryColor, secondaryColor, collarColor, stripeStyle = 't
       
       {/* Subtle shading for depth */}
       <path 
-        d="M25 30 L20 40 L20 75 L30 80 L35 75 L35 35 Z" 
-        fill="rgba(0,0,0,0.1)"
+        d="M30 28 L25 38 L25 95 L35 100 L38 95 L38 35 Z" 
+        fill="rgba(0,0,0,0.12)"
+      />
+      {/* Highlight on right side */}
+      <path 
+        d="M62 28 L70 28 L75 38 L75 95 L72 95 L72 40 L68 30 Z" 
+        fill="rgba(255,255,255,0.08)"
       />
     </svg>
   );
@@ -650,32 +656,30 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   };
 
   return (
-    <div>
+    <div className="relative z-40">
+      {/* Radiating dark shader ring behind the button */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.2) 60%, transparent 100%)'
+        }}
+      />
+      
       <motion.div 
         ref={dropdownRef}
-        className="sticky top-0 z-40 py-2"
-        style={{ 
-          backgroundImage: `url('/analysis-grass-bg.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        className="relative py-3"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        {/* Dark overlay for smoky effect */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 pointer-events-none" />
-        
         <div className="relative flex justify-center px-4">
           <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="text-base md:text-lg px-6 py-2 font-bebas tracking-wider hover:bg-white/10 transition-colors"
+                className="text-base md:text-lg px-6 py-2 font-bebas tracking-wider hover:bg-black/50 transition-colors backdrop-blur-sm"
                 style={{ 
-                  backgroundImage: `url('/Smoky-Background.png')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundColor: 'rgba(0,0,0,0.6)',
                   color: 'white',
                   borderColor: BRAND.gold,
                   borderWidth: '2px'
@@ -702,10 +706,10 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
               {/* Dark smoky overlay */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 pointer-events-none rounded-md" />
               
-              {/* Key Info Sections - centered, horizontal wrap */}
+              {/* Key Info Sections - centered, horizontal wrap, MUCH LARGER titles */}
               {keyInfoSections.length > 0 && (
                 <div className="relative mb-4 text-center">
-                  <div className="py-1 text-sm md:text-base uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
+                  <div className="py-2 text-xl md:text-2xl uppercase tracking-widest font-bebas border-b mb-4" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
                     Key Info
                   </div>
                   <div className="flex flex-wrap justify-center gap-2">
@@ -735,10 +739,10 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
                 />
               )}
               
-              {/* Points Sections - centered, wrap to multiple lines */}
+              {/* Points Sections - centered, wrap to multiple lines, MUCH LARGER titles */}
               {pointSections.length > 0 && (
                 <div className="relative text-center">
-                  <div className="py-1 text-sm md:text-base uppercase tracking-widest font-bebas border-b mb-3" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
+                  <div className="py-2 text-xl md:text-2xl uppercase tracking-widest font-bebas border-b mb-4" style={{ color: BRAND.gold, borderColor: `${BRAND.gold}50` }}>
                     Analysis Points
                   </div>
                   <div className="flex flex-wrap justify-center gap-2">
@@ -763,14 +767,6 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
           </DropdownMenu>
         </div>
       </motion.div>
-      
-      {/* Gradient fade from #0a2e12 to transparent - fades into match image */}
-      <div 
-        className="h-16 md:h-24 w-full"
-        style={{
-          background: 'linear-gradient(to bottom, #0a2e12 0%, transparent 100%)'
-        }}
-      />
     </div>
   );
 };
@@ -1093,7 +1089,7 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
             />
 
-            {/* Player/Match Image with Premium Gold Arch Frame */}
+            {/* Player/Match Image with Premium Gold Arch Frame - arch directly on bottom of image */}
             {(analysis.player_image_url || analysis.match_image_url) && (
               <ScrollReveal className="w-full">
                 <div 
@@ -1121,66 +1117,58 @@ const AnalysisViewer = () => {
                     }}
                   />
                   
-                  {/* Image container - height limited to width (square max) */}
-                  <div className="relative w-full z-0" style={{ aspectRatio: '1/1', maxHeight: '100vw' }}>
-                    <img
-                      src={analysis.player_image_url || analysis.match_image_url}
-                      alt={analysis.player_name || "Match"}
-                      className="w-full h-full object-cover object-top"
-                    />
-                  </div>
-                  
-                  {/* Gold Arch - TRIPLED height (240px), positioned so its center aligns with the bottom of the image */}
-                  <div className="relative w-full" style={{ marginTop: '-15%' }}>
-                    {/* Grass background visible below the arch */}
-                    <div 
-                      className="absolute inset-0"
-                      style={{
-                        backgroundImage: `url('/analysis-page-bg.png')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'top center'
-                      }}
-                    />
-                    
-                    {/* Secondary transparent arch (outer) */}
-                    <svg 
-                      className="relative w-full"
-                      viewBox="0 0 400 240" 
-                      preserveAspectRatio="none"
-                      style={{ height: '240px' }}
-                    >
-                      <path d="M0,15 Q200,180 400,15 L400,180 Q200,240 0,180 Z" fill="rgba(253,198,27,0.25)" />
-                    </svg>
-                    
-                    {/* Main gold arch - curves DOWN at top, curves UP at bottom - TRIPLED size */}
-                    <svg 
-                      className="absolute inset-0 w-full"
-                      viewBox="0 0 400 240" 
-                      preserveAspectRatio="none"
-                      style={{ height: '240px' }}
-                    >
-                      <path d="M0,45 Q200,195 400,45 L400,165 Q200,225 0,165 Z" fill="#fdc61b" />
-                    </svg>
-                    
-                    {/* Player name positioned on top of the arch */}
-                    <div className="absolute inset-0 flex items-center justify-center z-10">
-                      <div 
-                        className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
-                        style={{
-                          backgroundImage: `url('/grass-bg-smoky.png')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          border: `2px solid ${BRAND.gold}`,
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
-                        }}
-                      >
-                        {/* Dark overlay for smoky effect */}
-                        <div className="absolute inset-0 bg-black/40 rounded-full" />
-                        <h2 
-                          className="relative text-lg md:text-2xl lg:text-3xl font-bebas uppercase tracking-widest text-center drop-shadow-md text-white"
+                  {/* Image container with gold arch DIRECTLY at the bottom */}
+                  <div className="relative w-full z-0">
+                    <div className="relative w-full" style={{ aspectRatio: '1/1', maxHeight: '100vw' }}>
+                      <img
+                        src={analysis.player_image_url || analysis.match_image_url}
+                        alt={analysis.player_name || "Match"}
+                        className="w-full h-full object-cover object-top"
+                      />
+                      
+                      {/* Gold Arch positioned at BOTTOM of the match image */}
+                      <div className="absolute bottom-0 left-0 right-0 z-30">
+                        {/* Secondary transparent arch (outer) */}
+                        <svg 
+                          className="w-full"
+                          viewBox="0 0 400 200" 
+                          preserveAspectRatio="none"
+                          style={{ height: '200px' }}
                         >
-                          <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
-                        </h2>
+                          <path d="M0,0 Q200,160 400,0 L400,140 Q200,200 0,140 Z" fill="rgba(253,198,27,0.25)" />
+                        </svg>
+                        
+                        {/* Main gold arch band */}
+                        <svg 
+                          className="absolute inset-0 w-full"
+                          viewBox="0 0 400 200" 
+                          preserveAspectRatio="none"
+                          style={{ height: '200px' }}
+                        >
+                          <path d="M0,30 Q200,170 400,30 L400,120 Q200,190 0,120 Z" fill="#fdc61b" />
+                        </svg>
+                        
+                        {/* Player name positioned on top of the arch */}
+                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '20%' }}>
+                          <div 
+                            className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
+                            style={{
+                              backgroundImage: `url('/grass-bg-smoky.png')`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              border: `2px solid ${BRAND.gold}`,
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
+                            }}
+                          >
+                            {/* Dark overlay for smoky effect */}
+                            <div className="absolute inset-0 bg-black/40 rounded-full" />
+                            <h2 
+                              className="relative text-lg md:text-2xl lg:text-3xl font-bebas uppercase tracking-widest text-center drop-shadow-md text-white"
+                            >
+                              <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
+                            </h2>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1412,7 +1400,7 @@ const AnalysisViewer = () => {
                                   transform: 'translate(-50%, -50%)'
                                 }}
                               >
-                                <div className="scale-50 md:scale-100 drop-shadow-xl">
+                                <div className="scale-50 md:scale-75 lg:scale-90 drop-shadow-xl">
                                   <PlayerKit 
                                     primaryColor={analysis.kit_primary_color || '#FFD700'}
                                     secondaryColor={analysis.kit_secondary_color || '#000000'}
@@ -1420,15 +1408,29 @@ const AnalysisViewer = () => {
                                     number={player.number || '0'}
                                   />
                                 </div>
+                                {/* Cooler player name UI with more pop */}
                                 <div 
-                                  className="px-2 md:px-3 py-0.5 md:py-1 rounded text-[10px] md:text-xs font-bold whitespace-nowrap -mt-1 md:-mt-2 shadow-lg"
+                                  className="relative px-2 md:px-4 py-1 md:py-1.5 rounded-md text-[9px] md:text-xs font-bold whitespace-nowrap -mt-1 md:-mt-2 shadow-xl overflow-hidden"
                                   style={{
-                                    background: 'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.8) 100%)',
-                                    color: 'white',
-                                    border: `1px solid ${BRAND.gold}40`
+                                    background: `linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.9) 50%, rgba(0,0,0,0.95) 100%)`,
+                                    border: `2px solid ${BRAND.gold}`,
+                                    boxShadow: `0 4px 15px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)`
                                   }}
                                 >
-                                  {player.surname || player.position}
+                                  {/* Gold accent line at top */}
+                                  <div 
+                                    className="absolute top-0 left-0 right-0 h-0.5"
+                                    style={{ background: `linear-gradient(90deg, transparent, ${BRAND.gold}, transparent)` }}
+                                  />
+                                  <span 
+                                    className="relative uppercase tracking-wider"
+                                    style={{ 
+                                      color: BRAND.gold,
+                                      textShadow: '0 0 10px rgba(253,198,27,0.5)'
+                                    }}
+                                  >
+                                    {player.surname || player.position}
+                                  </span>
                                 </div>
                               </div>
                             ))}
