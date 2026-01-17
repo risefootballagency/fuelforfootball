@@ -12,7 +12,7 @@ const PlayersIntro = () => {
   const getCardFlex = (card: 'left' | 'right') => {
     if (hoveredCard === null) return 1;
     if (hoveredCard === card) return 1.85; // 65%
-    return 0.54; // 35%
+    return 1; // 35%
   };
 
   return (
@@ -81,7 +81,7 @@ const PlayersIntro = () => {
                 <span className="text-accent">We Work</span>
               </h2>
               
-              <p className="text-lg text-white/80 max-w-md">
+              <p className="text-lg text-white/80 max-w-md mb-6">
                 Discover our methodology, philosophy, and how we fuel players to reach their full potential.
               </p>
             </div>
@@ -153,7 +153,7 @@ const PlayersIntro = () => {
                 <span className="text-accent">Services</span>
               </h2>
               
-              <p className="text-lg text-white/80 max-w-md">
+              <p className="text-lg text-white/80 max-w-md mb-6">
                 Explore our comprehensive range of performance services designed to elevate every aspect of your game.
               </p>
             </div>
