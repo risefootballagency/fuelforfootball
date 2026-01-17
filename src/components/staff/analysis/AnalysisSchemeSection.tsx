@@ -74,9 +74,10 @@ export const AnalysisSchemeSection = ({
 
         {formData.selected_scheme && formData.starting_xi && formData.starting_xi.length > 0 && (
           <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            {/* Kit Customisation */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
               <div>
-                <Label>Kit Primary Color</Label>
+                <Label>Primary Color</Label>
                 <Input
                   type="color"
                   value={formData.kit_primary_color || '#FFD700'}
@@ -84,13 +85,48 @@ export const AnalysisSchemeSection = ({
                 />
               </div>
               <div>
-                <Label>Kit Secondary Color</Label>
+                <Label>Secondary Color</Label>
                 <Input
                   type="color"
                   value={formData.kit_secondary_color || '#000000'}
                   onChange={(e) => setFormData({ ...formData, kit_secondary_color: e.target.value })}
                 />
               </div>
+              <div>
+                <Label>Collar/Trim Color</Label>
+                <Input
+                  type="color"
+                  value={formData.kit_collar_color || '#FFFFFF'}
+                  onChange={(e) => setFormData({ ...formData, kit_collar_color: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Number Color</Label>
+                <Input
+                  type="color"
+                  value={formData.kit_number_color || '#FFFFFF'}
+                  onChange={(e) => setFormData({ ...formData, kit_number_color: e.target.value })}
+                />
+              </div>
+            </div>
+            
+            {/* Stripe Style Selector */}
+            <div className="mb-4">
+              <Label>Stripe Style</Label>
+              <Select 
+                value={formData.kit_stripe_style || "none"} 
+                onValueChange={(value) => setFormData({ ...formData, kit_stripe_style: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose stripe style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Solid (No Stripes)</SelectItem>
+                  <SelectItem value="thin">Thin Stripes</SelectItem>
+                  <SelectItem value="thick">Wide Stripes</SelectItem>
+                  <SelectItem value="halves">Halves</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <Label className="mb-2 block">Starting XI Preview</Label>
@@ -98,29 +134,68 @@ export const AnalysisSchemeSection = ({
               <div className="text-white text-center mb-2 text-lg font-bold">
                 {formData.selected_scheme}
               </div>
-              {formData.starting_xi.map((player: any, index: number) => (
-                <div
-                  key={index}
-                  className="absolute"
-                  style={{
-                    left: `${player.x}%`,
-                    top: `${player.y}%`,
-                    transform: 'translate(-50%, -50%)'
-                  }}
-                >
-                  <svg width="48" height="48" viewBox="0 0 100 100" className="drop-shadow-lg mb-1">
-                    <path d="M30 25 L25 35 L25 65 L30 75 L70 75 L75 65 L75 35 L70 25 Z" fill={formData.kit_primary_color || '#FFD700'} stroke={formData.kit_secondary_color || '#000000'} strokeWidth="3"/>
-                    <rect x="42" y="25" width="16" height="50" fill={formData.kit_secondary_color || '#000000'} opacity="0.8"/>
-                    <circle cx="50" cy="25" r="8" fill={formData.kit_primary_color || '#FFD700'} stroke={formData.kit_secondary_color || '#000000'} strokeWidth="2"/>
-                    <text x="50" y="55" textAnchor="middle" fontSize="24" fontWeight="bold" fill="white" stroke="black" strokeWidth="1.5">
-                      {player.number || '0'}
-                    </text>
-                  </svg>
-                  <div className="bg-black/80 text-white px-1 py-0.5 rounded text-[8px] font-bold text-center whitespace-nowrap">
-                    {player.surname || player.position}
+              {formData.starting_xi.map((player: any, index: number) => {
+                const primaryColor = formData.kit_primary_color || '#FFD700';
+                const secondaryColor = formData.kit_secondary_color || '#000000';
+                const collarColor = formData.kit_collar_color || '#FFFFFF';
+                const numberColor = formData.kit_number_color || '#FFFFFF';
+                const stripeStyle = formData.kit_stripe_style || 'none';
+                
+                // Generate stripe pattern based on style
+                const renderStripes = () => {
+                  switch (stripeStyle) {
+                    case 'thin':
+                      return (
+                        <>
+                          <rect x="35" y="25" width="6" height="50" fill={secondaryColor} opacity="0.9"/>
+                          <rect x="47" y="25" width="6" height="50" fill={secondaryColor} opacity="0.9"/>
+                          <rect x="59" y="25" width="6" height="50" fill={secondaryColor} opacity="0.9"/>
+                        </>
+                      );
+                    case 'thick':
+                      return (
+                        <>
+                          <rect x="30" y="25" width="16" height="50" fill={secondaryColor} opacity="0.9"/>
+                          <rect x="54" y="25" width="16" height="50" fill={secondaryColor} opacity="0.9"/>
+                        </>
+                      );
+                    case 'halves':
+                      return (
+                        <rect x="50" y="25" width="25" height="50" fill={secondaryColor} opacity="0.9"/>
+                      );
+                    default:
+                      return null;
+                  }
+                };
+                
+                return (
+                  <div
+                    key={index}
+                    className="absolute"
+                    style={{
+                      left: `${player.x}%`,
+                      top: `${player.y}%`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  >
+                    <svg width="48" height="48" viewBox="0 0 100 100" className="drop-shadow-lg mb-1">
+                      {/* Kit body */}
+                      <path d="M30 25 L25 35 L25 65 L30 75 L70 75 L75 65 L75 35 L70 25 Z" fill={primaryColor} stroke={collarColor} strokeWidth="3"/>
+                      {/* Stripes based on style */}
+                      {renderStripes()}
+                      {/* Collar */}
+                      <circle cx="50" cy="25" r="8" fill={primaryColor} stroke={collarColor} strokeWidth="2"/>
+                      {/* Number */}
+                      <text x="50" y="55" textAnchor="middle" fontSize="24" fontWeight="bold" fill={numberColor} stroke="black" strokeWidth="1">
+                        {player.number || '0'}
+                      </text>
+                    </svg>
+                    <div className="bg-black/80 text-white px-1 py-0.5 rounded text-[8px] font-bold text-center whitespace-nowrap">
+                      {player.surname || player.position}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">

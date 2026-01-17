@@ -252,6 +252,9 @@ const ContentCard = ({ children, className = "", transparent = false }: { childr
   </div>
 );
 
+// Global flag to prevent auto-open during navigation
+let navigationInProgress = false;
+
 // Section component that auto-opens on scroll DOWN only, closes when scrolling off screen
 const ExpandableSection = ({ 
   title, 
@@ -286,6 +289,9 @@ const ExpandableSection = ({
   // Track scroll direction and auto-open/close
   useEffect(() => {
     const handleScroll = () => {
+      // Don't auto-open during navigation
+      if (navigationInProgress) return;
+      
       const currentScrollY = window.scrollY;
       const isScrollingDown = currentScrollY > lastScrollY;
       setLastScrollY(currentScrollY);
@@ -458,15 +464,13 @@ const AnalysisHeader = ({
   isPostMatch?: boolean;
   onSave?: () => void;
   isSaving?: boolean;
-  playerTeam?: string | null;
+  playerTeam?: string | null; // Now expects "home" or "away"
 }) => {
   const navigate = useNavigate();
   
-  // Determine which team is NOT the player's team (should have 70% opacity)
-  const isHomePlayerTeam = playerTeam && homeTeam && 
-    homeTeam.toLowerCase().includes(playerTeam.toLowerCase());
-  const isAwayPlayerTeam = playerTeam && awayTeam && 
-    awayTeam.toLowerCase().includes(playerTeam.toLowerCase());
+  // Determine which team is the player's team based on explicit selection
+  const isHomePlayerTeam = playerTeam === 'home';
+  const isAwayPlayerTeam = playerTeam === 'away';
   
   return (
     <motion.div 
@@ -663,6 +667,9 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   const handleNavigate = (sectionId: string) => {
     setIsOpen(false);
     
+    // Block auto-open during navigation
+    navigationInProgress = true;
+    
     // First, find and click the section to open it, then INSTANT scroll
     setTimeout(() => {
       const el = document.getElementById(sectionId);
@@ -680,7 +687,14 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
             top: el.offsetTop - 20,
             behavior: 'instant' as ScrollBehavior
           });
+          
+          // Re-enable auto-open after navigation completes
+          setTimeout(() => {
+            navigationInProgress = false;
+          }, 500);
         }, 50);
+      } else {
+        navigationInProgress = false;
       }
     }, 50);
   };
