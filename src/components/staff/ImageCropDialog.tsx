@@ -15,6 +15,7 @@ interface ImageCropDialogProps {
   aspectRatio?: number;
   title?: string;
   showBackgroundRemoval?: boolean;
+  cropHeight?: number; // Optional fixed crop height for landscape crops
 }
 
 // Remove white/light background from image
@@ -93,7 +94,8 @@ export const ImageCropDialog = ({
   onCropComplete,
   aspectRatio = 1,
   title = "Crop Image",
-  showBackgroundRemoval = false
+  showBackgroundRemoval = false,
+  cropHeight
 }: ImageCropDialogProps) => {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -181,6 +183,16 @@ export const ImageCropDialog = ({
         </DialogHeader>
         
         <div className="relative w-full h-[300px] bg-black/90 rounded-lg overflow-hidden">
+          {cropHeight && (
+            <div 
+              className="absolute top-1/2 left-0 right-0 z-10 pointer-events-none flex items-center justify-center"
+              style={{ transform: 'translateY(-50%)' }}
+            >
+              <div className="text-xs text-white/60 bg-black/50 px-2 py-0.5 rounded">
+                Height: {cropHeight}px
+              </div>
+            </div>
+          )}
           <Cropper
             image={imageSrc}
             crop={crop}
