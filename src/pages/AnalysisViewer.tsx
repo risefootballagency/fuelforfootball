@@ -564,10 +564,13 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the right side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase truncate ml-[22vw] mr-[12vw]"
+            className="font-bebas text-white tracking-wide uppercase text-center leading-tight ml-[18vw] mr-[10vw]"
             style={{
-              fontSize: 'clamp(0.625rem, 2.5vw, 1.5rem)',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
+              fontSize: 'clamp(0.6rem, 2.2vw, 1.4rem)',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
+              wordBreak: 'break-word',
+              lineHeight: 1.1,
+              maxWidth: 'calc(50vw - 28vw)'
             }}
           >
             {homeTeam}
@@ -585,10 +588,13 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the left side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase truncate ml-[12vw] mr-[22vw]"
+            className="font-bebas text-white tracking-wide uppercase text-center leading-tight ml-[10vw] mr-[18vw]"
             style={{
-              fontSize: 'clamp(0.625rem, 2.5vw, 1.5rem)',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
+              fontSize: 'clamp(0.6rem, 2.2vw, 1.4rem)',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
+              wordBreak: 'break-word',
+              lineHeight: 1.1,
+              maxWidth: 'calc(50vw - 28vw)'
             }}
           >
             {awayTeam}
@@ -849,68 +855,52 @@ const AnalysisViewer = () => {
     setIsSaving(true);
     toast.info('Preparing PDF... Please wait');
     
-    // Scroll to top before capture
-    window.scrollTo(0, 0);
+    // Store current scroll position
+    const originalScrollY = window.scrollY;
     
     // Add printing attribute to disable animations
     document.body.setAttribute('data-printing', 'true');
     
-    // Wait for React to re-render with all sections open
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Wait for animations to settle
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     try {
       const element = pageRef.current;
       
-      // Force all expandable sections open before measuring
-      const expandableSections = element.querySelectorAll('[data-expandable]');
-      expandableSections.forEach((section: any) => {
-        section.style.display = 'block';
-        section.style.maxHeight = 'none';
-        section.style.overflow = 'visible';
-        section.style.height = 'auto';
-      });
-      
-      // Wait for layout recalculation
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Get the actual content dimensions
-      const rect = element.getBoundingClientRect();
-      const contentWidth = element.offsetWidth;
+      // Get computed dimensions
+      const contentWidth = element.scrollWidth;
       const contentHeight = element.scrollHeight;
       
       const canvas = await html2canvas(element, {
         backgroundColor: '#0a1f0d',
-        scale: 3, // Higher scale for better header quality
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
         width: contentWidth,
         height: contentHeight,
-        x: 0,
-        y: 0,
-        scrollX: 0,
-        scrollY: 0, // Start from absolute top
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
+        windowWidth: contentWidth,
+        windowHeight: contentHeight,
         onclone: (clonedDoc, clonedElement) => {
-          // Hide fixed elements that shouldn't be in PDF
+          // Position cloned element at top
+          clonedElement.style.position = 'absolute';
+          clonedElement.style.top = '0';
+          clonedElement.style.left = '0';
+          clonedElement.style.padding = '0';
+          clonedElement.style.margin = '0';
+          
+          // Hide fixed elements
           const fixedElements = clonedDoc.querySelectorAll('.fixed, [class*="fixed"]');
           fixedElements.forEach((el: any) => {
             el.style.display = 'none';
           });
           
-          // Remove padding from the main container for clean capture
-          clonedElement.style.padding = '0';
-          clonedElement.style.margin = '0';
-          
-          // Add style to disable all animations in the clone
+          // Add comprehensive print styles
           const style = clonedDoc.createElement('style');
           style.textContent = `
             * { 
               animation: none !important; 
               transition: none !important; 
-              opacity: 1 !important;
-              transform: none !important;
             }
             .fixed, [class*="fixed"] {
               display: none !important;
@@ -924,10 +914,10 @@ const AnalysisViewer = () => {
           `;
           clonedDoc.head.appendChild(style);
           
-          // Force visibility on all expandable content
-          const allElements = clonedDoc.querySelectorAll('[data-expandable], [data-expandable] *');
-          allElements.forEach((el: any) => {
-            el.style.display = el.style.display === 'none' ? 'block' : el.style.display;
+          // Force visibility on expandable content
+          const allExpandable = clonedDoc.querySelectorAll('[data-expandable], [data-expandable] *');
+          allExpandable.forEach((el: any) => {
+            if (el.style.display === 'none') el.style.display = 'block';
             el.style.opacity = '1';
             el.style.visibility = 'visible';
             el.style.maxHeight = 'none';
@@ -940,65 +930,31 @@ const AnalysisViewer = () => {
         throw new Error('Canvas is empty');
       }
       
-      // Single page PDF - fit all content on one page with proper aspect ratio
+      // Single page PDF - fit all content
       const pdfWidth = 210; // A4 width in mm
       const aspectRatio = canvas.height / canvas.width;
       const pdfHeight = pdfWidth * aspectRatio;
       
-      // Create single-page PDF with custom height to fit all content
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: [pdfWidth, pdfHeight]
       });
       
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       
-      // Generate the PDF as a blob
-      const pdfBlob = pdf.output('blob');
+      // Only save locally - no cloud upload
       const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.pdf`.replace(/\s+/g, '-').toLowerCase();
+      pdf.save(fileName);
+      toast.success('PDF saved!');
       
-      // Upload to Supabase storage
-      const filePath = `analysis-pdfs/${analysis.id}/${fileName}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('analyses')
-        .upload(filePath, pdfBlob, {
-          contentType: 'application/pdf',
-          upsert: true
-        });
-      
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        // Still save locally if upload fails
-        pdf.save(fileName);
-        toast.warning('PDF saved locally. Cloud upload failed.');
-      } else {
-        // Get the public URL
-        const { data: urlData } = supabase.storage
-          .from('analyses')
-          .getPublicUrl(filePath);
-        
-        // Update the analysis record with the PDF URL
-        const { error: updateError } = await supabase
-          .from('analyses')
-          .update({ pdf_url: urlData.publicUrl })
-          .eq('id', analysis.id);
-        
-        if (updateError) {
-          console.error('Update error:', updateError);
-        }
-        
-        // Also save locally
-        pdf.save(fileName);
-        toast.success('PDF saved and uploaded!');
-      }
     } catch (error) {
       console.error('Error saving PDF:', error);
       toast.error('Failed to save PDF. Please try again.');
     } finally {
       document.body.removeAttribute('data-printing');
+      window.scrollTo(0, originalScrollY);
       setIsSaving(false);
     }
   }, [analysis]);
