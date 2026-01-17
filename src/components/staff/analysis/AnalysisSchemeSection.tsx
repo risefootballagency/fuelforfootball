@@ -130,10 +130,41 @@ export const AnalysisSchemeSection = ({
             </div>
 
             <Label className="mb-2 block">Starting XI Preview</Label>
-            <div className="relative bg-green-700 rounded-lg p-4 sm:p-8 min-h-[300px] sm:min-h-[400px]">
-              <div className="text-white text-center mb-2 text-lg font-bold">
-                {formData.selected_scheme}
+            <div 
+              className="relative rounded-lg overflow-hidden"
+              style={{
+                background: 'linear-gradient(to bottom, #1a472a 0%, #2d5a3d 50%, #1a472a 100%)',
+                minHeight: '400px'
+              }}
+            >
+              {/* Formation name - top left, matching viewer style */}
+              <div className="absolute top-2 left-2 z-20">
+                <div 
+                  className="relative px-3 py-1.5 rounded-md shadow-lg"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 100%)',
+                    border: '2px solid #FFD700',
+                    transform: 'skewX(-5deg)'
+                  }}
+                >
+                  <span 
+                    className="font-bold text-lg tracking-wider uppercase"
+                    style={{ 
+                      color: '#FFD700',
+                      transform: 'skewX(5deg)',
+                      display: 'inline-block'
+                    }}
+                  >
+                    {formData.selected_scheme}
+                  </span>
+                </div>
               </div>
+              
+              {/* Field markings */}
+              <div className="absolute inset-4 border-2 border-white/30 rounded-lg"></div>
+              <div className="absolute inset-x-4 top-1/2 h-0.5 bg-white/30"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-white/30 rounded-full"></div>
+              
               {formData.starting_xi.map((player: any, index: number) => {
                 const primaryColor = formData.kit_primary_color || '#FFD700';
                 const secondaryColor = formData.kit_secondary_color || '#000000';
@@ -171,27 +202,35 @@ export const AnalysisSchemeSection = ({
                 return (
                   <div
                     key={index}
-                    className="absolute"
+                    className="absolute flex flex-col items-center"
                     style={{
                       left: `${player.x}%`,
                       top: `${player.y}%`,
                       transform: 'translate(-50%, -50%)'
                     }}
                   >
-                    <svg width="48" height="48" viewBox="0 0 100 100" className="drop-shadow-lg mb-1">
-                      {/* Kit body */}
-                      <path d="M30 25 L25 35 L25 65 L30 75 L70 75 L75 65 L75 35 L70 25 Z" fill={primaryColor} stroke={collarColor} strokeWidth="3"/>
+                    <svg width="40" height="40" viewBox="0 0 100 100" className="drop-shadow-lg">
+                      {/* Kit body - V-neck style */}
+                      <path d="M25 30 L20 40 L20 70 L25 78 L75 78 L80 70 L80 40 L75 30 L60 20 L50 28 L40 20 Z" fill={primaryColor} stroke={collarColor} strokeWidth="2"/>
                       {/* Stripes based on style */}
                       {renderStripes()}
-                      {/* Collar */}
-                      <circle cx="50" cy="25" r="8" fill={primaryColor} stroke={collarColor} strokeWidth="2"/>
+                      {/* V-neck collar */}
+                      <path d="M40 20 L50 32 L60 20" fill="none" stroke={collarColor} strokeWidth="3" strokeLinecap="round"/>
                       {/* Number */}
-                      <text x="50" y="55" textAnchor="middle" fontSize="24" fontWeight="bold" fill={numberColor} stroke="black" strokeWidth="1">
+                      <text x="50" y="58" textAnchor="middle" fontSize="22" fontWeight="bold" fill={numberColor} stroke="black" strokeWidth="0.5">
                         {player.number || '0'}
                       </text>
                     </svg>
-                    <div className="bg-black/80 text-white px-1 py-0.5 rounded text-[8px] font-bold text-center whitespace-nowrap">
-                      {player.surname || player.position}
+                    {/* Player name with gold styling like viewer */}
+                    <div 
+                      className="px-1.5 py-0.5 rounded text-[9px] font-bold text-center whitespace-nowrap mt-0.5"
+                      style={{
+                        color: '#FFD700',
+                        textShadow: '0 0 8px rgba(255, 215, 0, 0.6), 2px 2px 4px rgba(0,0,0,0.8)',
+                        borderBottom: '1px solid #FFD700'
+                      }}
+                    >
+                      {player.surname?.toUpperCase() || player.position}
                     </div>
                   </div>
                 );

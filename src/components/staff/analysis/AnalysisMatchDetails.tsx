@@ -448,8 +448,8 @@ export const AnalysisMatchDetails = ({
       onOpenChange={setCropDialogOpen}
       imageSrc={cropImageSrc}
       onCropComplete={handleCropComplete}
-      aspectRatio={cropField === 'match_image_url' ? 16/9 : undefined}
-      title={cropField === 'match_image_url' ? 'Crop Match Image (16:9, max 400px height)' : 'Adjust Logo Position'}
+      aspectRatio={cropField === 'match_image_url' ? 16/9 : 1}
+      title={cropField === 'match_image_url' ? 'Crop Match Image (16:9, max 400px height)' : 'Adjust Logo Position (Square)'}
       cropHeight={cropField === 'match_image_url' ? 400 : undefined}
       showBackgroundRemoval={cropField !== 'match_image_url'}
     />

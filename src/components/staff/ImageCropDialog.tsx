@@ -206,7 +206,10 @@ export const ImageCropDialog = ({
             onZoomChange={onZoomChange}
             onCropComplete={onCropAreaChange}
             showGrid={true}
-            minZoom={isFlexibleAspect ? 0.5 : 1}
+            minZoom={0.3}
+            maxZoom={5}
+            objectFit="contain"
+            restrictPosition={false}
           />
         </div>
         
@@ -216,9 +219,9 @@ export const ImageCropDialog = ({
             <Slider
               value={[zoom]}
               onValueChange={(values) => setZoom(values[0])}
-              min={isFlexibleAspect ? 0.5 : 1}
-              max={3}
-              step={0.1}
+              min={0.3}
+              max={5}
+              step={0.05}
               className="w-full"
             />
           </div>

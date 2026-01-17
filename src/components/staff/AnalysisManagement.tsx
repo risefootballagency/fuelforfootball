@@ -352,10 +352,14 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
   const handleSchemeChange = (scheme: string) => {
     const template = formationTemplates[scheme];
+    const existingXI = formData.starting_xi || [];
+    
+    // Preserve existing player data - map by index order
     const startingXI = template.map((pos, idx) => ({
       ...pos,
-      surname: "",
-      number: "",
+      // Keep existing surname and number if available at this index
+      surname: existingXI[idx]?.surname || "",
+      number: existingXI[idx]?.number || "",
       id: idx
     }));
     setFormData({ ...formData, selected_scheme: scheme, starting_xi: startingXI });

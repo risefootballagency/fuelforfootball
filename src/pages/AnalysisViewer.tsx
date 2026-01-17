@@ -551,15 +551,16 @@ const AnalysisHeader = ({
 
         {/* Left Side - Home Team Color */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-center"
+          className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex items-center"
           style={{ 
             backgroundColor: homeBgColor || '#1a1a1a',
             clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)',
             opacity: isAwayPlayerTeam && !isHomePlayerTeam ? 0.7 : 1
           }}
         >
+          {/* Team name with proper margins to avoid logo overlap */}
           <span 
-            className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center"
+            className="text-sm sm:text-base md:text-xl lg:text-2xl font-bebas text-white tracking-wide uppercase text-center truncate pl-[18vw] pr-4 w-full"
             style={{
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
@@ -570,15 +571,16 @@ const AnalysisHeader = ({
 
         {/* Right Side - Away Team Color */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-center"
+          className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex items-center"
           style={{ 
             backgroundColor: awayBgColor || '#8B0000',
             clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)',
             opacity: isHomePlayerTeam && !isAwayPlayerTeam ? 0.7 : 1
           }}
         >
+          {/* Team name with proper margins to avoid logo overlap */}
           <span 
-            className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center"
+            className="text-sm sm:text-base md:text-xl lg:text-2xl font-bebas text-white tracking-wide uppercase text-center truncate pl-4 pr-[18vw] w-full"
             style={{
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
@@ -670,33 +672,42 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
     // Block auto-open during navigation
     navigationInProgress = true;
     
-    // First, find and click the section to open it, then INSTANT scroll
-    setTimeout(() => {
+    // Use requestAnimationFrame for smoother navigation
+    requestAnimationFrame(() => {
       const el = document.getElementById(sectionId);
       if (el) {
-        // Find the button inside the section and click it to open if closed
-        const sectionButton = el.querySelector('button');
-        if (sectionButton) {
-          // Always click to ensure section is open
-          sectionButton.click();
-        }
+        // First scroll to position the element
+        const targetY = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({
+          top: targetY,
+          behavior: 'instant' as ScrollBehavior
+        });
         
-        // Immediately scroll to section (instant, not smooth)
-        setTimeout(() => {
-          window.scrollTo({
-            top: el.offsetTop - 20,
-            behavior: 'instant' as ScrollBehavior
-          });
+        // Then click the button to open the section after scrolling
+        requestAnimationFrame(() => {
+          const sectionButton = el.querySelector('button');
+          if (sectionButton) {
+            sectionButton.click();
+          }
           
-          // Re-enable auto-open after navigation completes
+          // Final scroll adjustment after section opens
           setTimeout(() => {
-            navigationInProgress = false;
-          }, 500);
-        }, 50);
+            const newTargetY = el.getBoundingClientRect().top + window.scrollY - 80;
+            window.scrollTo({
+              top: newTargetY,
+              behavior: 'instant' as ScrollBehavior
+            });
+            
+            // Re-enable auto-open after navigation completes
+            setTimeout(() => {
+              navigationInProgress = false;
+            }, 800);
+          }, 150);
+        });
       } else {
         navigationInProgress = false;
       }
-    }, 50);
+    });
   };
 
   return (
