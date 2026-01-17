@@ -391,11 +391,7 @@ const AnalysisHeader = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Top gold border that connects with side lines - at 6px from edge, same 2px thickness */}
-      <div 
-        className="absolute top-0 left-[6px] right-[6px] h-[2px] z-20"
-        style={{ backgroundColor: BRAND.gold }}
-      />
+      {/* Top gold border removed as requested */}
       
       {/* Top section - COMPACT, with buttons integrated */}
       <div 
@@ -411,24 +407,24 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - top left */}
+        {/* Back button - aligned with home club logo x-axis */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-3 top-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
+          className="absolute left-2 md:left-4 bottom-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
         >
           <ArrowLeft className="w-3 h-3 mr-1" />
           Back
         </Button>
         
-        {/* Save button - top right */}
+        {/* Save button - aligned with away club logo x-axis */}
         {onSave && (
           <Button
             onClick={onSave}
             disabled={isSaving}
             size="sm"
-            className="absolute right-3 top-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
+            className="absolute right-2 md:right-4 bottom-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
             style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Download className="w-3 h-3 mr-1" />
@@ -454,11 +450,11 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Team colors bar with logos BEHIND the color containers - blue smoky background behind VS */}
+      {/* Team colors bar with logos BEHIND the color containers - dark green background behind VS */}
       <div 
         className="relative h-10 md:h-14 overflow-visible"
         style={{
-          backgroundColor: '#2596be'
+          backgroundColor: '#0a2e12'
         }}
       >
         {/* Top fade */}
@@ -523,13 +519,13 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Match Date Line - ONLY date, compact, DARKER brand green */}
+      {/* Match Date Line - ONLY date, compact, DARKER brand green, italic and larger */}
       {matchDate && (
         <div 
           className="text-center py-2"
           style={{ backgroundColor: '#0a2e12' }}
         >
-          <span className="text-white font-bebas tracking-wider text-sm md:text-base">
+          <span className="text-white font-bebas tracking-wider text-base md:text-lg italic">
             {new Date(matchDate).toLocaleDateString('en-GB', {
               weekday: 'long',
               day: '2-digit',
@@ -570,12 +566,28 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
 
   const handleNavigate = (sectionId: string) => {
     setIsOpen(false);
+    
+    // First, find and click the section to open it, then scroll
     setTimeout(() => {
       const el = document.getElementById(sectionId);
       if (el) {
-        el.scrollIntoView({ behavior: 'instant', block: 'start' });
+        // Find the button inside the section and click it to open if closed
+        const sectionButton = el.querySelector('button');
+        if (sectionButton) {
+          // Check if the section content is visible (has expanded content)
+          const content = el.querySelector('[data-state="open"], .motion-safe\\:animate-accordion-down');
+          if (!content) {
+            // Section is closed, click to open
+            sectionButton.click();
+          }
+        }
+        
+        // Wait for animation to complete, then scroll
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
       }
-    }, 50);
+    }, 100);
   };
 
   return (
@@ -1063,22 +1075,22 @@ const AnalysisViewer = () => {
                         }}
                       />
                       
-                      {/* Secondary transparent arch (outer) */}
+                      {/* Secondary transparent arch (outer) - curves DOWN */}
                       <svg 
                         className="absolute bottom-0 left-0 right-0 w-full h-full"
                         viewBox="0 0 400 70" 
                         preserveAspectRatio="none"
                       >
-                        <path d="M0,70 L0,45 Q200,0 400,45 L400,70 Z" fill="rgba(253,198,27,0.25)" />
+                        <path d="M0,0 Q200,55 400,0 L400,70 L0,70 Z" fill="rgba(253,198,27,0.25)" />
                       </svg>
                       
-                      {/* Main gold upward arch */}
+                      {/* Main gold arch - curves DOWN like reference image */}
                       <svg 
                         className="absolute bottom-0 left-0 right-0 w-full h-full"
                         viewBox="0 0 400 70" 
                         preserveAspectRatio="none"
                       >
-                        <path d="M0,70 L0,55 Q200,15 400,55 L400,70 Z" fill="#fdc61b" />
+                        <path d="M0,10 Q200,70 400,10 L400,70 L0,70 Z" fill="#fdc61b" />
                       </svg>
                     </div>
                   </div>
