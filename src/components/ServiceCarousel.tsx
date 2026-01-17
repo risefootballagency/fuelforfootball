@@ -78,18 +78,18 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
   if (products.length === 0) return null;
 
   return (
-    <div className="relative group">
+    <div className="relative group h-full flex flex-col">
       {/* Carousel Container */}
-      <div ref={emblaRef} className="overflow-hidden rounded-lg">
-        <div className="flex">
+      <div ref={emblaRef} className="overflow-hidden rounded-lg flex-grow">
+        <div className="flex h-full">
           {products.map((product, index) => (
             <div
               key={index}
-              className="flex-[0_0_100%] min-w-0 px-0"
+              className="flex-[0_0_100%] min-w-0 px-0 h-full"
             >
               {/* Desktop: Side by side layout */}
-              <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300">
-                <div className="flex flex-col md:flex-row">
+              <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300 h-full">
+                <div className="flex flex-col md:flex-row h-full">
                   {/* Square Image - Half width on desktop */}
                   <div className="w-full md:w-1/2 aspect-square overflow-hidden bg-muted relative flex-shrink-0">
                     <img 
