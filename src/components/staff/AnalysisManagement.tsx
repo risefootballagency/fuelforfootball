@@ -48,6 +48,10 @@ interface Analysis {
   starting_xi?: any[];
   kit_primary_color?: string | null;
   kit_secondary_color?: string | null;
+  kit_collar_color?: string | null;
+  kit_number_color?: string | null;
+  kit_stripe_style?: string | null;
+  player_team?: string | null;
   scheme_title?: string | null;
   scheme_paragraph_1?: string | null;
   scheme_paragraph_2?: string | null;
@@ -485,7 +489,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
       // Cast formData to any to handle extended fields not in the Analysis type
       const extendedFormData = formData as any;
       
-      // Exclude UI-only fields that may not exist in the shared database schema
+      // Separate new fields that may not exist in shared database
       const { 
         kit_collar_color, 
         kit_number_color, 
@@ -494,37 +498,68 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
         ...restFormData 
       } = extendedFormData;
       
-      // Include these fields only if the database supports them (graceful degradation)
-      const dataToSave = {
+      // Try to save with all fields first
+      const dataToSaveWithNewFields = {
         ...restFormData,
         analysis_type: analysisType,
-        // Include new kit fields - they'll be ignored if columns don't exist
         kit_collar_color,
         kit_number_color,
         kit_stripe_style,
         player_team,
       };
+      
+      // Fallback data without new fields
+      const dataToSaveWithoutNewFields = {
+        ...restFormData,
+        analysis_type: analysisType,
+      };
 
       let analysisId = editingAnalysis?.id;
 
       if (editingAnalysis) {
-        const { error } = await supabase
+        // Try with new fields first
+        let { error } = await supabase
           .from("analyses")
-          .update(dataToSave)
+          .update(dataToSaveWithNewFields)
           .eq("id", editingAnalysis.id);
 
-        if (error) throw error;
-        toast.success("Analysis updated successfully");
+        // If error (columns don't exist in shared DB), retry without new fields
+        if (error) {
+          console.warn("Save with new fields failed, retrying without:", error.message);
+          const fallbackResult = await supabase
+            .from("analyses")
+            .update(dataToSaveWithoutNewFields)
+            .eq("id", editingAnalysis.id);
+          
+          if (fallbackResult.error) throw fallbackResult.error;
+          toast.success("Analysis updated (some kit options not saved - shared DB needs migration)");
+        } else {
+          toast.success("Analysis updated successfully");
+        }
       } else {
-        const { data, error } = await supabase
+        // Try with new fields first
+        let { data, error } = await supabase
           .from("analyses")
-          .insert([dataToSave])
+          .insert([dataToSaveWithNewFields])
           .select()
           .single();
 
-        if (error) throw error;
-        analysisId = data.id;
-        toast.success("Analysis created successfully");
+        // If error, retry without new fields
+        if (error) {
+          console.warn("Insert with new fields failed, retrying without:", error.message);
+          const fallbackResult = await supabase
+            .from("analyses")
+            .insert([dataToSaveWithoutNewFields])
+            .select()
+            .single();
+          
+          if (fallbackResult.error) throw fallbackResult.error;
+          analysisId = fallbackResult.data.id;
+          toast.success("Analysis created (some kit options not saved - shared DB needs migration)");
+        } else {
+          analysisId = data.id;
+          toast.success("Analysis created successfully");
+        }
       }
 
       if (selectedPerformanceReportId && selectedPerformanceReportId !== "none" && analysisId) {

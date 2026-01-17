@@ -37,6 +37,10 @@ interface Analysis {
   starting_xi: any;
   kit_primary_color: string | null;
   kit_secondary_color: string | null;
+  kit_collar_color: string | null;
+  kit_number_color: string | null;
+  kit_stripe_style: string | null;
+  player_team: string | null;
   key_details: string | null;
   opposition_strengths: string | null;
   opposition_weaknesses: string | null;
@@ -252,8 +256,8 @@ const ContentCard = ({ children, className = "", transparent = false }: { childr
   </div>
 );
 
-// Global flag to prevent auto-open during navigation
-let navigationInProgress = false;
+// Global flag to prevent auto-open during navigation - persists until page refresh
+let navigationUsed = false;
 
 // Section component that auto-opens on scroll DOWN only, closes when scrolling off screen
 const ExpandableSection = ({ 
@@ -289,8 +293,8 @@ const ExpandableSection = ({
   // Track scroll direction and auto-open/close
   useEffect(() => {
     const handleScroll = () => {
-      // Don't auto-open during navigation
-      if (navigationInProgress) return;
+      // Disable ALL auto-open/close if navigation was ever used (until page refresh)
+      if (navigationUsed) return;
       
       const currentScrollY = window.scrollY;
       const isScrollingDown = currentScrollY > lastScrollY;
@@ -558,9 +562,9 @@ const AnalysisHeader = ({
             opacity: isAwayPlayerTeam && !isHomePlayerTeam ? 0.7 : 1
           }}
         >
-          {/* Team name with proper margins to avoid logo overlap */}
+        {/* Team name with proper margins to avoid logo overlap */}
           <span 
-            className="text-sm sm:text-base md:text-xl lg:text-2xl font-bebas text-white tracking-wide uppercase text-center truncate pl-[18vw] pr-4 w-full"
+            className="text-[10px] xs:text-xs sm:text-sm md:text-lg lg:text-xl font-bebas text-white tracking-wide uppercase text-center truncate pl-[20vw] pr-2 w-full"
             style={{
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
@@ -578,9 +582,9 @@ const AnalysisHeader = ({
             opacity: isHomePlayerTeam && !isAwayPlayerTeam ? 0.7 : 1
           }}
         >
-          {/* Team name with proper margins to avoid logo overlap */}
+        {/* Team name with proper margins to avoid logo overlap */}
           <span 
-            className="text-sm sm:text-base md:text-xl lg:text-2xl font-bebas text-white tracking-wide uppercase text-center truncate pl-4 pr-[18vw] w-full"
+            className="text-[10px] xs:text-xs sm:text-sm md:text-lg lg:text-xl font-bebas text-white tracking-wide uppercase text-center truncate pl-2 pr-[20vw] w-full"
             style={{
               textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
@@ -669,8 +673,8 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   const handleNavigate = (sectionId: string) => {
     setIsOpen(false);
     
-    // Block auto-open during navigation
-    navigationInProgress = true;
+    // Permanently disable auto-open once navigation is used (persists until refresh)
+    navigationUsed = true;
     
     // Use requestAnimationFrame for smoother navigation
     requestAnimationFrame(() => {
@@ -697,15 +701,8 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
               top: newTargetY,
               behavior: 'instant' as ScrollBehavior
             });
-            
-            // Re-enable auto-open after navigation completes
-            setTimeout(() => {
-              navigationInProgress = false;
-            }, 800);
           }, 150);
         });
-      } else {
-        navigationInProgress = false;
       }
     });
   };
@@ -874,7 +871,7 @@ const AnalysisViewer = () => {
       
       const canvas = await html2canvas(element, {
         backgroundColor: '#0a1f0d',
-        scale: 2,
+        scale: 3, // Higher scale for better header quality
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -883,7 +880,9 @@ const AnalysisViewer = () => {
         x: 0,
         y: 0,
         scrollX: 0,
-        scrollY: -window.scrollY,
+        scrollY: 0, // Start from absolute top
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
         onclone: (clonedDoc, clonedElement) => {
           // Hide fixed elements that shouldn't be in PDF
           const fixedElements = clonedDoc.querySelectorAll('.fixed, [class*="fixed"]');
@@ -1060,6 +1059,10 @@ const AnalysisViewer = () => {
         starting_xi: Array.isArray(data.starting_xi) ? data.starting_xi : [],
         kit_primary_color: data.kit_primary_color || '#FFD700',
         kit_secondary_color: data.kit_secondary_color || '#000000',
+        kit_collar_color: data.kit_collar_color || '#FFFFFF',
+        kit_number_color: data.kit_number_color || '#FFFFFF',
+        kit_stripe_style: data.kit_stripe_style || 'none',
+        player_team: data.player_team || null,
         matchups: Array.isArray(data.matchups) ? data.matchups : [],
         points: Array.isArray(data.points) ? data.points : []
       };
@@ -1177,7 +1180,7 @@ const AnalysisViewer = () => {
               matchDate={analysis.match_date}
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
-              playerTeam={analysis.player_name}
+              playerTeam={analysis.player_team}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - arch directly on bottom of image */}
@@ -1636,7 +1639,7 @@ const AnalysisViewer = () => {
               isPostMatch
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
-              playerTeam={analysis.player_name}
+              playerTeam={analysis.player_team}
             />
 
             {/* Player Image with Premium Gold Arch Frame */}
