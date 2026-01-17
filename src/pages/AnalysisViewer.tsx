@@ -986,7 +986,14 @@ const AnalysisViewer = () => {
             {/* Player/Match Image with Premium Gold Arch Frame */}
             {(analysis.player_image_url || analysis.match_image_url) && (
               <ScrollReveal className="w-full">
-                <div className="relative w-full overflow-hidden">
+                <div 
+                  className="relative w-full overflow-hidden"
+                  style={{
+                    backgroundImage: `url('/analysis-page-bg.png')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
                   {/* Image container - square aspect ratio */}
                   <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
                     <img
@@ -998,33 +1005,33 @@ const AnalysisViewer = () => {
                     {/* Thick Gold Arch Frame at bottom */}
                     <svg 
                       className="absolute bottom-0 left-0 right-0 w-full"
-                      style={{ height: '20%' }}
-                      viewBox="0 0 400 80" 
+                      style={{ height: '15%' }}
+                      viewBox="0 0 400 60" 
                       preserveAspectRatio="none"
                     >
-                      <path d="M0,80 L0,60 Q200,0 400,60 L400,80 Z" fill="#fdc61b" />
-                      <path d="M0,80 L0,68 Q200,12 400,68 L400,80 Z" fill="#0a1f0d" />
+                      <path d="M0,60 L0,50 Q200,5 400,50 L400,60 Z" fill="#fdc61b" />
                     </svg>
                   </div>
                   
-                  {/* Grass background with player name */}
-                  <div 
-                    className="relative py-6 md:py-10"
-                    style={{
-                      backgroundImage: `url('/analysis-grass-bg.png')`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center top',
-                      marginTop: '-2px'
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/60 pointer-events-none" />
-                    <div className="relative text-center px-4">
-                      <h2 
-                        className="text-3xl md:text-5xl lg:text-6xl font-bebas uppercase tracking-[0.2em] drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
-                        style={{ color: '#fdc61b' }}
-                      >
-                        <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
-                      </h2>
+                  {/* Player name - same style as point titles */}
+                  <div className="px-4 py-6 md:py-8">
+                    <div 
+                      className="relative rounded-lg overflow-hidden mx-auto max-w-2xl"
+                      style={{
+                        backgroundImage: `url('/analysis-grass-bg.png')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        border: `2px solid ${BRAND.gold}`
+                      }}
+                    >
+                      <div className="py-3 md:py-4 px-4">
+                        <h2 
+                          className="text-2xl md:text-3xl lg:text-4xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
+                          style={{ color: BRAND.gold }}
+                        >
+                          <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
+                        </h2>
+                      </div>
                     </div>
                   </div>
                 </div>
