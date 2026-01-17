@@ -9,8 +9,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { HoverText } from "@/components/HoverText";
 import { AnalysisVideo } from "@/components/AnalysisVideo";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
+import { exportAnalysisPdf } from "@/lib/analysisPdfExport";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -850,111 +849,18 @@ const AnalysisViewer = () => {
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
 
   const handleSaveAsPdf = useCallback(async () => {
-    if (!pageRef.current || !analysis) return;
+    if (!analysis) return;
     
     setIsSaving(true);
-    toast.info('Preparing PDF... Please wait');
-    
-    // Store current scroll position
-    const originalScrollY = window.scrollY;
-    
-    // Add printing attribute to disable animations
-    document.body.setAttribute('data-printing', 'true');
-    
-    // Wait for animations to settle
-    await new Promise(resolve => setTimeout(resolve, 500));
+    toast.info('Generating PDF...');
     
     try {
-      const element = pageRef.current;
-      
-      // Get computed dimensions
-      const contentWidth = element.scrollWidth;
-      const contentHeight = element.scrollHeight;
-      
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#0a1f0d',
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        width: contentWidth,
-        height: contentHeight,
-        windowWidth: contentWidth,
-        windowHeight: contentHeight,
-        onclone: (clonedDoc, clonedElement) => {
-          // Position cloned element at top
-          clonedElement.style.position = 'absolute';
-          clonedElement.style.top = '0';
-          clonedElement.style.left = '0';
-          clonedElement.style.padding = '0';
-          clonedElement.style.margin = '0';
-          
-          // Hide fixed elements
-          const fixedElements = clonedDoc.querySelectorAll('.fixed, [class*="fixed"]');
-          fixedElements.forEach((el: any) => {
-            el.style.display = 'none';
-          });
-          
-          // Add comprehensive print styles
-          const style = clonedDoc.createElement('style');
-          style.textContent = `
-            * { 
-              animation: none !important; 
-              transition: none !important; 
-            }
-            .fixed, [class*="fixed"] {
-              display: none !important;
-            }
-            [data-expandable] {
-              display: block !important;
-              max-height: none !important;
-              overflow: visible !important;
-              height: auto !important;
-            }
-          `;
-          clonedDoc.head.appendChild(style);
-          
-          // Force visibility on expandable content
-          const allExpandable = clonedDoc.querySelectorAll('[data-expandable], [data-expandable] *');
-          allExpandable.forEach((el: any) => {
-            if (el.style.display === 'none') el.style.display = 'block';
-            el.style.opacity = '1';
-            el.style.visibility = 'visible';
-            el.style.maxHeight = 'none';
-            el.style.overflow = 'visible';
-          });
-        }
-      });
-      
-      if (canvas.width === 0 || canvas.height === 0) {
-        throw new Error('Canvas is empty');
-      }
-      
-      // Single page PDF - fit all content
-      const pdfWidth = 210; // A4 width in mm
-      const aspectRatio = canvas.height / canvas.width;
-      const pdfHeight = pdfWidth * aspectRatio;
-      
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: [pdfWidth, pdfHeight]
-      });
-      
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      
-      // Only save locally - no cloud upload
-      const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.pdf`.replace(/\s+/g, '-').toLowerCase();
-      pdf.save(fileName);
+      await exportAnalysisPdf(analysis);
       toast.success('PDF saved!');
-      
     } catch (error) {
-      console.error('Error saving PDF:', error);
-      toast.error('Failed to save PDF. Please try again.');
+      console.error('PDF export error:', error);
+      toast.error('Failed to generate PDF');
     } finally {
-      document.body.removeAttribute('data-printing');
-      window.scrollTo(0, originalScrollY);
       setIsSaving(false);
     }
   }, [analysis]);
