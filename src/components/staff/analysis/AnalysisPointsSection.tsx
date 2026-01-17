@@ -134,7 +134,7 @@ export const AnalysisPointsSection = ({
               )}
 
               <div>
-                <Label>Images</Label>
+                <Label>Images (Optional)</Label>
                 <Input
                   type="file"
                   accept="image/*"
