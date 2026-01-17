@@ -31,7 +31,7 @@ interface AnalysisData {
   keyDetails: string;
   oppositionStrengths: string;
   oppositionWeaknesses: string;
-  matchups: { name?: string; number?: string; notes?: string; image_url?: string }[];
+  matchups: { name?: string; shirt_number?: string; notes?: string; image_url?: string }[];
   scheme: {
     title: string;
     formation: string;
@@ -272,7 +272,7 @@ export async function exportAnalysisPdf(
       pdf.setTextColor(...BRAND.black);
       
       const displayName = matchup.name?.toUpperCase() || 'PLAYER';
-      const displayNumber = matchup.number ? ` #${matchup.number}` : '';
+      const displayNumber = matchup.shirt_number ? ` #${matchup.shirt_number}` : '';
       pdf.text(`${displayName}${displayNumber}`, PAGE.margin + 5, y + 8);
       
       // Notes
