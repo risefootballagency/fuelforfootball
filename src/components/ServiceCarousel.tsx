@@ -11,6 +11,7 @@ interface Product {
   link: string;
   price?: number;
   currency?: string;
+  description?: string;
 }
 
 interface ServiceCarouselProps {
@@ -101,9 +102,14 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                   {/* Content - Half width on desktop */}
                   <div className="w-full md:w-1/2 p-4 md:p-6 flex flex-col justify-between bg-card">
                     <div>
-                      <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-3">
+                      <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-2">
                         {product.title}
                       </h4>
+                      {product.description && (
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+                          {product.description}
+                        </p>
+                      )}
                       {product.price && (
                         <p className="text-accent font-semibold mb-4">
                           {product.currency || "£"}{product.price}

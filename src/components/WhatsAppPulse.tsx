@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 interface WhatsAppPulseProps {
   /** Delay before showing in ms */
@@ -71,7 +71,7 @@ export const WhatsAppPulse = ({
           }}
         />
         <span className="relative z-10 flex items-center gap-3">
-          <MessageCircle className="w-5 h-5" />
+          <FaWhatsapp className="w-5 h-5" />
           <span>{message}</span>
           {showUrgency && (
             <span className="text-xs opacity-80 normal-case font-sans">• Response in minutes</span>
@@ -121,7 +121,7 @@ export const WhatsAppPulse = ({
             <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />
             <span className="absolute inset-0 rounded-full bg-[#25D366] animate-pulse opacity-20" style={{ animationDelay: "0.5s" }} />
             
-            <MessageCircle className={`${iconSizes[size]} text-white relative z-10`} />
+            <FaWhatsapp className={`${iconSizes[size]} text-white relative z-10`} />
           </a>
         </motion.div>
       )}
