@@ -1379,13 +1379,18 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
             />
 
-            {/* Quick Nav Dropdown - hidden when saving */}
-            {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
-
             {/* Player Image with Premium Gold Arch Frame */}
             {analysis.player_image_url && (
               <ScrollReveal className="w-full">
                 <div className="relative w-full overflow-hidden">
+                  {/* Green fade gradient overlay - layered on top of match image */}
+                  <div 
+                    className="absolute inset-x-0 top-0 h-32 md:h-48 z-10 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(to bottom, #0a2e12 0%, transparent 100%)'
+                    }}
+                  />
+                  
                   {/* Player image container - square aspect ratio */}
                   <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
                     <img
@@ -1397,18 +1402,18 @@ const AnalysisViewer = () => {
                     {/* Thick Gold Arch Frame at bottom - creates the premium curved border effect */}
                     <svg 
                       className="absolute bottom-0 left-0 right-0 w-full"
-                      style={{ height: '20%' }}
-                      viewBox="0 0 400 80" 
+                      style={{ height: '60%' }}
+                      viewBox="0 0 400 240" 
                       preserveAspectRatio="none"
                     >
                       {/* Background fill that connects to the grass section */}
                       <path
-                        d="M0,80 L0,60 Q200,0 400,60 L400,80 Z"
+                        d="M0,240 L0,180 Q200,0 400,180 L400,240 Z"
                         fill={BRAND.gold}
                       />
                       {/* Inner curve for thickness effect */}
                       <path
-                        d="M0,80 L0,68 Q200,12 400,68 L400,80 Z"
+                        d="M0,240 L0,204 Q200,36 400,204 L400,240 Z"
                         fill="#0a1f0d"
                       />
                     </svg>
@@ -1440,6 +1445,9 @@ const AnalysisViewer = () => {
                 </div>
               </ScrollReveal>
             )}
+
+            {/* Quick Nav Dropdown - hidden when saving, positioned below player name */}
+            {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
             {/* Overview */}
             {analysis.key_details && (
