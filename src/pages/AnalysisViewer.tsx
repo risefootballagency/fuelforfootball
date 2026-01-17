@@ -7,7 +7,9 @@ import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { HoverText } from "@/components/HoverText";
 import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +50,7 @@ interface Analysis {
   explanation: string | null;
   points: any;
   video_url: string | null;
+  player_name: string | null;
 }
 
 // Brand colors - GLOBAL TOKENS
@@ -131,11 +134,11 @@ const TacticalSymbols = () => (
   </svg>
 );
 
-// Section title with grass image background - NO GREEN CAP, with gold border and hover effect
+// Section title with grass image background - with scroll letter effect on hover
 const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => (
   <div className="relative mb-4">
     <div 
-      className="relative rounded-lg overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer group"
+      className="relative rounded-lg overflow-hidden cursor-pointer group"
       style={{
         backgroundImage: `url('/analysis-grass-bg.png')`,
         backgroundSize: 'cover',
@@ -146,16 +149,16 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
       <div className="py-3 md:py-4 px-4">
         <div className="flex items-center justify-center gap-3">
           {icon === "plus" && (
-            <Plus className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:scale-110" style={{ color: BRAND.gold }} />
+            <Plus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
           )}
           {icon === "minus" && (
-            <Minus className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:scale-110" style={{ color: BRAND.gold }} />
+            <Minus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
           )}
           <h2 
-            className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center drop-shadow-md transition-all duration-300 group-hover:tracking-[0.2em]"
+            className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
             style={{ color: BRAND.gold }}
           >
-            {title}
+            <HoverText text={title} />
           </h2>
         </div>
       </div>
@@ -655,13 +658,13 @@ const AnalysisViewer = () => {
   // Extract the UUID from the slug (supports both old UUID-only and new team-vs-team-uuid formats)
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
 
-  const handleSaveAsImage = useCallback(async () => {
+  const handleSaveAsPdf = useCallback(async () => {
     if (!pageRef.current || !analysis) return;
     
     setIsSaving(true);
     
     // Wait for React to re-render with all sections open
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     try {
       const canvas = await html2canvas(pageRef.current, {
@@ -669,30 +672,32 @@ const AnalysisViewer = () => {
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        logging: false
+        logging: false,
+        windowHeight: pageRef.current.scrollHeight,
+        height: pageRef.current.scrollHeight
       });
       
-      // Convert to blob for proper file download
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.webp`;
-          link.download = fileName.replace(/\s+/g, '-').toLowerCase();
-          link.href = url;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          toast.success('Analysis saved as WebP!');
-        } else {
-          toast.error('Failed to create image');
-        }
-        setIsSaving(false);
-      }, 'image/webp', 0.9);
+      // Calculate PDF dimensions (A4 width, dynamic height)
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      const pdf = new jsPDF({
+        orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: [imgWidth, imgHeight]
+      });
+      
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      
+      const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.pdf`;
+      pdf.save(fileName.replace(/\s+/g, '-').toLowerCase());
+      
+      toast.success('Analysis saved as PDF!');
     } catch (error) {
-      console.error('Error saving image:', error);
-      toast.error('Failed to save image');
+      console.error('Error saving PDF:', error);
+      toast.error('Failed to save PDF');
+    } finally {
       setIsSaving(false);
     }
   }, [analysis]);
@@ -843,7 +848,7 @@ const AnalysisViewer = () => {
               homeBgColor={analysis.home_team_bg_color}
               awayBgColor={analysis.away_team_bg_color}
               matchDate={analysis.match_date}
-              onSave={handleSaveAsImage}
+              onSave={handleSaveAsPdf}
               isSaving={isSaving}
             />
 
@@ -1089,22 +1094,62 @@ const AnalysisViewer = () => {
               awayScore={analysis.away_score}
               matchDate={analysis.match_date}
               isPostMatch
-              onSave={handleSaveAsImage}
+              onSave={handleSaveAsPdf}
               isSaving={isSaving}
             />
 
             {/* Quick Nav Dropdown - hidden when saving */}
             {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
-            {/* Player Image - square: width determines height */}
+            {/* Player Image with curved gold frame and name */}
             {analysis.player_image_url && (
               <ScrollReveal className="w-full">
-                <div className="w-full overflow-hidden" style={{ paddingBottom: '100%', position: 'relative' }}>
-                  <img
-                    src={analysis.player_image_url}
-                    alt="Player"
-                    className="absolute inset-0 w-full h-full object-cover object-top"
-                  />
+                <div className="relative w-full">
+                  {/* Player image container - square */}
+                  <div className="w-full overflow-hidden" style={{ paddingBottom: '100%', position: 'relative' }}>
+                    <img
+                      src={analysis.player_image_url}
+                      alt={analysis.player_name || "Player"}
+                      className="absolute inset-0 w-full h-full object-cover object-top"
+                    />
+                  </div>
+                  
+                  {/* Gold arch curve overlay at bottom of image */}
+                  <div className="absolute bottom-0 left-0 right-0 h-16 md:h-24 overflow-hidden pointer-events-none">
+                    <svg 
+                      viewBox="0 0 400 100" 
+                      className="w-full h-full" 
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M0,100 L0,80 Q200,0 400,80 L400,100 Z"
+                        fill={BRAND.gold}
+                      />
+                    </svg>
+                  </div>
+                  
+                  {/* Grass continuation below the arch */}
+                  <div 
+                    className="relative py-4 md:py-6"
+                    style={{
+                      backgroundImage: `url('/analysis-grass-bg.png')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center top'
+                    }}
+                  >
+                    {/* Dark overlay for readability */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40 pointer-events-none" />
+                    
+                    {/* Player name centered */}
+                    <div className="relative text-center">
+                      <h2 
+                        className="text-2xl md:text-4xl font-bebas uppercase tracking-widest drop-shadow-lg"
+                        style={{ color: BRAND.gold }}
+                      >
+                        {analysis.player_name || "PLAYER NAME"}
+                      </h2>
+                    </div>
+                  </div>
                 </div>
               </ScrollReveal>
             )}
