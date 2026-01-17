@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaInstagram, FaTwitter, FaLinkedin, FaYoutube, FaFacebook, FaSnapchatGhost, FaTelegram, FaSpotify, FaWhatsapp } from "react-icons/fa";
 import { Mail } from "lucide-react";
 import logo from "@/assets/fff_logo.png";
-import riseLogo from "@/assets/rise-black-logo.png";
+import riseLogo from "@/assets/rise-white.png";
 import { WorkWithUsDialog } from "@/components/WorkWithUsDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

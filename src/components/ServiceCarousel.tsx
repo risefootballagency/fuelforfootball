@@ -25,7 +25,8 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     skipSnaps: false,
-    align: "start",
+    align: "center",
+    containScroll: false,
   });
 
   const scrollPrev = useCallback(() => {
@@ -105,7 +106,7 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                         asChild
                         size="sm"
                         variant="outline"
-                        className="flex-1 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-black text-xs"
+                        className="flex-1 bg-accent/90 backdrop-blur-sm border-accent text-black hover:bg-accent hover:text-black text-xs font-semibold"
                       >
                         <Link to={product.link}>
                           <ArrowRight className="w-3 h-3 mr-1" />
@@ -115,23 +116,30 @@ export const ServiceCarousel = ({ products }: ServiceCarouselProps) => {
                       <Button
                         size="sm"
                         onClick={(e) => handleAddToCart(product, index, e)}
-                        className={`flex-1 text-xs transition-all ${
+                        className={`flex-1 text-xs transition-all relative overflow-hidden ${
                           addedItems.has(index) 
                             ? "bg-green-600 hover:bg-green-700" 
-                            : "bg-primary hover:bg-primary/90"
+                            : ""
                         }`}
+                        style={!addedItems.has(index) ? {
+                          backgroundImage: `url('/grass-smoky-3.png')`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        } : undefined}
                       >
-                        {addedItems.has(index) ? (
-                          <>
-                            <Check className="w-3 h-3 mr-1" />
-                            Added
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingCart className="w-3 h-3 mr-1" />
-                            Add to Basket
-                          </>
-                        )}
+                        <span className="relative z-10 flex items-center justify-center">
+                          {addedItems.has(index) ? (
+                            <>
+                              <Check className="w-3 h-3 mr-1" />
+                              Added
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingCart className="w-3 h-3 mr-1" />
+                              Add to Basket
+                            </>
+                          )}
+                        </span>
                       </Button>
                     </div>
                   </div>
