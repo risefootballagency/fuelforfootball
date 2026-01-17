@@ -131,11 +131,11 @@ const TacticalSymbols = () => (
   </svg>
 );
 
-// Section title with grass image background - NO GREEN CAP, with gold border
+// Section title with grass image background - NO GREEN CAP, with gold border and hover effect
 const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => (
   <div className="relative mb-4">
     <div 
-      className="relative rounded-lg overflow-hidden"
+      className="relative rounded-lg overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer group"
       style={{
         backgroundImage: `url('/analysis-grass-bg.png')`,
         backgroundSize: 'cover',
@@ -146,13 +146,13 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
       <div className="py-3 md:py-4 px-4">
         <div className="flex items-center justify-center gap-3">
           {icon === "plus" && (
-            <Plus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
+            <Plus className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:scale-110" style={{ color: BRAND.gold }} />
           )}
           {icon === "minus" && (
-            <Minus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
+            <Minus className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:scale-110" style={{ color: BRAND.gold }} />
           )}
           <h2 
-            className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
+            className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center drop-shadow-md transition-all duration-300 group-hover:tracking-[0.2em]"
             style={{ color: BRAND.gold }}
           >
             {title}
@@ -672,17 +672,27 @@ const AnalysisViewer = () => {
         logging: false
       });
       
-      const link = document.createElement('a');
-      const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.webp`;
-      link.download = fileName.replace(/\s+/g, '-').toLowerCase();
-      link.href = canvas.toDataURL('image/webp', 0.9);
-      link.click();
-      
-      toast.success('Analysis saved as image!');
+      // Convert to blob for proper file download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          const fileName = `${analysis.home_team || 'Home'}-vs-${analysis.away_team || 'Away'}-analysis.webp`;
+          link.download = fileName.replace(/\s+/g, '-').toLowerCase();
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          toast.success('Analysis saved as WebP!');
+        } else {
+          toast.error('Failed to create image');
+        }
+        setIsSaving(false);
+      }, 'image/webp', 0.9);
     } catch (error) {
       console.error('Error saving image:', error);
       toast.error('Failed to save image');
-    } finally {
       setIsSaving(false);
     }
   }, [analysis]);
@@ -981,7 +991,7 @@ const AnalysisViewer = () => {
                             {analysis.starting_xi.map((player: any, index: number) => (
                               <div
                                 key={index}
-                                className="absolute flex flex-col items-center gap-0.5 md:gap-1"
+                                className="absolute flex flex-col items-center gap-0"
                                 style={{
                                   left: `${player.x}%`,
                                   top: `${player.y}%`,
@@ -995,7 +1005,7 @@ const AnalysisViewer = () => {
                                     number={player.number || '0'}
                                   />
                                 </div>
-                                <div className="bg-black/80 text-white px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs font-bold whitespace-nowrap">
+                                <div className="bg-black/80 text-white px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs font-bold whitespace-nowrap -mt-1 md:-mt-2">
                                   {player.surname || player.position}
                                 </div>
                               </div>
@@ -1086,14 +1096,14 @@ const AnalysisViewer = () => {
             {/* Quick Nav Dropdown - hidden when saving */}
             {navSections.length > 0 && !isSaving && <QuickNavDropdown sections={navSections} />}
 
-            {/* Player Image - square aspect ratio */}
+            {/* Player Image - square: width determines height */}
             {analysis.player_image_url && (
               <ScrollReveal className="w-full">
-                <div className="w-full aspect-square overflow-hidden">
+                <div className="w-full overflow-hidden" style={{ paddingBottom: '100%', position: 'relative' }}>
                   <img
                     src={analysis.player_image_url}
                     alt="Player"
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover object-top"
                   />
                 </div>
               </ScrollReveal>
