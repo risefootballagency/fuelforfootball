@@ -22,6 +22,50 @@ const PAGE = {
   contentWidth: 180, // 210 - 2*15
 };
 
+// Character transliteration map for non-ASCII characters
+const CHAR_MAP: Record<string, string> = {
+  'Č': 'C', 'č': 'c', 'Ř': 'R', 'ř': 'r', 'Š': 'S', 'š': 's',
+  'Ž': 'Z', 'ž': 'z', 'Ý': 'Y', 'ý': 'y', 'Á': 'A', 'á': 'a',
+  'É': 'E', 'é': 'e', 'Í': 'I', 'í': 'i', 'Ó': 'O', 'ó': 'o',
+  'Ú': 'U', 'ú': 'u', 'Ů': 'U', 'ů': 'u', 'Ď': 'D', 'ď': 'd',
+  'Ť': 'T', 'ť': 't', 'Ň': 'N', 'ň': 'n', 'Ě': 'E', 'ě': 'e',
+  'Ö': 'O', 'ö': 'o', 'Ü': 'U', 'ü': 'u', 'Ä': 'A', 'ä': 'a',
+  'ß': 'ss', 'Ł': 'L', 'ł': 'l', 'Ń': 'N', 'ń': 'n', 'Ś': 'S',
+  'ś': 's', 'Ź': 'Z', 'ź': 'z', 'Ż': 'Z', 'ż': 'z', 'Ć': 'C',
+  'ć': 'c', 'Ą': 'A', 'ą': 'a', 'Ę': 'E', 'ę': 'e',
+  'À': 'A', 'à': 'a', 'È': 'E', 'è': 'e', 'Ì': 'I', 'ì': 'i',
+  'Ò': 'O', 'ò': 'o', 'Ù': 'U', 'ù': 'u', 'Ñ': 'N', 'ñ': 'n',
+  '\u2013': '-', '\u2014': '-', '\u2018': "'", '\u2019': "'", '\u201C': '"', '\u201D': '"',
+  '\u2026': '...', '\u2022': '-',
+};
+
+/**
+ * Sanitize text for PDF rendering - transliterate special chars and decode HTML entities
+ */
+function sanitizeText(text: string): string {
+  if (!text) return '';
+  
+  // Decode HTML entities
+  let result = text
+    .replace(/&#x26;/g, '&')
+    .replace(/&#38;/g, '&')
+    .replace(/&amp;/g, '&')
+    .replace(/&#x27;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x22;/g, '"')
+    .replace(/&#34;/g, '"')
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ');
+  
+  // Transliterate special characters
+  result = result.split('').map(char => CHAR_MAP[char] || char).join('');
+  
+  return result;
+}
+
 interface AnalysisData {
   homeTeam: string;
   awayTeam: string;
@@ -81,7 +125,7 @@ export async function exportAnalysisPdf(
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(14);
     pdf.setTextColor(...BRAND.black);
-    pdf.text(title.toUpperCase(), PAGE.width / 2, y + 7, { align: 'center' });
+    pdf.text(sanitizeText(title).toUpperCase(), PAGE.width / 2, y + 7, { align: 'center' });
     
     y += 14;
   };
@@ -93,7 +137,7 @@ export async function exportAnalysisPdf(
     pdf.setFontSize(10);
     pdf.setTextColor(...BRAND.black);
     
-    const lines = pdf.splitTextToSize(text, PAGE.contentWidth - indent);
+    const lines = pdf.splitTextToSize(sanitizeText(text), PAGE.contentWidth - indent);
     
     for (const line of lines) {
       checkPageBreak(6);
@@ -120,7 +164,7 @@ export async function exportAnalysisPdf(
     // Bullet text
     pdf.setFont('helvetica', 'italic');
     pdf.setFontSize(10);
-    const lines = pdf.splitTextToSize(text, PAGE.contentWidth - 12);
+    const lines = pdf.splitTextToSize(sanitizeText(text), PAGE.contentWidth - 12);
     
     for (let i = 0; i < lines.length; i++) {
       if (i > 0) checkPageBreak(5);
@@ -144,7 +188,7 @@ export async function exportAnalysisPdf(
   pdf.rect(0, 0, PAGE.width, 25, 'F');
 
   // Match title
-  const matchTitle = `${analysis.homeTeam || 'Home'} vs ${analysis.awayTeam || 'Away'}`;
+  const matchTitle = `${sanitizeText(analysis.homeTeam) || 'Home'} vs ${sanitizeText(analysis.awayTeam) || 'Away'}`;
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(16);
   pdf.setTextColor(...BRAND.black);
@@ -165,8 +209,9 @@ export async function exportAnalysisPdf(
   if (analysis.playerName) {
     checkPageBreak(15);
     
+    const sanitizedPlayerName = sanitizeText(analysis.playerName);
     // Centered oval-ish box
-    const playerNameWidth = Math.min(pdf.getTextWidth(analysis.playerName.toUpperCase()) + 20, 100);
+    const playerNameWidth = Math.min(pdf.getTextWidth(sanitizedPlayerName.toUpperCase()) + 20, 100);
     const boxX = (PAGE.width - playerNameWidth) / 2;
     
     pdf.setFillColor(50, 70, 50);
@@ -179,7 +224,7 @@ export async function exportAnalysisPdf(
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(12);
     pdf.setTextColor(...BRAND.white);
-    pdf.text(analysis.playerName.toUpperCase(), PAGE.width / 2, y + 7, { align: 'center' });
+    pdf.text(sanitizedPlayerName.toUpperCase(), PAGE.width / 2, y + 7, { align: 'center' });
     
     y += 18;
   }
@@ -192,7 +237,7 @@ export async function exportAnalysisPdf(
     addSectionTitle('Overview');
     
     // Content box
-    const overviewLines = pdf.splitTextToSize(analysis.keyDetails, PAGE.contentWidth - 8);
+    const overviewLines = pdf.splitTextToSize(sanitizeText(analysis.keyDetails), PAGE.contentWidth - 8);
     const boxHeight = overviewLines.length * 5 + 8;
     
     pdf.setFillColor(...BRAND.contentBg);
@@ -271,7 +316,7 @@ export async function exportAnalysisPdf(
       pdf.setFontSize(11);
       pdf.setTextColor(...BRAND.black);
       
-      const displayName = matchup.name?.toUpperCase() || 'PLAYER';
+      const displayName = sanitizeText(matchup.name || '').toUpperCase() || 'PLAYER';
       const displayNumber = matchup.shirt_number ? ` #${matchup.shirt_number}` : '';
       pdf.text(`${displayName}${displayNumber}`, PAGE.margin + 5, y + 8);
       
@@ -279,7 +324,7 @@ export async function exportAnalysisPdf(
       if (matchup.notes) {
         pdf.setFont('helvetica', 'italic');
         pdf.setFontSize(9);
-        const noteLines = pdf.splitTextToSize(matchup.notes, PAGE.contentWidth - 10);
+        const noteLines = pdf.splitTextToSize(sanitizeText(matchup.notes), PAGE.contentWidth - 10);
         pdf.text(noteLines[0] || '', PAGE.margin + 5, y + 15);
       }
       
@@ -302,7 +347,7 @@ export async function exportAnalysisPdf(
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(...BRAND.gold);
-      pdf.text(analysis.scheme.formation, PAGE.margin + 20, y + 5.5, { align: 'center' });
+      pdf.text(sanitizeText(analysis.scheme.formation), PAGE.margin + 20, y + 5.5, { align: 'center' });
       
       y += 12;
     }
@@ -312,7 +357,7 @@ export async function exportAnalysisPdf(
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(12);
       pdf.setTextColor(...BRAND.white);
-      pdf.text(analysis.scheme.title.toUpperCase(), PAGE.margin, y);
+      pdf.text(sanitizeText(analysis.scheme.title).toUpperCase(), PAGE.margin, y);
       y += 8;
     }
     
@@ -322,7 +367,7 @@ export async function exportAnalysisPdf(
       if (para && para.trim()) {
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(10);
-        const lines = pdf.splitTextToSize(para, PAGE.contentWidth);
+        const lines = pdf.splitTextToSize(sanitizeText(para), PAGE.contentWidth);
         for (const line of lines) {
           checkPageBreak(6);
           pdf.text(line, PAGE.margin, y);
@@ -339,7 +384,7 @@ export async function exportAnalysisPdf(
     addSectionTitle('Strengths & Improvements');
     
     pdf.setFillColor(...BRAND.contentBg);
-    const lines = pdf.splitTextToSize(analysis.strengthsImprovements, PAGE.contentWidth - 8);
+    const lines = pdf.splitTextToSize(sanitizeText(analysis.strengthsImprovements), PAGE.contentWidth - 8);
     const boxHeight = lines.length * 5 + 8;
     pdf.roundedRect(PAGE.margin, y, PAGE.contentWidth, boxHeight, 2, 2, 'F');
     
@@ -361,13 +406,13 @@ export async function exportAnalysisPdf(
     for (let i = 0; i < analysis.points.length; i++) {
       const point = analysis.points[i];
       
-      addSectionTitle(point.title || `Point ${i + 1}`);
+      addSectionTitle(sanitizeText(point.title) || `Point ${i + 1}`);
       
       if (point.description && point.description.trim()) {
         checkPageBreak(15);
         
         pdf.setFillColor(...BRAND.contentBg);
-        const lines = pdf.splitTextToSize(point.description, PAGE.contentWidth - 8);
+        const lines = pdf.splitTextToSize(sanitizeText(point.description), PAGE.contentWidth - 8);
         const boxHeight = lines.length * 5 + 8;
         pdf.roundedRect(PAGE.margin, y, PAGE.contentWidth, boxHeight, 2, 2, 'F');
         
