@@ -454,13 +454,11 @@ const AnalysisHeader = ({
         </div>
       </div>
 
-      {/* Team colors bar with logos BEHIND the color containers - using OLD grass (analysis-grass-bg) behind VS */}
+      {/* Team colors bar with logos BEHIND the color containers - blue smoky background behind VS */}
       <div 
         className="relative h-10 md:h-14 overflow-visible"
         style={{
-          backgroundImage: `url('/analysis-grass-bg.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundColor: '#2596be'
         }}
       >
         {/* Top fade */}
@@ -603,7 +601,9 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
               variant="outline"
               className="text-base md:text-lg px-6 py-2 font-bebas tracking-wider hover:bg-white/10 transition-colors"
               style={{ 
-                backgroundColor: 'rgba(9, 56, 14, 0.9)',
+                backgroundImage: `url('/Smoky-Background.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 color: 'white',
                 borderColor: BRAND.gold,
                 borderWidth: '2px'
@@ -616,7 +616,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
           <DropdownMenuContent 
             className="w-[96vw] max-w-none max-h-[70vh] overflow-y-auto z-50 p-4 md:p-6"
             style={{ 
-              backgroundImage: `url('/analysis-grass-bg.png')`,
+              backgroundImage: `url('/Smoky-Background.png')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               borderColor: BRAND.gold,
@@ -1035,23 +1035,52 @@ const AnalysisViewer = () => {
                     }}
                   />
                   
-                  {/* Image container - square aspect ratio */}
-                  <div className="relative w-full z-0" style={{ aspectRatio: '1/1' }}>
+                  {/* Image container - height limited to width (square max) */}
+                  <div className="relative w-full z-0" style={{ aspectRatio: '1/1', maxHeight: '100vw' }}>
                     <img
                       src={analysis.player_image_url || analysis.match_image_url}
                       alt={analysis.player_name || "Match"}
                       className="w-full h-full object-cover object-top"
                     />
                     
-                    {/* Thick Gold Arch Frame at bottom */}
-                    <svg 
-                      className="absolute bottom-0 left-0 right-0 w-full"
-                      style={{ height: '12%' }}
-                      viewBox="0 0 400 50" 
-                      preserveAspectRatio="none"
-                    >
-                      <path d="M0,50 L0,40 Q200,5 400,40 L400,50 Z" fill="#fdc61b" />
-                    </svg>
+                    {/* Upward Gold Arch Frame at bottom with grass sides */}
+                    <div className="absolute bottom-0 left-0 right-0" style={{ height: '18%' }}>
+                      {/* Grass coming up the sides */}
+                      <div 
+                        className="absolute bottom-0 left-0 w-1/4 h-full"
+                        style={{
+                          backgroundImage: `url('/analysis-page-bg.png')`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'right center'
+                        }}
+                      />
+                      <div 
+                        className="absolute bottom-0 right-0 w-1/4 h-full"
+                        style={{
+                          backgroundImage: `url('/analysis-page-bg.png')`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'left center'
+                        }}
+                      />
+                      
+                      {/* Secondary transparent arch (outer) */}
+                      <svg 
+                        className="absolute bottom-0 left-0 right-0 w-full h-full"
+                        viewBox="0 0 400 70" 
+                        preserveAspectRatio="none"
+                      >
+                        <path d="M0,70 L0,45 Q200,0 400,45 L400,70 Z" fill="rgba(253,198,27,0.25)" />
+                      </svg>
+                      
+                      {/* Main gold upward arch */}
+                      <svg 
+                        className="absolute bottom-0 left-0 right-0 w-full h-full"
+                        viewBox="0 0 400 70" 
+                        preserveAspectRatio="none"
+                      >
+                        <path d="M0,70 L0,55 Q200,15 400,55 L400,70 Z" fill="#fdc61b" />
+                      </svg>
+                    </div>
                   </div>
                   
                   {/* Player name with smaller oval smoky background */}
