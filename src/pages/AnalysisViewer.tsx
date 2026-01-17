@@ -481,24 +481,24 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - at very top, aligned with home club logo x-axis */}
+        {/* Back button - at very top, aligned with home club logo x-axis, 4px more padding */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-2 md:left-4 top-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
+          className="absolute left-3 md:left-6 top-2 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
         >
           <ArrowLeft className="w-3 h-3 mr-1" />
           Back
         </Button>
         
-        {/* Save button - at very top, aligned with away club logo x-axis */}
+        {/* Save button - at very top, aligned with away club logo x-axis, 4px more padding */}
         {onSave && (
           <Button
             onClick={onSave}
             disabled={isSaving}
             size="sm"
-            className="absolute right-2 md:right-4 top-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
+            className="absolute right-3 md:right-6 top-2 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
             style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Download className="w-3 h-3 mr-1" />
@@ -590,7 +590,12 @@ const AnalysisHeader = ({
           className="text-center py-2"
           style={{ backgroundColor: '#0a2e12' }}
         >
-          <span className="text-white font-bebas tracking-wider text-base md:text-lg italic">
+          <span 
+            className="text-white font-bebas tracking-wider text-base md:text-lg italic"
+            style={{
+              textShadow: '0 0 10px rgba(253,198,27,0.6), 0 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(253,198,27,0.3)'
+            }}
+          >
             {new Date(matchDate).toLocaleDateString('en-GB', {
               weekday: 'long',
               day: '2-digit',
@@ -632,27 +637,26 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   const handleNavigate = (sectionId: string) => {
     setIsOpen(false);
     
-    // First, find and click the section to open it, then scroll
+    // First, find and click the section to open it, then INSTANT scroll
     setTimeout(() => {
       const el = document.getElementById(sectionId);
       if (el) {
         // Find the button inside the section and click it to open if closed
         const sectionButton = el.querySelector('button');
         if (sectionButton) {
-          // Check if the section content is visible (has expanded content)
-          const content = el.querySelector('[data-state="open"], .motion-safe\\:animate-accordion-down');
-          if (!content) {
-            // Section is closed, click to open
-            sectionButton.click();
-          }
+          // Always click to ensure section is open
+          sectionButton.click();
         }
         
-        // Wait for animation to complete, then scroll
+        // Immediately scroll to section (instant, not smooth)
         setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 400);
+          window.scrollTo({
+            top: el.offsetTop - 20,
+            behavior: 'instant' as ScrollBehavior
+          });
+        }, 50);
       }
-    }, 100);
+    }, 50);
   };
 
   return (
@@ -1126,30 +1130,30 @@ const AnalysisViewer = () => {
                         className="w-full h-full object-cover object-top"
                       />
                       
-                      {/* Gold Arch positioned at BOTTOM of the match image */}
-                      <div className="absolute bottom-0 left-0 right-0 z-30">
+                      {/* Gold Arch positioned at BOTTOM of the match image - middle of arch aligned with image bottom */}
+                      <div className="absolute -bottom-[120px] md:-bottom-[150px] left-0 right-0 z-30">
                         {/* Secondary transparent arch (outer) */}
                         <svg 
                           className="w-full"
-                          viewBox="0 0 400 200" 
+                          viewBox="0 0 400 300" 
                           preserveAspectRatio="none"
-                          style={{ height: '200px' }}
+                          style={{ height: '300px' }}
                         >
-                          <path d="M0,0 Q200,160 400,0 L400,140 Q200,200 0,140 Z" fill="rgba(253,198,27,0.25)" />
+                          <path d="M0,0 Q200,240 400,0 L400,210 Q200,300 0,210 Z" fill="rgba(253,198,27,0.25)" />
                         </svg>
                         
                         {/* Main gold arch band */}
                         <svg 
                           className="absolute inset-0 w-full"
-                          viewBox="0 0 400 200" 
+                          viewBox="0 0 400 300" 
                           preserveAspectRatio="none"
-                          style={{ height: '200px' }}
+                          style={{ height: '300px' }}
                         >
-                          <path d="M0,30 Q200,170 400,30 L400,120 Q200,190 0,120 Z" fill="#fdc61b" />
+                          <path d="M0,45 Q200,255 400,45 L400,180 Q200,285 0,180 Z" fill="#fdc61b" />
                         </svg>
                         
                         {/* Player name positioned on top of the arch */}
-                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '20%' }}>
+                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '45%' }}>
                           <div 
                             className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
                             style={{
@@ -1400,7 +1404,8 @@ const AnalysisViewer = () => {
                                   transform: 'translate(-50%, -50%)'
                                 }}
                               >
-                                <div className="scale-50 md:scale-75 lg:scale-90 drop-shadow-xl">
+                                {/* Almost double the kit size - scale-75 to scale-100 on mobile, scale-90 to scale-150 on larger */}
+                                <div className="scale-75 md:scale-100 lg:scale-125 drop-shadow-xl">
                                   <PlayerKit 
                                     primaryColor={analysis.kit_primary_color || '#FFD700'}
                                     secondaryColor={analysis.kit_secondary_color || '#000000'}
@@ -1408,9 +1413,9 @@ const AnalysisViewer = () => {
                                     number={player.number || '0'}
                                   />
                                 </div>
-                                {/* Cooler player name UI with more pop */}
+                                {/* Cooler player name UI with more pop - adjusted margin for larger kits */}
                                 <div 
-                                  className="relative px-2 md:px-4 py-1 md:py-1.5 rounded-md text-[9px] md:text-xs font-bold whitespace-nowrap -mt-1 md:-mt-2 shadow-xl overflow-hidden"
+                                  className="relative px-2 md:px-4 py-1 md:py-1.5 rounded-md text-[9px] md:text-xs font-bold whitespace-nowrap mt-0 md:mt-1 shadow-xl overflow-hidden"
                                   style={{
                                     background: `linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.9) 50%, rgba(0,0,0,0.95) 100%)`,
                                     border: `2px solid ${BRAND.gold}`,
