@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, X, Bold, Crop } from "lucide-react";
+import { Plus, X, Crop } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -189,46 +189,20 @@ export const AnalysisMatchDetails = ({
               />
             </div>
             
-            {/* Teams and Score on one line */}
+            {/* Teams on one line */}
             <div className="flex items-end gap-2 flex-wrap">
               <div className="flex-1 min-w-[120px]">
-                <div className="flex items-center gap-2 mb-1">
-                  <Label>Home Team</Label>
-                  <Button
-                    type="button"
-                    variant={formData.home_team_bold ? "default" : "outline"}
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => setFormData({ ...formData, home_team_bold: !formData.home_team_bold })}
-                    title="Bold (player's team)"
-                  >
-                    <Bold className="w-3 h-3" />
-                  </Button>
-                </div>
+                <Label>Home Team</Label>
                 <Input
                   value={formData.home_team || ""}
                   onChange={(e) => setFormData({ ...formData, home_team: e.target.value })}
-                  className={formData.home_team_bold ? "font-bold" : ""}
                 />
               </div>
               <div className="flex-1 min-w-[120px]">
-                <div className="flex items-center gap-2 mb-1">
-                  <Label>Away Team</Label>
-                  <Button
-                    type="button"
-                    variant={formData.away_team_bold ? "default" : "outline"}
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => setFormData({ ...formData, away_team_bold: !formData.away_team_bold })}
-                    title="Bold (player's team)"
-                  >
-                    <Bold className="w-3 h-3" />
-                  </Button>
-                </div>
+                <Label>Away Team</Label>
                 <Input
                   value={formData.away_team || ""}
                   onChange={(e) => setFormData({ ...formData, away_team: e.target.value })}
-                  className={formData.away_team_bold ? "font-bold" : ""}
                 />
               </div>
             </div>
@@ -366,23 +340,10 @@ export const AnalysisMatchDetails = ({
             {/* Teams and Score all on one line */}
             <div className="flex items-end gap-2 flex-wrap">
               <div className="flex-1 min-w-[100px]">
-                <div className="flex items-center gap-2 mb-1">
-                  <Label className="text-sm">Home Team</Label>
-                  <Button
-                    type="button"
-                    variant={formData.home_team_bold ? "default" : "outline"}
-                    size="sm"
-                    className="h-5 w-5 p-0"
-                    onClick={() => setFormData({ ...formData, home_team_bold: !formData.home_team_bold })}
-                    title="Bold (player's team)"
-                  >
-                    <Bold className="w-3 h-3" />
-                  </Button>
-                </div>
+                <Label className="text-sm">Home Team</Label>
                 <Input
                   value={formData.home_team || ""}
                   onChange={(e) => setFormData({ ...formData, home_team: e.target.value })}
-                  className={formData.home_team_bold ? "font-bold" : ""}
                 />
               </div>
               <div className="w-14">
@@ -393,7 +354,7 @@ export const AnalysisMatchDetails = ({
                   max="99"
                   value={formData.home_score ?? ""}
                   onChange={(e) => setFormData({ ...formData, home_score: parseInt(e.target.value) || undefined })}
-                  className={`text-center ${formData.home_team_bold ? "font-bold" : ""}`}
+                  className="text-center"
                 />
               </div>
               <div className="w-14">
@@ -404,27 +365,14 @@ export const AnalysisMatchDetails = ({
                   max="99"
                   value={formData.away_score ?? ""}
                   onChange={(e) => setFormData({ ...formData, away_score: parseInt(e.target.value) || undefined })}
-                  className={`text-center ${formData.away_team_bold ? "font-bold" : ""}`}
+                  className="text-center"
                 />
               </div>
               <div className="flex-1 min-w-[100px]">
-                <div className="flex items-center gap-2 mb-1">
-                  <Label className="text-sm">Away Team</Label>
-                  <Button
-                    type="button"
-                    variant={formData.away_team_bold ? "default" : "outline"}
-                    size="sm"
-                    className="h-5 w-5 p-0"
-                    onClick={() => setFormData({ ...formData, away_team_bold: !formData.away_team_bold })}
-                    title="Bold (player's team)"
-                  >
-                    <Bold className="w-3 h-3" />
-                  </Button>
-                </div>
+                <Label className="text-sm">Away Team</Label>
                 <Input
                   value={formData.away_team || ""}
                   onChange={(e) => setFormData({ ...formData, away_team: e.target.value })}
-                  className={formData.away_team_bold ? "font-bold" : ""}
                 />
               </div>
             </div>

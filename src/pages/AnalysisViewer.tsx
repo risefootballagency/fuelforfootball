@@ -8,6 +8,7 @@ import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { HoverText } from "@/components/HoverText";
+import { AnalysisVideo } from "@/components/AnalysisVideo";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import {
@@ -32,8 +33,6 @@ interface Analysis {
   away_team_logo: string | null;
   home_team_bg_color: string | null;
   away_team_bg_color: string | null;
-  home_team_bold: boolean | null;
-  away_team_bold: boolean | null;
   selected_scheme: string | null;
   starting_xi: any;
   kit_primary_color: string | null;
@@ -445,8 +444,7 @@ const AnalysisHeader = ({
   isPostMatch = false,
   onSave,
   isSaving = false,
-  homeTeamBold = false,
-  awayTeamBold = false
+  playerTeam
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -460,10 +458,15 @@ const AnalysisHeader = ({
   isPostMatch?: boolean;
   onSave?: () => void;
   isSaving?: boolean;
-  homeTeamBold?: boolean;
-  awayTeamBold?: boolean;
+  playerTeam?: string | null;
 }) => {
   const navigate = useNavigate();
+  
+  // Determine which team is NOT the player's team (should have 70% opacity)
+  const isHomePlayerTeam = playerTeam && homeTeam && 
+    homeTeam.toLowerCase().includes(playerTeam.toLowerCase());
+  const isAwayPlayerTeam = playerTeam && awayTeam && 
+    awayTeam.toLowerCase().includes(playerTeam.toLowerCase());
   
   return (
     <motion.div 
@@ -488,24 +491,24 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - at very top, aligned with home club logo x-axis, 16px from top */}
+        {/* Back button - consistent dimensions with Save button */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-4 md:left-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white py-1 px-2 text-xs z-20"
+          className="absolute left-4 md:left-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white h-8 py-1.5 px-3 text-xs z-20"
         >
           <ArrowLeft className="w-3 h-3 mr-1" />
           Back
         </Button>
         
-        {/* Save button - at very top, aligned with away club logo x-axis, 16px from top */}
+        {/* Save button - consistent dimensions with Back button */}
         {onSave && (
           <Button
             onClick={onSave}
             disabled={isSaving}
             size="sm"
-            className="absolute right-4 md:right-8 top-4 font-bebas uppercase tracking-wider shadow-lg text-xs z-20"
+            className="absolute right-4 md:right-8 top-4 font-bebas uppercase tracking-wider shadow-lg h-8 py-1.5 px-3 text-xs z-20"
             style={{ backgroundColor: BRAND.gold, color: 'black' }}
           >
             <Download className="w-3 h-3 mr-1" />
@@ -530,14 +533,14 @@ const AnalysisHeader = ({
         }}
       >
         
-        {/* Club logos - positioned at outer edges, IN FRONT of color containers */}
+        {/* Club logos - responsive scaling with vw units */}
         {homeLogo && (
-          <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-20 h-20 md:w-28 md:h-28 z-20 -mt-2">
+          <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-[15vw] h-[15vw] min-w-16 max-w-28 md:min-w-20 md:max-w-36 z-20 -mt-2">
             <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
         {awayLogo && (
-          <div className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-20 h-20 md:w-28 md:h-28 z-20 -mt-2">
+          <div className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-[15vw] h-[15vw] min-w-16 max-w-28 md:min-w-20 md:max-w-36 z-20 -mt-2">
             <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
           </div>
         )}
@@ -547,14 +550,14 @@ const AnalysisHeader = ({
           className="absolute left-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-center"
           style={{ 
             backgroundColor: homeBgColor || '#1a1a1a',
-            clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
+            clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)',
+            opacity: isAwayPlayerTeam && !isHomePlayerTeam ? 0.7 : 1
           }}
         >
           <span 
             className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center"
             style={{
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
-              fontWeight: homeTeamBold ? 700 : 400
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
           >
             {homeTeam}
@@ -566,14 +569,14 @@ const AnalysisHeader = ({
           className="absolute right-0 top-0 bottom-0 w-1/2 z-10 flex items-center justify-center"
           style={{ 
             backgroundColor: awayBgColor || '#8B0000',
-            clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
+            clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)',
+            opacity: isHomePlayerTeam && !isAwayPlayerTeam ? 0.7 : 1
           }}
         >
           <span 
             className="text-xl md:text-2xl font-bebas text-white tracking-wide uppercase text-center"
             style={{
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
-              fontWeight: awayTeamBold ? 700 : 400
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)'
             }}
           >
             {awayTeam}
@@ -1149,8 +1152,7 @@ const AnalysisViewer = () => {
               matchDate={analysis.match_date}
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
-              homeTeamBold={analysis.home_team_bold || false}
-              awayTeamBold={analysis.away_team_bold || false}
+              playerTeam={analysis.player_name}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - arch directly on bottom of image */}
@@ -1427,10 +1429,10 @@ const AnalysisViewer = () => {
                           }}
                         />
                         
-                        {/* Formation name - top left, angled, premium styling */}
-                        <div className="absolute top-3 left-3 md:top-4 md:left-4 z-20">
+                        {/* Formation name - top left, angled, premium styling - responsive */}
+                        <div className="absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 z-20">
                           <div 
-                            className="relative px-4 md:px-6 py-2 md:py-3 rounded-lg shadow-xl"
+                            className="relative px-2 sm:px-4 md:px-6 py-1 sm:py-2 md:py-3 rounded-lg shadow-xl"
                             style={{
                               background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 100%)',
                               border: `2px solid ${BRAND.gold}`,
@@ -1438,7 +1440,7 @@ const AnalysisViewer = () => {
                             }}
                           >
                             <span 
-                              className="font-bebas text-2xl md:text-4xl tracking-[0.15em] uppercase drop-shadow-lg"
+                              className="font-bebas text-lg sm:text-2xl md:text-4xl tracking-[0.15em] uppercase drop-shadow-lg"
                               style={{ 
                                 color: BRAND.gold,
                                 transform: 'skewX(5deg)',
@@ -1569,6 +1571,15 @@ const AnalysisViewer = () => {
                           </div>
                         </TextReveal>
                       )}
+                      {point.video_url && (
+                        <TextReveal delay={0.2}>
+                          <AnalysisVideo
+                            src={point.video_url}
+                            className="w-full rounded-lg shadow-md border-2"
+                            style={{ borderColor: BRAND.gold }}
+                          />
+                        </TextReveal>
+                      )}
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
@@ -1600,8 +1611,7 @@ const AnalysisViewer = () => {
               isPostMatch
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
-              homeTeamBold={analysis.home_team_bold || false}
-              awayTeamBold={analysis.away_team_bold || false}
+              playerTeam={analysis.player_name}
             />
 
             {/* Player Image with Premium Gold Arch Frame */}
@@ -1727,6 +1737,15 @@ const AnalysisViewer = () => {
                               />
                             ))}
                           </div>
+                        </TextReveal>
+                      )}
+                      {point.video_url && (
+                        <TextReveal delay={0.2}>
+                          <AnalysisVideo
+                            src={point.video_url}
+                            className="w-full rounded-lg shadow-md border-2"
+                            style={{ borderColor: BRAND.gold }}
+                          />
                         </TextReveal>
                       )}
                       {point.paragraph_2 && (
@@ -1864,6 +1883,15 @@ const AnalysisViewer = () => {
                               />
                             ))}
                           </div>
+                        </TextReveal>
+                      )}
+                      {point.video_url && (
+                        <TextReveal delay={0.2}>
+                          <AnalysisVideo
+                            src={point.video_url}
+                            className="w-full rounded-lg shadow-md border-2"
+                            style={{ borderColor: BRAND.gold }}
+                          />
                         </TextReveal>
                       )}
                       {point.paragraph_2 && (
