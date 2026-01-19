@@ -1095,15 +1095,30 @@ const Dashboard = () => {
         }
       }
 
-      // ADDITIONALLY: Fetch tactical analyses by player_name match
-      if (parsedPlayerData.name) {
-        const { data: playerNameAnalyses } = await supabase
+      // ADDITIONALLY: Fetch tactical analyses by matching player's club to home_team/away_team
+      if (parsedPlayerData.club) {
+        const playerClub = parsedPlayerData.club;
+        
+        // Fetch all pre-match and post-match analyses
+        const { data: allTacticalAnalyses } = await supabase
           .from("analyses")
           .select("*")
-          .eq("player_name", parsedPlayerData.name)
           .in("analysis_type", ["pre-match", "post-match"]);
 
-        if (playerNameAnalyses && playerNameAnalyses.length > 0) {
+        if (allTacticalAnalyses && allTacticalAnalyses.length > 0) {
+          // Filter to analyses where player's club matches home_team or away_team
+          const playerClubAnalyses = allTacticalAnalyses.filter(analysis => {
+            const homeMatch = analysis.home_team && (
+              analysis.home_team.toLowerCase().includes(playerClub.toLowerCase()) ||
+              playerClub.toLowerCase().includes(analysis.home_team.toLowerCase())
+            );
+            const awayMatch = analysis.away_team && (
+              analysis.away_team.toLowerCase().includes(playerClub.toLowerCase()) ||
+              playerClub.toLowerCase().includes(analysis.away_team.toLowerCase())
+            );
+            return homeMatch || awayMatch;
+          });
+
           // Get IDs of analyses already in mergedAnalyses
           const existingAnalysisWriterIds = new Set(
             mergedAnalyses
@@ -1111,22 +1126,25 @@ const Dashboard = () => {
               .map(a => a.analysis_writer_id)
           );
 
-          playerNameAnalyses.forEach(tacticalAnalysis => {
+          playerClubAnalyses.forEach(tacticalAnalysis => {
             // Skip if already linked
             if (existingAnalysisWriterIds.has(tacticalAnalysis.id)) return;
 
-            // Determine opponent name from the analysis
-            const opponentName = tacticalAnalysis.away_team || tacticalAnalysis.home_team;
+            // Determine opponent - it's the team that is NOT the player's club
+            const isHomeTeam = tacticalAnalysis.home_team && (
+              tacticalAnalysis.home_team.toLowerCase().includes(playerClub.toLowerCase()) ||
+              playerClub.toLowerCase().includes(tacticalAnalysis.home_team.toLowerCase())
+            );
+            const opponentName = isHomeTeam ? tacticalAnalysis.away_team : tacticalAnalysis.home_team;
             
             // Try to find matching action report by opponent and date
             const matchingReport = mergedAnalyses.find(report => {
               const reportDate = new Date(report.analysis_date).toDateString();
               const analysisDate = new Date(tacticalAnalysis.match_date || tacticalAnalysis.created_at).toDateString();
-              const opponentMatch = report.opponent && 
-                (report.opponent.includes(tacticalAnalysis.away_team || '') || 
-                 report.opponent.includes(tacticalAnalysis.home_team || '') ||
-                 (tacticalAnalysis.away_team?.includes(report.opponent)) ||
-                 (tacticalAnalysis.home_team?.includes(report.opponent)));
+              const opponentMatch = report.opponent && opponentName && (
+                report.opponent.toLowerCase().includes(opponentName.toLowerCase()) || 
+                opponentName.toLowerCase().includes(report.opponent.toLowerCase())
+              );
               return opponentMatch && reportDate === analysisDate;
             });
 
@@ -1149,7 +1167,7 @@ const Dashboard = () => {
                 pdf_url: null,
                 video_url: null,
                 notes: null,
-                opponent: tacticalAnalysis.away_team || tacticalAnalysis.home_team,
+                opponent: opponentName,
                 result: tacticalAnalysis.home_score !== null && tacticalAnalysis.away_score !== null
                   ? `${tacticalAnalysis.home_score}-${tacticalAnalysis.away_score}`
                   : null,
