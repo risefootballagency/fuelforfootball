@@ -55,6 +55,7 @@ interface Analysis {
   analysis_writer_id?: string | null;
   analysis_writer_data?: any;
   striker_stats?: any;
+  fixture_id?: string | null;
 }
 
 interface PlayerProgram {
@@ -979,9 +980,10 @@ const Dashboard = () => {
         })
       );
 
-      setAnalyses(analysesWithXGChain);
+      // Start with analysesWithXGChain
+      let mergedAnalyses = [...analysesWithXGChain] as Analysis[];
 
-      // Fetch all analyses (pre-match, post-match, concepts) linked to this player
+      // Fetch all analyses (pre-match, post-match, concepts) linked via analysis_writer_id
       const linkedAnalysisIds = (analysisData || [])
         .filter(a => a.analysis_writer_id)
         .map(a => a.analysis_writer_id);
@@ -1013,7 +1015,6 @@ const Dashboard = () => {
           );
           
           // Merge with existing player_analysis data
-          const mergedAnalyses = [...(analysisData || [])] as Analysis[];
           matchAnalyses.forEach(matchAnalysis => {
             const playerAnalysis = (analysisData || []).find(
               pa => pa.analysis_writer_id === matchAnalysis.id
@@ -1029,9 +1030,79 @@ const Dashboard = () => {
               }
             }
           });
-          setAnalyses(mergedAnalyses);
         }
       }
+
+      // Also fetch tactical analyses linked to player's fixtures (without action reports)
+      const { data: playerFixturesData } = await supabase
+        .from("player_fixtures")
+        .select("fixture_id")
+        .eq("player_id", playerData.id);
+
+      if (playerFixturesData && playerFixturesData.length > 0) {
+        const fixtureIds = playerFixturesData.map(pf => pf.fixture_id);
+        
+        // Fetch pre-match and post-match analyses linked to these fixtures
+        const { data: fixtureAnalyses } = await supabase
+          .from("analyses")
+          .select("*")
+          .in("fixture_id", fixtureIds)
+          .in("analysis_type", ["pre-match", "post-match"]);
+
+        if (fixtureAnalyses && fixtureAnalyses.length > 0) {
+          // Get IDs of analyses already linked via analysis_writer_id
+          const alreadyLinkedIds = new Set(linkedAnalysisIds);
+          
+          // Add fixture-linked analyses that aren't already linked via analysis_writer_id
+          fixtureAnalyses.forEach(fixtureAnalysis => {
+            if (!alreadyLinkedIds.has(fixtureAnalysis.id)) {
+              // Check if there's an action report for the same fixture
+              const existingActionReport = mergedAnalyses.find(
+                a => a.fixture_id === fixtureAnalysis.fixture_id
+              );
+              
+              if (existingActionReport) {
+                // If there's an action report for this fixture, attach the analysis to it
+                const index = mergedAnalyses.findIndex(a => a.id === existingActionReport.id);
+                if (index !== -1 && !mergedAnalyses[index].analysis_writer_data) {
+                  mergedAnalyses[index] = {
+                    ...mergedAnalyses[index],
+                    analysis_writer_data: fixtureAnalysis,
+                    analysis_writer_id: fixtureAnalysis.id
+                  } as Analysis;
+                }
+              } else {
+                // No action report exists - create a standalone entry for the tactical analysis
+                const standaloneEntry: Analysis = {
+                  id: `tactical-${fixtureAnalysis.id}`,
+                  analysis_date: fixtureAnalysis.match_date || fixtureAnalysis.created_at,
+                  r90_score: null as any,
+                  pdf_url: null,
+                  video_url: null,
+                  notes: null,
+                  opponent: fixtureAnalysis.away_team || fixtureAnalysis.home_team,
+                  result: fixtureAnalysis.home_score !== null && fixtureAnalysis.away_score !== null
+                    ? `${fixtureAnalysis.home_score}-${fixtureAnalysis.away_score}`
+                    : null,
+                  minutes_played: null,
+                  analysis_writer_id: fixtureAnalysis.id,
+                  analysis_writer_data: fixtureAnalysis
+                };
+                mergedAnalyses.push(standaloneEntry);
+              }
+            }
+          });
+        }
+      }
+
+      // Sort merged analyses by date (newest first)
+      mergedAnalyses.sort((a, b) => {
+        const dateA = new Date(a.analysis_date).getTime();
+        const dateB = new Date(b.analysis_date).getTime();
+        return dateB - dateA;
+      });
+
+      setAnalyses(mergedAnalyses);
 
       // Fetch other analyses assigned to this player
       const { data: otherAnalysesData, error: otherAnalysesError } = await supabase
