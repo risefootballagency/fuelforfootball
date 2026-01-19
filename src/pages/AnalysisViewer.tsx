@@ -277,6 +277,7 @@ const ExpandableSection = ({
   forceOpen?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen || forceOpen);
+  const [isAutoOpening, setIsAutoOpening] = useState(false);
   
   // Force open when forceOpen prop changes
   useEffect(() => {
@@ -302,7 +303,8 @@ const ExpandableSection = ({
       // Only auto-manage if not manually toggled
       if (!wasManuallyToggled) {
         if (isInView && isScrollingDown && !isOpen) {
-          // Auto-open when scrolling DOWN into view
+          // Auto-open when scrolling DOWN into view - instant, no scroll hijacking
+          setIsAutoOpening(true);
           setIsOpen(true);
         } else if (!isInView && isOpen) {
           // Close when scrolling off screen
@@ -413,7 +415,8 @@ const ExpandableSection = ({
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
+                transition={{ duration: isAutoOpening ? 0 : 0.4, ease: "easeInOut" }}
+                onAnimationComplete={() => setIsAutoOpening(false)}
               >
                 <ContentCard transparent={transparentContent}>
                   {children}
@@ -1071,7 +1074,7 @@ const AnalysisViewer = () => {
       )}
 
       {/* Main content wrapper - padded to stay inside the inset lines */}
-      <main className="w-full mx-auto px-[8px]">
+      <main className="w-full mx-auto">
         {/* Pre-Match Content */}
         {isPreMatch && (
           <div className="w-full">
