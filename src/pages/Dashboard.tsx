@@ -1095,6 +1095,75 @@ const Dashboard = () => {
         }
       }
 
+      // ADDITIONALLY: Fetch tactical analyses by player_name match
+      if (parsedPlayerData.name) {
+        const { data: playerNameAnalyses } = await supabase
+          .from("analyses")
+          .select("*")
+          .eq("player_name", parsedPlayerData.name)
+          .in("analysis_type", ["pre-match", "post-match"]);
+
+        if (playerNameAnalyses && playerNameAnalyses.length > 0) {
+          // Get IDs of analyses already in mergedAnalyses
+          const existingAnalysisWriterIds = new Set(
+            mergedAnalyses
+              .filter(a => a.analysis_writer_id)
+              .map(a => a.analysis_writer_id)
+          );
+
+          playerNameAnalyses.forEach(tacticalAnalysis => {
+            // Skip if already linked
+            if (existingAnalysisWriterIds.has(tacticalAnalysis.id)) return;
+
+            // Determine opponent name from the analysis
+            const opponentName = tacticalAnalysis.away_team || tacticalAnalysis.home_team;
+            
+            // Try to find matching action report by opponent and date
+            const matchingReport = mergedAnalyses.find(report => {
+              const reportDate = new Date(report.analysis_date).toDateString();
+              const analysisDate = new Date(tacticalAnalysis.match_date || tacticalAnalysis.created_at).toDateString();
+              const opponentMatch = report.opponent && 
+                (report.opponent.includes(tacticalAnalysis.away_team || '') || 
+                 report.opponent.includes(tacticalAnalysis.home_team || '') ||
+                 (tacticalAnalysis.away_team?.includes(report.opponent)) ||
+                 (tacticalAnalysis.home_team?.includes(report.opponent)));
+              return opponentMatch && reportDate === analysisDate;
+            });
+
+            if (matchingReport && !matchingReport.analysis_writer_data) {
+              // Attach to existing report
+              const index = mergedAnalyses.findIndex(a => a.id === matchingReport.id);
+              if (index !== -1) {
+                mergedAnalyses[index] = {
+                  ...mergedAnalyses[index],
+                  analysis_writer_data: tacticalAnalysis,
+                  analysis_writer_id: tacticalAnalysis.id
+                } as Analysis;
+              }
+            } else if (!matchingReport) {
+              // Create standalone entry for this tactical analysis
+              const standaloneEntry: Analysis = {
+                id: `tactical-${tacticalAnalysis.id}`,
+                analysis_date: tacticalAnalysis.match_date || tacticalAnalysis.created_at,
+                r90_score: null as any,
+                pdf_url: null,
+                video_url: null,
+                notes: null,
+                opponent: tacticalAnalysis.away_team || tacticalAnalysis.home_team,
+                result: tacticalAnalysis.home_score !== null && tacticalAnalysis.away_score !== null
+                  ? `${tacticalAnalysis.home_score}-${tacticalAnalysis.away_score}`
+                  : null,
+                minutes_played: null,
+                analysis_writer_id: tacticalAnalysis.id,
+                analysis_writer_data: tacticalAnalysis,
+                fixture_id: tacticalAnalysis.fixture_id
+              };
+              mergedAnalyses.push(standaloneEntry);
+            }
+          });
+        }
+      }
+
       // Sort merged analyses by date (newest first)
       mergedAnalyses.sort((a, b) => {
         const dateA = new Date(a.analysis_date).getTime();
