@@ -983,20 +983,57 @@ const Dashboard = () => {
       // Start with analysesWithXGChain
       let mergedAnalyses = [...analysesWithXGChain] as Analysis[];
 
-      // Fetch all analyses (pre-match, post-match, concepts) linked via analysis_writer_id
-      const linkedAnalysisIds = (analysisData || [])
-        .filter(a => a.analysis_writer_id)
-        .map(a => a.analysis_writer_id);
+      // Fetch ALL pre-match and post-match analyses to match with player's fixtures
+      const { data: allTacticalAnalyses } = await supabase
+        .from("analyses")
+        .select("*")
+        .in("analysis_type", ["pre-match", "post-match"]);
 
-      if (linkedAnalysisIds.length > 0) {
-        const { data: allAnalysesData, error: allAnalysesError } = await supabase
-          .from("analyses")
-          .select("*")
-          .in("id", linkedAnalysisIds);
+      if (allTacticalAnalyses && allTacticalAnalyses.length > 0) {
+        // Match tactical analyses to player_analysis by opponent and date
+        allTacticalAnalyses.forEach(tacticalAnalysis => {
+          // Try to find matching action report by opponent and date
+          const matchingReport = mergedAnalyses.find(report => {
+            if (!report.opponent) return false;
+            
+            const reportDate = new Date(report.analysis_date).toDateString();
+            const analysisDate = new Date(tacticalAnalysis.match_date || tacticalAnalysis.created_at).toDateString();
+            
+            // Check if opponent matches either home_team or away_team
+            const opponentLower = report.opponent.toLowerCase();
+            const homeTeamLower = (tacticalAnalysis.home_team || '').toLowerCase();
+            const awayTeamLower = (tacticalAnalysis.away_team || '').toLowerCase();
+            
+            const opponentMatch = 
+              opponentLower.includes(homeTeamLower) || 
+              homeTeamLower.includes(opponentLower) ||
+              opponentLower.includes(awayTeamLower) || 
+              awayTeamLower.includes(opponentLower);
+            
+            return opponentMatch && reportDate === analysisDate;
+          });
 
-        if (!allAnalysesError && allAnalysesData) {
-          // Separate concepts from other analyses and normalize
-          const normalizedConcepts = allAnalysesData
+          if (matchingReport && !matchingReport.analysis_writer_data) {
+            // Attach tactical analysis to existing action report
+            const index = mergedAnalyses.findIndex(a => a.id === matchingReport.id);
+            if (index !== -1) {
+              mergedAnalyses[index] = {
+                ...mergedAnalyses[index],
+                analysis_writer_data: tacticalAnalysis,
+                analysis_writer_id: tacticalAnalysis.id
+              } as Analysis;
+            }
+          }
+        });
+
+        // Also extract concepts from analyses linked via analysis_writer_id (if any)
+        const linkedAnalysisIds = (analysisData || [])
+          .filter(a => a.analysis_writer_id)
+          .map(a => a.analysis_writer_id);
+
+        if (linkedAnalysisIds.length > 0) {
+          const linkedAnalyses = allTacticalAnalyses.filter(a => linkedAnalysisIds.includes(a.id));
+          const normalizedConcepts = linkedAnalyses
             .filter(a => a.analysis_type === "concept")
             .map(concept => {
               const points = concept.points && typeof concept.points === 'object' && Array.isArray(concept.points)
@@ -1008,28 +1045,32 @@ const Dashboard = () => {
               return { ...concept, points };
             });
           setConcepts(normalizedConcepts);
-          
-          // Add pre-match and post-match analyses to the analyses array
-          const matchAnalyses = allAnalysesData.filter(a => 
-            a.analysis_type === "pre-match" || a.analysis_type === "post-match"
-          );
-          
-          // Merge with existing player_analysis data
-          matchAnalyses.forEach(matchAnalysis => {
-            const playerAnalysis = (analysisData || []).find(
-              pa => pa.analysis_writer_id === matchAnalysis.id
-            );
-            if (playerAnalysis) {
-              // Update the existing analysis with details from analyses table
-              const index = mergedAnalyses.findIndex(a => a.id === playerAnalysis.id);
-              if (index !== -1) {
-                mergedAnalyses[index] = {
-                  ...mergedAnalyses[index],
-                  analysis_writer_data: matchAnalysis
-                } as Analysis;
-              }
-            }
+        }
+      }
+
+      // Also fetch concepts separately
+      const conceptIds = (analysisData || [])
+        .filter(a => a.analysis_writer_id)
+        .map(a => a.analysis_writer_id);
+      
+      if (conceptIds.length > 0) {
+        const { data: conceptsData } = await supabase
+          .from("analyses")
+          .select("*")
+          .in("id", conceptIds)
+          .eq("analysis_type", "concept");
+
+        if (conceptsData) {
+          const normalizedConcepts = conceptsData.map(concept => {
+            const points = concept.points && typeof concept.points === 'object' && Array.isArray(concept.points)
+              ? concept.points.map((point: any) => ({
+                  ...point,
+                  images: Array.isArray(point?.images) ? point.images : []
+                }))
+              : [];
+            return { ...concept, points };
           });
+          setConcepts(normalizedConcepts);
         }
       }
 
@@ -1050,8 +1091,10 @@ const Dashboard = () => {
           .in("analysis_type", ["pre-match", "post-match"]);
 
         if (fixtureAnalyses && fixtureAnalyses.length > 0) {
-          // Get IDs of analyses already linked via analysis_writer_id
-          const alreadyLinkedIds = new Set(linkedAnalysisIds);
+          // Get IDs of analyses already linked
+          const alreadyLinkedIds = new Set(
+            mergedAnalyses.filter(a => a.analysis_writer_id).map(a => a.analysis_writer_id)
+          );
           
           // Add fixture-linked analyses that aren't already linked via analysis_writer_id
           fixtureAnalyses.forEach(fixtureAnalysis => {
