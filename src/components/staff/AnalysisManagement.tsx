@@ -97,9 +97,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
   const navigate = useNavigate();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
-  const [preMatchDialogOpen, setPreMatchDialogOpen] = useState(false);
-  const [postMatchDialogOpen, setPostMatchDialogOpen] = useState(false);
-  const [conceptDialogOpen, setConceptDialogOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'list' | 'pre-match' | 'post-match' | 'concept'>('list');
   const [editingAnalysis, setEditingAnalysis] = useState<Analysis | null>(null);
   const [analysisType, setAnalysisType] = useState<AnalysisType>("pre-match");
   const [aiGenerating, setAiGenerating] = useState(false);
@@ -340,15 +338,11 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
       setSelectedPerformanceReportId("none");
     }
     
-    if (type === "pre-match") setPreMatchDialogOpen(true);
-    else if (type === "post-match") setPostMatchDialogOpen(true);
-    else if (type === "concept") setConceptDialogOpen(true);
+    setActiveView(type);
   };
 
   const handleCloseDialog = () => {
-    setPreMatchDialogOpen(false);
-    setPostMatchDialogOpen(false);
-    setConceptDialogOpen(false);
+    setActiveView('list');
     setEditingAnalysis(null);
     setFormData({ points: [], matchups: [], starting_xi: [] });
     setSelectedPlayerId("none");
@@ -1230,6 +1224,132 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     ));
   };
 
+  // If showing an editor view, render it directly instead of the list
+  if (activeView !== 'list') {
+    const isPreMatch = activeView === 'pre-match';
+    const isPostMatch = activeView === 'post-match';
+    const isConcept = activeView === 'concept';
+    
+    return (
+      <div className="space-y-4">
+        {/* Header with back button */}
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={handleCloseDialog}>
+            ← Back
+          </Button>
+          <h2 className="text-lg font-semibold">
+            {editingAnalysis ? "Edit" : "New"} {isPreMatch ? "Pre-Match Analysis" : isPostMatch ? "Post-Match Analysis" : "Concept"}
+          </h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Quick Link - only show when creating new analysis (not for concepts) */}
+          {!editingAnalysis && !isConcept && (
+            <AnalysisQuickLink
+              formData={formData}
+              setFormData={setFormData}
+              analysisType={activeView as "pre-match" | "post-match"}
+            />
+          )}
+
+          {/* Match Details (Pre-Match and Post-Match only) */}
+          {!isConcept && (
+            <AnalysisMatchDetails
+              formData={formData}
+              setFormData={setFormData}
+              handleImageUpload={handleImageUpload}
+              handleVideoUpload={handleVideoUpload}
+              uploadingImage={uploadingImage}
+              analysisType={activeView as "pre-match" | "post-match"}
+              players={players}
+              selectedPlayerId={selectedPlayerId}
+              setSelectedPlayerId={setSelectedPlayerId}
+              performanceReports={performanceReports}
+              selectedPerformanceReportId={selectedPerformanceReportId}
+              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
+            />
+          )}
+
+          {/* Scheme Section (Pre-Match only) */}
+          {isPreMatch && (
+            <AnalysisSchemeSection
+              formData={formData}
+              setFormData={setFormData}
+              handleSchemeChange={handleSchemeChange}
+              updateStartingXIPlayer={updateStartingXIPlayer}
+              generateWithAI={generateWithAI}
+              aiGenerating={aiGenerating}
+              formationTemplates={formationTemplates}
+              handleImageUpload={handleImageUpload}
+              handleVideoUpload={handleVideoUpload}
+              uploadingImage={uploadingImage}
+            />
+          )}
+
+          {/* Overview Section for Concept - shown first */}
+          {isConcept && (
+            <AnalysisOverviewSection
+              formData={formData}
+              setFormData={setFormData}
+              handleVideoUpload={handleVideoUpload}
+              handleImageUpload={handleImageUpload}
+              uploadingImage={uploadingImage}
+              players={players}
+              selectedPlayerId={selectedPlayerId}
+              setSelectedPlayerId={setSelectedPlayerId}
+              performanceReports={performanceReports}
+              selectedPerformanceReportId={selectedPerformanceReportId}
+              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
+              analysisType="concept"
+            />
+          )}
+
+          {/* Points Section */}
+          <AnalysisPointsSection
+            formData={formData}
+            setFormData={setFormData}
+            addPoint={addPoint}
+            removePoint={removePoint}
+            updatePoint={updatePoint}
+            handleImageUpload={handleImageUpload}
+            handleVideoUploadForPoint={handleVideoUploadForPoint}
+            removeImageFromPoint={removeImageFromPoint}
+            uploadingImage={uploadingImage}
+            generateWithAI={generateWithAI}
+            aiGenerating={aiGenerating}
+            analysisType={activeView}
+          />
+
+          {/* Overview Section (Pre-Match and Post-Match - shown after points) */}
+          {!isConcept && (
+            <AnalysisOverviewSection
+              formData={formData}
+              setFormData={setFormData}
+              handleVideoUpload={handleVideoUpload}
+              handleImageUpload={handleImageUpload}
+              uploadingImage={uploadingImage}
+              players={players}
+              selectedPlayerId={selectedPlayerId}
+              setSelectedPlayerId={setSelectedPlayerId}
+              performanceReports={performanceReports}
+              selectedPerformanceReportId={selectedPerformanceReportId}
+              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
+              analysisType={activeView as "pre-match" | "post-match"}
+              addMatchup={addMatchup}
+              removeMatchup={removeMatchup}
+              updateMatchup={updateMatchup}
+            />
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-4 border-t mt-4 sticky bottom-0 bg-background py-4">
+          <Button variant="outline" onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleSave}>{isConcept ? "Save Concept" : "Save Analysis"}</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Header with Settings button */}
@@ -1258,7 +1378,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
         <TabsContent value="pre-match" className="space-y-4">
           <Button 
             onClick={() => handleOpenDialog("pre-match")}
-            className="bg-gradient-to-r from-slate-300 to-slate-400 text-slate-900 hover:from-slate-400 hover:to-slate-500"
+            className="bg-gradient-to-r from-muted to-muted/80 text-foreground hover:from-muted/80 hover:to-muted/60"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Pre-Match Analysis
@@ -1269,7 +1389,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
         <TabsContent value="post-match" className="space-y-4">
           <Button 
             onClick={() => handleOpenDialog("post-match")}
-            className="bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 hover:from-amber-500 hover:to-yellow-600"
+            className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Post-Match Analysis
@@ -1297,208 +1417,6 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* Pre-Match Dialog */}
-      <Dialog open={preMatchDialogOpen} onOpenChange={setPreMatchDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
-          <DialogHeader>
-            <DialogTitle>{editingAnalysis ? "Edit" : "New"} Pre-Match Analysis</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            {/* Quick Link - only show when creating new analysis */}
-            {!editingAnalysis && (
-              <AnalysisQuickLink
-                formData={formData}
-                setFormData={setFormData}
-                analysisType="pre-match"
-              />
-            )}
-
-            <AnalysisMatchDetails
-              formData={formData}
-              setFormData={setFormData}
-              handleImageUpload={handleImageUpload}
-              handleVideoUpload={handleVideoUpload}
-              uploadingImage={uploadingImage}
-              analysisType="pre-match"
-              players={players}
-              selectedPlayerId={selectedPlayerId}
-              setSelectedPlayerId={setSelectedPlayerId}
-              performanceReports={performanceReports}
-              selectedPerformanceReportId={selectedPerformanceReportId}
-              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
-            />
-
-            <AnalysisSchemeSection
-              formData={formData}
-              setFormData={setFormData}
-              handleSchemeChange={handleSchemeChange}
-              updateStartingXIPlayer={updateStartingXIPlayer}
-              generateWithAI={generateWithAI}
-              aiGenerating={aiGenerating}
-              formationTemplates={formationTemplates}
-              handleImageUpload={handleImageUpload}
-              handleVideoUpload={handleVideoUpload}
-              uploadingImage={uploadingImage}
-            />
-
-            <AnalysisPointsSection
-              formData={formData}
-              setFormData={setFormData}
-              addPoint={addPoint}
-              removePoint={removePoint}
-              updatePoint={updatePoint}
-              handleImageUpload={handleImageUpload}
-              handleVideoUploadForPoint={handleVideoUploadForPoint}
-              removeImageFromPoint={removeImageFromPoint}
-              uploadingImage={uploadingImage}
-              generateWithAI={generateWithAI}
-              aiGenerating={aiGenerating}
-              analysisType="pre-match"
-            />
-
-            <AnalysisOverviewSection
-              formData={formData}
-              setFormData={setFormData}
-              handleVideoUpload={handleVideoUpload}
-              handleImageUpload={handleImageUpload}
-              uploadingImage={uploadingImage}
-              players={players}
-              selectedPlayerId={selectedPlayerId}
-              setSelectedPlayerId={setSelectedPlayerId}
-              performanceReports={performanceReports}
-              selectedPerformanceReportId={selectedPerformanceReportId}
-              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
-              analysisType="pre-match"
-              addMatchup={addMatchup}
-              removeMatchup={removeMatchup}
-              updateMatchup={updateMatchup}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4 border-t mt-4">
-            <Button variant="outline" onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={handleSave}>Save Analysis</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Post-Match Dialog */}
-      <Dialog open={postMatchDialogOpen} onOpenChange={setPostMatchDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
-          <DialogHeader>
-            <DialogTitle>{editingAnalysis ? "Edit" : "New"} Post-Match Analysis</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            {/* Quick Link - only show when creating new analysis */}
-            {!editingAnalysis && (
-              <AnalysisQuickLink
-                formData={formData}
-                setFormData={setFormData}
-                analysisType="post-match"
-              />
-            )}
-
-            <AnalysisMatchDetails
-              formData={formData}
-              setFormData={setFormData}
-              handleImageUpload={handleImageUpload}
-              handleVideoUpload={handleVideoUpload}
-              uploadingImage={uploadingImage}
-              analysisType="post-match"
-              players={players}
-              selectedPlayerId={selectedPlayerId}
-              setSelectedPlayerId={setSelectedPlayerId}
-              performanceReports={performanceReports}
-              selectedPerformanceReportId={selectedPerformanceReportId}
-              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
-            />
-
-            <AnalysisPointsSection
-              formData={formData}
-              setFormData={setFormData}
-              addPoint={addPoint}
-              removePoint={removePoint}
-              updatePoint={updatePoint}
-              handleImageUpload={handleImageUpload}
-              handleVideoUploadForPoint={handleVideoUploadForPoint}
-              removeImageFromPoint={removeImageFromPoint}
-              uploadingImage={uploadingImage}
-              generateWithAI={generateWithAI}
-              aiGenerating={aiGenerating}
-              analysisType="post-match"
-            />
-
-            <AnalysisOverviewSection
-              formData={formData}
-              setFormData={setFormData}
-              handleVideoUpload={handleVideoUpload}
-              handleImageUpload={handleImageUpload}
-              uploadingImage={uploadingImage}
-              players={players}
-              selectedPlayerId={selectedPlayerId}
-              setSelectedPlayerId={setSelectedPlayerId}
-              performanceReports={performanceReports}
-              selectedPerformanceReportId={selectedPerformanceReportId}
-              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
-              analysisType="post-match"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4 border-t mt-4">
-            <Button variant="outline" onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={handleSave}>Save Analysis</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Concept Dialog */}
-      <Dialog open={conceptDialogOpen} onOpenChange={setConceptDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
-          <DialogHeader>
-            <DialogTitle>{editingAnalysis ? "Edit" : "New"} Concept</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <AnalysisOverviewSection
-              formData={formData}
-              setFormData={setFormData}
-              handleVideoUpload={handleVideoUpload}
-              handleImageUpload={handleImageUpload}
-              uploadingImage={uploadingImage}
-              players={players}
-              selectedPlayerId={selectedPlayerId}
-              setSelectedPlayerId={setSelectedPlayerId}
-              performanceReports={performanceReports}
-              selectedPerformanceReportId={selectedPerformanceReportId}
-              setSelectedPerformanceReportId={setSelectedPerformanceReportId}
-              analysisType="concept"
-            />
-
-            <AnalysisPointsSection
-              formData={formData}
-              setFormData={setFormData}
-              addPoint={addPoint}
-              removePoint={removePoint}
-              updatePoint={updatePoint}
-              handleImageUpload={handleImageUpload}
-              handleVideoUploadForPoint={handleVideoUploadForPoint}
-              removeImageFromPoint={removeImageFromPoint}
-              uploadingImage={uploadingImage}
-              generateWithAI={generateWithAI}
-              aiGenerating={aiGenerating}
-              analysisType="concept"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4 border-t mt-4">
-            <Button variant="outline" onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={handleSave}>Save Concept</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Settings Dialog */}
       <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
