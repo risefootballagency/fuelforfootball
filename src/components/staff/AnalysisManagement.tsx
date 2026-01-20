@@ -21,6 +21,7 @@ import { AnalysisMatchDetails } from "./analysis/AnalysisMatchDetails";
 import { AnalysisSchemeSection } from "./analysis/AnalysisSchemeSection";
 import { AnalysisPointsSection } from "./analysis/AnalysisPointsSection";
 import { AnalysisOverviewSection } from "./analysis/AnalysisOverviewSection";
+import { AnalysisQuickLink } from "./analysis/AnalysisQuickLink";
 
 type AnalysisType = "pre-match" | "post-match" | "concept";
 
@@ -1259,6 +1260,15 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           </DialogHeader>
 
           <div className="space-y-4">
+            {/* Quick Link - only show when creating new analysis */}
+            {!editingAnalysis && (
+              <AnalysisQuickLink
+                formData={formData}
+                setFormData={setFormData}
+                analysisType="pre-match"
+              />
+            )}
+
             <AnalysisMatchDetails
               formData={formData}
               setFormData={setFormData}
@@ -1336,6 +1346,15 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           </DialogHeader>
 
           <div className="space-y-4">
+            {/* Quick Link - only show when creating new analysis */}
+            {!editingAnalysis && (
+              <AnalysisQuickLink
+                formData={formData}
+                setFormData={setFormData}
+                analysisType="post-match"
+              />
+            )}
+
             <AnalysisMatchDetails
               formData={formData}
               setFormData={setFormData}
