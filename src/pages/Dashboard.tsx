@@ -151,28 +151,28 @@ const Dashboard = () => {
   // Initialize push notifications with player ID
   usePushNotifications(playerData?.id);
 
-  // Session color mapping with hover states
+  // Session color mapping with hover states - ALL using FFF gold hsl(36, 100%, 50%)
   const getSessionColor = (sessionKey: string) => {
     const key = sessionKey.toUpperCase();
     const colorMap: Record<string, { bg: string; text: string; hover: string }> = {
-      'A': { bg: 'hsl(220, 70%, 35%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(220, 70%, 45%)' },
-      'B': { bg: 'hsl(140, 50%, 30%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(140, 50%, 40%)' },
-      'C': { bg: 'hsl(0, 50%, 35%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(0, 50%, 45%)' },
-      'D': { bg: 'hsl(45, 70%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(45, 70%, 55%)' },
-      'E': { bg: 'hsl(70, 20%, 40%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(70, 20%, 50%)' },
-      'F': { bg: 'hsl(270, 60%, 40%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(270, 60%, 50%)' },
-      'G': { bg: 'hsl(190, 70%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(190, 70%, 55%)' },
-      'PRE-B': { bg: 'hsl(140, 50%, 20%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(140, 50%, 30%)' },
-      'PRE-C': { bg: 'hsl(0, 50%, 25%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(0, 50%, 35%)' },
-      'PRE-D': { bg: 'hsl(45, 70%, 35%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(45, 70%, 45%)' },
-      'PRE-E': { bg: 'hsl(70, 20%, 30%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(70, 20%, 40%)' },
-      'PRE-F': { bg: 'hsl(270, 60%, 30%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(270, 60%, 40%)' },
-      'PRE-G': { bg: 'hsl(190, 70%, 35%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(190, 70%, 45%)' },
-      'PREHAB': { bg: 'hsl(220, 80%, 20%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(220, 80%, 30%)' },
-      'T': { bg: 'hsl(140, 50%, 20%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(140, 50%, 30%)' },
-      'TESTING': { bg: 'hsl(140, 50%, 20%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(140, 50%, 30%)' },
-      'R': { bg: 'hsl(0, 0%, 85%)', text: 'hsl(45, 100%, 45%)', hover: 'hsl(0, 0%, 90%)' },
-      'REST': { bg: 'hsl(0, 0%, 85%)', text: 'hsl(45, 100%, 45%)', hover: 'hsl(0, 0%, 90%)' },
+      'A': { bg: 'hsl(220, 70%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(220, 70%, 45%)' },
+      'B': { bg: 'hsl(140, 50%, 30%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(140, 50%, 40%)' },
+      'C': { bg: 'hsl(0, 50%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(0, 50%, 45%)' },
+      'D': { bg: 'hsl(36, 70%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(36, 70%, 55%)' },
+      'E': { bg: 'hsl(70, 20%, 40%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(70, 20%, 50%)' },
+      'F': { bg: 'hsl(270, 60%, 40%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(270, 60%, 50%)' },
+      'G': { bg: 'hsl(190, 70%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(190, 70%, 55%)' },
+      'PRE-B': { bg: 'hsl(140, 50%, 20%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(140, 50%, 30%)' },
+      'PRE-C': { bg: 'hsl(0, 50%, 25%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(0, 50%, 35%)' },
+      'PRE-D': { bg: 'hsl(36, 70%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(36, 70%, 45%)' },
+      'PRE-E': { bg: 'hsl(70, 20%, 30%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(70, 20%, 40%)' },
+      'PRE-F': { bg: 'hsl(270, 60%, 30%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(270, 60%, 40%)' },
+      'PRE-G': { bg: 'hsl(190, 70%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(190, 70%, 45%)' },
+      'PREHAB': { bg: 'hsl(220, 80%, 20%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(220, 80%, 30%)' },
+      'T': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
+      'TESTING': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
+      'R': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
+      'REST': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
     };
     return colorMap[key] || { bg: 'hsl(0, 0%, 15%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 25%)' };
   };
