@@ -13,21 +13,28 @@ export const PlayerImages = ({ playerId, isAdmin }: PlayerImagesProps) => {
   const [images, setImages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  useEffect(() => {
-    const fetchImages = async () => {
-      const { data, error } = await supabase
-        .from('marketing_gallery')
-        .select('*')
-        .eq('category', 'players')
-        .eq('file_type', 'image')
-        .or(`player_id.eq.${playerId},player_id.is.null`)
-        .order('created_at', { ascending: false });
-      
-      if (!error) {
-        setImages(data || []);
-      }
+  const fetchImages = async () => {
+    if (!playerId) {
+      setImages([]);
       setLoading(false);
-    };
+      return;
+    }
+    
+    const { data, error } = await supabase
+      .from('marketing_gallery')
+      .select('*')
+      .eq('category', 'players')
+      .eq('file_type', 'image')
+      .eq('player_id', playerId)
+      .order('created_at', { ascending: false });
+    
+    if (!error) {
+      setImages(data || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchImages();
   }, [playerId]);
   
@@ -72,14 +79,7 @@ export const PlayerImages = ({ playerId, isAdmin }: PlayerImagesProps) => {
                   
                   toast.success('Image deleted successfully!');
                   // Refetch images
-                  const { data } = await supabase
-                    .from('marketing_gallery')
-                    .select('*')
-                    .eq('category', 'players')
-                    .eq('file_type', 'image')
-                    .or(`player_id.eq.${playerId},player_id.is.null`)
-                    .order('created_at', { ascending: false });
-                  setImages(data || []);
+                  fetchImages();
                 } catch (error: any) {
                   toast.error('Failed to delete: ' + error.message);
                 }
