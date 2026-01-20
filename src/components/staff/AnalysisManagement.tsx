@@ -664,12 +664,25 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
   const fetchExamples = async (category: string, type: 'point' | 'overview' = 'point') => {
     try {
-      const { data, error } = await supabase
+      // Try shared DB first, fallback to local if issues
+      let { data, error } = await supabase
         .from('analysis_point_examples')
         .select('*')
         .eq('category', category)
         .eq('example_type', type)
         .order('created_at', { ascending: false });
+
+      if (error) {
+        // Fallback to local DB
+        const localResult = await localSupabase
+          .from('analysis_point_examples')
+          .select('*')
+          .eq('category', category)
+          .eq('example_type', type)
+          .order('created_at', { ascending: false });
+        data = localResult.data;
+        error = localResult.error;
+      }
 
       if (error) throw error;
       setExamples(data || []);
@@ -686,10 +699,20 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
           : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
         
-        const { error } = await supabase
+        // Try shared DB first, fallback to local on constraint errors
+        let { error } = await supabase
           .from('analysis_point_examples')
           .update(dataToUpdate)
           .eq('id', editingExample.id);
+
+        if (error?.code === '23514') {
+          // Constraint violation - use local DB
+          const localResult = await localSupabase
+            .from('analysis_point_examples')
+            .update(dataToUpdate)
+            .eq('id', editingExample.id);
+          error = localResult.error;
+        }
 
         if (error) throw error;
         toast.success('Example updated');
@@ -698,9 +721,18 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
           : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
         
-        const { error } = await supabase
+        // Try shared DB first, fallback to local on constraint errors
+        let { error } = await supabase
           .from('analysis_point_examples')
           .insert(dataToInsert);
+
+        if (error?.code === '23514') {
+          // Constraint violation - use local DB
+          const localResult = await localSupabase
+            .from('analysis_point_examples')
+            .insert(dataToInsert);
+          error = localResult.error;
+        }
 
         if (error) throw error;
         toast.success('Example added');
@@ -719,10 +751,20 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     if (!confirm('Delete this example?')) return;
 
     try {
-      const { error } = await supabase
+      // Try shared DB first, fallback to local
+      let { error } = await supabase
         .from('analysis_point_examples')
         .delete()
         .eq('id', id);
+
+      if (error) {
+        // Fallback to local DB
+        const localResult = await localSupabase
+          .from('analysis_point_examples')
+          .delete()
+          .eq('id', id);
+        error = localResult.error;
+      }
 
       if (error) throw error;
       toast.success('Example deleted');
