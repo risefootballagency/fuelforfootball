@@ -664,28 +664,32 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
   const fetchExamples = async (category: string, type: 'point' | 'overview' = 'point') => {
     try {
-      // Try shared DB first, fallback to local if issues
-      let { data, error } = await supabase
-        .from('analysis_point_examples')
-        .select('*')
-        .eq('category', category)
-        .eq('example_type', type)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        // Fallback to local DB
-        const localResult = await localSupabase
+      // Fetch from BOTH databases and merge results (shared DB may have constraints limiting categories)
+      const [sharedResult, localResult] = await Promise.all([
+        supabase
           .from('analysis_point_examples')
           .select('*')
           .eq('category', category)
           .eq('example_type', type)
-          .order('created_at', { ascending: false });
-        data = localResult.data;
-        error = localResult.error;
-      }
+          .order('created_at', { ascending: false }),
+        localSupabase
+          .from('analysis_point_examples')
+          .select('*')
+          .eq('category', category)
+          .eq('example_type', type)
+          .order('created_at', { ascending: false })
+      ]);
 
-      if (error) throw error;
-      setExamples(data || []);
+      // Combine results, removing duplicates by ID
+      const sharedData = sharedResult.data || [];
+      const localData = localResult.data || [];
+      const seenIds = new Set(sharedData.map(e => e.id));
+      const mergedData = [...sharedData, ...localData.filter(e => !seenIds.has(e.id))];
+      
+      // Sort by created_at descending
+      mergedData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      setExamples(mergedData);
     } catch (error: any) {
       console.error('Error fetching examples:', error);
       toast.error('Failed to load examples');
@@ -1755,10 +1759,24 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
       {/* Examples Database Dialog */}
       <Dialog open={examplesDialogOpen} onOpenChange={setExamplesDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {examplesCategory.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} {examplesType === 'overview' ? 'Overview' : 'Point'} Examples
-            </DialogTitle>
+          <DialogHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => { 
+                  setExamplesDialogOpen(false); 
+                  setSettingsDialogOpen(true); 
+                  setEditingExample(null);
+                  setExampleFormData({ paragraph_1: '', content: '' });
+                }}
+              >
+                ← Back
+              </Button>
+              <DialogTitle>
+                {examplesCategory.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} {examplesType === 'overview' ? 'Overview' : 'Point'} Examples
+              </DialogTitle>
+            </div>
           </DialogHeader>
 
           <div className="space-y-4">
