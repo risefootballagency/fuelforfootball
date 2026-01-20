@@ -184,6 +184,7 @@ const getScoreColor = (score: number | string | null) => {
 
 export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
   const [activeTab, setActiveTab] = useState<TableType>('coaching_sessions');
+  const [programmeSubTab, setProgrammeSubTab] = useState<'sps' | 'nutrition'>('sps');
   const [items, setItems] = useState<CoachingItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -239,7 +240,7 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
   useEffect(() => {
     setCurrentPage(1);
     fetchItems();
-  }, [selectedCategory, selectedMuscleGroup, selectedPosition, selectedSkill]);
+  }, [selectedCategory, selectedMuscleGroup, selectedPosition, selectedSkill, programmeSubTab]);
 
   useEffect(() => {
     fetchItems();
@@ -316,6 +317,7 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
       // Map coaching_concepts to coaching_analysis table
       const tableName = activeTab === 'coaching_concepts' ? 'coaching_analysis' : activeTab;
       
+      // Build query for shared database
       let query: any = supabase
         .from(tableName as any)
         .select('*', { count: 'exact' })
@@ -323,33 +325,34 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
 
       // Apply filters based on table type
       if (activeTab === 'coaching_exercises') {
-        // Apply category filter
         if (selectedCategory !== 'all') {
           query = query.eq('category', selectedCategory);
         }
-        // Apply muscle group filter
         if (selectedMuscleGroup !== 'all') {
           query = query.contains('tags', [selectedMuscleGroup]);
         }
       } else if (activeTab === 'coaching_drills') {
-        // Apply position filter
         if (selectedPosition !== 'all') {
           query = query.contains('tags', [selectedPosition]);
         }
-        // Apply skill filter
         if (selectedSkill !== 'all') {
           query = query.contains('tags', [selectedSkill]);
         }
       } else if (activeTab === 'r90_ratings') {
-        // Apply category filter for R90 ratings
         if (selectedCategory !== 'all') {
           query = query.eq('category', selectedCategory);
         }
+      } else if (activeTab === 'coaching_programmes') {
+        // Filter programmes by SPS vs Nutrition based on subtab
+        if (programmeSubTab === 'nutrition') {
+          query = query.or('category.ilike.%Nutrition%,title.ilike.%Nutrition%');
+        } else {
+          query = query.not('category', 'ilike', '%Nutrition%');
+          query = query.not('title', 'ilike', '%Nutrition%');
+        }
       } else if (activeTab === 'coaching_analysis') {
-        // Analysis tab shows non-concept items
         query = query.or('analysis_type.is.null,analysis_type.neq.concept');
       } else if (activeTab === 'coaching_concepts') {
-        // Concepts tab shows only concept items
         query = query.eq('analysis_type', 'concept');
       }
 
@@ -358,11 +361,47 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
       const to = from + itemsPerPage - 1;
       query = query.range(from, to);
 
-      const { data, error, count } = await query;
+      const { data: sharedData, error: sharedError, count: sharedCount } = await query;
 
-      if (error) throw error;
-      setItems((data || []) as any);
-      setTotalItems(count || 0);
+      if (sharedError) throw sharedError;
+      
+      let allItems = (sharedData || []) as CoachingItem[];
+      let totalCount = sharedCount || 0;
+
+      // For coaching_programmes, also fetch from local database and merge
+      if (activeTab === 'coaching_programmes') {
+        const { supabase: localClient } = await import('@/integrations/supabase/client');
+        
+        let localQuery: any = localClient
+          .from('coaching_programmes')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        // Apply same SPS/Nutrition filter to local query
+        if (programmeSubTab === 'nutrition') {
+          localQuery = localQuery.or('category.ilike.%Nutrition%,title.ilike.%Nutrition%');
+        } else {
+          localQuery = localQuery.not('category', 'ilike', '%Nutrition%');
+          localQuery = localQuery.not('title', 'ilike', '%Nutrition%');
+        }
+
+        const { data: localData, error: localError } = await localQuery;
+        
+        if (!localError && localData) {
+          // Merge and deduplicate by title (prefer shared over local)
+          const sharedTitles = new Set(allItems.map(item => item.title?.toLowerCase()));
+          for (const localProg of localData) {
+            if (!sharedTitles.has(localProg.title?.toLowerCase())) {
+              allItems.push(localProg as CoachingItem);
+            }
+          }
+          // Update total count
+          totalCount = allItems.length;
+        }
+      }
+
+      setItems(allItems);
+      setTotalItems(totalCount);
     } catch (error) {
       console.error('Error fetching items:', error);
       toast.error('Failed to load items');
@@ -931,6 +970,25 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
               <PositionalGuides isAdmin={isAdmin} />
             ) : (
               <>
+            {/* SPS / Nutrition Sub-tabs for Programmes */}
+            {key === 'coaching_programmes' && (
+              <div className="flex gap-2 mb-4">
+                <Button
+                  variant={programmeSubTab === 'sps' ? 'default' : 'outline'}
+                  onClick={() => setProgrammeSubTab('sps')}
+                  className={programmeSubTab === 'sps' ? 'bg-[hsl(var(--gold))] text-black hover:bg-[hsl(var(--gold))]/90' : ''}
+                >
+                  SPS Programmes
+                </Button>
+                <Button
+                  variant={programmeSubTab === 'nutrition' ? 'default' : 'outline'}
+                  onClick={() => setProgrammeSubTab('nutrition')}
+                  className={programmeSubTab === 'nutrition' ? 'bg-[hsl(var(--gold))] text-black hover:bg-[hsl(var(--gold))]/90' : ''}
+                >
+                  Nutrition Programmes
+                </Button>
+              </div>
+            )}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-end gap-4">
               {!isAdmin && (
                 <div className="text-sm text-muted-foreground">View Only</div>
