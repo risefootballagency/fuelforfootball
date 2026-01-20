@@ -5,7 +5,7 @@ import { Calendar, TrendingUp, ArrowRight, Trophy, X } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList, ReferenceLine, Rectangle } from "recharts";
 import { format, parseISO, startOfWeek, endOfWeek, isWithinInterval, addDays } from "date-fns";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { getR90Grade } from "@/lib/gradeCalculations";
 import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
 
@@ -56,7 +56,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     
     return (
       <div 
-        className="relative bg-black border-2 border-[hsl(43,49%,61%)] rounded-lg p-3 text-white min-w-[200px]"
+        className="relative bg-black border-2 border-primary rounded-lg p-3 text-white min-w-[200px]"
         style={{ pointerEvents: 'auto' }}
       >
         <button
@@ -122,14 +122,31 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
       
       console.log('Fetching marketing images for player:', playerData?.id, playerData?.name);
       
-      // Fetch images filtered by this specific player's ID
-      const { data: images, error } = await supabase
+      // Fetch images filtered by this specific player's ID from LOCAL database
+      // Try player-specific images first, fallback to general player images
+      let { data: images, error } = await localSupabase
         .from('marketing_gallery')
         .select('file_url')
         .eq('category', 'players')
         .eq('file_type', 'image')
         .eq('player_id', playerData.id)
         .order('created_at', { ascending: false });
+      
+      // If no player-specific images found, try images with matching player name in title
+      if (!images || images.length === 0) {
+        console.log('No player-specific images, checking by player name in title');
+        const { data: nameMatchImages } = await localSupabase
+          .from('marketing_gallery')
+          .select('file_url')
+          .eq('category', 'players')
+          .eq('file_type', 'image')
+          .ilike('title', `%${playerData.name}%`)
+          .order('created_at', { ascending: false });
+        
+        if (nameMatchImages && nameMatchImages.length > 0) {
+          images = nameMatchImages;
+        }
+      }
       
       if (error) {
         console.error('Error fetching player images:', error, error.message, error.details);
@@ -249,18 +266,18 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     return days;
   }, []);
 
-  // Session color mapping
+  // Session color mapping - using FFF brand gold
   const getSessionColor = (sessionKey: string) => {
     const key = sessionKey.toUpperCase();
     const colorMap: Record<string, { bg: string; text: string; hover: string }> = {
-      'A': { bg: 'hsl(220, 70%, 35%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(220, 70%, 45%)' },
-      'B': { bg: 'hsl(140, 50%, 30%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(140, 50%, 40%)' },
-      'C': { bg: 'hsl(0, 50%, 35%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(0, 50%, 45%)' },
-      'D': { bg: 'hsl(45, 70%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(45, 70%, 55%)' },
-      'E': { bg: 'hsl(70, 20%, 40%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(70, 20%, 50%)' },
-      'F': { bg: 'hsl(270, 60%, 40%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(270, 60%, 50%)' },
-      'G': { bg: 'hsl(190, 70%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(190, 70%, 55%)' },
-      'H': { bg: 'hsl(30, 80%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(30, 80%, 55%)' },
+      'A': { bg: 'hsl(220, 70%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(220, 70%, 45%)' },
+      'B': { bg: 'hsl(140, 50%, 30%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(140, 50%, 40%)' },
+      'C': { bg: 'hsl(0, 50%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(0, 50%, 45%)' },
+      'D': { bg: 'hsl(36, 70%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(36, 70%, 55%)' },
+      'E': { bg: 'hsl(70, 20%, 40%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(70, 20%, 50%)' },
+      'F': { bg: 'hsl(270, 60%, 40%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(270, 60%, 50%)' },
+      'G': { bg: 'hsl(190, 70%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(190, 70%, 55%)' },
+      'H': { bg: 'hsl(30, 80%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(30, 80%, 55%)' },
       'REST': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
       'MATCH': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
     };
@@ -323,7 +340,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     if (score >= 1.0 && score < 1.4) return "hsl(82, 84%, 67%)"; // lime-400: Light Green
     if (score >= 1.4 && score < 1.8) return "hsl(142, 76%, 36%)"; // green-500: Green
     if (score >= 1.8 && score < 2.5) return "hsl(142, 72%, 29%)"; // green-700: Dark green
-    return "hsl(43, 49%, 61%)"; // gold: RISE gold for 2.5+
+    return "hsl(36, 100%, 50%)"; // FFF gold for 2.5+
   };
 
   // Get latest 5 analyses
@@ -386,9 +403,9 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
           <CardContent className="container mx-auto px-4 pt-3 pb-3">
             {currentSchedule ? (
               <div className="grid grid-cols-8 gap-1 md:gap-2">
-                {/* Today Cell */}
+                {/* Today Cell - FFF Gold */}
                 <div 
-                  className="p-2 md:p-4 flex flex-col items-center justify-center rounded-lg bg-[hsl(43,49%,61%)] text-black"
+                  className="p-2 md:p-4 flex flex-col items-center justify-center rounded-lg bg-primary text-primary-foreground"
                 >
                   <div className="text-center">
                     <div className="text-sm md:text-2xl font-bold mb-1">{format(new Date(), 'd')}<sup className="text-[8px] md:text-sm">th</sup></div>
@@ -448,7 +465,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
         </Card>
 
         {/* Video/Image Carousel - Full Width - Always visible */}
-        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-[2px] border-b-[hsl(43,49%,61%)] z-25 !mt-0 !mb-[13px]">
+        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-primary border-b-[2px] border-b-primary z-25 !mt-0 !mb-[13px]">
           <CardContent className="p-0 overflow-hidden">
             {!imagesPreloaded || videoThumbnails.length === 0 ? (
               // Loading skeleton - shown while images load
@@ -490,7 +507,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
         </Card>
 
         {/* R90 Performance Chart & Recent Analysis Combined - Full Width */}
-        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0 border-t-[2px] border-t-[hsl(43,49%,61%)] z-20 overflow-visible">
+        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0 border-t-[2px] border-t-primary z-20 overflow-visible">
           <CardHeader marble className="py-2">
             <div className="flex items-center justify-between container mx-auto px-4 pr-6">
               <div className="flex items-center gap-2">
@@ -594,7 +611,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                               y1={lineY}
                               x2={x + width}
                               y2={lineY}
-                              stroke="hsl(43, 49%, 61%)"
+                              stroke="hsl(36, 100%, 50%)"
                               strokeWidth={1.5}
                               strokeDasharray="4 4"
                               opacity={0.6}
@@ -680,7 +697,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
 
         {/* Performance Section - Recent Fixtures - Full Width */}
         {recentAnalyses.length > 0 && (
-          <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0 z-10">
+          <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-primary border-b-0 z-10">
             <CardHeader marble className="py-2">
               <div className="flex items-center justify-between container mx-auto px-4 pr-6">
                 <div className="flex items-center gap-2">
