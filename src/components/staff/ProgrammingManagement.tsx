@@ -185,6 +185,7 @@ export const ProgrammingManagement = ({ isOpen, onClose, playerId, playerName, i
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [coachingPrograms, setCoachingPrograms] = useState<any[]>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [templateCategory, setTemplateCategory] = useState<'sps' | 'nutrition'>('sps');
   const [aiGenerating, setAiGenerating] = useState(false);
   const [exerciseTitles, setExerciseTitles] = useState<string[]>([]);
   const [showFixturesDialog, setShowFixturesDialog] = useState(false);
@@ -1428,41 +1429,110 @@ Phase Dates: ${programmingData.phaseDates || 'Not specified'}`;
             <DialogTitle className="text-lg sm:text-xl">Select Program Template</DialogTitle>
           </DialogHeader>
           
-          {loadingTemplates ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Loading templates...</p>
-            </div>
-          ) : coachingPrograms.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No templates available in coaching database yet.</p>
-              <p className="text-sm text-muted-foreground mt-2">Create programs in the Coaching Database first to use them as templates.</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {coachingPrograms.map((program) => (
-                <Card key={program.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => createProgramFromTemplate(program)}>
-                  <CardContent className="pt-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{program.title}</h4>
-                        {program.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{program.description}</p>
-                        )}
-                        {program.weeks && (
-                          <Badge variant="secondary" className="mt-2">
-                            {program.weeks} weeks
-                          </Badge>
-                        )}
-                      </div>
-                      <Button size="sm" variant="outline" disabled={loading}>
-                        Use Template
-                      </Button>
+          {/* Category Tabs */}
+          <Tabs value={templateCategory} onValueChange={(v) => setTemplateCategory(v as 'sps' | 'nutrition')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="sps">SPS Programs</TabsTrigger>
+              <TabsTrigger value="nutrition">Nutrition Programs</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="sps" className="mt-4">
+              {loadingTemplates ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Loading templates...</p>
+                </div>
+              ) : (
+                (() => {
+                  const spsPrograms = coachingPrograms.filter(p => 
+                    p.category !== 'Nutrition' && 
+                    !p.title?.toLowerCase().includes('nutrition') &&
+                    !p.tags?.some((t: string) => t.toLowerCase() === 'nutrition')
+                  );
+                  return spsPrograms.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No SPS templates available.</p>
+                      <p className="text-sm text-muted-foreground mt-2">Create programs in the Coaching Database first.</p>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                  ) : (
+                    <div className="space-y-2">
+                      {spsPrograms.map((program) => (
+                        <Card key={program.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => createProgramFromTemplate(program)}>
+                          <CardContent className="pt-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold">{program.title}</h4>
+                                {program.description && (
+                                  <p className="text-sm text-muted-foreground mt-1">{program.description}</p>
+                                )}
+                                <div className="flex gap-2 mt-2 flex-wrap">
+                                  {program.weeks && (
+                                    <Badge variant="secondary">{program.weeks} weeks</Badge>
+                                  )}
+                                  {program.category && (
+                                    <Badge variant="outline">{program.category}</Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <Button size="sm" variant="outline" disabled={loading}>
+                                Use Template
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  );
+                })()
+              )}
+            </TabsContent>
+            
+            <TabsContent value="nutrition" className="mt-4">
+              {loadingTemplates ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Loading templates...</p>
+                </div>
+              ) : (
+                (() => {
+                  const nutritionPrograms = coachingPrograms.filter(p => 
+                    p.category === 'Nutrition' || 
+                    p.title?.toLowerCase().includes('nutrition') ||
+                    p.tags?.some((t: string) => t.toLowerCase() === 'nutrition')
+                  );
+                  return nutritionPrograms.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No Nutrition templates available.</p>
+                      <p className="text-sm text-muted-foreground mt-2">Create nutrition programs in the Coaching Database first.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {nutritionPrograms.map((program) => (
+                        <Card key={program.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => createProgramFromTemplate(program)}>
+                          <CardContent className="pt-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold">{program.title}</h4>
+                                {program.description && (
+                                  <p className="text-sm text-muted-foreground mt-1">{program.description}</p>
+                                )}
+                                <div className="flex gap-2 mt-2 flex-wrap">
+                                  {program.weeks && (
+                                    <Badge variant="secondary">{program.weeks} weeks</Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <Button size="sm" variant="outline" disabled={loading}>
+                                Use Template
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  );
+                })()
+              )}
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
