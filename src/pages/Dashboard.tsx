@@ -3490,7 +3490,9 @@ const Dashboard = () => {
                                       { name: '10m Sprint', reps: '3' },
                                       { name: '20m Sprint', reps: '3' },
                                       { name: '30m Sprint', reps: '3' },
-                                      { name: '5-10-5 Agility', reps: '3' }
+                                      { name: '5-10-5 Agility', reps: '3' },
+                                      { name: 'Lateral Shuffle', reps: '3' },
+                                      { name: '5/10m Rush', reps: '3' }
                                     ],
                                     Strength: [
                                       { name: 'Back Squat 1RM', reps: '1' },
@@ -3541,7 +3543,13 @@ const Dashboard = () => {
                                           
                                           return (
                                             <div key={category} className="space-y-3">
-                                              <h4 className="font-bebas text-lg uppercase tracking-wider text-primary border-b border-primary/30 pb-1">
+                                              <h4 
+                                                className="font-bebas text-lg uppercase tracking-wider pb-2 px-3 py-2 rounded-t"
+                                                style={{ 
+                                                  backgroundColor: FFF_ORANGE,
+                                                  color: 'hsl(0, 0%, 0%)'
+                                                }}
+                                              >
                                                 {category}
                                               </h4>
                                               <div className="space-y-2">
@@ -3555,11 +3563,11 @@ const Dashboard = () => {
                                                     <div 
                                                       key={idx}
                                                       onClick={() => handleTestClick(test, category)}
-                                                      className="bg-secondary/30 rounded-lg p-3 hover:bg-secondary/50 transition-colors cursor-pointer group"
+                                                      className="bg-card border border-border rounded-lg p-3 hover:bg-muted transition-colors cursor-pointer group"
                                                     >
                                                       <div className="flex justify-between items-start gap-2">
                                                         <div className="flex-1">
-                                                          <span className="font-medium group-hover:text-primary transition-colors">{test.name}</span>
+                                                          <span className="font-medium text-foreground group-hover:text-primary transition-colors">{test.name}</span>
                                                           {latestResult && (
                                                             <div className="flex items-center gap-2 mt-1 flex-wrap">
                                                               <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">
