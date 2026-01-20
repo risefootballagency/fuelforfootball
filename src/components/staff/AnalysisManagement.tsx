@@ -664,7 +664,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
   const fetchExamples = async (category: string, type: 'point' | 'overview' = 'point') => {
     try {
-      const { data, error } = await localSupabase
+      const { data, error } = await supabase
         .from('analysis_point_examples')
         .select('*')
         .eq('category', category)
@@ -686,7 +686,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
           : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
         
-        const { error } = await localSupabase
+        const { error } = await supabase
           .from('analysis_point_examples')
           .update(dataToUpdate)
           .eq('id', editingExample.id);
@@ -698,7 +698,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
           ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
           : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
         
-        const { error } = await localSupabase
+        const { error } = await supabase
           .from('analysis_point_examples')
           .insert(dataToInsert);
 
@@ -719,7 +719,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     if (!confirm('Delete this example?')) return;
 
     try {
-      const { error } = await localSupabase
+      const { error } = await supabase
         .from('analysis_point_examples')
         .delete()
         .eq('id', id);
