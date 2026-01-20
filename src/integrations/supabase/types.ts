@@ -1308,22 +1308,7 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "marketing_gallery_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "players"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "marketing_gallery_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "players_public"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       marketing_ideas: {
         Row: {
