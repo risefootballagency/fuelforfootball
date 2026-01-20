@@ -330,13 +330,34 @@ export const ProgrammingManagement = ({ isOpen, onClose, playerId, playerName, i
   const loadCoachingPrograms = async () => {
     setLoadingTemplates(true);
     try {
-      const { data, error } = await supabase
+      // Fetch from shared database (sharedSupabase aliased as supabase)
+      const { data: sharedData, error: sharedError } = await supabase
         .from('coaching_programmes')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setCoachingPrograms(data || []);
+      if (sharedError) console.error('Error loading shared templates:', sharedError);
+      
+      // Also fetch from local database for templates saved locally
+      const { supabase: localClient } = await import('@/integrations/supabase/client');
+      const { data: localData, error: localError } = await localClient
+        .from('coaching_programmes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (localError) console.error('Error loading local templates:', localError);
+
+      // Merge and deduplicate by title (prefer shared over local)
+      const allPrograms = [...(sharedData || [])];
+      const sharedTitles = new Set((sharedData || []).map(p => p.title?.toLowerCase()));
+      
+      for (const localProg of (localData || [])) {
+        if (!sharedTitles.has(localProg.title?.toLowerCase())) {
+          allPrograms.push(localProg);
+        }
+      }
+
+      setCoachingPrograms(allPrograms);
     } catch (error) {
       console.error('Error loading coaching programs:', error);
       toast.error('Failed to load templates');
