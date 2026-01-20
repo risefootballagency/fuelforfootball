@@ -3479,12 +3479,38 @@ const Dashboard = () => {
                                   );
                                 })()}
 
-                                {/* Testing Section */}
+                                {/* Testing Section - Always visible */}
                                 {(() => {
                                   const testingProgram = programs.find(p => p.program_name === 'Testing Protocol');
-                                  const testingCategories = ['Strength', 'Power', 'Speed', 'Conditioning'];
+                                  const testingCategories = ['Speed', 'Strength', 'Power', 'Conditioning'];
                                   
-                                  if (!testingProgram?.sessions) return null;
+                                  // Default tests for each category if no Testing Protocol program exists
+                                  const defaultTests: Record<string, Array<{name: string, reps?: string, sets?: string}>> = {
+                                    Speed: [
+                                      { name: '10m Sprint', reps: '3' },
+                                      { name: '20m Sprint', reps: '3' },
+                                      { name: '30m Sprint', reps: '3' },
+                                      { name: '5-10-5 Agility', reps: '3' }
+                                    ],
+                                    Strength: [
+                                      { name: 'Back Squat 1RM', reps: '1' },
+                                      { name: 'Bench Press 1RM', reps: '1' },
+                                      { name: 'Deadlift 1RM', reps: '1' },
+                                      { name: 'Nordic Hamstring', reps: '3' }
+                                    ],
+                                    Power: [
+                                      { name: 'Countermovement Jump', reps: '3' },
+                                      { name: 'Broad Jump', reps: '3' },
+                                      { name: 'Single Leg Hop', reps: '3' },
+                                      { name: 'Drop Jump RSI', reps: '3' }
+                                    ],
+                                    Conditioning: [
+                                      { name: 'Yo-Yo IR1', reps: '1' },
+                                      { name: 'Bronco Test', reps: '1' },
+                                      { name: '1.5 Mile Run', reps: '1' },
+                                      { name: 'Beep Test', reps: '1' }
+                                    ]
+                                  };
                                   
                                   return (
                                     <AccordionItem value="testing">
@@ -3505,12 +3531,13 @@ const Dashboard = () => {
                                           </Button>
                                         </div>
                                         
-                                        {testingProgram.overview_text && (
+                                        {testingProgram?.overview_text && (
                                           <p className="text-sm text-muted-foreground mb-4">{testingProgram.overview_text}</p>
                                         )}
                                         {testingCategories.map((category) => {
-                                          const tests = testingProgram.sessions[category];
-                                          if (!tests || tests.length === 0) return null;
+                                          // Use program tests if available, otherwise use defaults
+                                          const tests = testingProgram?.sessions?.[category] || defaultTests[category] || [];
+                                          if (tests.length === 0) return null;
                                           
                                           return (
                                             <div key={category} className="space-y-3">
