@@ -38,9 +38,9 @@ import { PaymentOptions } from "@/components/player/PaymentOptions";
 import { PlayerTransferHub } from "@/components/player/TransferHub";
 import { CognisanceSection } from "@/components/portal/CognisanceSection";
 
-// FFF Orange accent color for table headers and UI elements
-const FFF_ORANGE = 'hsl(36, 100%, 50%)';
-const FFF_ORANGE_DIM = 'hsl(36, 90%, 35%)';
+// FFF Gold accent color for table headers and UI elements - matches design system --accent
+const FFF_GOLD = 'hsl(47, 100%, 51%)';
+const FFF_GOLD_DIM = 'hsl(47, 90%, 40%)';
 
 interface Analysis {
   id: string;
@@ -155,24 +155,27 @@ const Dashboard = () => {
   const getSessionColor = (sessionKey: string) => {
     const key = sessionKey.toUpperCase();
     const colorMap: Record<string, { bg: string; text: string; hover: string }> = {
-      'A': { bg: 'hsl(220, 70%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(220, 70%, 45%)' },
-      'B': { bg: 'hsl(140, 50%, 30%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(140, 50%, 40%)' },
-      'C': { bg: 'hsl(0, 50%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(0, 50%, 45%)' },
-      'D': { bg: 'hsl(36, 70%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(36, 70%, 55%)' },
-      'E': { bg: 'hsl(70, 20%, 40%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(70, 20%, 50%)' },
-      'F': { bg: 'hsl(270, 60%, 40%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(270, 60%, 50%)' },
-      'G': { bg: 'hsl(190, 70%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(190, 70%, 55%)' },
-      'PRE-B': { bg: 'hsl(140, 50%, 20%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(140, 50%, 30%)' },
-      'PRE-C': { bg: 'hsl(0, 50%, 25%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(0, 50%, 35%)' },
-      'PRE-D': { bg: 'hsl(36, 70%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(36, 70%, 45%)' },
-      'PRE-E': { bg: 'hsl(70, 20%, 30%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(70, 20%, 40%)' },
-      'PRE-F': { bg: 'hsl(270, 60%, 30%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(270, 60%, 40%)' },
-      'PRE-G': { bg: 'hsl(190, 70%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(190, 70%, 45%)' },
-      'PREHAB': { bg: 'hsl(220, 80%, 20%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(220, 80%, 30%)' },
-      'T': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
-      'TESTING': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
+      'A': { bg: 'hsl(220, 70%, 35%)', text: FFF_GOLD, hover: 'hsl(220, 70%, 45%)' },
+      'B': { bg: 'hsl(140, 50%, 30%)', text: FFF_GOLD, hover: 'hsl(140, 50%, 40%)' },
+      'C': { bg: 'hsl(0, 50%, 35%)', text: FFF_GOLD, hover: 'hsl(0, 50%, 45%)' },
+      'D': { bg: 'hsl(47, 70%, 40%)', text: FFF_GOLD, hover: 'hsl(47, 70%, 50%)' },
+      'E': { bg: 'hsl(70, 20%, 40%)', text: FFF_GOLD, hover: 'hsl(70, 20%, 50%)' },
+      'F': { bg: 'hsl(270, 60%, 40%)', text: FFF_GOLD, hover: 'hsl(270, 60%, 50%)' },
+      'G': { bg: 'hsl(190, 70%, 45%)', text: FFF_GOLD, hover: 'hsl(190, 70%, 55%)' },
+      'H': { bg: 'hsl(340, 60%, 40%)', text: FFF_GOLD, hover: 'hsl(340, 60%, 50%)' },
+      'PRE-B': { bg: 'hsl(140, 50%, 20%)', text: FFF_GOLD, hover: 'hsl(140, 50%, 30%)' },
+      'PRE-C': { bg: 'hsl(0, 50%, 25%)', text: FFF_GOLD, hover: 'hsl(0, 50%, 35%)' },
+      'PRE-D': { bg: 'hsl(47, 70%, 30%)', text: FFF_GOLD, hover: 'hsl(47, 70%, 40%)' },
+      'PRE-E': { bg: 'hsl(70, 20%, 30%)', text: FFF_GOLD, hover: 'hsl(70, 20%, 40%)' },
+      'PRE-F': { bg: 'hsl(270, 60%, 30%)', text: FFF_GOLD, hover: 'hsl(270, 60%, 40%)' },
+      'PRE-G': { bg: 'hsl(190, 70%, 35%)', text: FFF_GOLD, hover: 'hsl(190, 70%, 45%)' },
+      'PREHAB': { bg: 'hsl(220, 80%, 20%)', text: FFF_GOLD, hover: 'hsl(220, 80%, 30%)' },
+      'T': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
+      'TESTING': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
       'R': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
       'REST': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
+      'M': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
+      'MATCH': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
     };
     return colorMap[key] || { bg: 'hsl(0, 0%, 15%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 25%)' };
   };
@@ -2645,7 +2648,7 @@ const Dashboard = () => {
                                   separator=""
                                   contentStyle={{
                                     backgroundColor: "#000000",
-                                    border: `2px solid ${FFF_ORANGE}`,
+                                    border: `2px solid ${FFF_GOLD}`,
                                     borderRadius: "8px",
                                     padding: "12px",
                                     color: "#ffffff"
@@ -2958,7 +2961,7 @@ const Dashboard = () => {
                                                  <div 
                                                   className="p-1 md:p-4 font-bebas uppercase text-[10px] md:text-lg flex items-center justify-center rounded-lg leading-tight"
                                                   style={{ 
-                                                    backgroundColor: FFF_ORANGE,
+                                                    backgroundColor: FFF_GOLD,
                                                     color: 'hsl(0, 0%, 0%)'
                                                   }}
                                                 >
@@ -2970,7 +2973,7 @@ const Dashboard = () => {
                                                   key={day}
                                                   className="p-1 md:p-4 font-bebas uppercase text-xs md:text-lg flex items-center justify-center rounded-lg"
                                                      style={{ 
-                                                       backgroundColor: FFF_ORANGE,
+                                                       backgroundColor: FFF_GOLD,
                                                        color: 'hsl(0, 0%, 0%)'
                                                      }}
                                                    >
@@ -2999,7 +3002,7 @@ const Dashboard = () => {
                                                           const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 });
                                                           const currentWeekEnd = endOfWeek(today, { weekStartsOn: 1 });
                                                           const isCurrentWeek = isWithinInterval(weekStart, { start: currentWeekStart, end: currentWeekEnd });
-                                                          return isCurrentWeek ? FFF_ORANGE : 'hsl(0, 0%, 95%)';
+                                                          return isCurrentWeek ? FFF_GOLD : 'hsl(0, 0%, 95%)';
                                                         })() || 'hsl(0, 0%, 95%)',
                                                         color: 'hsl(0, 0%, 0%)'
                                                       }}
@@ -3080,7 +3083,7 @@ const Dashboard = () => {
                                                            <span 
                                                              className="font-bebas text-base md:text-2xl uppercase font-bold relative z-20"
                                                              style={{ 
-                                                               color: FFF_ORANGE,
+                                                               color: FFF_GOLD,
                                                                textShadow: '0 2px 8px rgba(0, 0, 0, 0.5)'
                                                              }}
                                                            >
@@ -3246,7 +3249,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase border-r-2 border-white text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3255,7 +3258,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase border-r-2 border-white text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3264,7 +3267,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase border-r-2 border-white text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3273,7 +3276,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase border-r-2 border-white text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3282,7 +3285,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3365,7 +3368,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase border-r-2 border-white text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3374,7 +3377,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase border-r-2 border-white text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3383,7 +3386,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase border-r-2 border-white text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3392,7 +3395,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase border-r-2 border-white text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3401,7 +3404,7 @@ const Dashboard = () => {
                                                               <div 
                                                                 className="p-2 md:p-4 font-bebas uppercase text-center flex items-center justify-center"
                                                                 style={{ 
-                                                                  backgroundColor: FFF_ORANGE,
+                                                                  backgroundColor: FFF_GOLD,
                                                                   color: 'hsl(0, 0%, 0%)'
                                                                 }}
                                                               >
@@ -3546,7 +3549,7 @@ const Dashboard = () => {
                                               <h4 
                                                 className="font-bebas text-lg uppercase tracking-wider pb-2 px-3 py-2 rounded-t"
                                                 style={{ 
-                                                  backgroundColor: FFF_ORANGE,
+                                                  backgroundColor: FFF_GOLD,
                                                   color: 'hsl(0, 0%, 0%)'
                                                 }}
                                               >
