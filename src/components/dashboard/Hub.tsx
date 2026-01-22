@@ -266,24 +266,27 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     return days;
   }, []);
 
+  // FFF Gold color - matches design system --accent (47 100% 51%)
+  const FFF_GOLD = 'hsl(47, 100%, 51%)';
+  
   // Session color mapping - using FFF brand gold
   const getSessionColor = (sessionKey: string) => {
     const key = sessionKey.toUpperCase();
     const colorMap: Record<string, { bg: string; text: string; hover: string }> = {
-      'A': { bg: 'hsl(220, 70%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(220, 70%, 45%)' },
-      'B': { bg: 'hsl(140, 50%, 30%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(140, 50%, 40%)' },
-      'C': { bg: 'hsl(0, 50%, 35%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(0, 50%, 45%)' },
-      'D': { bg: 'hsl(36, 70%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(36, 70%, 55%)' },
-      'E': { bg: 'hsl(70, 20%, 40%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(70, 20%, 50%)' },
-      'F': { bg: 'hsl(270, 60%, 40%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(270, 60%, 50%)' },
-      'G': { bg: 'hsl(190, 70%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(190, 70%, 55%)' },
-      'H': { bg: 'hsl(30, 80%, 45%)', text: 'hsl(36, 100%, 50%)', hover: 'hsl(30, 80%, 55%)' },
-      'T': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
-      'TESTING': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
+      'A': { bg: 'hsl(220, 70%, 35%)', text: FFF_GOLD, hover: 'hsl(220, 70%, 45%)' },
+      'B': { bg: 'hsl(140, 50%, 30%)', text: FFF_GOLD, hover: 'hsl(140, 50%, 40%)' },
+      'C': { bg: 'hsl(0, 50%, 35%)', text: FFF_GOLD, hover: 'hsl(0, 50%, 45%)' },
+      'D': { bg: 'hsl(47, 70%, 40%)', text: FFF_GOLD, hover: 'hsl(47, 70%, 50%)' },
+      'E': { bg: 'hsl(70, 20%, 40%)', text: FFF_GOLD, hover: 'hsl(70, 20%, 50%)' },
+      'F': { bg: 'hsl(270, 60%, 40%)', text: FFF_GOLD, hover: 'hsl(270, 60%, 50%)' },
+      'G': { bg: 'hsl(190, 70%, 45%)', text: FFF_GOLD, hover: 'hsl(190, 70%, 55%)' },
+      'H': { bg: 'hsl(340, 60%, 40%)', text: FFF_GOLD, hover: 'hsl(340, 60%, 50%)' },
+      'T': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
+      'TESTING': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
       'REST': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
       'R': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
-      'MATCH': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
-      'M': { bg: 'hsl(36, 100%, 50%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(36, 100%, 60%)' },
+      'MATCH': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
+      'M': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
     };
     return colorMap[key] || { bg: 'hsl(0, 0%, 10%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 15%)' };
   };
