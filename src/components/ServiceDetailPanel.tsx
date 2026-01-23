@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, ShoppingCart, Check, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -29,6 +29,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
   const [selectedOption, setSelectedOption] = useState<ServiceOption | null>(null);
   const [added, setAdded] = useState(false);
   const [direction, setDirection] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const options = service.options as ServiceOption[] | null;
   const hasOptions = options && Array.isArray(options) && options.length > 0;
@@ -39,11 +40,44 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < allServices.length - 1 && currentIndex >= 0;
 
+  // Group services by category
+  const categorizedServices = useMemo(() => {
+    const grouped: Record<string, T[]> = {};
+    allServices.forEach(s => {
+      if (!grouped[s.category]) {
+        grouped[s.category] = [];
+      }
+      grouped[s.category].push(s);
+    });
+    return grouped;
+  }, [allServices]);
+
+  const categories = Object.keys(categorizedServices);
+
+  // Set initial selected category to current service's category
+  useEffect(() => {
+    if (service.category && !selectedCategory) {
+      setSelectedCategory(service.category);
+    }
+  }, [service.category]);
+
   // Reset selected option when service changes
   useEffect(() => {
     setSelectedOption(null);
     setAdded(false);
+    // Update selected category when navigating to different product
+    if (service.category) {
+      setSelectedCategory(service.category);
+    }
   }, [service.id]);
+
+  // Lock body scroll when panel is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   const handleAddToCart = () => {
     addItem({
@@ -91,18 +125,22 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
     return html?.replace(/<[^>]*>/g, '') || '';
   };
 
+  const displayedServices = selectedCategory 
+    ? categorizedServices[selectedCategory] || []
+    : allServices;
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[150] bg-background overflow-hidden"
+      className="fixed inset-0 z-[150] bg-background flex flex-col"
     >
       {/* Background pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10 pointer-events-none" />
       
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 z-20 bg-background/95 backdrop-blur-md border-b border-border/50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <button
             onClick={onClose}
@@ -154,8 +192,8 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
         </>
       )}
 
-      {/* Main content */}
-      <div className="h-full pt-16 pb-8 overflow-y-auto">
+      {/* Main scrollable content */}
+      <div className="flex-1 overflow-y-auto overscroll-contain">
         <div className="container mx-auto px-4 md:px-16 py-8">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
@@ -169,7 +207,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
             >
               <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
                 {/* Left: Image */}
-                <div className="lg:sticky lg:top-24">
+                <div className="lg:sticky lg:top-8">
                   <div className="relative aspect-square bg-gradient-to-br from-card to-card/50 rounded-3xl overflow-hidden border-2 border-primary/20 shadow-2xl">
                     {/* Category badge */}
                     <div className="absolute top-4 left-4 z-10">
@@ -189,36 +227,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                         <img src={fffLogo} alt="FFF" className="w-40 h-40 object-contain opacity-20" />
                       </div>
                     )}
-                    
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
                   </div>
-                  
-                  {/* Thumbnail strip for navigation */}
-                  {allServices.length > 1 && (
-                    <div className="mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                      {allServices.slice(Math.max(0, currentIndex - 2), Math.min(allServices.length, currentIndex + 3)).map((s) => (
-                        <button
-                          key={s.id}
-                          onClick={() => onNavigate?.(s)}
-                          className={cn(
-                            "flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all",
-                            s.id === service.id 
-                              ? "border-accent ring-2 ring-accent/30" 
-                              : "border-border/50 hover:border-primary/50 opacity-60 hover:opacity-100"
-                          )}
-                        >
-                          {s.image_url ? (
-                            <img src={s.image_url} alt={s.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full bg-card flex items-center justify-center">
-                              <img src={fffLogo} alt="" className="w-6 h-6 opacity-30" />
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {/* Right: Details */}
@@ -251,7 +260,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   {/* Description */}
                   {service.description && (
                     <div className="mb-8">
-                      <p className="text-foreground/80 leading-relaxed text-base md:text-lg">
+                      <p className="text-foreground leading-relaxed text-base md:text-lg">
                         {stripHtml(service.description)}
                       </p>
                     </div>
@@ -332,21 +341,96 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                       </p>
                     )}
                   </div>
-
-                  {/* Quick navigation hint */}
-                  {allServices.length > 1 && (
-                    <div className="mt-8 pt-6 border-t border-border/50">
-                      <p className="text-xs text-muted-foreground text-center">
-                        Use ← → arrow keys or click arrows to browse products
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Bottom Product Slider - Fixed */}
+      {allServices.length > 1 && (
+        <div className="flex-shrink-0 border-t border-border/50 bg-background/95 backdrop-blur-md">
+          {/* Category Tabs */}
+          {categories.length > 1 && (
+            <div className="border-b border-border/30">
+              <div className="container mx-auto px-4">
+                <div className="flex gap-1 overflow-x-auto scrollbar-hide py-2">
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className={cn(
+                      "flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bebas uppercase tracking-wider transition-all",
+                      selectedCategory === null
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    All ({allServices.length})
+                  </button>
+                  {categories.map(category => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={cn(
+                        "flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bebas uppercase tracking-wider transition-all",
+                        selectedCategory === category
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      {category} ({categorizedServices[category].length})
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Product Thumbnails */}
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
+              {displayedServices.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => onNavigate?.(s)}
+                  className={cn(
+                    "flex-shrink-0 group relative",
+                    s.id === service.id && "ring-2 ring-accent ring-offset-2 ring-offset-background rounded-xl"
+                  )}
+                >
+                  <div className={cn(
+                    "w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden border-2 transition-all",
+                    s.id === service.id 
+                      ? "border-accent" 
+                      : "border-border/50 hover:border-primary/50 group-hover:scale-105"
+                  )}>
+                    {s.image_url ? (
+                      <img src={s.image_url} alt={s.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-card flex items-center justify-center">
+                        <img src={fffLogo} alt="" className="w-8 h-8 opacity-30" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Name tooltip on hover */}
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    <div className="bg-foreground text-background text-[10px] px-2 py-1 rounded whitespace-nowrap font-medium max-w-[120px] truncate">
+                      {s.name}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Keyboard hint */}
+          <div className="text-center pb-2">
+            <p className="text-[10px] text-muted-foreground">
+              ← → arrow keys to browse • ESC to close
+            </p>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };
