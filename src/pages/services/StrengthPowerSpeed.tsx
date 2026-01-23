@@ -38,8 +38,8 @@ const StrengthPowerSpeed = () => {
                 key={tab}
                 className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
                   index === 0 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-card border border-border hover:border-primary/50 text-foreground'
+                    ? 'bg-accent text-black' 
+                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
                 }`}
               >
                 {tab}
@@ -77,7 +77,7 @@ const StrengthPowerSpeed = () => {
         <ServiceSectionTitle>PROGRAMMING</ServiceSectionTitle>
         
         <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-10 md:gap-14 items-center">
-          <div className="rounded-xl overflow-hidden shadow-xl shadow-primary/5">
+          <div className="rounded-xl overflow-hidden shadow-xl shadow-accent/5 border border-white/10">
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_a6c9eb3e990c426385f9e145c4eec75c~mv2.png/v1/fill/w_600,h_339,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e_g_.png"
               alt="Programming Example"
@@ -86,20 +86,20 @@ const StrengthPowerSpeed = () => {
           </div>
           
           <div className="space-y-4">
-            <div className="space-y-3 text-muted-foreground text-sm md:text-base">
+            <div className="space-y-3 text-white/80 text-sm md:text-base">
               <p>In-person training sessions for UK players and remote support for those abroad via FaceTime.</p>
               <p>Tailored components based on position and physical capabilities, maximising the player's threshold.</p>
               <p>Our program is available in 6 or 12-month programming, adjusted to your club and individual schedule, season, and other factors affecting your training.</p>
             </div>
             
             <div className="py-4">
-              <h3 className="font-bebas text-lg md:text-xl text-primary leading-relaxed">
+              <h3 className="font-bebas text-lg md:text-xl text-accent leading-relaxed">
                 REDUCE THE RISK OF INJURY • TURN EVERY 50:50 IN YOUR FAVOUR • DEVELOP FASTER
               </h3>
             </div>
             
             <LocalizedLink to="/contact">
-              <Button variant="outline" className="font-bebas tracking-wider">
+              <Button variant="outline" className="font-bebas tracking-wider border-white/30 text-white hover:border-accent hover:text-accent">
                 SEE EXAMPLE
               </Button>
             </LocalizedLink>

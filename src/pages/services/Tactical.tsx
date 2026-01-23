@@ -39,8 +39,8 @@ const Tactical = () => {
                 key={tab}
                 className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
                   index === 0 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-card border border-border hover:border-primary/50 text-foreground'
+                    ? 'bg-accent text-black' 
+                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
                 }`}
               >
                 {tab}
@@ -103,7 +103,7 @@ const Tactical = () => {
         </div>
         
         <div className="max-w-4xl mx-auto mt-8 text-center">
-          <p className="font-bebas text-xl md:text-2xl text-primary mb-4">From £85.00</p>
+          <p className="font-bebas text-xl md:text-2xl text-accent mb-4">From £85.00</p>
           <LocalizedLink to="/analysis">
             <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">
               Learn More
