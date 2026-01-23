@@ -1,6 +1,8 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { PlayersSubmenu } from "@/components/PlayersSubmenu";
+import { AnimatedSmokyBackground } from "@/components/AnimatedSmokyBackground";
+import { HoverText } from "@/components/HoverText";
 import { ReactNode } from "react";
 
 interface ServicePageLayoutProps {
@@ -25,71 +27,69 @@ export const ServicePageLayout = ({
   const hasMedia = heroImage || heroVideo;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-20 md:pt-24">
-        {/* Players Submenu */}
-        {showSubmenu && <PlayersSubmenu />}
-        
-        {/* Hero Section */}
-        <section className="relative py-16 md:py-24 overflow-hidden">
-          {/* Media Background */}
-          {hasMedia && (
-            <div className="absolute inset-0 z-0">
-              {heroVideo ? (
-                <video 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline
-                  className="w-full h-full object-cover"
-                >
-                  <source src={heroVideo} type="video/mp4" />
-                </video>
-              ) : heroImage ? (
-                <img 
-                  src={heroImage} 
-                  alt={title}
-                  className="w-full h-full object-cover"
-                />
-              ) : null}
-              {/* Dark overlay for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
-            </div>
-          )}
-
-          {/* Gradient overlay (non-media) */}
-          {!hasMedia && (
-            <>
-              <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-primary/3 rounded-full blur-2xl pointer-events-none" />
-            </>
-          )}
+    <div className="min-h-screen bg-background relative">
+      {/* Animated smoky background for entire page */}
+      <div className="fixed inset-0 z-0">
+        <AnimatedSmokyBackground />
+      </div>
+      
+      <div className="relative z-10">
+        <Header />
+        <main className="pt-20 md:pt-24">
+          {/* Players Submenu */}
+          {showSubmenu && <PlayersSubmenu />}
           
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <p className={`font-bebas text-lg md:text-xl tracking-[0.3em] mb-4 animate-fade-in ${hasMedia ? 'text-white' : 'text-primary'}`}>
-              {category}
-            </p>
-            <h1 className={`font-bebas text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 leading-[0.95] animate-fade-in [animation-delay:100ms] ${hasMedia ? 'text-white drop-shadow-lg' : 'text-foreground'}`}>
-              {title.split('\n').map((line, i) => (
-                <span key={i}>
-                  {line}
-                  {i < title.split('\n').length - 1 && <br />}
-                </span>
-              ))}
-            </h1>
-            {subtitle && (
-              <p className={`max-w-2xl mx-auto text-base md:text-lg leading-relaxed animate-fade-in [animation-delay:200ms] ${hasMedia ? 'text-white/90' : 'text-muted-foreground'}`}>
-                {subtitle}
-              </p>
+          {/* Hero Section */}
+          <section className="relative py-16 md:py-24 overflow-hidden">
+            {/* Media Background */}
+            {hasMedia && (
+              <div className="absolute inset-0 z-0">
+                {heroVideo ? (
+                  <video 
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline
+                    className="w-full h-full object-cover"
+                  >
+                    <source src={heroVideo} type="video/mp4" />
+                  </video>
+                ) : heroImage ? (
+                  <img 
+                    src={heroImage} 
+                    alt={title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
+                {/* Dark overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
+              </div>
             )}
-          </div>
-        </section>
-        
-        {children}
-      </main>
-      <Footer />
+            
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+              <p className={`font-bebas text-lg md:text-xl tracking-[0.3em] mb-4 animate-fade-in ${hasMedia ? 'text-white' : 'text-primary'}`}>
+                {category}
+              </p>
+              <h1 className={`font-bebas text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 leading-[0.95] animate-fade-in [animation-delay:100ms] ${hasMedia ? 'text-white drop-shadow-lg' : 'text-foreground'}`}>
+                {title.split('\n').map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    {i < title.split('\n').length - 1 && <br />}
+                  </span>
+                ))}
+              </h1>
+              {subtitle && (
+                <p className={`max-w-2xl mx-auto text-base md:text-lg leading-relaxed animate-fade-in [animation-delay:200ms] ${hasMedia ? 'text-white/90' : 'text-muted-foreground'}`}>
+                  {subtitle}
+                </p>
+              )}
+            </div>
+          </section>
+          
+          {children}
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 };
@@ -123,9 +123,20 @@ export const ServiceSectionTitle = ({
   children: ReactNode;
   className?: string;
 }) => (
-  <h2 className={`font-bebas text-2xl md:text-3xl lg:text-4xl text-primary text-center mb-10 md:mb-14 tracking-[0.2em] ${className}`}>
-    {children}
-  </h2>
+  <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-10 md:mb-14">
+    <div 
+      className="w-screen relative left-1/2 -translate-x-1/2 py-4 md:py-6 overflow-hidden border-y-4 border-accent"
+      style={{
+        backgroundImage: `url('/grass-bg-smoky.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <h2 className={`font-bebas text-2xl md:text-3xl lg:text-4xl text-white text-center tracking-[0.2em] drop-shadow-lg ${className}`}>
+        <HoverText text={typeof children === 'string' ? children : String(children)} />
+      </h2>
+    </div>
+  </div>
 );
 
 export const ServicePillars = ({ 

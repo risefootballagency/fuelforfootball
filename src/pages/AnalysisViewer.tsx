@@ -1037,21 +1037,30 @@ const AnalysisViewer = () => {
     <div 
       className="min-h-screen relative"
       style={{
-        backgroundImage: `url('/analysis-page-bg.png')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
+        backgroundColor: BRAND.darkGreen, // Dark green background outside A4 width
       }}
     >
-      {/* Gold inset vertical lines - 6px from edges, 2px thickness - connect with header border */}
+      {/* A4 width container - centered with max-width */}
       <div 
-        className="fixed top-0 bottom-0 left-[6px] w-[2px] z-10 pointer-events-none"
-        style={{ backgroundColor: BRAND.gold }}
-      />
-      <div 
-        className="fixed top-0 bottom-0 right-[6px] w-[2px] z-10 pointer-events-none"
-        style={{ backgroundColor: BRAND.gold }}
-      />
+        className="relative mx-auto"
+        style={{
+          maxWidth: '210mm', // A4 width
+          backgroundImage: `url('/analysis-page-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          boxShadow: '0 0 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        {/* Gold inset vertical lines - 6px from edges, 2px thickness - connect with header border */}
+        <div 
+          className="absolute top-0 bottom-0 left-[6px] w-[2px] z-10 pointer-events-none"
+          style={{ backgroundColor: BRAND.gold }}
+        />
+        <div 
+          className="absolute top-0 bottom-0 right-[6px] w-[2px] z-10 pointer-events-none"
+          style={{ backgroundColor: BRAND.gold }}
+        />
 
 
       {/* Video Button - Fixed */}
@@ -1868,6 +1877,7 @@ const AnalysisViewer = () => {
           </Button>
         </motion.div>
       </main>
+      </div>{/* End A4 width container */}
     </div>
   );
 };

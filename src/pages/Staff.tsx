@@ -128,7 +128,7 @@ const Staff = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMarketeer, setIsMarketeer] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'serviceaudit' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'catalog' | 'jobs' | 'partners' | 'docs' | 'sheets' | null>('overview');
+  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'serviceaudit' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'catalogue' | 'jobs' | 'partners' | 'docs' | 'sheets' | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Enable staff notifications
@@ -629,7 +629,7 @@ const Staff = () => {
       locked: isMarketeer,
       sections: [
         { id: 'sales', title: 'Sales & Pay Links', icon: ShoppingCart },
-        { id: 'catalog', title: 'Service Catalog', icon: FileText },
+        { id: 'catalogue', title: 'Service Catalogue', icon: FileText },
         { id: 'salestracker', title: 'Sales Tracker', icon: TrendingUp },
         { id: 'retention', title: 'Retention', icon: Users },
         { id: 'outreach', title: 'Outreach', icon: UserCog },
@@ -1014,7 +1014,7 @@ const Staff = () => {
                   {expandedSection === 'budgets' && <BudgetsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'financialreports' && <FinancialReports isAdmin={isAdmin} />}
                   {expandedSection === 'sales' && <SalesManagement isAdmin={isAdmin} />}
-                  {expandedSection === 'catalog' && <ServiceCatalogManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'catalogue' && <ServiceCatalogManagement isAdmin={isAdmin} />}
                   {expandedSection === 'salestracker' && <SalesTracker />}
                   {expandedSection === 'retention' && <RetentionTracker />}
                   {expandedSection === 'outreach' && <OutreachTracker />}
