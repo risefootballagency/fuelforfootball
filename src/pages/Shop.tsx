@@ -67,7 +67,18 @@ const Shop = () => {
     return filtered;
   }, [selectedCategory]);
 
-  // Convert product to service format for ServiceDetailPanel
+  // Convert products to service format for ServiceDetailPanel
+  const productsAsServices = useMemo(() => filteredProducts.map(p => ({
+    id: p.id,
+    name: `${p.name} - ${p.subtitle}`,
+    category: p.category,
+    price: p.price,
+    image_url: p.image,
+    description: p.description || null,
+    badge: p.badge || null,
+    options: null,
+  })), [filteredProducts]);
+
   const productAsService = selectedProduct ? {
     id: selectedProduct.id,
     name: `${selectedProduct.name} - ${selectedProduct.subtitle}`,
@@ -187,6 +198,11 @@ const Shop = () => {
           <ServiceDetailPanel
             service={productAsService}
             onClose={() => setSelectedProduct(null)}
+            allServices={productsAsServices}
+            onNavigate={(service) => {
+              const product = filteredProducts.find(p => p.id === service.id);
+              if (product) setSelectedProduct(product);
+            }}
           />
         )}
       </AnimatePresence>

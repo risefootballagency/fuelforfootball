@@ -104,21 +104,16 @@ export const ServiceCard = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: isHovered ? 1 : 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-background/60 flex flex-col justify-end p-3 md:p-4"
+              className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-background/60 flex flex-col justify-center items-center p-3 md:p-4"
             >
-              <p className="text-primary font-bebas text-lg md:text-2xl mb-1">
-                {formatPrice()}
-              </p>
               {description && (
-                <p className="text-[10px] md:text-xs text-foreground/80 line-clamp-3 leading-relaxed">
+                <p className="text-[11px] md:text-sm text-foreground/90 line-clamp-5 leading-relaxed text-center mb-4 px-2">
                   {description.replace(/<[^>]*>/g, '')}
                 </p>
               )}
-              <div className="mt-2 md:mt-3 pt-2 border-t border-primary/20">
-                <span className="text-[9px] md:text-xs text-primary font-bebas uppercase tracking-widest hover:text-primary/80 transition-colors">
-                  VIEW DETAILS
-                </span>
-              </div>
+              <button className="bg-accent hover:bg-accent/90 text-accent-foreground font-bebas uppercase tracking-widest text-sm md:text-base px-6 py-2.5 rounded-lg transition-all hover:scale-105 shadow-lg">
+                View Details
+              </button>
             </motion.div>
           </div>
         </div>

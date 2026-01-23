@@ -277,6 +277,8 @@ const Services = () => {
           <ServiceDetailPanel
             service={selectedService}
             onClose={() => setSelectedService(null)}
+            allServices={filteredServices}
+            onNavigate={(service) => setSelectedService(service)}
           />
         )}
       </AnimatePresence>
