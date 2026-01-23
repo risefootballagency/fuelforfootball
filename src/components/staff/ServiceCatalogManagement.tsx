@@ -202,7 +202,7 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bebas uppercase tracking-wider">Service Catalog</h2>
+        <h2 className="text-2xl font-bebas uppercase tracking-wider">Service Catalogue</h2>
         <Button onClick={handleCreate} className="gap-2">
           <Plus className="w-4 h-4" />
           Add Service
