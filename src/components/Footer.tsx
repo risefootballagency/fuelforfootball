@@ -290,9 +290,9 @@ export const Footer = () => {
               >
                 Podcast
               </a>
-              <Link to="/privacy-policy" className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1">
+              <LocalizedLink to="/privacy-policy" className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1">
                 {t("footer.privacy_policy", "Privacy Policy")}
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </div>

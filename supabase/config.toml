@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.create-pay-link]
 verify_jwt = false
+
+[functions.verify-contracts-access]
+verify_jwt = false

@@ -58,26 +58,30 @@ export const ProtectedContracts = ({ playerId }: ProtectedContractsProps) => {
       return;
     }
 
-    // Fetch player's contracts password
-    const { data, error } = await supabase
-      .from('players')
-      .select('contracts_password')
-      .eq('id', playerId)
-      .single();
+    try {
+      // Server-side password verification via edge function
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-contracts-access`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId, password }),
+        }
+      );
 
-    if (error) {
+      const result = await response.json();
+
+      if (result.verified) {
+        setIsUnlocked(true);
+        setError("");
+        setPassword("");
+        // Store access token in session (not localStorage for security)
+        sessionStorage.setItem('contractsAccessToken', result.accessToken);
+      } else {
+        setError(result.error || "Incorrect password");
+      }
+    } catch (err) {
       setError("Error verifying password");
-      return;
-    }
-
-    const storedPassword = data?.contracts_password || "12345";
-    
-    if (password === storedPassword) {
-      setIsUnlocked(true);
-      setError("");
-      setPassword("");
-    } else {
-      setError("Incorrect password");
     }
   };
 
@@ -92,46 +96,41 @@ export const ProtectedContracts = ({ playerId }: ProtectedContractsProps) => {
       return;
     }
 
-    if (newPassword.length < 4) {
-      toast.error("Password must be at least 4 characters");
+    if (newPassword.length < 12) {
+      toast.error("Password must be at least 12 characters");
       return;
     }
 
-    // Verify current password
-    const { data, error: fetchError } = await supabase
-      .from('players')
-      .select('contracts_password')
-      .eq('id', playerId)
-      .single();
+    try {
+      // Server-side password change via edge function
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-contracts-access`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            playerId, 
+            password: currentPassword,
+            action: 'change',
+            newPassword 
+          }),
+        }
+      );
 
-    if (fetchError) {
-      toast.error("Error verifying password");
-      return;
-    }
+      const result = await response.json();
 
-    const storedPassword = data?.contracts_password || "12345";
-    
-    if (currentPassword !== storedPassword) {
-      toast.error("Current password is incorrect");
-      return;
-    }
-
-    // Update password
-    const { error: updateError } = await supabase
-      .from('players')
-      .update({ contracts_password: newPassword })
-      .eq('id', playerId);
-
-    if (updateError) {
+      if (result.verified) {
+        toast.success("Password updated successfully");
+        setShowResetDialog(false);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        toast.error(result.error || "Error updating password");
+      }
+    } catch (err) {
       toast.error("Error updating password");
-      return;
     }
-
-    toast.success("Password updated successfully");
-    setShowResetDialog(false);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
   };
 
   if (!isUnlocked) {
