@@ -386,6 +386,30 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     ru: '/analiz',
     tr: '/analiz',
   },
+  '/privacy-policy': {
+    en: '/privacy-policy',
+    es: '/politica-de-privacidad',
+    pt: '/politica-de-privacidade',
+    fr: '/politique-de-confidentialite',
+    de: '/datenschutzrichtlinie',
+    it: '/politica-sulla-privacy',
+    pl: '/polityka-prywatnosci',
+    cs: '/zasady-ochrany-soukromi',
+    ru: '/politika-konfidentsialnosti',
+    tr: '/gizlilik-politikasi',
+  },
+  '/podcast': {
+    en: '/podcast',
+    es: '/podcast',
+    pt: '/podcast',
+    fr: '/podcast',
+    de: '/podcast',
+    it: '/podcast',
+    pl: '/podcast',
+    cs: '/podcast',
+    ru: '/podcast',
+    tr: '/podcast',
+  },
 };
 
 // Create reverse mapping: localized path -> english path
