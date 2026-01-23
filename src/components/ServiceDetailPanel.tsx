@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import fffLogo from "@/assets/fff_logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface ServiceOption {
   name: string;
@@ -25,9 +26,11 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
   allServices = [], 
   onNavigate 
 }: ServiceDetailPanelProps<T>) => {
+  const navigate = useNavigate();
   const { addItem } = useCart();
   const [selectedOption, setSelectedOption] = useState<ServiceOption | null>(null);
   const [added, setAdded] = useState(false);
+  const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
   const [direction, setDirection] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -89,11 +92,19 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
     });
     
     setAdded(true);
-    toast.success('Added to basket', {
-      description: `${service.name}${selectedOption ? ` - ${selectedOption.name}` : ''}`,
-    });
+    setShowCheckoutPopup(true);
     
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleCheckout = () => {
+    setShowCheckoutPopup(false);
+    onClose();
+    navigate('/cart');
+  };
+
+  const handleContinueShopping = () => {
+    setShowCheckoutPopup(false);
   };
 
   const handlePrev = () => {
@@ -150,13 +161,6 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
             <span className="font-bebas uppercase tracking-wider text-sm">Back to Services</span>
           </button>
           
-          {/* Product counter */}
-          {allServices.length > 0 && (
-            <span className="text-sm text-muted-foreground font-bebas tracking-wider">
-              {currentIndex + 1} / {allServices.length}
-            </span>
-          )}
-          
           <button
             onClick={onClose}
             className="p-2 hover:bg-muted rounded-full transition-colors"
@@ -206,8 +210,36 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
               className="max-w-6xl mx-auto"
             >
               <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
-                {/* Left: Image */}
-                <div className="lg:sticky lg:top-8">
+                {/* Mobile/Tablet: Details First */}
+                <div className="flex flex-col lg:hidden order-1">
+                  {/* Badge */}
+                  {service.badge && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider bg-accent/10 text-accent w-fit mb-3">
+                      {service.badge}
+                    </span>
+                  )}
+
+                  {/* Title */}
+                  <h1 className="font-bebas text-4xl md:text-5xl uppercase tracking-wider text-foreground leading-none">
+                    {service.name}
+                  </h1>
+
+                  {/* Decorative line */}
+                  <div className="w-20 h-1 bg-gradient-to-r from-accent to-primary mt-4 mb-4 rounded-full" />
+
+                  {/* Price */}
+                  <div className="mb-4">
+                    <span className="font-bebas text-4xl md:text-5xl text-accent">
+                      £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    {hasOptions && !selectedOption && (
+                      <span className="text-muted-foreground text-sm ml-2">from</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Image - Second on mobile, first on desktop */}
+                <div className="lg:sticky lg:top-8 order-2 lg:order-1">
                   <div className="relative aspect-square bg-gradient-to-br from-card to-card/50 rounded-3xl overflow-hidden border-2 border-primary/20 shadow-2xl">
                     {/* Category badge */}
                     <div className="absolute top-4 left-4 z-10">
@@ -230,8 +262,8 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   </div>
                 </div>
 
-                {/* Right: Details */}
-                <div className="flex flex-col">
+                {/* Desktop: Details - shown only on large screens */}
+                <div className="hidden lg:flex flex-col order-2">
                   {/* Badge */}
                   {service.badge && (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider bg-accent/10 text-accent w-fit mb-3">
@@ -317,6 +349,94 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                       disabled={hasOptions && !selectedOption}
                       className={cn(
                         "w-full font-bebas uppercase tracking-wider text-xl py-7 rounded-xl transition-all shadow-lg",
+                        added 
+                          ? "bg-primary hover:bg-primary/90 text-primary-foreground" 
+                          : "bg-accent hover:bg-accent/90 text-accent-foreground hover:shadow-accent/30"
+                      )}
+                    >
+                      {added ? (
+                        <>
+                          <Check className="w-6 h-6 mr-2" />
+                          Added to Basket
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="w-6 h-6 mr-2" />
+                          Add to Basket
+                        </>
+                      )}
+                    </Button>
+
+                    {hasOptions && !selectedOption && (
+                      <p className="text-sm text-muted-foreground text-center">
+                        Please select an option above to continue
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Mobile/Tablet: Description, Options, Button */}
+                <div className="flex flex-col lg:hidden order-3">
+                  {/* Description */}
+                  {service.description && (
+                    <div className="mb-6">
+                      <p className="text-foreground leading-relaxed text-base">
+                        {stripHtml(service.description)}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Options */}
+                  {hasOptions && (
+                    <div className="mb-6">
+                      <h3 className="font-bebas uppercase tracking-wider text-lg text-foreground mb-4 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-accent rounded-full" />
+                        Select Your Option
+                      </h3>
+                      <div className="grid gap-3">
+                        {options.map((option, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setSelectedOption(option)}
+                            className={cn(
+                              "w-full p-4 rounded-xl border-2 transition-all text-left group",
+                              selectedOption?.name === option.name
+                                ? "border-accent bg-accent/10 shadow-lg shadow-accent/10"
+                                : "border-border hover:border-primary/50 hover:bg-card"
+                            )}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className={cn(
+                                  "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
+                                  selectedOption?.name === option.name
+                                    ? "border-accent bg-accent"
+                                    : "border-muted-foreground/50"
+                                )}>
+                                  {selectedOption?.name === option.name && (
+                                    <Check className="w-3 h-3 text-accent-foreground" />
+                                  )}
+                                </div>
+                                <span className="font-medium text-foreground">{option.name || 'Option'}</span>
+                              </div>
+                              <span className="font-bebas text-xl text-accent">
+                                £{(option.price ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Add to Cart Button */}
+                  <div className="space-y-4">
+                    <Button
+                      onClick={handleAddToCart}
+                      size="lg"
+                      disabled={hasOptions && !selectedOption}
+                      className={cn(
+                        "w-full font-bebas uppercase tracking-wider text-xl py-6 rounded-xl transition-all shadow-lg",
                         added 
                           ? "bg-primary hover:bg-primary/90 text-primary-foreground" 
                           : "bg-accent hover:bg-accent/90 text-accent-foreground hover:shadow-accent/30"
@@ -431,6 +551,62 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
           </div>
         </div>
       )}
+
+      {/* Checkout Popup */}
+      <AnimatePresence>
+        {showCheckoutPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-end justify-center"
+            onClick={handleContinueShopping}
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg bg-card border-t-2 border-accent rounded-t-3xl p-6 pb-8 shadow-2xl"
+            >
+              {/* Success indicator */}
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Check className="w-6 h-6 text-primary" />
+                </div>
+              </div>
+              
+              <h3 className="font-bebas text-2xl text-center uppercase tracking-wider text-foreground mb-2">
+                Added to Basket
+              </h3>
+              <p className="text-center text-muted-foreground text-sm mb-6">
+                {service.name}{selectedOption ? ` - ${selectedOption.name}` : ''}
+              </p>
+
+              <div className="space-y-3">
+                <Button
+                  onClick={handleCheckout}
+                  size="lg"
+                  className="w-full font-bebas uppercase tracking-wider text-lg py-6 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground"
+                >
+                  <ShoppingCart className="w-5 h-5 mr-2" />
+                  View Cart & Checkout
+                </Button>
+                
+                <Button
+                  onClick={handleContinueShopping}
+                  variant="outline"
+                  size="lg"
+                  className="w-full font-bebas uppercase tracking-wider text-lg py-6 rounded-xl border-2 border-border hover:bg-muted"
+                >
+                  Continue Shopping
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
