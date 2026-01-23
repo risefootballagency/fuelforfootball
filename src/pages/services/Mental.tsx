@@ -40,8 +40,8 @@ const Mental = () => {
                 key={tab}
                 className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
                   index === 0 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-card border border-border hover:border-primary/50 text-foreground'
+                    ? 'bg-accent text-black' 
+                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
                 }`}
               >
                 {tab}
@@ -116,7 +116,7 @@ const Mental = () => {
           </div>
           
           <div className="space-y-5">
-            <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+            <p className="text-white/80 leading-relaxed text-sm md:text-base">
               Your host, sport psychologist Sanchez Bailey, provides psychological lessons for professional footballers from the heights of the Premier League right down to the grassroots level!
             </p>
             <div className="flex flex-wrap gap-3">
