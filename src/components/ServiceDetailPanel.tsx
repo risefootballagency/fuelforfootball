@@ -136,8 +136,8 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[150] bg-background flex flex-col"
     >
-      {/* Background pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10 pointer-events-none" />
+      {/* Background pattern - behind all content */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10 pointer-events-none -z-10" />
       
       {/* Header - Fixed */}
       <div className="flex-shrink-0 z-20 bg-background/95 backdrop-blur-md border-b border-border/50">
@@ -359,26 +359,26 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   <button
                     onClick={() => setSelectedCategory(null)}
                     className={cn(
-                      "flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bebas uppercase tracking-wider transition-all",
+                      "flex-shrink-0 px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider transition-all",
                       selectedCategory === null
                         ? "bg-accent text-accent-foreground"
                         : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
                   >
-                    All ({allServices.length})
+                    All
                   </button>
                   {categories.map(category => (
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
                       className={cn(
-                        "flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bebas uppercase tracking-wider transition-all",
+                        "flex-shrink-0 px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider transition-all",
                         selectedCategory === category
                           ? "bg-accent text-accent-foreground"
                           : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
-                      {category} ({categorizedServices[category].length})
+                      {category.replace(/\s*services?\s*/gi, '').trim() || category}
                     </button>
                   ))}
                 </div>
@@ -387,19 +387,19 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
           )}
           
           {/* Product Thumbnails */}
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
+          <div className="container mx-auto px-4 py-2">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {displayedServices.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => onNavigate?.(s)}
                   className={cn(
                     "flex-shrink-0 group relative",
-                    s.id === service.id && "ring-2 ring-accent ring-offset-2 ring-offset-background rounded-xl"
+                    s.id === service.id && "ring-2 ring-accent ring-offset-1 ring-offset-background rounded-lg"
                   )}
                 >
                   <div className={cn(
-                    "w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden border-2 transition-all",
+                    "w-12 h-12 md:w-14 md:h-14 rounded-lg overflow-hidden border transition-all",
                     s.id === service.id 
                       ? "border-accent" 
                       : "border-border/50 hover:border-primary/50 group-hover:scale-105"
@@ -408,13 +408,13 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                       <img src={s.image_url} alt={s.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-card flex items-center justify-center">
-                        <img src={fffLogo} alt="" className="w-8 h-8 opacity-30" />
+                        <img src={fffLogo} alt="" className="w-5 h-5 opacity-30" />
                       </div>
                     )}
                   </div>
                   {/* Name tooltip on hover */}
                   <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    <div className="bg-foreground text-background text-[10px] px-2 py-1 rounded whitespace-nowrap font-medium max-w-[120px] truncate">
+                    <div className="bg-foreground text-background text-[8px] px-1.5 py-0.5 rounded whitespace-nowrap font-medium max-w-[100px] truncate">
                       {s.name}
                     </div>
                   </div>
