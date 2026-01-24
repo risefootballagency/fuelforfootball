@@ -36,8 +36,8 @@ export const ServicePageLayout = ({
       {/* Main content wrapper - transparent to show smoky bg */}
       <div className="relative z-10">
         <Header />
-        <main className="pt-20 md:pt-24">
-          {/* Players Submenu */}
+        <main className="pt-14 md:pt-16">
+          {/* Players Submenu - tight against header */}
           {showSubmenu && <PlayersSubmenu />}
           
           {/* Hero Section */}

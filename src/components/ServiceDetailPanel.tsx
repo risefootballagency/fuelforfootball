@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { X, ShoppingCart, Check, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
+import { X, ShoppingCart, Check, ChevronLeft, ChevronRight, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
@@ -20,6 +20,8 @@ interface ServiceDetailPanelProps<T extends { id: string; name: string; category
   onNavigate?: (service: T) => void;
 }
 
+const DESCRIPTION_CHAR_LIMIT = 280;
+
 export const ServiceDetailPanel = <T extends { id: string; name: string; category: string; price: number; image_url: string | null; description: string | null; badge: string | null; options?: unknown }>({ 
   service, 
   onClose, 
@@ -33,6 +35,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
   const [showCheckoutPopup, setShowCheckoutPopup] = useState(false);
   const [direction, setDirection] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const options = service.options as ServiceOption[] | null;
   const hasOptions = options && Array.isArray(options) && options.length > 0;
@@ -68,6 +71,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
   useEffect(() => {
     setSelectedOption(null);
     setAdded(false);
+    setIsDescriptionExpanded(false);
     // Update selected category when navigating to different product
     if (service.category) {
       setSelectedCategory(service.category);
@@ -136,6 +140,12 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
     return html?.replace(/<[^>]*>/g, '') || '';
   };
 
+  const getDescriptionPreview = (desc: string) => {
+    const stripped = stripHtml(desc);
+    if (stripped.length <= DESCRIPTION_CHAR_LIMIT) return { text: stripped, hasMore: false };
+    return { text: stripped.slice(0, DESCRIPTION_CHAR_LIMIT) + '...', hasMore: true };
+  };
+
   const displayedServices = selectedCategory 
     ? categorizedServices[selectedCategory] || []
     : allServices;
@@ -170,28 +180,28 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
         </div>
       </div>
 
-      {/* Navigation arrows */}
+      {/* Navigation arrows - hidden on mobile, smaller and closer to sides */}
       {allServices.length > 1 && (
         <>
           <button
             onClick={handlePrev}
             disabled={!hasPrev}
             className={cn(
-              "absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border-2 border-border flex items-center justify-center transition-all",
+              "hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card border-2 border-border items-center justify-center transition-all",
               hasPrev ? "hover:border-accent hover:bg-accent/10 cursor-pointer" : "opacity-30 cursor-not-allowed"
             )}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={handleNext}
             disabled={!hasNext}
             className={cn(
-              "absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-card border-2 border-border flex items-center justify-center transition-all",
+              "hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-card border-2 border-border items-center justify-center transition-all",
               hasNext ? "hover:border-accent hover:bg-accent/10 cursor-pointer" : "opacity-30 cursor-not-allowed"
             )}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5" />
           </button>
         </>
       )}
@@ -227,14 +237,14 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   {/* Decorative line */}
                   <div className="w-20 h-1 bg-gradient-to-r from-accent to-primary mt-4 mb-4 rounded-full" />
 
-                  {/* Price */}
+                  {/* Price with "From" before */}
                   <div className="mb-4">
+                    {hasOptions && !selectedOption && (
+                      <span className="text-muted-foreground text-sm mr-2">From</span>
+                    )}
                     <span className="font-bebas text-4xl md:text-5xl text-accent">
                       £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
-                    {hasOptions && !selectedOption && (
-                      <span className="text-muted-foreground text-sm ml-2">from</span>
-                    )}
                   </div>
                 </div>
 
@@ -279,22 +289,41 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   {/* Decorative line */}
                   <div className="w-20 h-1 bg-gradient-to-r from-accent to-primary mt-4 mb-6 rounded-full" />
 
-                  {/* Price */}
+                  {/* Price with "From" before */}
                   <div className="mb-6">
+                    {hasOptions && !selectedOption && (
+                      <span className="text-muted-foreground text-base mr-2">From</span>
+                    )}
                     <span className="font-bebas text-5xl md:text-6xl text-accent">
                       £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
-                    {hasOptions && !selectedOption && (
-                      <span className="text-muted-foreground text-sm ml-2">from</span>
-                    )}
                   </div>
 
-                  {/* Description */}
+                  {/* Description - truncated with Read More */}
                   {service.description && (
                     <div className="mb-8">
-                      <p className="text-foreground leading-relaxed text-base md:text-lg">
-                        {stripHtml(service.description)}
-                      </p>
+                      {(() => {
+                        const { text, hasMore } = getDescriptionPreview(service.description);
+                        return (
+                          <>
+                            <p className="text-foreground leading-relaxed text-base md:text-lg">
+                              {isDescriptionExpanded ? stripHtml(service.description) : text}
+                            </p>
+                            {hasMore && (
+                              <button
+                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                className="mt-2 text-accent hover:text-accent/80 text-sm font-medium flex items-center gap-1 transition-colors"
+                              >
+                                {isDescriptionExpanded ? (
+                                  <>Show Less <ChevronUp className="w-4 h-4" /></>
+                                ) : (
+                                  <>Read More <ChevronDown className="w-4 h-4" /></>
+                                )}
+                              </button>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   )}
 
@@ -377,12 +406,31 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
 
                 {/* Mobile/Tablet: Description, Options, Button */}
                 <div className="flex flex-col lg:hidden order-3">
-                  {/* Description */}
+                  {/* Description - truncated with Read More */}
                   {service.description && (
                     <div className="mb-6">
-                      <p className="text-foreground leading-relaxed text-base">
-                        {stripHtml(service.description)}
-                      </p>
+                      {(() => {
+                        const { text, hasMore } = getDescriptionPreview(service.description);
+                        return (
+                          <>
+                            <p className="text-foreground leading-relaxed text-base">
+                              {isDescriptionExpanded ? stripHtml(service.description) : text}
+                            </p>
+                            {hasMore && (
+                              <button
+                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                className="mt-2 text-accent hover:text-accent/80 text-sm font-medium flex items-center gap-1 transition-colors"
+                              >
+                                {isDescriptionExpanded ? (
+                                  <>Show Less <ChevronUp className="w-4 h-4" /></>
+                                ) : (
+                                  <>Read More <ChevronDown className="w-4 h-4" /></>
+                                )}
+                              </button>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   )}
 
