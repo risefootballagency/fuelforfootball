@@ -96,15 +96,16 @@ export const PlayersSubmenu = ({ className = "" }: PlayersSubmenuProps) => {
                 }`}>
                   {item.label} <ChevronDown className="w-2.5 h-2.5 md:w-3 md:h-3 group-hover:rotate-180 transition-transform duration-300" />
                 </div>
-                {/* Glass-morphism Dropdown with smart positioning - mobile uses left-0 for all */}
+                {/* Glass-morphism Dropdown with smart positioning - always stays on screen */}
                 <div 
-                  className={`absolute top-full min-w-[280px] md:min-w-[320px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pt-2 left-0 md:left-auto ${
+                  className={`absolute top-full min-w-[260px] md:min-w-[320px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pt-2 ${
                     isFirst 
-                      ? 'md:left-0' 
+                      ? 'left-0' 
                       : isLast 
-                        ? 'md:right-0 md:left-auto' 
-                        : 'md:left-1/2 md:-translate-x-1/2'
+                        ? 'right-0 left-auto' 
+                        : 'left-1/2 -translate-x-1/2'
                   }`}
+                  style={{ maxWidth: 'calc(100vw - 16px)' }}
                 >
                   <div className="backdrop-blur-xl bg-black/70 border border-white/10 rounded-lg shadow-2xl overflow-hidden">
                     {item.items.map((subItem, subIndex) => (
