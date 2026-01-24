@@ -130,7 +130,7 @@ export const ServiceCard = ({
       <div className="mt-1.5 md:mt-4 text-center px-1">
         <h3 className={cn(
           "font-bebas text-xs md:text-lg uppercase tracking-wider transition-colors line-clamp-2 leading-tight",
-          isHovered ? "text-primary" : "text-foreground"
+          isHovered ? "text-accent" : "text-foreground"
         )}>
           {name}
         </h3>

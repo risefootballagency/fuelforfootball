@@ -410,6 +410,18 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     ru: '/podcast',
     tr: '/podcast',
   },
+  '/efficiency-reports': {
+    en: '/efficiency-reports',
+    es: '/informes-de-eficiencia',
+    pt: '/relatorios-de-eficiencia',
+    fr: '/rapports-efficacite',
+    de: '/effizienzberichte',
+    it: '/rapporti-efficienza',
+    pl: '/raporty-efektywnosci',
+    cs: '/zpravy-efektivity',
+    ru: '/otchety-effektivnosti',
+    tr: '/verimlilik-raporlari',
+  },
 };
 
 // Create reverse mapping: localized path -> english path

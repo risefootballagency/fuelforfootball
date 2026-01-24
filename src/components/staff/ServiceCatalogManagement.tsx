@@ -56,7 +56,11 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
     badge: "",
     ribbon: "",
     visible: true,
+    pricing_type: "one_off" as "one_off" | "monthly",
+    options: [] as { name: string; price: number }[],
   });
+  const [newOptionName, setNewOptionName] = useState("");
+  const [newOptionPrice, setNewOptionPrice] = useState(0);
 
   const fetchServices = async () => {
     try {
@@ -81,6 +85,8 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
+    const serviceOptions = service.options as { name: string; price: number }[] | null;
+    const pricingType = (service as any).pricing_type || "one_off";
     setFormData({
       name: service.name,
       description: service.description || "",
@@ -90,7 +96,11 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
       badge: service.badge || "",
       ribbon: service.ribbon || "",
       visible: service.visible,
+      pricing_type: pricingType,
+      options: serviceOptions || [],
     });
+    setNewOptionName("");
+    setNewOptionPrice(0);
     setIsDialogOpen(true);
   };
 
@@ -105,25 +115,49 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
       badge: "",
       ribbon: "",
       visible: true,
+      pricing_type: "one_off",
+      options: [],
     });
+    setNewOptionName("");
+    setNewOptionPrice(0);
     setIsDialogOpen(true);
+  };
+
+  const handleAddOption = () => {
+    if (!newOptionName.trim()) return;
+    setFormData({
+      ...formData,
+      options: [...formData.options, { name: newOptionName.trim(), price: newOptionPrice }],
+    });
+    setNewOptionName("");
+    setNewOptionPrice(0);
+  };
+
+  const handleRemoveOption = (index: number) => {
+    setFormData({
+      ...formData,
+      options: formData.options.filter((_, i) => i !== index),
+    });
   };
 
   const handleSave = async () => {
     try {
+      const serviceData = {
+        name: formData.name,
+        description: formData.description || null,
+        category: formData.category,
+        price: formData.price,
+        image_url: formData.image_url || null,
+        badge: formData.badge || null,
+        ribbon: formData.ribbon || null,
+        visible: formData.visible,
+        options: formData.options.length > 0 ? formData.options : null,
+      };
+
       if (editingService) {
         const { error } = await supabase
           .from('service_catalog')
-          .update({
-            name: formData.name,
-            description: formData.description || null,
-            category: formData.category,
-            price: formData.price,
-            image_url: formData.image_url || null,
-            badge: formData.badge || null,
-            ribbon: formData.ribbon || null,
-            visible: formData.visible,
-          })
+          .update(serviceData)
           .eq('id', editingService.id);
 
         if (error) throw error;
@@ -132,14 +166,7 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
         const { error } = await supabase
           .from('service_catalog')
           .insert({
-            name: formData.name,
-            description: formData.description || null,
-            category: formData.category,
-            price: formData.price,
-            image_url: formData.image_url || null,
-            badge: formData.badge || null,
-            ribbon: formData.ribbon || null,
-            visible: formData.visible,
+            ...serviceData,
             display_order: services.length,
           });
 
@@ -353,6 +380,59 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
                 placeholder="Service description..."
                 rows={6}
               />
+            </div>
+
+            {/* Pricing Type */}
+            <div className="space-y-2">
+              <Label>Pricing Type</Label>
+              <Select value={formData.pricing_type} onValueChange={(value: "one_off" | "monthly") => setFormData({ ...formData, pricing_type: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select pricing type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="one_off">One-off Purchase</SelectItem>
+                  <SelectItem value="monthly">Monthly Subscription</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Package Options */}
+            <div className="space-y-3">
+              <Label>Package Options (for multiple pricing tiers)</Label>
+              {formData.options.length > 0 && (
+                <div className="space-y-2 bg-muted/30 rounded-lg p-3">
+                  {formData.options.map((option, index) => (
+                    <div key={index} className="flex items-center justify-between gap-2 bg-background rounded p-2">
+                      <span className="text-sm font-medium">{option.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">£{option.price.toFixed(2)}</span>
+                        <Button variant="ghost" size="sm" onClick={() => handleRemoveOption(index)} className="h-6 w-6 p-0 text-destructive">
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Option name (e.g., 3-Month Plan)"
+                  value={newOptionName}
+                  onChange={(e) => setNewOptionName(e.target.value)}
+                  className="flex-1"
+                />
+                <Input
+                  type="number"
+                  placeholder="Price"
+                  value={newOptionPrice || ""}
+                  onChange={(e) => setNewOptionPrice(parseFloat(e.target.value) || 0)}
+                  className="w-24"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={handleAddOption}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Add options for different package durations or tiers</p>
             </div>
 
             <div className="flex items-center gap-2">
