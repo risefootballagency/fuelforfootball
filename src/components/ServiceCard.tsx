@@ -107,11 +107,11 @@ export const ServiceCard = ({
               className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-background/60 flex flex-col justify-center items-center p-3 md:p-4"
             >
               {description && (
-                <p className="text-[11px] md:text-sm text-foreground/90 line-clamp-5 leading-relaxed text-center mb-4 px-2">
+                <p className="text-[11px] md:text-sm text-foreground/90 line-clamp-5 leading-relaxed text-center px-2 flex-1 flex items-center">
                   {description.replace(/<[^>]*>/g, '')}
                 </p>
               )}
-              <button className="bg-accent hover:bg-accent/90 text-accent-foreground font-bebas uppercase tracking-widest text-sm md:text-base px-6 py-2.5 rounded-lg transition-all hover:scale-105 shadow-lg">
+              <button className="bg-accent hover:bg-accent/90 text-accent-foreground font-bebas uppercase tracking-widest text-sm md:text-base px-6 py-2.5 rounded-lg transition-all hover:scale-105 shadow-lg mb-3 md:mb-4">
                 View Details
               </button>
             </motion.div>
