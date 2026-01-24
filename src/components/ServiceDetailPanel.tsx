@@ -20,7 +20,7 @@ interface ServiceDetailPanelProps<T extends { id: string; name: string; category
   onNavigate?: (service: T) => void;
 }
 
-const DESCRIPTION_CHAR_LIMIT = 280;
+const DESCRIPTION_CHAR_LIMIT = 150;
 
 export const ServiceDetailPanel = <T extends { id: string; name: string; category: string; price: number; image_url: string | null; description: string | null; badge: string | null; options?: unknown }>({ 
   service, 
@@ -206,9 +206,9 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
         </>
       )}
 
-      {/* Main scrollable content */}
-      <div className="flex-1 overflow-y-auto overscroll-contain">
-        <div className="container mx-auto px-4 md:px-16 py-8">
+      {/* Main content - no scroll on desktop */}
+      <div className="flex-1 overflow-y-auto lg:overflow-visible overscroll-contain">
+        <div className="container mx-auto px-4 md:px-16 py-4 lg:py-6">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={service.id}
@@ -219,41 +219,41 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="max-w-6xl mx-auto"
             >
-              <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+              <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-start">
                 {/* Mobile/Tablet: Details First */}
                 <div className="flex flex-col lg:hidden order-1">
                   {/* Badge */}
                   {service.badge && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider bg-accent/10 text-accent w-fit mb-3">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider bg-accent/10 text-accent w-fit mb-2">
                       {service.badge}
                     </span>
                   )}
 
                   {/* Title */}
-                  <h1 className="font-bebas text-4xl md:text-5xl uppercase tracking-wider text-foreground leading-none">
+                  <h1 className="font-bebas text-3xl md:text-4xl uppercase tracking-wider text-foreground leading-none">
                     {service.name}
                   </h1>
 
                   {/* Decorative line */}
-                  <div className="w-20 h-1 bg-gradient-to-r from-accent to-primary mt-4 mb-4 rounded-full" />
+                  <div className="w-16 h-1 bg-gradient-to-r from-accent to-primary mt-3 mb-3 rounded-full" />
 
                   {/* Price with "From" before */}
-                  <div className="mb-4">
+                  <div className="mb-3">
                     {hasOptions && !selectedOption && (
                       <span className="text-muted-foreground text-sm mr-2">From</span>
                     )}
-                    <span className="font-bebas text-4xl md:text-5xl text-accent">
+                    <span className="font-bebas text-3xl md:text-4xl text-accent">
                       £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
                 </div>
 
                 {/* Image - Second on mobile, first on desktop */}
-                <div className="lg:sticky lg:top-8 order-2 lg:order-1">
-                  <div className="relative aspect-square bg-gradient-to-br from-card to-card/50 rounded-3xl overflow-hidden border-2 border-primary/20 shadow-2xl">
+                <div className="order-2 lg:order-1">
+                  <div className="relative aspect-square max-h-[280px] lg:max-h-[320px] bg-gradient-to-br from-card to-card/50 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-xl mx-auto">
                     {/* Category badge */}
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bebas uppercase tracking-wider bg-primary text-primary-foreground shadow-lg">
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider bg-primary text-primary-foreground shadow-lg">
                         {service.category}
                       </span>
                     </div>
@@ -266,7 +266,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <img src={fffLogo} alt="FFF" className="w-40 h-40 object-contain opacity-20" />
+                        <img src={fffLogo} alt="FFF" className="w-24 h-24 object-contain opacity-20" />
                       </div>
                     )}
                   </div>
@@ -276,48 +276,48 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                 <div className="hidden lg:flex flex-col order-2">
                   {/* Badge */}
                   {service.badge && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider bg-accent/10 text-accent w-fit mb-3">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider bg-accent/10 text-accent w-fit mb-2">
                       {service.badge}
                     </span>
                   )}
 
                   {/* Title */}
-                  <h1 className="font-bebas text-4xl md:text-5xl lg:text-6xl uppercase tracking-wider text-foreground leading-none">
+                  <h1 className="font-bebas text-3xl lg:text-4xl uppercase tracking-wider text-foreground leading-none">
                     {service.name}
                   </h1>
 
                   {/* Decorative line */}
-                  <div className="w-20 h-1 bg-gradient-to-r from-accent to-primary mt-4 mb-6 rounded-full" />
+                  <div className="w-16 h-1 bg-gradient-to-r from-accent to-primary mt-3 mb-3 rounded-full" />
 
                   {/* Price with "From" before */}
-                  <div className="mb-6">
+                  <div className="mb-3">
                     {hasOptions && !selectedOption && (
-                      <span className="text-muted-foreground text-base mr-2">From</span>
+                      <span className="text-muted-foreground text-sm mr-1">From</span>
                     )}
-                    <span className="font-bebas text-5xl md:text-6xl text-accent">
+                    <span className="font-bebas text-3xl lg:text-4xl text-accent">
                       £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
 
                   {/* Description - truncated with Read More */}
                   {service.description && (
-                    <div className="mb-8">
+                    <div className="mb-4">
                       {(() => {
                         const { text, hasMore } = getDescriptionPreview(service.description);
                         return (
                           <>
-                            <p className="text-foreground leading-relaxed text-base md:text-lg">
+                            <p className="text-foreground/90 leading-relaxed text-sm">
                               {isDescriptionExpanded ? stripHtml(service.description) : text}
                             </p>
                             {hasMore && (
                               <button
                                 onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                                className="mt-2 text-accent hover:text-accent/80 text-sm font-medium flex items-center gap-1 transition-colors"
+                                className="mt-1 text-accent hover:text-accent/80 text-xs font-medium flex items-center gap-1 transition-colors"
                               >
                                 {isDescriptionExpanded ? (
-                                  <>Show Less <ChevronUp className="w-4 h-4" /></>
+                                  <>Show Less <ChevronUp className="w-3 h-3" /></>
                                 ) : (
-                                  <>Read More <ChevronDown className="w-4 h-4" /></>
+                                  <>Read More <ChevronDown className="w-3 h-3" /></>
                                 )}
                               </button>
                             )}
@@ -329,38 +329,38 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
 
                   {/* Options */}
                   {hasOptions && (
-                    <div className="mb-8">
-                      <h3 className="font-bebas uppercase tracking-wider text-lg text-foreground mb-4 flex items-center gap-2">
-                        <span className="w-2 h-2 bg-accent rounded-full" />
+                    <div className="mb-4">
+                      <h3 className="font-bebas uppercase tracking-wider text-sm text-foreground mb-2 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-accent rounded-full" />
                         Select Your Option
                       </h3>
-                      <div className="grid gap-3">
+                      <div className="grid gap-2">
                         {options.map((option, index) => (
                           <button
                             key={index}
                             onClick={() => setSelectedOption(option)}
                             className={cn(
-                              "w-full p-4 rounded-xl border-2 transition-all text-left group",
+                              "w-full p-3 rounded-lg border-2 transition-all text-left group",
                               selectedOption?.name === option.name
                                 ? "border-accent bg-accent/10 shadow-lg shadow-accent/10"
                                 : "border-border hover:border-primary/50 hover:bg-card"
                             )}
                           >
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2">
                                 <div className={cn(
-                                  "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
+                                  "w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors",
                                   selectedOption?.name === option.name
                                     ? "border-accent bg-accent"
                                     : "border-muted-foreground/50"
                                 )}>
                                   {selectedOption?.name === option.name && (
-                                    <Check className="w-3 h-3 text-accent-foreground" />
+                                    <Check className="w-2.5 h-2.5 text-accent-foreground" />
                                   )}
                                 </div>
-                                <span className="font-medium text-foreground">{option.name || 'Option'}</span>
+                                <span className="font-medium text-sm text-foreground">{option.name || 'Option'}</span>
                               </div>
-                              <span className="font-bebas text-xl text-accent">
+                              <span className="font-bebas text-lg text-accent">
                                 £{(option.price ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                               </span>
                             </div>
@@ -371,13 +371,13 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   )}
 
                   {/* Add to Cart Button */}
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <Button
                       onClick={handleAddToCart}
                       size="lg"
                       disabled={hasOptions && !selectedOption}
                       className={cn(
-                        "w-full font-bebas uppercase tracking-wider text-xl py-7 rounded-xl transition-all shadow-lg",
+                        "w-full font-bebas uppercase tracking-wider text-lg py-5 rounded-xl transition-all shadow-lg",
                         added 
                           ? "bg-primary hover:bg-primary/90 text-primary-foreground" 
                           : "bg-accent hover:bg-accent/90 text-accent-foreground hover:shadow-accent/30"
@@ -385,19 +385,19 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                     >
                       {added ? (
                         <>
-                          <Check className="w-6 h-6 mr-2" />
+                          <Check className="w-5 h-5 mr-2" />
                           Added to Basket
                         </>
                       ) : (
                         <>
-                          <ShoppingCart className="w-6 h-6 mr-2" />
+                          <ShoppingCart className="w-5 h-5 mr-2" />
                           Add to Basket
                         </>
                       )}
                     </Button>
 
                     {hasOptions && !selectedOption && (
-                      <p className="text-sm text-muted-foreground text-center">
+                      <p className="text-xs text-muted-foreground text-center">
                         Please select an option above to continue
                       </p>
                     )}
@@ -580,9 +580,9 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                       </div>
                     )}
                   </div>
-                  {/* Name tooltip on hover */}
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    <div className="bg-foreground text-background text-[8px] px-1.5 py-0.5 rounded whitespace-nowrap font-medium max-w-[100px] truncate">
+                  {/* Name tooltip on hover - positioned ABOVE the thumbnail */}
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                    <div className="bg-foreground text-background text-[10px] px-2 py-1 rounded whitespace-nowrap font-medium max-w-[150px] truncate shadow-lg">
                       {s.name}
                     </div>
                   </div>

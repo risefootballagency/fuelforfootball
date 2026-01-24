@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
     label: "Tactical",
     links: ["/tactical", "/action-reports", "/efficiency-reports"],
     items: [
-      { label: "Tactical Overview", link: "/tactical", description: "Video analysis and tactical education to enhance decision-making and game intelligence." },
+      { label: "Analysis", link: "/tactical", description: "Video analysis and tactical education to enhance decision-making and game intelligence." },
       { label: "Action Reports", link: "/action-reports", description: "Detailed breakdown of your on-ball actions with specific improvement recommendations." },
       { label: "Efficiency Reports", link: "/efficiency-reports", description: "Data-driven performance evaluation compared to your team, league and positional benchmarks." },
     ]
@@ -99,9 +99,13 @@ export const PlayersSubmenu = ({ className = "" }: PlayersSubmenuProps) => {
                 {/* Glass-morphism Dropdown with smart positioning - always stays on screen */}
                 <div 
                   className={`absolute top-full min-w-[260px] md:min-w-[320px] z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 pt-2 ${
-                    isFirst 
+                    // On mobile (6 items wrap to 2 rows of 3), items 0,1,2 are row 1, 3,4,5 are row 2
+                    // Items at left edge: 0, 3
+                    // Items at right edge: 2, 5
+                    // Items in middle: 1, 4
+                    index === 0 || index === 3
                       ? 'left-0' 
-                      : isLast 
+                      : index === 2 || index === 5 || isLast
                         ? 'right-0 left-auto' 
                         : 'left-1/2 -translate-x-1/2'
                   }`}
