@@ -13,6 +13,10 @@ Disallow: /login
 Disallow: /import-program
 Disallow: /replace-program
 Disallow: /scout-portal
+Disallow: /cart
+Disallow: /pay/
+Disallow: /sign-contract
+Disallow: /customisation
 
 User-agent: Bingbot
 Allow: /
@@ -23,6 +27,9 @@ Disallow: /staff
 Disallow: /staff/*
 Disallow: /portal
 Disallow: /login
+Disallow: /cart
+Disallow: /pay/
+Disallow: /sign-contract
 
 User-agent: Twitterbot
 Allow: /
@@ -53,6 +60,10 @@ Disallow: /replace-program
 Disallow: /scout-portal
 Disallow: /pdf-viewer
 Disallow: /analysis/
+Disallow: /cart
+Disallow: /pay/
+Disallow: /sign-contract
+Disallow: /customisation
 
 # Sitemaps
 Sitemap: https://fuelforfootball.com/sitemap.xml

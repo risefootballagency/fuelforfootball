@@ -34,12 +34,15 @@ Deno.serve(async (req) => {
 
     // Static pages with their priorities and changefreq
     const staticPages = [
+      // Core pages
       { loc: '/', priority: '1.0', changefreq: 'weekly' },
       { loc: '/stars', priority: '0.9', changefreq: 'weekly' },
       { loc: '/news', priority: '0.8', changefreq: 'daily' },
       { loc: '/about', priority: '0.7', changefreq: 'monthly' },
       { loc: '/contact', priority: '0.7', changefreq: 'monthly' },
       { loc: '/between-the-lines', priority: '0.8', changefreq: 'weekly' },
+      
+      // Role pages
       { loc: '/clubs', priority: '0.8', changefreq: 'monthly' },
       { loc: '/coaches', priority: '0.8', changefreq: 'monthly' },
       { loc: '/scouts', priority: '0.8', changefreq: 'monthly' },
@@ -48,6 +51,31 @@ Deno.serve(async (req) => {
       { loc: '/media', priority: '0.7', changefreq: 'monthly' },
       { loc: '/players', priority: '0.8', changefreq: 'monthly' },
       { loc: '/potential', priority: '0.7', changefreq: 'monthly' },
+      
+      // Services & Shop
+      { loc: '/services', priority: '0.9', changefreq: 'weekly' },
+      { loc: '/shop', priority: '0.8', changefreq: 'weekly' },
+      
+      // Individual service pages
+      { loc: '/technical', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/tactical', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/mental', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/analysis', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/sps', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/conditioning', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/nutrition', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/consultation', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/pro-performance', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/elite-performance', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/mentorship', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/action-reports', priority: '0.7', changefreq: 'monthly' },
+      { loc: '/efficiency-reports', priority: '0.7', changefreq: 'monthly' },
+      
+      // Other pages
+      { loc: '/jobs', priority: '0.6', changefreq: 'weekly' },
+      { loc: '/daily-fuel', priority: '0.6', changefreq: 'daily' },
+      
+      // Legal
       { loc: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
       { loc: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
     ]

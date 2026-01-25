@@ -6,7 +6,7 @@ const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-const NOTIFICATION_EMAIL = "jolon.levene@risefootballagency.com";
+const NOTIFICATION_EMAIL = "jolon.levene@fuelforfootball.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -121,43 +121,43 @@ Deno.serve(async (req) => {
 
     // Send the report email
     const emailResponse = await resend.emails.send({
-      from: "RISE Football <onboarding@resend.dev>",
+      from: "Fuel For Football <onboarding@resend.dev>",
       to: [NOTIFICATION_EMAIL],
       subject: `Weekly Instagram Visitors Report - ${startDate.toLocaleDateString('en-GB')} to ${endDate.toLocaleDateString('en-GB')}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 20px; text-align: center;">
-            <h1 style="color: #B8A574; margin: 0; font-size: 28px; letter-spacing: 2px;">RISE FOOTBALL</h1>
+          <div style="background: linear-gradient(135deg, #09380e 0%, #0d4a14 100%); padding: 20px; text-align: center;">
+            <h1 style="color: #ffc805; margin: 0; font-size: 28px; letter-spacing: 2px;">FUEL FOR FOOTBALL</h1>
             <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 14px;">Weekly Instagram Visitors Report</p>
           </div>
           
           <div style="padding: 30px; background: #ffffff;">
-            <h2 style="color: #1a1a1a; margin-bottom: 20px; border-bottom: 2px solid #B8A574; padding-bottom: 10px;">
+            <h2 style="color: #09380e; margin-bottom: 20px; border-bottom: 2px solid #ffc805; padding-bottom: 10px;">
               Report Period: ${startDate.toLocaleDateString('en-GB')} - ${endDate.toLocaleDateString('en-GB')}
             </h2>
             
             <div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
               <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; flex: 1; min-width: 150px; text-align: center;">
-                <div style="font-size: 32px; font-weight: bold; color: #B8A574;">${totalVisits}</div>
+                <div style="font-size: 32px; font-weight: bold; color: #09380e;">${totalVisits}</div>
                 <div style="color: #666; font-size: 14px;">Total Visits</div>
               </div>
               <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; flex: 1; min-width: 150px; text-align: center;">
-                <div style="font-size: 32px; font-weight: bold; color: #B8A574;">${uniqueVisitorCount}</div>
+                <div style="font-size: 32px; font-weight: bold; color: #09380e;">${uniqueVisitorCount}</div>
                 <div style="color: #666; font-size: 14px;">Unique Visitors</div>
               </div>
               <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; flex: 1; min-width: 150px; text-align: center;">
-                <div style="font-size: 32px; font-weight: bold; color: #B8A574;">${formatDuration(avgDuration)}</div>
+                <div style="font-size: 32px; font-weight: bold; color: #09380e;">${formatDuration(avgDuration)}</div>
                 <div style="color: #666; font-size: 14px;">Avg. Duration</div>
               </div>
             </div>
             
             ${sortedPages.length > 0 ? `
-              <h3 style="color: #1a1a1a; margin-bottom: 15px;">Top Pages Visited</h3>
+              <h3 style="color: #09380e; margin-bottom: 15px;">Top Pages Visited</h3>
               <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
                 <thead>
                   <tr style="background: #f5f5f5;">
-                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #B8A574;">Page</th>
-                    <th style="padding: 10px; text-align: center; border-bottom: 2px solid #B8A574;">Visits</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ffc805;">Page</th>
+                    <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ffc805;">Visits</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -167,14 +167,14 @@ Deno.serve(async (req) => {
             ` : ''}
             
             ${totalVisits > 0 ? `
-              <h3 style="color: #1a1a1a; margin-bottom: 15px;">Recent Visitor Details ${totalVisits > 50 ? '(Showing first 50)' : ''}</h3>
+              <h3 style="color: #09380e; margin-bottom: 15px;">Recent Visitor Details ${totalVisits > 50 ? '(Showing first 50)' : ''}</h3>
               <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                   <tr style="background: #f5f5f5;">
-                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #B8A574; font-size: 12px;">Date/Time</th>
-                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #B8A574; font-size: 12px;">Page</th>
-                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #B8A574; font-size: 12px;">Duration</th>
-                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #B8A574; font-size: 12px;">Location</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ffc805; font-size: 12px;">Date/Time</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ffc805; font-size: 12px;">Page</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ffc805; font-size: 12px;">Duration</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ffc805; font-size: 12px;">Location</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -184,9 +184,9 @@ Deno.serve(async (req) => {
             ` : '<p style="color: #666; text-align: center; padding: 30px;">No Instagram visitors recorded this week.</p>'}
           </div>
           
-          <div style="background: #f5f5f5; padding: 20px; text-align: center;">
-            <p style="color: #666666; font-size: 12px; margin: 0;">
-              © ${new Date().getFullYear()} RISE Football. All rights reserved.
+          <div style="background: #09380e; padding: 20px; text-align: center;">
+            <p style="color: #ffffff; font-size: 12px; margin: 0;">
+              © ${new Date().getFullYear()} Fuel For Football. All rights reserved.
             </p>
           </div>
         </div>
