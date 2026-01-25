@@ -1,9 +1,16 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <>
+      <SEO 
+        title="Privacy Policy - Fuel For Football"
+        description="Learn how Fuel For Football collects, uses, and protects your personal information. Our privacy policy explains your rights and our data practices."
+        url="/privacy-policy"
+      />
+      <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 pt-32 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -138,5 +145,6 @@ export default function PrivacyPolicy() {
       </main>
       <Footer />
     </div>
+    </>
   );
 }

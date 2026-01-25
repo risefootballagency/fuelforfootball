@@ -8,14 +8,14 @@
   if (!manifestLink) return;
   
   let newManifest = null;
-  let newTitle = 'RISE Football Agency';
+  let newTitle = 'Fuel For Football';
   
   if (path.startsWith('/portal')) {
     newManifest = '/manifest-player.json';
-    newTitle = 'RISE Player Portal';
+    newTitle = 'FFF Player Portal';
   } else if (path.startsWith('/staff')) {
     newManifest = '/manifest-staff.json';
-    newTitle = 'RISE Staff Portal';
+    newTitle = 'FFF Staff Portal';
   }
   
   if (newManifest) {

@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { PlayersSubmenu } from "@/components/PlayersSubmenu";
 import { AnimatedSmokyBackground } from "@/components/AnimatedSmokyBackground";
 import { HoverText } from "@/components/HoverText";
+import { SEO } from "@/components/SEO";
 import { ReactNode } from "react";
 
 interface ServicePageLayoutProps {
@@ -13,6 +14,10 @@ interface ServicePageLayoutProps {
   heroImage?: string;
   heroVideo?: string;
   showSubmenu?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoImage?: string;
+  seoUrl?: string;
 }
 
 export const ServicePageLayout = ({ 
@@ -22,16 +27,29 @@ export const ServicePageLayout = ({
   subtitle,
   heroImage,
   heroVideo,
-  showSubmenu = true
+  showSubmenu = true,
+  seoTitle,
+  seoDescription,
+  seoImage,
+  seoUrl
 }: ServicePageLayoutProps) => {
   const hasMedia = heroImage || heroVideo;
+  const defaultSeoTitle = `${title} - Fuel For Football`;
+  const defaultSeoDescription = subtitle || `${title} services from Fuel For Football - Elite football performance consultancy.`;
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated smoky background for entire page - fixed behind all content */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <AnimatedSmokyBackground />
-      </div>
+    <>
+      <SEO 
+        title={seoTitle || defaultSeoTitle}
+        description={seoDescription || defaultSeoDescription}
+        image={seoImage}
+        url={seoUrl}
+      />
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Animated smoky background for entire page - fixed behind all content */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <AnimatedSmokyBackground />
+        </div>
       
       {/* Main content wrapper - transparent to show smoky bg */}
       <div className="relative z-10">
@@ -92,6 +110,7 @@ export const ServicePageLayout = ({
         <Footer />
       </div>
     </div>
+    </>
   );
 };
 

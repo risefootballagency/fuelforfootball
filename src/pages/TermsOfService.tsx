@@ -1,9 +1,16 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 
 export default function TermsOfService() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <>
+      <SEO 
+        title="Terms of Service - Fuel For Football"
+        description="Read the terms and conditions for using Fuel For Football services. Understand your rights and obligations when using our football performance platform."
+        url="/terms-of-service"
+      />
+      <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 pt-32 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -177,5 +184,6 @@ export default function TermsOfService() {
       </main>
       <Footer />
     </div>
+    </>
   );
 }

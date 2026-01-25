@@ -5,13 +5,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SITE_URL = 'https://risefootballagency.com';
-const defaultImage = 'https://risefootballagency.com/og-preview-home.png';
+const SITE_URL = 'https://fuelforfootball.com';
+const defaultImage = 'https://fuelforfootball.com/og-preview-home.png';
 
 // Static OG image mappings for players with custom images
 const playerOgImages: Record<string, string> = {
-  'tyrese-omotoye': 'https://risefootballagency.com/og-tyrese-omotoye.png',
-  'michael-vit-mulligan': 'https://risefootballagency.com/og-michael-vit-mulligan.png',
+  'tyrese-omotoye': 'https://fuelforfootball.com/og-tyrese-omotoye.png',
+  'michael-vit-mulligan': 'https://fuelforfootball.com/og-michael-vit-mulligan.png',
 };
 
 Deno.serve(async (req) => {
@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     }
 
     // Generate rich meta description
-    const metaDescription = `${playerName} - ${position} from ${nationality}${currentClub ? ` currently at ${currentClub}` : ''}. Professional footballer represented by RISE Football Agency. Contact us for transfer enquiries.`;
+    const metaDescription = `${playerName} - ${position} from ${nationality}${currentClub ? ` currently at ${currentClub}` : ''}. Professional footballer represented by Fuel For Football. Contact us for transfer enquiries.`;
 
     // Generate Schema.org structured data
     const schemaData = {
@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
       "knowsAbout": ["Football", "Soccer", position],
       "worksFor": {
         "@type": "Organization",
-        "name": "RISE Football Agency",
+        "name": "Fuel For Football",
         "url": SITE_URL
       }
     };
@@ -99,26 +99,26 @@ Deno.serve(async (req) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${playerName} | ${position} | RISE Football Agency</title>
+  <title>${playerName} | ${position} | Fuel For Football</title>
   <meta name="description" content="${metaDescription}">
   <link rel="canonical" href="${playerUrl}">
   
   <!-- Open Graph -->
   <meta property="og:type" content="profile">
   <meta property="og:url" content="${playerUrl}">
-  <meta property="og:title" content="${playerName} | ${position} | RISE Football Agency">
+  <meta property="og:title" content="${playerName} | ${position} | Fuel For Football">
   <meta property="og:description" content="${metaDescription}">
   <meta property="og:image" content="${ogImage}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:site_name" content="RISE Football Agency">
+  <meta property="og:site_name" content="Fuel For Football">
   <meta property="profile:first_name" content="${playerName.split(' ')[0]}">
   <meta property="profile:last_name" content="${playerName.split(' ').slice(1).join(' ')}">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@risefootball">
-  <meta name="twitter:title" content="${playerName} | ${position} | RISE Football Agency">
+  <meta name="twitter:site" content="@fuelforfootball">
+  <meta name="twitter:title" content="${playerName} | ${position} | Fuel For Football">
   <meta name="twitter:description" content="${metaDescription}">
   <meta name="twitter:image" content="${ogImage}">
   
