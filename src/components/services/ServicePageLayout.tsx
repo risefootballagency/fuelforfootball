@@ -128,7 +128,7 @@ export const ServiceSection = ({
 }) => (
   <section 
     id={id}
-    className={`py-8 md:py-12 relative ${dark ? 'bg-black/30 backdrop-blur-sm' : ''} ${className}`}
+    className={`py-4 md:py-6 relative ${dark ? 'bg-black/30 backdrop-blur-sm' : ''} ${className}`}
   >
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       {children}
@@ -143,7 +143,7 @@ export const ServiceSectionTitle = ({
   children: ReactNode;
   className?: string;
 }) => (
-  <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-6 md:mb-8">
+  <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-4 md:mb-6">
     <div 
       className="w-screen relative left-1/2 -translate-x-1/2 py-3 md:py-4 overflow-hidden border-y-4 border-accent"
       style={{
