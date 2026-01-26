@@ -40,7 +40,7 @@ const ProPerformance = () => {
   return (
     <ServicePageLayout
       category="HOLISTIC"
-      title="PRO PERFORMANCE\nRUN THE SHOW"
+      title="PRO PERFORMANCE - RUN THE SHOW"
       heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />

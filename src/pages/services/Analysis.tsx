@@ -20,7 +20,7 @@ const Analysis = () => {
   return (
     <ServicePageLayout
       category="ANALYSIS"
-      title="SEE THE GAME\nBEFORE IT HAPPENS"
+      title="SEE THE GAME BEFORE IT HAPPENS"
       heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />

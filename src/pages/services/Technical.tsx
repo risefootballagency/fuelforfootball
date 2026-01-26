@@ -9,6 +9,7 @@ import {
   ServiceCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
+import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
 
 const Technical = () => {
   const pillars = [
@@ -36,10 +37,48 @@ const Technical = () => {
     "Structure variability"
   ];
 
+  const tabContent = [
+    {
+      label: "Overview",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Technical aspects are the cornerstone of a player's game. Ball mastery can mean the difference between a missed opportunity and a spectacular goal, a fumbled pass and a game-changing assist. Our tailored technical training services are dedicated to honing your control over the ball and creating the ability to play precise passes, dribble, cut at speed, and finish with high accuracy.",
+            "Players are quick to acknowledge the need for expert coaching when it comes to the physical aspects of the game - both primary (strength, power, speed, conditioning) and secondary (nutrition). When it comes to technical aspects of play, however, there is a tendency to assume it can be done to the highest level by oneself. Some might stumble upon great training, but there are well-understood, reliable evidence-based approaches and methods of training which most players will miss out on."
+          ]}
+        />
+      )
+    },
+    {
+      label: "In-Person",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Our in-person technical training sessions take place across the UK with our expert technical coaches. Unlike 1 to 1 sessions you may have seen online, our analysts break your game down in detail before training to key in on the details that actually matter for improving.",
+            "We mainly work through workshops: for understanding new ideas, keying in on areas for development, walking through correct technique and decision-making in high detail. Sessions are tailored to your position, playing style, and the specific technical areas you need to develop.",
+            "Our individualised training sessions are designed to fit your individual needs, pushing you to new limits, reducing the incidence of injury and helping you maximise your on-pitch impact."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Online",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "For players abroad or those unable to attend in-person sessions, we offer comprehensive online technical support. This includes detailed video analysis of your technique with personalised feedback and improvement plans.",
+            "In-depth programming with a high attention to detail. Programming is individualised to improve the key technical aspects for improving performance on the pitch. Our technical coach works 1:1 to offer full support on a daily basis with cues, advice and program alterations.",
+            "Remote sessions via video call allow our coaches to provide real-time feedback and guidance, ensuring you receive the same quality of coaching regardless of your location."
+          ]}
+        />
+      )
+    }
+  ];
+
   return (
     <ServicePageLayout
       category="TECHNICAL"
-      title="CONTROL THE BALL\nCONTROL THE GAME"
+      title="CONTROL THE BALL, CONTROL THE GAME"
       heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
@@ -49,31 +88,7 @@ const Technical = () => {
         <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
         
         <div className="max-w-5xl mx-auto">
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-            {["Overview", "In-Person", "Online"].map((tab, index) => (
-              <button
-                key={tab}
-                className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
-                  index === 0 
-                    ? 'bg-accent text-black' 
-                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          
-          <ServiceContentBlock
-            paragraphs={[
-              "Technical aspects are the cornerstone of a player's game. Ball mastery can mean the difference between a missed opportunity and a spectacular goal, a fumbled pass and a game-changing assist. Our tailored technical training services are dedicated to honing your control over the ball and creating the ability to play precise passes, dribble, cut at speed, and finish with high accuracy.",
-              "Players are quick to acknowledge the need for expert coaching when it comes to the physical aspects of the game - both primary (strength, power, speed, conditioning) and secondary (nutrition). When it comes to technical aspects of play, however, there is a tendency to assume it can be done to the highest level by oneself. Some might stumble upon great training, but there are well-understood, reliable evidence-based approaches and methods of training which most players will miss out on.",
-              "Our individualised training sessions are designed to fit your individual needs, pushing you to new limits, reducing the incidence of injury and helping you maximise your on-pitch impact.",
-              "Unlike 1 to 1 sessions they may have seen online, our analysts break your game down in detail before training to key in on the details that actually matter for improving. We mainly work through workshops: for understanding new ideas, keying in on areas for development, walking through correct technique and decision-making in high detail.",
-              "In-depth programming with a high attention to detail. Programming is individualised to improve the key technical aspects for improving performance on the pitch. Our technical coach works 1:1 to offer full support on a daily basis with cues, advice and program alterations."
-            ]}
-          />
+          <ServiceDetailTabs tabs={tabContent} />
         </div>
       </ServiceSection>
 

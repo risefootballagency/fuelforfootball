@@ -87,7 +87,7 @@ const ElitePerformance = () => {
   return (
     <ServicePageLayout
       category="HOLISTIC"
-      title="ELITE PERFORMANCE\nTHE FULL PACKAGE"
+      title="ELITE PERFORMANCE - THE FULL PACKAGE"
       heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />

@@ -81,7 +81,7 @@ export const ServiceQuickAddWidget = ({ service }: ServiceQuickAddWidgetProps) =
               </>
             )}
           </Button>
-          <Link to={`/service/${service.id}`}>
+          <Link to={`/services?service=${service.id}`}>
             <Button variant="outline" size="sm" className="font-bebas uppercase tracking-wider text-sm">
               <span className="hidden sm:inline mr-1">View</span>
               <ArrowRight className="w-4 h-4" />
