@@ -9,6 +9,7 @@ import {
   ServiceInfoCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
+import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
 
 const EfficiencyReports = () => {
   const pillars = [
@@ -16,6 +17,44 @@ const EfficiencyReports = () => {
     { icon: "https://static.wixstatic.com/media/c4f4b1_34064a3af1fb4cda857abb786edea7ae~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Movement.png", label: "BENCHMARKING" },
     { icon: "https://static.wixstatic.com/media/c4f4b1_4f2f0e863b8949f19d464230d2ce0910~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Decision-Making.png", label: "PERFORMANCE METRICS" },
     { icon: "https://static.wixstatic.com/media/c4f4b1_41d76a61f7a8411a8c48c65b0b350c64~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Vision%20(1).png", label: "SCOUT INSIGHTS" },
+  ];
+
+  const tabContent = [
+    {
+      label: "Overview",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Our Player Efficiency Reports provide a data-backed evaluation of your performance compared to your team, league, and positional benchmarks. Using the same metrics that professional clubs and scouts analyse, we give you insights into how you're viewed in the transfer market.",
+            "We comprehensively analyse the performance statistics clubs use to evaluate and recruit players. Through this analysis, we highlight your strengths in reports that can increase club interest and maximise the value of contracts you negotiate."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Metrics",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Each report breaks down key performance indicators specific to your position - from expected goals and assists for attackers, to defensive actions and passing accuracy for defenders. We compare your numbers against league averages and top performers to show exactly where you stand.",
+            "We track metrics including xG, xA, progressive passes, ball recoveries, duels won, pressures, and many more position-specific KPIs. These are the exact numbers scouts and recruitment teams analyse when evaluating players.",
+            "Our benchmarking system compares you against players in your league, your position, and your age group - giving you clear targets for improvement and evidence of your standout attributes."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Reports",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Beyond raw statistics, we provide context and actionable recommendations. Understanding that numbers tell only part of the story, we combine data analysis with tactical insights to give you a complete picture of your on-pitch impact.",
+            "Reports are delivered in a professional format suitable for sharing with agents, clubs, and scouts. We highlight your unique selling points and provide clear improvement plans for areas of development.",
+            "Regular reports throughout the season allow you to track progress and demonstrate consistent improvement to interested parties."
+          ]}
+        />
+      )
+    }
   ];
 
   return (
@@ -31,29 +70,7 @@ const EfficiencyReports = () => {
         <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
         
         <div className="max-w-5xl mx-auto">
-          <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-            {["Overview", "Metrics", "Reports"].map((tab, index) => (
-              <button
-                key={tab}
-                className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
-                  index === 0 
-                    ? 'bg-accent text-black' 
-                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          
-          <ServiceContentBlock
-            paragraphs={[
-              "Our Player Efficiency Reports provide a data-backed evaluation of your performance compared to your team, league, and positional benchmarks. Using the same metrics that professional clubs and scouts analyse, we give you insights into how you're viewed in the transfer market.",
-              "We comprehensively analyse the performance statistics clubs use to evaluate and recruit players. Through this analysis, we highlight your strengths in reports that can increase club interest and maximise the value of contracts you negotiate.",
-              "Each report breaks down key performance indicators specific to your position - from expected goals and assists for attackers, to defensive actions and passing accuracy for defenders. We compare your numbers against league averages and top performers to show exactly where you stand.",
-              "Beyond raw statistics, we provide context and actionable recommendations. Understanding that numbers tell only part of the story, we combine data analysis with tactical insights to give you a complete picture of your on-pitch impact."
-            ]}
-          />
+          <ServiceDetailTabs tabs={tabContent} />
         </div>
       </ServiceSection>
 

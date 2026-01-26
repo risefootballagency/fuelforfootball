@@ -10,6 +10,7 @@ import {
   ServiceInfoCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
+import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
 
 const Mental = () => {
   const pillars = [
@@ -33,31 +34,43 @@ const Mental = () => {
         <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
         
         <div className="max-w-5xl mx-auto">
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-            {["Overview", "Mental Skills", "Mental Will"].map((tab, index) => (
-              <button
-                key={tab}
-                className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
-                  index === 0 
-                    ? 'bg-accent text-black' 
-                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          
-          <ServiceContentBlock
-            paragraphs={[
-              "It is the combination of skill and will which decides every victor. It does not matter how great a player you are if you suffer mental defeat to an opponent. Mastering your mind and possessing mental strength plays a pivotal role in Football. Our bespoke psychological support services aim to fortify your mind, empowering you to take on increasingly great challenges, manage pressure, and perform consistently at your highest level.",
-              "Whether you are battling performance anxiety, seeking to boost your mental resilience, or striving to enhance your concentration during high-stakes moments, our tailored and individualised 1:1 training will help you secure the mental edge over your competition. With Fuel for Football, you win the game with your mind, to in turn win on the pitch.",
-              "Mental skills are the foundation upon which all other abilities depend. Consistency on the pitch requires strong mental skills, a fact recognised by Sir Alex Ferguson as key to prolonged elite performance. Our Mental Skill Training focuses on developing consistency, confidence, resilience, and focus, all while maintaining complete confidentiality, most importantly including from your club's personnel.",
-              "We start by testing your mental skill level and comparing it to other elite athletes we have trained. Based on this assessment, we create bespoke individualised sessions tailored to your needs. These one-to-one sessions can be conducted in person or over the phone, ensuring you receive the personalised support necessary to strengthen your mental game.",
-              "The difference between players of similar ability often lies in their mental will. With greater will than an opponent, it is possible to outperform them even with less skill. Mental will is developed like any muscle in the gym, through training. Mental will speaks to drive and determination. If you want something more than an opponent, it is often enough to overcome any skill deficit. This service is perfect for booking in before games to prepare the mind for action and to have the greatest performance possible."
-            ]}
-          />
+          <ServiceDetailTabs tabs={[
+            {
+              label: "Overview",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "It is the combination of skill and will which decides every victor. It does not matter how great a player you are if you suffer mental defeat to an opponent. Mastering your mind and possessing mental strength plays a pivotal role in Football. Our bespoke psychological support services aim to fortify your mind, empowering you to take on increasingly great challenges, manage pressure, and perform consistently at your highest level.",
+                    "Whether you are battling performance anxiety, seeking to boost your mental resilience, or striving to enhance your concentration during high-stakes moments, our tailored and individualised 1:1 training will help you secure the mental edge over your competition. With Fuel for Football, you win the game with your mind, to in turn win on the pitch."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Mental Skills",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "Mental skills are the foundation upon which all other abilities depend. Consistency on the pitch requires strong mental skills, a fact recognised by Sir Alex Ferguson as key to prolonged elite performance. Our Mental Skill Training focuses on developing consistency, confidence, resilience, and focus, all while maintaining complete confidentiality, most importantly including from your club's personnel.",
+                    "We start by testing your mental skill level and comparing it to other elite athletes we have trained. Based on this assessment, we create bespoke individualised sessions tailored to your needs. These one-to-one sessions can be conducted in person or over the phone, ensuring you receive the personalised support necessary to strengthen your mental game.",
+                    "Skills we develop include visualisation, goal-setting, positive self-talk, pre-performance routines, and concentration techniques."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Mental Will",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "The difference between players of similar ability often lies in their mental will. With greater will than an opponent, it is possible to outperform them even with less skill. Mental will is developed like any muscle in the gym, through training.",
+                    "Mental will speaks to drive and determination. If you want something more than an opponent, it is often enough to overcome any skill deficit. This service is perfect for booking in before games to prepare the mind for action and to have the greatest performance possible.",
+                    "Our Mental Will training includes pre-match mindset conditioning, in-game mental strategies, and post-match psychological recovery."
+                  ]}
+                />
+              )
+            }
+          ]} />
         </div>
       </ServiceSection>
 

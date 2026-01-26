@@ -63,7 +63,7 @@ export const CaseStudySlider = () => {
     <>
       <section className="py-8 md:py-12 bg-gradient-to-b from-background via-card/20 to-background overflow-hidden">
         <div className="container mx-auto px-4 mb-6">
-          <span className="text-xs font-bebas uppercase tracking-[0.3em] text-primary/60 block mb-2 text-center">
+          <span className="text-xs font-bebas uppercase tracking-[0.3em] text-accent block mb-2 text-center">
             Success Stories
           </span>
           <h2 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-center text-foreground mb-2">
@@ -174,7 +174,7 @@ export const CaseStudySlider = () => {
               <div className="p-6 space-y-6">
                 {/* Summary */}
                 <div>
-                  <h3 className="font-bebas text-2xl md:text-3xl text-primary tracking-wider mb-2">
+                  <h3 className="font-bebas text-2xl md:text-3xl text-accent tracking-wider mb-2">
                     FUELLED SUCCESS STORY
                   </h3>
                   <p className="text-foreground text-sm md:text-base">
@@ -195,12 +195,12 @@ export const CaseStudySlider = () => {
                 {/* Services Used */}
                 {selectedStudy.services_used && selectedStudy.services_used.length > 0 && (
                   <div>
-                    <h4 className="font-bebas text-lg text-white tracking-wider mb-2">SERVICES UTILIZED</h4>
+                    <h4 className="font-bebas text-lg text-accent tracking-wider mb-2">SERVICES UTILISED</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedStudy.services_used.map((service, idx) => (
                         <span 
                           key={idx}
-                          className="px-3 py-1 bg-primary/20 text-primary text-xs font-bebas tracking-wider rounded-full border border-primary/30"
+                          className="px-3 py-1 bg-accent/20 text-white text-xs font-bebas tracking-wider rounded-full border border-accent/30"
                         >
                           {service}
                         </span>
@@ -212,15 +212,14 @@ export const CaseStudySlider = () => {
                 {/* Achievements */}
                 {selectedStudy.achievements && selectedStudy.achievements.length > 0 && (
                   <div>
-                    <h4 className="font-bebas text-lg text-white tracking-wider mb-2">KEY ACHIEVEMENTS</h4>
-                    <div className="grid grid-cols-2 gap-3">
+                    <h4 className="font-bebas text-lg text-accent tracking-wider mb-2">KEY ACHIEVEMENTS</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {selectedStudy.achievements.map((achievement, idx) => (
                         <div 
                           key={idx}
-                          className="flex items-center gap-2 p-3 bg-accent/10 rounded-lg border border-accent/20"
+                          className="relative overflow-hidden rounded-lg border border-accent/30 bg-black/60 p-4"
                         >
-                          <Trophy className="w-4 h-4 text-accent flex-shrink-0" />
-                          <span className="text-foreground text-xs md:text-sm">{achievement}</span>
+                          <span className="text-white text-sm font-medium">{achievement}</span>
                         </div>
                       ))}
                     </div>

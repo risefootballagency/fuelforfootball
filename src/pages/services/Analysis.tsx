@@ -8,6 +8,7 @@ import {
   ServiceContentBlock,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
+import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
 
 const Analysis = () => {
   const pillars = [
@@ -190,29 +191,68 @@ const Analysis = () => {
         <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
         
         <div className="max-w-5xl mx-auto">
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-            {["Overview", "Pre-Match", "Post-Match", "Positional Guide", "Player Efficiency Report"].map((tab, index) => (
-              <button
-                key={tab}
-                className={`px-4 py-2.5 rounded-lg font-bebas text-xs md:text-sm tracking-wider transition-all duration-200 ${
-                  index === 0 
-                    ? 'bg-primary text-primary-foreground' 
-                    : 'bg-card border border-border hover:border-primary/50 text-foreground'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          
-          <ServiceContentBlock
-            paragraphs={[
-              "The difference between a good player and a great player often lies in the depth of their game understanding. With our bespoke analysis services, we help you unlock new layers of your performance and rise above your competition.",
-              "The best athletes in the world invest significant time in performance analysis. It is not solely about enhancing tactical development - it is about uncovering insights into technical, physical, and psychological performance. These insights can transform your decision-making, your positional awareness, and your ability to adapt in real-time to the ever-changing dynamics of a game.",
-              "Our expert analysts employ expert coaching techniques and tools, dissecting your gameplay to provide an in-depth understanding of your strengths and areas to improve. Unlike team analysis, we are able to go deep into detail on your individual role within the team."
-            ]}
-          />
+          <ServiceDetailTabs tabs={[
+            {
+              label: "Overview",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "The difference between a good player and a great player often lies in the depth of their game understanding. With our bespoke analysis services, we help you unlock new layers of your performance and rise above your competition.",
+                    "The best athletes in the world invest significant time in performance analysis. It is not solely about enhancing tactical development - it is about uncovering insights into technical, physical, and psychological performance. These insights can transform your decision-making, your positional awareness, and your ability to adapt in real-time to the ever-changing dynamics of a game.",
+                    "Our expert analysts employ expert coaching techniques and tools, dissecting your gameplay to provide an in-depth understanding of your strengths and areas to improve. Unlike team analysis, we are able to go deep into detail on your individual role within the team."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Pre-Match",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "Pre-match opposition analysis is delivered to our players at the start of the match week, giving time to absorb the information and use it in preparation. Unlike the analysis delivered at club-level, we focus in much greater detail on what is important to you for a strong individual performance.",
+                    "We analyse your direct opponents - their strengths, weaknesses, preferred movements, and tendencies. You'll know exactly what to expect and how to exploit their vulnerabilities.",
+                    "The analysis includes video clips, tactical diagrams, and clear action points for you to focus on during the match."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Post-Match",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "In post-match analysis, we cut through the game to focus on how to be more consistent with your strengths and how to eliminate your weaknesses. Although highly critical, even with our Premier League level players, the detail in our analysis will make vast improvements to your game when applied.",
+                    "We review every touch, every decision, and every movement - identifying patterns in your play and specific moments where different choices could have led to better outcomes.",
+                    "Each analysis comes with a clear development plan and specific areas to work on before your next match."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Positional Guide",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "Positional guide pieces utilise the best players in the world to explain advanced tactical ideas, allowing you to see the game through a more intellectual lens. No matter the concept, we break down everything important to learn and apply in a simple format so that you can apply your learnings out on the pitch.",
+                    "We create bespoke content specific to your position and the areas you need to develop. Using examples from elite players, we show you exactly how to execute at the highest level.",
+                    "Guides cover positioning, movement patterns, decision-making triggers, and much more."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Efficiency Report",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "The Player Efficiency Report has its primary objective to provide a comprehensive analysis of the performance statistics that clubs use to evaluate and recruit players. In addition to presenting the data, the report also includes a detailed plan for improving performance.",
+                    "We compare your statistics against positional benchmarks, league averages, and top performers. This gives you clear evidence of your strengths and specific targets for improvement.",
+                    "Reports are formatted professionally for sharing with agents, clubs, and scouts - showcasing your value in the transfer market."
+                  ]}
+                />
+              )
+            }
+          ]} />
         </div>
       </ServiceSection>
 

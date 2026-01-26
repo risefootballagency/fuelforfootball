@@ -10,6 +10,7 @@ import {
   ServiceInfoCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
+import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
 
 const Tactical = () => {
   const pillars = [
@@ -17,6 +18,45 @@ const Tactical = () => {
     { icon: "https://static.wixstatic.com/media/c4f4b1_34064a3af1fb4cda857abb786edea7ae~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Movement.png", label: "MOVEMENT" },
     { icon: "https://static.wixstatic.com/media/c4f4b1_4f2f0e863b8949f19d464230d2ce0910~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Decision-Making.png", label: "DECISION-MAKING" },
     { icon: "https://static.wixstatic.com/media/c4f4b1_41d76a61f7a8411a8c48c65b0b350c64~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Vision%20(1).png", label: "VISION" },
+  ];
+
+  const tabContent = [
+    {
+      label: "Overview",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Understanding the tactical dimensions of football separates good players from great ones. While physical attributes and technical skills are essential, the ability to read the game, anticipate movements, and make split-second decisions elevates your performance to another level.",
+            "Our tactical training focuses on developing your football intelligence - the ability to see patterns, understand positional responsibilities, and exploit spaces before they even appear. Whether you're looking to master your role within a specific formation or understand how to adapt to different tactical systems, our expert analysts provide the insights you need.",
+            "Through detailed video analysis and personalised coaching sessions, we break down the complexities of modern football tactics into actionable knowledge. You'll learn to anticipate opposition movements, understand when to hold position versus when to break lines, and develop the spatial awareness that defines elite players."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Formation",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Understanding your role within different formations is crucial for consistent performance. Whether you're playing in a 4-3-3, 4-4-2, 3-5-2, or any hybrid formation, each system requires specific positioning, movement patterns, and decision-making.",
+            "Our formation-specific training breaks down the responsibilities of every position within each system. You'll learn when to push high, when to drop deep, and how to maintain the team's shape while creating attacking opportunities.",
+            "We analyse how top clubs implement different formations and how individual players adapt their games to thrive within various tactical setups. This knowledge allows you to seamlessly integrate into any system your coach deploys."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Positional",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Every position on the pitch has unique demands and requires specific tactical understanding. Our positional guides go beyond generic advice - they're tailored to your specific role and playing style.",
+            "For defenders, we focus on reading attacking patterns, organising the defensive line, and knowing when to step up versus drop off. For midfielders, it's about controlling the tempo, creating triangles, and exploiting spaces between the lines.",
+            "Attackers learn about movement patterns, creating overloads, and making runs that stretch defences. We use examples from the best players in your position to illustrate advanced concepts in an accessible way."
+          ]}
+        />
+      )
+    }
   ];
 
   return (
@@ -32,30 +72,7 @@ const Tactical = () => {
         <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
         
         <div className="max-w-5xl mx-auto">
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-            {["Overview", "Formation", "Positional"].map((tab, index) => (
-              <button
-                key={tab}
-                className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
-                  index === 0 
-                    ? 'bg-accent text-black' 
-                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          
-          <ServiceContentBlock
-            paragraphs={[
-              "Understanding the tactical dimensions of football separates good players from great ones. While physical attributes and technical skills are essential, the ability to read the game, anticipate movements, and make split-second decisions elevates your performance to another level.",
-              "Our tactical training focuses on developing your football intelligence - the ability to see patterns, understand positional responsibilities, and exploit spaces before they even appear. Whether you're looking to master your role within a specific formation or understand how to adapt to different tactical systems, our expert analysts provide the insights you need.",
-              "Through detailed video analysis and personalised coaching sessions, we break down the complexities of modern football tactics into actionable knowledge. You'll learn to anticipate opposition movements, understand when to hold position versus when to break lines, and develop the spatial awareness that defines elite players.",
-              "Our positional guides go beyond generic advice - they're tailored to your specific position and playing style, incorporating examples from the best players in the world to illustrate advanced concepts in an accessible way."
-            ]}
-          />
+          <ServiceDetailTabs tabs={tabContent} />
         </div>
       </ServiceSection>
 

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Footer } from "@/components/Footer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,12 +49,24 @@ const priceRanges = [
 ];
 
 const Services = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedPrice, setSelectedPrice] = useState("all");
   const [sortBy, setSortBy] = useState("default");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+
+  // Handle URL-based product selection
+  useEffect(() => {
+    const serviceId = searchParams.get('service');
+    if (serviceId && services.length > 0) {
+      const service = services.find(s => s.id === serviceId);
+      if (service) {
+        setSelectedService(service);
+      }
+    }
+  }, [searchParams, services]);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -276,9 +289,17 @@ const Services = () => {
         {selectedService && (
           <ServiceDetailPanel
             service={selectedService}
-            onClose={() => setSelectedService(null)}
+            onClose={() => {
+              setSelectedService(null);
+              // Clear URL param when closing
+              setSearchParams({});
+            }}
             allServices={filteredServices}
-            onNavigate={(service) => setSelectedService(service)}
+            onNavigate={(service) => {
+              setSelectedService(service);
+              // Update URL when navigating
+              setSearchParams({ service: service.id });
+            }}
           />
         )}
       </AnimatePresence>

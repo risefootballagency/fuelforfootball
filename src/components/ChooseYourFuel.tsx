@@ -160,8 +160,8 @@ export const ChooseYourFuel = () => {
               <div className="flex flex-col md:flex-row gap-6 items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center border border-accent/50">
-                      <activeItem.icon className="w-6 h-6 text-accent" />
+                    <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center border border-accent/50">
+                      <activeItem.icon className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-foreground">
                       {activeItem.name}
@@ -176,7 +176,7 @@ export const ChooseYourFuel = () => {
                     {activeItem.highlights.map((highlight, i) => (
                       <span 
                         key={i}
-                        className="px-3 py-1 bg-accent/10 border border-accent/30 rounded-full text-xs font-medium text-accent"
+                        className="px-3 py-1 bg-black/60 border border-accent/30 rounded-full text-xs font-medium text-white"
                       >
                         {highlight}
                       </span>

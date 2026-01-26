@@ -120,8 +120,7 @@ export const WhatsAppPulse = ({
               backgroundPosition: 'center',
             }}
           >
-            {/* Pulse rings - proper emanating pulse effect */}
-            <span className="absolute inset-0 rounded-full bg-[#25D366]/40 animate-ping" />
+            {/* Subtle pulse rings - no flash */}
             <span className="absolute inset-[-4px] rounded-full border-2 border-[#25D366]/30 animate-pulse" />
             <span className="absolute inset-[-8px] rounded-full border border-[#25D366]/20 animate-pulse" style={{ animationDelay: "0.5s" }} />
             
