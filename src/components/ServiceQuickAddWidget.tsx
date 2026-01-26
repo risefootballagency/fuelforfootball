@@ -132,7 +132,7 @@ export const ServiceQuickAddWidget = ({
         )}
 
         {/* Learn More Button - links to service on services page */}
-        <Link to={`/services?service=${currentService.id}`} className="mt-auto">
+        <Link to={`/services?service=${currentService.id}`} className="block">
           <Button
             size="sm"
             className="w-full font-bebas uppercase tracking-wider text-sm gap-2"

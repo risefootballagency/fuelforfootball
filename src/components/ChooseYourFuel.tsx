@@ -123,8 +123,8 @@ export const ChooseYourFuel = () => {
           Already aware of where you need to work to make the greatest improvements to your game? Select a category to learn more.
         </p>
 
-        {/* Category Selector */}
-        <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8">
+        {/* Category Selector - 3x2 grid on desktop */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-8 max-w-4xl mx-auto">
           {fuelCategories.map((category) => {
             const Icon = category.icon;
             const isActive = activeCategory === category.id;
@@ -133,7 +133,7 @@ export const ChooseYourFuel = () => {
               <button
                 key={category.id}
                 onClick={() => handleCategoryClick(category.id)}
-                className={`flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 rounded-lg font-bebas uppercase tracking-wider text-sm md:text-base transition-all duration-300 ${
+                className={`flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-4 rounded-lg font-bebas uppercase tracking-wider text-sm md:text-base transition-all duration-300 ${
                   isActive 
                     ? "bg-accent text-accent-foreground scale-105" 
                     : "bg-card/50 border border-border/50 text-foreground hover:bg-card hover:border-accent/50"

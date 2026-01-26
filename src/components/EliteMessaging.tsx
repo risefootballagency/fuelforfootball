@@ -22,7 +22,7 @@ const MESSAGING = {
   exclusivity: {
     headline: "Take Control of Your Career",
     subline: "If you are not progressing, you are regressing. Make the most of the time you have now to push for growth in every area of your career.",
-    cta: "Discuss Now - Response in Minutes",
+    cta: "Discuss Now",
   },
   urgency: {
     headline: "The Window Is Closing",
