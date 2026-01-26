@@ -47,6 +47,7 @@ import { StaffAccountManagement } from "@/components/staff/StaffAccountManagemen
 import { PlayerPasswordManagement } from "@/components/staff/PlayerPasswordManagement";
 import ClubNetworkManagement from "@/components/staff/ClubNetworkManagement";
 import LegalManagement from "@/components/staff/LegalManagement";
+import { CaseStudyManagement } from "@/components/staff/CaseStudyManagement";
 import { LanguagesManagement } from "@/components/staff/LanguagesManagement";
 import { SiteManagement } from "@/components/staff/SiteManagement";
 import { StaffPWAInstall } from "@/components/staff/StaffPWAInstall";
@@ -128,7 +129,7 @@ const Staff = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMarketeer, setIsMarketeer] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'serviceaudit' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'catalogue' | 'jobs' | 'partners' | 'docs' | 'sheets' | null>('overview');
+  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'serviceaudit' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'catalogue' | 'jobs' | 'partners' | 'docs' | 'sheets' | 'casestudies' | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Enable staff notifications
@@ -614,6 +615,7 @@ const Staff = () => {
       sections: [
         { id: 'marketing', title: 'Marketing', icon: Megaphone },
         { id: 'contentcreator', title: 'Content Creator', icon: Film },
+        { id: 'casestudies', title: 'Case Studies', icon: Users },
         { id: 'marketingtips', title: 'Tips & Lessons', icon: Target },
         { id: 'blog', title: 'News Articles', icon: Newspaper },
         { id: 'dailyfuel', title: 'Daily Fuel', icon: FileText },
@@ -999,6 +1001,7 @@ const Staff = () => {
                   {expandedSection === 'highlightmaker' && <HighlightMaker isAdmin={isAdmin} />}
                   {expandedSection === 'marketing' && <MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
                   {expandedSection === 'contentcreator' && <ContentCreator />}
+                  {expandedSection === 'casestudies' && <CaseStudyManagement />}
                   {expandedSection === 'marketingideas' && <MarketingIdeas />}
                   {expandedSection === 'marketingtips' && <MarketingTipsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'blog' && <BlogManagement isAdmin={isAdmin} />}

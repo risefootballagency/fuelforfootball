@@ -13,6 +13,7 @@ import { PlayersSubmenu } from "@/components/PlayersSubmenu";
 import { WhatsAppPulse } from "@/components/WhatsAppPulse";
 import { EliteMessaging, PropagandaBanner } from "@/components/EliteMessaging";
 import { MetricBanner } from "@/components/PropagandaMetrics";
+import { CaseStudySlider } from "@/components/CaseStudySlider";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { BRAND_CONTENT } from "@/data/brandContent";
@@ -622,6 +623,9 @@ const Players = () => {
             </div>
           </div>
         </section>
+
+        {/* Case Study Slider */}
+        <CaseStudySlider />
 
         {/* Propaganda Banner */}
         <PropagandaBanner />
