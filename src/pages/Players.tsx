@@ -362,15 +362,17 @@ const Players = () => {
         {/* Case Study Slider - Success Stories */}
         <CaseStudySlider />
 
-        {/* While You're Reading This Section - immediately after case studies */}
-        <section className="py-4 md:py-8 bg-card/30">
+        {/* While You're Reading This Section - transition divider */}
+        <section className="py-6 md:py-10 bg-gradient-to-b from-background via-primary/5 to-background border-y border-border/30">
           <div className="container mx-auto text-center">
-            <h2 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-foreground mb-2">
-              While You're Reading This, They're Training
-            </h2>
-            <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-              Every moment you hesitate is a moment your competition gets ahead.
-            </p>
+            <div className="max-w-3xl mx-auto px-4">
+              <h2 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-foreground mb-3">
+                While You're Reading This, They're Training
+              </h2>
+              <p className="text-muted-foreground text-sm md:text-base">
+                Every moment you hesitate is a moment your competition gets ahead.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -556,9 +558,8 @@ const Players = () => {
         {/* FOMO Messaging */}
         <EliteMessaging variant="exclusivity" className="bg-card/30" />
 
-        {/* Metric Banner */}
+        {/* Metric Banner - no extra padding after */}
         <MetricBanner />
-
       </main>
       
       {/* Floating WhatsApp CTA */}

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Search, MessageCircle, Target, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HoverText } from "@/components/HoverText";
 
 const steps = [
   {
@@ -34,9 +35,22 @@ export const NeedsAnalysis = () => {
   return (
     <section className="py-8 md:py-12 bg-card/50">
       <div className="container mx-auto">
-        <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4">
-          Needs Analysis
-        </h2>
+        {/* Title with smoky background */}
+        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-8 md:mb-12">
+          <div 
+            className="w-screen relative left-1/2 -translate-x-1/2 py-4 md:py-6 overflow-hidden border-y-4 border-accent"
+            style={{
+              backgroundImage: `url('/grass-bg-smoky.png')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-white container mx-auto drop-shadow-lg">
+              <HoverText text="Needs Analysis" />
+            </h2>
+          </div>
+        </div>
+        
         <p className="text-center text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto mb-8 md:mb-12">
           Not sure where to start? Our expertise can help you understand yourself as a player first, identifying what will improve you the fastest and creating a clear path forward.
         </p>

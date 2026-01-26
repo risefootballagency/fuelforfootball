@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/fff_logo.png";
 import riseStar from "@/assets/rise-star.png";
-import { X, MessageCircle, Users, LogIn, Handshake, ArrowRight, Compass, FileText, Search, Star, Calendar, Briefcase, Send, BookOpen, Activity, Newspaper, Heart, Package, Phone, ShoppingCart, ShoppingBag, Wrench } from "lucide-react";
+import { X, MessageCircle, Users, LogIn, Handshake, ArrowRight, Compass, FileText, Search, Star, Calendar, Briefcase, Send, BookOpen, Activity, Newspaper, Heart, Package, Phone, ShoppingCart, ShoppingBag } from "lucide-react";
 import workingTogether from "@/assets/menu-working-together.jpg";
 import playerPortalImage from "@/assets/menu-player-portal.png";
 import blackMarbleBg from "@/assets/black-marble-smudged.png";
@@ -54,7 +54,7 @@ type SubHeaderConfig = {
 const defaultSubHeader: SubHeaderConfig = {
   left: [
     { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
-    { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
+    { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
   ],
   right: [
     { type: 'link', to: '/daily-fuel', labelKey: 'header.daily_fuel', fallback: 'Daily Fuel', mobileFallback: 'Daily Fuel', icon: BookOpen },
@@ -69,7 +69,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/daily-fuel', labelKey: 'header.daily_fuel', fallback: 'Daily Fuel', mobileFallback: 'Daily Fuel', icon: BookOpen },
     ],
     right: [
-      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
       { type: 'link', to: '/shop', labelKey: 'header.shop', fallback: 'Shop', mobileFallback: 'Shop', icon: ShoppingCart },
     ],
   },
@@ -79,7 +79,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
     right: [
-      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
       { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
     ],
   },
@@ -95,7 +95,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
   },
   agents: {
     left: [
-      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
       { type: 'link', to: '/contact', labelKey: 'header.requests', fallback: 'Requests', mobileFallback: 'Requests', icon: FileText },
     ],
     right: [
@@ -106,7 +106,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
   coaches: {
     left: [
       { type: 'link', to: '/login', labelKey: 'header.portal', fallback: 'Portal', mobileFallback: 'Portal', icon: LogIn },
-      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
     ],
     right: [
       { type: 'link', to: '/contact', labelKey: 'header.contact_us', fallback: 'Contact Us', mobileFallback: 'Contact', icon: MessageCircle },
@@ -119,7 +119,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/contact', labelKey: 'header.collaboration', fallback: 'Collaboration', mobileFallback: 'Collab', icon: Heart },
     ],
     right: [
-      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
   },
@@ -129,7 +129,7 @@ const subdomainSubHeaders: Record<string, SubHeaderConfig> = {
       { type: 'link', to: '/contact', labelKey: 'header.connect_with_us', fallback: 'Connect With Us', mobileFallback: 'Connect', icon: Phone },
     ],
     right: [
-      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Wrench },
+      { type: 'link', to: '/services', labelKey: 'header.services', fallback: 'Services', mobileFallback: 'Services', icon: Briefcase },
       { type: 'button', action: 'arrangeMeeting', labelKey: 'header.arrange_meeting', fallback: 'Arrange Meeting', mobileFallback: 'Meeting', icon: Calendar },
     ],
   },

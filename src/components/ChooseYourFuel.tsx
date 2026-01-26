@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Utensils, Dumbbell, Zap, Target, Lightbulb, ArrowRight } from "lucide-react";
+import { Utensils, Dumbbell, Zap, Target, Lightbulb, ArrowRight, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HoverText } from "@/components/HoverText";
 
 interface FuelCategory {
   id: string;
@@ -13,7 +14,16 @@ interface FuelCategory {
   highlights: string[];
 }
 
+// Categories in alphabetical order with Psychological/Mental added
 const fuelCategories: FuelCategory[] = [
+  {
+    id: "conditioning",
+    name: "Conditioning",
+    icon: Dumbbell,
+    link: "/conditioning",
+    description: "Build an engine that outlasts opponents. Our conditioning programmes extend your capacity and maintain performance when others fade.",
+    highlights: ["Energy system development", "Position-specific training", "Workload tolerance"],
+  },
   {
     id: "nutrition",
     name: "Nutrition",
@@ -23,12 +33,12 @@ const fuelCategories: FuelCategory[] = [
     highlights: ["Personalised meal plans", "Match day fuelling", "Body composition support"],
   },
   {
-    id: "conditioning",
-    name: "Conditioning",
-    icon: Dumbbell,
-    link: "/conditioning",
-    description: "Build an engine that outlasts opponents. Our conditioning programmes extend your capacity and maintain performance when others fade.",
-    highlights: ["Energy system development", "Position-specific training", "Workload tolerance"],
+    id: "psychological",
+    name: "Psychological",
+    icon: Brain,
+    link: "/mental",
+    description: "Develop mental skills in consistency, commitment, confidence, resilience, and focus. Outwill opponents to overcome skill differences and dominate.",
+    highlights: ["Mental resilience", "Performance psychology", "Focus & consistency"],
   },
   {
     id: "sps",
@@ -57,16 +67,58 @@ const fuelCategories: FuelCategory[] = [
 ];
 
 export const ChooseYourFuel = () => {
-  const [activeCategory, setActiveCategory] = useState<string | null>("nutrition");
+  const [activeCategory, setActiveCategory] = useState<string>("conditioning");
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const activeItem = fuelCategories.find(cat => cat.id === activeCategory);
+
+  // Auto slideshow - 5 seconds, stops when user interacts
+  useEffect(() => {
+    if (hasInteracted) return;
+    
+    intervalRef.current = setInterval(() => {
+      setActiveCategory(prev => {
+        const currentIndex = fuelCategories.findIndex(cat => cat.id === prev);
+        const nextIndex = (currentIndex + 1) % fuelCategories.length;
+        return fuelCategories[nextIndex].id;
+      });
+    }, 5000);
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [hasInteracted]);
+
+  const handleCategoryClick = (categoryId: string) => {
+    setHasInteracted(true);
+    setActiveCategory(categoryId);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+  };
 
   return (
     <section className="py-8 md:py-12 bg-background">
       <div className="container mx-auto">
-        <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-6">
-          Choose Your Fuel
-        </h2>
+        {/* Title with smoky background */}
+        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-8 md:mb-12">
+          <div 
+            className="w-screen relative left-1/2 -translate-x-1/2 py-4 md:py-6 overflow-hidden border-y-4 border-accent"
+            style={{
+              backgroundImage: `url('/grass-bg-smoky.png')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-white container mx-auto drop-shadow-lg">
+              <HoverText text="Choose Your Fuel" />
+            </h2>
+          </div>
+        </div>
+        
         <p className="text-center text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto mb-8 md:mb-12">
           Already aware of where you need to work to make the greatest improvements to your game? Select a category to learn more.
         </p>
@@ -80,7 +132,7 @@ export const ChooseYourFuel = () => {
             return (
               <button
                 key={category.id}
-                onClick={() => setActiveCategory(category.id)}
+                onClick={() => handleCategoryClick(category.id)}
                 className={`flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 rounded-lg font-bebas uppercase tracking-wider text-sm md:text-base transition-all duration-300 ${
                   isActive 
                     ? "bg-accent text-accent-foreground scale-105" 

@@ -51,18 +51,18 @@ export const PropagandaMetrics = ({
 }: PropagandaMetricsProps) => {
   if (variant === "minimal") {
     return (
-      <div className={`flex items-center justify-center gap-6 md:gap-12 ${className}`}>
-        <div className="text-center px-4 py-2 bg-accent rounded-lg">
-          <span className="text-2xl md:text-3xl font-bebas text-white">100+</span>
-          <span className="text-xs font-bebas uppercase tracking-widest text-white ml-2">Pros</span>
+      <div className={`flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 ${className}`}>
+        <div className="flex items-center gap-2 px-4 py-2 bg-accent rounded-lg">
+          <span className="text-2xl md:text-3xl font-bebas text-black">100+</span>
+          <span className="text-xs font-bebas uppercase tracking-widest text-black">Pros</span>
         </div>
-        <div className="text-center px-4 py-2 bg-accent rounded-lg">
-          <span className="text-2xl md:text-3xl font-bebas text-white">£150M</span>
-          <span className="text-xs font-bebas uppercase tracking-widest text-white ml-2">in affiliated player transfers</span>
+        <div className="flex items-center gap-2 px-4 py-2 bg-accent rounded-lg">
+          <span className="text-2xl md:text-3xl font-bebas text-black">£150M</span>
+          <span className="text-xs font-bebas uppercase tracking-widest text-black">in transfers</span>
         </div>
-        <div className="text-center px-4 py-2 bg-accent rounded-lg">
-          <span className="text-2xl md:text-3xl font-bebas text-white">25%</span>
-          <span className="text-xs font-bebas uppercase tracking-widest text-white ml-2">player improvements physically season-on-season</span>
+        <div className="flex items-center gap-2 px-4 py-2 bg-accent rounded-lg">
+          <span className="text-2xl md:text-3xl font-bebas text-black">25%</span>
+          <span className="text-xs font-bebas uppercase tracking-widest text-black">improvements</span>
         </div>
       </div>
     );
@@ -122,7 +122,7 @@ export const PropagandaMetrics = ({
 
 // Standalone metric banner for use between sections
 export const MetricBanner = ({ className = "" }: { className?: string }) => (
-  <div className={`py-8 bg-card/50 border-y border-border/30 ${className}`}>
+  <div className={`py-6 bg-card/50 border-y border-border/30 ${className}`}>
     <div className="container mx-auto">
       <PropagandaMetrics variant="minimal" />
     </div>
