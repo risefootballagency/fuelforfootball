@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2, Save, Edit2, X, GripVertical, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Save, Edit2, X, GripVertical, Eye, EyeOff, Upload, Image } from "lucide-react";
 import { toast } from "sonner";
 
 interface CaseStudy {
@@ -24,13 +24,13 @@ interface CaseStudy {
 
 const emptyCaseStudy: Omit<CaseStudy, 'id'> = {
   player_name: '',
-  player_image_url: '',
-  duration: '',
-  summary: '',
-  full_story: '',
+  player_image_url: null,
+  duration: null,
+  summary: null,
+  full_story: null,
   services_used: [],
   achievements: [],
-  testimonial: '',
+  testimonial: null,
   is_visible: true,
   display_order: 0,
 };
@@ -38,11 +38,14 @@ const emptyCaseStudy: Omit<CaseStudy, 'id'> = {
 export const CaseStudyManagement = () => {
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Omit<CaseStudy, 'id'>>(emptyCaseStudy);
   const [isAdding, setIsAdding] = useState(false);
   const [newServiceInput, setNewServiceInput] = useState('');
   const [newAchievementInput, setNewAchievementInput] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchCaseStudies();
@@ -64,41 +67,89 @@ export const CaseStudyManagement = () => {
     setLoading(false);
   };
 
-  const handleSave = async () => {
-    if (!editForm.player_name.trim()) {
-      toast.error('Player name is required');
-      return;
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+    
+    setUploadingImage(true);
+    
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `case-study-${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('case-studies')
+        .upload(fileName, file, { upsert: true });
+      
+      if (error) {
+        toast.error('Failed to upload image');
+        console.error(error);
+        return;
+      }
+      
+      const { data: publicUrl } = supabase.storage
+        .from('case-studies')
+        .getPublicUrl(fileName);
+      
+      setEditForm({ ...editForm, player_image_url: publicUrl.publicUrl });
+      toast.success('Image uploaded');
+    } catch (err) {
+      console.error(err);
+      toast.error('Image upload failed');
+    } finally {
+      setUploadingImage(false);
     }
+  };
 
-    if (editingId) {
-      const { error } = await supabase
-        .from('case_studies')
-        .update(editForm)
-        .eq('id', editingId);
-      
-      if (error) {
-        toast.error('Failed to update case study');
-        console.error(error);
-      } else {
-        toast.success('Case study updated');
-        setEditingId(null);
-        fetchCaseStudies();
+  const handleSave = async () => {
+    // Only player_name is loosely required - but even that can be empty for anonymity
+    setSaving(true);
+    
+    // Clean up empty strings to null for optional fields
+    const cleanedForm = {
+      ...editForm,
+      player_name: editForm.player_name || 'Anonymous Player',
+      duration: editForm.duration || null,
+      summary: editForm.summary || null,
+      full_story: editForm.full_story || null,
+      testimonial: editForm.testimonial || null,
+      services_used: editForm.services_used && editForm.services_used.length > 0 ? editForm.services_used : null,
+      achievements: editForm.achievements && editForm.achievements.length > 0 ? editForm.achievements : null,
+    };
+
+    try {
+      if (editingId) {
+        const { error } = await supabase
+          .from('case_studies')
+          .update(cleanedForm)
+          .eq('id', editingId);
+        
+        if (error) {
+          toast.error('Failed to update case study: ' + error.message);
+          console.error(error);
+        } else {
+          toast.success('Case study updated');
+          setEditingId(null);
+          setEditForm(emptyCaseStudy);
+          fetchCaseStudies();
+        }
+      } else if (isAdding) {
+        const { error } = await supabase
+          .from('case_studies')
+          .insert({ ...cleanedForm, display_order: caseStudies.length });
+        
+        if (error) {
+          toast.error('Failed to create case study: ' + error.message);
+          console.error(error);
+        } else {
+          toast.success('Case study created');
+          setIsAdding(false);
+          setEditForm(emptyCaseStudy);
+          fetchCaseStudies();
+        }
       }
-    } else if (isAdding) {
-      const { error } = await supabase
-        .from('case_studies')
-        .insert({ ...editForm, display_order: caseStudies.length });
-      
-      if (error) {
-        toast.error('Failed to create case study');
-        console.error(error);
-      } else {
-        toast.success('Case study created');
-        setIsAdding(false);
-        fetchCaseStudies();
-      }
+    } finally {
+      setSaving(false);
     }
-    setEditForm(emptyCaseStudy);
   };
 
   const handleDelete = async (id: string) => {
@@ -173,8 +224,8 @@ export const CaseStudyManagement = () => {
       duration: study.duration,
       summary: study.summary,
       full_story: study.full_story,
-      services_used: study.services_used,
-      achievements: study.achievements,
+      services_used: study.services_used || [],
+      achievements: study.achievements || [],
       testimonial: study.testimonial,
       is_visible: study.is_visible,
       display_order: study.display_order,
@@ -224,6 +275,63 @@ export const CaseStudyManagement = () => {
             </Button>
           </div>
 
+          {/* Image Upload Section */}
+          <div className="space-y-3">
+            <Label>Player Image</Label>
+            <div className="flex items-start gap-4">
+              {/* Preview */}
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/30 flex-shrink-0 bg-muted flex items-center justify-center">
+                {editForm.player_image_url ? (
+                  <img 
+                    src={editForm.player_image_url} 
+                    alt="Player"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image className="w-8 h-8 text-muted-foreground" />
+                )}
+              </div>
+              
+              {/* Upload Controls */}
+              <div className="flex-1 space-y-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file);
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  {uploadingImage ? 'Uploading...' : 'Upload Image'}
+                </Button>
+                {editForm.player_image_url && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditForm({ ...editForm, player_image_url: null })}
+                    className="text-destructive"
+                  >
+                    Remove Image
+                  </Button>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Upload a player photo. Images will be displayed in a circular frame.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Player Name (Internal Only)</Label>
@@ -232,6 +340,7 @@ export const CaseStudyManagement = () => {
                 onChange={(e) => setEditForm({ ...editForm, player_name: e.target.value })}
                 placeholder="Player name for internal reference"
               />
+              <p className="text-xs text-muted-foreground">Optional - defaults to "Anonymous Player"</p>
             </div>
             <div className="space-y-2">
               <Label>Duration</Label>
@@ -241,15 +350,6 @@ export const CaseStudyManagement = () => {
                 placeholder="e.g., 8 months"
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Player Image URL</Label>
-            <Input
-              value={editForm.player_image_url || ''}
-              onChange={(e) => setEditForm({ ...editForm, player_image_url: e.target.value })}
-              placeholder="https://..."
-            />
           </div>
 
           <div className="space-y-2">
@@ -343,9 +443,9 @@ export const CaseStudyManagement = () => {
               <Label>Visible on website</Label>
             </div>
             <div className="flex-1" />
-            <Button onClick={handleSave} className="gap-2">
+            <Button onClick={handleSave} disabled={saving} className="gap-2">
               <Save className="w-4 h-4" />
-              Save Case Study
+              {saving ? 'Saving...' : 'Save Case Study'}
             </Button>
           </div>
         </div>
@@ -368,18 +468,24 @@ export const CaseStudyManagement = () => {
               <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab" />
               
               {/* Thumbnail */}
-              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 flex-shrink-0">
-                <img 
-                  src={study.player_image_url || 'https://via.placeholder.com/48'} 
-                  alt="Player"
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/30 flex-shrink-0 bg-muted flex items-center justify-center">
+                {study.player_image_url ? (
+                  <img 
+                    src={study.player_image_url} 
+                    alt="Player"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image className="w-5 h-5 text-muted-foreground" />
+                )}
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <h4 className="font-bebas text-lg text-foreground truncate">{study.player_name}</h4>
-                <p className="text-sm text-muted-foreground truncate">{study.duration} • {study.summary}</p>
+                <p className="text-sm text-muted-foreground truncate">
+                  {study.duration && `${study.duration} • `}{study.summary || 'No summary'}
+                </p>
               </div>
 
               {/* Actions */}

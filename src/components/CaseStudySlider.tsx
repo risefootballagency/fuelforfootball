@@ -20,7 +20,7 @@ const placeholderCaseStudies: CaseStudy[] = [
   { 
     id: "1", 
     player_name: "Elite Talent", 
-    player_image_url: "https://static.wixstatic.com/media/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg", 
+    player_image_url: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=400&h=400&fit=crop&crop=face", 
     duration: "8 months",
     summary: "Developed from academy level to first-team professional",
     full_story: "Working with our tactical and physical performance teams, this player transformed their game completely.",
@@ -31,7 +31,7 @@ const placeholderCaseStudies: CaseStudy[] = [
   { 
     id: "2", 
     player_name: "Rising Star", 
-    player_image_url: "https://static.wixstatic.com/media/c4f4b1_aed8df24614a45b29533fede6bae55c7~mv2.jpg", 
+    player_image_url: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=400&h=400&fit=crop&crop=face", 
     duration: "12 months",
     summary: "International call-up after comprehensive development program",
     full_story: "Through dedicated work on mental performance and tactical understanding, this player achieved their dream.",
@@ -42,7 +42,7 @@ const placeholderCaseStudies: CaseStudy[] = [
   { 
     id: "3", 
     player_name: "Pro Footballer", 
-    player_image_url: "https://static.wixstatic.com/media/c4f4b1_c627e66f4e68449590b6f4f745b91472~mv2.jpg", 
+    player_image_url: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&h=400&fit=crop&crop=face", 
     duration: "6 months",
     summary: "Recovered from injury to secure top-flight move",
     full_story: "Our rehabilitation and conditioning protocols helped this player return stronger than ever.",
@@ -53,7 +53,7 @@ const placeholderCaseStudies: CaseStudy[] = [
   { 
     id: "4", 
     player_name: "Champion", 
-    player_image_url: "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg", 
+    player_image_url: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop&crop=face", 
     duration: "18 months",
     summary: "Captaincy and league title through leadership development",
     full_story: "Mental fortitude and tactical intelligence became the pillars of this player's success.",
