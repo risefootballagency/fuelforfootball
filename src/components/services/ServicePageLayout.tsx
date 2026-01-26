@@ -58,6 +58,15 @@ export const ServicePageLayout = ({
           {/* Players Submenu - tight against header */}
           {showSubmenu && <PlayersSubmenu />}
           
+          {/* Page Title Bar - Green gradient like Players page */}
+          <section className="relative overflow-hidden border-b border-border/50 bg-glossy-green">
+            <div className="container mx-auto relative z-10 flex items-center justify-center py-3 md:py-4">
+              <h1 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-white leading-none">
+                {title.split('\n')[0]}
+              </h1>
+            </div>
+          </section>
+          
           {/* Hero Section */}
           <section className="relative py-16 md:py-24 overflow-hidden">
             {/* Media Background */}

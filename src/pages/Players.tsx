@@ -90,6 +90,7 @@ const ServiceSection = ({
 }: {
   id: string;
   title: string;
+  hideBottomPadding?: boolean;
   description: string;
   products: { image: string; title: string; link: string; description?: string }[];
   dailyFuelArticle?: { image: string; title: string; link: string };
@@ -390,7 +391,10 @@ const Players = () => {
         {/* Hero Slider - with images from landing folder */}
         <DynamicHeroSlider />
 
-        {/* While You're Reading This Section - immediately after slider */}
+        {/* Case Study Slider - Success Stories */}
+        <CaseStudySlider />
+
+        {/* While You're Reading This Section - immediately after case studies */}
         <section className="py-4 md:py-8 bg-card/30">
           <div className="container mx-auto text-center">
             <h2 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-foreground mb-2">
@@ -624,8 +628,6 @@ const Players = () => {
           </div>
         </section>
 
-        {/* Case Study Slider */}
-        <CaseStudySlider />
 
         {/* Propaganda Banner */}
         <PropagandaBanner />
