@@ -94,7 +94,7 @@ export const RadialMenu = () => {
         .eq('folder', 'landing')
         .eq('file_type', 'image')
         .not('file_url', 'is', null)
-        .limit(6);
+        .limit(54);
       
       if (data && data.length > 0) {
         setBackgroundImages(data.map(item => item.file_url));
@@ -614,8 +614,8 @@ export const RadialMenu = () => {
       {/* Background images from marketing gallery - fills the outer area */}
       {backgroundImages.length > 0 && (
         <div className="absolute inset-0 animate-[fade-in_0.5s_ease-out_0.15s_both]">
-          <div className="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-0">
-            {backgroundImages.slice(0, 6).map((url, index) => (
+          <div className="absolute inset-0 grid grid-cols-9 grid-rows-6 gap-0">
+            {backgroundImages.slice(0, 54).map((url, index) => (
               <div 
                 key={index} 
                 className="relative overflow-hidden"
