@@ -133,12 +133,12 @@ export default function DailyFuel() {
           <ScrollReveal>
             <div className="text-center mb-12 space-y-3">
               <div className="inline-block">
-                <span className="text-sm font-bebas uppercase tracking-widest text-primary border border-primary/30 px-6 py-2 rounded-full">
+                <span className="text-sm font-bebas uppercase tracking-widest text-accent border border-accent/30 px-6 py-2 rounded-full">
                   {t('btl.badge', 'Educational Content')}
                 </span>
               </div>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bebas uppercase tracking-wider text-foreground mb-4">
-                {t('btl.title_part1', 'Daily')} <span className="text-primary">{t('btl.title_part2', 'Fuel')}</span>
+                {t('btl.title_part1', 'Daily')} <span className="text-accent">{t('btl.title_part2', 'Fuel')}</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 {t('btl.subtitle', 'Expert insights, tactical breakdowns, and educational content to fuel your football development.')}
@@ -155,7 +155,7 @@ export default function DailyFuel() {
                   onClick={() => setSelectedCategory(category)}
                   className={`text-sm font-bebas uppercase tracking-wider px-4 py-2 rounded transition-all whitespace-nowrap ${
                     selectedCategory === category
-                      ? "text-primary bg-primary/10 border border-primary/30"
+                      ? "text-accent bg-accent/10 border border-accent/30"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
@@ -174,7 +174,7 @@ export default function DailyFuel() {
                   onClick={() => setSelectedPosition(position)}
                   className={`text-sm font-bebas uppercase tracking-wider px-4 py-2 rounded transition-all whitespace-nowrap ${
                     selectedPosition === position
-                      ? "text-primary bg-primary/10 border border-primary/30"
+                      ? "text-accent bg-accent/10 border border-accent/30"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
@@ -215,7 +215,7 @@ export default function DailyFuel() {
                   <CarouselItem key={article.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
                     <a
                       href={getLocalizedPath(`/daily-fuel/${createSlug(article.title)}`, language)}
-                      className="group cursor-pointer overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all hover:shadow-lg block h-full"
+                      className="group cursor-pointer overflow-hidden rounded-lg border border-border hover:border-accent/50 transition-all hover:shadow-lg block h-full"
                     >
                       <div className="relative aspect-[4/3] overflow-hidden bg-black">
                         {article.image_url ? (
@@ -234,14 +234,14 @@ export default function DailyFuel() {
                         )}
                         {article.category && (
                           <div className="absolute top-4 left-4">
-                            <Badge className="bg-primary text-background font-bebas uppercase tracking-wider shadow-lg">
+                            <Badge className="bg-accent text-background font-bebas uppercase tracking-wider shadow-lg">
                               {article.category}
                             </Badge>
                           </div>
                         )}
                       </div>
                       <div className="p-6 bg-card">
-                        <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-foreground group-hover:text-primary transition-colors mb-2 line-clamp-2">
+                        <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-foreground group-hover:text-accent transition-colors mb-2 line-clamp-2">
                           {article.title}
                         </h3>
                         {article.excerpt && (
@@ -262,16 +262,16 @@ export default function DailyFuel() {
           {/* Ask Question CTA */}
           <ScrollReveal delay={0.2}>
             <section className="py-8">
-              <div className="max-w-3xl mx-auto p-8 rounded-lg border border-primary/20 bg-card/50 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent"></div>
+              <div className="max-w-3xl mx-auto p-8 rounded-lg border border-accent/20 bg-card/50 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent"></div>
                 <div className="text-center relative z-10">
-                  <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary mb-3">
+                  <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-accent mb-3">
                     {t('btl.question_title', 'Have a Question?')}
                   </h2>
                   <p className="text-muted-foreground mb-6 text-base md:text-lg leading-relaxed">
                     {t('btl.question_description', 'Ask our experts about any topic covered in Daily Fuel articles.')}
                   </p>
-                  <AskQuestionDialog triggerClassName="inline-flex items-center gap-2 px-8 py-4 bg-primary text-background font-bebas uppercase tracking-wider text-lg hover:bg-primary/90 hover:scale-105 transition-all rounded shadow-lg" />
+                  <AskQuestionDialog triggerClassName="inline-flex items-center gap-2 px-8 py-4 bg-accent text-background font-bebas uppercase tracking-wider text-lg hover:bg-accent/90 hover:scale-105 transition-all rounded shadow-lg" />
                 </div>
               </div>
             </section>
@@ -280,10 +280,10 @@ export default function DailyFuel() {
           {/* Broadcast Advertisement */}
           <ScrollReveal delay={0.3}>
             <section className="py-8">
-              <div className="max-w-3xl mx-auto p-8 rounded-lg border border-primary/20 bg-primary/5 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent"></div>
+              <div className="max-w-3xl mx-auto p-8 rounded-lg border border-accent/20 bg-accent/5 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-transparent"></div>
                 <div className="text-center relative z-10">
-                  <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-primary mb-3">
+                  <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-accent mb-3">
                     {t('btl.broadcast_title', 'Join Our Broadcast Channel')}
                   </h2>
                   <p className="text-foreground mb-6 text-base md:text-lg leading-relaxed">
@@ -293,7 +293,7 @@ export default function DailyFuel() {
                     href="https://www.instagram.com/channel/AbY33s3ZhuxaNwuo/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-background font-bebas uppercase tracking-wider text-lg hover:bg-primary/90 hover:scale-105 transition-all rounded shadow-lg"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-background font-bebas uppercase tracking-wider text-lg hover:bg-accent/90 hover:scale-105 transition-all rounded shadow-lg"
                   >
                     <HoverText text={t('btl.join_channel', 'Join Channel')} />
                   </a>

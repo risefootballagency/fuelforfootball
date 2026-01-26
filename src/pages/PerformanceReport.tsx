@@ -208,7 +208,7 @@ const PerformanceReport = () => {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <CardTitle className="text-2xl md:text-3xl">Performance Report</CardTitle>
               <div className="flex gap-2 print:hidden flex-wrap">
-                <Button onClick={handleSaveAsPDF} variant="default" size="sm" className="flex-1 md:flex-none">
+                <Button onClick={handleSaveAsPDF} size="sm" className="flex-1 md:flex-none bg-accent text-black hover:bg-accent/90">
                   <Download className="mr-2 h-4 w-4" />
                   Save as PDF
                 </Button>
