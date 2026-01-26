@@ -6,12 +6,13 @@ import { useRoleSubdomain, pathToRole } from "@/hooks/useRoleSubdomain";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getSubdomainInfo } from "@/lib/subdomainUtils";
+import { supabase } from "@/integrations/supabase/client";
 import fffLogo from "@/assets/fff_logo.png";
 import whiteMarbleBg from "@/assets/white-marble.png";
 import smudgedMarbleBg from "@/assets/black-marble-smudged.png";
 import europeMap from "@/assets/europe-outline.gif";
 import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Star } from "lucide-react";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
 
 export type QuadrantPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -81,7 +82,27 @@ export const RadialMenu = () => {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [hoveredLang, setHoveredLang] = useState<LanguageCode | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [backgroundImages, setBackgroundImages] = useState<string[]>([]);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Fetch background images from marketing gallery
+  useEffect(() => {
+    const fetchBackgroundImages = async () => {
+      const { data, error } = await supabase
+        .from('marketing_gallery')
+        .select('file_url')
+        .eq('folder', 'landing')
+        .eq('file_type', 'image')
+        .not('file_url', 'is', null)
+        .limit(6);
+      
+      if (data && data.length > 0) {
+        setBackgroundImages(data.map(item => item.file_url));
+      }
+    };
+
+    fetchBackgroundImages();
+  }, []);
 
   const languages = [
     { code: "en" as LanguageCode, name: "ENG", flagCode: "gb" },
@@ -590,6 +611,27 @@ export const RadialMenu = () => {
           <div className="absolute w-4 h-4 bg-white rounded-full animate-[pulse-expand_6s_ease-out_infinite]" />
         </div>
       )}
+      {/* Background images from marketing gallery - fills the outer area */}
+      {backgroundImages.length > 0 && (
+        <div className="absolute inset-0 animate-[fade-in_0.5s_ease-out_0.15s_both]">
+          <div className="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-0">
+            {backgroundImages.slice(0, 6).map((url, index) => (
+              <div 
+                key={index} 
+                className="relative overflow-hidden"
+                style={{
+                  backgroundImage: `url(${url})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+            ))}
+          </div>
+          {/* Dark overlay on background images */}
+          <div className="absolute inset-0 bg-black/60" />
+        </div>
+      )}
+
       {/* Grid pattern background - delayed */}
       <div 
         className="absolute inset-0 opacity-20 animate-[fade-in_0.4s_ease-out_0.25s_both]"
@@ -602,11 +644,11 @@ export const RadialMenu = () => {
         }}
       />
       
-      {/* Radial gradient overlay - delayed */}
+      {/* Radial gradient overlay - creates the central focus */}
       <div 
         className="absolute inset-0 animate-[fade-in_0.4s_ease-out_0.2s_both]"
         style={{
-          background: 'radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0.95) 100%)',
+          background: 'radial-gradient(circle at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.75) 50%, rgba(0,0,0,0.9) 100%)',
         }}
       />
 

@@ -321,6 +321,54 @@ export type Database = {
           },
         ]
       }
+      case_studies: {
+        Row: {
+          achievements: string[] | null
+          created_at: string
+          display_order: number | null
+          duration: string | null
+          full_story: string | null
+          id: string
+          is_visible: boolean | null
+          player_image_url: string | null
+          player_name: string
+          services_used: string[] | null
+          summary: string | null
+          testimonial: string | null
+          updated_at: string
+        }
+        Insert: {
+          achievements?: string[] | null
+          created_at?: string
+          display_order?: number | null
+          duration?: string | null
+          full_story?: string | null
+          id?: string
+          is_visible?: boolean | null
+          player_image_url?: string | null
+          player_name: string
+          services_used?: string[] | null
+          summary?: string | null
+          testimonial?: string | null
+          updated_at?: string
+        }
+        Update: {
+          achievements?: string[] | null
+          created_at?: string
+          display_order?: number | null
+          duration?: string | null
+          full_story?: string | null
+          id?: string
+          is_visible?: boolean | null
+          player_image_url?: string | null
+          player_name?: string
+          services_used?: string[] | null
+          summary?: string | null
+          testimonial?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       club_map_positions: {
         Row: {
           club_name: string
