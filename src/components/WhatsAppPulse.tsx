@@ -74,9 +74,6 @@ export const WhatsAppPulse = ({
         <span className="relative z-10 flex items-center gap-3">
           <FaWhatsapp className="w-5 h-5" />
           <span>{message}</span>
-          {showUrgency && (
-            <span className="text-xs opacity-80 normal-case font-sans">• Response in minutes</span>
-          )}
         </span>
       </a>
     );

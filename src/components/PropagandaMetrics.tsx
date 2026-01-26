@@ -58,11 +58,11 @@ export const PropagandaMetrics = ({
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-accent rounded-lg">
           <span className="text-2xl md:text-3xl font-bebas text-black">£150M</span>
-          <span className="text-xs font-bebas uppercase tracking-widest text-black">in transfers</span>
+          <span className="text-xs font-bebas uppercase tracking-widest text-black">in affiliated player transfers</span>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-accent rounded-lg">
           <span className="text-2xl md:text-3xl font-bebas text-black">25%</span>
-          <span className="text-xs font-bebas uppercase tracking-widest text-black">improvements</span>
+          <span className="text-xs font-bebas uppercase tracking-widest text-black">improvements physically season-on-season</span>
         </div>
       </div>
     );
