@@ -238,9 +238,9 @@ export const RadialMenu = () => {
     clubs: [
       { to: "/clubs", labelKey: "header.club_direction", fallback: "CLUB SUPPORT", Icon: Target, angle: 0 },
       { 
-        to: "/performance", 
-        labelKey: "header.performance", 
-        fallback: "PERFORMANCE", 
+        to: "/players", 
+        labelKey: "header.services", 
+        fallback: "SERVICES", 
         Icon: TrendingUp, 
         angle: 90,
         quadrantCard: {
@@ -295,9 +295,9 @@ export const RadialMenu = () => {
         },
       },
       { 
-        to: "/performance", 
-        labelKey: "header.performance", 
-        fallback: "PERFORMANCE", 
+        to: "/players", 
+        labelKey: "header.services", 
+        fallback: "SERVICES", 
         Icon: TrendingUp, 
         angle: 180,
         quadrantCard: {
@@ -346,9 +346,9 @@ export const RadialMenu = () => {
     coaches: [
       { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 0 },
       { 
-        to: "/performance", 
-        labelKey: "header.performance", 
-        fallback: "PERFORMANCE", 
+        to: "/players", 
+        labelKey: "header.services", 
+        fallback: "SERVICES", 
         Icon: TrendingUp, 
         angle: 90,
         quadrantCard: {
@@ -403,9 +403,9 @@ export const RadialMenu = () => {
         },
       },
       { 
-        to: "/performance", 
-        labelKey: "header.performance", 
-        fallback: "PERFORMANCE", 
+        to: "/players", 
+        labelKey: "header.services", 
+        fallback: "SERVICES", 
         Icon: TrendingUp, 
         angle: 180,
         quadrantCard: {
@@ -428,9 +428,9 @@ export const RadialMenu = () => {
     business: [
       { to: "/business", labelKey: "header.packages", fallback: "PACKAGES", Icon: Package, angle: 0 },
       { 
-        to: "/performance", 
-        labelKey: "header.performance", 
-        fallback: "PERFORMANCE", 
+        to: "/players", 
+        labelKey: "header.services", 
+        fallback: "SERVICES", 
         Icon: TrendingUp, 
         angle: 90,
         quadrantCard: {
@@ -476,9 +476,9 @@ export const RadialMenu = () => {
       }
     },
     { 
-      to: "/players",
-      labelKey: "header.players", 
-      fallback: "PLAYERS", 
+      to: "/about",
+      labelKey: "header.about", 
+      fallback: "ABOUT", 
       Icon: Star, 
       angle: 72,
       quadrantCard: {
@@ -487,9 +487,9 @@ export const RadialMenu = () => {
       }
     },
     { 
-      to: "/performance", 
-      labelKey: "header.change_the_game", 
-      fallback: "PERFORMANCE", 
+      to: "/shop", 
+      labelKey: "header.shop", 
+      fallback: "SHOP", 
       Icon: TrendingUp,
       angle: 144,
       quadrantCard: {
