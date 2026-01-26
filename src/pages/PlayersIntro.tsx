@@ -86,21 +86,21 @@ const PlayersIntro = () => {
               : 'bg-black/40'
           }`} />
           
-          {/* Content - proper spacing with flex-end and gap */}
-          <div className="relative h-full flex flex-col justify-end gap-3 md:gap-6 p-4 md:p-8 lg:p-12">
-            <div className="space-y-2 md:space-y-4">
+          {/* Content - centered on mobile, bottom-aligned on desktop */}
+          <div className="relative h-full flex flex-col justify-center md:justify-end gap-4 md:gap-6 p-6 md:p-8 lg:p-12">
+            <div className="space-y-3 md:space-y-4">
               <motion.div
-                className="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1 md:py-2 rounded-full bg-black/60 border border-accent/70"
+                className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-black/60 border border-accent/70"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <BookOpen className="w-3 h-3 md:w-4 md:h-4 text-accent" />
-                <span className="text-xs md:text-sm font-medium text-white">Discover Our Approach</span>
+                <BookOpen className="w-4 h-4 text-accent" />
+                <span className="text-sm md:text-sm font-medium text-white">Discover Our Approach</span>
               </motion.div>
               
               <h2 
-                className="text-3xl md:text-5xl lg:text-6xl font-bold text-white" 
+                className="text-5xl md:text-5xl lg:text-6xl font-bold text-white" 
                 style={{ transform: 'scaleY(1.15)' }}
               >
                 Learn How
@@ -114,7 +114,7 @@ const PlayersIntro = () => {
             </div>
             
             <motion.button
-              className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold text-sm md:text-lg text-white border-2 border-accent group-hover:gap-5 transition-all duration-300 w-fit"
+              className="inline-flex items-center gap-3 px-6 py-3 md:py-3 rounded-lg font-semibold text-base md:text-lg text-white border-2 border-accent group-hover:gap-5 transition-all duration-300 w-fit"
               style={{ 
                 backgroundImage: `url(${grassSmoky})`,
                 backgroundSize: 'cover',
@@ -123,7 +123,7 @@ const PlayersIntro = () => {
               whileHover={{ x: 10 }}
             >
               <span>Explore Our Story</span>
-              <ArrowRight className="w-4 h-4 md:w-6 md:h-6" />
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
             </motion.button>
           </div>
           
@@ -158,20 +158,20 @@ const PlayersIntro = () => {
               : 'bg-black/30'
           }`} />
           
-          {/* Content - proper spacing with flex-end and gap */}
-          <div className="relative h-full flex flex-col justify-end gap-3 md:gap-6 p-4 md:p-8 lg:p-12">
-            <div className="space-y-2 md:space-y-4">
+          {/* Content - centered on mobile, bottom-aligned on desktop */}
+          <div className="relative h-full flex flex-col justify-center md:justify-end gap-4 md:gap-6 p-6 md:p-8 lg:p-12">
+            <div className="space-y-3 md:space-y-4">
               <motion.div
-                className="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1 md:py-2 rounded-full bg-black/60 border border-accent/70"
+                className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-black/60 border border-accent/70"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-accent" />
-                <span className="text-xs md:text-sm font-medium text-white">Premium Services</span>
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span className="text-sm md:text-sm font-medium text-white">Premium Services</span>
               </motion.div>
               
-              <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white" style={{ transform: 'scaleY(1.15)' }}>
+              <h2 className="text-5xl md:text-5xl lg:text-6xl font-bold text-white" style={{ transform: 'scaleY(1.15)' }}>
                 View Our
                 <br />
                 <span className="text-accent">Services</span>
@@ -183,7 +183,7 @@ const PlayersIntro = () => {
             </div>
             
             <motion.button
-              className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold text-sm md:text-lg text-white border-2 border-accent group-hover:gap-5 transition-all duration-300 w-fit"
+              className="inline-flex items-center gap-3 px-6 py-3 md:py-3 rounded-lg font-semibold text-base md:text-lg text-white border-2 border-accent group-hover:gap-5 transition-all duration-300 w-fit"
               style={{ 
                 backgroundImage: `url(${grassSmoky})`,
                 backgroundSize: 'cover',
@@ -192,7 +192,7 @@ const PlayersIntro = () => {
               whileHover={{ x: 10 }}
             >
               <span>Browse Services</span>
-              <ArrowRight className="w-4 h-4 md:w-6 md:h-6" />
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
             </motion.button>
           </div>
           
