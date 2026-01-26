@@ -19,9 +19,9 @@ const MESSAGING = {
     cta: "Take action now",
   },
   exclusivity: {
-    headline: "Only 3% Make It",
-    subline: "We work with the ones who will. The question is: are you one of them?",
-    cta: "Prove yourself",
+    headline: "Take Control of Your Career",
+    subline: "If you are not progressing, you are regressing. Make the most of the time you have now to push for growth in every area of your career.",
+    cta: "Discuss Now - Response in Minutes",
   },
   urgency: {
     headline: "The Window Is Closing",

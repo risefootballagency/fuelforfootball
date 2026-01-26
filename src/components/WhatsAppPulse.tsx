@@ -122,9 +122,9 @@ export const WhatsAppPulse = ({
               backgroundPosition: 'center',
             }}
           >
-            {/* Pulse rings */}
-            <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />
-            <span className="absolute inset-0 rounded-full bg-[#25D366] animate-pulse opacity-20" style={{ animationDelay: "0.5s" }} />
+          {/* Pulse rings - using dark overlay for pulse effect */}
+            <span className="absolute inset-0 rounded-full bg-black/30 animate-ping opacity-40" />
+            <span className="absolute inset-0 rounded-full bg-black/20 animate-pulse opacity-30" style={{ animationDelay: "0.5s" }} />
             
             <FaWhatsapp className={`${iconSizes[size]} text-white relative z-10`} />
           </a>

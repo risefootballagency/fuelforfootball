@@ -14,6 +14,8 @@ import { WhatsAppPulse } from "@/components/WhatsAppPulse";
 import { EliteMessaging, PropagandaBanner } from "@/components/EliteMessaging";
 import { MetricBanner } from "@/components/PropagandaMetrics";
 import { CaseStudySlider } from "@/components/CaseStudySlider";
+import { ChooseYourFuel } from "@/components/ChooseYourFuel";
+import { NeedsAnalysis } from "@/components/NeedsAnalysis";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { BRAND_CONTENT } from "@/data/brandContent";
@@ -222,40 +224,6 @@ const Players = () => {
     }
   ];
 
-  const services = [
-    { name: "Pro Performance", link: "/pro-performance" },
-    { name: "Elite Performance", link: "/elite-performance" },
-    { name: "Tactical", link: "/tactical" },
-    { name: "Conditioning", link: "/conditioning" },
-    { name: "Strength, Power & Speed", link: "/strength-power-speed" },
-    { name: "Nutrition", link: "/nutrition" },
-    { name: "Consultation", link: "/consultation" },
-    { name: "Data Report", link: "/analysis" },
-    { name: "Technical", link: "/technical" },
-  ];
-
-  const needsAnalysisSteps = [
-    {
-      number: "1",
-      title: "Identification of key areas",
-      description: "Inform us of what you are working on or need to improve, and discuss this in depth with us through a consultation call."
-    },
-    {
-      number: "2",
-      title: "Discussion of individualised approach",
-      description: "Helping you to understand the factors which affect your individual case and what we recommend to maximise your development."
-    },
-    {
-      number: "3",
-      title: "Take Action",
-      description: "Undertake more specific testing, gather footage of your performances, and engage in further discussion to identify the best path forward."
-    },
-    {
-      number: "4",
-      title: "Be Fuelled",
-      description: "Learn from our expertise, apply the insights to your game, outperform your competition, review your progress, and fuel your continued development."
-    }
-  ];
 
   // Tactical Analysis Products
   const tacticalProducts = [
@@ -406,58 +374,11 @@ const Players = () => {
           </div>
         </section>
 
-        {/* Choose Your Fuel Section - immediately after */}
-        <section className="py-4 md:py-8 bg-background">
-          <div className="container mx-auto">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-4 md:mb-6">
-              Choose Your Fuel
-            </h2>
-            <p className="text-center text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto mb-6 md:mb-12">
-              Already aware of where you need to work to make the greatest improvements to your game? Click through to the related service to learn more about how we can help. Alternatively, scroll down for a more general overview of our work.
-            </p>
-
-            {/* Services Grid */}
-            <div className="flex flex-wrap justify-center gap-2 md:gap-3 max-w-4xl mx-auto">
-              {services.map((service, index) => (
-                <Link
-                  key={index}
-                  to={service.link}
-                  className="px-3 md:px-6 py-2 md:py-3 bg-primary/10 border border-primary/30 rounded-lg text-foreground font-bebas uppercase tracking-wider text-xs md:text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                >
-                  {service.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Choose Your Fuel Section */}
+        <ChooseYourFuel />
 
         {/* Needs Analysis Section */}
-        <section className="py-5 md:py-12 bg-card/50">
-          <div className="container mx-auto">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-foreground mb-8 md:mb-16">
-              Needs Analysis
-            </h2>
-
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-              {needsAnalysisSteps.map((step, index) => (
-                <div
-                  key={index}
-                  className="text-center p-4 rounded-lg border border-border/30 bg-card/50"
-                >
-                  <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-3 md:mb-6 rounded-full bg-accent/20 flex items-center justify-center border-2 border-accent/50">
-                    <span className="text-2xl md:text-3xl font-bebas text-accent">{step.number}</span>
-                  </div>
-                  <h3 className="text-base md:text-xl font-bebas uppercase tracking-wider text-foreground mb-2 md:mb-4">
-                    {step.title}
-                  </h3>
-                  <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <NeedsAnalysis />
 
       {/* Tactical Analysis Section */}
         <ServiceSection
@@ -638,36 +559,6 @@ const Players = () => {
         {/* Metric Banner */}
         <MetricBanner />
 
-        {/* Bottom CTA Section */}
-        <section className="py-5 md:py-12 border-t border-border/50 bg-muted/50">
-          <div className="container mx-auto text-center max-w-3xl">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider mb-4 md:mb-6 text-title">
-              The Window Is Closing
-            </h2>
-            <p className="text-base md:text-lg mb-6 md:mb-8 text-foreground">
-              Your peak years are limited. The scouts are watching now, not later. Take action before it's too late.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch max-w-2xl mx-auto">
-              <WhatsAppPulse position="inline" message="Speak to us now" showDelay={0} />
-              <Link to="/contact" className="flex-1">
-                <Button size="lg" className="w-full gap-2 text-base md:text-lg px-6 md:px-8 py-4 md:py-6 font-bebas uppercase tracking-wider relative overflow-hidden text-white border-2 border-accent">
-                  <div 
-                    className="absolute inset-0 z-0"
-                    style={{
-                      backgroundImage: `url('/grass-bg-smoky.png')`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  />
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    Contact Us
-                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
-                  </span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
       </main>
       
       {/* Floating WhatsApp CTA */}

@@ -51,18 +51,18 @@ export const PropagandaMetrics = ({
 }: PropagandaMetricsProps) => {
   if (variant === "minimal") {
     return (
-      <div className={`flex items-center justify-center gap-8 md:gap-16 ${className}`}>
-        <div className="text-center">
-          <span className="text-2xl md:text-3xl font-bebas text-primary">74</span>
-          <span className="text-xs font-bebas uppercase tracking-widest text-foreground/70 ml-2">Pros</span>
+      <div className={`flex items-center justify-center gap-6 md:gap-12 ${className}`}>
+        <div className="text-center px-4 py-2 bg-accent rounded-lg">
+          <span className="text-2xl md:text-3xl font-bebas text-white">100+</span>
+          <span className="text-xs font-bebas uppercase tracking-widest text-white ml-2">Pros</span>
         </div>
-        <div className="text-center">
-          <span className="text-2xl md:text-3xl font-bebas text-primary">€18.3M</span>
-          <span className="text-xs font-bebas uppercase tracking-widest text-foreground/70 ml-2">Transfers</span>
+        <div className="text-center px-4 py-2 bg-accent rounded-lg">
+          <span className="text-2xl md:text-3xl font-bebas text-white">£150M</span>
+          <span className="text-xs font-bebas uppercase tracking-widest text-white ml-2">in affiliated player transfers</span>
         </div>
-        <div className="text-center">
-          <span className="text-2xl md:text-3xl font-bebas text-primary">+27%</span>
-          <span className="text-xs font-bebas uppercase tracking-widest text-foreground/70 ml-2">Speed</span>
+        <div className="text-center px-4 py-2 bg-accent rounded-lg">
+          <span className="text-2xl md:text-3xl font-bebas text-white">25%</span>
+          <span className="text-xs font-bebas uppercase tracking-widest text-white ml-2">player improvements physically season-on-season</span>
         </div>
       </div>
     );
