@@ -163,7 +163,7 @@ const ServiceSection = ({
           
             {dailyFuelArticle && (
               <div className="pt-6 border-t border-border/30">
-                <p className="text-xs uppercase tracking-widest text-primary mb-3 font-bebas">Daily Fuel</p>
+                <p className="text-xs uppercase tracking-widest text-accent mb-3 font-bebas">Daily Fuel</p>
                 <Link to={dailyFuelArticle.link} className="flex gap-4 group">
                   <img 
                     src={dailyFuelArticle.image} 

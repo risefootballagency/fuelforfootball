@@ -8,6 +8,7 @@ import {
   ServiceCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
+import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
 
 const Nutrition = () => {
   const benefits = [
@@ -71,30 +72,55 @@ const Nutrition = () => {
         <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
         
         <div className="max-w-5xl mx-auto">
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-            {["Overview", "Review", "Programming", "Recipes"].map((tab, index) => (
-              <button
-                key={tab}
-                className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
-                  index === 0 
-                    ? 'bg-accent text-black' 
-                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          
-          <ServiceContentBlock
-            paragraphs={[
-              "To unlock your full potential on the pitch, nutrition is key. Our bespoke nutrition services give you the edge over the competition, ensuring you get the most out of every training session and match. Whether you are looking to optimise your match day preparation, change your body composition, or improve your health, our plans will help you achieve your goals.",
-              "Just as you would not run a car with the wrong fuel, your body needs the right nutrients for optimal physical performance. Planning nutritional intake throughout the year can be challenging, with many factors to consider for both performance and development. Our expertise removes the guesswork by implementing tried and trusted strategies, creating personalised programs tailored to your needs.",
-              "Given nutrition's importance for physical, psychological, and technical performance, as well as its role in recovery and injury prevention, it is imperative you maintain an adequate diet that contains the right amount of each key nutrient. Our Nutrition Review offers a comprehensive snapshot of your current dietary habits, providing specific recommendations and improvements that can be made.",
-              "Considering many physiological factors, we can create personalised nutrition programming which is specific to your needs. By following the programme, you can ensure optimal nutrition throughout the season or off-season and build for long-term development."
-            ]}
-          />
+          <ServiceDetailTabs tabs={[
+            {
+              label: "Overview",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "To unlock your full potential on the pitch, nutrition is key. Our bespoke nutrition services give you the edge over the competition, ensuring you get the most out of every training session and match. Whether you are looking to optimise your match day preparation, change your body composition, or improve your health, our plans will help you achieve your goals.",
+                    "Just as you would not run a car with the wrong fuel, your body needs the right nutrients for optimal physical performance. Planning nutritional intake throughout the year can be challenging, with many factors to consider for both performance and development. Our expertise removes the guesswork by implementing tried and trusted strategies, creating personalised programs tailored to your needs."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Review",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "Given nutrition's importance for physical, psychological, and technical performance, as well as its role in recovery and injury prevention, it is imperative you maintain an adequate diet that contains the right amount of each key nutrient.",
+                    "Our Nutrition Review offers a comprehensive snapshot of your current dietary habits, providing specific recommendations and improvements that can be made. We analyse your macronutrient and micronutrient intake, meal timing, hydration, and supplementation.",
+                    "After the review, you receive a detailed report outlining your current nutritional status and a clear action plan for improvements."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Programming",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "Considering many physiological factors, we can create personalised nutrition programming which is specific to your needs. By following the programme, you can ensure optimal nutrition throughout the season or off-season and build for long-term development.",
+                    "Programming includes periodised nutrition plans that adapt to your training load, match schedule, and personal goals. We cover match day fuelling, recovery nutrition, and strategies for body composition management.",
+                    "Daily support is provided to help you stick to your plan, with adjustments made based on your feedback and progress."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Recipes",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "Our recipe packages provide footballer-specific meals designed to support performance and recovery. Each recipe is optimised for macronutrient content and ease of preparation.",
+                    "We include breakfast options for training days, post-training recovery meals, match day preparation meals, and healthy snack alternatives. All recipes are designed with busy schedules in mind.",
+                    "Recipes are tailored to your taste preferences and any dietary restrictions, ensuring you enjoy what you eat whilst fuelling your performance."
+                  ]}
+                />
+              )
+            }
+          ]} />
         </div>
       </ServiceSection>
 

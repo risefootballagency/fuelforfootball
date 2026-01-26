@@ -67,7 +67,7 @@ export const ServiceQuickAddWidget = ({
   };
 
   const stripHtml = (html: string) => {
-    // Return full description, stripped of HTML
+    // Return full description, stripped of HTML - NO TRUNCATION
     return html?.replace(/<[^>]*>/g, '') || '';
   };
 

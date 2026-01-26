@@ -60,10 +60,10 @@ const PlayersIntro = () => {
       </header>
 
       {/* Main content - Two large rectangles */}
-      <div className="flex-1 flex flex-col md:flex-row gap-3 md:gap-4 px-3 pb-3 md:px-8 md:pb-8 relative z-10 min-h-0">
+      <div className="flex-1 flex flex-col md:flex-row gap-3 md:gap-4 px-6 pb-6 md:px-8 md:pb-8 relative z-10 min-h-0 items-center justify-center">
         {/* Left - Learn More */}
         <motion.div
-          className="relative overflow-hidden rounded-xl md:rounded-2xl cursor-pointer group border-2 md:border-4 border-accent flex-1 min-h-0"
+          className="relative overflow-hidden rounded-xl md:rounded-2xl cursor-pointer group border-2 md:border-4 border-accent flex-1 min-h-0 max-w-[85%] md:max-w-none"
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
@@ -135,7 +135,7 @@ const PlayersIntro = () => {
 
         {/* Right - Services */}
         <motion.div
-          className="relative overflow-hidden rounded-xl md:rounded-2xl cursor-pointer group border-2 md:border-4 border-accent flex-1 min-h-0"
+          className="relative overflow-hidden rounded-xl md:rounded-2xl cursor-pointer group border-2 md:border-4 border-accent flex-1 min-h-0 max-w-[85%] md:max-w-none"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
