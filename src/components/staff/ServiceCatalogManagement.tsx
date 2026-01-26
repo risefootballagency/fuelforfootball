@@ -257,7 +257,7 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
                   </div>
                 </td>
                 <td className="p-3 text-muted-foreground text-sm">{service.category}</td>
-                <td className="p-3">£{service.price.toLocaleString()}</td>
+                <td className="p-3">£{(service.price ?? 0).toLocaleString()}</td>
                 <td className="p-3">
                   <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${service.visible ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'}`}>
                     {service.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
@@ -405,7 +405,7 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
                     <div key={index} className="flex items-center justify-between gap-2 bg-background rounded p-2">
                       <span className="text-sm font-medium">{option.name}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">£{option.price.toFixed(2)}</span>
+                        <span className="text-sm text-muted-foreground">£{(option.price ?? 0).toFixed(2)}</span>
                         <Button variant="ghost" size="sm" onClick={() => handleRemoveOption(index)} className="h-6 w-6 p-0 text-destructive">
                           <Trash2 className="w-3 h-3" />
                         </Button>
