@@ -1,18 +1,59 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, BookOpen } from "lucide-react";
 import GrassBackground from "@/assets/Grass-Background.png";
 import grassSmoky from "@/assets/grass-smoky-3.png";
+import { supabase } from "@/integrations/supabase/client";
 
 const PlayersIntro = () => {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState<'left' | 'right' | null>(null);
+  const [backgroundImages, setBackgroundImages] = useState<string[]>([]);
+
+  // Fetch background images from marketing gallery (same as RadialMenu)
+  useEffect(() => {
+    const fetchBackgroundImages = async () => {
+      const { data } = await supabase
+        .from('marketing_gallery')
+        .select('file_url')
+        .eq('folder', 'landing')
+        .eq('file_type', 'image')
+        .not('file_url', 'is', null)
+        .limit(54);
+      
+      if (data && data.length > 0) {
+        setBackgroundImages(data.map(item => item.file_url));
+      }
+    };
+
+    fetchBackgroundImages();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Background images grid from marketing gallery */}
+      {backgroundImages.length > 0 && (
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 grid grid-cols-9 grid-rows-6 gap-0">
+            {backgroundImages.slice(0, 54).map((url, index) => (
+              <div 
+                key={index} 
+                className="relative overflow-hidden"
+                style={{
+                  backgroundImage: `url(${url})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+            ))}
+          </div>
+          {/* Dark overlay on background images */}
+          <div className="absolute inset-0 bg-black/70" />
+        </div>
+      )}
       {/* Header with FFF branding */}
-      <header className="py-6 px-8 flex justify-center">
+      <header className="py-6 px-8 flex justify-center relative z-10">
         <motion.img
           src="/fff_logo.png"
           alt="Fuel For Football"
@@ -24,7 +65,7 @@ const PlayersIntro = () => {
       </header>
 
       {/* Main content - Two large rectangles */}
-      <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 md:p-8">
+      <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 md:p-8 relative z-10">
         {/* Left - Learn More */}
         <motion.div
           className="relative overflow-hidden rounded-2xl cursor-pointer group border-4 border-accent flex-1"
@@ -171,7 +212,7 @@ const PlayersIntro = () => {
 
       {/* Footer tagline */}
       <motion.footer 
-        className="py-6 text-center"
+        className="py-6 text-center relative z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
