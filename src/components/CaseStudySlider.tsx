@@ -15,54 +15,6 @@ interface CaseStudy {
   testimonial: string | null;
 }
 
-// Placeholder case studies for when no data exists
-const placeholderCaseStudies: CaseStudy[] = [
-  { 
-    id: "1", 
-    player_name: "Elite Talent", 
-    player_image_url: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=400&h=400&fit=crop&crop=face", 
-    duration: "8 months",
-    summary: "Developed from academy level to first-team professional",
-    full_story: "Working with our tactical and physical performance teams, this player transformed their game completely.",
-    services_used: ["Tactical Analysis", "SPS Programming", "Nutrition"],
-    achievements: ["Professional Contract", "First Team Debut"],
-    testimonial: "The best decision I ever made for my career."
-  },
-  { 
-    id: "2", 
-    player_name: "Rising Star", 
-    player_image_url: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=400&h=400&fit=crop&crop=face", 
-    duration: "12 months",
-    summary: "International call-up after comprehensive development program",
-    full_story: "Through dedicated work on mental performance and tactical understanding, this player achieved their dream.",
-    services_used: ["Mental Performance", "Match Analysis", "Conditioning"],
-    achievements: ["International Cap", "League Top Scorer"],
-    testimonial: "They changed the way I see the game entirely."
-  },
-  { 
-    id: "3", 
-    player_name: "Pro Footballer", 
-    player_image_url: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400&h=400&fit=crop&crop=face", 
-    duration: "6 months",
-    summary: "Recovered from injury to secure top-flight move",
-    full_story: "Our rehabilitation and conditioning protocols helped this player return stronger than ever.",
-    services_used: ["Injury Prevention", "Conditioning", "Technical Training"],
-    achievements: ["Top Flight Transfer", "Full Recovery"],
-    testimonial: "I came back better than I was before my injury."
-  },
-  { 
-    id: "4", 
-    player_name: "Champion", 
-    player_image_url: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400&h=400&fit=crop&crop=face", 
-    duration: "18 months",
-    summary: "Captaincy and league title through leadership development",
-    full_story: "Mental fortitude and tactical intelligence became the pillars of this player's success.",
-    services_used: ["Mentorship", "Tactical", "Mental"],
-    achievements: ["League Champion", "Club Captain"],
-    testimonial: "The mentorship program was life-changing."
-  },
-];
-
 export const CaseStudySlider = () => {
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
   const [selectedStudy, setSelectedStudy] = useState<CaseStudy | null>(null);
@@ -80,9 +32,8 @@ export const CaseStudySlider = () => {
       
       if (data && data.length > 0) {
         setCaseStudies(data);
-      } else {
-        setCaseStudies(placeholderCaseStudies);
       }
+      // If no data, caseStudies remains empty and component returns null
     };
 
     fetchCaseStudies();
@@ -94,9 +45,10 @@ export const CaseStudySlider = () => {
   const totalWidth = caseStudies.length * itemWidth;
 
   useAnimationFrame((time, delta) => {
-    if (isPaused.current || selectedStudy) return;
+    if (isPaused.current || selectedStudy || caseStudies.length === 0) return;
     setXOffset(prev => {
       const next = prev - (delta / 1000) * 25; // Slower speed for case studies
+      // Reset to beginning when we've scrolled through one full set
       if (Math.abs(next) >= totalWidth) {
         return next + totalWidth;
       }
@@ -104,6 +56,7 @@ export const CaseStudySlider = () => {
     });
   });
 
+  // Don't render if no case studies from database
   if (caseStudies.length === 0) return null;
 
   return (

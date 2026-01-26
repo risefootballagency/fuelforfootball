@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
+import smokyBackground from "@/assets/Smoky-Background.png";
 
 interface WhatsAppPulseProps {
   /** Delay before showing in ms */
@@ -65,7 +66,7 @@ export const WhatsAppPulse = ({
         <div 
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url('/grass-bg-smoky.png')`,
+            backgroundImage: `url(${smokyBackground})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -117,14 +118,15 @@ export const WhatsAppPulse = ({
             rel="noopener noreferrer"
             className={`${sizeClasses[size]} flex items-center justify-center rounded-full shadow-lg shadow-[#25D366]/30 transition-all duration-300 hover:scale-110 relative overflow-hidden`}
             style={{
-              backgroundImage: `url('/grass-bg-smoky.png')`,
+              backgroundImage: `url(${smokyBackground})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           >
-          {/* Pulse rings - using dark overlay for pulse effect */}
-            <span className="absolute inset-0 rounded-full bg-black/30 animate-ping opacity-40" />
-            <span className="absolute inset-0 rounded-full bg-black/20 animate-pulse opacity-30" style={{ animationDelay: "0.5s" }} />
+            {/* Pulse rings - proper emanating pulse effect */}
+            <span className="absolute inset-0 rounded-full bg-[#25D366]/40 animate-ping" />
+            <span className="absolute inset-[-4px] rounded-full border-2 border-[#25D366]/30 animate-pulse" />
+            <span className="absolute inset-[-8px] rounded-full border border-[#25D366]/20 animate-pulse" style={{ animationDelay: "0.5s" }} />
             
             <FaWhatsapp className={`${iconSizes[size]} text-white relative z-10`} />
           </a>

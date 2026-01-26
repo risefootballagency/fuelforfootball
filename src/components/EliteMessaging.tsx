@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { WhatsAppPulse } from "./WhatsAppPulse";
+import { Marquee } from "./Marquee";
 
 interface EliteMessagingProps {
   variant?: "fomo" | "challenge" | "exclusivity" | "urgency";
@@ -63,34 +64,13 @@ export const EliteMessaging = ({
   );
 };
 
-// Rotating propaganda messages for use in banners
-const ROTATING_MESSAGES = [
-  "Your competition is training right now.",
-  "The ones who made it didn't wait.",
-  "Every delay costs you opportunities.",
-  "Scouts don't wait. Neither should you.",
-  "3% make it. We work with them.",
-  "Your peak years are limited.",
-  "Others are getting ahead while you hesitate.",
-  "The window is closing.",
-];
-
+// PropagandaBanner now uses Marquee with CHANGE THE GAME
 export const PropagandaBanner = ({ className = "" }: { className?: string }) => (
-  <div className={`py-3 bg-primary/10 border-y border-primary/20 overflow-hidden ${className}`}>
-    <motion.div
-      animate={{ x: [0, -2000] }}
-      transition={{ 
-        x: { repeat: Infinity, duration: 30, ease: "linear" },
-      }}
-      className="flex gap-12 whitespace-nowrap"
-    >
-      {[...ROTATING_MESSAGES, ...ROTATING_MESSAGES].map((msg, i) => (
-        <span key={i} className="text-sm font-bebas uppercase tracking-widest text-foreground/80">
-          {msg} <span className="text-primary mx-4">•</span>
-        </span>
-      ))}
-    </motion.div>
-  </div>
+  <Marquee 
+    text="CHANGE THE GAME" 
+    speed={20} 
+    className={className}
+  />
 );
 
 // Shadowy elite silhouette section

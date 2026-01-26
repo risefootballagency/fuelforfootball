@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,28 +26,44 @@ export const ServiceQuickAddWidget = ({
   slideshowInterval = 6000 
 }: ServiceQuickAddWidgetProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Handle both single service and multiple services
   const serviceList = services || (service ? [service] : []);
   const currentService = serviceList[currentIndex];
   
-  // Auto slideshow
+  // Auto slideshow - stops when user interacts
   useEffect(() => {
-    if (!autoSlideshow || serviceList.length <= 1) return;
+    if (!autoSlideshow || serviceList.length <= 1 || hasInteracted) return;
     
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % serviceList.length);
     }, slideshowInterval);
     
-    return () => clearInterval(interval);
-  }, [autoSlideshow, serviceList.length, slideshowInterval]);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [autoSlideshow, serviceList.length, slideshowInterval, hasInteracted]);
 
   const goToPrev = () => {
+    setHasInteracted(true);
+    if (intervalRef.current) clearInterval(intervalRef.current);
     setCurrentIndex((prev) => (prev - 1 + serviceList.length) % serviceList.length);
   };
 
   const goToNext = () => {
+    setHasInteracted(true);
+    if (intervalRef.current) clearInterval(intervalRef.current);
     setCurrentIndex((prev) => (prev + 1) % serviceList.length);
+  };
+
+  const handleDotClick = (index: number) => {
+    setHasInteracted(true);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    setCurrentIndex(index);
   };
 
   const stripHtml = (html: string) => {
@@ -106,7 +122,7 @@ export const ServiceQuickAddWidget = ({
             {serviceList.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setCurrentIndex(i)}
+                onClick={() => handleDotClick(i)}
                 className={`w-2 h-2 rounded-full transition-colors ${
                   i === currentIndex ? 'bg-primary' : 'bg-border'
                 }`}
@@ -115,7 +131,7 @@ export const ServiceQuickAddWidget = ({
           </div>
         )}
 
-        {/* Learn More Button */}
+        {/* Learn More Button - links to service on services page */}
         <Link to={`/services?service=${currentService.id}`} className="mt-auto">
           <Button
             size="sm"
