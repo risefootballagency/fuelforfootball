@@ -95,7 +95,7 @@ const Mentorship = () => {
   return (
     <ServicePageLayout
       category="HOLISTIC"
-      title="MENTORSHIP\nGUIDANCE FOR SUCCESS"
+      title="MENTORSHIP - GUIDANCE FOR SUCCESS"
       heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />

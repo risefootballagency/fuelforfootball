@@ -36,7 +36,7 @@ const Nutrition = () => {
   return (
     <ServicePageLayout
       category="NUTRITION"
-      title="TO GET THE MOST OUT OF YOURSELF\nFUELLING PROPERLY IS A MUST"
+      title="TO GET THE MOST OUT OF YOURSELF, FUELLING PROPERLY IS A MUST"
       heroVideo="/videos/players-hero.mp4"
     >
       {/* Benefits Section */}

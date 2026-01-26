@@ -9,6 +9,7 @@ import {
   ServiceCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
+import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
 
 const StrengthPowerSpeed = () => {
   const pillars = [
@@ -18,10 +19,49 @@ const StrengthPowerSpeed = () => {
     { icon: "https://static.wixstatic.com/media/c4f4b1_0f1a80188cda42339edc21be4fb126d6~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Agility.png", label: "AGILITY" },
   ];
 
+  const tabContent = [
+    {
+      label: "Overview",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Strength, power and speed are ever increasingly key components in the modern game, yet are often overlooked, or poorly trained, throughout the football world. Alike buying a car, we do not consider solely the size of the fuel tank, but more so the miles per gallon, speed, acceleration and physical output of the engine.",
+            "Our individualised training sessions and programs are designed to fit your individual needs, pushing you to new limits, reducing the incidence of injury and helping you maximise your on-pitch impact.",
+            "In-depth programming with a high attention to detail. With a new player, we test first and organise the key goals for physical development. Programming is individualised with these in mind to make the greatest impact to performance."
+          ]}
+        />
+      )
+    },
+    {
+      label: "In-Person",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "In-person training sessions are available for UK-based players at our partner facilities. Each session is tailored to your specific physical profile and positional demands.",
+            "Our SPS coach works 1:1 to offer full support during sessions with cues, technique corrections, and real-time program adjustments to maximise your development.",
+            "Sessions include comprehensive warm-ups, position-specific drills, and recovery protocols to ensure you get the most out of every training session while minimising injury risk."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Online",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "For players abroad, we provide remote support via FaceTime and video analysis. Your program is delivered digitally with detailed video demonstrations and written guidance.",
+            "Our program is available in 6 or 12-month formats, adjusted to your club and individual schedule, season phase, and other factors affecting your training load.",
+            "Daily support is provided via messaging, with regular video check-ins to review technique and make program adjustments based on your progress and feedback."
+          ]}
+        />
+      )
+    }
+  ];
+
   return (
     <ServicePageLayout
       category="STRENGTH, POWER & SPEED"
-      title="RUN LIKE A SPORTS CAR\nNOT A HATCHBACK"
+      title="RUN LIKE A SPORTS CAR, NOT A HATCHBACK"
       heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
@@ -31,29 +71,7 @@ const StrengthPowerSpeed = () => {
         <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
         
         <div className="max-w-5xl mx-auto">
-          {/* Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-            {["Overview", "In-Person", "Online"].map((tab, index) => (
-              <button
-                key={tab}
-                className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
-                  index === 0 
-                    ? 'bg-accent text-black' 
-                    : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          
-          <ServiceContentBlock
-            paragraphs={[
-              "Strength, power and speed are ever increasingly key components in the modern game, yet are often overlooked, or poorly trained, throughout the football world. Alike buying a car, we do not consider solely the size of the fuel tank, but more so the miles per gallon, speed, acceleration and physical output of the engine.",
-              "Our individualised training sessions and programs are designed to fit your individual needs, pushing you to new limits, reducing the incidence of injury and helping you maximise your on-pitch impact.",
-              "In-depth programming with a high attention to detail. With a new player, we test first and organise the key goals for physical development. Programming is individualised with these in mind to make the greatest impact to performance. Our SPS coach works 1:1 to offer full support on a daily basis with cues, advice and program alterations."
-            ]}
-          />
+          <ServiceDetailTabs tabs={tabContent} />
         </div>
       </ServiceSection>
 

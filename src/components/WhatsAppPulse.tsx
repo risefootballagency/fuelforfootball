@@ -115,7 +115,12 @@ export const WhatsAppPulse = ({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`${sizeClasses[size]} flex items-center justify-center bg-[#25D366] hover:bg-[#128C7E] rounded-full shadow-lg shadow-[#25D366]/30 transition-all duration-300 hover:scale-110 relative`}
+            className={`${sizeClasses[size]} flex items-center justify-center rounded-full shadow-lg shadow-[#25D366]/30 transition-all duration-300 hover:scale-110 relative overflow-hidden`}
+            style={{
+              backgroundImage: `url('/grass-bg-smoky.png')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
           >
             {/* Pulse rings */}
             <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />
