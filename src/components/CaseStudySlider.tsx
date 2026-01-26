@@ -12,6 +12,7 @@ interface CaseStudy {
   full_story: string | null;
   services_used: string[] | null;
   achievements: string[] | null;
+  achievement_images: string[] | null;
   testimonial: string | null;
 }
 
@@ -214,14 +215,26 @@ export const CaseStudySlider = () => {
                   <div>
                     <h4 className="font-bebas text-lg text-accent tracking-wider mb-2">KEY ACHIEVEMENTS</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {selectedStudy.achievements.map((achievement, idx) => (
-                        <div 
-                          key={idx}
-                          className="relative overflow-hidden rounded-lg border border-accent/30 bg-black/60 p-4"
-                        >
-                          <span className="text-white text-sm font-medium">{achievement}</span>
-                        </div>
-                      ))}
+                      {selectedStudy.achievements.map((achievement, idx) => {
+                        const achievementImage = selectedStudy.achievement_images?.[idx];
+                        return (
+                          <div 
+                            key={idx}
+                            className="relative overflow-hidden rounded-lg border border-accent/30 min-h-[80px]"
+                            style={{
+                              backgroundImage: achievementImage ? `url(${achievementImage})` : undefined,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center'
+                            }}
+                          >
+                            {/* Dark overlay for text readability */}
+                            <div className={`absolute inset-0 ${achievementImage ? 'bg-black/70' : 'bg-black/60'}`} />
+                            <div className="relative z-10 p-4 flex items-center h-full">
+                              <span className="text-white text-sm font-medium">{achievement}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

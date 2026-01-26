@@ -390,8 +390,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     <>
       <div className="space-y-0 mb-0">
         {/* Schedule Card - Full Width */}
-        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-0 border-b-0 z-30">
-          <CardHeader marble className="py-2">
+        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-accent border-b-0 z-30">
+          <CardHeader marble className="py-2 border-b-[2px] border-b-accent">
             <div className="flex items-center justify-between container mx-auto px-4 pr-6">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
@@ -400,7 +400,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="flex items-center justify-center gap-1 text-sm text-primary hover:text-black hover:bg-primary h-10"
+                className="flex items-center justify-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
               >
                 See All
                 <ArrowRight className="h-4 w-4" />
@@ -514,8 +514,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
         </Card>
 
         {/* R90 Performance Chart & Recent Analysis Combined - Full Width */}
-        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0 border-t-[2px] border-t-primary z-20 overflow-visible">
-          <CardHeader marble className="py-2">
+        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0 border-t-[2px] border-t-accent z-20 overflow-visible">
+          <CardHeader marble className="py-2 border-b-[2px] border-b-accent">
             <div className="flex items-center justify-between container mx-auto px-4 pr-6">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
@@ -525,7 +525,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                 variant="ghost" 
                 size="sm"
                 onClick={onNavigateToForm || onNavigateToAnalysis}
-                className="flex items-center justify-center gap-1 text-sm text-primary hover:text-black hover:bg-primary h-10"
+                className="flex items-center justify-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
               >
                 See All
                 <ArrowRight className="h-4 w-4" />
@@ -704,8 +704,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
 
         {/* Performance Section - Recent Fixtures - Full Width */}
         {recentAnalyses.length > 0 && (
-          <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-primary border-b-0 z-10">
-            <CardHeader marble className="py-2">
+          <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-accent border-b-0 z-10">
+            <CardHeader marble className="py-2 border-b-[2px] border-b-accent">
               <div className="flex items-center justify-between container mx-auto px-4 pr-6">
                 <div className="flex items-center gap-2">
                   <Trophy className="h-5 w-5 mt-[1px]" />
@@ -715,7 +715,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                   variant="ghost" 
                   size="sm"
                   onClick={onNavigateToAnalysis}
-                  className="flex items-center justify-center gap-1 text-sm text-primary hover:text-black hover:bg-primary h-10"
+                  className="flex items-center justify-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
                 >
                   See All
                   <ArrowRight className="h-4 w-4" />
@@ -774,10 +774,10 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
       {/* Daily Aphorism */}
       {dailyAphorism && (
         <div className="px-4 md:px-0 mt-[10px]">
-          <Card className="relative overflow-hidden border-gold bg-gold/30">
+          <Card className="relative overflow-hidden border-accent bg-white/10">
             <CardContent className="relative py-3 px-3 text-center space-y-3">
               <div className="bg-black/90 backdrop-blur-sm p-3 rounded-lg inline-block">
-                <p className="text-base md:text-xl font-bold text-gold leading-relaxed tracking-wide">
+                <p className="text-base md:text-xl font-bold text-accent leading-relaxed tracking-wide">
                   {dailyAphorism.featured_text}
                 </p>
               </div>

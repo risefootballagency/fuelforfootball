@@ -323,6 +323,7 @@ export type Database = {
       }
       case_studies: {
         Row: {
+          achievement_images: string[] | null
           achievements: string[] | null
           created_at: string
           display_order: number | null
@@ -338,6 +339,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          achievement_images?: string[] | null
           achievements?: string[] | null
           created_at?: string
           display_order?: number | null
@@ -353,6 +355,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          achievement_images?: string[] | null
           achievements?: string[] | null
           created_at?: string
           display_order?: number | null

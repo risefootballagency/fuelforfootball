@@ -18,7 +18,7 @@ export const Marquee = ({
   const items = Array(copies).fill(text);
 
   return (
-    <div className={`overflow-hidden py-6 bg-primary/5 border-y border-primary/20 ${className}`}>
+    <div className={`overflow-hidden py-6 bg-black/30 ${className}`}>
       <motion.div
         className="flex whitespace-nowrap"
         animate={{
@@ -36,10 +36,10 @@ export const Marquee = ({
         {items.map((item, index) => (
           <span
             key={index}
-            className={`text-4xl md:text-6xl lg:text-7xl font-bebas uppercase tracking-wider text-primary/80 mx-8 ${textClassName}`}
+            className={`text-4xl md:text-6xl lg:text-7xl font-bebas uppercase tracking-wider text-accent mx-8 ${textClassName}`}
           >
             {item}
-            <span className="mx-8 text-primary/40">•</span>
+            <span className="mx-8 text-accent/40">•</span>
           </span>
         ))}
       </motion.div>

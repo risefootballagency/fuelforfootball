@@ -17,6 +17,7 @@ interface CaseStudy {
   full_story: string | null;
   services_used: string[] | null;
   achievements: string[] | null;
+  achievement_images: string[] | null;
   testimonial: string | null;
   is_visible: boolean;
   display_order: number;
@@ -30,6 +31,7 @@ const emptyCaseStudy: Omit<CaseStudy, 'id'> = {
   full_story: null,
   services_used: [],
   achievements: [],
+  achievement_images: [],
   testimonial: null,
   is_visible: true,
   display_order: 0,
@@ -203,7 +205,8 @@ export const CaseStudyManagement = () => {
     if (newAchievementInput.trim()) {
       setEditForm({
         ...editForm,
-        achievements: [...(editForm.achievements || []), newAchievementInput.trim()]
+        achievements: [...(editForm.achievements || []), newAchievementInput.trim()],
+        achievement_images: [...(editForm.achievement_images || []), '']
       });
       setNewAchievementInput('');
     }
@@ -212,7 +215,8 @@ export const CaseStudyManagement = () => {
   const removeAchievement = (index: number) => {
     setEditForm({
       ...editForm,
-      achievements: (editForm.achievements || []).filter((_, i) => i !== index)
+      achievements: (editForm.achievements || []).filter((_, i) => i !== index),
+      achievement_images: (editForm.achievement_images || []).filter((_, i) => i !== index)
     });
   };
 
@@ -226,6 +230,7 @@ export const CaseStudyManagement = () => {
       full_story: study.full_story,
       services_used: study.services_used || [],
       achievements: study.achievements || [],
+      achievement_images: study.achievement_images || [],
       testimonial: study.testimonial,
       is_visible: study.is_visible,
       display_order: study.display_order,
@@ -400,7 +405,7 @@ export const CaseStudyManagement = () => {
 
           {/* Achievements */}
           <div className="space-y-2">
-            <Label>Achievements</Label>
+            <Label>Achievements (with optional images)</Label>
             <div className="flex gap-2">
               <Input
                 value={newAchievementInput}
@@ -412,14 +417,81 @@ export const CaseStudyManagement = () => {
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="space-y-3 mt-2">
               {(editForm.achievements || []).map((achievement, idx) => (
-                <span key={idx} className="inline-flex items-center gap-1 px-3 py-1 bg-accent/20 text-accent text-sm rounded-full">
-                  {achievement}
-                  <button onClick={() => removeAchievement(idx)} className="hover:text-destructive">
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
+                <div key={idx} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border border-border">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-foreground flex-1">{achievement}</span>
+                      <button onClick={() => removeAchievement(idx)} className="text-muted-foreground hover:text-destructive">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {/* Achievement Image Upload */}
+                    <div className="flex items-center gap-2">
+                      {editForm.achievement_images?.[idx] ? (
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={editForm.achievement_images[idx]} 
+                            alt={`Achievement ${idx + 1}`}
+                            className="w-16 h-10 object-cover rounded border"
+                          />
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              const newImages = [...(editForm.achievement_images || [])];
+                              newImages[idx] = '';
+                              setEditForm({ ...editForm, achievement_images: newImages });
+                            }}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              
+                              const fileExt = file.name.split('.').pop();
+                              const fileName = `achievement-${Date.now()}-${idx}.${fileExt}`;
+                              
+                              const { error } = await supabase.storage
+                                .from('case-studies')
+                                .upload(fileName, file, { upsert: true });
+                              
+                              if (error) {
+                                toast.error('Failed to upload image');
+                                return;
+                              }
+                              
+                              const { data: publicUrl } = supabase.storage
+                                .from('case-studies')
+                                .getPublicUrl(fileName);
+                              
+                              const newImages = [...(editForm.achievement_images || [])];
+                              // Ensure array is long enough
+                              while (newImages.length <= idx) newImages.push('');
+                              newImages[idx] = publicUrl.publicUrl;
+                              setEditForm({ ...editForm, achievement_images: newImages });
+                              toast.success('Achievement image uploaded');
+                            }}
+                          />
+                          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-accent/20 text-accent rounded hover:bg-accent/30 transition-colors">
+                            <Image className="w-3 h-3" />
+                            Add Image
+                          </span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>

@@ -1277,26 +1277,23 @@ const AnalysisViewer = () => {
                 transparentContent
                 forceOpen={isSaving}
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {analysis.matchups.map((matchup: any, index: number) => (
                     <TextReveal key={index} delay={index * 0.15}>
                       <div 
-                        className="relative rounded-xl overflow-hidden"
+                        className="relative rounded-xl overflow-hidden bg-black"
                         style={{
-                          backgroundImage: `url('/Smoky-Background.png')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          border: `2px solid ${BRAND.gold}`,
-                          boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+                          border: `3px solid ${BRAND.gold}`,
+                          boxShadow: '0 8px 32px rgba(0,0,0,0.6)'
                         }}
                       >
-                        {/* Dark overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60 pointer-events-none" />
+                        {/* Solid dark background for readability */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/95 to-black/90 pointer-events-none" />
                         
                         {/* Horizontal layout with full-height image on left */}
-                        <div className="relative flex">
+                        <div className="relative flex min-h-[160px]">
                           {/* Player image - spans full height from bottom to top border */}
-                          <div className="w-28 md:w-32 flex-shrink-0 self-stretch">
+                          <div className="w-32 md:w-40 lg:w-48 flex-shrink-0 self-stretch">
                             {matchup.image_url ? (
                               <img
                                 src={matchup.image_url}
@@ -1305,30 +1302,30 @@ const AnalysisViewer = () => {
                                 style={{ minHeight: '100%' }}
                               />
                             ) : (
-                              <div className="w-full h-full bg-black/40 flex items-center justify-center text-white/50 text-xs min-h-[120px]">
+                              <div className="w-full h-full bg-black/60 flex items-center justify-center text-white/50 text-sm min-h-[160px]">
                                 No image
                               </div>
                             )}
                           </div>
                           
                           {/* Content to the right of image */}
-                          <div className="flex-1 p-4 md:p-5 flex flex-col justify-center">
+                          <div className="flex-1 p-5 md:p-6 lg:p-8 flex flex-col justify-center">
                             {/* Name */}
-                            <h3 className="font-bebas text-lg md:text-xl uppercase tracking-wide text-white drop-shadow-lg leading-tight">
+                            <h3 className="font-bebas text-xl md:text-2xl lg:text-3xl uppercase tracking-wide text-white leading-tight">
                               {matchup.name?.toUpperCase()}
                             </h3>
                             
                             {/* Number */}
                             {matchup.shirt_number && (
-                              <p className="text-2xl md:text-3xl font-bold mt-1" style={{ color: BRAND.gold }}>
+                              <p className="text-3xl md:text-4xl lg:text-5xl font-bold mt-2" style={{ color: BRAND.gold }}>
                                 #{matchup.shirt_number}
                               </p>
                             )}
                             
                             {/* Notes */}
                             {matchup.notes && (
-                              <div className="mt-3 pt-3" style={{ borderTop: `1px solid ${BRAND.gold}40` }}>
-                                <p className="text-sm md:text-base text-white/90 leading-relaxed">
+                              <div className="mt-4 pt-4" style={{ borderTop: `2px solid ${BRAND.gold}` }}>
+                                <p className="text-sm md:text-base lg:text-lg text-white leading-relaxed">
                                   {matchup.notes}
                                 </p>
                               </div>
