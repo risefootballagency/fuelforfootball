@@ -285,45 +285,133 @@ export const ServiceInfoCard = ({
   </div>
 );
 
-export const ServiceFullPackage = () => (
-  <ServiceSection>
-    <ServiceSectionTitle>THE FULL PACKAGE</ServiceSectionTitle>
-    
-    <p className="text-white/80 text-sm md:text-base text-center max-w-4xl mx-auto mb-10 md:mb-14 leading-relaxed">
-      The ultimate level of service to help you take your game to the next level. Our larger programs offer a comprehensive range of individualised services. Work on multiple aspects of your performance and improve effectively both in and out of season.
-    </p>
-    
-    <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6 md:gap-8">
-      <ServiceInfoCard
-        title="PRO PERFORMANCE PROGRAMME"
-        items={[
-          "Nutrition Programming",
-          "Strength, Power & Speed Programming",
-          "Conditioning Programming",
-          "Technical Programming"
-        ]}
-      />
+export const ServiceFullPackage = () => {
+  const proFeatures = [
+    "Nutrition Programming",
+    "Strength, Power & Speed Programming",
+    "Conditioning Programming",
+    "Technical Programming"
+  ];
+
+  const eliteAdditionalFeatures = [
+    "Pre-Match Opposition Analysis",
+    "Post-Match Performance Analysis",
+    "Mental Skill & Will Sessions",
+    "Player Efficiency Reports",
+    "Mentorship",
+    "Recovery, Mobility & Injury Prevention",
+    "Unlimited Consultations"
+  ];
+
+  return (
+    <ServiceSection>
+      <ServiceSectionTitle>THE FULL PACKAGE</ServiceSectionTitle>
       
-      <ServiceInfoCard
-        title="ELITE PERFORMANCE PROGRAMME"
-        featured
-        items={[
-          "Nutrition Programming",
-          "Strength, Power & Speed Programming",
-          "Conditioning Programming",
-          "Technical Programming",
-          "Pre-Match Opposition Analysis",
-          "Post-Match Performance Analysis",
-          "Mental Skill Sessions",
-          "Mental Will Sessions",
-          "Player Efficiency Reports",
-          "Mentorship",
-          "Recovery, Mobility & Injury Prevention"
-        ]}
-      />
-    </div>
-  </ServiceSection>
-);
+      <p className="text-white/80 text-sm md:text-base text-center max-w-4xl mx-auto mb-8 leading-relaxed">
+        The ultimate level of service to help you take your game to the next level. Our larger programs offer a comprehensive range of individualised services.
+      </p>
+      
+      <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6 md:gap-8">
+        {/* Pro Performance Card */}
+        <div className="group relative bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-sm border border-white/20 rounded-2xl overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10">
+          <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          <div className="relative p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                <span className="text-accent font-bebas text-lg">P</span>
+              </div>
+              <div>
+                <h3 className="font-bebas text-xl md:text-2xl text-white tracking-wide">PRO PERFORMANCE</h3>
+                <p className="text-xs text-white/50 uppercase tracking-widest">Foundation Programme</p>
+              </div>
+            </div>
+            
+            <p className="text-white/70 text-sm mb-6 leading-relaxed">
+              Master the essentials with our comprehensive physical development programme. Perfect for players serious about elevating their game.
+            </p>
+            
+            <ul className="space-y-3 mb-8">
+              {proFeatures.map((feature, index) => (
+                <li key={index} className="flex items-center gap-3 text-white/80 text-sm">
+                  <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-3 h-3 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            
+            <a href="/pro-performance" className="block">
+              <button className="w-full py-3 px-6 bg-white/10 border border-white/20 text-white font-bebas tracking-wider rounded-xl transition-all duration-300 hover:bg-accent hover:border-accent hover:text-black">
+                LEARN MORE
+              </button>
+            </a>
+          </div>
+        </div>
+
+        {/* Elite Performance Card */}
+        <div className="group relative bg-gradient-to-br from-accent/20 to-accent/5 backdrop-blur-sm border-2 border-accent rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-accent/20">
+          <div className="absolute top-0 right-0 bg-accent text-black text-xs font-bebas tracking-wider px-4 py-1.5 rounded-bl-xl">
+            RECOMMENDED
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          <div className="relative p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
+                <span className="text-black font-bebas text-lg">E</span>
+              </div>
+              <div>
+                <h3 className="font-bebas text-xl md:text-2xl text-accent tracking-wide">ELITE PERFORMANCE</h3>
+                <p className="text-xs text-white/50 uppercase tracking-widest">Complete Package</p>
+              </div>
+            </div>
+            
+            <p className="text-white/70 text-sm mb-6 leading-relaxed">
+              Everything in Pro Performance, plus advanced analysis, mental coaching, and dedicated mentorship. The complete professional package.
+            </p>
+            
+            <div className="mb-4">
+              <p className="text-xs text-white/50 uppercase tracking-widest mb-2">All Pro Features Plus:</p>
+              <ul className="space-y-2">
+                {eliteAdditionalFeatures.map((feature, index) => (
+                  <li key={index} className="flex items-center gap-3 text-white/80 text-sm">
+                    <div className="w-5 h-5 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+                      <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <a href="/elite-performance" className="block">
+              <button className="w-full py-3 px-6 bg-accent text-black font-bebas tracking-wider rounded-xl transition-all duration-300 hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/30">
+                LEARN MORE
+              </button>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Package CTA */}
+      <div className="max-w-2xl mx-auto mt-8 text-center">
+        <p className="text-white/60 text-sm mb-4">Want to build your own programme?</p>
+        <a href="/customisation" className="inline-flex items-center gap-2 text-accent hover:text-accent/80 font-bebas tracking-wider transition-colors">
+          <span>CREATE CUSTOM PACKAGE</span>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </ServiceSection>
+  );
+};
 
 export const ServiceDivider = () => (
   <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />

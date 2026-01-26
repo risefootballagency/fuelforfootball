@@ -108,7 +108,26 @@ const ProPerformance = () => {
         </div>
       </ServiceSection>
 
-      <ServiceFullPackage />
+      {/* Custom Package CTA */}
+      <ServiceSection>
+        <div className="max-w-3xl mx-auto text-center">
+          <h3 className="font-bebas text-2xl md:text-3xl text-white mb-4">BUILD YOUR OWN PROGRAMME</h3>
+          <p className="text-white/70 text-sm md:text-base mb-6 leading-relaxed">
+            Want to customize your training? Select individual services to create a personalized programme that fits your specific needs and goals.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/customisation" className="inline-flex items-center justify-center gap-2 bg-accent text-black font-bebas tracking-wider py-3 px-8 rounded-xl hover:bg-accent/90 transition-all duration-300 hover:shadow-lg hover:shadow-accent/30">
+              <span>CUSTOMIZE YOUR PACKAGE</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+            <a href="/elite-performance" className="inline-flex items-center justify-center gap-2 border border-white/30 text-white font-bebas tracking-wider py-3 px-8 rounded-xl hover:border-accent hover:text-accent transition-all duration-300">
+              <span>VIEW ELITE PROGRAMME</span>
+            </a>
+          </div>
+        </div>
+      </ServiceSection>
     </ServicePageLayout>
   );
 };
