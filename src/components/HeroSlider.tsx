@@ -75,9 +75,6 @@ export const HeroSlider = ({ slides, autoplayDelay = 5000 }: HeroSliderProps) =>
               
               {/* Content */}
               <div className="relative h-full flex flex-col items-center justify-center text-center px-6 md:px-12 z-10">
-                {/* Decorative line */}
-                <div className="w-16 md:w-24 h-0.5 bg-primary mb-4 md:mb-6" />
-                
                 <h2 className="text-4xl md:text-7xl lg:text-8xl font-bebas uppercase tracking-wider text-white mb-3 md:mb-6 max-w-5xl drop-shadow-2xl">
                   {slide.title}
                 </h2>
@@ -87,9 +84,6 @@ export const HeroSlider = ({ slides, autoplayDelay = 5000 }: HeroSliderProps) =>
                     {slide.subtitle}
                   </p>
                 )}
-                
-                {/* Decorative line */}
-                <div className="w-16 md:w-24 h-0.5 bg-primary/50 mt-4 md:mt-6" />
               </div>
             </div>
           ))}

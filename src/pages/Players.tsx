@@ -306,7 +306,7 @@ const Players = () => {
         <section className="py-5 md:py-12 bg-card/50 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-accent/5 pointer-events-none" />
           <div className="container mx-auto relative z-10">
-            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-accent mb-2 md:mb-4">
+            <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-white mb-2 md:mb-4">
               What We Do
             </h2>
             <p className="text-center text-accent font-bebas uppercase tracking-wider text-lg md:text-2xl mb-4 md:mb-8">
