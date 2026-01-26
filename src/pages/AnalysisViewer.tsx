@@ -61,7 +61,7 @@ interface Analysis {
 // Brand colors - GLOBAL TOKENS
 const BRAND = {
   gold: "#fdc61b",
-  darkGreen: "#12571e",
+  darkGreen: "#052208",
   contentBg: "#c7d4ca",
   bodyText: "#000000",
 };
@@ -1288,12 +1288,12 @@ const AnalysisViewer = () => {
                         }}
                       >
                         {/* Solid dark background for readability */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/95 to-black/90 pointer-events-none" />
+                        <div className="absolute inset-0 bg-black pointer-events-none" />
                         
-                        {/* Horizontal layout with full-height image on left */}
-                        <div className="relative flex min-h-[160px]">
-                          {/* Player image - spans full height from bottom to top border */}
-                          <div className="w-32 md:w-40 lg:w-48 flex-shrink-0 self-stretch">
+                        {/* Horizontal layout with smaller image on left, more space for text */}
+                        <div className="relative flex min-h-[180px]">
+                          {/* Player image - reduced width to give more space to text */}
+                          <div className="w-24 md:w-28 lg:w-32 flex-shrink-0 self-stretch">
                             {matchup.image_url ? (
                               <img
                                 src={matchup.image_url}
@@ -1302,30 +1302,30 @@ const AnalysisViewer = () => {
                                 style={{ minHeight: '100%' }}
                               />
                             ) : (
-                              <div className="w-full h-full bg-black/60 flex items-center justify-center text-white/50 text-sm min-h-[160px]">
+                              <div className="w-full h-full bg-black/60 flex items-center justify-center text-white/50 text-xs min-h-[180px]">
                                 No image
                               </div>
                             )}
                           </div>
                           
-                          {/* Content to the right of image */}
-                          <div className="flex-1 p-5 md:p-6 lg:p-8 flex flex-col justify-center">
+                          {/* Content to the right of image - more width for text */}
+                          <div className="flex-1 p-4 md:p-5 lg:p-6 flex flex-col justify-center">
                             {/* Name */}
-                            <h3 className="font-bebas text-xl md:text-2xl lg:text-3xl uppercase tracking-wide text-white leading-tight">
+                            <h3 className="font-bebas text-lg md:text-xl lg:text-2xl uppercase tracking-wide text-white leading-tight">
                               {matchup.name?.toUpperCase()}
                             </h3>
                             
                             {/* Number */}
                             {matchup.shirt_number && (
-                              <p className="text-3xl md:text-4xl lg:text-5xl font-bold mt-2" style={{ color: BRAND.gold }}>
+                              <p className="text-2xl md:text-3xl lg:text-4xl font-bold mt-1" style={{ color: BRAND.gold }}>
                                 #{matchup.shirt_number}
                               </p>
                             )}
                             
                             {/* Notes */}
                             {matchup.notes && (
-                              <div className="mt-4 pt-4" style={{ borderTop: `2px solid ${BRAND.gold}` }}>
-                                <p className="text-sm md:text-base lg:text-lg text-white leading-relaxed">
+                              <div className="mt-3 pt-3" style={{ borderTop: `2px solid ${BRAND.gold}` }}>
+                                <p className="text-sm md:text-base text-white leading-relaxed">
                                   {matchup.notes}
                                 </p>
                               </div>

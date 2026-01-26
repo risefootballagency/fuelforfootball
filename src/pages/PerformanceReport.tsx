@@ -244,14 +244,14 @@ const PerformanceReport = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-accent/20 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-white/20 rounded-lg">
               <div className="text-center">
                 <p className="text-xs md:text-sm text-muted-foreground mb-1">Raw Score</p>
                 <p className="text-xl md:text-2xl font-bold">{calculateRScore().toFixed(5)}</p>
               </div>
-              <div className="text-center bg-primary text-primary-foreground rounded-lg p-4">
-                <p className="text-xs md:text-sm mb-1 opacity-90">R90 Score</p>
-                <p className="text-2xl md:text-3xl font-bold">
+              <div className="text-center bg-white/30 rounded-lg p-4">
+                <p className="text-xs md:text-sm mb-1 text-foreground">R90 Score</p>
+                <p className="text-2xl md:text-3xl font-bold text-foreground">
                   {analysis.minutes_played 
                     ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2)
                     : "N/A"

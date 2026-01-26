@@ -165,7 +165,7 @@ export const CaseStudySlider = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
                 
                 {/* Duration Badge */}
-                <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-primary/90 text-black px-3 py-1.5 rounded-full">
+                <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-accent text-black px-3 py-1.5 rounded-full">
                   <Clock className="w-4 h-4" />
                   <span className="font-bebas tracking-wider text-sm">{selectedStudy.duration || 'Ongoing'}</span>
                 </div>

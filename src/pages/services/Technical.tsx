@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import {
@@ -6,12 +7,37 @@ import {
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
-  ServiceCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
+import { ServiceQuickAddWidget } from "@/components/ServiceQuickAddWidget";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Service {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string;
+  image_url?: string | null;
+}
 
 const Technical = () => {
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const { data } = await supabase
+        .from('service_catalog')
+        .select('id, name, description, price, category, image_url')
+        .ilike('category', '%technical%')
+        .limit(5);
+      
+      if (data) setServices(data as Service[]);
+    };
+    fetchServices();
+  }, []);
+
   const pillars = [
     { icon: "https://static.wixstatic.com/media/c4f4b1_fa44f917083b4628bdadc5a271e841f8~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Receiving%20(1).png", label: "RECEIVING" },
     { icon: "https://static.wixstatic.com/media/c4f4b1_0f23f93ab7f54ed4a8bd8fa19a26271f~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Passing.png", label: "PASSING" },
@@ -92,26 +118,18 @@ const Technical = () => {
         </div>
       </ServiceSection>
 
-      {/* Options Section */}
+      {/* Options Section with Product Widget */}
       <ServiceSection>
         <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
         
-        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <ServiceCard
-            image="https://static.wixstatic.com/media/c4f4b1_913034088e8646d79d725095677b0b1a~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_913034088e8646d79d725095677b0b1a~mv2.png"
-            title="Recovery, Injury Prevention & Mobility Programming"
-            link="/contact"
-          />
-          <ServiceCard
-            image="https://static.wixstatic.com/media/e2ec89_74879ef601434395a9d63a2a8888c97a~mv2.jpg/v1/fill/w_386,h_386,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/e2ec89_74879ef601434395a9d63a2a8888c97a~mv2.jpg"
-            title="Technical Programming"
-            link="/contact"
-          />
-          <ServiceCard
-            image="https://static.wixstatic.com/media/c4f4b1_3572b859d7e04a29a183836a276c0028~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_3572b859d7e04a29a183836a276c0028~mv2.png"
-            title="Technical Training"
-            link="/contact"
-          />
+        <div className="max-w-2xl mx-auto">
+          {services.length > 0 && (
+            <ServiceQuickAddWidget 
+              services={services}
+              autoSlideshow={true}
+              slideshowInterval={6000}
+            />
+          )}
         </div>
       </ServiceSection>
 
