@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
-import { Button } from "@/components/ui/button";
 
 interface Product {
   id?: string;
@@ -96,11 +95,11 @@ export const ServiceCarousel = ({
           {products.map((product, index) => (
             <div
               key={index}
-              className="flex-[0_0_100%] min-w-0"
+              className="flex-[0_0_100%] min-w-0 px-1"
             >
-              <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300">
+              <div className="bg-card border border-border/50 rounded-lg hover:border-accent/50 transition-all duration-300 flex flex-col">
                 {/* Square Image - Full width, forced square */}
-                <div className="w-full aspect-square overflow-hidden bg-muted">
+                <div className="w-full aspect-square overflow-hidden bg-muted flex-shrink-0">
                   <img 
                     src={product.image} 
                     alt={product.title}
@@ -109,12 +108,12 @@ export const ServiceCarousel = ({
                 </div>
                 
                 {/* Content below image */}
-                <div className="p-4 md:p-6 flex flex-col bg-card">
+                <div className="p-4 md:p-6 flex flex-col flex-grow bg-card">
                   <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-2">
                     {product.title}
                   </h4>
                   {product.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-grow">
                       {stripHtml(product.description)}
                     </p>
                   )}
@@ -124,26 +123,23 @@ export const ServiceCarousel = ({
                     </p>
                   )}
                   
-                  <Button
-                    asChild
-                    size="sm"
-                    className="w-full justify-center text-xs font-semibold py-2 relative overflow-hidden text-white border-2 border-accent"
+                  <Link 
+                    to={product.id ? `/services?service=${product.id}` : product.link} 
+                    className="w-full mt-auto flex items-center justify-center text-xs font-semibold py-3 px-4 rounded-md relative overflow-hidden text-white border-2 border-accent hover:opacity-90 transition-opacity"
                   >
-                    <Link to={product.id ? `/services?service=${product.id}` : product.link} className="flex items-center justify-center">
-                      <div 
-                        className="absolute inset-0 z-0"
-                        style={{
-                          backgroundImage: `url('/grass-bg-smoky.png')`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                        }}
-                      />
-                      <span className="relative z-10 flex items-center justify-center">
-                        Learn More
-                        <ArrowRight className="w-3 h-3 ml-1" />
-                      </span>
-                    </Link>
-                  </Button>
+                    <div 
+                      className="absolute inset-0 z-0"
+                      style={{
+                        backgroundImage: `url('/grass-bg-smoky.png')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                      }}
+                    />
+                    <span className="relative z-10 flex items-center justify-center gap-1">
+                      Learn More
+                      <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </Link>
                 </div>
               </div>
             </div>
