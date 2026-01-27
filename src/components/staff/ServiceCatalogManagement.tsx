@@ -155,22 +155,30 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
       };
 
       if (editingService) {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('service_catalog')
           .update(serviceData)
-          .eq('id', editingService.id);
+          .eq('id', editingService.id)
+          .select();
 
         if (error) throw error;
+        if (!data || data.length === 0) {
+          throw new Error('Update failed - no rows affected. Check your permissions.');
+        }
         toast.success('Service updated successfully');
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('service_catalog')
           .insert({
             ...serviceData,
             display_order: services.length,
-          });
+          })
+          .select();
 
         if (error) throw error;
+        if (!data || data.length === 0) {
+          throw new Error('Create failed - no rows affected. Check your permissions.');
+        }
         toast.success('Service created successfully');
       }
 
@@ -178,7 +186,7 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
       fetchServices();
     } catch (error) {
       console.error('Error saving service:', error);
-      toast.error('Failed to save service');
+      toast.error(error instanceof Error ? error.message : 'Failed to save service');
     }
   };
 
