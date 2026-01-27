@@ -543,15 +543,27 @@ const AnalysisHeader = ({
         }}
       >
         
-        {/* Club logos - responsive scaling with vw units */}
+        {/* Club logos - responsive scaling with vw units, preloaded */}
         {homeLogo && (
           <div className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-[15vw] h-[15vw] min-w-16 max-w-28 md:min-w-20 md:max-w-36 z-20 -mt-2">
-            <img src={homeLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
+            <img 
+              src={homeLogo} 
+              alt="" 
+              className="w-full h-full object-contain drop-shadow-xl"
+              loading="eager"
+              fetchPriority="high"
+            />
           </div>
         )}
         {awayLogo && (
           <div className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-[15vw] h-[15vw] min-w-16 max-w-28 md:min-w-20 md:max-w-36 z-20 -mt-2">
-            <img src={awayLogo} alt="" className="w-full h-full object-contain drop-shadow-xl" />
+            <img 
+              src={awayLogo} 
+              alt="" 
+              className="w-full h-full object-contain drop-shadow-xl"
+              loading="eager"
+              fetchPriority="high"
+            />
           </div>
         )}
 
