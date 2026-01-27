@@ -176,7 +176,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
         <div className="sticky top-0 z-10 bg-background border-b p-4 flex items-center justify-between">
           <h2 className="text-xl font-bebas uppercase tracking-wider">Performance Report</h2>
           <div className="flex gap-2">
-            <Button onClick={handleSaveAsPDF} variant="default" size="sm">
+            <Button onClick={handleSaveAsPDF} size="sm" className="bg-accent hover:bg-accent/90 text-black">
               <Download className="mr-2 h-4 w-4" />
               Save as PDF
             </Button>
@@ -233,13 +233,13 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
               </div>
 
               {/* Key Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-accent/20 rounded-lg">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white/15 rounded-lg">
                 <div className="text-center">
                   <p className="text-xs md:text-sm text-muted-foreground mb-1">Raw Score</p>
                   <p className="text-xl md:text-2xl font-bold">{calculateRScore().toFixed(5)}</p>
                 </div>
-                <div className="text-center bg-primary text-primary-foreground rounded-lg p-4">
-                  <p className="text-xs md:text-sm mb-1 opacity-90">R90 Score</p>
+                <div className="text-center bg-white/20 rounded-lg p-4">
+                  <p className="text-xs md:text-sm mb-1 text-muted-foreground">R90 Score</p>
                   <p className="text-2xl md:text-3xl font-bold">
                     {analysis.minutes_played 
                       ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2)
@@ -265,12 +265,47 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                      {advancedStats.map(({ key, value }) => (
-                        <div key={key} className="text-center p-3 bg-accent/10 rounded-lg">
-                          <p className="text-xs text-muted-foreground mb-1 capitalize">{formatStatLabel(key)}</p>
-                          <p className="text-lg font-bold">{typeof value === 'number' ? value.toFixed(2) : value}</p>
-                        </div>
-                      ))}
+                      {advancedStats.map(({ key, value }) => {
+                        // Get grade color based on stat type
+                        const numValue = typeof value === 'number' ? value : 0;
+                        let gradeInfo = { grade: '-', color: 'hsl(var(--muted-foreground))' };
+                        
+                        // Map stat keys to appropriate grade functions
+                        const keyLower = key.toLowerCase();
+                        if (keyLower.includes('xg') && !keyLower.includes('chain')) {
+                          gradeInfo = getXGGrade(numValue);
+                        } else if (keyLower.includes('xa')) {
+                          gradeInfo = getXAGrade(numValue);
+                        } else if (keyLower.includes('regain')) {
+                          gradeInfo = getRegainsGrade(numValue);
+                        } else if (keyLower.includes('intercept')) {
+                          gradeInfo = getInterceptionsGrade(numValue);
+                        } else if (keyLower.includes('chain')) {
+                          gradeInfo = getXGChainGrade(numValue);
+                        } else if (keyLower.includes('progressive') && keyLower.includes('pass')) {
+                          gradeInfo = getProgressivePassesGrade(numValue);
+                        } else if (keyLower.includes('ratio') || keyLower.includes('turnover')) {
+                          gradeInfo = getPPTurnoversRatioGrade(numValue);
+                        } else if (keyLower.includes('r90')) {
+                          gradeInfo = getR90Grade(numValue);
+                        }
+                        
+                        return (
+                          <div 
+                            key={key} 
+                            className="text-center p-3 rounded-lg"
+                            style={{ backgroundColor: `${gradeInfo.color}15` }}
+                          >
+                            <p className="text-xs text-muted-foreground mb-1 capitalize">{formatStatLabel(key)}</p>
+                            <p 
+                              className="text-lg font-bold"
+                              style={{ color: gradeInfo.color }}
+                            >
+                              {typeof value === 'number' ? value.toFixed(2) : value}
+                            </p>
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
