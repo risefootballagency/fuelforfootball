@@ -342,7 +342,7 @@ const Players = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="p-3 md:p-6 relative z-[2]">
+                  <div className="p-3 md:p-6 relative z-[2] text-center">
                     <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-wider text-white mb-2 md:mb-3 group-hover:text-accent transition-colors">
                       {corner.title}
                     </h3>
