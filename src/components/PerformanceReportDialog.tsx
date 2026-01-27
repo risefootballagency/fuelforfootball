@@ -172,7 +172,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] w-full max-h-[95vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-[95vw] w-full max-h-[95vh] overflow-y-auto overflow-x-hidden p-0">
         <div className="sticky top-0 z-10 bg-background border-b p-4 flex items-center justify-between">
           <h2 className="text-xl font-bebas uppercase tracking-wider">Performance Report</h2>
           <div className="flex gap-2">
@@ -265,7 +265,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                      {advancedStats.map(({ key, value }) => {
+                        {advancedStats.map(({ key, value }) => {
                         // Get grade color based on stat type
                         const numValue = typeof value === 'number' ? value : 0;
                         let gradeInfo = { grade: '-', color: 'hsl(var(--muted-foreground))' };
@@ -293,14 +293,14 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                         return (
                           <div 
                             key={key} 
-                            className="text-center p-3 rounded-lg"
-                            style={{ backgroundColor: `${gradeInfo.color}15` }}
+                            className="text-center p-3 rounded-lg border-2"
+                            style={{ 
+                              backgroundColor: `${gradeInfo.color}20`,
+                              borderColor: gradeInfo.color
+                            }}
                           >
                             <p className="text-xs text-muted-foreground mb-1 capitalize">{formatStatLabel(key)}</p>
-                            <p 
-                              className="text-lg font-bold"
-                              style={{ color: gradeInfo.color }}
-                            >
+                            <p className="text-lg font-bold text-foreground">
                               {typeof value === 'number' ? value.toFixed(2) : value}
                             </p>
                           </div>
@@ -330,7 +330,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                     <CardTitle className="text-lg">Performance Actions ({actions.length})</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table */}
+                    <div className="hidden md:block">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b">
@@ -346,7 +347,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                           {actions.map((action) => (
                             <tr key={action.id} className="border-b border-border/50">
                               <td className="py-2 px-2">{action.action_number}</td>
-                              <td className="py-2 px-2">{action.minute}'</td>
+                              <td className="py-2 px-2">{action.minute}</td>
                               <td className="py-2 px-2">{action.action_type}</td>
                               <td className="py-2 px-2">{action.action_description}</td>
                               <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>
@@ -357,6 +358,28 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                           ))}
                         </tbody>
                       </table>
+                    </div>
+                    
+                    {/* Mobile Card Layout */}
+                    <div className="md:hidden space-y-3">
+                      {actions.map((action) => (
+                        <div key={action.id} className="bg-muted/30 rounded-lg p-3 border border-border/50">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold bg-accent/20 px-2 py-0.5 rounded">#{action.action_number}</span>
+                              <span className="text-xs text-muted-foreground">{action.minute}</span>
+                            </div>
+                            <span className={`text-sm font-bold ${getActionScoreColor(action.action_score)}`}>
+                              {action.action_score?.toFixed(5)}
+                            </span>
+                          </div>
+                          <div className="text-sm font-medium mb-1">{action.action_type}</div>
+                          <div className="text-sm text-muted-foreground">{action.action_description}</div>
+                          {action.notes && (
+                            <div className="text-xs text-muted-foreground mt-2 italic">{action.notes}</div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>

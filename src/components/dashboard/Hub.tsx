@@ -412,11 +412,11 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
               <div className="grid grid-cols-8 gap-1 md:gap-2">
                 {/* Today Cell - FFF Gold */}
                 <div 
-                  className="p-2 md:p-4 flex flex-col items-center justify-center rounded-lg bg-primary text-primary-foreground"
+                  className="p-2 md:p-4 flex flex-col items-center justify-center rounded-lg bg-accent text-black"
                 >
                   <div className="text-center">
-                    <div className="text-sm md:text-2xl font-bold mb-1">{format(new Date(), 'd')}<sup className="text-[8px] md:text-sm">th</sup></div>
-                    <div className="text-[8px] md:text-sm font-medium italic">
+                    <div className="text-sm md:text-2xl font-bold mb-1 text-black">{format(new Date(), 'd')}<sup className="text-[8px] md:text-sm">th</sup></div>
+                    <div className="text-[8px] md:text-sm font-medium italic text-black">
                       <span className="md:hidden">Today</span>
                       <span className="hidden md:inline">Today</span>
                     </div>
