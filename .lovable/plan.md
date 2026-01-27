@@ -1,65 +1,100 @@
 
-# Fix Product Widgets on Players Page
+# Fix ServiceCarousel Layout and Visibility on Players Page
 
-## Problem Identified
-The Players page uses **hardcoded static product data** with incomplete descriptions and links to category pages (e.g., `/tactical`) instead of linking to actual products on the services page (`/services?service={id}`).
+## Issues Identified
 
-## Solution
-Replace the static product arrays with **dynamic data fetched from the `service_catalog` database**, and update the `ServiceCarousel` component to link to the correct URLs.
+1. **Learn More button not visible** - The button exists in code but the layout may be causing it to be cut off or hidden
+2. **Image not square** - Despite `aspect-square`, the image container may not be enforcing the correct ratio
+3. **Side content not filling space** - The description, Daily Fuel, and category button should expand to fill the available space next to the product widget
 
 ---
 
-## Implementation Steps
+## Solution
 
-### 1. Update ServiceCarousel Component
-Modify `src/components/ServiceCarousel.tsx` to:
-- Accept an optional `serviceId` property for each product
-- Update the "Learn More" button to link to `/services?service={id}` when a service ID is provided
-- Ensure the full description from the database is displayed (not truncated)
+### 1. Fix ServiceCarousel Component Layout
 
-### 2. Fetch Real Products on Players Page
-Update `src/pages/Players.tsx` to:
-- Fetch products from `service_catalog` table grouped by category (tactical, psychological, technical, physical, conditioning, nutrition, data/analysis)
-- Pass the real database data (including `id`, `name`, `description`, `price`, `image_url`) to each `ServiceCarousel`
-- Ensure "Learn More" links go to `/services?service={product.id}`
+Update `src/components/ServiceCarousel.tsx` to ensure:
+- The button is always visible with proper flex layout
+- The image container enforces square aspect ratio
+- No content overflow hides the button
 
-### 3. Update Product Interface
-Extend the `Product` interface in ServiceCarousel to include:
-- `id?: string` - The service catalog ID for deep linking
+**Changes:**
+- Wrap content in a proper flex column with `justify-between`
+- Add `mt-auto` to button to push it to the bottom
+- Ensure the card structure doesn't hide overflow
+
+### 2. Fix ServiceSection Layout in Players.tsx
+
+Update the `ServiceSection` component to make the description/Daily Fuel side properly fill the remaining space:
+- Change grid layout so description side uses `flex-1` properly
+- Remove fixed heights that may constrain content
+- Ensure the side column stretches to match the carousel height
 
 ---
 
 ## Technical Details
 
-### Database Query Pattern
-```typescript
-const { data } = await supabase
-  .from('service_catalog')
-  .select('id, name, description, price, image_url, category')
-  .ilike('category', '%tactical%')
-  .limit(5);
-```
+### ServiceCarousel.tsx Updates
 
-### Link Pattern
 ```tsx
-<Link to={product.id ? `/services?service=${product.id}` : product.link}>
+// Update card structure for proper visibility
+<div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300 flex flex-col h-full">
+  {/* Square Image */}
+  <div className="w-full aspect-square overflow-hidden bg-muted flex-shrink-0">
+    <img src={product.image} className="w-full h-full object-cover" />
+  </div>
+  
+  {/* Content - flex-grow with button at bottom */}
+  <div className="p-4 md:p-6 flex flex-col flex-grow bg-card">
+    <h4>...</h4>
+    <p className="flex-grow">...</p>
+    
+    {/* Button always at bottom */}
+    <Button className="w-full mt-auto">
+      <Link to={...}>Learn More</Link>
+    </Button>
+  </div>
+</div>
 ```
 
-### Description Display
-Full description from database will be displayed without any truncation or line-clamp limits.
+### Players.tsx ServiceSection Updates
+
+```tsx
+// Grid with proper stretch
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+  {/* Carousel - contained */}
+  <div className="h-full">
+    <ServiceCarousel products={products} />
+  </div>
+  
+  {/* Description side - fills remaining space */}
+  <div className="flex flex-col h-full justify-between">
+    <p className="text-muted-foreground flex-grow">
+      {description}
+    </p>
+    
+    <div className="mt-auto space-y-6">
+      <Button>Category Button</Button>
+      <DailyFuel />
+    </div>
+  </div>
+</div>
+```
 
 ---
 
 ## Files to Modify
+
 | File | Changes |
 |------|---------|
-| `src/components/ServiceCarousel.tsx` | Add `id` to Product interface, update Link logic |
-| `src/pages/Players.tsx` | Replace static product arrays with database fetch, pass service IDs |
+| `src/components/ServiceCarousel.tsx` | Fix flex layout, ensure button visibility, enforce square image |
+| `src/pages/Players.tsx` | Update ServiceSection grid to fill space properly |
 
 ---
 
 ## Expected Outcome
-- All product widgets on Players page will show **full descriptions** from the database
-- "Learn More" buttons will link to `/services?service={id}` for the specific product
-- Products will **auto-slide every 6 seconds** (already working)
-- Product images will display as **square shape** (already working)
+
+- **Learn More button** clearly visible on every product slide
+- **Square product images** properly enforced
+- **Side content** (description, Daily Fuel, category button) fills the space next to the product widget
+- **6-second auto-slideshow** continues working as before
