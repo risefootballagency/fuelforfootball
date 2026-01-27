@@ -85,69 +85,65 @@ export const ServiceCarousel = ({
 
   if (products.length === 0) return null;
 
+  // Strip HTML tags from description
+  const stripHtml = (html: string) => html?.replace(/<[^>]*>/g, '') || '';
+
   return (
-    <div className="relative group h-full flex flex-col">
+    <div className="relative group">
       {/* Carousel Container */}
-      <div ref={emblaRef} className="overflow-hidden rounded-lg flex-grow">
-        <div className="flex h-full">
+      <div ref={emblaRef} className="overflow-hidden rounded-lg">
+        <div className="flex">
           {products.map((product, index) => (
             <div
               key={index}
-              className="flex-[0_0_100%] min-w-0 px-0 h-full"
+              className="flex-[0_0_100%] min-w-0"
             >
-              {/* Desktop: Side by side layout */}
-              <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300 h-full">
-                <div className="flex flex-col md:flex-row h-full">
-                  {/* Square Image - Half width on desktop */}
-                  <div className="w-full md:w-1/2 aspect-square overflow-hidden bg-muted relative flex-shrink-0">
-                    <img 
-                      src={product.image} 
-                      alt={product.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+              <div className="bg-card border border-border/50 rounded-lg overflow-hidden hover:border-accent/50 transition-all duration-300">
+                {/* Square Image - Full width, forced square */}
+                <div className="w-full aspect-square overflow-hidden bg-muted">
+                  <img 
+                    src={product.image} 
+                    alt={product.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                {/* Content below image */}
+                <div className="p-4 md:p-6 flex flex-col bg-card">
+                  <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-2">
+                    {product.title}
+                  </h4>
+                  {product.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                      {stripHtml(product.description)}
+                    </p>
+                  )}
+                  {product.price && (
+                    <p className="text-accent font-semibold mb-4">
+                      {product.currency || "£"}{product.price}
+                    </p>
+                  )}
                   
-                  {/* Content - Half width on desktop */}
-                  <div className="w-full md:w-1/2 p-4 md:p-6 flex flex-col justify-between bg-card">
-                    <div className="flex-1">
-                      <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-3">
-                        {product.title}
-                      </h4>
-                      {product.description && (
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {product.description}
-                        </p>
-                      )}
-                      {product.price && (
-                        <p className="text-accent font-semibold mt-3">
-                          {product.currency || "£"}{product.price}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div className="mt-4">
-                      <Button
-                        asChild
-                        size="sm"
-                        className="w-full justify-center text-xs font-semibold py-2 relative overflow-hidden text-white border-2 border-accent"
-                      >
-                        <Link to={product.id ? `/services?service=${product.id}` : product.link} className="flex items-center justify-center">
-                          <div 
-                            className="absolute inset-0 z-0"
-                            style={{
-                              backgroundImage: `url('/grass-bg-smoky.png')`,
-                              backgroundSize: 'cover',
-                              backgroundPosition: 'center',
-                            }}
-                          />
-                          <span className="relative z-10 flex items-center justify-center">
-                            Learn More
-                            <ArrowRight className="w-3 h-3 ml-1" />
-                          </span>
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
+                  <Button
+                    asChild
+                    size="sm"
+                    className="w-full justify-center text-xs font-semibold py-2 relative overflow-hidden text-white border-2 border-accent"
+                  >
+                    <Link to={product.id ? `/services?service=${product.id}` : product.link} className="flex items-center justify-center">
+                      <div 
+                        className="absolute inset-0 z-0"
+                        style={{
+                          backgroundImage: `url('/grass-bg-smoky.png')`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }}
+                      />
+                      <span className="relative z-10 flex items-center justify-center">
+                        Learn More
+                        <ArrowRight className="w-3 h-3 ml-1" />
+                      </span>
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </div>
