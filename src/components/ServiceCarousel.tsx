@@ -5,6 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
 
 interface Product {
+  id?: string;
   image: string;
   title: string;
   link: string;
@@ -130,7 +131,7 @@ export const ServiceCarousel = ({
                         size="sm"
                         className="w-full justify-center text-xs font-semibold py-2 relative overflow-hidden text-white border-2 border-accent"
                       >
-                        <Link to={product.link} className="flex items-center justify-center">
+                        <Link to={product.id ? `/services?service=${product.id}` : product.link} className="flex items-center justify-center">
                           <div 
                             className="absolute inset-0 z-0"
                             style={{
