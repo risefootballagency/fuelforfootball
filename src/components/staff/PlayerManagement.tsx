@@ -21,7 +21,8 @@ import { UploadPlayerImageDialog } from "./UploadPlayerImageDialog";
 import { AddPlayerDialog } from "./AddPlayerDialog";
 import { HighlightedMatchForm } from "./HighlightedMatchForm";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -186,6 +187,11 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   // Performance Report Dialog state
   const [performanceReportDialogOpen, setPerformanceReportDialogOpen] = useState(false);
   const [selectedReportAnalysisId, setSelectedReportAnalysisId] = useState<string | null>(null);
+
+  // Delete player state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmStep, setDeleteConfirmStep] = useState<1 | 2 | 3>(1);
+  const [deletingPlayer, setDeletingPlayer] = useState(false);
 
   useEffect(() => {
     fetchPlayers();
@@ -1125,7 +1131,39 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     }
   };
 
+  const handleDeletePlayer = async () => {
+    if (!editingPlayer) return;
+    
+    setDeletingPlayer(true);
+    try {
+      // Delete the player
+      const { error } = await supabase
+        .from("players")
+        .delete()
+        .eq("id", editingPlayer.id);
+
+      if (error) throw error;
+
+      toast.success(`${editingPlayer.name} has been deleted`);
+      setIsDeleteDialogOpen(false);
+      setDeleteConfirmStep(1);
+      setIsEditDialogOpen(false);
+      setSelectedPlayerId(null);
+      fetchPlayers();
+    } catch (error: any) {
+      toast.error("Failed to delete player: " + error.message);
+    } finally {
+      setDeletingPlayer(false);
+    }
+  };
+
   const selectedPlayer = players.find(p => p.id === selectedPlayerId);
+
+  const openDeleteDialog = () => {
+    setDeleteConfirmStep(1);
+    setIsDeleteDialogOpen(true);
+  };
+
   
   // Parse seasonStats from bio field (same as PlayerDetail does)
   const getSeasonStats = (player: Player | undefined) => {
@@ -3900,26 +3938,98 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                 </TabsContent>
               </Tabs>
 
-              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-2 pt-4 border-t sticky bottom-0 bg-background pb-2">
+              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-2 pt-4 border-t sticky bottom-0 bg-background pb-2">
                 <Button 
                   type="button" 
-                  variant="outline" 
-                  onClick={() => setIsEditDialogOpen(false)}
+                  variant="destructive" 
+                  onClick={openDeleteDialog}
                   className="w-full sm:w-auto h-11 sm:h-10"
                 >
-                  Cancel
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Player
                 </Button>
-                <Button 
-                  type="submit"
-                  className="w-full sm:w-auto h-11 sm:h-10"
-                >
-                  Save Changes
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setIsEditDialogOpen(false)}
+                    className="w-full sm:w-auto h-11 sm:h-10"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit"
+                    className="w-full sm:w-auto h-11 sm:h-10"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
               </div>
             </form>
           </ScrollArea>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog - Multi-step */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => {
+        setIsDeleteDialogOpen(open);
+        if (!open) setDeleteConfirmStep(1);
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">
+              {deleteConfirmStep === 1 && "Delete Player?"}
+              {deleteConfirmStep === 2 && "Are you absolutely sure?"}
+              {deleteConfirmStep === 3 && "Final Confirmation"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              {deleteConfirmStep === 1 && (
+                <>
+                  <p>You are about to delete <strong>{editingPlayer?.name}</strong>.</p>
+                  <p>This will remove all their data including:</p>
+                  <ul className="list-disc list-inside text-sm mt-2">
+                    <li>Performance reports and analyses</li>
+                    <li>Programs and test results</li>
+                    <li>Invoices and payments</li>
+                    <li>All player data</li>
+                  </ul>
+                </>
+              )}
+              {deleteConfirmStep === 2 && (
+                <>
+                  <p className="font-semibold">This action cannot be undone.</p>
+                  <p>All data associated with <strong>{editingPlayer?.name}</strong> will be permanently deleted from the database.</p>
+                </>
+              )}
+              {deleteConfirmStep === 3 && (
+                <>
+                  <p className="text-destructive font-bold">Last chance to cancel!</p>
+                  <p>Click "Delete Forever" to permanently remove <strong>{editingPlayer?.name}</strong> and all their associated data.</p>
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteConfirmStep(1)}>Cancel</AlertDialogCancel>
+            {deleteConfirmStep < 3 ? (
+              <Button 
+                variant="destructive"
+                onClick={() => setDeleteConfirmStep((prev) => (prev + 1) as 1 | 2 | 3)}
+              >
+                {deleteConfirmStep === 1 ? "Yes, Continue" : "I Understand, Continue"}
+              </Button>
+            ) : (
+              <Button 
+                variant="destructive"
+                onClick={handleDeletePlayer}
+                disabled={deletingPlayer}
+              >
+                {deletingPlayer ? "Deleting..." : "Delete Forever"}
+              </Button>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={isAssignAnalysisDialogOpen} onOpenChange={setIsAssignAnalysisDialogOpen}>
         <DialogContent className="max-w-2xl">
