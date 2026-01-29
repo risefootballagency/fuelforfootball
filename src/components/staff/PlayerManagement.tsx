@@ -3333,6 +3333,25 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                     />
                     <Label htmlFor="visible_on_stars_page" className="text-sm cursor-pointer">Visible on Stars Page</Label>
                   </div>
+
+                  {/* Active Client Toggle - only show for Fuel For Football category */}
+                  {formData.category === 'Fuel For Football' && (
+                    <div className="flex items-center gap-3 pt-2 border-t border-border/50 mt-2">
+                      <input
+                        type="checkbox"
+                        id="is_active_client"
+                        checked={formData.is_active_client}
+                        onChange={(e) => setFormData({ ...formData, is_active_client: e.target.checked })}
+                        className="h-5 w-5 sm:h-4 sm:w-4"
+                      />
+                      <Label htmlFor="is_active_client" className="text-sm cursor-pointer">
+                        Active Client
+                        <span className="text-xs text-muted-foreground ml-2">
+                          (Inactive clients appear faded)
+                        </span>
+                      </Label>
+                    </div>
+                  )}
                 </TabsContent>
 
                 {/* Career Info Tab */}
