@@ -452,7 +452,7 @@ const About = () => {
           <div className="mt-16 md:mt-24">
             <div className="container mx-auto px-4 mb-6">
               <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider">
-                Players Who Took Action.
+                Fuelling The Best.
               </h3>
             </div>
             <div className="overflow-hidden">

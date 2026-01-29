@@ -106,17 +106,17 @@ export const VideoHeroBanner = ({ videoSrc, title = "FUEL FOR FOOTBALL" }: Video
             {title}
           </h1>
           <div className="mt-2 md:mt-4 flex items-center justify-center gap-3 md:gap-4">
-            <div className="w-12 md:w-24 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
-            <span className="text-primary text-xs md:text-sm font-bebas tracking-[0.4em] uppercase">Performance</span>
-            <div className="w-12 md:w-24 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <div className="w-12 md:w-24 h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
+            <span className="text-accent text-xs md:text-sm font-bebas tracking-[0.4em] uppercase">Performance</span>
+            <div className="w-12 md:w-24 h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
           </div>
         </div>
       </div>
       
       {/* Bottom Timecode */}
       <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2">
-        <span className="text-white/60 text-xs md:text-sm font-mono tracking-wider">
-          00:00:00:00
+        <span className="text-accent text-xs md:text-sm font-bebas tracking-[0.4em] uppercase">
+          CHANGE THE GAME
         </span>
       </div>
     </section>
