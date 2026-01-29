@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Copy, Link, FileText, TrendingUp, Eye, Trash2, Check, Clock, X } from "lucide-react";
+import { Plus, Copy, Link, FileText, TrendingUp, Eye, Trash2, Check, Clock, X, CreditCard, CalendarDays, Repeat } from "lucide-react";
 
 interface PayLink {
   id: string;
@@ -21,6 +21,14 @@ interface PayLink {
   status: string;
   created_at: string;
   expires_at: string | null;
+  payment_type?: string;
+  installment_count?: number;
+  recurring_interval?: string;
+  product_id?: string;
+  customer_name?: string;
+  customer_email?: string;
+  invoice_notes?: string;
+  stripe_payment_link_url?: string;
 }
 
 interface Sale {
@@ -38,6 +46,13 @@ interface Sale {
   completed_at: string | null;
 }
 
+interface ServiceProduct {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+}
+
 interface SalesManagementProps {
   isAdmin: boolean;
 }
@@ -45,6 +60,7 @@ interface SalesManagementProps {
 export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
   const [payLinks, setPayLinks] = useState<PayLink[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
+  const [products, setProducts] = useState<ServiceProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [payLinkDialogOpen, setPayLinkDialogOpen] = useState(false);
   const [saleDialogOpen, setSaleDialogOpen] = useState(false);
@@ -54,6 +70,13 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
     amount: "",
     currency: "GBP",
     description: "",
+    payment_type: "one_off" as "one_off" | "subscription" | "installments",
+    installment_count: "",
+    recurring_interval: "month",
+    product_id: "",
+    customer_name: "",
+    customer_email: "",
+    invoice_notes: "",
   });
 
   const [saleForm, setSaleForm] = useState({
@@ -71,8 +94,21 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
 
   const fetchData = async () => {
     setLoading(true);
-    await Promise.all([fetchPayLinks(), fetchSales()]);
+    await Promise.all([fetchPayLinks(), fetchSales(), fetchProducts()]);
     setLoading(false);
+  };
+
+  const fetchProducts = async () => {
+    const { data, error } = await supabase
+      .from("service_catalog")
+      .select("id, name, price, category")
+      .order("name");
+    
+    if (error) {
+      console.error("Error fetching products:", error);
+      return;
+    }
+    setProducts(data || []);
   };
 
   const fetchPayLinks = async () => {
@@ -123,7 +159,19 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
 
     toast.success("Pay link created!");
     setPayLinkDialogOpen(false);
-    setPayLinkForm({ title: "", amount: "", currency: "GBP", description: "" });
+    setPayLinkForm({ 
+      title: "", 
+      amount: "", 
+      currency: "GBP", 
+      description: "",
+      payment_type: "one_off",
+      installment_count: "",
+      recurring_interval: "month",
+      product_id: "",
+      customer_name: "",
+      customer_email: "",
+      invoice_notes: "",
+    });
     fetchPayLinks();
   };
 
@@ -269,7 +317,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
               {isAdmin && (
                 <Dialog open={payLinkDialogOpen} onOpenChange={setPayLinkDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button size="sm" className="bg-light-green text-background hover:bg-light-green/90">
+                    <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
                       <Plus className="w-4 h-4 mr-1" /> Create Pay Link
                     </Button>
                   </DialogTrigger>
@@ -277,7 +325,31 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                     <DialogHeader>
                       <DialogTitle>Create Pay Link</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 mt-4">
+                    <div className="space-y-4 mt-4 max-h-[70vh] overflow-y-auto">
+                      {/* Product Selection */}
+                      <div>
+                        <Label>Link to Product</Label>
+                        <Select value={payLinkForm.product_id} onValueChange={(v) => {
+                          const product = products.find(p => p.id === v);
+                          setPayLinkForm({ 
+                            ...payLinkForm, 
+                            product_id: v,
+                            title: product?.name || payLinkForm.title,
+                            amount: product ? String(product.price) : payLinkForm.amount
+                          });
+                        }}>
+                          <SelectTrigger className="bg-background/50">
+                            <SelectValue placeholder="Select a product (optional)" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">No product</SelectItem>
+                            {products.map(p => (
+                              <SelectItem key={p.id} value={p.id}>{p.name} - £{p.price}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
                       <div>
                         <Label>Title *</Label>
                         <Input
@@ -287,6 +359,68 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                           className="bg-background/50"
                         />
                       </div>
+
+                      {/* Payment Type */}
+                      <div>
+                        <Label>Payment Type</Label>
+                        <div className="grid grid-cols-3 gap-2 mt-1">
+                          <button
+                            type="button"
+                            onClick={() => setPayLinkForm({ ...payLinkForm, payment_type: "one_off" })}
+                            className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${payLinkForm.payment_type === 'one_off' ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'}`}
+                          >
+                            <CreditCard className="w-4 h-4" />
+                            <span className="text-xs">One-Off</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPayLinkForm({ ...payLinkForm, payment_type: "subscription" })}
+                            className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${payLinkForm.payment_type === 'subscription' ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'}`}
+                          >
+                            <Repeat className="w-4 h-4" />
+                            <span className="text-xs">Subscription</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPayLinkForm({ ...payLinkForm, payment_type: "installments" })}
+                            className={`p-2 rounded-lg border-2 flex flex-col items-center gap-1 transition-all ${payLinkForm.payment_type === 'installments' ? 'border-accent bg-accent/10' : 'border-border hover:border-accent/50'}`}
+                          >
+                            <CalendarDays className="w-4 h-4" />
+                            <span className="text-xs">Installments</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Subscription/Installment options */}
+                      {payLinkForm.payment_type === 'subscription' && (
+                        <div>
+                          <Label>Billing Interval</Label>
+                          <Select value={payLinkForm.recurring_interval} onValueChange={(v) => setPayLinkForm({ ...payLinkForm, recurring_interval: v })}>
+                            <SelectTrigger className="bg-background/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="week">Weekly</SelectItem>
+                              <SelectItem value="month">Monthly</SelectItem>
+                              <SelectItem value="year">Yearly</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      {payLinkForm.payment_type === 'installments' && (
+                        <div>
+                          <Label>Number of Installments</Label>
+                          <Input
+                            type="number"
+                            value={payLinkForm.installment_count}
+                            onChange={(e) => setPayLinkForm({ ...payLinkForm, installment_count: e.target.value })}
+                            placeholder="e.g., 3"
+                            className="bg-background/50"
+                          />
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label>Amount *</Label>
@@ -312,16 +446,42 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                           </Select>
                         </div>
                       </div>
+
+                      {/* Customer Details */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Customer Name</Label>
+                          <Input
+                            value={payLinkForm.customer_name}
+                            onChange={(e) => setPayLinkForm({ ...payLinkForm, customer_name: e.target.value })}
+                            placeholder="John Doe"
+                            className="bg-background/50"
+                          />
+                        </div>
+                        <div>
+                          <Label>Customer Email</Label>
+                          <Input
+                            type="email"
+                            value={payLinkForm.customer_email}
+                            onChange={(e) => setPayLinkForm({ ...payLinkForm, customer_email: e.target.value })}
+                            placeholder="john@example.com"
+                            className="bg-background/50"
+                          />
+                        </div>
+                      </div>
+
                       <div>
-                        <Label>Description</Label>
+                        <Label>Description / Invoice Notes</Label>
                         <Textarea
                           value={payLinkForm.description}
                           onChange={(e) => setPayLinkForm({ ...payLinkForm, description: e.target.value })}
-                          placeholder="Optional description..."
+                          placeholder="Details about this payment..."
                           className="bg-background/50"
+                          rows={3}
                         />
                       </div>
-                      <Button onClick={handleCreatePayLink} className="w-full bg-light-green text-background hover:bg-light-green/90">
+
+                      <Button onClick={handleCreatePayLink} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                         Create Pay Link
                       </Button>
                     </div>

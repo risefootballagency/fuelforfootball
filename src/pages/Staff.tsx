@@ -903,9 +903,9 @@ const Staff = () => {
                   className={`group relative w-full rounded-lg flex flex-col items-center justify-center py-2 md:py-3 px-1 md:px-2 transition-all ${
                     category.locked 
                       ? 'opacity-50 cursor-not-allowed hover:bg-muted/30' 
-                      : 'hover:bg-primary/20'
+                      : 'hover:bg-accent/20'
                   } ${
-                    hasActiveSection || isExpanded ? 'bg-gradient-to-br from-primary via-primary to-primary-glow shadow-lg' : ''
+                    hasActiveSection || isExpanded ? 'bg-accent shadow-lg' : ''
                   }`}
                 >
                   <CategoryIcon className={`w-5 h-5 md:w-6 md:h-6 mb-0.5 md:mb-1 ${hasActiveSection || isExpanded ? 'text-primary-foreground' : ''}`} />
@@ -932,8 +932,8 @@ const Staff = () => {
                           onClick={() => handleSectionToggle(section.id as any)}
                           className={`group relative w-full rounded-lg flex flex-col items-center justify-center py-1.5 md:py-2 px-1 transition-all ${
                             isActive 
-                              ? 'bg-primary text-primary-foreground shadow-md' 
-                              : 'hover:bg-primary/10'
+                              ? 'bg-accent text-accent-foreground shadow-md' 
+                              : 'hover:bg-accent/10'
                           }`}
                         >
                           <SectionIcon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 md:mb-1 ${isActive ? 'text-primary-foreground' : ''}`} />
