@@ -29,10 +29,13 @@ export const HeroSlider = ({ slides, autoplayDelay = 5000 }: HeroSliderProps) =>
   useEffect(() => {
     if (!emblaApi) return;
     
+    const autoplay = emblaApi.plugins()?.autoplay;
+    if (!autoplay) return;
+    
     if (isPaused) {
-      autoplayPlugin.stop();
+      autoplay.stop();
     } else {
-      autoplayPlugin.play();
+      autoplay.play();
     }
   }, [isPaused, emblaApi]);
 
