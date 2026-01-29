@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
+// Using local database for Daily Fuel content - isolated from shared database
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

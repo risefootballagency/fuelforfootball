@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
+// Using local database for Daily Fuel content
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getLocalizedPath } from "@/lib/localizedRoutes";
 import { Badge } from "@/components/ui/badge";
