@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Plus, Edit, Trash2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Database, Search, Calendar, Clock, Dumbbell, Brain, Target, BookOpen, Quote, LineChart, Settings, Upload } from "lucide-react";
+import { Plus, Edit, Trash2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Database, Search, Calendar, Clock, Dumbbell, Brain, Target, BookOpen, Quote, LineChart, Settings, Upload, Download, Eye, FolderOpen, Folder } from "lucide-react";
 import { ExerciseDatabaseSelector } from "./ExerciseDatabaseSelector";
 import { R90RatingsManagement } from "./R90RatingsManagement";
 import { TacticalSchemes } from "./TacticalSchemes";
@@ -65,6 +65,9 @@ interface CoachingItem {
   stat_name?: string;
   stat_key?: string;
   positions?: string[];
+  // Analysis folder and attachments
+  folder?: string | null;
+  attachments?: { url: string; name: string; type?: string }[] | null;
 }
 
 const tableConfigs = {
@@ -209,6 +212,7 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
     stat_name: '',
     stat_key: '',
     positions: [] as string[],
+    folder: '',
   });
   
   // Pagination and filtering
@@ -226,6 +230,8 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
   const [isImporting, setIsImporting] = useState(false);
   const [isR90ManagementOpen, setIsR90ManagementOpen] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, { status: 'uploading' | 'processing' | 'success' | 'error', progress: number, added?: number, error?: string }>>({});
+  const [selectedFolder, setSelectedFolder] = useState<string>('all');
+  const [folders, setFolders] = useState<string[]>([]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -240,11 +246,34 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
   useEffect(() => {
     setCurrentPage(1);
     fetchItems();
-  }, [selectedCategory, selectedMuscleGroup, selectedPosition, selectedSkill, programmeSubTab]);
+  }, [selectedCategory, selectedMuscleGroup, selectedPosition, selectedSkill, programmeSubTab, selectedFolder]);
 
   useEffect(() => {
     fetchItems();
   }, [currentPage]);
+
+  // Fetch folders for analysis
+  useEffect(() => {
+    if (activeTab === 'coaching_analysis') {
+      fetchFolders();
+    }
+  }, [activeTab]);
+
+  const fetchFolders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('coaching_analysis')
+        .select('folder')
+        .not('folder', 'is', null);
+      
+      if (error) throw error;
+      
+      const uniqueFolders = [...new Set((data || []).map(d => d.folder).filter(Boolean))] as string[];
+      setFolders(uniqueFolders.sort());
+    } catch (error) {
+      console.error('Error fetching folders:', error);
+    }
+  };
 
   const fetchCategories = async () => {
     // Skip for aphorisms, tactical schemes, performance statistics, scheme view, and positional guides as they don't have category/tags
@@ -352,6 +381,10 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
         }
       } else if (activeTab === 'coaching_analysis') {
         query = query.or('analysis_type.is.null,analysis_type.neq.concept');
+        // Filter by folder if selected
+        if (selectedFolder !== 'all') {
+          query = query.eq('folder', selectedFolder);
+        }
       } else if (activeTab === 'coaching_concepts') {
         query = query.eq('analysis_type', 'concept');
       }
@@ -696,6 +729,16 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
         if (formData.content) dataToSubmit.content = formData.content;
         if (formData.category) dataToSubmit.category = formData.category;
         dataToSubmit.analysis_type = 'concept';
+      } else if (activeTab === 'coaching_analysis') {
+        // For analysis, include folder
+        dataToSubmit.title = formData.title;
+        if (formData.description) dataToSubmit.description = formData.description;
+        if (formData.content) dataToSubmit.content = formData.content;
+        if (formData.category) dataToSubmit.category = formData.category;
+        if (formData.analysis_type) dataToSubmit.analysis_type = formData.analysis_type;
+        if (formData.folder) dataToSubmit.folder = formData.folder;
+        if (formData.tags) dataToSubmit.tags = formData.tags;
+        if (formData.attachments) dataToSubmit.attachments = formData.attachments;
       } else {
         // For other tables, include all fields
         Object.assign(dataToSubmit, formData);
@@ -734,10 +777,15 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
         stat_name: '',
         stat_key: '',
         positions: [],
+        folder: '',
       });
       setEditingItem(null);
       setIsDialogOpen(false);
       fetchItems();
+      // Refresh folders list if we're on analysis
+      if (activeTab === 'coaching_analysis') {
+        fetchFolders();
+      }
     } catch (error: any) {
       toast.error('Failed to save item: ' + error.message);
     } finally {
@@ -807,6 +855,7 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
       stat_name: item.stat_name || '',
       stat_key: item.stat_key || '',
       positions: item.positions || [],
+      folder: item.folder || '',
     });
     setIsDialogOpen(true);
   };
@@ -1139,6 +1188,79 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
                             </div>
                           </div>
                         </>
+                      ) : activeTab === 'coaching_analysis' ? (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="title">Title *</Label>
+                            <Input
+                              id="title"
+                              value={formData.title}
+                              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                              placeholder="Analysis title"
+                              required
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="category">Category</Label>
+                              <Input
+                                id="category"
+                                value={formData.category}
+                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                placeholder="e.g., PDF Document, Tactical"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="folder" className="flex items-center gap-2">
+                                <FolderOpen className="w-4 h-4" />
+                                Folder
+                              </Label>
+                              <div className="flex gap-2">
+                                <Input
+                                  id="folder"
+                                  value={formData.folder}
+                                  onChange={(e) => setFormData({ ...formData, folder: e.target.value })}
+                                  placeholder="Enter or select folder"
+                                  list="folder-options"
+                                />
+                                <datalist id="folder-options">
+                                  {folders.map(f => (
+                                    <option key={f} value={f} />
+                                  ))}
+                                </datalist>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
+                              id="description"
+                              value={formData.description}
+                              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                              placeholder="Brief description"
+                              rows={2}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="content">Content / URL</Label>
+                            <Textarea
+                              id="content"
+                              value={formData.content}
+                              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                              placeholder="Content or file URL..."
+                              rows={4}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="analysis_type">Analysis Type</Label>
+                            <Input
+                              id="analysis_type"
+                              value={formData.analysis_type}
+                              onChange={(e) => setFormData({ ...formData, analysis_type: e.target.value })}
+                              placeholder="e.g., pre-match, post-match"
+                            />
+                          </div>
+                        </>
                       ) : activeTab === 'coaching_concepts' ? (
                         <>
                           <div className="space-y-2">
@@ -1279,6 +1401,26 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
                       <SelectItem value="all">All Categories</SelectItem>
                       {categories.map((cat) => (
                         <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                {activeTab === 'coaching_analysis' && folders.length > 0 && (
+                  <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+                    <SelectTrigger className="w-full sm:w-48">
+                      <Folder className="w-4 h-4 mr-2" />
+                      <SelectValue placeholder="All Folders" />
+                    </SelectTrigger>
+                    <SelectContent className="z-50">
+                      <SelectItem value="all">All Folders</SelectItem>
+                      {folders.map((folder) => (
+                        <SelectItem key={folder} value={folder}>
+                          <span className="flex items-center gap-2">
+                            <FolderOpen className="w-3 h-3" />
+                            {folder}
+                          </span>
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -1467,6 +1609,61 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
                                 <MarkdownText text={item.description} />
                               </p>
                             )}
+                            
+                            {/* Folder badge for analysis items */}
+                            {activeTab === 'coaching_analysis' && item.folder && (
+                              <div className="mb-2">
+                                <Badge variant="outline" className="text-xs bg-background/50">
+                                  <FolderOpen className="w-3 h-3 mr-1" />
+                                  {item.folder}
+                                </Badge>
+                              </div>
+                            )}
+                            
+                            {/* Download/View buttons for analysis with attachments */}
+                            {activeTab === 'coaching_analysis' && item.attachments && Array.isArray(item.attachments) && item.attachments.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                {item.attachments.slice(0, 2).map((attachment: any, idx: number) => (
+                                  <div key={idx} className="flex gap-1">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-7 text-xs"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.open(attachment.url, '_blank');
+                                      }}
+                                    >
+                                      <Eye className="w-3 h-3 mr-1" />
+                                      View
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-7 text-xs"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const link = document.createElement('a');
+                                        link.href = attachment.url;
+                                        link.download = attachment.name || 'document';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                      }}
+                                    >
+                                      <Download className="w-3 h-3 mr-1" />
+                                      Download
+                                    </Button>
+                                  </div>
+                                ))}
+                                {item.attachments.length > 2 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    +{item.attachments.length - 2} more
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+                            
                             <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                               {item.duration && (
                                 <div className="flex items-center gap-1">

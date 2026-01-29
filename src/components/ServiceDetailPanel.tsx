@@ -20,7 +20,8 @@ interface ServiceDetailPanelProps<T extends { id: string; name: string; category
   onNavigate?: (service: T) => void;
 }
 
-const DESCRIPTION_CHAR_LIMIT = 150;
+const DESCRIPTION_CHAR_LIMIT_MOBILE = 150;
+const DESCRIPTION_CHAR_LIMIT_DESKTOP = 280;
 
 export const ServiceDetailPanel = <T extends { id: string; name: string; category: string; price: number; image_url: string | null; description: string | null; badge: string | null; options?: unknown }>({ 
   service, 
@@ -140,10 +141,11 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
     return html?.replace(/<[^>]*>/g, '') || '';
   };
 
-  const getDescriptionPreview = (desc: string) => {
+  const getDescriptionPreview = (desc: string, isMobile: boolean = false) => {
     const stripped = stripHtml(desc);
-    if (stripped.length <= DESCRIPTION_CHAR_LIMIT) return { text: stripped, hasMore: false };
-    return { text: stripped.slice(0, DESCRIPTION_CHAR_LIMIT) + '...', hasMore: true };
+    const limit = isMobile ? DESCRIPTION_CHAR_LIMIT_MOBILE : DESCRIPTION_CHAR_LIMIT_DESKTOP;
+    if (stripped.length <= limit) return { text: stripped, hasMore: false };
+    return { text: stripped.slice(0, limit) + '...', hasMore: true };
   };
 
   const displayedServices = selectedCategory 
@@ -303,7 +305,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   {service.description && (
                     <div className="flex-1 mb-4">
                       {(() => {
-                        const { text, hasMore } = getDescriptionPreview(service.description);
+                        const { text, hasMore } = getDescriptionPreview(service.description, false);
                         return (
                           <>
                             <p className="text-foreground/90 leading-relaxed text-sm">
@@ -385,7 +387,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   {service.description && (
                     <div className="mb-6">
                       {(() => {
-                        const { text, hasMore } = getDescriptionPreview(service.description);
+                        const { text, hasMore } = getDescriptionPreview(service.description, true);
                         return (
                           <>
                             <p className="text-foreground leading-relaxed text-base">
