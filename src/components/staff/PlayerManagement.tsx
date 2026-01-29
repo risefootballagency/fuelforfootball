@@ -1181,9 +1181,27 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   
   const selectedPlayerSeasonStats = selectedPlayer ? getSeasonStats(selectedPlayer) : null;
 
+  // Helper to check if player is active client (from bio JSON)
+  const isPlayerActiveClient = (player: Player): boolean => {
+    if (!player.bio) return true; // Default to active if no bio
+    try {
+      const bioData = typeof player.bio === 'string' ? JSON.parse(player.bio) : player.bio;
+      return bioData.is_active_client !== false; // Default to true if not set
+    } catch {
+      return true;
+    }
+  };
+
   // Group players by representation status in order: Fuel For Football first, then represented, mandated, other
+  // Sort Fuel For Football players: active first, then inactive
+  const fuelForFootballPlayersUnsorted = players.filter(p => p.category === 'Fuel For Football');
+  const fuelForFootballPlayersSorted = [
+    ...fuelForFootballPlayersUnsorted.filter(p => isPlayerActiveClient(p)),
+    ...fuelForFootballPlayersUnsorted.filter(p => !isPlayerActiveClient(p))
+  ];
+  
   const groupedPlayers = {
-    fuelForFootball: players.filter(p => p.category === 'Fuel For Football'),
+    fuelForFootball: fuelForFootballPlayersSorted,
     represented: players.filter(p => p.representation_status === 'represented' && p.category !== 'Fuel For Football'),
     mandated: players.filter(p => p.representation_status === 'mandated' && p.category !== 'Fuel For Football'),
     other: players.filter(p => (p.representation_status === 'other' || !p.representation_status) && p.category !== 'Fuel For Football' && p.category !== 'Scouted'),
