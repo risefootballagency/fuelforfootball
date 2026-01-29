@@ -559,6 +559,7 @@ export type Database = {
           content: string | null
           created_at: string
           description: string | null
+          folder: string | null
           id: string
           tags: string[] | null
           title: string
@@ -571,6 +572,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           description?: string | null
+          folder?: string | null
           id?: string
           tags?: string[] | null
           title: string
@@ -583,6 +585,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           description?: string | null
+          folder?: string | null
           id?: string
           tags?: string[] | null
           title?: string
