@@ -22,6 +22,34 @@ import { BRAND_CONTENT } from "@/data/brandContent";
 import { GrassBackground, SmokyBackground, GRASS_BACKGROUNDS } from "@/components/GrassBackground";
 import { HoverText } from "@/components/HoverText";
 
+// New slide content based on marketing messaging
+const HERO_SLIDE_CONTENT = [
+  {
+    title: "BY YOUR SIDE THROUGHOUT YOUR CAREER",
+    subtitle: "Our performance team stays with you, providing unwavering support even through transfers and relocations. No matter where your career takes you, we ensure you have the same dedicated team behind you, committed to your success."
+  },
+  {
+    title: "LONG-TERM SOLUTIONS",
+    subtitle: "Our work centres around career goals and where our clients aim to reach. Through our expertise, we transform strengths into specialities and eliminate weaknesses, such that it is possible to level up to compete in the highest echelons of the game."
+  },
+  {
+    title: "INDIVIDUALISED TRAINING",
+    subtitle: "Considering the varying physiology of each professional player, in order for real progression and elite performance to be achieved, this attention to detail is a must-have. Fuel For Football provides this much-needed service."
+  },
+  {
+    title: "24/7 SUPPORT EVERY DAY ALL YEAR",
+    subtitle: "At the highest level, every action matters. We support our players 24/7, because the day is not done when leaving the training ground. Our team is always available to provide guidance, helping our players gain every possible advantage."
+  },
+  {
+    title: "STRONGER FASTER FITTER",
+    subtitle: "Our strong client base includes players from the English Premier League and many across Europe's top divisions, who have rocketed into prominence through our extensive training, analysis and recovery protocol."
+  },
+  {
+    title: "WORKING HARD TO BETTER THE BEST",
+    subtitle: "8 National Team Players. 18 'Big 5' League Players. 74 Professional Players. Our strong client base has rocketed into prominence through our extensive training, analysis and recovery protocol."
+  }
+];
+
 // Dynamic Hero Slider that fetches images from landing folder
 const DynamicHeroSlider = () => {
   const [slides, setSlides] = useState<{ image: string; title: string; subtitle?: string }[]>([]);
@@ -33,38 +61,27 @@ const DynamicHeroSlider = () => {
         .select('file_url, title')
         .eq('folder', 'landing')
         .not('file_url', 'is', null)
-        .limit(5);
+        .limit(6);
 
       if (data && data.length > 0) {
+        // Map images to slide content, cycling through content if needed
         const dynamicSlides = data.map((item, index) => ({
           image: item.file_url,
-          title: index === 0 ? "Change The Game" : index === 1 ? "Tactical Excellence" : "Physical Dominance",
-          subtitle: index === 0 
-            ? "Football's leading performance consultancy, focusing on player development and performance."
-            : index === 1 
-              ? "Read several passes ahead of play to consistently gain the advantage over your matchups."
-              : "Become stronger, faster and more powerful to dominate on the pitch."
+          title: HERO_SLIDE_CONTENT[index % HERO_SLIDE_CONTENT.length].title,
+          subtitle: HERO_SLIDE_CONTENT[index % HERO_SLIDE_CONTENT.length].subtitle
         }));
         setSlides(dynamicSlides);
       } else {
-        // Fallback slides
-        setSlides([
-          {
-            image: "https://static.wixstatic.com/media/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg",
-            title: "Change The Game",
-            subtitle: "Football's leading performance consultancy, focusing on player development and performance."
-          },
-          {
-            image: "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg",
-            title: "Tactical Excellence",
-            subtitle: "Read several passes ahead of play to consistently gain the advantage over your matchups."
-          },
-          {
-            image: "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg",
-            title: "Physical Dominance",
-            subtitle: "Become stronger, faster and more powerful to dominate on the pitch."
-          }
-        ]);
+        // Fallback slides with placeholder images
+        setSlides(HERO_SLIDE_CONTENT.slice(0, 3).map((content, index) => ({
+          image: index === 0 
+            ? "https://static.wixstatic.com/media/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg"
+            : index === 1
+              ? "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg"
+              : "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg",
+          title: content.title,
+          subtitle: content.subtitle
+        })));
       }
     };
 
