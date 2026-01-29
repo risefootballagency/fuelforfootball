@@ -3864,6 +3864,57 @@ export type Database = {
           },
         ]
       }
+      shop_products: {
+        Row: {
+          badge: string | null
+          category: string
+          created_at: string
+          description: string | null
+          display_order: number
+          file_url: string | null
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          product_type: string
+          ribbon: string | null
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          badge?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          file_url?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          price?: number
+          product_type?: string
+          ribbon?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          badge?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          file_url?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          product_type?: string
+          ribbon?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       signature_contracts: {
         Row: {
           completed_pdf_url: string | null
@@ -4431,6 +4482,44 @@ export type Database = {
           visible_to_player_ids?: string[] | null
         }
         Relationships: []
+      }
+      user_purchases: {
+        Row: {
+          created_at: string
+          id: string
+          payment_status: string
+          product_id: string | null
+          purchase_date: string
+          stripe_payment_id: string | null
+          user_email: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payment_status?: string
+          product_id?: string | null
+          purchase_date?: string
+          stripe_payment_id?: string | null
+          user_email: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payment_status?: string
+          product_id?: string | null
+          purchase_date?: string
+          stripe_payment_id?: string | null
+          user_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

@@ -321,7 +321,7 @@ export const StaffSchedule = ({ isAdmin }: { isAdmin: boolean }) => {
             <div 
               className={`${isMobile ? 'p-1.5' : 'p-3'} text-center font-bebas uppercase ${isMobile ? 'text-[10px]' : 'text-sm'} rounded-lg`}
               style={{ 
-                backgroundColor: 'hsl(43, 49%, 61%)',
+                backgroundColor: 'hsl(47, 100%, 51%)',
                 color: 'hsl(0, 0%, 0%)'
               }}
             >
@@ -332,7 +332,7 @@ export const StaffSchedule = ({ isAdmin }: { isAdmin: boolean }) => {
                 key={day}
                 className={`${isMobile ? 'p-1.5' : 'p-3'} text-center font-bebas uppercase ${isMobile ? 'text-[10px]' : 'text-sm'} rounded-lg`}
                 style={{ 
-                  backgroundColor: 'hsl(43, 49%, 61%)',
+                  backgroundColor: 'hsl(47, 100%, 51%)',
                   color: 'hsl(0, 0%, 0%)'
                 }}
               >
@@ -353,7 +353,7 @@ export const StaffSchedule = ({ isAdmin }: { isAdmin: boolean }) => {
                 <div 
                   className={`${isMobile ? 'p-1.5' : 'p-3'} rounded-lg flex flex-col items-center justify-center border`}
                   style={{ 
-                    backgroundColor: isMobile ? 'hsl(43, 49%, 61%)' : isCurrentWeek(weekStart) ? 'hsl(43, 49%, 61%)' : 'hsl(0, 0%, 95%)',
+                    backgroundColor: isMobile ? 'hsl(47, 100%, 51%)' : isCurrentWeek(weekStart) ? 'hsl(47, 100%, 51%)' : 'hsl(0, 0%, 95%)',
                     color: 'hsl(0, 0%, 0%)',
                     borderColor: 'rgba(0, 0, 0, 0.1)'
                   }}
@@ -420,7 +420,7 @@ export const StaffSchedule = ({ isAdmin }: { isAdmin: boolean }) => {
                                 key={`end-${idx}`}
                                 className={`${isMobile ? 'text-[10px] p-1' : 'text-xs p-1'} rounded`}
                                 style={{ 
-                                  backgroundColor: 'hsl(43, 49%, 61%)',
+                                  backgroundColor: 'hsl(47, 100%, 51%)',
                                   color: 'hsl(0, 0%, 0%)'
                                 }}
                                 title={`${item.data.playerName} - ${item.data.programName}${item.data.phaseName ? ` (${item.data.phaseName})` : ''}`}
