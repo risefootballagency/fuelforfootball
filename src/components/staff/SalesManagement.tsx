@@ -329,11 +329,12 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                       {/* Product Selection */}
                       <div>
                         <Label>Link to Product</Label>
-                        <Select value={payLinkForm.product_id} onValueChange={(v) => {
-                          const product = products.find(p => p.id === v);
+                        <Select value={payLinkForm.product_id || "none"} onValueChange={(v) => {
+                          const productId = v === "none" ? "" : v;
+                          const product = products.find(p => p.id === productId);
                           setPayLinkForm({ 
                             ...payLinkForm, 
-                            product_id: v,
+                            product_id: productId,
                             title: product?.name || payLinkForm.title,
                             amount: product ? String(product.price) : payLinkForm.amount
                           });
@@ -342,7 +343,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                             <SelectValue placeholder="Select a product (optional)" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">No product</SelectItem>
+                            <SelectItem value="none">No product</SelectItem>
                             {products.map(p => (
                               <SelectItem key={p.id} value={p.id}>{p.name} - £{p.price}</SelectItem>
                             ))}
