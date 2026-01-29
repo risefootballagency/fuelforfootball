@@ -116,6 +116,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     category: "",
     representation_status: "",
     visible_on_stars_page: false,
+    is_active_client: true, // New field for active/inactive client status
     image_url: "",
     hover_image_url: "",
     
@@ -591,6 +592,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       whatsapp: formData.whatsapp || undefined,
       currentClub: formData.club || undefined,
       currentClubLogo: formData.club_logo || undefined,
+      is_active_client: formData.is_active_client, // Store active/inactive status
     };
 
     if (formData.externalLinks.length > 0) {
@@ -652,6 +654,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       category: player.category || "",
       representation_status: player.representation_status || "",
       visible_on_stars_page: player.visible_on_stars_page || false,
+      is_active_client: bioData?.is_active_client !== false, // Default to true if not set
       image_url: player.image_url || "",
       hover_image_url: player.hover_image_url || "",
       
@@ -1178,9 +1181,27 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   
   const selectedPlayerSeasonStats = selectedPlayer ? getSeasonStats(selectedPlayer) : null;
 
+  // Helper to check if player is active client (from bio JSON)
+  const isPlayerActiveClient = (player: Player): boolean => {
+    if (!player.bio) return true; // Default to active if no bio
+    try {
+      const bioData = typeof player.bio === 'string' ? JSON.parse(player.bio) : player.bio;
+      return bioData.is_active_client !== false; // Default to true if not set
+    } catch {
+      return true;
+    }
+  };
+
   // Group players by representation status in order: Fuel For Football first, then represented, mandated, other
+  // Sort Fuel For Football players: active first, then inactive
+  const fuelForFootballPlayersUnsorted = players.filter(p => p.category === 'Fuel For Football');
+  const fuelForFootballPlayersSorted = [
+    ...fuelForFootballPlayersUnsorted.filter(p => isPlayerActiveClient(p)),
+    ...fuelForFootballPlayersUnsorted.filter(p => !isPlayerActiveClient(p))
+  ];
+  
   const groupedPlayers = {
-    fuelForFootball: players.filter(p => p.category === 'Fuel For Football'),
+    fuelForFootball: fuelForFootballPlayersSorted,
     represented: players.filter(p => p.representation_status === 'represented' && p.category !== 'Fuel For Football'),
     mandated: players.filter(p => p.representation_status === 'mandated' && p.category !== 'Fuel For Football'),
     other: players.filter(p => (p.representation_status === 'other' || !p.representation_status) && p.category !== 'Fuel For Football' && p.category !== 'Scouted'),
@@ -1393,6 +1414,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                   category: "Scouted",
                   representation_status: "other",
                   visible_on_stars_page: false,
+                  is_active_client: true,
                   image_url: "",
                   hover_image_url: "",
                   club: "",
@@ -1430,10 +1452,11 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-2 md:gap-4">
                     {fuelForFootballPlayers.map((player) => {
                       const playerStats = stats[player.id];
+                      const isActive = isPlayerActiveClient(player);
                       return (
                         <Card 
                           key={player.id} 
-                          className="cursor-pointer hover:shadow-lg transition-all overflow-hidden"
+                          className={`cursor-pointer hover:shadow-lg transition-all overflow-hidden ${!isActive ? 'opacity-50' : ''}`}
                           onClick={() => handlePlayerSelect(player.id)}
                         >
                           <div className="flex flex-col sm:flex-row h-full">
@@ -3311,6 +3334,25 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                     />
                     <Label htmlFor="visible_on_stars_page" className="text-sm cursor-pointer">Visible on Stars Page</Label>
                   </div>
+
+                  {/* Active Client Toggle - only show for Fuel For Football category */}
+                  {formData.category === 'Fuel For Football' && (
+                    <div className="flex items-center gap-3 pt-2 border-t border-border/50 mt-2">
+                      <input
+                        type="checkbox"
+                        id="is_active_client"
+                        checked={formData.is_active_client}
+                        onChange={(e) => setFormData({ ...formData, is_active_client: e.target.checked })}
+                        className="h-5 w-5 sm:h-4 sm:w-4"
+                      />
+                      <Label htmlFor="is_active_client" className="text-sm cursor-pointer">
+                        Active Client
+                        <span className="text-xs text-muted-foreground ml-2">
+                          (Inactive clients appear faded)
+                        </span>
+                      </Label>
+                    </div>
+                  )}
                 </TabsContent>
 
                 {/* Career Info Tab */}

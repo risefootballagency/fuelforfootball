@@ -16,11 +16,25 @@ interface HeroSliderProps {
 
 export const HeroSlider = ({ slides, autoplayDelay = 5000 }: HeroSliderProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  
+  const autoplayPlugin = Autoplay({ delay: autoplayDelay, stopOnInteraction: false });
   
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, skipSnaps: false, align: "center", containScroll: false },
-    [Autoplay({ delay: autoplayDelay, stopOnInteraction: false })]
+    [autoplayPlugin]
   );
+  
+  // Pause/resume on hover
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    if (isPaused) {
+      autoplayPlugin.stop();
+    } else {
+      autoplayPlugin.play();
+    }
+  }, [isPaused, emblaApi]);
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
@@ -54,7 +68,11 @@ export const HeroSlider = ({ slides, autoplayDelay = 5000 }: HeroSliderProps) =>
   }
 
   return (
-    <section className="relative w-full h-[40vh] md:h-[65vh] overflow-hidden">
+    <section 
+      className="relative w-full h-[40vh] md:h-[65vh] overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       {/* Carousel Container - ensure no partial slides visible */}
       <div ref={emblaRef} className="h-full w-full overflow-hidden">
         <div className="flex h-full touch-pan-y">

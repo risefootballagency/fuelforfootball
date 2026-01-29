@@ -68,7 +68,7 @@ export const CaseStudySlider = () => {
             Success Stories
           </span>
           <h2 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-center text-foreground mb-2">
-            Players Who <span className="text-primary">Took Action</span>
+            Fuelling <span className="text-primary">The Best</span>
           </h2>
           <p className="text-center text-muted-foreground text-xs md:text-sm max-w-xl mx-auto">
             Click on any player to discover their journey with us
