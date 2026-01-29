@@ -1452,10 +1452,11 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-2 md:gap-4">
                     {fuelForFootballPlayers.map((player) => {
                       const playerStats = stats[player.id];
+                      const isActive = isPlayerActiveClient(player);
                       return (
                         <Card 
                           key={player.id} 
-                          className="cursor-pointer hover:shadow-lg transition-all overflow-hidden"
+                          className={`cursor-pointer hover:shadow-lg transition-all overflow-hidden ${!isActive ? 'opacity-50' : ''}`}
                           onClick={() => handlePlayerSelect(player.id)}
                         >
                           <div className="flex flex-col sm:flex-row h-full">
