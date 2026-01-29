@@ -7,14 +7,15 @@ import Coaches from './Coaches';
 import Media from './Media';
 import Business from './Business';
 import Dashboard from './Dashboard';
-import Players from './Players';
+import PlayersIntro from './PlayersIntro';
 import { getSubdomainInfo } from '@/lib/subdomainUtils';
 
 // Map subdomains to their page components
+// Players subdomain should show the intro page first
 const subdomainComponents: Record<string, React.ComponentType> = {
   'portal': Dashboard,
   'scouts': Scouts,
-  'players': Players,
+  'players': PlayersIntro,
   'clubs': Clubs,
   'agents': Agents,
   'coaches': Coaches,
