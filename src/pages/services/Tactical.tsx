@@ -6,8 +6,6 @@ import {
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
-  ServiceCard,
-  ServiceInfoCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
@@ -20,112 +18,264 @@ const Tactical = () => {
     { icon: "https://static.wixstatic.com/media/c4f4b1_41d76a61f7a8411a8c48c65b0b350c64~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Vision%20(1).png", label: "VISION" },
   ];
 
-  const tabContent = [
-    {
-      label: "Overview",
-      content: (
-        <ServiceContentBlock
-          paragraphs={[
-            "Understanding the tactical dimensions of football separates good players from great ones. While physical attributes and technical skills are essential, the ability to read the game, anticipate movements, and make split-second decisions elevates your performance to another level.",
-            "Our tactical training focuses on developing your football intelligence - the ability to see patterns, understand positional responsibilities, and exploit spaces before they even appear. Whether you're looking to master your role within a specific formation or understand how to adapt to different tactical systems, our expert analysts provide the insights you need.",
-            "Through detailed video analysis and personalised coaching sessions, we break down the complexities of modern football tactics into actionable knowledge. You'll learn to anticipate opposition movements, understand when to hold position versus when to break lines, and develop the spatial awareness that defines elite players."
-          ]}
-        />
-      )
-    },
-    {
-      label: "Formation",
-      content: (
-        <ServiceContentBlock
-          paragraphs={[
-            "Understanding your role within different formations is crucial for consistent performance. Whether you're playing in a 4-3-3, 4-4-2, 3-5-2, or any hybrid formation, each system requires specific positioning, movement patterns, and decision-making.",
-            "Our formation-specific training breaks down the responsibilities of every position within each system. You'll learn when to push high, when to drop deep, and how to maintain the team's shape while creating attacking opportunities.",
-            "We analyse how top clubs implement different formations and how individual players adapt their games to thrive within various tactical setups. This knowledge allows you to seamlessly integrate into any system your coach deploys."
-          ]}
-        />
-      )
-    },
-    {
-      label: "Positional",
-      content: (
-        <ServiceContentBlock
-          paragraphs={[
-            "Every position on the pitch has unique demands and requires specific tactical understanding. Our positional guides go beyond generic advice - they're tailored to your specific role and playing style.",
-            "For defenders, we focus on reading attacking patterns, organising the defensive line, and knowing when to step up versus drop off. For midfielders, it's about controlling the tempo, creating triangles, and exploiting spaces between the lines.",
-            "Attackers learn about movement patterns, creating overloads, and making runs that stretch defences. We use examples from the best players in your position to illustrate advanced concepts in an accessible way."
-          ]}
-        />
-      )
-    }
-  ];
-
   return (
     <ServicePageLayout
-      category="TACTICAL"
+      category="ANALYSIS"
       title="SEE THE GAME BEFORE IT HAPPENS"
       heroVideo="/videos/players-hero.mp4"
     >
       <ServicePillars pillars={pillars} />
 
-      {/* In Detail Section */}
+      {/* In Detail Section - Overview */}
       <ServiceSection dark>
         <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
         
-        <div className="max-w-5xl mx-auto">
-          <ServiceDetailTabs tabs={tabContent} />
+        <div className="max-w-5xl mx-auto space-y-6">
+          <ServiceContentBlock
+            paragraphs={[
+              "The difference between a good player and a great player often lies in the depth of their game understanding. With our bespoke analysis services, we help you unlock new layers of your performance and rise above your competition.",
+              "The best athletes in the world invest significant time in performance analysis. It is not solely about enhancing tactical development - it is about uncovering insights into technical, physical, and psychological performance. These insights can transform your decision-making, your positional awareness, and your ability to adapt in real-time to the ever-changing dynamics of a game.",
+              "Our expert analysts employ expert coaching techniques and tools, dissecting your gameplay to provide an in-depth understanding of your strengths and areas to improve. Unlike team analysis, we are able to go deep into detail on your individual role within the team. Likewise, we analyse opponents with a strong understanding of how your abilities intersect with those of the opposition and potential matchups, allowing you to play to your strengths and avoid the potential for mistakes."
+            ]}
+          />
         </div>
       </ServiceSection>
 
-      {/* Key Areas Section */}
+      {/* Pre-Match Opposition Analysis */}
       <ServiceSection>
-        <ServiceSectionTitle>KEY AREAS</ServiceSectionTitle>
+        <ServiceSectionTitle>PRE-MATCH</ServiceSectionTitle>
         
-        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-6">
-          <ServiceInfoCard
-            title="POSITIONAL UNDERSTANDING"
-            content="Master your role within different formations and tactical systems. Understand when to hold your position, when to push forward, and when to cover for teammates."
-            items={["Defensive responsibilities", "Attacking movements", "Transition play", "Set piece positioning"]}
-          />
-          <ServiceInfoCard
-            title="GAME READING"
-            content="Develop the ability to anticipate play before it happens. Learn to recognise patterns, identify opportunities, and make better decisions under pressure."
-            items={["Pattern recognition", "Space identification", "Opposition analysis", "In-game adaptations"]}
-          />
-          <ServiceInfoCard
-            title="FORMATION TACTICS"
-            content="Understand the strengths and weaknesses of different formations and how to maximise your impact within each system."
-            items={["4-3-3 principles", "4-4-2 dynamics", "3-5-2 variations", "Hybrid formations"]}
-          />
-          <ServiceInfoCard
-            title="MATCH PREPARATION"
-            content="Prepare for opponents with detailed pre-match analysis that highlights their weaknesses and gives you the tactical edge."
-            items={["Opposition weaknesses", "Key matchup analysis", "Tactical triggers", "Game plan development"]}
-          />
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 md:gap-14 items-center">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">READ AHEAD OF PLAY MORE EASILY</h3>
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">KNOW YOUR MATCHUP'S WEAKNESSES</h3>
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">FEEL PREPARED GOING INTO ANY GAME</h3>
+            </div>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              Our pre-match opposition analysis provides a competitive edge by examining the opposing team's tactics and formations before an upcoming game. We focus on their defensive and offensive patterns, directly relating to your position and tactics, to enhance your decision-making during the match. By understanding these patterns, you can exploit weaknesses in their play while maximising your existing skills.
+            </p>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              Delivered at the start of the match week, our analysis allows you ample time to absorb and apply the information in your preparation. Unlike club-level analysis, we provide detailed insights tailored to your individual performance. You will gain a thorough understanding of the opposition's schemes, knowing which options are likely to be free at specific times, which improves your decision-making. Additionally, we break down broader patterns of play and how to respond defensively and offensively. Our focus on individual matchups helps you exploit their weaknesses and neutralise their strengths, ensuring a strong personal performance.
+            </p>
+            
+            <div className="pt-2">
+              <p className="text-xs text-muted-foreground mb-2">Example Pre-Match Analysis: Slovakia vs England (30/06/24)</p>
+              <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
+              <LocalizedLink to="/contact">
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">REQUEST A QUOTE</Button>
+              </LocalizedLink>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <img 
+              src="https://static.wixstatic.com/media/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg"
+              alt="Pre-match analysis example"
+              className="rounded-xl w-full shadow-lg"
+            />
+            <img 
+              src="https://static.wixstatic.com/media/c4f4b1_76a25c0356644727afcfbae3da9165df~mv2.png/v1/fill/w_612,h_334,q_90,enc_avif,quality_auto/c4f4b1_76a25c0356644727afcfbae3da9165df~mv2.png"
+              alt="Pre-match analysis example 2"
+              className="rounded-xl w-full shadow-lg"
+            />
+          </div>
         </div>
       </ServiceSection>
 
-      {/* Services Section */}
+      {/* Post-Match Analysis */}
       <ServiceSection dark>
-        <ServiceSectionTitle>TACTICAL SERVICES</ServiceSectionTitle>
+        <ServiceSectionTitle>POST-MATCH</ServiceSectionTitle>
         
-        <div className="max-w-4xl mx-auto grid sm:grid-cols-2 gap-6">
-          <ServiceInfoCard
-            title="Pre-Match Opposition Analysis"
-            content="Detailed breakdown of upcoming opponents, focusing on their patterns of play, weaknesses to exploit, and your specific matchups."
-          />
-          <ServiceInfoCard
-            title="Positional Guide"
-            content="Bespoke analysis pieces using examples from elite players to explain advanced tactical concepts specific to your position."
-          />
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 md:gap-14 items-center">
+          <div className="grid grid-cols-2 gap-4 order-2 lg:order-1">
+            <img 
+              src="https://static.wixstatic.com/media/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg"
+              alt="Post-match analysis example"
+              className="rounded-xl w-full shadow-lg"
+            />
+            <img 
+              src="https://static.wixstatic.com/media/c4f4b1_aabad9361c374361957951326c7b6634~mv2.png/v1/fill/w_591,h_334,q_90,enc_avif,quality_auto/c4f4b1_aabad9361c374361957951326c7b6634~mv2.png"
+              alt="Post-match analysis example 2"
+              className="rounded-xl w-full shadow-lg"
+            />
+          </div>
+          
+          <div className="space-y-6 order-1 lg:order-2">
+            <div className="space-y-3">
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">SEE THE GAME THROUGH EXPERIENCED EYES</h3>
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">THE FASTEST WAY TO IMPROVING IN MATCHES</h3>
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">IT IS NOT WHAT YOU LOOK AT, IT IS WHAT YOU SEE</h3>
+            </div>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              In post-match analysis, we focus on the strengths and areas for improvement, highlighting key moments that illustrate both. We may use statistics and background information to further exemplify these points. The key aim of our analysis, which is unfortunately often overlooked within club analysis, is to offer specific advice around further integrating strengths, and developing the areas for improvement. We take a big step forward on statistical data, by offering coaching expertise to actually turn analysis into a massive tool for your development.
+            </p>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              Post-match analysis is delivered in the days after the game, for the fastest download of information, allowing you to apply improvements into training and then in turn, matches. Each analysis includes an extended PDF as well as annotated video with optional voiceover.
+            </p>
+            
+            <div className="pt-2">
+              <p className="text-xs text-muted-foreground mb-2">Example Post-Match Analysis: Máté Sajbán vs Debrecen (13/08/23)</p>
+              <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
+              <LocalizedLink to="/contact">
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">REQUEST A QUOTE</Button>
+              </LocalizedLink>
+            </div>
+          </div>
         </div>
+      </ServiceSection>
+
+      {/* Positional Guide */}
+      <ServiceSection>
+        <ServiceSectionTitle>POSITIONAL GUIDE</ServiceSectionTitle>
         
-        <div className="max-w-4xl mx-auto mt-8 text-center">
-          <p className="font-bebas text-xl md:text-2xl text-accent mb-4">From £85.00</p>
-          <LocalizedLink to="/analysis">
-            <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">
-              Learn More
-            </Button>
-          </LocalizedLink>
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 md:gap-14 items-center">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">BREAK DOWN ANY CONCEPT AT A HIGHER LEVEL</h3>
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">EASILY ACCESS SOLUTIONS TO THE PROBLEMS YOU FACE</h3>
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">SEE THE GAME DIFFERENTLY</h3>
+            </div>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              A tactical positional guide is a valuable resource for players who want to enhance their performance on the field. It provides detailed information about the player's specific position and formation, enabling them to gain a better understanding of their role and how to optimise their impact. Whether you play as a number 8 in a 4-3-2-1 formation or any other position, a tactical positional guide can help you elevate your game.
+            </p>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              A positional guide is a comprehensive view into the decisions and execution of the best players in any position, formation or team. It is perfect for a player arriving at a new club or with a new manager who wants to understand the way they play at an elite level. It is also great for players who need to develop tactically to recognise the basis for their movements and decisions, on and off the ball. While it covers advanced topics that are typically exclusive to the players of great managers including Marcelo Bielsa or Pep Guardiola, it is written in an easily digestible format using examples and clear explanations to allow for easier learning. There is also plenty of footage and detail for the more visual learners to easily understand.
+            </p>
+            
+            <div className="pt-2">
+              <p className="text-xs text-muted-foreground mb-2">Example Positional Guide: Winger Positioning & Movement</p>
+              <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
+              <LocalizedLink to="/contact">
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">REQUEST A QUOTE</Button>
+              </LocalizedLink>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <img 
+              src="https://static.wixstatic.com/media/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg/v1/fill/w_848,h_334,q_90,enc_avif,quality_auto/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg"
+              alt="Positional guide example"
+              className="rounded-xl w-full shadow-lg"
+            />
+            <img 
+              src="https://static.wixstatic.com/media/c4f4b1_a95a7a590b15494a88dcb0dfe1d6e4b5~mv2.png/v1/fill/w_585,h_334,q_90,enc_avif,quality_auto/c4f4b1_a95a7a590b15494a88dcb0dfe1d6e4b5~mv2.png"
+              alt="Positional guide example 2"
+              className="rounded-xl w-full shadow-lg"
+            />
+          </div>
+        </div>
+      </ServiceSection>
+
+      {/* Player Efficiency Report */}
+      <ServiceSection dark>
+        <ServiceSectionTitle>PLAYER EFFICIENCY REPORT</ServiceSectionTitle>
+        
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 md:gap-14 items-center">
+          <div className="flex justify-center gap-4 order-2 lg:order-1">
+            <img 
+              src="https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_170,h_486,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png"
+              alt="Player efficiency report page 1"
+              className="rounded-xl max-h-[350px] object-contain shadow-lg"
+            />
+            <img 
+              src="https://static.wixstatic.com/media/c4f4b1_6133d8c4af914df7b79d69bb05196698~mv2.png/v1/fill/w_170,h_486,q_90,enc_avif,quality_auto/c4f4b1_6133d8c4af914df7b79d69bb05196698~mv2.png"
+              alt="Player efficiency report page 2"
+              className="rounded-xl max-h-[350px] object-contain shadow-lg"
+            />
+          </div>
+          
+          <div className="space-y-6 order-1 lg:order-2">
+            <div className="space-y-3">
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">EARN NEW CONTRACTS AND CLUB INTEREST</h3>
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">EVALUATE PERFORMANCE MORE OBJECTIVELY</h3>
+              <h3 className="font-bebas text-xl md:text-2xl text-foreground">MEASURE PROGRESS</h3>
+            </div>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              The Player Efficiency Report has its primary objective to provide a comprehensive analysis of the performance statistics that clubs use to evaluate and recruit players. In addition to presenting the data, the report also includes a detailed plan for improving performance, highlighting areas of strength and suggesting pathways for progress.
+            </p>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              Most football clubs are data-driven, recruiting based on statistics. Our Player Efficiency Report offers a comprehensive analysis of your performance, improving on-pitch results in ways that show up on the data sheet, attracting greater interest from teams. It helps you understand how scouts view you and what to improve. This report is invaluable for players seeking transfers or looking to develop their game.
+            </p>
+            
+            <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+              Our Player Efficiency Report is also a data-backed evaluation of a player's current levels of performance as compared to their team, league and impact on games. It allows us to understand how a player is performing against the expectations of a player at their level and other levels. It can be used by players searching for a transfer, as a great piece of evidence of their performance level. It can also be used by players looking to develop their game to a new level who are not sure what they need to work on most as a good way of finding out their strengths and weaknesses.
+            </p>
+            
+            <div className="pt-2">
+              <p className="text-xs text-muted-foreground mb-2">Example Player Efficiency Report: Michael Mulligan (23/24)</p>
+              <p className="font-bebas text-xl text-primary mb-4">From £95.00</p>
+              <LocalizedLink to="/contact">
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">REQUEST A QUOTE</Button>
+              </LocalizedLink>
+            </div>
+          </div>
+        </div>
+      </ServiceSection>
+
+      {/* Detail Tabs */}
+      <ServiceSection>
+        <ServiceSectionTitle>EXPLORE</ServiceSectionTitle>
+        
+        <div className="max-w-5xl mx-auto">
+          <ServiceDetailTabs tabs={[
+            {
+              label: "Pre-Match",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "Our pre-match opposition analysis provides a competitive edge by examining the opposing team's tactics and formations before an upcoming game. We focus on their defensive and offensive patterns, directly relating to your position and tactics, to enhance your decision-making during the match.",
+                    "Delivered at the start of the match week, our analysis allows you ample time to absorb and apply the information in your preparation. Unlike club-level analysis, we provide detailed insights tailored to your individual performance.",
+                    "You will gain a thorough understanding of the opposition's schemes, knowing which options are likely to be free at specific times. Our focus on individual matchups helps you exploit their weaknesses and neutralise their strengths, ensuring a strong personal performance."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Post-Match",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "In post-match analysis, we focus on the strengths and areas for improvement, highlighting key moments that illustrate both. We may use statistics and background information to further exemplify these points.",
+                    "The key aim of our analysis is to offer specific advice around further integrating strengths, and developing the areas for improvement. We take a big step forward on statistical data, by offering coaching expertise to actually turn analysis into a massive tool for your development.",
+                    "Post-match analysis is delivered in the days after the game, for the fastest download of information, allowing you to apply improvements into training and then in turn, matches. Each analysis includes an extended PDF as well as annotated video with optional voiceover."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Positional Guide",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "A tactical positional guide is a valuable resource for players who want to enhance their performance on the field. It provides detailed information about the player's specific position and formation, enabling them to gain a better understanding of their role.",
+                    "It is a comprehensive view into the decisions and execution of the best players in any position, formation or team. Perfect for a player arriving at a new club or with a new manager who wants to understand the way they play at an elite level.",
+                    "While it covers advanced topics that are typically exclusive to the players of great managers including Marcelo Bielsa or Pep Guardiola, it is written in an easily digestible format using examples and clear explanations."
+                  ]}
+                />
+              )
+            },
+            {
+              label: "Efficiency Report",
+              content: (
+                <ServiceContentBlock
+                  paragraphs={[
+                    "The Player Efficiency Report provides a comprehensive analysis of the performance statistics that clubs use to evaluate and recruit players. In addition to presenting the data, the report includes a detailed plan for improving performance.",
+                    "Most football clubs are data-driven, recruiting based on statistics. Our report offers a comprehensive analysis of your performance, improving on-pitch results in ways that show up on the data sheet, attracting greater interest from teams.",
+                    "It can be used by players searching for a transfer, as great evidence of their performance level. It can also be used by players looking to develop their game to a new level who are not sure what they need to work on most."
+                  ]}
+                />
+              )
+            }
+          ]} />
         </div>
       </ServiceSection>
 
