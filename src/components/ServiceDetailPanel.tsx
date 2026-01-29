@@ -299,9 +299,9 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                     </span>
                   </div>
 
-                  {/* Description - truncated with Read More */}
+                  {/* Description - fills available space */}
                   {service.description && (
-                    <div className="mb-4">
+                    <div className="flex-1 mb-4">
                       {(() => {
                         const { text, hasMore } = getDescriptionPreview(service.description);
                         return (
@@ -327,57 +327,38 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                     </div>
                   )}
 
-                  {/* Options */}
-                  {hasOptions && (
-                    <div className="mb-4">
-                      <h3 className="font-bebas uppercase tracking-wider text-sm text-foreground mb-2 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                        Select Your Option
-                      </h3>
-                      <div className="grid gap-2">
-                        {options.map((option, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setSelectedOption(option)}
-                            className={cn(
-                              "w-full p-3 rounded-lg border-2 transition-all text-left group",
-                              selectedOption?.name === option.name
-                                ? "border-accent bg-accent/10 shadow-lg shadow-accent/10"
-                                : "border-border hover:border-primary/50 hover:bg-card"
-                            )}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className={cn(
-                                  "w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors",
-                                  selectedOption?.name === option.name
-                                    ? "border-accent bg-accent"
-                                    : "border-muted-foreground/50"
-                                )}>
-                                  {selectedOption?.name === option.name && (
-                                    <Check className="w-2.5 h-2.5 text-accent-foreground" />
-                                  )}
-                                </div>
-                                <span className="font-medium text-sm text-foreground">{option.name || 'Option'}</span>
-                              </div>
-                              <span className="font-bebas text-lg text-accent">
-                                £{(option.price ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </span>
-                            </div>
-                          </button>
-                        ))}
+                  {/* Options dropdown and Add to Cart - side by side */}
+                  <div className="flex gap-3 items-end">
+                    {hasOptions && (
+                      <div className="flex-1">
+                        <label className="font-bebas uppercase tracking-wider text-xs text-muted-foreground mb-1.5 block">
+                          Select Option
+                        </label>
+                        <select
+                          value={selectedOption?.name || ''}
+                          onChange={(e) => {
+                            const opt = options.find(o => o.name === e.target.value);
+                            setSelectedOption(opt || null);
+                          }}
+                          className="w-full px-3 py-2.5 rounded-lg border-2 border-border bg-card text-foreground font-medium text-sm focus:border-accent focus:outline-none transition-colors"
+                        >
+                          <option value="">Choose an option...</option>
+                          {options.map((option, index) => (
+                            <option key={index} value={option.name}>
+                              {option.name} - £{(option.price ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Add to Cart Button */}
-                  <div className="space-y-2">
                     <Button
                       onClick={handleAddToCart}
                       size="lg"
                       disabled={hasOptions && !selectedOption}
                       className={cn(
-                        "w-full font-bebas uppercase tracking-wider text-lg py-5 rounded-xl transition-all shadow-lg",
+                        "font-bebas uppercase tracking-wider text-base py-2.5 px-6 rounded-lg transition-all shadow-lg",
+                        hasOptions ? "flex-1" : "w-full",
                         added 
                           ? "bg-primary hover:bg-primary/90 text-primary-foreground" 
                           : "bg-accent hover:bg-accent/90 text-accent-foreground hover:shadow-accent/30"
@@ -386,7 +367,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                       {added ? (
                         <>
                           <Check className="w-5 h-5 mr-2" />
-                          Added to Basket
+                          Added
                         </>
                       ) : (
                         <>
@@ -395,12 +376,6 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                         </>
                       )}
                     </Button>
-
-                    {hasOptions && !selectedOption && (
-                      <p className="text-xs text-muted-foreground text-center">
-                        Please select an option above to continue
-                      </p>
-                    )}
                   </div>
                 </div>
 

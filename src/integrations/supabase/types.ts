@@ -1716,9 +1716,16 @@ export type Database = {
           amount: number
           created_at: string
           currency: string
+          customer_email: string | null
+          customer_name: string | null
           description: string | null
           expires_at: string | null
           id: string
+          installment_count: number | null
+          invoice_notes: string | null
+          payment_type: string | null
+          product_id: string | null
+          recurring_interval: string | null
           status: string
           stripe_payment_link_id: string | null
           stripe_payment_link_url: string | null
@@ -1729,9 +1736,16 @@ export type Database = {
           amount: number
           created_at?: string
           currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
           description?: string | null
           expires_at?: string | null
           id?: string
+          installment_count?: number | null
+          invoice_notes?: string | null
+          payment_type?: string | null
+          product_id?: string | null
+          recurring_interval?: string | null
           status?: string
           stripe_payment_link_id?: string | null
           stripe_payment_link_url?: string | null
@@ -1742,16 +1756,31 @@ export type Database = {
           amount?: number
           created_at?: string
           currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
           description?: string | null
           expires_at?: string | null
           id?: string
+          installment_count?: number | null
+          invoice_notes?: string | null
+          payment_type?: string | null
+          product_id?: string | null
+          recurring_interval?: string | null
           status?: string
           stripe_payment_link_id?: string | null
           stripe_payment_link_url?: string | null
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pay_links_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
