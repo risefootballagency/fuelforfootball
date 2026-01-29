@@ -66,6 +66,7 @@ import { AthleteCentre } from "@/components/staff/AthleteCentre";
 import { CoachingAIChat } from "@/components/staff/coaching/CoachingAIChat";
 import { OpenAccessManagement } from "@/components/staff/OpenAccessManagement";
 import { SalesManagement } from "@/components/staff/SalesManagement";
+import { ShopCatalogManagement } from "@/components/staff/ShopCatalogManagement";
 import { ContractSignature } from "@/components/staff/ContractSignature";
 import { VersionManager } from "@/lib/versionManager";
 import { RetentionTracker, SalesTracker, OutreachTracker, SalesHub, TimeManagement } from "@/components/staff/sales";
@@ -117,6 +118,7 @@ import {
   UserRound,
   MessageSquare,
   ShoppingCart,
+  Package,
 } from "lucide-react";
 
 const Staff = () => {
@@ -129,7 +131,7 @@ const Staff = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMarketeer, setIsMarketeer] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'serviceaudit' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'catalogue' | 'jobs' | 'partners' | 'docs' | 'sheets' | 'casestudies' | null>('overview');
+  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'serviceaudit' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'catalogue' | 'shopcatalogue' | 'jobs' | 'partners' | 'docs' | 'sheets' | 'casestudies' | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Enable staff notifications
@@ -632,6 +634,7 @@ const Staff = () => {
       sections: [
         { id: 'sales', title: 'Sales & Pay Links', icon: ShoppingCart },
         { id: 'catalogue', title: 'Service Catalogue', icon: FileText },
+        { id: 'shopcatalogue', title: 'Shop Catalogue', icon: Package },
         { id: 'salestracker', title: 'Sales Tracker', icon: TrendingUp },
         { id: 'retention', title: 'Retention', icon: Users },
         { id: 'outreach', title: 'Outreach', icon: UserCog },
@@ -936,8 +939,8 @@ const Staff = () => {
                               : 'hover:bg-accent/10'
                           }`}
                         >
-                          <SectionIcon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 md:mb-1 ${isActive ? 'text-primary-foreground' : ''}`} />
-                          <span className={`text-[5px] sm:text-[6px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                          <SectionIcon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 md:mb-1 ${isActive ? 'text-[#0a3622]' : ''}`} />
+                          <span className={`text-[5px] sm:text-[6px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${isActive ? 'text-[#0a3622]' : 'text-muted-foreground'}`}>
                             {section.title.split(' ').map((word, i) => (
                               <span key={i} className="block">{word}</span>
                             ))}
@@ -1018,6 +1021,7 @@ const Staff = () => {
                   {expandedSection === 'financialreports' && <FinancialReports isAdmin={isAdmin} />}
                   {expandedSection === 'sales' && <SalesManagement isAdmin={isAdmin} />}
                   {expandedSection === 'catalogue' && <ServiceCatalogManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'shopcatalogue' && <ShopCatalogManagement isAdmin={isAdmin} />}
                   {expandedSection === 'salestracker' && <SalesTracker />}
                   {expandedSection === 'retention' && <RetentionTracker />}
                   {expandedSection === 'outreach' && <OutreachTracker />}
