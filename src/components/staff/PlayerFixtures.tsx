@@ -729,7 +729,7 @@ export const PlayerFixtures = ({ playerId, playerName, onCreateAnalysis, onViewR
       />
       
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
           <DialogHeader className="flex-shrink-0">
             <div className="flex items-center justify-between">
               <DialogTitle>

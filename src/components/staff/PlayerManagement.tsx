@@ -4074,7 +4074,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       </AlertDialog>
 
       <Dialog open={isAssignAnalysisDialogOpen} onOpenChange={setIsAssignAnalysisDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Assign Analysis to Player</DialogTitle>
           </DialogHeader>

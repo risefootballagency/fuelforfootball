@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Copy, Link, FileText, TrendingUp, Eye, Trash2, Check, Clock, X, CreditCard, CalendarDays, Repeat } from "lucide-react";
+import { Plus, Copy, Link, FileText, TrendingUp, Eye, Trash2, Check, Clock, X, CreditCard, CalendarDays, Repeat, Package } from "lucide-react";
 
 interface PayLink {
   id: string;
@@ -29,6 +29,14 @@ interface PayLink {
   customer_email?: string;
   invoice_notes?: string;
   stripe_payment_link_url?: string;
+}
+
+interface PayLinkItem {
+  id?: string;
+  product_id: string | null;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
 }
 
 interface Sale {
@@ -65,15 +73,16 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
   const [payLinkDialogOpen, setPayLinkDialogOpen] = useState(false);
   const [saleDialogOpen, setSaleDialogOpen] = useState(false);
   
+  // Multi-product state
+  const [payLinkItems, setPayLinkItems] = useState<PayLinkItem[]>([]);
+  
   const [payLinkForm, setPayLinkForm] = useState({
     title: "",
-    amount: "",
     currency: "GBP",
     description: "",
     payment_type: "one_off" as "one_off" | "subscription" | "installments",
     installment_count: "",
     recurring_interval: "month",
-    product_id: "",
     customer_name: "",
     customer_email: "",
     invoice_notes: "",
@@ -137,42 +146,105 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
     setSales(data || []);
   };
 
+  const addPayLinkItem = () => {
+    setPayLinkItems([...payLinkItems, { product_id: null, product_name: "", quantity: 1, unit_price: 0 }]);
+  };
+
+  const updatePayLinkItem = (index: number, field: keyof PayLinkItem, value: any) => {
+    const updated = [...payLinkItems];
+    if (field === 'product_id' && value) {
+      const product = products.find(p => p.id === value);
+      if (product) {
+        updated[index] = {
+          ...updated[index],
+          product_id: value,
+          product_name: product.name,
+          unit_price: product.price
+        };
+      }
+    } else {
+      (updated[index] as any)[field] = value;
+    }
+    setPayLinkItems(updated);
+  };
+
+  const removePayLinkItem = (index: number) => {
+    setPayLinkItems(payLinkItems.filter((_, i) => i !== index));
+  };
+
+  const calculateTotal = () => {
+    return payLinkItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+  };
+
   const handleCreatePayLink = async () => {
-    if (!payLinkForm.title || !payLinkForm.amount) {
-      toast.error("Please fill in title and amount");
+    if (!payLinkForm.title) {
+      toast.error("Please fill in a title");
       return;
     }
 
-    const { error } = await supabase.from("pay_links").insert({
+    if (payLinkItems.length === 0) {
+      toast.error("Please add at least one product");
+      return;
+    }
+
+    const totalAmount = calculateTotal();
+
+    // Create pay link
+    const { data: payLinkData, error: payLinkError } = await supabase.from("pay_links").insert({
       title: payLinkForm.title,
-      amount: parseFloat(payLinkForm.amount),
+      amount: totalAmount,
       currency: payLinkForm.currency,
       description: payLinkForm.description || null,
       status: "active",
-    });
+      payment_type: payLinkForm.payment_type,
+      recurring_interval: payLinkForm.payment_type === 'subscription' ? payLinkForm.recurring_interval : null,
+      installment_count: payLinkForm.payment_type === 'installments' && payLinkForm.installment_count ? parseInt(payLinkForm.installment_count) : null,
+      customer_name: payLinkForm.customer_name || null,
+      customer_email: payLinkForm.customer_email || null,
+      invoice_notes: payLinkForm.invoice_notes || null,
+    }).select().single();
 
-    if (error) {
-      console.error("Error creating pay link:", error);
+    if (payLinkError) {
+      console.error("Error creating pay link:", payLinkError);
       toast.error("Failed to create pay link");
       return;
     }
 
+    // Create pay link items
+    const itemsToInsert = payLinkItems.map(item => ({
+      pay_link_id: payLinkData.id,
+      product_id: item.product_id,
+      product_name: item.product_name,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+    }));
+
+    const { error: itemsError } = await supabase.from("pay_link_items").insert(itemsToInsert);
+
+    if (itemsError) {
+      console.error("Error creating pay link items:", itemsError);
+      toast.error("Pay link created but items failed to save");
+    }
+
     toast.success("Pay link created!");
     setPayLinkDialogOpen(false);
+    resetPayLinkForm();
+    fetchPayLinks();
+  };
+
+  const resetPayLinkForm = () => {
     setPayLinkForm({ 
       title: "", 
-      amount: "", 
       currency: "GBP", 
       description: "",
       payment_type: "one_off",
       installment_count: "",
       recurring_interval: "month",
-      product_id: "",
       customer_name: "",
       customer_email: "",
       invoice_notes: "",
     });
-    fetchPayLinks();
+    setPayLinkItems([]);
   };
 
   const handleRecordSale = async () => {
@@ -321,44 +393,35 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                       <Plus className="w-4 h-4 mr-1" /> Create Pay Link
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-card border-border">
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card border-border">
                     <DialogHeader>
                       <DialogTitle>Create Pay Link</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 mt-4 max-h-[70vh] overflow-y-auto">
-                      {/* Product Selection */}
-                      <div>
-                        <Label>Link to Product</Label>
-                        <Select value={payLinkForm.product_id || "none"} onValueChange={(v) => {
-                          const productId = v === "none" ? "" : v;
-                          const product = products.find(p => p.id === productId);
-                          setPayLinkForm({ 
-                            ...payLinkForm, 
-                            product_id: productId,
-                            title: product?.name || payLinkForm.title,
-                            amount: product ? String(product.price) : payLinkForm.amount
-                          });
-                        }}>
-                          <SelectTrigger className="bg-background/50">
-                            <SelectValue placeholder="Select a product (optional)" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">No product</SelectItem>
-                            {products.map(p => (
-                              <SelectItem key={p.id} value={p.id}>{p.name} - £{p.price}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label>Title *</Label>
-                        <Input
-                          value={payLinkForm.title}
-                          onChange={(e) => setPayLinkForm({ ...payLinkForm, title: e.target.value })}
-                          placeholder="e.g., Monthly Subscription"
-                          className="bg-background/50"
-                        />
+                    <div className="space-y-4 mt-4">
+                      {/* Title and Customer Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label>Title *</Label>
+                          <Input
+                            value={payLinkForm.title}
+                            onChange={(e) => setPayLinkForm({ ...payLinkForm, title: e.target.value })}
+                            placeholder="e.g., Monthly Package - John Smith"
+                            className="bg-background/50"
+                          />
+                        </div>
+                        <div>
+                          <Label>Currency</Label>
+                          <Select value={payLinkForm.currency} onValueChange={(v) => setPayLinkForm({ ...payLinkForm, currency: v })}>
+                            <SelectTrigger className="bg-background/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="GBP">GBP (£)</SelectItem>
+                              <SelectItem value="EUR">EUR (€)</SelectItem>
+                              <SelectItem value="USD">USD ($)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
                       {/* Payment Type */}
@@ -422,30 +485,105 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                         </div>
                       )}
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Amount *</Label>
-                          <Input
-                            type="number"
-                            value={payLinkForm.amount}
-                            onChange={(e) => setPayLinkForm({ ...payLinkForm, amount: e.target.value })}
-                            placeholder="0.00"
-                            className="bg-background/50"
-                          />
+                      {/* Products Section */}
+                      <div className="border rounded-lg p-4 bg-background/30">
+                        <div className="flex items-center justify-between mb-3">
+                          <Label className="flex items-center gap-2">
+                            <Package className="w-4 h-4" />
+                            Products / Services
+                          </Label>
+                          <Button type="button" variant="outline" size="sm" onClick={addPayLinkItem}>
+                            <Plus className="w-3 h-3 mr-1" /> Add Product
+                          </Button>
                         </div>
-                        <div>
-                          <Label>Currency</Label>
-                          <Select value={payLinkForm.currency} onValueChange={(v) => setPayLinkForm({ ...payLinkForm, currency: v })}>
-                            <SelectTrigger className="bg-background/50">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="GBP">GBP (£)</SelectItem>
-                              <SelectItem value="EUR">EUR (€)</SelectItem>
-                              <SelectItem value="USD">USD ($)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+
+                        {payLinkItems.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-4">
+                            No products added. Click "Add Product" to start.
+                          </p>
+                        ) : (
+                          <div className="space-y-3">
+                            {payLinkItems.map((item, index) => (
+                              <div key={index} className="grid grid-cols-12 gap-2 items-end bg-background/50 p-3 rounded-lg">
+                                <div className="col-span-5">
+                                  <Label className="text-xs">Product</Label>
+                                  <Select 
+                                    value={item.product_id || "custom"} 
+                                    onValueChange={(v) => {
+                                      if (v === "custom") {
+                                        updatePayLinkItem(index, 'product_id', null);
+                                      } else {
+                                        updatePayLinkItem(index, 'product_id', v);
+                                      }
+                                    }}
+                                  >
+                                    <SelectTrigger className="bg-background/50 h-9">
+                                      <SelectValue placeholder="Select product" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="custom">Custom Item</SelectItem>
+                                      {products.map(p => (
+                                        <SelectItem key={p.id} value={p.id}>{p.name} - £{p.price}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                {!item.product_id && (
+                                  <div className="col-span-3">
+                                    <Label className="text-xs">Name</Label>
+                                    <Input
+                                      value={item.product_name}
+                                      onChange={(e) => updatePayLinkItem(index, 'product_name', e.target.value)}
+                                      placeholder="Item name"
+                                      className="bg-background/50 h-9"
+                                    />
+                                  </div>
+                                )}
+                                <div className={item.product_id ? "col-span-2" : "col-span-1"}>
+                                  <Label className="text-xs">Qty</Label>
+                                  <Input
+                                    type="number"
+                                    min="1"
+                                    value={item.quantity}
+                                    onChange={(e) => updatePayLinkItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                                    className="bg-background/50 h-9"
+                                  />
+                                </div>
+                                <div className={item.product_id ? "col-span-3" : "col-span-2"}>
+                                  <Label className="text-xs">Unit Price (£)</Label>
+                                  <Input
+                                    type="number"
+                                    value={item.unit_price}
+                                    onChange={(e) => updatePayLinkItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                                    className="bg-background/50 h-9"
+                                  />
+                                </div>
+                                <div className="col-span-1">
+                                  <Button 
+                                    type="button" 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => removePayLinkItem(index)}
+                                    className="h-9 w-9 p-0 text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                                <div className="col-span-12 text-right text-sm text-muted-foreground">
+                                  Subtotal: £{(item.unit_price * item.quantity).toFixed(2)}
+                                </div>
+                              </div>
+                            ))}
+                            
+                            {/* Total */}
+                            <div className="flex justify-between items-center pt-3 border-t">
+                              <span className="font-medium">Total</span>
+                              <span className="text-xl font-bold text-accent">
+                                {formatCurrency(calculateTotal(), payLinkForm.currency)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Customer Details */}
@@ -478,12 +616,16 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                           onChange={(e) => setPayLinkForm({ ...payLinkForm, description: e.target.value })}
                           placeholder="Details about this payment..."
                           className="bg-background/50"
-                          rows={3}
+                          rows={2}
                         />
                       </div>
 
-                      <Button onClick={handleCreatePayLink} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                        Create Pay Link
+                      <Button 
+                        onClick={handleCreatePayLink} 
+                        className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
+                        disabled={payLinkItems.length === 0}
+                      >
+                        Create Pay Link ({formatCurrency(calculateTotal(), payLinkForm.currency)})
                       </Button>
                     </div>
                   </DialogContent>
@@ -502,7 +644,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                           <h4 className="font-medium text-foreground">{link.title}</h4>
                           {getStatusBadge(link.status)}
                         </div>
-                        <p className="text-lg font-bold text-light-green mt-1">
+                        <p className="text-lg font-bold text-accent mt-1">
                           {formatCurrency(link.amount, link.currency)}
                         </p>
                         {link.description && (
@@ -542,11 +684,11 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
               {isAdmin && (
                 <Dialog open={saleDialogOpen} onOpenChange={setSaleDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button size="sm" className="bg-light-green text-background hover:bg-light-green/90">
+                    <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                       <Plus className="w-4 h-4 mr-1" /> Record Sale
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-card border-border">
+                  <DialogContent className="max-w-2xl bg-card border-border">
                     <DialogHeader>
                       <DialogTitle>Record Manual Sale</DialogTitle>
                     </DialogHeader>
@@ -618,7 +760,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                           className="bg-background/50"
                         />
                       </div>
-                      <Button onClick={handleRecordSale} className="w-full bg-light-green text-background hover:bg-light-green/90">
+                      <Button onClick={handleRecordSale} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                         Record Sale
                       </Button>
                     </div>
@@ -645,7 +787,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                           {new Date(sale.created_at).toLocaleDateString()} • {sale.payment_method?.replace("_", " ")}
                         </p>
                       </div>
-                      <p className="text-lg font-bold text-light-green">
+                      <p className="text-lg font-bold text-accent">
                         {formatCurrency(sale.amount, sale.currency)}
                       </p>
                     </div>
