@@ -653,6 +653,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       category: player.category || "",
       representation_status: player.representation_status || "",
       visible_on_stars_page: player.visible_on_stars_page || false,
+      is_active_client: bioData?.is_active_client !== false, // Default to true if not set
       image_url: player.image_url || "",
       hover_image_url: player.hover_image_url || "",
       
@@ -1394,6 +1395,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                   category: "Scouted",
                   representation_status: "other",
                   visible_on_stars_page: false,
+                  is_active_client: true,
                   image_url: "",
                   hover_image_url: "",
                   club: "",
