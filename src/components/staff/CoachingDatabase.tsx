@@ -1,5 +1,15 @@
-import { useState, useEffect } from "react";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { useState, useEffect, useMemo } from "react";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+import { supabase as localSupabase } from "@/integrations/supabase/client";
+
+// Helper to get appropriate supabase client based on table
+// coaching_analysis uses local database for folder support
+const getSupabaseClient = (table: string) => {
+  if (table === 'coaching_analysis') {
+    return localSupabase;
+  }
+  return sharedSupabase;
+};
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -187,6 +197,9 @@ const getScoreColor = (score: number | string | null) => {
 
 export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
   const [activeTab, setActiveTab] = useState<TableType>('coaching_sessions');
+  
+  // Use appropriate supabase client based on active tab
+  const supabase = useMemo(() => getSupabaseClient(activeTab), [activeTab]);
   const [programmeSubTab, setProgrammeSubTab] = useState<'sps' | 'nutrition'>('sps');
   const [items, setItems] = useState<CoachingItem[]>([]);
   const [loading, setLoading] = useState(false);
