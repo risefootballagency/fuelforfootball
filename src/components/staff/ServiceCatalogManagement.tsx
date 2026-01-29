@@ -6,11 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Service {
   id: string;
@@ -48,8 +47,6 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
   const [loading, setLoading] = useState(true);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -64,33 +61,6 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
   });
   const [newOptionName, setNewOptionName] = useState("");
   const [newOptionPrice, setNewOptionPrice] = useState(0);
-
-  // Check authentication status
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Auth error:', error);
-        setAuthError('Failed to check authentication status');
-        setIsAuthenticated(false);
-      } else if (session) {
-        setIsAuthenticated(true);
-        setAuthError(null);
-      } else {
-        setIsAuthenticated(false);
-        setAuthError('You must be logged in to manage services. Changes will not be saved.');
-      }
-    };
-    
-    checkAuth();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
-      setAuthError(session ? null : 'You must be logged in to manage services. Changes will not be saved.');
-    });
-    
-    return () => subscription.unsubscribe();
-  }, []);
 
   const fetchServices = async () => {
     try {
@@ -171,12 +141,6 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
   };
 
   const handleSave = async () => {
-    // Check auth before saving
-    if (!isAuthenticated) {
-      toast.error('You must be logged in to save changes. Please log in and try again.');
-      return;
-    }
-
     try {
       const serviceData = {
         name: formData.name,
@@ -190,25 +154,19 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
         options: formData.options.length > 0 ? formData.options : null,
       };
 
-      console.log('Saving service data:', serviceData);
-      console.log('Is authenticated:', isAuthenticated);
-
       if (editingService) {
-        const { data, error, count } = await supabase
+        const { error } = await supabase
           .from('service_catalog')
           .update(serviceData)
-          .eq('id', editingService.id)
-          .select();
+          .eq('id', editingService.id);
 
-        console.log('Update response:', { data, error, count });
-
-        if (error) {
-          console.error('Supabase update error:', error);
-          throw new Error(`Database error: ${error.message}`);
-        }
-        if (!data || data.length === 0) {
-          throw new Error('Update failed - no rows affected. This usually means you lack permission or the row does not exist.');
-        }
+        if (error) throw error;
+        
+        // Update local state immediately
+        setServices(prev => prev.map(s => 
+          s.id === editingService.id ? { ...s, ...serviceData } : s
+        ));
+        
         toast.success('Service updated successfully');
       } else {
         const { data, error } = await supabase
@@ -217,25 +175,23 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
             ...serviceData,
             display_order: services.length,
           })
-          .select();
+          .select()
+          .single();
 
-        console.log('Insert response:', { data, error });
-
-        if (error) {
-          console.error('Supabase insert error:', error);
-          throw new Error(`Database error: ${error.message}`);
+        if (error) throw error;
+        
+        // Add new service to local state
+        if (data) {
+          setServices(prev => [...prev, data]);
         }
-        if (!data || data.length === 0) {
-          throw new Error('Create failed - no rows affected. This usually means you lack permission.');
-        }
+        
         toast.success('Service created successfully');
       }
 
       setIsDialogOpen(false);
-      fetchServices();
     } catch (error) {
       console.error('Error saving service:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to save service');
+      toast.error('Failed to save service');
     }
   };
 
@@ -249,8 +205,10 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Remove from local state
+      setServices(prev => prev.filter(s => s.id !== id));
       toast.success('Service deleted');
-      fetchServices();
     } catch (error) {
       console.error('Error deleting service:', error);
       toast.error('Failed to delete service');
@@ -265,8 +223,13 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Update local state
+      setServices(prev => prev.map(s => 
+        s.id === id ? { ...s, visible: !currentVisible } : s
+      ));
+      
       toast.success(currentVisible ? 'Service hidden' : 'Service visible');
-      fetchServices();
     } catch (error) {
       console.error('Error toggling visibility:', error);
       toast.error('Failed to update visibility');
@@ -285,17 +248,9 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
 
   return (
     <div className="space-y-6">
-      {/* Auth Warning */}
-      {authError && (
-        <Alert variant="destructive" className="bg-destructive/10 border-destructive/50">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{authError}</AlertDescription>
-        </Alert>
-      )}
-
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bebas uppercase tracking-wider">Service Catalogue</h2>
-        <Button onClick={handleCreate} className="gap-2" disabled={!isAuthenticated}>
+        <Button onClick={handleCreate} className="gap-2">
           <Plus className="w-4 h-4" />
           Add Service
         </Button>
@@ -481,38 +436,37 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
               )}
               <div className="flex gap-2">
                 <Input
-                  placeholder="Option name (e.g., 3-Month Plan)"
                   value={newOptionName}
                   onChange={(e) => setNewOptionName(e.target.value)}
+                  placeholder="Option name (e.g., Bronze)"
                   className="flex-1"
                 />
                 <Input
                   type="number"
-                  placeholder="Price"
-                  value={newOptionPrice || ""}
+                  value={newOptionPrice}
                   onChange={(e) => setNewOptionPrice(parseFloat(e.target.value) || 0)}
+                  placeholder="Price"
                   className="w-24"
                 />
-                <Button type="button" variant="outline" size="sm" onClick={handleAddOption}>
+                <Button type="button" variant="outline" onClick={handleAddOption}>
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">Add options for different package durations or tiers</p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Switch
-                id="visible"
-                checked={formData.visible}
-                onCheckedChange={(checked) => setFormData({ ...formData, visible: checked })}
-              />
-              <Label htmlFor="visible">Visible to customers</Label>
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="visible"
+                  checked={formData.visible}
+                  onCheckedChange={(checked) => setFormData({ ...formData, visible: checked })}
+                />
+                <Label htmlFor="visible">Visible on website</Label>
+              </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancel
-              </Button>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
               <Button onClick={handleSave}>
                 {editingService ? 'Update Service' : 'Create Service'}
               </Button>
