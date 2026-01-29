@@ -592,6 +592,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       whatsapp: formData.whatsapp || undefined,
       currentClub: formData.club || undefined,
       currentClubLogo: formData.club_logo || undefined,
+      is_active_client: formData.is_active_client, // Store active/inactive status
     };
 
     if (formData.externalLinks.length > 0) {
