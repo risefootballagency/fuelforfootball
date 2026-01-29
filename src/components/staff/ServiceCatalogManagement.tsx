@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Service {
   id: string;
@@ -47,6 +48,8 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
   const [loading, setLoading] = useState(true);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -61,6 +64,33 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
   });
   const [newOptionName, setNewOptionName] = useState("");
   const [newOptionPrice, setNewOptionPrice] = useState(0);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Auth error:', error);
+        setAuthError('Failed to check authentication status');
+        setIsAuthenticated(false);
+      } else if (session) {
+        setIsAuthenticated(true);
+        setAuthError(null);
+      } else {
+        setIsAuthenticated(false);
+        setAuthError('You must be logged in to manage services. Changes will not be saved.');
+      }
+    };
+    
+    checkAuth();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+      setAuthError(session ? null : 'You must be logged in to manage services. Changes will not be saved.');
+    });
+    
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchServices = async () => {
     try {
@@ -141,6 +171,12 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
   };
 
   const handleSave = async () => {
+    // Check auth before saving
+    if (!isAuthenticated) {
+      toast.error('You must be logged in to save changes. Please log in and try again.');
+      return;
+    }
+
     try {
       const serviceData = {
         name: formData.name,
@@ -154,16 +190,24 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
         options: formData.options.length > 0 ? formData.options : null,
       };
 
+      console.log('Saving service data:', serviceData);
+      console.log('Is authenticated:', isAuthenticated);
+
       if (editingService) {
-        const { data, error } = await supabase
+        const { data, error, count } = await supabase
           .from('service_catalog')
           .update(serviceData)
           .eq('id', editingService.id)
           .select();
 
-        if (error) throw error;
+        console.log('Update response:', { data, error, count });
+
+        if (error) {
+          console.error('Supabase update error:', error);
+          throw new Error(`Database error: ${error.message}`);
+        }
         if (!data || data.length === 0) {
-          throw new Error('Update failed - no rows affected. Check your permissions.');
+          throw new Error('Update failed - no rows affected. This usually means you lack permission or the row does not exist.');
         }
         toast.success('Service updated successfully');
       } else {
@@ -175,9 +219,14 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
           })
           .select();
 
-        if (error) throw error;
+        console.log('Insert response:', { data, error });
+
+        if (error) {
+          console.error('Supabase insert error:', error);
+          throw new Error(`Database error: ${error.message}`);
+        }
         if (!data || data.length === 0) {
-          throw new Error('Create failed - no rows affected. Check your permissions.');
+          throw new Error('Create failed - no rows affected. This usually means you lack permission.');
         }
         toast.success('Service created successfully');
       }
@@ -236,9 +285,17 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
 
   return (
     <div className="space-y-6">
+      {/* Auth Warning */}
+      {authError && (
+        <Alert variant="destructive" className="bg-destructive/10 border-destructive/50">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{authError}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bebas uppercase tracking-wider">Service Catalogue</h2>
-        <Button onClick={handleCreate} className="gap-2">
+        <Button onClick={handleCreate} className="gap-2" disabled={!isAuthenticated}>
           <Plus className="w-4 h-4" />
           Add Service
         </Button>
