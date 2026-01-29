@@ -54,16 +54,16 @@ const Tactical = () => {
             </div>
           </div>
           
-          <div className="lg:col-span-2 grid grid-cols-2 gap-2">
+          <div className="lg:col-span-2 grid grid-cols-2 gap-3">
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg/v1/fill/w_400,h_200,q_90,enc_avif,quality_auto/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg"
               alt="Pre-match analysis"
-              className="rounded-lg w-full h-24 object-cover shadow-lg"
+              className="rounded-lg w-full h-32 object-cover shadow-lg"
             />
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_76a25c0356644727afcfbae3da9165df~mv2.png/v1/fill/w_400,h_200,q_90,enc_avif,quality_auto/c4f4b1_76a25c0356644727afcfbae3da9165df~mv2.png"
               alt="Pre-match analysis 2"
-              className="rounded-lg w-full h-24 object-cover shadow-lg"
+              className="rounded-lg w-full h-32 object-cover shadow-lg"
             />
           </div>
         </div>
@@ -74,16 +74,16 @@ const Tactical = () => {
         <ServiceSectionTitle>POST-MATCH ANALYSIS</ServiceSectionTitle>
         
         <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-6 items-start">
-          <div className="lg:col-span-2 grid grid-cols-2 gap-2 order-2 lg:order-1">
+          <div className="lg:col-span-2 grid grid-cols-2 gap-3 order-2 lg:order-1">
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg/v1/fill/w_400,h_200,q_90,enc_avif,quality_auto/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg"
               alt="Post-match analysis"
-              className="rounded-lg w-full h-24 object-cover shadow-lg"
+              className="rounded-lg w-full h-32 object-cover shadow-lg"
             />
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_aabad9361c374361957951326c7b6634~mv2.png/v1/fill/w_400,h_200,q_90,enc_avif,quality_auto/c4f4b1_aabad9361c374361957951326c7b6634~mv2.png"
               alt="Post-match analysis 2"
-              className="rounded-lg w-full h-24 object-cover shadow-lg"
+              className="rounded-lg w-full h-32 object-cover shadow-lg"
             />
           </div>
           
@@ -142,16 +142,16 @@ const Tactical = () => {
             </div>
           </div>
           
-          <div className="lg:col-span-2 grid grid-cols-2 gap-2">
+          <div className="lg:col-span-2 grid grid-cols-2 gap-3">
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg/v1/fill/w_400,h_200,q_90,enc_avif,quality_auto/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg"
               alt="Positional guide"
-              className="rounded-lg w-full h-24 object-cover shadow-lg"
+              className="rounded-lg w-full h-32 object-cover shadow-lg"
             />
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_a95a7a590b15494a88dcb0dfe1d6e4b5~mv2.png/v1/fill/w_400,h_200,q_90,enc_avif,quality_auto/c4f4b1_a95a7a590b15494a88dcb0dfe1d6e4b5~mv2.png"
               alt="Positional guide 2"
-              className="rounded-lg w-full h-24 object-cover shadow-lg"
+              className="rounded-lg w-full h-32 object-cover shadow-lg"
             />
           </div>
         </div>
@@ -162,16 +162,16 @@ const Tactical = () => {
         <ServiceSectionTitle>PLAYER EFFICIENCY REPORT</ServiceSectionTitle>
         
         <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-6 items-start">
-          <div className="lg:col-span-2 flex justify-center gap-3 order-2 lg:order-1">
+          <div className="lg:col-span-2 flex justify-center gap-4 order-2 lg:order-1">
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_120,h_180,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png"
               alt="Report page 1"
-              className="rounded-lg h-44 object-contain shadow-lg"
+              className="rounded-lg h-52 object-contain shadow-lg"
             />
             <img 
               src="https://static.wixstatic.com/media/c4f4b1_6133d8c4af914df7b79d69bb05196698~mv2.png/v1/fill/w_120,h_180,q_90,enc_avif,quality_auto/c4f4b1_6133d8c4af914df7b79d69bb05196698~mv2.png"
               alt="Report page 2"
-              className="rounded-lg h-44 object-contain shadow-lg"
+              className="rounded-lg h-52 object-contain shadow-lg"
             />
           </div>
           
