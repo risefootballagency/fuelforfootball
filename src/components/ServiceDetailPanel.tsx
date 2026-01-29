@@ -208,7 +208,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
 
       {/* Main content - no scroll on desktop */}
       <div className="flex-1 overflow-y-auto lg:overflow-visible overscroll-contain">
-        <div className="container mx-auto px-4 md:px-16 py-4 lg:py-6">
+        <div className="container mx-auto px-4 md:px-8 lg:px-16 py-4 lg:py-8">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={service.id}
@@ -217,9 +217,9 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: direction * -100 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="max-w-6xl mx-auto"
+              className="w-full mx-auto"
             >
-              <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-start">
+              <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start">
                 {/* Mobile/Tablet: Details First */}
                 <div className="flex flex-col lg:hidden order-1">
                   {/* Badge */}
@@ -250,7 +250,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
 
                 {/* Image - Second on mobile, first on desktop */}
                 <div className="order-2 lg:order-1">
-                  <div className="relative aspect-square max-h-[280px] lg:max-h-[320px] bg-gradient-to-br from-card to-card/50 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-xl mx-auto">
+                  <div className="relative aspect-square max-h-[320px] lg:max-h-[420px] bg-gradient-to-br from-card to-card/50 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-xl mx-auto w-full">
                     {/* Category badge */}
                     <div className="absolute top-3 left-3 z-10">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bebas uppercase tracking-wider bg-primary text-primary-foreground shadow-lg">

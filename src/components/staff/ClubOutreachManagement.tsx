@@ -525,7 +525,7 @@ export const ClubOutreachManagement = () => {
 
       {/* Add Dialog - Club First with Player Checkboxes */}
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add Club Outreach</DialogTitle>
           </DialogHeader>
@@ -646,7 +646,7 @@ export const ClubOutreachManagement = () => {
 
       {/* Detail Dialog - Shows Club with all associated players */}
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Building className="h-5 w-5" />

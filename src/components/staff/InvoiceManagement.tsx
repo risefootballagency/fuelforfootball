@@ -950,7 +950,7 @@ export const InvoiceManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         setDialogOpen(open);
         if (!open) resetForm();
       }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingInvoice ? "Edit Invoice" : "Create New Invoice"}</DialogTitle>
           </DialogHeader>

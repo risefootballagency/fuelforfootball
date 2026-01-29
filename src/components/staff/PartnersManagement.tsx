@@ -197,7 +197,7 @@ export const PartnersManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                 Add Partner
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingPartner ? 'Edit Partner' : 'Add New Partner'}</DialogTitle>
               </DialogHeader>

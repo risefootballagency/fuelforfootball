@@ -1711,6 +1711,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pay_link_items: {
+        Row: {
+          created_at: string
+          id: string
+          pay_link_id: string
+          product_id: string | null
+          product_name: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pay_link_id: string
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pay_link_id?: string
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pay_link_items_pay_link_id_fkey"
+            columns: ["pay_link_id"]
+            isOneToOne: false
+            referencedRelation: "pay_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pay_link_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pay_links: {
         Row: {
           amount: number
