@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { X, ShoppingCart, Check, ChevronLeft, ChevronRight, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { X, ShoppingCart, Check, ChevronLeft, ChevronRight, ArrowLeft, ChevronDown, ChevronUp, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 
+// Joe Bloggs demo player ID for View Example feature
+const JOE_BLOGGS_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
 interface ServiceOption {
   name: string;
   price: number;
@@ -37,6 +39,7 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
   const [direction, setDirection] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showExamplePreview, setShowExamplePreview] = useState(false);
 
   const options = service.options as ServiceOption[] | null;
   const hasOptions = options && Array.isArray(options) && options.length > 0;
@@ -239,14 +242,25 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   {/* Decorative line */}
                   <div className="w-16 h-1 bg-gradient-to-r from-accent to-primary mt-3 mb-3 rounded-full" />
 
-                  {/* Price with "From" before */}
-                  <div className="mb-3">
-                    {hasOptions && !selectedOption && (
-                      <span className="text-muted-foreground text-sm mr-2">From</span>
-                    )}
-                    <span className="font-bebas text-3xl md:text-4xl text-accent">
-                      £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
+                  {/* Price with "From" before and View Example button */}
+                  <div className="mb-3 flex items-center gap-3 flex-wrap">
+                    <div>
+                      {hasOptions && !selectedOption && (
+                        <span className="text-muted-foreground text-sm mr-2">From</span>
+                      )}
+                      <span className="font-bebas text-3xl md:text-4xl text-accent">
+                        £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowExamplePreview(true)}
+                      className="font-bebas uppercase tracking-wider text-xs border-accent/50 hover:bg-accent/10 hover:border-accent"
+                    >
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                      View Example
+                    </Button>
                   </div>
                 </div>
 
@@ -291,14 +305,25 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                   {/* Decorative line */}
                   <div className="w-16 h-1 bg-gradient-to-r from-accent to-primary mt-3 mb-3 rounded-full" />
 
-                  {/* Price with "From" before */}
-                  <div className="mb-3">
-                    {hasOptions && !selectedOption && (
-                      <span className="text-muted-foreground text-sm mr-1">From</span>
-                    )}
-                    <span className="font-bebas text-3xl lg:text-4xl text-accent">
-                      £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
+                  {/* Price with "From" before and View Example button */}
+                  <div className="mb-3 flex items-center gap-4">
+                    <div>
+                      {hasOptions && !selectedOption && (
+                        <span className="text-muted-foreground text-sm mr-1">From</span>
+                      )}
+                      <span className="font-bebas text-3xl lg:text-4xl text-accent">
+                        £{(activePrice ?? 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowExamplePreview(true)}
+                      className="font-bebas uppercase tracking-wider text-xs border-accent/50 hover:bg-accent/10 hover:border-accent"
+                    >
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                      View Example
+                    </Button>
                   </div>
 
                   {/* Description - fills available space */}
@@ -629,6 +654,44 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
                 </Button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* View Example Overlay - Shows Joe Bloggs player hub */}
+      <AnimatePresence>
+        {showExamplePreview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/90 flex flex-col"
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowExamplePreview(false)}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-background/90 hover:bg-background border border-border shadow-lg transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            {/* Header */}
+            <div className="flex-shrink-0 bg-background/95 backdrop-blur-md border-b border-border/50 px-4 py-3">
+              <div className="flex items-center gap-3">
+                <Eye className="w-5 h-5 text-accent" />
+                <span className="font-bebas uppercase tracking-wider text-lg">Example Player Hub Preview</span>
+                <span className="text-muted-foreground text-sm">(Joe Bloggs - Demo Account)</span>
+              </div>
+            </div>
+            
+            {/* Iframe Container */}
+            <div className="flex-1 overflow-hidden">
+              <iframe
+                src={`/hub/${JOE_BLOGGS_PLAYER_ID}`}
+                className="w-full h-full border-0"
+                title="Player Hub Example"
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
