@@ -116,6 +116,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     category: "",
     representation_status: "",
     visible_on_stars_page: false,
+    is_active_client: true, // New field for active/inactive client status
     image_url: "",
     hover_image_url: "",
     
