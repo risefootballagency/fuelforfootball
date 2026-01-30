@@ -356,7 +356,8 @@ export const ServiceFullPackage = () => {
   ];
 
   return (
-    <ServiceSection>
+    <section className="py-0 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       <ServiceSectionTitle>THE FULL PACKAGE</ServiceSectionTitle>
       
       <p className="text-white/80 text-sm md:text-base text-center max-w-4xl mx-auto mb-8 leading-relaxed">
@@ -461,7 +462,8 @@ export const ServiceFullPackage = () => {
           </svg>
         </a>
       </div>
-    </ServiceSection>
+      </div>
+    </section>
   );
 };
 
