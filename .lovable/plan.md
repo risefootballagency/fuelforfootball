@@ -1,94 +1,113 @@
 
-# Fix Service Catalogue Updates Not Persisting
 
-## Problem Identified
+# Fix Analysis Page Spacing, Footer Issues & Portal Example Design
 
-The RLS (Row Level Security) policy for managing the `service_catalog` table is **missing the `WITH CHECK` clause**. 
+## Issues Identified from Screenshots
 
-Currently, the policy is:
-```sql
--- Policy: "Staff can manage service_catalog"
--- Command: ALL
--- USING: (has_role(auth.uid(), 'staff') OR has_role(auth.uid(), 'admin'))
--- WITH CHECK: NULL (missing!)
-```
+Based on the uploaded screenshots showing white lines marking problem areas:
 
-For UPDATE and INSERT operations, PostgreSQL requires:
-- `USING` clause: determines which rows can be selected/modified
-- `WITH CHECK` clause: validates that new row values are allowed
+### 1. Spacing Issues on Analysis Page
+- **Empty space between video and pillars** - Visible gap above the pillars section after the hero video
+- **Empty space between pillars and "Our Analysis Services"** - Gap below the pillars section
+- **Empty space above "In Detail"** - Lighter green gap visible before the In Detail section
+- **Empty space below "In Detail"** - Lighter green padding visible before Full Package
+- **"In Detail" tabs** - Tab buttons don't span the same width as the content cards below
 
-Without `WITH CHECK`, the database silently rejects the update even though the toast says "success" (because the Supabase JS client doesn't throw an error when 0 rows are affected).
+### 2. Footer Issues
+- **"Change The Game" background** - Different color behind text instead of matching the dark green footer background
+- **Footer description** - Text spans 4 lines instead of 3 equal lines
+- **Connect button** - Should turn FFF yellow on hover
 
-## Solution
+### 3. Portal Example Design
+- **Horizontal navigation slider** - Using `overflow-x-auto` horizontal slider instead of proper dropdown menu like the authenticated portal
+- **Design doesn't match** - The PublicHub component uses a simplified public-facing design instead of the full Dashboard portal design
 
-Update the RLS policy to include a matching `WITH CHECK` clause that mirrors the `USING` condition.
+---
 
-## Implementation
+## Implementation Plan
 
-### Step 1: Database Migration
+### 1. Analysis.tsx - Fix All Spacing Gaps
 
-Run a migration to fix the RLS policy:
+**Pillars Section:**
+- Remove any padding/margin that creates the gap above and below the pillars
+- Update `ServicePillars` component to remove its internal `py-6 md:py-8` padding
 
-```sql
--- Drop the existing policy
-DROP POLICY IF EXISTS "Staff can manage service_catalog" ON public.service_catalog;
+**Our Analysis Services Section:**
+- Remove `pt-0 pb-0` and container padding that still creates visual gaps
+- Ensure the dark green gradient flows seamlessly from pillars
 
--- Recreate with proper WITH CHECK clause
-CREATE POLICY "Staff can manage service_catalog"
-ON public.service_catalog
-FOR ALL
-TO public
-USING (
-  has_role(auth.uid(), 'staff'::app_role) 
-  OR has_role(auth.uid(), 'admin'::app_role)
-)
-WITH CHECK (
-  has_role(auth.uid(), 'staff'::app_role) 
-  OR has_role(auth.uid(), 'admin'::app_role)
-);
-```
+**In Detail Section:**
+- Remove `py-6` that creates the visible lighter green gap
+- Set consistent `pt-0 pb-0` to eliminate empty space
 
-### Step 2: Update Frontend to Check for Affected Rows (Optional Enhancement)
+**Full Package Section:**
+- Remove `py-6` from the section wrapper
 
-Update `handleSave` in `ServiceCatalogManagement.tsx` to verify the update actually worked:
+### 2. ServiceDetailTabs.tsx - Match Tab Width to Content
 
-```typescript
-const handleSave = async () => {
-  try {
-    const serviceData = { ... };
+- Add `w-full` wrapper to the tab buttons container
+- Use CSS to make tab buttons fill the available width proportionally
+- Change from `flex-wrap justify-center` to a grid or flex layout that matches content card width
+- Apply `max-w-5xl mx-auto` to tab container to match content cards below
 
-    if (editingService) {
-      const { data, error, count } = await supabase
-        .from('service_catalog')
-        .update(serviceData)
-        .eq('id', editingService.id)
-        .select();  // Add .select() to get the updated row
+### 3. In Detail Section - Center Learn More Button
 
-      if (error) throw error;
-      if (!data || data.length === 0) {
-        throw new Error('Update failed - no rows affected');
-      }
-      toast.success('Service updated successfully');
-    } else {
-      // ... insert logic
-    }
-    // ...
-  } catch (error) {
-    console.error('Error saving service:', error);
-    toast.error('Failed to save service');
-  }
-};
-```
+- Move the "LEARN MORE" button inside a `flex justify-center` wrapper
+- Ensure button is centered below the cards, not left-aligned
 
-## Files to Modify
+### 4. Footer.tsx - Fix All Issues
 
-| File/Area | Changes |
-|-----------|---------|
-| Database (migration) | Fix RLS policy with proper `WITH CHECK` clause |
-| `src/components/staff/ServiceCatalogManagement.tsx` | Add `.select()` to verify update succeeded |
+**"Change The Game" Background:**
+- Remove the inline style `backgroundColor: '#081f12'`
+- Use `bg-transparent` and let the footer's dark green gradient show through
+- Or use `bg-[#0a2f1a]` to match the footer gradient exactly
 
-## Expected Outcome
+**Description Line Count:**
+- Adjust `max-w-3xl` to ensure text flows into exactly 3 lines
+- May need to adjust to `max-w-2xl` or adjust font size
 
-- Service updates will actually persist to the database
-- If an update fails due to permissions, the user will see an error message instead of false success
-- Staff and admin users will be able to create, update, and delete services as intended
+**Connect Button Hover:**
+- Add `hover:bg-accent hover:text-black` classes to the Connect button
+- Currently it has these classes but verify they're working
+
+### 5. PublicHub.tsx - Match Authenticated Portal Design
+
+**Navigation Fix:**
+- Remove the horizontal slider navigation (`overflow-x-auto py-2`)
+- Replace with a proper dropdown menu using `DropdownMenu` component from Radix UI
+- Match the Dashboard.tsx navigation pattern which uses tabs with proper dropdown
+
+**Design Alignment:**
+- Import and use the same `Tabs, TabsContent, TabsList, TabsTrigger` components as Dashboard
+- Match the exact layout structure from Dashboard.tsx
+- Use accordion sections instead of horizontal navigation
+- Include the same header styling with proper navigation options
+
+---
+
+## Technical Details
+
+### Files to Modify:
+
+1. **`src/pages/services/Analysis.tsx`**
+   - Remove padding from all sections (Pillars, Services, In Detail, Full Package)
+   - Center the "Learn More" button in In Detail section
+
+2. **`src/components/services/ServiceDetailTabs.tsx`**
+   - Change tab container to match content width (`max-w-5xl`)
+   - Use full-width justified tabs
+
+3. **`src/components/services/ServicePageLayout.tsx`**
+   - Update `ServicePillars` component to remove internal padding
+   - Ensure seamless section flow
+
+4. **`src/components/Footer.tsx`**
+   - Fix "Change The Game" background color
+   - Adjust description max-width for 3 lines
+   - Verify Connect button hover state
+
+5. **`src/pages/PublicHub.tsx`**
+   - Replace horizontal nav with dropdown menu
+   - Match Dashboard.tsx navigation and layout patterns
+   - Use proper Tabs component for section switching
+
