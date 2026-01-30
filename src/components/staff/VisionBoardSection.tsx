@@ -58,7 +58,7 @@ export const VisionBoardSection = () => {
   const fetchItems = async () => {
     try {
       const { data, error } = await supabase
-        .from('vision_board_items')
+        .from('vision_board')
         .select('*')
         .order('display_order', { ascending: true });
 
@@ -91,7 +91,7 @@ export const VisionBoardSection = () => {
 
       if (editingItem) {
         const { error } = await supabase
-          .from('vision_board_items')
+          .from('vision_board')
           .update(itemData)
           .eq('id', editingItem.id);
 
@@ -99,7 +99,7 @@ export const VisionBoardSection = () => {
         toast.success('Vision updated!');
       } else {
         const { error } = await supabase
-          .from('vision_board_items')
+          .from('vision_board')
           .insert(itemData);
 
         if (error) throw error;
@@ -120,7 +120,7 @@ export const VisionBoardSection = () => {
 
     try {
       const { error } = await supabase
-        .from('vision_board_items')
+        .from('vision_board')
         .delete()
         .eq('id', id);
 
@@ -137,7 +137,7 @@ export const VisionBoardSection = () => {
     try {
       const status = newProgress >= 100 ? 'completed' : 'active';
       const { error } = await supabase
-        .from('vision_board_items')
+        .from('vision_board')
         .update({ progress: newProgress, status })
         .eq('id', id);
 

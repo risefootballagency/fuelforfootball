@@ -5,14 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Trash2, UserPlus, Phone, MessageSquare, Target, ChevronLeft, ChevronRight } from "lucide-react";
-import { format, parseISO, subMonths, addMonths } from "date-fns";
+import { Plus, Trash2, UserPlus, ChevronDown, ChevronUp, X, Save, Loader2 } from "lucide-react";
 
 interface OutreachProspect {
   id: string;
@@ -27,47 +24,30 @@ interface OutreachProspect {
   created_at: string;
 }
 
-interface OutreachTarget {
-  id: string;
-  month: string;
-  new_prospects_target: number;
-  follow_ups_target: number;
-  conversions_target: number;
-  new_prospects_actual: number;
-  follow_ups_actual: number;
-  conversions_actual: number;
-}
+const INTEREST_LEVELS = [
+  { value: "hot", label: "🔥 Hot", color: "destructive" },
+  { value: "warm", label: "🌡️ Warm", color: "default" },
+  { value: "interested", label: "👀 Interested", color: "secondary" },
+  { value: "lukewarm", label: "🤔 Lukewarm", color: "outline" },
+  { value: "cold", label: "❄️ Cold", color: "outline" },
+  { value: "converted", label: "✅ Converted", color: "default" },
+  { value: "lost", label: "❌ Lost", color: "destructive" },
+];
 
 export function OutreachTracker() {
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [prospects, setProspects] = useState<OutreachProspect[]>([]);
-  const [targets, setTargets] = useState<OutreachTarget | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [targetDialogOpen, setTargetDialogOpen] = useState(false);
-  const [editingProspect, setEditingProspect] = useState<OutreachProspect | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [expandedProspect, setExpandedProspect] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     prospect_name: "",
-    contact_email: "",
-    contact_phone: "",
-    source: "",
-    status: "new",
-    last_contact_date: "",
-    next_follow_up: "",
+    status: "interested",
     notes: "",
   });
-  const [targetData, setTargetData] = useState({
-    new_prospects_target: 0,
-    follow_ups_target: 0,
-    conversions_target: 0,
-  });
-
-  const currentMonth = format(currentDate, "yyyy-MM");
 
   useEffect(() => {
     fetchProspects();
-    fetchTargets();
-  }, [currentMonth]);
+  }, []);
 
   const fetchProspects = async () => {
     const { data, error } = await supabase
@@ -83,134 +63,56 @@ export function OutreachTracker() {
     setLoading(false);
   };
 
-  const fetchTargets = async () => {
-    const { data } = await supabase
-      .from("outreach_targets")
-      .select("*")
-      .eq("month", currentMonth)
-      .single();
-
-    if (data) {
-      setTargets(data);
-      setTargetData({
-        new_prospects_target: data.new_prospects_target,
-        follow_ups_target: data.follow_ups_target,
-        conversions_target: data.conversions_target,
-      });
-    } else {
-      setTargets(null);
+  const handleSubmit = async () => {
+    if (!formData.prospect_name.trim()) {
+      toast.error("Please enter a name");
+      return;
     }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
     
     const payload = {
-      ...formData,
-      contact_email: formData.contact_email || null,
-      contact_phone: formData.contact_phone || null,
-      source: formData.source || null,
-      last_contact_date: formData.last_contact_date || null,
-      next_follow_up: formData.next_follow_up || null,
+      prospect_name: formData.prospect_name,
+      status: formData.status,
       notes: formData.notes || null,
+      contact_email: null,
+      contact_phone: null,
+      source: null,
+      last_contact_date: null,
+      next_follow_up: null,
     };
 
-    if (editingProspect) {
-      const { error } = await supabase
-        .from("outreach_prospects")
-        .update(payload)
-        .eq("id", editingProspect.id);
-
-      if (error) {
-        toast.error("Failed to update prospect");
-      } else {
-        toast.success("Prospect updated");
-        fetchProspects();
-      }
-    } else {
-      const { error } = await supabase
-        .from("outreach_prospects")
-        .insert(payload);
-
-      if (error) {
-        toast.error("Failed to add prospect");
-      } else {
-        toast.success("Prospect added");
-        fetchProspects();
-        // Update actual count
-        if (targets) {
-          await supabase
-            .from("outreach_targets")
-            .update({ new_prospects_actual: targets.new_prospects_actual + 1 })
-            .eq("month", currentMonth);
-          fetchTargets();
-        }
-      }
-    }
-
-    resetForm();
-    setDialogOpen(false);
-  };
-
-  const handleTargetSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (targets) {
-      const { error } = await supabase
-        .from("outreach_targets")
-        .update(targetData)
-        .eq("month", currentMonth);
-
-      if (error) {
-        toast.error("Failed to update targets");
-      } else {
-        toast.success("Targets updated");
-        fetchTargets();
-      }
-    } else {
-      const { error } = await supabase
-        .from("outreach_targets")
-        .insert({ ...targetData, month: currentMonth });
-
-      if (error) {
-        toast.error("Failed to set targets");
-      } else {
-        toast.success("Targets set");
-        fetchTargets();
-      }
-    }
-
-    setTargetDialogOpen(false);
-  };
-
-  const handleStatusChange = async (prospect: OutreachProspect, newStatus: string) => {
     const { error } = await supabase
       .from("outreach_prospects")
-      .update({ 
-        status: newStatus,
-        last_contact_date: format(new Date(), "yyyy-MM-dd"),
-      })
-      .eq("id", prospect.id);
+      .insert(payload);
+
+    if (error) {
+      toast.error("Failed to add prospect");
+    } else {
+      toast.success("Prospect added");
+      fetchProspects();
+      resetForm();
+    }
+  };
+
+  const handleStatusChange = async (prospectId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from("outreach_prospects")
+      .update({ status: newStatus })
+      .eq("id", prospectId);
 
     if (!error) {
+      setProspects(prev => prev.map(p => p.id === prospectId ? { ...p, status: newStatus } : p));
       toast.success("Status updated");
-      fetchProspects();
+    }
+  };
 
-      // Update targets
-      if (targets) {
-        if (newStatus === "follow_up" || newStatus === "meeting_scheduled") {
-          await supabase
-            .from("outreach_targets")
-            .update({ follow_ups_actual: targets.follow_ups_actual + 1 })
-            .eq("month", currentMonth);
-        } else if (newStatus === "converted") {
-          await supabase
-            .from("outreach_targets")
-            .update({ conversions_actual: targets.conversions_actual + 1 })
-            .eq("month", currentMonth);
-        }
-        fetchTargets();
-      }
+  const handleNotesChange = async (prospectId: string, notes: string) => {
+    const { error } = await supabase
+      .from("outreach_prospects")
+      .update({ notes })
+      .eq("id", prospectId);
+
+    if (!error) {
+      setProspects(prev => prev.map(p => p.id === prospectId ? { ...p, notes } : p));
     }
   };
 
@@ -233,321 +135,188 @@ export function OutreachTracker() {
   const resetForm = () => {
     setFormData({
       prospect_name: "",
-      contact_email: "",
-      contact_phone: "",
-      source: "",
-      status: "new",
-      last_contact_date: "",
-      next_follow_up: "",
+      status: "interested",
       notes: "",
     });
-    setEditingProspect(null);
-  };
-
-  const openEditDialog = (prospect: OutreachProspect) => {
-    setEditingProspect(prospect);
-    setFormData({
-      prospect_name: prospect.prospect_name,
-      contact_email: prospect.contact_email || "",
-      contact_phone: prospect.contact_phone || "",
-      source: prospect.source || "",
-      status: prospect.status,
-      last_contact_date: prospect.last_contact_date || "",
-      next_follow_up: prospect.next_follow_up || "",
-      notes: prospect.notes || "",
-    });
-    setDialogOpen(true);
+    setShowAddForm(false);
   };
 
   const getStatusBadge = (status: string) => {
+    const option = INTEREST_LEVELS.find(o => o.value === status);
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      new: "outline",
-      contacted: "secondary",
-      follow_up: "default",
-      meeting_scheduled: "default",
-      converted: "default",
-      lost: "destructive",
+      default: "default",
+      secondary: "secondary",
+      destructive: "destructive",
+      outline: "outline",
     };
-    const labels: Record<string, string> = {
-      new: "New",
-      contacted: "Contacted",
-      follow_up: "Follow Up",
-      meeting_scheduled: "Meeting",
-      converted: "Converted",
-      lost: "Lost",
-    };
-    return <Badge variant={variants[status] || "outline"}>{labels[status] || status}</Badge>;
+    return <Badge variant={variants[option?.color || "outline"]}>{option?.label || status}</Badge>;
   };
 
-  const prospectsProgress = targets && targets.new_prospects_target > 0 
-    ? (targets.new_prospects_actual / targets.new_prospects_target) * 100 : 0;
-  const followUpsProgress = targets && targets.follow_ups_target > 0 
-    ? (targets.follow_ups_actual / targets.follow_ups_target) * 100 : 0;
-  const conversionsProgress = targets && targets.conversions_target > 0 
-    ? (targets.conversions_actual / targets.conversions_target) * 100 : 0;
+  // Group prospects by interest level
+  const groupedProspects = INTEREST_LEVELS.reduce((acc, level) => {
+    acc[level.value] = prospects.filter(p => p.status === level.value);
+    return acc;
+  }, {} as Record<string, OutreachProspect[]>);
+
+  const hotWarmCount = prospects.filter(p => ["hot", "warm", "interested"].includes(p.status)).length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Month Navigation */}
-      <div className="flex items-center justify-between">
-        <Button variant="outline" size="icon" onClick={() => setCurrentDate(subMonths(currentDate, 1))}>
-          <ChevronLeft className="h-4 w-4" />
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2">
+        <Card>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-lg font-bold">{hotWarmCount}</p>
+                <p className="text-xs text-muted-foreground">Hot/Warm Leads</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-lg font-bold">{prospects.length}</p>
+                <p className="text-xs text-muted-foreground">Total Prospects</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Add Form - Inline */}
+      {!showAddForm ? (
+        <Button onClick={() => setShowAddForm(true)} className="w-full">
+          <Plus className="h-4 w-4 mr-2" /> Add Prospect
         </Button>
-        <h2 className="text-xl font-semibold">{format(currentDate, "MMMM yyyy")}</h2>
-        <Button variant="outline" size="icon" onClick={() => setCurrentDate(addMonths(currentDate, 1))}>
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Target Cards */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      ) : (
         <Card>
-          <CardContent className="p-3 sm:pt-6">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <UserPlus className="h-4 w-4 sm:h-6 sm:w-6 text-blue-500" />
-              <div>
-                <p className="text-base sm:text-2xl font-bold">{targets?.new_prospects_actual || 0}/{targets?.new_prospects_target || 0}</p>
-                <p className="text-[10px] sm:text-sm text-muted-foreground">Prospects</p>
-              </div>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">Add Prospect</CardTitle>
+              <Button variant="ghost" size="icon" onClick={resetForm}>
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <Progress value={Math.min(100, prospectsProgress)} className="h-1.5 sm:h-2" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label>Name *</Label>
+              <Input
+                value={formData.prospect_name}
+                onChange={(e) => setFormData({ ...formData, prospect_name: e.target.value })}
+                placeholder="Enter prospect name"
+              />
+            </div>
+
+            <div>
+              <Label>Interest Level</Label>
+              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {INTEREST_LEVELS.filter(l => l.value !== "converted" && l.value !== "lost").map(level => (
+                    <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Notes</Label>
+              <Textarea
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                placeholder="Add any notes..."
+                rows={2}
+              />
+            </div>
+
+            <Button onClick={handleSubmit} className="w-full">
+              <Save className="h-4 w-4 mr-2" /> Add Prospect
+            </Button>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-3 sm:pt-6">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <Phone className="h-4 w-4 sm:h-6 sm:w-6 text-orange-500" />
-              <div>
-                <p className="text-base sm:text-2xl font-bold">{targets?.follow_ups_actual || 0}/{targets?.follow_ups_target || 0}</p>
-                <p className="text-[10px] sm:text-sm text-muted-foreground">Follow Ups</p>
-              </div>
-            </div>
-            <Progress value={Math.min(100, followUpsProgress)} className="h-1.5 sm:h-2" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 sm:pt-6">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <MessageSquare className="h-4 w-4 sm:h-6 sm:w-6 text-green-500" />
-              <div>
-                <p className="text-base sm:text-2xl font-bold">{targets?.conversions_actual || 0}/{targets?.conversions_target || 0}</p>
-                <p className="text-[10px] sm:text-sm text-muted-foreground">Conversions</p>
-              </div>
-            </div>
-            <Progress value={Math.min(100, conversionsProgress)} className="h-1.5 sm:h-2" />
-          </CardContent>
-        </Card>
-      </div>
+      )}
 
-      {/* Actions */}
-      <div className="flex gap-2">
-        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" /> Add Prospect</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>{editingProspect ? "Edit Prospect" : "Add Prospect"}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label>Name *</Label>
-                <Input
-                  value={formData.prospect_name}
-                  onChange={(e) => setFormData({ ...formData, prospect_name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Email</Label>
-                  <Input
-                    type="email"
-                    value={formData.contact_email}
-                    onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Phone</Label>
-                  <Input
-                    value={formData.contact_phone}
-                    onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Source</Label>
-                  <Select value={formData.source} onValueChange={(v) => setFormData({ ...formData, source: v })}>
-                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="instagram">Instagram</SelectItem>
-                      <SelectItem value="referral">Referral</SelectItem>
-                      <SelectItem value="website">Website</SelectItem>
-                      <SelectItem value="linkedin">LinkedIn</SelectItem>
-                      <SelectItem value="event">Event</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Status</Label>
-                  <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="contacted">Contacted</SelectItem>
-                      <SelectItem value="follow_up">Follow Up</SelectItem>
-                      <SelectItem value="meeting_scheduled">Meeting Scheduled</SelectItem>
-                      <SelectItem value="converted">Converted</SelectItem>
-                      <SelectItem value="lost">Lost</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Last Contact</Label>
-                  <Input
-                    type="date"
-                    value={formData.last_contact_date}
-                    onChange={(e) => setFormData({ ...formData, last_contact_date: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Next Follow Up</Label>
-                  <Input
-                    type="date"
-                    value={formData.next_follow_up}
-                    onChange={(e) => setFormData({ ...formData, next_follow_up: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label>Notes</Label>
-                <Textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                />
-              </div>
-              <Button type="submit" className="w-full">{editingProspect ? "Update" : "Add"} Prospect</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+      {/* Prospects List - Grouped by Interest */}
+      <div className="space-y-3">
+        {prospects.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              <UserPlus className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No prospects yet</p>
+            </CardContent>
+          </Card>
+        ) : (
+          prospects.map((prospect) => (
+            <Collapsible 
+              key={prospect.id}
+              open={expandedProspect === prospect.id}
+              onOpenChange={(open) => setExpandedProspect(open ? prospect.id : null)}
+            >
+              <Card>
+                <CardContent className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <CollapsibleTrigger className="flex-1 text-left">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-medium">{prospect.prospect_name}</p>
+                        {getStatusBadge(prospect.status)}
+                        {expandedProspect === prospect.id ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                    </CollapsibleTrigger>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(prospect.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
 
-        <Dialog open={targetDialogOpen} onOpenChange={setTargetDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline"><Target className="h-4 w-4 mr-2" /> Set Targets</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Set Targets for {format(currentDate, "MMMM yyyy")}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleTargetSubmit} className="space-y-4">
-              <div>
-                <Label>New Prospects Target</Label>
-                <Input
-                  type="number"
-                  value={targetData.new_prospects_target}
-                  onChange={(e) => setTargetData({ ...targetData, new_prospects_target: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <div>
-                <Label>Follow Ups Target</Label>
-                <Input
-                  type="number"
-                  value={targetData.follow_ups_target}
-                  onChange={(e) => setTargetData({ ...targetData, follow_ups_target: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <div>
-                <Label>Conversions Target</Label>
-                <Input
-                  type="number"
-                  value={targetData.conversions_target}
-                  onChange={(e) => setTargetData({ ...targetData, conversions_target: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <Button type="submit" className="w-full">Save Targets</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Prospects Table - Mobile Responsive */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base sm:text-lg">Prospects</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs">Name</TableHead>
-                <TableHead className="hidden sm:table-cell text-xs">Source</TableHead>
-                <TableHead className="text-xs">Status</TableHead>
-                <TableHead className="hidden md:table-cell text-xs">Last</TableHead>
-                <TableHead className="hidden md:table-cell text-xs">Next</TableHead>
-                <TableHead className="text-right text-xs">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {prospects.map((prospect) => (
-                <TableRow key={prospect.id}>
-                  <TableCell className="max-w-[120px]">
+                  <CollapsibleContent className="mt-3 pt-3 border-t space-y-3">
+                    {/* Quick Status Change */}
                     <div>
-                      <p className="font-medium text-xs sm:text-sm truncate">{prospect.prospect_name}</p>
-                      {prospect.contact_email && (
-                        <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{prospect.contact_email}</p>
-                      )}
+                      <Label className="text-xs text-muted-foreground">Interest Level</Label>
+                      <Select value={prospect.status} onValueChange={(v) => handleStatusChange(prospect.id, v)}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {INTEREST_LEVELS.map(level => (
+                            <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell capitalize text-xs">{prospect.source || "-"}</TableCell>
-                  <TableCell>
-                    <Select 
-                      value={prospect.status} 
-                      onValueChange={(v) => handleStatusChange(prospect, v)}
-                    >
-                      <SelectTrigger className="w-20 sm:w-32 h-7 sm:h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="new">New</SelectItem>
-                        <SelectItem value="contacted">Contacted</SelectItem>
-                        <SelectItem value="follow_up">Follow Up</SelectItem>
-                        <SelectItem value="meeting_scheduled">Meeting</SelectItem>
-                        <SelectItem value="converted">Converted</SelectItem>
-                        <SelectItem value="lost">Lost</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell text-xs">
-                    {prospect.last_contact_date ? format(parseISO(prospect.last_contact_date), "dd MMM") : "-"}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell text-xs">
-                    {prospect.next_follow_up ? format(parseISO(prospect.next_follow_up), "dd MMM") : "-"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditDialog(prospect)}>
-                      <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(prospect.id)}>
-                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {prospects.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8 text-sm">
-                    No prospects yet. Add your first prospect above.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                    
+                    {/* Notes */}
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Notes</Label>
+                      <Textarea
+                        value={prospect.notes || ""}
+                        onChange={(e) => handleNotesChange(prospect.id, e.target.value)}
+                        placeholder="Add notes..."
+                        rows={2}
+                        className="mt-1"
+                      />
+                    </div>
+                  </CollapsibleContent>
+                </CardContent>
+              </Card>
+            </Collapsible>
+          ))
+        )}
+      </div>
     </div>
   );
 }

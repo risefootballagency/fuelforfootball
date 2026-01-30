@@ -866,7 +866,7 @@ const Staff = () => {
         </button>
 
         {/* Left Sidebar - Fixed */}
-        <div className={`fixed ${isMobile ? 'top-16' : 'top-16'} left-0 bottom-0 border-r bg-muted/30 backdrop-blur-sm flex flex-col items-start py-4 gap-2 overflow-y-auto scrollbar-thin z-10 transition-all duration-300 ${
+        <div className={`fixed ${isMobile ? 'top-16' : 'top-16'} left-0 bottom-0 border-r bg-muted/30 backdrop-blur-sm flex flex-col items-start py-4 gap-2 overflow-y-auto scrollbar-thin z-10 transition-all duration-300 pb-24 ${
           sidebarCollapsed ? 'w-0 border-0 opacity-0 pointer-events-none' : 'w-14 md:w-24'
         }`}>
           {/* Search Button */}
@@ -935,12 +935,12 @@ const Staff = () => {
                           onClick={() => handleSectionToggle(section.id as any)}
                           className={`group relative w-full rounded-lg flex flex-col items-center justify-center py-1.5 md:py-2 px-1 transition-all ${
                             isActive 
-                              ? 'bg-accent text-accent-foreground shadow-md' 
+                              ? 'bg-accent shadow-md' 
                               : 'hover:bg-accent/10'
                           }`}
                         >
                           <SectionIcon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 md:mb-1 ${isActive ? 'text-[#0a3622]' : ''}`} />
-                          <span className={`text-[5px] sm:text-[6px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${isActive ? 'text-[#0a3622]' : 'text-muted-foreground'}`}>
+                          <span className={`text-[5px] sm:text-[6px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${isActive ? 'text-[#0a3622] font-bold' : 'text-muted-foreground'}`}>
                             {section.title.split(' ').map((word, i) => (
                               <span key={i} className="block">{word}</span>
                             ))}
