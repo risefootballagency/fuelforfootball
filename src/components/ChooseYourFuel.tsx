@@ -52,7 +52,7 @@ const fuelCategories: FuelCategory[] = [
     id: "tactical",
     name: "Tactical",
     icon: Target,
-    link: "/tactical",
+    link: "/analysis",
     description: "Unlock new dimensions to your game. Transform decision-making and positional awareness through detailed analysis and tactical education.",
     highlights: ["Opposition analysis", "Position-specific insights", "Game reading"],
   },

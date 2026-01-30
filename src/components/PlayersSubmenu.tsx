@@ -33,9 +33,9 @@ const navItems: NavItem[] = [
   },
   {
     label: "Tactical",
-    links: ["/tactical", "/action-reports", "/efficiency-reports"],
+    links: ["/analysis", "/action-reports", "/efficiency-reports"],
     items: [
-      { label: "Analysis", link: "/tactical", description: "Video analysis and tactical education to enhance decision-making and game intelligence." },
+      { label: "Analysis", link: "/analysis", description: "Video analysis and tactical education to enhance decision-making and game intelligence." },
       { label: "Action Reports", link: "/action-reports", description: "Detailed breakdown of your on-ball actions with specific improvement recommendations." },
       { label: "Efficiency Reports", link: "/efficiency-reports", description: "Data-driven performance evaluation compared to your team, league and positional benchmarks." },
     ]
