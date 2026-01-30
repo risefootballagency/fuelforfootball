@@ -5,10 +5,10 @@ import {
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
-  ServiceCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
+import { ServiceOfferingCard } from "@/components/services/ServiceOfferingCard";
 
 const Conditioning = () => {
   const pillars = [
@@ -61,6 +61,33 @@ const Conditioning = () => {
     }
   ];
 
+  const conditioningServices = [
+    {
+      title: "CONDITIONING TRAINING",
+      subtitle: "IN-PERSON SESSIONS",
+      description: "Our in-person conditioning sessions take place across the UK with our expert conditioning coaches. Each session is tailored to your position and the specific energy systems you use most during matches.",
+      features: [
+        "Position-specific work ratios",
+        "Fitness testing and assessment",
+        "Real-time coaching feedback"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_017fa5479b0149dc8131970689d6d548~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_017fa5479b0149dc8131970689d6d548~mv2.png",
+      price: "FROM £120.00",
+    },
+    {
+      title: "CONDITIONING PROGRAMMING",
+      subtitle: "BESPOKE REMOTE SUPPORT",
+      description: "Bespoke conditioning drills with position-specific and individualised work ratios. Periodisation to ensure progression and avoid overtraining, with monitoring of performance metrics to track progress.",
+      features: [
+        "Monthly review and redesign",
+        "24/7 support with training",
+        "Performance metrics tracking"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_ff883ecdb84447798addc2bef1be7c2b~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_ff883ecdb84447798addc2bef1be7c2b~mv2.png",
+      price: "FROM £200.00",
+    },
+  ];
+
   return (
     <ServicePageLayout
       category="CONDITIONING"
@@ -91,6 +118,31 @@ const Conditioning = () => {
         </div>
       </section>
 
+      {/* Our Conditioning Services */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>OUR CONDITIONING SERVICES</ServiceSectionTitle>
+          
+          <div className="space-y-6 max-w-6xl mx-auto mt-4">
+            {conditioningServices.map((service, index) => (
+              <ServiceOfferingCard
+                key={index}
+                title={service.title}
+                subtitle={service.subtitle}
+                description={service.description}
+                features={service.features}
+                image={service.image}
+                price={service.price}
+                reverse={index % 2 !== 0}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Sharpen Your Blade Section */}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
@@ -106,59 +158,11 @@ const Conditioning = () => {
               "We conduct a specific-needs analysis and fitness testing to determine training priorities.",
               "We support you in understanding the key factors influencing endurance in football, such as ATP, pH, Blood-glucose, Respiration and much more."
             ].map((text, index) => (
-              <div key={index} className="bg-black/40 border border-white/10 rounded-xl p-5 md:p-6 hover:border-accent/30 transition-colors">
-                <p className="text-white/70 text-sm md:text-base leading-relaxed">{text}</p>
+              <div key={index} className="group/card relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-sm border border-white/10 rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-accent/50 hover:from-white/[0.12] hover:to-white/[0.05]">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/30 rounded-l-xl transition-all duration-300 group-hover/card:bg-accent group-hover/card:w-1.5" />
+                <p className="text-white/70 text-sm md:text-base leading-relaxed pl-3">{text}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Programming Section */}
-      <section className="relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
-        
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>PROGRAMMING</ServiceSectionTitle>
-          
-          <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 gap-4">
-            {[
-              "Bespoke conditioning drills with position-specific and individualised work ratios.",
-              "Periodisation to ensure progression and avoid overtraining.",
-              "Monitoring of performance metrics to track progress and adjust the programme.",
-              "Choose from in-person training or extended programming.",
-              "Monthly review and redesign of programming around club schedule and personal load.",
-              "24/7 support with training, including new cues, targets and feedback."
-            ].map((text, index) => (
-              <div key={index} className="bg-black/40 border border-white/10 rounded-xl p-4 md:p-5">
-                <p className="text-white/70 text-sm leading-relaxed">{text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Options Section */}
-      <section className="relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
-        
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
-          
-          <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 gap-6">
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_017fa5479b0149dc8131970689d6d548~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_017fa5479b0149dc8131970689d6d548~mv2.png"
-              title="Conditioning Training"
-              link="/contact"
-            />
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_ff883ecdb84447798addc2bef1be7c2b~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_ff883ecdb84447798addc2bef1be7c2b~mv2.png"
-              title="Conditioning Programming"
-              price="From £200.00"
-              link="/contact"
-            />
           </div>
         </div>
       </section>

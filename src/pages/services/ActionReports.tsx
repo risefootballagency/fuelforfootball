@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
-import { Play, Target, TrendingUp, BarChart3 } from "lucide-react";
+import { Play, Target, TrendingUp, BarChart3, ArrowRight } from "lucide-react";
 import {
   ServicePageLayout,
   ServiceSectionTitle,
@@ -8,6 +9,7 @@ import {
   ServiceInfoCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
+import { ServiceOfferingCard } from "@/components/services/ServiceOfferingCard";
 
 const ActionReports = () => {
   const steps = [
@@ -22,6 +24,33 @@ const ActionReports = () => {
     { reports: "10 REPORTS", price: "£499", perReport: "£49.90 per report", savings: "Save £351", featured: false },
     { reports: "20 REPORTS", price: "£899", perReport: "£44.95 per report", savings: "Save £801", featured: true },
     { reports: "40 REPORTS", price: "£1,399", perReport: "£34.98 per report", savings: "Save £2,001", featured: false },
+  ];
+
+  const actionReportServices = [
+    {
+      title: "SINGLE ACTION REPORT",
+      subtitle: "MATCH ANALYSIS",
+      description: "A granular breakdown of every significant action you take during a match. Each action is timestamped, clipped from match footage, and analysed against tactical principles specific to your position.",
+      features: [
+        "Every action timestamped and rated",
+        "Video clips of key moments",
+        "Tactical effectiveness scoring"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
+      price: "FROM £85.00",
+    },
+    {
+      title: "SEASON PACKAGE",
+      subtitle: "COMPREHENSIVE TRACKING",
+      description: "Regular action reports throughout your season with trend analysis and progress tracking. See how your decision-making and execution improves over time with detailed performance data.",
+      features: [
+        "Trend analysis over time",
+        "Progress tracking dashboard",
+        "Priority areas identified"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
+      price: "FROM £499.00",
+    },
   ];
 
   return (
@@ -79,6 +108,31 @@ const ActionReports = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Our Action Report Services */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>OUR ACTION REPORT SERVICES</ServiceSectionTitle>
+          
+          <div className="space-y-6 max-w-6xl mx-auto mt-4">
+            {actionReportServices.map((service, index) => (
+              <ServiceOfferingCard
+                key={index}
+                title={service.title}
+                subtitle={service.subtitle}
+                description={service.description}
+                features={service.features}
+                image={service.image}
+                price={service.price}
+                reverse={index % 2 !== 0}
+              />
+            ))}
           </div>
         </div>
       </section>

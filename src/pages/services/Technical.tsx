@@ -9,34 +9,10 @@ import {
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
-import { ServiceQuickAddWidget } from "@/components/ServiceQuickAddWidget";
+import { ServiceOfferingCard } from "@/components/services/ServiceOfferingCard";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Service {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  category: string;
-  image_url?: string | null;
-}
-
 const Technical = () => {
-  const [services, setServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      const { data } = await supabase
-        .from('service_catalog')
-        .select('id, name, description, price, category, image_url')
-        .ilike('category', '%technical%')
-        .limit(5);
-      
-      if (data) setServices(data as Service[]);
-    };
-    fetchServices();
-  }, []);
-
   const pillars = [
     { icon: "https://static.wixstatic.com/media/c4f4b1_fa44f917083b4628bdadc5a271e841f8~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Receiving%20(1).png", label: "RECEIVING" },
     { icon: "https://static.wixstatic.com/media/c4f4b1_0f23f93ab7f54ed4a8bd8fa19a26271f~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Passing.png", label: "PASSING" },
@@ -100,11 +76,38 @@ const Technical = () => {
     }
   ];
 
+  const technicalServices = [
+    {
+      title: "TECHNICAL TRAINING",
+      subtitle: "IN-PERSON SESSIONS",
+      description: "Our in-person technical training sessions take place across the UK with our expert technical coaches. Unlike 1 to 1 sessions you may have seen online, our analysts break your game down in detail before training to key in on the details that actually matter.",
+      features: [
+        "Video analysis before sessions",
+        "Workshop-style coaching",
+        "Position-specific training"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png",
+      price: "FROM £120.00",
+    },
+    {
+      title: "TECHNICAL PROGRAMMING",
+      subtitle: "REMOTE SUPPORT",
+      description: "In-depth programming with a high attention to detail. Programming is individualised to improve the key technical aspects for improving performance on the pitch. Our technical coach works 1:1 to offer full support.",
+      features: [
+        "Detailed video analysis",
+        "Personalised improvement plans",
+        "Daily coaching support"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png",
+      price: "FROM £200.00",
+    },
+  ];
+
   return (
     <ServicePageLayout
       category="TECHNICAL"
       title="CONTROL THE BALL, CONTROL THE GAME"
-      heroVideo="/videos/players-hero.mp4"
+      heroVideo="/videos/technical-hero.mp4"
       heroVideoWithBorders
     >
       {/* Pillars Section */}
@@ -130,22 +133,27 @@ const Technical = () => {
         </div>
       </section>
 
-      {/* Options Section with Product Widget */}
+      {/* Our Technical Services */}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+          <ServiceSectionTitle>OUR TECHNICAL SERVICES</ServiceSectionTitle>
           
-          <div className="max-w-6xl mx-auto mt-4">
-            {services.length > 0 && (
-              <ServiceQuickAddWidget 
-                services={services}
-                autoSlideshow={true}
-                slideshowInterval={6000}
+          <div className="space-y-6 max-w-6xl mx-auto mt-4">
+            {technicalServices.map((service, index) => (
+              <ServiceOfferingCard
+                key={index}
+                title={service.title}
+                subtitle={service.subtitle}
+                description={service.description}
+                features={service.features}
+                image={service.image}
+                price={service.price}
+                reverse={index % 2 !== 0}
               />
-            )}
+            ))}
           </div>
         </div>
       </section>

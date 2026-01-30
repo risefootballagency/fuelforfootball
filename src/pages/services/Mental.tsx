@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import {
@@ -5,11 +6,11 @@ import {
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
-  ServiceCard,
   ServiceInfoCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
+import { ServiceOfferingCard } from "@/components/services/ServiceOfferingCard";
 
 const Mental = () => {
   const pillars = [
@@ -57,6 +58,45 @@ const Mental = () => {
     }
   ];
 
+  const mentalServices = [
+    {
+      title: "PSYCHOLOGICAL PERFORMANCE",
+      subtitle: "MENTAL WILL TRAINING",
+      description: "Our psychological performance sessions provide tailored support by providing players with Mental Will training and Mindset Conditioning. Through performance reviews, players receive the support they need from game to game to develop their mental strength and increase consistency within their performance on and off the pitch.",
+      features: [
+        "Pre-match mindset conditioning",
+        "In-game mental strategies",
+        "Post-match psychological recovery"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_121be4d22e6244d48dd94cacbf7bcf8c~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_121be4d22e6244d48dd94cacbf7bcf8c~mv2.png",
+      price: "FROM £85.00",
+    },
+    {
+      title: "PSYCHOLOGICAL DEVELOPMENT",
+      subtitle: "MENTAL SKILL TRAINING",
+      description: "Psychological development is crucial for success. Mental skills sessions will help you improve your long-term psychological performance. By focusing on mental skills such as visualisation, goal-setting, and self-talk, you will develop the mental toughness and resilience needed to succeed at the highest level.",
+      features: [
+        "Visualisation techniques",
+        "Goal-setting frameworks",
+        "Positive self-talk training"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_f85124e6d69542e4b4329bacafb454a3~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_f85124e6d69542e4b4329bacafb454a3~mv2.png",
+      price: "FROM £150.00",
+    },
+    {
+      title: "FUELLED ELITE COACHING",
+      subtitle: "COMPREHENSIVE MENTAL SUPPORT",
+      description: "Complete psychological support combining both Mental Will and Mental Skill training. This comprehensive package ensures you develop both the short-term match preparation and long-term mental development needed to reach your full potential.",
+      features: [
+        "Combined Will & Skill training",
+        "Weekly 1:1 sessions",
+        "24/7 support access"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_ec7282c95805482aaf5d9909b260c8ee~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_ec7282c95805482aaf5d9909b260c8ee~mv2.png",
+      price: "FROM £300.00",
+    },
+  ];
+
   return (
     <ServicePageLayout
       category="PSYCHOLOGICAL PERFORMANCE"
@@ -88,44 +128,27 @@ const Mental = () => {
         </div>
       </section>
 
-      {/* Options Section */}
+      {/* Our Mental Services - Using Analysis-style cards */}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+          <ServiceSectionTitle>OUR MENTAL SERVICES</ServiceSectionTitle>
           
-          <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10 md:mb-14">
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_ec7282c95805482aaf5d9909b260c8ee~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_ec7282c95805482aaf5d9909b260c8ee~mv2.png"
-              title="Fuelled Elite Coaching"
-              link="/contact"
-            />
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_f85124e6d69542e4b4329bacafb454a3~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_f85124e6d69542e4b4329bacafb454a3~mv2.png"
-              title="Psychological Development"
-              link="/contact"
-            />
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_121be4d22e6244d48dd94cacbf7bcf8c~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_121be4d22e6244d48dd94cacbf7bcf8c~mv2.png"
-              title="Psychological Performance"
-              link="/contact"
-            />
-          </div>
-          
-          {/* Performance & Development Details */}
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
-            <ServiceInfoCard
-              title="Performance"
-              subtitle="(Mental Will Training)"
-              content="Our psychological performance sessions provide tailored support by providing players with Mental Will training and Mindset Conditioning. Through performance reviews, players receive the support they need from game to game to develop their mental strength and increase consistency within their performance on and off the pitch."
-            />
-            <ServiceInfoCard
-              title="Development"
-              subtitle="(Mental Skill Training)"
-              content="Psychological development is crucial for success. Mental skills sessions will help you improve your long-term psychological performance. By focusing on mental skills such as visualisation, goal-setting, and self-talk, you will develop the mental toughness and resilience needed to succeed at the highest level."
-            />
+          <div className="space-y-6 max-w-6xl mx-auto mt-4">
+            {mentalServices.map((service, index) => (
+              <ServiceOfferingCard
+                key={index}
+                title={service.title}
+                subtitle={service.subtitle}
+                description={service.description}
+                features={service.features}
+                image={service.image}
+                price={service.price}
+                reverse={index % 2 !== 0}
+              />
+            ))}
           </div>
         </div>
       </section>

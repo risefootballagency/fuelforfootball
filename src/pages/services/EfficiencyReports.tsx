@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
+import { ArrowRight } from "lucide-react";
 import {
   ServicePageLayout,
   ServiceSectionTitle,
@@ -9,6 +11,7 @@ import {
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
+import { ServiceOfferingCard } from "@/components/services/ServiceOfferingCard";
 
 const EfficiencyReports = () => {
   const pillars = [
@@ -56,6 +59,33 @@ const EfficiencyReports = () => {
     }
   ];
 
+  const efficiencyServices = [
+    {
+      title: "SINGLE EFFICIENCY REPORT",
+      subtitle: "PERFORMANCE SNAPSHOT",
+      description: "Comprehensive efficiency analysis covering one match period or season segment. Using the same metrics that professional clubs and scouts analyse, we give you insights into how you're viewed in the transfer market.",
+      features: [
+        "Positional benchmarking",
+        "League percentile rankings",
+        "Scout-view analysis"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
+      price: "FROM £95.00",
+    },
+    {
+      title: "SEASON EFFICIENCY PACKAGE",
+      subtitle: "TREND TRACKING",
+      description: "Regular efficiency reports throughout the season with trend analysis and progress tracking. Demonstrate consistent improvement to agents, clubs, and scouts with professional-grade documentation.",
+      features: [
+        "Monthly reports",
+        "Progress tracking",
+        "Trend analysis"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
+      price: "FROM £450.00",
+    },
+  ];
+
   return (
     <ServicePageLayout
       category="TACTICAL"
@@ -82,6 +112,31 @@ const EfficiencyReports = () => {
           
           <div className="max-w-6xl mx-auto mt-4">
             <ServiceDetailTabs tabs={tabContent} />
+          </div>
+        </div>
+      </section>
+
+      {/* Our Efficiency Report Services */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>OUR EFFICIENCY REPORT SERVICES</ServiceSectionTitle>
+          
+          <div className="space-y-6 max-w-6xl mx-auto mt-4">
+            {efficiencyServices.map((service, index) => (
+              <ServiceOfferingCard
+                key={index}
+                title={service.title}
+                subtitle={service.subtitle}
+                description={service.description}
+                features={service.features}
+                image={service.image}
+                price={service.price}
+                reverse={index % 2 !== 0}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -119,31 +174,18 @@ const EfficiencyReports = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* CTA */}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>PRICING</ServiceSectionTitle>
-          
-          <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 gap-6">
-            <ServiceInfoCard
-              title="Single Report"
-              content="Comprehensive efficiency analysis covering one match period or season segment."
-              featured
-            />
-            <ServiceInfoCard
-              title="Season Package"
-              content="Regular efficiency reports throughout the season with trend analysis and progress tracking."
-            />
-          </div>
-          
-          <div className="max-w-6xl mx-auto mt-8 text-center">
+          <div className="max-w-6xl mx-auto text-center">
             <p className="font-bebas text-xl md:text-2xl text-accent mb-4">From £95.00</p>
             <LocalizedLink to="/contact">
-              <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">
-                Get Your Report
+              <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-8 py-3 text-lg group/btn">
+                GET YOUR REPORT
+                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover/btn:translate-x-1" />
               </Button>
             </LocalizedLink>
           </div>
