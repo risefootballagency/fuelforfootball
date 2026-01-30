@@ -151,11 +151,11 @@ const Analysis = () => {
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
     >
-      {/* Four Pillars with Dark Green Background - No padding between sections */}
-      <section className="relative">
+      {/* Four Pillars with Dark Green Background - No gap from video */}
+      <section className="relative -mt-12 md:-mt-20">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
-        <div className="relative z-10 py-8">
+        <div className="relative z-10 pt-4 pb-0">
           <ServicePillars pillars={pillars} large />
         </div>
       </section>
@@ -165,7 +165,7 @@ const Analysis = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-0">
           <ServiceSectionTitle>OUR ANALYSIS SERVICES</ServiceSectionTitle>
           
           <div className="space-y-6 max-w-6xl mx-auto mt-4">
@@ -186,10 +186,10 @@ const Analysis = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       
-                      {/* View Example Button on Image */}
+                      {/* View Example Button on Image - Translucent */}
                       <Button 
                         onClick={() => setPortalExampleOpen(true)}
-                        className="absolute top-4 right-4 font-bebas tracking-wider bg-accent/90 hover:bg-accent text-black px-4 py-2 text-sm z-10"
+                        className="absolute top-4 right-4 font-bebas tracking-wider bg-black/50 hover:bg-black/70 border border-accent/50 text-accent hover:text-white px-4 py-2 text-sm z-10 backdrop-blur-sm"
                       >
                         <Eye className="w-4 h-4 mr-2" />
                         VIEW EXAMPLE
@@ -228,21 +228,21 @@ const Analysis = () => {
 
                       <div className="flex flex-col gap-3 mt-auto">
                         <p className="font-bebas text-xl text-accent tracking-wide">{service.price}</p>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <LocalizedLink to={`/services?service=${service.productId}`}>
+                            <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-6 py-2.5 text-base group/btn">
+                              LEARN MORE
+                              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                            </Button>
+                          </LocalizedLink>
                           <Button 
                             variant="ghost"
                             onClick={() => openWhatsIncluded(service.serviceType)}
-                            className="font-bebas tracking-wider text-white/70 hover:text-white hover:bg-white/10 px-3 text-sm"
+                            className="font-bebas tracking-wider text-white/60 hover:text-white hover:bg-white/10 px-3 text-sm"
                           >
                             <Info className="w-4 h-4 mr-1" />
                             WHAT'S INCLUDED
                           </Button>
-                          <LocalizedLink to={`/services?service=${service.productId}`}>
-                            <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-4 text-sm group/btn">
-                              LEARN MORE
-                              <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
-                            </Button>
-                          </LocalizedLink>
                         </div>
                       </div>
                     </div>
@@ -259,7 +259,7 @@ const Analysis = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-8 pb-4">
           <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
           
           <div className="max-w-5xl mx-auto mt-4">
@@ -280,13 +280,13 @@ const Analysis = () => {
                       </p>
                     </div>
                   ))}
-                  {/* Product Link at the end */}
+                  {/* Product Link at the end - Prominent button */}
                   {tab.productId && (
-                    <div className="pt-2">
+                    <div className="pt-4">
                       <LocalizedLink to={`/services?service=${tab.productId}`}>
-                        <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-6 group/btn">
-                          LEARN MORE ABOUT {tab.label.toUpperCase()}
-                          <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                        <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-8 py-3 text-lg group/btn">
+                          LEARN MORE
+                          <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover/btn:translate-x-1" />
                         </Button>
                       </LocalizedLink>
                     </div>

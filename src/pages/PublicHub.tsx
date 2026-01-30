@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { supabase as localSupabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { Hub } from "@/components/dashboard/Hub";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,9 +51,9 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
           return;
         }
 
-        // For public viewing, only show if player is public or is demo account
+        // For public viewing, only show if player is demo account
         const isDemoPlayer = targetPlayerId === DEMO_PLAYER_ID;
-        if (!isDemoPlayer && !player.is_public_profile) {
+        if (!isDemoPlayer) {
           setError("This profile is private");
           setLoading(false);
           return;
@@ -81,11 +80,11 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
         setPrograms(programsData || []);
 
         // Fetch daily aphorism
-        const { data: aphorism } = await localSupabase
+        const { data: aphorism } = await supabase
           .from("coaching_aphorisms")
           .select("*")
           .limit(1)
-          .single();
+          .maybeSingle();
 
         setDailyAphorism(aphorism);
 
