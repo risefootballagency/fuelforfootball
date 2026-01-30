@@ -39,7 +39,7 @@ const Analysis = () => {
       productId: "6c369b05-d410-4955-98e6-20a936019079",
       serviceType: "pre-match",
       tabLabel: "Pre-Match Opposition Analysis",
-      image: "https://static.wixstatic.com/media/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg",
+      video: "https://wodoiizsonuwtniziicv.supabase.co/storage/v1/object/public/marketing-gallery/1769802291782_rhoue5.mp4",
     },
     {
       title: "POST-MATCH ANALYSIS",
@@ -55,7 +55,7 @@ const Analysis = () => {
       productId: "bd421bfa-2819-444b-aaa7-8de168f2b171",
       serviceType: "post-match",
       tabLabel: "Post-Match Analysis",
-      image: "https://static.wixstatic.com/media/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg",
+      video: "https://wodoiizsonuwtniziicv.supabase.co/storage/v1/object/public/marketing-gallery/1769802169267_m2rqay.mp4",
     },
     {
       title: "POSITIONAL GUIDE",
@@ -71,7 +71,7 @@ const Analysis = () => {
       productId: "853b38f5-27f3-4482-9ad2-99c10983e988",
       serviceType: "positional",
       tabLabel: "Positional Guide",
-      image: "https://static.wixstatic.com/media/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg/v1/fill/w_848,h_334,q_90,enc_avif,quality_auto/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg",
+      video: "https://wodoiizsonuwtniziicv.supabase.co/storage/v1/object/public/marketing-gallery/1769802237402_x0kyne.mp4",
     },
     {
       title: "PLAYER EFFICIENCY REPORT",
@@ -177,13 +177,25 @@ const Analysis = () => {
                   className="group bg-gradient-to-br from-black/80 to-black/60 border border-white/10 rounded-xl overflow-hidden transition-all duration-500 hover:border-accent/40"
                 >
                   <div className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
-                    {/* Image Section */}
+                    {/* Media Section - Video or Image */}
                     <div className="relative lg:w-1/2 h-64 lg:h-auto min-h-[280px]">
-                      <img 
-                        src={service.image}
-                        alt={service.title}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
+                      {service.video ? (
+                        <video 
+                          autoPlay 
+                          loop 
+                          muted 
+                          playsInline
+                          className="absolute inset-0 w-full h-full object-cover"
+                        >
+                          <source src={service.video} type="video/mp4" />
+                        </video>
+                      ) : service.image ? (
+                        <img 
+                          src={service.image}
+                          alt={service.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      ) : null}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       
                       {/* View Example Button on Image - Translucent */}

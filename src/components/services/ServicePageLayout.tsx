@@ -232,20 +232,23 @@ export const ServicePillars = ({
 export const ServiceContentBlock = ({ 
   paragraphs,
   className = "",
-  asCards = false
+  asCards = true
 }: { 
   paragraphs: string[];
   className?: string;
   asCards?: boolean;
 }) => (
-  <div className={`max-w-4xl mx-auto ${asCards ? 'grid gap-4' : 'space-y-5'} ${className}`}>
+  <div className={`space-y-3 max-w-6xl mx-auto ${className}`}>
     {paragraphs.map((text, index) => (
       asCards ? (
         <div 
           key={index} 
-          className="bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-accent/30"
+          className="group/card relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-sm border border-white/10 rounded-xl p-4 md:p-5 transition-all duration-300 hover:border-accent/50 hover:from-white/[0.12] hover:to-white/[0.05] hover:scale-[1.02] hover:shadow-xl hover:shadow-accent/10 cursor-pointer"
         >
-          <p className="text-white/80 text-sm md:text-base leading-relaxed">
+          {/* Animated accent bar */}
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/30 rounded-l-xl transition-all duration-300 group-hover/card:bg-accent group-hover/card:w-1.5 group-hover/card:shadow-lg group-hover/card:shadow-accent/50" />
+          
+          <p className="text-white/90 text-sm md:text-base leading-relaxed pl-3">
             {text}
           </p>
         </div>
