@@ -1,113 +1,157 @@
 
 
-# Fix Analysis Page Spacing, Footer Issues & Portal Example Design
+# Fix Analysis Page Spacing, Portal Example Navigation & Dialog Layout
 
-## Issues Identified from Screenshots
+## Issues to Fix
 
-Based on the uploaded screenshots showing white lines marking problem areas:
+### 1. Analysis Page - "Our Analysis Services" Section Height
+- The section cuts off abruptly at the bottom
+- Need to add `pb-6` padding to ensure the last card has breathing room
 
-### 1. Spacing Issues on Analysis Page
-- **Empty space between video and pillars** - Visible gap above the pillars section after the hero video
-- **Empty space between pillars and "Our Analysis Services"** - Gap below the pillars section
-- **Empty space above "In Detail"** - Lighter green gap visible before the In Detail section
-- **Empty space below "In Detail"** - Lighter green padding visible before Full Package
-- **"In Detail" tabs** - Tab buttons don't span the same width as the content cards below
+### 2. Analysis Page - Space at End of "In Detail" Section
+- Looking at the screenshot, there's visible empty space between the "In Detail" content and "THE FULL PACKAGE" section
+- The container has `pb-4` which is causing this gap
+- Change `pb-4` to `pb-0` to eliminate the space
 
-### 2. Footer Issues
-- **"Change The Game" background** - Different color behind text instead of matching the dark green footer background
-- **Footer description** - Text spans 4 lines instead of 3 equal lines
-- **Connect button** - Should turn FFF yellow on hover
+### 3. Portal Example - Incorrect Dropdown Menu Design
+The current PublicHub navigation doesn't match the Dashboard.tsx design:
 
-### 3. Portal Example Design
-- **Horizontal navigation slider** - Using `overflow-x-auto` horizontal slider instead of proper dropdown menu like the authenticated portal
-- **Design doesn't match** - The PublicHub component uses a simplified public-facing design instead of the full Dashboard portal design
+**Current Problem:**
+- Uses a different dropdown styling with simpler colors
+- Button styling doesn't match Dashboard (missing gold borders, gold text colors)
+- DropdownMenuContent styling is different
 
----
+**Dashboard Pattern (Lines 1750-1807):**
+```tsx
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button
+      variant="outline" 
+      className="w-full justify-center font-bebas uppercase text-xl px-6 py-6 bg-card hover:bg-card/80 border-t-2 border-gold border-x-0 border-b-2 !text-gold hover:!text-gold z-50 rounded-none"
+    >
+      <span>{activeTab === "hub" && "Hub"}</span>
+      <ChevronDown className="ml-2 h-5 w-5" />
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent align="start" className="w-[280px] bg-card border-2 border-gold shadow-lg shadow-gold/20 z-50">
+    <DropdownMenuItem 
+      onClick={() => setActiveTab("hub")}
+      className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
+    >
+      Hub
+    </DropdownMenuItem>
+    ...
+  </DropdownMenuContent>
+</DropdownMenu>
+```
 
-## Implementation Plan
+**Fix:** Update PublicHub.tsx to use the exact same dropdown styling as Dashboard.tsx:
+- Gold border (border-gold/border-accent)
+- Gold text (!text-gold/text-accent)
+- Uppercase font-bebas text
+- Same padding and hover states
 
-### 1. Analysis.tsx - Fix All Spacing Gaps
+### 4. Portal Example Dialog - Lateral Scrolling & Exit Button
+The PortalExampleDialog needs fixes:
 
-**Pillars Section:**
-- Remove any padding/margin that creates the gap above and below the pillars
-- Update `ServicePillars` component to remove its internal `py-6 md:py-8` padding
+**Current Issues:**
+- Content can overflow horizontally causing lateral scrolling
+- Close button exists but may need better visibility
 
-**Our Analysis Services Section:**
-- Remove `pt-0 pb-0` and container padding that still creates visual gaps
-- Ensure the dark green gradient flows seamlessly from pillars
-
-**In Detail Section:**
-- Remove `py-6` that creates the visible lighter green gap
-- Set consistent `pt-0 pb-0` to eliminate empty space
-
-**Full Package Section:**
-- Remove `py-6` from the section wrapper
-
-### 2. ServiceDetailTabs.tsx - Match Tab Width to Content
-
-- Add `w-full` wrapper to the tab buttons container
-- Use CSS to make tab buttons fill the available width proportionally
-- Change from `flex-wrap justify-center` to a grid or flex layout that matches content card width
-- Apply `max-w-5xl mx-auto` to tab container to match content cards below
-
-### 3. In Detail Section - Center Learn More Button
-
-- Move the "LEARN MORE" button inside a `flex justify-center` wrapper
-- Ensure button is centered below the cards, not left-aligned
-
-### 4. Footer.tsx - Fix All Issues
-
-**"Change The Game" Background:**
-- Remove the inline style `backgroundColor: '#081f12'`
-- Use `bg-transparent` and let the footer's dark green gradient show through
-- Or use `bg-[#0a2f1a]` to match the footer gradient exactly
-
-**Description Line Count:**
-- Adjust `max-w-3xl` to ensure text flows into exactly 3 lines
-- May need to adjust to `max-w-2xl` or adjust font size
-
-**Connect Button Hover:**
-- Add `hover:bg-accent hover:text-black` classes to the Connect button
-- Currently it has these classes but verify they're working
-
-### 5. PublicHub.tsx - Match Authenticated Portal Design
-
-**Navigation Fix:**
-- Remove the horizontal slider navigation (`overflow-x-auto py-2`)
-- Replace with a proper dropdown menu using `DropdownMenu` component from Radix UI
-- Match the Dashboard.tsx navigation pattern which uses tabs with proper dropdown
-
-**Design Alignment:**
-- Import and use the same `Tabs, TabsContent, TabsList, TabsTrigger` components as Dashboard
-- Match the exact layout structure from Dashboard.tsx
-- Use accordion sections instead of horizontal navigation
-- Include the same header styling with proper navigation options
+**Fixes:**
+- Add `overflow-x-hidden` to prevent lateral scrolling
+- Update content wrapper to use proper width constraints
+- Make close button more visible with text "CLOSE" or larger styling
 
 ---
 
-## Technical Details
+## Technical Implementation
 
-### Files to Modify:
+### File: `src/pages/services/Analysis.tsx`
 
-1. **`src/pages/services/Analysis.tsx`**
-   - Remove padding from all sections (Pillars, Services, In Detail, Full Package)
-   - Center the "Learn More" button in In Detail section
+**"Our Analysis Services" section (around line 164-255):**
+- Change container padding from `pt-0 pb-0` to `pt-0 pb-6`
+- This adds bottom padding so the last card doesn't cut off abruptly
 
-2. **`src/components/services/ServiceDetailTabs.tsx`**
-   - Change tab container to match content width (`max-w-5xl`)
-   - Use full-width justified tabs
+**"In Detail" section (around line 257-299):**
+- Change container padding from `pt-0 pb-4` to `pt-0 pb-0`
+- This removes the empty space before "THE FULL PACKAGE"
 
-3. **`src/components/services/ServicePageLayout.tsx`**
-   - Update `ServicePillars` component to remove internal padding
-   - Ensure seamless section flow
+### File: `src/pages/PublicHub.tsx`
 
-4. **`src/components/Footer.tsx`**
-   - Fix "Change The Game" background color
-   - Adjust description max-width for 3 lines
-   - Verify Connect button hover state
+**Navigation Section (around line 194-228):**
+Replace the current dropdown styling with the exact Dashboard pattern:
 
-5. **`src/pages/PublicHub.tsx`**
-   - Replace horizontal nav with dropdown menu
-   - Match Dashboard.tsx navigation and layout patterns
-   - Use proper Tabs component for section switching
+```tsx
+// Replace the nav section with Dashboard-style navigation
+<nav className="w-full z-40">
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button
+        variant="outline" 
+        className="w-full justify-center font-bebas uppercase text-xl px-6 py-6 bg-card hover:bg-card/80 border-t-2 border-accent border-x-0 border-b-2 !text-accent hover:!text-accent z-50 rounded-none"
+      >
+        <span>
+          {activeSection === 'hub' && 'Hub'}
+          {activeSection === 'schedule' && 'Schedule'}
+          {activeSection === 'analysis' && 'Analysis'}
+          {activeSection === 'programmes' && 'Programmes'}
+          {activeSection === 'highlights' && 'Highlights'}
+        </span>
+        <ChevronDown className="ml-2 h-5 w-5" />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="start" className="w-[280px] bg-card border-2 border-accent shadow-lg shadow-accent/20 z-50">
+      {sections.map((section) => (
+        <DropdownMenuItem 
+          key={section.id}
+          onClick={() => setActiveSection(section.id)}
+          className="font-bebas uppercase text-base py-3 cursor-pointer text-accent hover:text-accent/80 hover:bg-accent/10"
+        >
+          {section.label}
+        </DropdownMenuItem>
+      ))}
+    </DropdownMenuContent>
+  </DropdownMenu>
+</nav>
+```
+
+### File: `src/components/services/PortalExampleDialog.tsx`
+
+**Prevent lateral scrolling and improve close button:**
+
+```tsx
+<DialogContent className="max-w-[95vw] w-full h-[95vh] bg-background border-white/10 p-0 overflow-hidden">
+  <DialogHeader className="sr-only">
+    <DialogTitle>Player Portal Example</DialogTitle>
+  </DialogHeader>
+  
+  {/* Improved Close button - larger, more visible */}
+  <button 
+    onClick={() => onOpenChange(false)}
+    className="absolute right-4 top-4 z-[60] px-4 py-2 rounded-lg bg-accent text-black font-bebas tracking-wider hover:bg-accent/90 transition-colors flex items-center gap-2"
+  >
+    <X className="w-4 h-4" />
+    CLOSE
+  </button>
+
+  {/* Prevent horizontal overflow */}
+  <div className="h-full overflow-y-auto overflow-x-hidden">
+    <div className="w-full max-w-full">
+      <PortalExample isEmbedded />
+    </div>
+  </div>
+</DialogContent>
+```
+
+---
+
+## Summary of Changes
+
+| File | Change | Purpose |
+|------|--------|---------|
+| `Analysis.tsx` | Add `pb-6` to Services section | Prevent abrupt cut-off |
+| `Analysis.tsx` | Remove `pb-4` from In Detail section | Eliminate empty space before Full Package |
+| `PublicHub.tsx` | Replace dropdown with Dashboard-style nav | Exact UI match with authenticated portal |
+| `PortalExampleDialog.tsx` | Add `overflow-x-hidden`, improve close button | Prevent lateral scroll, better UX |
 
