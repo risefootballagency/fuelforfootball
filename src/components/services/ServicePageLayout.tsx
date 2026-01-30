@@ -169,51 +169,89 @@ export const ServiceSectionTitle = ({
 );
 
 export const ServicePillars = ({ 
-  pillars 
+  pillars,
+  large = false
 }: { 
-  pillars: Array<{ icon: string; label: string }> 
+  pillars: Array<{ icon: string; label: string }>;
+  large?: boolean;
 }) => (
-  <section className="py-10 md:py-14 bg-black/20 backdrop-blur-sm">
+  <section className={`${large ? 'py-6 md:py-8' : 'py-10 md:py-14'} bg-black/20 backdrop-blur-sm`}>
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className={`grid grid-cols-2 md:grid-cols-${Math.min(pillars.length, 4)} gap-6 md:gap-8 max-w-4xl mx-auto`}>
-        {pillars.map((pillar, index) => (
-          <div 
-            key={index} 
-            className="flex flex-col items-center gap-4 group animate-fade-in"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-accent/50 transition-all duration-300">
-              <img 
-                src={pillar.icon}
-                alt={pillar.label}
-                className="w-10 h-10 md:w-12 md:h-12 object-contain"
-              />
+      {large ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+          {pillars.map((pillar, index) => (
+            <div 
+              key={index} 
+              className="group bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-6 md:p-8 flex flex-col items-center gap-4 transition-all duration-300 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 animate-fade-in"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-accent/50 transition-all duration-300">
+                <img 
+                  src={pillar.icon}
+                  alt={pillar.label}
+                  className="w-14 h-14 md:w-16 md:h-16 object-contain"
+                />
+              </div>
+              <span className="font-bebas text-base md:text-lg tracking-[0.15em] text-white text-center drop-shadow-md">
+                {pillar.label}
+              </span>
             </div>
-            <span className="font-bebas text-sm md:text-base tracking-[0.15em] text-white text-center drop-shadow-md">
-              {pillar.label}
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className={`grid grid-cols-2 md:grid-cols-${Math.min(pillars.length, 4)} gap-6 md:gap-8 max-w-4xl mx-auto`}>
+          {pillars.map((pillar, index) => (
+            <div 
+              key={index} 
+              className="flex flex-col items-center gap-4 group animate-fade-in"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-accent/50 transition-all duration-300">
+                <img 
+                  src={pillar.icon}
+                  alt={pillar.label}
+                  className="w-10 h-10 md:w-12 md:h-12 object-contain"
+                />
+              </div>
+              <span className="font-bebas text-sm md:text-base tracking-[0.15em] text-white text-center drop-shadow-md">
+                {pillar.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   </section>
 );
 
 export const ServiceContentBlock = ({ 
   paragraphs,
-  className = ""
+  className = "",
+  asCards = false
 }: { 
   paragraphs: string[];
   className?: string;
+  asCards?: boolean;
 }) => (
-  <div className={`max-w-4xl mx-auto space-y-5 ${className}`}>
+  <div className={`max-w-4xl mx-auto ${asCards ? 'grid gap-4' : 'space-y-5'} ${className}`}>
     {paragraphs.map((text, index) => (
-      <p 
-        key={index} 
-        className="text-white/80 text-sm md:text-base leading-relaxed"
-      >
-        {text}
-      </p>
+      asCards ? (
+        <div 
+          key={index} 
+          className="bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-accent/30"
+        >
+          <p className="text-white/80 text-sm md:text-base leading-relaxed">
+            {text}
+          </p>
+        </div>
+      ) : (
+        <p 
+          key={index} 
+          className="text-white/80 text-sm md:text-base leading-relaxed"
+        >
+          {text}
+        </p>
+      )
     ))}
   </div>
 );
