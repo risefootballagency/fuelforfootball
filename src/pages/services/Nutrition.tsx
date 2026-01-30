@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import {
   ServicePageLayout,
-  ServiceSection,
   ServiceSectionTitle,
   ServiceContentBlock,
   ServiceCard,
@@ -34,16 +33,70 @@ const Nutrition = () => {
     }
   ];
 
+  const tabContent = [
+    {
+      label: "Overview",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "To unlock your full potential on the pitch, nutrition is key. Our bespoke nutrition services give you the edge over the competition, ensuring you get the most out of every training session and match. Whether you are looking to optimise your match day preparation, change your body composition, or improve your health, our plans will help you achieve your goals.",
+            "Just as you would not run a car with the wrong fuel, your body needs the right nutrients for optimal physical performance. Planning nutritional intake throughout the year can be challenging, with many factors to consider for both performance and development. Our expertise removes the guesswork by implementing tried and trusted strategies, creating personalised programs tailored to your needs."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Review",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Given nutrition's importance for physical, psychological, and technical performance, as well as its role in recovery and injury prevention, it is imperative you maintain an adequate diet that contains the right amount of each key nutrient.",
+            "Our Nutrition Review offers a comprehensive snapshot of your current dietary habits, providing specific recommendations and improvements that can be made. We analyse your macronutrient and micronutrient intake, meal timing, hydration, and supplementation.",
+            "After the review, you receive a detailed report outlining your current nutritional status and a clear action plan for improvements."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Programming",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Considering many physiological factors, we can create personalised nutrition programming which is specific to your needs. By following the programme, you can ensure optimal nutrition throughout the season or off-season and build for long-term development.",
+            "Programming includes periodised nutrition plans that adapt to your training load, match schedule, and personal goals. We cover match day fuelling, recovery nutrition, and strategies for body composition management.",
+            "Daily support is provided to help you stick to your plan, with adjustments made based on your feedback and progress."
+          ]}
+        />
+      )
+    },
+    {
+      label: "Recipes",
+      content: (
+        <ServiceContentBlock
+          paragraphs={[
+            "Our recipe packages provide footballer-specific meals designed to support performance and recovery. Each recipe is optimised for macronutrient content and ease of preparation.",
+            "We include breakfast options for training days, post-training recovery meals, match day preparation meals, and healthy snack alternatives. All recipes are designed with busy schedules in mind.",
+            "Recipes are tailored to your taste preferences and any dietary restrictions, ensuring you enjoy what you eat whilst fuelling your performance."
+          ]}
+        />
+      )
+    }
+  ];
+
   return (
     <ServicePageLayout
       category="NUTRITION"
       title="TO GET THE MOST OUT OF YOURSELF, FUELLING PROPERLY IS A MUST"
       heroVideo="/videos/players-hero.mp4"
+      heroVideoWithBorders
     >
       {/* Benefits Section */}
-      <section className="py-12 md:py-16 bg-black/20 backdrop-blur-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
+          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {benefits.map((benefit, index) => (
               <div 
                 key={index} 
@@ -68,102 +121,71 @@ const Nutrition = () => {
       </section>
 
       {/* In Detail Section */}
-      <ServiceSection>
-        <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-5xl mx-auto">
-          <ServiceDetailTabs tabs={[
-            {
-              label: "Overview",
-              content: (
-                <ServiceContentBlock
-                  paragraphs={[
-                    "To unlock your full potential on the pitch, nutrition is key. Our bespoke nutrition services give you the edge over the competition, ensuring you get the most out of every training session and match. Whether you are looking to optimise your match day preparation, change your body composition, or improve your health, our plans will help you achieve your goals.",
-                    "Just as you would not run a car with the wrong fuel, your body needs the right nutrients for optimal physical performance. Planning nutritional intake throughout the year can be challenging, with many factors to consider for both performance and development. Our expertise removes the guesswork by implementing tried and trusted strategies, creating personalised programs tailored to your needs."
-                  ]}
-                />
-              )
-            },
-            {
-              label: "Review",
-              content: (
-                <ServiceContentBlock
-                  paragraphs={[
-                    "Given nutrition's importance for physical, psychological, and technical performance, as well as its role in recovery and injury prevention, it is imperative you maintain an adequate diet that contains the right amount of each key nutrient.",
-                    "Our Nutrition Review offers a comprehensive snapshot of your current dietary habits, providing specific recommendations and improvements that can be made. We analyse your macronutrient and micronutrient intake, meal timing, hydration, and supplementation.",
-                    "After the review, you receive a detailed report outlining your current nutritional status and a clear action plan for improvements."
-                  ]}
-                />
-              )
-            },
-            {
-              label: "Programming",
-              content: (
-                <ServiceContentBlock
-                  paragraphs={[
-                    "Considering many physiological factors, we can create personalised nutrition programming which is specific to your needs. By following the programme, you can ensure optimal nutrition throughout the season or off-season and build for long-term development.",
-                    "Programming includes periodised nutrition plans that adapt to your training load, match schedule, and personal goals. We cover match day fuelling, recovery nutrition, and strategies for body composition management.",
-                    "Daily support is provided to help you stick to your plan, with adjustments made based on your feedback and progress."
-                  ]}
-                />
-              )
-            },
-            {
-              label: "Recipes",
-              content: (
-                <ServiceContentBlock
-                  paragraphs={[
-                    "Our recipe packages provide footballer-specific meals designed to support performance and recovery. Each recipe is optimised for macronutrient content and ease of preparation.",
-                    "We include breakfast options for training days, post-training recovery meals, match day preparation meals, and healthy snack alternatives. All recipes are designed with busy schedules in mind.",
-                    "Recipes are tailored to your taste preferences and any dietary restrictions, ensuring you enjoy what you eat whilst fuelling your performance."
-                  ]}
-                />
-              )
-            }
-          ]} />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4">
+            <ServiceDetailTabs tabs={tabContent} />
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
       {/* Options Section */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        {/* Features Grid */}
-        <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-          {[
-            "Comprehensive Nutritional Analysis",
-            "Daily Support",
-            "1:1 Coaching",
-            "In-Depth Programming",
-            "Monitoring",
-            "Tailored Recipes"
-          ].map((feature, index) => (
-            <div key={index} className="bg-black/40 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2.5 text-center">
-              <span className="text-xs md:text-sm text-white/80">{feature}</span>
-            </div>
-          ))}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+          
+          {/* Features Grid */}
+          <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
+            {[
+              "Comprehensive Nutritional Analysis",
+              "Daily Support",
+              "1:1 Coaching",
+              "In-Depth Programming",
+              "Monitoring",
+              "Tailored Recipes"
+            ].map((feature, index) => (
+              <div key={index} className="bg-black/40 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2.5 text-center">
+                <span className="text-xs md:text-sm text-white/80">{feature}</span>
+              </div>
+            ))}
+          </div>
+          
+          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ServiceCard
+              image="https://static.wixstatic.com/media/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png"
+              title="Nutrition Review"
+              link="/contact"
+            />
+            <ServiceCard
+              image="https://static.wixstatic.com/media/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png"
+              title="Nutrition Programming"
+              link="/contact"
+            />
+            <ServiceCard
+              image="https://static.wixstatic.com/media/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png"
+              title="Nutrition Programming & Recipes"
+              link="/contact"
+            />
+          </div>
         </div>
-        
-        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <ServiceCard
-            image="https://static.wixstatic.com/media/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png"
-            title="Nutrition Review"
-            link="/contact"
-          />
-          <ServiceCard
-            image="https://static.wixstatic.com/media/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png"
-            title="Nutrition Programming"
-            link="/contact"
-          />
-          <ServiceCard
-            image="https://static.wixstatic.com/media/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png"
-            title="Nutrition Programming & Recipes"
-            link="/contact"
-          />
-        </div>
-      </ServiceSection>
+      </section>
 
-      <ServiceFullPackage />
+      {/* Full Package */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10 pt-0 pb-4">
+          <ServiceFullPackage />
+        </div>
+      </section>
     </ServicePageLayout>
   );
 };

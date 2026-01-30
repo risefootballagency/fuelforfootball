@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import {
   ServicePageLayout,
-  ServiceSection,
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
@@ -106,54 +105,84 @@ const Technical = () => {
       category="TECHNICAL"
       title="CONTROL THE BALL, CONTROL THE GAME"
       heroVideo="/videos/players-hero.mp4"
+      heroVideoWithBorders
     >
-      <ServicePillars pillars={pillars} />
+      {/* Pillars Section */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10">
+          <ServicePillars pillars={pillars} large />
+        </div>
+      </section>
 
       {/* In Detail Section */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-5xl mx-auto">
-          <ServiceDetailTabs tabs={tabContent} />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4">
+            <ServiceDetailTabs tabs={tabContent} />
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
       {/* Options Section with Product Widget */}
-      <ServiceSection>
-        <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-2xl mx-auto">
-          {services.length > 0 && (
-            <ServiceQuickAddWidget 
-              services={services}
-              autoSlideshow={true}
-              slideshowInterval={6000}
-            />
-          )}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4">
+            {services.length > 0 && (
+              <ServiceQuickAddWidget 
+                services={services}
+                autoSlideshow={true}
+                slideshowInterval={6000}
+              />
+            )}
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
       {/* More Than Cones Section */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>MORE THAN CONES</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <p className="text-white/80 text-center max-w-4xl mx-auto mb-10 leading-relaxed text-sm md:text-base">
-          Our technical sessions take a scientific approach to developing technical skills and include ideas such as:
-        </p>
-        
-        <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-3">
-          {concepts.map((concept, index) => (
-            <div 
-              key={index} 
-              className="bg-black/40 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2.5 text-center hover:border-accent/30 transition-colors"
-            >
-              <span className="text-xs md:text-sm text-white/80">{concept}</span>
-            </div>
-          ))}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>MORE THAN CONES</ServiceSectionTitle>
+          
+          <p className="text-white/80 text-center max-w-4xl mx-auto mb-10 leading-relaxed text-sm md:text-base">
+            Our technical sessions take a scientific approach to developing technical skills and include ideas such as:
+          </p>
+          
+          <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-3">
+            {concepts.map((concept, index) => (
+              <div 
+                key={index} 
+                className="bg-black/40 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2.5 text-center hover:border-accent/30 transition-colors"
+              >
+                <span className="text-xs md:text-sm text-white/80">{concept}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
-      <ServiceFullPackage />
+      {/* Full Package */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10 pt-0 pb-4">
+          <ServiceFullPackage />
+        </div>
+      </section>
     </ServicePageLayout>
   );
 };
