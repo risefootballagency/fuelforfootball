@@ -26,10 +26,12 @@ const Analysis = () => {
     >
       <ServicePillars pillars={pillars} large />
 
-      {/* Our Analysis Services Title - reduced spacing */}
-      <ServiceSection className="!py-2">
-        <ServiceSectionTitle>OUR ANALYSIS SERVICES</ServiceSectionTitle>
-      </ServiceSection>
+      {/* Our Analysis Services Title - minimal spacing */}
+      <section className="relative">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <ServiceSectionTitle>OUR ANALYSIS SERVICES</ServiceSectionTitle>
+        </div>
+      </section>
 
       {/* Pre-Match Opposition Analysis */}
       <ServiceSection>
@@ -50,7 +52,7 @@ const Analysis = () => {
               <p className="text-xs text-muted-foreground mb-2">Example Pre-Match Analysis: Slovakia vs England (30/06/24)</p>
               <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
               <LocalizedLink to="/services?service=6c369b05-d410-4955-98e6-20a936019079">
-                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">LEARN MORE</Button>
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-6">LEARN MORE</Button>
               </LocalizedLink>
             </div>
           </div>
@@ -102,7 +104,7 @@ const Analysis = () => {
               <p className="text-xs text-muted-foreground mb-2">Example Post-Match Analysis: Máté Sajbán vs Debrecen (13/08/23)</p>
               <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
               <LocalizedLink to="/services?service=bd421bfa-2819-444b-aaa7-8de168f2b171">
-                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">LEARN MORE</Button>
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-6">LEARN MORE</Button>
               </LocalizedLink>
             </div>
           </div>
@@ -128,7 +130,7 @@ const Analysis = () => {
               <p className="text-xs text-muted-foreground mb-2">Example Positional Guide: Winger Positioning & Movement</p>
               <p className="font-bebas text-xl text-primary mb-4">From £85.00</p>
               <LocalizedLink to="/services?service=853b38f5-27f3-4482-9ad2-99c10983e988">
-                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">LEARN MORE</Button>
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-6">LEARN MORE</Button>
               </LocalizedLink>
             </div>
           </div>
@@ -180,7 +182,7 @@ const Analysis = () => {
               <p className="text-xs text-muted-foreground mb-2">Example Player Efficiency Report: Michael Mulligan (23/24)</p>
               <p className="font-bebas text-xl text-primary mb-4">From £95.00</p>
               <LocalizedLink to="/services?service=309ecacf-22ee-4467-8674-c6686968f6db">
-                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">LEARN MORE</Button>
+                <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-6">LEARN MORE</Button>
               </LocalizedLink>
             </div>
           </div>
