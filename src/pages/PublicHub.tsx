@@ -5,7 +5,9 @@ import { SEO } from "@/components/SEO";
 import { Hub } from "@/components/dashboard/Hub";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Calendar, TrendingUp } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ArrowLeft, User, Calendar, TrendingUp, ChevronDown, Home, FileText, Dumbbell, Video } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 
@@ -20,7 +22,7 @@ interface PublicHubProps {
 const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProps) => {
   const { playerId: paramPlayerId } = useParams();
   const [searchParams] = useSearchParams();
-  const section = searchParams.get("section") || "hub";
+  const initialSection = searchParams.get("section") || "hub";
   
   const [loading, setLoading] = useState(true);
   const [playerData, setPlayerData] = useState<any>(null);
@@ -28,9 +30,18 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
   const [programs, setPrograms] = useState<any[]>([]);
   const [dailyAphorism, setDailyAphorism] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState(initialSection);
 
   // Use prop playerId first, then URL param, then demo
   const targetPlayerId = propPlayerId || paramPlayerId || DEMO_PLAYER_ID;
+
+  const sections = [
+    { id: 'hub', label: 'Hub', icon: Home },
+    { id: 'schedule', label: 'Schedule', icon: Calendar },
+    { id: 'analysis', label: 'Analysis', icon: TrendingUp },
+    { id: 'programmes', label: 'Programmes', icon: Dumbbell },
+    { id: 'highlights', label: 'Highlights', icon: Video },
+  ];
 
   useEffect(() => {
     const fetchPublicPlayerData = async () => {
@@ -38,7 +49,7 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
       setError(null);
 
       try {
-        // Fetch player data
+        // Fetch player data using local supabase client (Joe Bloggs is in local DB)
         const { data: player, error: playerError } = await supabase
           .from("players")
           .select("*")
@@ -99,29 +110,6 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
     fetchPublicPlayerData();
   }, [targetPlayerId]);
 
-  // Scroll to section on load
-  useEffect(() => {
-    if (!loading && section) {
-      const sectionMap: Record<string, string> = {
-        'hub': 'hub-section',
-        'schedule': 'schedule-section',
-        'analysis': 'analysis-section',
-        'programmes': 'programmes-section',
-        'highlights': 'highlights-section',
-      };
-
-      const elementId = sectionMap[section];
-      if (elementId) {
-        setTimeout(() => {
-          const element = document.getElementById(elementId);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 300);
-      }
-    }
-  }, [loading, section]);
-
   const containerClass = isEmbedded ? "" : "min-h-screen";
 
   if (loading) {
@@ -151,6 +139,8 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
     );
   }
 
+  const currentSection = sections.find(s => s.id === activeSection) || sections[0];
+
   return (
     <div className={`${containerClass} bg-background`}>
       {!isEmbedded && (
@@ -161,7 +151,7 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
         />
       )}
 
-      {/* Header Bar */}
+      {/* Header Bar - Matching Dashboard style */}
       <header className={`${isEmbedded ? '' : 'sticky top-0'} z-50 bg-card/95 backdrop-blur-md border-b border-border`}>
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -201,136 +191,173 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
         </div>
       </header>
 
-      {/* Quick Navigation */}
+      {/* Navigation - Dropdown Menu matching Dashboard style */}
       <nav className={`bg-card border-b border-border ${isEmbedded ? '' : 'sticky top-[57px]'} z-40`}>
-        <div className="container mx-auto px-4 flex gap-1 overflow-x-auto py-2">
-          {[
-            { id: 'hub', label: 'Hub' },
-            { id: 'schedule', label: 'Schedule' },
-            { id: 'analysis', label: 'Analysis' },
-            { id: 'programmes', label: 'Programmes' },
-            { id: 'highlights', label: 'Highlights' },
-          ].map((nav) => (
-            <button
-              key={nav.id}
-              onClick={() => {
-                const element = document.getElementById(`${nav.id}-section`);
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
-              className={`px-4 py-2 text-sm font-bebas uppercase tracking-wider whitespace-nowrap rounded transition-colors ${
-                section === nav.id 
-                  ? 'bg-accent text-black' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-              }`}
-            >
-              {nav.label}
-            </button>
-          ))}
+        <div className="container mx-auto px-4 py-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-full justify-between font-bebas tracking-wider text-lg border-accent/30 hover:border-accent bg-background"
+              >
+                <div className="flex items-center gap-2">
+                  {currentSection.icon && <currentSection.icon className="w-5 h-5 text-accent" />}
+                  <span>{currentSection.label}</span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[calc(100vw-2rem)] max-w-md bg-card border border-border z-50">
+              {sections.map((section) => (
+                <DropdownMenuItem
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`font-bebas tracking-wider text-base cursor-pointer ${
+                    activeSection === section.id 
+                      ? 'bg-accent text-black' 
+                      : 'text-foreground hover:bg-muted'
+                  }`}
+                >
+                  <section.icon className="w-4 h-4 mr-2" />
+                  {section.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Main Content - Tab-based like Dashboard */}
       <main className={isEmbedded ? "pb-4" : "pb-24"}>
-        <div id="hub-section">
-          <Hub
-            programs={programs}
-            analyses={analyses}
-            playerData={playerData}
-            dailyAphorism={dailyAphorism}
-            onNavigateToAnalysis={() => {}}
-            onNavigateToForm={() => {}}
-            onNavigateToSession={() => {}}
-          />
-        </div>
+        <Tabs value={activeSection} onValueChange={setActiveSection} className="w-full">
+          {/* Hub Section */}
+          <TabsContent value="hub" className="mt-0">
+            <Hub
+              programs={programs}
+              analyses={analyses}
+              playerData={playerData}
+              dailyAphorism={dailyAphorism}
+              onNavigateToAnalysis={() => setActiveSection('analysis')}
+              onNavigateToForm={() => {}}
+              onNavigateToSession={() => setActiveSection('programmes')}
+            />
+          </TabsContent>
 
-        {/* Analysis Section Placeholder */}
-        <section id="analysis-section" className="container mx-auto px-4 py-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-bebas tracking-wider flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-accent" />
-                Recent Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {analyses.length > 0 ? (
-                <div className="grid gap-4">
-                  {analyses.slice(0, 5).map((analysis) => (
-                    <div 
-                      key={analysis.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border"
-                    >
-                      <div>
-                        <p className="font-medium text-foreground">{analysis.opponent || 'Match Analysis'}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {analysis.analysis_date ? format(new Date(analysis.analysis_date), 'dd MMM yyyy') : 'N/A'}
-                        </p>
-                      </div>
-                      {analysis.r90_score && (
-                        <div className="text-right">
-                          <p className="text-2xl font-bebas text-accent">{analysis.r90_score.toFixed(2)}</p>
-                          <p className="text-xs text-muted-foreground">R90 Score</p>
+          {/* Schedule Section */}
+          <TabsContent value="schedule" className="mt-0">
+            <div className="container mx-auto px-4 py-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-bebas tracking-wider flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-accent" />
+                    Weekly Schedule
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-center py-8">
+                    Schedule information will appear here when available
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Analysis Section */}
+          <TabsContent value="analysis" className="mt-0">
+            <div className="container mx-auto px-4 py-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-bebas tracking-wider flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-accent" />
+                    Recent Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {analyses.length > 0 ? (
+                    <div className="grid gap-4">
+                      {analyses.slice(0, 5).map((analysis) => (
+                        <div 
+                          key={analysis.id}
+                          className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border"
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">{analysis.opponent || 'Match Analysis'}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {analysis.analysis_date ? format(new Date(analysis.analysis_date), 'dd MMM yyyy') : 'N/A'}
+                            </p>
+                          </div>
+                          {analysis.r90_score && (
+                            <div className="text-right">
+                              <p className="text-2xl font-bebas text-accent">{analysis.r90_score.toFixed(2)}</p>
+                              <p className="text-xs text-muted-foreground">R90 Score</p>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">No analysis data available</p>
-              )}
-            </CardContent>
-          </Card>
-        </section>
+                  ) : (
+                    <p className="text-muted-foreground text-center py-8">No analysis data available</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
-        {/* Programmes Section Placeholder */}
-        <section id="programmes-section" className="container mx-auto px-4 py-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-bebas tracking-wider flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-accent" />
-                Training Programmes
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {programs.length > 0 ? (
-                <div className="grid gap-4">
-                  {programs.map((program) => (
-                    <div 
-                      key={program.id}
-                      className="p-4 bg-muted/50 rounded-lg border border-border"
-                    >
-                      <p className="font-medium text-foreground">{program.program_name}</p>
-                      {program.phase_name && (
-                        <p className="text-sm text-accent">{program.phase_name}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {program.is_current ? 'Current Programme' : 'Past Programme'}
-                      </p>
+          {/* Programmes Section */}
+          <TabsContent value="programmes" className="mt-0">
+            <div className="container mx-auto px-4 py-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-bebas tracking-wider flex items-center gap-2">
+                    <Dumbbell className="w-5 h-5 text-accent" />
+                    Training Programmes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {programs.length > 0 ? (
+                    <div className="grid gap-4">
+                      {programs.map((program) => (
+                        <div 
+                          key={program.id}
+                          className="p-4 bg-muted/50 rounded-lg border border-border"
+                        >
+                          <p className="font-medium text-foreground">{program.program_name}</p>
+                          {program.phase_name && (
+                            <p className="text-sm text-accent">{program.phase_name}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {program.is_current ? 'Current Programme' : 'Past Programme'}
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">No programmes available</p>
-              )}
-            </CardContent>
-          </Card>
-        </section>
+                  ) : (
+                    <p className="text-muted-foreground text-center py-8">No programmes available</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
-        {/* Highlights Section Placeholder */}
-        <section id="highlights-section" className="container mx-auto px-4 py-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-bebas tracking-wider">Highlights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-center py-8">
-                Video highlights showcase coming soon
-              </p>
-            </CardContent>
-          </Card>
-        </section>
+          {/* Highlights Section */}
+          <TabsContent value="highlights" className="mt-0">
+            <div className="container mx-auto px-4 py-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-bebas tracking-wider flex items-center gap-2">
+                    <Video className="w-5 h-5 text-accent" />
+                    Highlights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-center py-8">
+                    Video highlights showcase coming soon
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Footer CTA - Only show when not embedded */}

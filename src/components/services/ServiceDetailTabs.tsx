@@ -15,21 +15,23 @@ export const ServiceDetailTabs = ({ tabs, className = "" }: ServiceDetailTabsPro
 
   return (
     <div className={className}>
-      {/* Tab Buttons */}
-      <div className="flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-        {tabs.map((tab, index) => (
-          <button
-            key={tab.label}
-            onClick={() => setActiveTab(index)}
-            className={`px-5 py-2.5 rounded-lg font-bebas text-sm md:text-base tracking-wider transition-all duration-200 ${
-              index === activeTab
-                ? 'bg-accent text-black'
-                : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Tab Buttons - Full width matching content cards (max-w-5xl) */}
+      <div className="w-full max-w-5xl mx-auto mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          {tabs.map((tab, index) => (
+            <button
+              key={tab.label}
+              onClick={() => setActiveTab(index)}
+              className={`px-3 py-2.5 rounded-lg font-bebas text-xs md:text-sm tracking-wider transition-all duration-200 text-center ${
+                index === activeTab
+                  ? 'bg-accent text-black'
+                  : 'bg-black/40 border border-white/20 hover:border-accent/50 text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Tab Content */}

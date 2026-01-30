@@ -259,18 +259,18 @@ const Analysis = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-6">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-4">
           <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
           
-          <div className="max-w-5xl mx-auto mt-6">
+          <div className="max-w-5xl mx-auto mt-4">
             <ServiceDetailTabs tabs={detailTabs.map(tab => ({
               label: tab.label,
               content: (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {tab.paragraphs.map((text, pIndex) => (
                     <div 
                       key={pIndex}
-                      className="group/card relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-sm border border-white/10 rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-accent/50 hover:from-white/[0.12] hover:to-white/[0.05] hover:scale-[1.02] hover:shadow-xl hover:shadow-accent/10 cursor-pointer"
+                      className="group/card relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-sm border border-white/10 rounded-xl p-4 md:p-5 transition-all duration-300 hover:border-accent/50 hover:from-white/[0.12] hover:to-white/[0.05] hover:scale-[1.02] hover:shadow-xl hover:shadow-accent/10 cursor-pointer"
                     >
                       {/* Animated accent bar */}
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/30 rounded-l-xl transition-all duration-300 group-hover/card:bg-accent group-hover/card:w-1.5 group-hover/card:shadow-lg group-hover/card:shadow-accent/50" />
@@ -280,11 +280,11 @@ const Analysis = () => {
                       </p>
                     </div>
                   ))}
-                  {/* Product Link at the end - Prominent button */}
+                  {/* Product Link at the end - Prominent button - CENTERED */}
                   {tab.productId && (
-                    <div className="mt-6">
+                    <div className="flex justify-center pt-4">
                       <LocalizedLink to={`/services?service=${tab.productId}`}>
-                        <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-8 py-3 text-lg group/btn">
+                        <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-10 py-3 text-lg group/btn">
                           LEARN MORE
                           <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover/btn:translate-x-1" />
                         </Button>
@@ -302,7 +302,7 @@ const Analysis = () => {
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
-        <div className="relative z-10 py-6">
+        <div className="relative z-10 pt-0 pb-4">
           <ServiceFullPackage />
         </div>
       </section>
