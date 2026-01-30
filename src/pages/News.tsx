@@ -106,13 +106,6 @@ const ArticleView = ({ article }: { article: NewsArticle }) => {
                 {t("news.translating", "Translating...")}
               </span>
             )}
-            <span className="text-sm text-muted-foreground">
-              {new Date(article.created_at).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </span>
           </div>
         </div>
         
