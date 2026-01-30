@@ -95,9 +95,6 @@ export const ServicePageLayout = ({
             )}
             
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-              <p className={`font-bebas text-lg md:text-xl tracking-[0.3em] mb-4 animate-fade-in ${hasMedia ? 'text-white' : 'text-primary'}`}>
-                {category}
-              </p>
               <h1 className={`font-bebas text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 leading-[0.95] animate-fade-in [animation-delay:100ms] ${hasMedia ? 'text-white drop-shadow-lg' : 'text-foreground'}`}>
                 {title.split('\n').map((line, i) => (
                   <span key={i}>
