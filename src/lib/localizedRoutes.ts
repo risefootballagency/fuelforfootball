@@ -290,18 +290,6 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     ru: '/elite-rezultaty',
     tr: '/elit-performans',
   },
-  '/tactical': {
-    en: '/tactical',
-    es: '/tactico',
-    pt: '/tatico',
-    fr: '/tactique',
-    de: '/taktisch',
-    it: '/tattico',
-    pl: '/taktyka',
-    cs: '/taktika',
-    ru: '/taktika',
-    tr: '/taktik',
-  },
   '/action-reports': {
     en: '/action-reports',
     es: '/informes-de-accion',

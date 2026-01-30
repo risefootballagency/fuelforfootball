@@ -64,7 +64,6 @@ const Mentorship = lazy(() => import("./pages/services/Mentorship"));
 const Consultation = lazy(() => import("./pages/services/Consultation"));
 const ProPerformance = lazy(() => import("./pages/services/ProPerformance"));
 const ElitePerformance = lazy(() => import("./pages/services/ElitePerformance"));
-const Tactical = lazy(() => import("./pages/services/Tactical"));
 const ActionReports = lazy(() => import("./pages/services/ActionReports"));
 const Technical = lazy(() => import("./pages/services/Technical"));
 const Mental = lazy(() => import("./pages/services/Mental"));
@@ -165,7 +164,6 @@ const App = () => {
                     {createLocalizedRoutes('/consultation', <Consultation />)}
                     {createLocalizedRoutes('/pro-performance', <ProPerformance />)}
                     {createLocalizedRoutes('/elite-performance', <ElitePerformance />)}
-                    {createLocalizedRoutes('/tactical', <Tactical />)}
                     {createLocalizedRoutes('/action-reports', <ActionReports />)}
                     {createLocalizedRoutes('/technical', <Technical />)}
                     {createLocalizedRoutes('/mental', <Mental />)}

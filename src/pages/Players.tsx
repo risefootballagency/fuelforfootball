@@ -231,7 +231,7 @@ const Players = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       const categories = [
-        { key: 'tactical', setter: setTacticalProducts, fallbackLink: '/tactical' },
+        { key: 'tactical', setter: setTacticalProducts, fallbackLink: '/analysis' },
         { key: 'psychological', setter: setPsychologicalProducts, fallbackLink: '/mental' },
         { key: 'technical', setter: setTechnicalProducts, fallbackLink: '/technical' },
         { key: 'strength', setter: setSpsProducts, fallbackLink: '/strength-power-speed' },
@@ -267,7 +267,7 @@ const Players = () => {
       icon: Target,
       title: "Tactical",
       description: "Sharpen your decision-making and see the game in a different light. Read several passes ahead of play to consistently gain the advantage over your matchups.",
-      link: "/tactical",
+      link: "/analysis",
       image: "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg"
     },
     {
@@ -417,7 +417,7 @@ const Players = () => {
             link: "/daily-fuel"
           }}
           dailyFuelDescription="Breaking down the game with an advanced lens, showing technical breakdowns and discussing important tactical ideas from the POV of the player."
-          learnMoreLink="/tactical"
+          learnMoreLink="/analysis"
           learnMoreText="Tactical"
         />
 

@@ -195,8 +195,7 @@ export const RadialMenu = () => {
         angle: 120,
         category: "tactical",
         subItems: [
-          { to: "/services/analysis", labelKey: "services.analysis", fallback: "ANALYSIS" },
-          { to: "/services/tactical", labelKey: "services.tactical_training", fallback: "TACTICAL TRAINING" },
+          { to: "/analysis", labelKey: "services.analysis", fallback: "ANALYSIS" },
         ],
       },
       { 
