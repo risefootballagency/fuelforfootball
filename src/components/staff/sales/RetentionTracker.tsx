@@ -5,14 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { Plus, Edit, Trash2, Users, Target, TrendingUp, Calendar, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Users, ChevronDown, ChevronUp, X, Save, Loader2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
 interface ServiceDate {
@@ -38,22 +36,12 @@ interface RetentionClient {
   created_at: string;
 }
 
-interface RetentionTarget {
-  id: string;
-  month: string;
-  outreach_target: number;
-  conversion_target: number;
-  sales_target: number;
-  outreach_actual: number;
-  conversion_actual: number;
-  sales_actual: number;
-}
-
 interface Player {
   id: string;
   name: string;
   email: string | null;
   category: string | null;
+  bio: any;
 }
 
 const SERVICES = [
@@ -71,52 +59,51 @@ const SERVICES = [
   "Elite Performance Programme"
 ];
 
+const STATUS_OPTIONS = [
+  { value: "active", label: "Active", color: "default" },
+  { value: "warm", label: "Warm Lead", color: "secondary" },
+  { value: "cold", label: "Cold", color: "outline" },
+  { value: "in_talks", label: "In Talks", color: "default" },
+  { value: "pending", label: "Pending Decision", color: "secondary" },
+  { value: "churned", label: "Churned", color: "destructive" },
+  { value: "re-engaged", label: "Re-engaged", color: "default" },
+  { value: "long_term", label: "Long-term Client", color: "default" },
+  { value: "vip", label: "VIP", color: "default" },
+];
+
 export function RetentionTracker() {
   const [clients, setClients] = useState<RetentionClient[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
-  const [targets, setTargets] = useState<RetentionTarget | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [targetDialogOpen, setTargetDialogOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<RetentionClient | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>("");
+  const [expandedClient, setExpandedClient] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     client_name: "",
     client_type: "existing",
     contact_email: "",
-    contact_phone: "",
-    last_contact_date: "",
-    next_contact_date: "",
+    last_contact_year: new Date().getFullYear().toString(),
     status: "active",
     notes: "",
-    total_revenue: 0,
     services_worked: [] as string[],
     service_dates: [] as ServiceDate[],
   });
-  const [targetData, setTargetData] = useState({
-    outreach_target: 0,
-    conversion_target: 0,
-    sales_target: 0,
-  });
-
-  const currentMonth = format(new Date(), "yyyy-MM");
 
   useEffect(() => {
     fetchClients();
-    fetchTargets();
     fetchPlayers();
   }, []);
 
   const fetchPlayers = async () => {
     const { data, error } = await supabase
       .from("players")
-      .select("id, name, email, category")
+      .select("id, name, email, category, bio")
       .eq("category", "Fuel For Football")
       .order("name");
 
     if (error) {
       console.error("Error fetching players:", error);
-      toast.error("Failed to fetch players");
     } else {
       setPlayers(data || []);
     }
@@ -141,31 +128,17 @@ export function RetentionTracker() {
     setLoading(false);
   };
 
-  const fetchTargets = async () => {
-    const { data, error } = await supabase
-      .from("retention_targets")
-      .select("*")
-      .eq("month", currentMonth)
-      .single();
-
-    if (data) {
-      setTargets(data);
-      setTargetData({
-        outreach_target: data.outreach_target,
-        conversion_target: data.conversion_target,
-        sales_target: data.sales_target,
-      });
-    }
-  };
-
   const handlePlayerSelect = (playerId: string) => {
     setSelectedPlayerId(playerId);
     const player = players.find(p => p.id === playerId);
     if (player) {
+      // Auto-determine type from player's is_active_client status in bio
+      const isActive = player.bio?.is_active_client === true;
       setFormData(prev => ({
         ...prev,
         client_name: player.name,
         contact_email: player.email || "",
+        client_type: isActive ? "existing" : "previous",
       }));
     }
   };
@@ -198,29 +171,32 @@ export function RetentionTracker() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    if (!formData.client_name.trim()) {
+      toast.error("Please enter a client name");
+      return;
+    }
     
     const payload = {
       client_name: formData.client_name,
       client_type: formData.client_type,
       contact_email: formData.contact_email || null,
-      contact_phone: formData.contact_phone || null,
+      contact_phone: null,
       player_id: selectedPlayerId || null,
-      last_contact_date: formData.last_contact_date || null,
-      next_contact_date: formData.next_contact_date || null,
+      last_contact_date: formData.last_contact_year ? `${formData.last_contact_year}-01-01` : null,
+      next_contact_date: null,
       status: formData.status,
       notes: formData.notes || null,
-      total_revenue: formData.total_revenue,
+      total_revenue: 0,
       services_worked: formData.services_worked,
       service_dates: formData.service_dates,
     };
 
-    if (editingClient) {
+    if (editingId) {
       const { error } = await supabase
         .from("retention_clients")
         .update(payload)
-        .eq("id", editingClient.id);
+        .eq("id", editingId);
 
       if (error) {
         console.error("Update error:", error);
@@ -244,44 +220,6 @@ export function RetentionTracker() {
     }
 
     resetForm();
-    setDialogOpen(false);
-  };
-
-  const handleTargetSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const { data: existing } = await supabase
-      .from("retention_targets")
-      .select("id")
-      .eq("month", currentMonth)
-      .single();
-
-    if (existing) {
-      const { error } = await supabase
-        .from("retention_targets")
-        .update(targetData)
-        .eq("month", currentMonth);
-
-      if (error) {
-        toast.error("Failed to update targets");
-      } else {
-        toast.success("Targets updated");
-        fetchTargets();
-      }
-    } else {
-      const { error } = await supabase
-        .from("retention_targets")
-        .insert({ ...targetData, month: currentMonth });
-
-      if (error) {
-        toast.error("Failed to set targets");
-      } else {
-        toast.success("Targets set");
-        fetchTargets();
-      }
-    }
-
-    setTargetDialogOpen(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -305,48 +243,57 @@ export function RetentionTracker() {
       client_name: "",
       client_type: "existing",
       contact_email: "",
-      contact_phone: "",
-      last_contact_date: "",
-      next_contact_date: "",
+      last_contact_year: new Date().getFullYear().toString(),
       status: "active",
       notes: "",
-      total_revenue: 0,
       services_worked: [],
       service_dates: [],
     });
     setSelectedPlayerId("");
-    setEditingClient(null);
+    setEditingId(null);
+    setShowAddForm(false);
   };
 
-  const openEditDialog = (client: RetentionClient) => {
-    setEditingClient(client);
+  const startEdit = (client: RetentionClient) => {
+    setEditingId(client.id);
     setSelectedPlayerId(client.player_id || "");
+    const year = client.last_contact_date ? new Date(client.last_contact_date).getFullYear().toString() : new Date().getFullYear().toString();
     setFormData({
       client_name: client.client_name,
       client_type: client.client_type,
       contact_email: client.contact_email || "",
-      contact_phone: client.contact_phone || "",
-      last_contact_date: client.last_contact_date || "",
-      next_contact_date: client.next_contact_date || "",
+      last_contact_year: year,
       status: client.status,
       notes: client.notes || "",
-      total_revenue: client.total_revenue || 0,
       services_worked: client.services_worked || [],
       service_dates: client.service_dates || [],
     });
-    setDialogOpen(true);
+    setShowAddForm(true);
   };
 
-  const activeClients = clients.filter(c => c.status === "active").length;
+  const updateNotes = async (clientId: string, notes: string) => {
+    const { error } = await supabase
+      .from("retention_clients")
+      .update({ notes })
+      .eq("id", clientId);
+
+    if (!error) {
+      setClients(prev => prev.map(c => c.id === clientId ? { ...c, notes } : c));
+    }
+  };
 
   const getStatusBadge = (status: string) => {
+    const option = STATUS_OPTIONS.find(o => o.value === status);
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      active: "default",
-      churned: "destructive",
-      "re-engaged": "secondary",
+      default: "default",
+      secondary: "secondary",
+      destructive: "destructive",
+      outline: "outline",
     };
-    return <Badge variant={variants[status] || "outline"}>{status}</Badge>;
+    return <Badge variant={variants[option?.color || "outline"]}>{option?.label || status}</Badge>;
   };
+
+  const activeClients = clients.filter(c => c.status === "active" || c.status === "long_term" || c.status === "vip").length;
 
   if (loading) {
     return (
@@ -356,300 +303,191 @@ export function RetentionTracker() {
     );
   }
 
+  // Generate year options (last 10 years)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 10 }, (_, i) => currentYear - i);
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Stats Cards - Mobile optimized */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2">
         <Card>
-          <CardContent className="p-3 sm:p-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Users className="h-5 w-5 sm:h-8 sm:w-8 text-primary shrink-0" />
-              <div className="min-w-0">
-                <p className="text-lg sm:text-2xl font-bold">{activeClients}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground truncate">Active</p>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-lg font-bold">{activeClients}</p>
+                <p className="text-xs text-muted-foreground">Active Clients</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-3 sm:p-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Target className="h-5 w-5 sm:h-8 sm:w-8 text-orange-500 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-lg sm:text-2xl font-bold">{targets?.outreach_actual || 0}/{targets?.outreach_target || 0}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground truncate">Outreach</p>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-lg font-bold">{clients.length}</p>
+                <p className="text-xs text-muted-foreground">Total Tracked</p>
               </div>
             </div>
-            {targets && targets.outreach_target > 0 && (
-              <Progress value={(targets.outreach_actual / targets.outreach_target) * 100} className="mt-2 h-1.5 sm:h-2" />
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 sm:p-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-green-500 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-lg sm:text-2xl font-bold">{targets?.conversion_actual || 0}/{targets?.conversion_target || 0}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground truncate">Conversions</p>
-              </div>
-            </div>
-            {targets && targets.conversion_target > 0 && (
-              <Progress value={(targets.conversion_actual / targets.conversion_target) * 100} className="mt-2 h-1.5 sm:h-2" />
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 sm:p-6">
-            <div className="min-w-0">
-              <p className="text-lg sm:text-2xl font-bold">£{(targets?.sales_actual || 0).toLocaleString()}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">/ £{(targets?.sales_target || 0).toLocaleString()}</p>
-            </div>
-            {targets && targets.sales_target > 0 && (
-              <Progress value={(targets.sales_actual / targets.sales_target) * 100} className="mt-2 h-1.5 sm:h-2" />
-            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Actions - Stack on mobile */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-2" /> Add Client</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
-            <DialogHeader>
-              <DialogTitle>{editingClient ? "Edit Client" : "Add Retention Client"}</DialogTitle>
-            </DialogHeader>
-            <ScrollArea className="flex-1 pr-4">
-              <form onSubmit={handleSubmit} className="space-y-4 pb-4">
-                {/* Player Selection */}
-                <div>
-                  <Label>Select from FFF Players</Label>
-                  <Select value={selectedPlayerId || "manual"} onValueChange={(v) => handlePlayerSelect(v === "manual" ? "" : v)}>
-                    <SelectTrigger><SelectValue placeholder="Select a player..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="manual">-- Manual Entry --</SelectItem>
-                      {players.map(player => (
-                        <SelectItem key={player.id} value={player.id}>{player.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {players.length} players in Fuel For Football category
-                  </p>
-                </div>
+      {/* Add/Edit Form - Inline */}
+      {!showAddForm ? (
+        <Button onClick={() => setShowAddForm(true)} className="w-full">
+          <Plus className="h-4 w-4 mr-2" /> Add Retention Client
+        </Button>
+      ) : (
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">{editingId ? "Edit Client" : "Add Retention Client"}</CardTitle>
+              <Button variant="ghost" size="icon" onClick={resetForm}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Player Selection */}
+            <div>
+              <Label>Select from FFF Players</Label>
+              <Select value={selectedPlayerId || "manual"} onValueChange={(v) => handlePlayerSelect(v === "manual" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="Select a player..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">-- Manual Entry --</SelectItem>
+                  {players.map(player => (
+                    <SelectItem key={player.id} value={player.id}>{player.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">{players.length} players available</p>
+            </div>
 
-                <div>
-                  <Label>Client Name *</Label>
-                  <Input
-                    value={formData.client_name}
-                    onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                    required
-                  />
-                </div>
+            <div>
+              <Label>Client Name *</Label>
+              <Input
+                value={formData.client_name}
+                onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
+              />
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Type</Label>
-                    <Select value={formData.client_type} onValueChange={(v) => setFormData({ ...formData, client_type: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="existing">Existing</SelectItem>
-                        <SelectItem value="previous">Previous</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Status</Label>
-                    <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="churned">Churned</SelectItem>
-                        <SelectItem value="re-engaged">Re-engaged</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Email</Label>
-                  <Input
-                    type="email"
-                    value={formData.contact_email}
-                    onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <Label>Phone</Label>
-                  <Input
-                    value={formData.contact_phone}
-                    onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Last Contact</Label>
-                    <Input
-                      type="date"
-                      value={formData.last_contact_date}
-                      onChange={(e) => setFormData({ ...formData, last_contact_date: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>Next Contact</Label>
-                    <Input
-                      type="date"
-                      value={formData.next_contact_date}
-                      onChange={(e) => setFormData({ ...formData, next_contact_date: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Total Revenue (£)</Label>
-                  <Input
-                    type="number"
-                    value={formData.total_revenue}
-                    onChange={(e) => setFormData({ ...formData, total_revenue: parseFloat(e.target.value) || 0 })}
-                  />
-                </div>
-
-                {/* Services Worked */}
-                <div>
-                  <Label className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4" />
-                    Services Worked On
-                  </Label>
-                  <div className="space-y-3 border rounded-lg p-3 bg-muted/20">
-                    {SERVICES.map(service => {
-                      const isSelected = formData.services_worked.includes(service);
-                      const serviceDate = formData.service_dates.find(sd => sd.service === service);
-                      
-                      return (
-                        <div key={service} className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`service-${service}`}
-                              checked={isSelected}
-                              onCheckedChange={() => handleServiceToggle(service)}
-                            />
-                            <label
-                              htmlFor={`service-${service}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                            >
-                              {service}
-                            </label>
-                          </div>
-                          {isSelected && (
-                            <div className="grid grid-cols-2 gap-2 ml-6">
-                              <div>
-                                <Label className="text-xs text-muted-foreground">Start</Label>
-                                <Input
-                                  type="date"
-                                  className="h-8 text-xs"
-                                  value={serviceDate?.start_date || ""}
-                                  onChange={(e) => handleServiceDateChange(service, 'start_date', e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-xs text-muted-foreground">End</Label>
-                                <Input
-                                  type="date"
-                                  className="h-8 text-xs"
-                                  value={serviceDate?.end_date || ""}
-                                  onChange={(e) => handleServiceDateChange(service, 'end_date', e.target.value)}
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Notes</Label>
-                  <Textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  />
-                </div>
-                <Button type="submit" className="w-full">{editingClient ? "Update" : "Add"} Client</Button>
-              </form>
-            </ScrollArea>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={targetDialogOpen} onOpenChange={setTargetDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto"><Target className="h-4 w-4 mr-2" /> Set Targets</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Set Monthly Targets - {format(new Date(), "MMMM yyyy")}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleTargetSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Outreach Target</Label>
-                <Input
-                  type="number"
-                  value={targetData.outreach_target}
-                  onChange={(e) => setTargetData({ ...targetData, outreach_target: parseInt(e.target.value) || 0 })}
-                />
+                <Label>Type</Label>
+                <Select value={formData.client_type} onValueChange={(v) => setFormData({ ...formData, client_type: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="existing">Existing</SelectItem>
+                    <SelectItem value="previous">Previous</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-0.5">Auto-filled from player status</p>
               </div>
               <div>
-                <Label>Conversion Target</Label>
-                <Input
-                  type="number"
-                  value={targetData.conversion_target}
-                  onChange={(e) => setTargetData({ ...targetData, conversion_target: parseInt(e.target.value) || 0 })}
-                />
+                <Label>Last Contact (Year)</Label>
+                <Select value={formData.last_contact_year} onValueChange={(v) => setFormData({ ...formData, last_contact_year: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map(year => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div>
-                <Label>Sales Target (£)</Label>
-                <Input
-                  type="number"
-                  value={targetData.sales_target}
-                  onChange={(e) => setTargetData({ ...targetData, sales_target: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <Button type="submit" className="w-full">Save Targets</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </div>
 
-      {/* Clients List - Mobile Card Layout */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base sm:text-lg">Retention Clients</CardTitle>
-        </CardHeader>
-        <CardContent className="p-2 sm:p-6">
-          {clients.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div>
+              <Label>Status</Label>
+              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Services Worked */}
+            <div>
+              <Label className="mb-2 block">Services Worked On</Label>
+              <div className="grid grid-cols-2 gap-2 border rounded-lg p-3 bg-muted/20 max-h-48 overflow-y-auto">
+                {SERVICES.map(service => {
+                  const isSelected = formData.services_worked.includes(service);
+                  return (
+                    <div key={service} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`service-${service}`}
+                        checked={isSelected}
+                        onCheckedChange={() => handleServiceToggle(service)}
+                      />
+                      <label htmlFor={`service-${service}`} className="text-xs cursor-pointer">
+                        {service}
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <Label>Notes</Label>
+              <Textarea
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                rows={2}
+              />
+            </div>
+
+            <Button onClick={handleSubmit} className="w-full">
+              <Save className="h-4 w-4 mr-2" />
+              {editingId ? "Update" : "Add"} Client
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Clients List */}
+      <div className="space-y-2">
+        {clients.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No retention clients yet</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {clients.map((client) => (
-                <div key={client.id} className="border rounded-lg p-3 sm:p-4 space-y-2">
+            </CardContent>
+          </Card>
+        ) : (
+          clients.map((client) => (
+            <Collapsible 
+              key={client.id}
+              open={expandedClient === client.id}
+              onOpenChange={(open) => setExpandedClient(open ? client.id : null)}
+            >
+              <Card>
+                <CardContent className="p-3">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">{client.client_name}</p>
-                      {client.contact_email && (
-                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{client.contact_email}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {getStatusBadge(client.status)}
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(client)}>
+                    <CollapsibleTrigger className="flex-1 text-left">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{client.client_name}</p>
+                        {getStatusBadge(client.status)}
+                        {expandedClient === client.id ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground mt-1">
+                        <span className="capitalize">{client.client_type}</span>
+                        {client.last_contact_date && (
+                          <span>Last: {new Date(client.last_contact_date).getFullYear()}</span>
+                        )}
+                      </div>
+                    </CollapsibleTrigger>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => startEdit(client)}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(client.id)}>
@@ -657,35 +495,40 @@ export function RetentionTracker() {
                       </Button>
                     </div>
                   </div>
-                  
-                  {/* Services */}
-                  {client.services_worked && client.services_worked.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {client.services_worked.map(service => (
-                        <Badge key={service} variant="outline" className="text-xs">
-                          {service}
-                        </Badge>
-                      ))}
+
+                  <CollapsibleContent className="mt-3 pt-3 border-t space-y-3">
+                    {/* Services */}
+                    {client.services_worked && client.services_worked.length > 0 && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Services</Label>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {client.services_worked.map(service => (
+                            <Badge key={service} variant="outline" className="text-xs">
+                              {service}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Notes */}
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Notes</Label>
+                      <Textarea
+                        value={client.notes || ""}
+                        onChange={(e) => updateNotes(client.id, e.target.value)}
+                        placeholder="Add notes..."
+                        rows={2}
+                        className="mt-1"
+                      />
                     </div>
-                  )}
-                  
-                  {/* Info Row */}
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground">
-                    <span className="capitalize">{client.client_type}</span>
-                    {client.last_contact_date && (
-                      <span>Last: {format(parseISO(client.last_contact_date), "dd MMM")}</span>
-                    )}
-                    {client.next_contact_date && (
-                      <span>Next: {format(parseISO(client.next_contact_date), "dd MMM")}</span>
-                    )}
-                    <span className="font-medium text-foreground">£{(client.total_revenue || 0).toLocaleString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  </CollapsibleContent>
+                </CardContent>
+              </Card>
+            </Collapsible>
+          ))
+        )}
+      </div>
     </div>
   );
 }
