@@ -13,8 +13,13 @@ import { format } from "date-fns";
 // Demo player ID - Joe Bloggs
 const DEMO_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
 
-const PublicHub = () => {
-  const { playerId } = useParams();
+interface PublicHubProps {
+  playerId?: string;
+  isEmbedded?: boolean;
+}
+
+const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProps) => {
+  const { playerId: paramPlayerId } = useParams();
   const [searchParams] = useSearchParams();
   const section = searchParams.get("section") || "hub";
   
@@ -25,7 +30,8 @@ const PublicHub = () => {
   const [dailyAphorism, setDailyAphorism] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const targetPlayerId = playerId || DEMO_PLAYER_ID;
+  // Use prop playerId first, then URL param, then demo
+  const targetPlayerId = propPlayerId || paramPlayerId || DEMO_PLAYER_ID;
 
   useEffect(() => {
     const fetchPublicPlayerData = async () => {
@@ -117,9 +123,11 @@ const PublicHub = () => {
     }
   }, [loading, section]);
 
+  const containerClass = isEmbedded ? "" : "min-h-screen";
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className={`${containerClass} bg-background flex items-center justify-center`} style={{ minHeight: isEmbedded ? '400px' : undefined }}>
         <div className="animate-pulse text-primary font-bebas text-2xl tracking-wider">
           Loading Player Hub...
         </div>
@@ -129,34 +137,40 @@ const PublicHub = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6">
+      <div className={`${containerClass} bg-background flex flex-col items-center justify-center gap-6`} style={{ minHeight: isEmbedded ? '400px' : undefined }}>
         <User className="w-16 h-16 text-muted-foreground" />
         <h1 className="text-2xl font-bebas text-foreground">{error}</h1>
-        <Link to="/players">
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Players
-          </Button>
-        </Link>
+        {!isEmbedded && (
+          <Link to="/players">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Players
+            </Button>
+          </Link>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <SEO 
-        title={`${playerData?.name || 'Player'} Hub | Fuel For Football`}
-        description={`View ${playerData?.name}'s performance hub - training programmes, match analysis, and development progress.`}
-        url={`/hub/${targetPlayerId}`}
-      />
+    <div className={`${containerClass} bg-background`}>
+      {!isEmbedded && (
+        <SEO 
+          title={`${playerData?.name || 'Player'} Hub | Fuel For Football`}
+          description={`View ${playerData?.name}'s performance hub - training programmes, match analysis, and development progress.`}
+          url={`/hub/${targetPlayerId}`}
+        />
+      )}
 
       {/* Header Bar */}
-      <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
+      <header className={`${isEmbedded ? '' : 'sticky top-0'} z-50 bg-card/95 backdrop-blur-md border-b border-border`}>
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
+            {!isEmbedded && (
+              <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+            )}
             <div className="flex items-center gap-3">
               {playerData?.image_url ? (
                 <img 
@@ -181,15 +195,15 @@ const PublicHub = () => {
           </div>
           
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="hidden md:inline px-2 py-1 bg-accent/20 text-accent rounded">
-              Demo Preview
+            <span className="px-2 py-1 bg-accent/20 text-accent rounded font-bebas tracking-wider">
+              DEMO PORTAL
             </span>
           </div>
         </div>
       </header>
 
       {/* Quick Navigation */}
-      <nav className="bg-card border-b border-border sticky top-[57px] z-40">
+      <nav className={`bg-card border-b border-border ${isEmbedded ? '' : 'sticky top-[57px]'} z-40`}>
         <div className="container mx-auto px-4 flex gap-1 overflow-x-auto py-2">
           {[
             { id: 'hub', label: 'Hub' },
@@ -198,9 +212,14 @@ const PublicHub = () => {
             { id: 'programmes', label: 'Programmes' },
             { id: 'highlights', label: 'Highlights' },
           ].map((nav) => (
-            <Link
+            <button
               key={nav.id}
-              to={`/hub/${targetPlayerId}?section=${nav.id}`}
+              onClick={() => {
+                const element = document.getElementById(`${nav.id}-section`);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
               className={`px-4 py-2 text-sm font-bebas uppercase tracking-wider whitespace-nowrap rounded transition-colors ${
                 section === nav.id 
                   ? 'bg-accent text-black' 
@@ -208,13 +227,13 @@ const PublicHub = () => {
               }`}
             >
               {nav.label}
-            </Link>
+            </button>
           ))}
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="pb-12">
+      <main className={isEmbedded ? "pb-4" : "pb-24"}>
         <div id="hub-section">
           <Hub
             programs={programs}
@@ -315,19 +334,21 @@ const PublicHub = () => {
         </section>
       </main>
 
-      {/* Footer CTA */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border p-4 z-50">
-        <div className="container mx-auto flex items-center justify-between">
-          <p className="text-sm text-muted-foreground hidden md:block">
-            Want a performance hub like this for yourself?
-          </p>
-          <Link to="/services" className="w-full md:w-auto">
-            <Button className="w-full md:w-auto bg-accent hover:bg-accent/90 text-black font-bebas tracking-wider">
-              Get Your Own Hub
-            </Button>
-          </Link>
-        </div>
-      </footer>
+      {/* Footer CTA - Only show when not embedded */}
+      {!isEmbedded && (
+        <footer className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border p-4 z-50">
+          <div className="container mx-auto flex items-center justify-between">
+            <p className="text-sm text-muted-foreground hidden md:block">
+              Want a performance hub like this for yourself?
+            </p>
+            <Link to="/services" className="w-full md:w-auto">
+              <Button className="w-full md:w-auto bg-accent hover:bg-accent/90 text-black font-bebas tracking-wider">
+                Get Your Own Portal
+              </Button>
+            </Link>
+          </div>
+        </footer>
+      )}
     </div>
   );
 };
