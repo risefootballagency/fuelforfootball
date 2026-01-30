@@ -151,21 +151,21 @@ const Analysis = () => {
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
     >
-      {/* Four Pillars with Dark Green Background - No extra spacing */}
-      <section className="relative py-4">
+      {/* Four Pillars with Dark Green Background - No padding between sections */}
+      <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
-        <div className="relative z-10">
+        <div className="relative z-10 py-8">
           <ServicePillars pillars={pillars} large />
         </div>
       </section>
 
-      {/* Our Analysis Services - Seamless with above */}
-      <section className="relative py-4">
+      {/* Our Analysis Services - Zero gap with pillars */}
+      <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
           <ServiceSectionTitle>OUR ANALYSIS SERVICES</ServiceSectionTitle>
           
           <div className="space-y-6 max-w-6xl mx-auto mt-4">
@@ -185,6 +185,16 @@ const Analysis = () => {
                         className="absolute inset-0 w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      
+                      {/* View Example Button on Image */}
+                      <Button 
+                        onClick={() => setPortalExampleOpen(true)}
+                        className="absolute top-4 right-4 font-bebas tracking-wider bg-accent/90 hover:bg-accent text-black px-4 py-2 text-sm z-10"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        VIEW EXAMPLE
+                      </Button>
+                      
                       <p className="absolute bottom-4 left-4 text-sm text-white/70">{service.example}</p>
                     </div>
 
@@ -241,26 +251,15 @@ const Analysis = () => {
               );
             })}
           </div>
-
-          {/* View Example Button */}
-          <div className="flex justify-center mt-8">
-            <Button 
-              onClick={() => setPortalExampleOpen(true)}
-              className="font-bebas tracking-wider bg-accent/20 border border-accent text-accent hover:bg-accent hover:text-black px-8 py-6 text-lg"
-            >
-              <Eye className="w-5 h-5 mr-3" />
-              VIEW PLAYER PORTAL EXAMPLE
-            </Button>
-          </div>
         </div>
       </section>
 
-      {/* In Detail Section - Seamless */}
-      <section className="relative py-4 overflow-hidden">
+      {/* In Detail Section - Zero gap with services */}
+      <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
           <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
           
           <div className="max-w-5xl mx-auto mt-4">
