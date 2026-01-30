@@ -427,10 +427,10 @@ export function RetentionTracker() {
                 {/* Player Selection */}
                 <div>
                   <Label>Select from FFF Players</Label>
-                  <Select value={selectedPlayerId} onValueChange={handlePlayerSelect}>
+                  <Select value={selectedPlayerId || "manual"} onValueChange={(v) => handlePlayerSelect(v === "manual" ? "" : v)}>
                     <SelectTrigger><SelectValue placeholder="Select a player..." /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">-- Manual Entry --</SelectItem>
+                      <SelectItem value="manual">-- Manual Entry --</SelectItem>
                       {players.map(player => (
                         <SelectItem key={player.id} value={player.id}>{player.name}</SelectItem>
                       ))}
