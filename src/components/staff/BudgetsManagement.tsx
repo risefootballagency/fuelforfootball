@@ -106,47 +106,51 @@ export const BudgetsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <PiggyBank className="h-6 w-6" />
+          <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <PiggyBank className="h-5 w-5 sm:h-6 sm:w-6" />
             Budgets
           </h2>
-          <p className="text-muted-foreground mt-1">Plan and track budget allocations</p>
+          <p className="text-sm text-muted-foreground mt-1">Plan and track budget allocations</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
+        <Button onClick={() => setDialogOpen(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           New Budget
         </Button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="p-3 sm:pt-6">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <div className="text-2xl font-bold">£{totalAllocated.toLocaleString()}</div>
+              <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+              <div className="min-w-0">
+                <div className="text-lg sm:text-2xl font-bold truncate">£{totalAllocated.toLocaleString()}</div>
+                <p className="text-xs sm:text-sm text-muted-foreground">Allocated</p>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">Total Allocated</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="p-3 sm:pt-6">
             <div className="flex items-center gap-2">
-              <TrendingDown className="h-5 w-5 text-destructive" />
-              <div className="text-2xl font-bold">£{totalSpent.toLocaleString()}</div>
+              <TrendingDown className="h-4 w-4 sm:h-5 sm:w-5 text-destructive shrink-0" />
+              <div className="min-w-0">
+                <div className="text-lg sm:text-2xl font-bold truncate">£{totalSpent.toLocaleString()}</div>
+                <p className="text-xs sm:text-sm text-muted-foreground">Spent</p>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">Total Spent</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className={`text-2xl font-bold ${remainingBudget >= 0 ? 'text-green-500' : 'text-destructive'}`}>
+          <CardContent className="p-3 sm:pt-6">
+            <div className={`text-lg sm:text-2xl font-bold ${remainingBudget >= 0 ? 'text-green-500' : 'text-destructive'}`}>
               £{remainingBudget.toLocaleString()}
             </div>
-            <p className="text-sm text-muted-foreground">Remaining</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Remaining</p>
           </CardContent>
         </Card>
       </div>
@@ -159,17 +163,17 @@ export const BudgetsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
 
           return (
             <Card key={budget.id}>
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold">{budget.name}</h3>
-                    <p className="text-sm text-muted-foreground">{budget.category} • {budget.period}</p>
+              <CardContent className="p-3 sm:pt-6">
+                <div className="flex items-start justify-between gap-2 mb-3 sm:mb-4">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold truncate">{budget.name}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{budget.category} • {budget.period}</p>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(budget)}>
+                  <div className="flex gap-1 shrink-0">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(budget)}>
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(budget.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(budget.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
