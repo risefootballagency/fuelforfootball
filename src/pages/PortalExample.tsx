@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { supabase as localSupabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
 import { Hub } from "@/components/dashboard/Hub";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,7 +64,7 @@ export const PortalExample = ({ isEmbedded = false }: PortalExampleProps) => {
         setPrograms(programsData || []);
 
         // Fetch daily aphorism
-        const { data: aphorism } = await localSupabase
+        const { data: aphorism } = await supabase
           .from("coaching_aphorisms")
           .select("*")
           .limit(1)

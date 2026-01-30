@@ -38,6 +38,7 @@ const Analysis = () => {
       price: "FROM £85.00",
       productId: "6c369b05-d410-4955-98e6-20a936019079",
       serviceType: "pre-match",
+      tabLabel: "Pre-Match Opposition Analysis",
       image: "https://static.wixstatic.com/media/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg",
     },
     {
@@ -53,6 +54,7 @@ const Analysis = () => {
       price: "FROM £85.00",
       productId: "bd421bfa-2819-444b-aaa7-8de168f2b171",
       serviceType: "post-match",
+      tabLabel: "Post-Match Analysis",
       image: "https://static.wixstatic.com/media/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg",
     },
     {
@@ -68,6 +70,7 @@ const Analysis = () => {
       price: "FROM £85.00",
       productId: "853b38f5-27f3-4482-9ad2-99c10983e988",
       serviceType: "positional",
+      tabLabel: "Positional Guide",
       image: "https://static.wixstatic.com/media/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg/v1/fill/w_848,h_334,q_90,enc_avif,quality_auto/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg",
     },
     {
@@ -83,6 +86,7 @@ const Analysis = () => {
       price: "FROM £95.00",
       productId: "309ecacf-22ee-4467-8674-c6686968f6db",
       serviceType: "efficiency",
+      tabLabel: "Player Efficiency Report",
       image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
     }
   ];
@@ -94,7 +98,8 @@ const Analysis = () => {
         "The difference between a good player and a great player often lies in the depth of their game understanding. With our bespoke analysis services, we help you unlock new layers of your performance and rise above your competition.",
         "The best athletes in the world invest significant time in performance analysis. It is not solely about enhancing tactical development - it is about uncovering insights into technical, physical, and psychological performance.",
         "Our expert analysts employ expert coaching techniques and tools, dissecting your gameplay to provide an in-depth understanding of your strengths and areas to improve."
-      ]
+      ],
+      productId: null
     },
     {
       label: "Pre-Match Opposition Analysis",
@@ -102,7 +107,8 @@ const Analysis = () => {
         "Pre-match opposition analysis is delivered to our players at the start of the match week, giving time to absorb the information and use it in preparation.",
         "We analyse your direct opponents - their strengths, weaknesses, preferred movements, and tendencies. You'll know exactly what to expect and how to exploit their vulnerabilities.",
         "The analysis includes video clips, tactical diagrams, and clear action points for you to focus on during the match."
-      ]
+      ],
+      productId: "6c369b05-d410-4955-98e6-20a936019079"
     },
     {
       label: "Post-Match Analysis",
@@ -110,7 +116,8 @@ const Analysis = () => {
         "In post-match analysis, we cut through the game to focus on how to be more consistent with your strengths and how to eliminate your weaknesses.",
         "We review every touch, every decision, and every movement - identifying patterns in your play and specific moments where different choices could have led to better outcomes.",
         "Each analysis comes with a clear development plan and specific areas to work on before your next match."
-      ]
+      ],
+      productId: "bd421bfa-2819-444b-aaa7-8de168f2b171"
     },
     {
       label: "Positional Guide",
@@ -118,7 +125,8 @@ const Analysis = () => {
         "Positional guide pieces utilise the best players in the world to explain advanced tactical ideas, allowing you to see the game through a more intellectual lens.",
         "We create bespoke content specific to your position and the areas you need to develop. Using examples from elite players, we show you exactly how to execute at the highest level.",
         "Guides cover positioning, movement patterns, decision-making triggers, and much more."
-      ]
+      ],
+      productId: "853b38f5-27f3-4482-9ad2-99c10983e988"
     },
     {
       label: "Player Efficiency Report",
@@ -126,7 +134,8 @@ const Analysis = () => {
         "The Player Efficiency Report provides a comprehensive analysis of the performance statistics that clubs use to evaluate and recruit players.",
         "We compare your statistics against positional benchmarks, league averages, and top performers. This gives you clear evidence of your strengths and specific targets for improvement.",
         "Reports are formatted professionally for sharing with agents, clubs, and scouts - showcasing your value in the transfer market."
-      ]
+      ],
+      productId: "309ecacf-22ee-4467-8674-c6686968f6db"
     }
   ];
 
@@ -140,9 +149,10 @@ const Analysis = () => {
       category="ANALYSIS"
       title="SEE THE GAME BEFORE IT HAPPENS"
       heroVideo="/videos/players-hero.mp4"
+      heroVideoWithBorders
     >
       {/* Four Pillars with Dark Green Background - No extra spacing */}
-      <section className="relative py-6">
+      <section className="relative py-4">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
         <div className="relative z-10">
@@ -151,7 +161,7 @@ const Analysis = () => {
       </section>
 
       {/* Our Analysis Services - Seamless with above */}
-      <section className="relative py-6">
+      <section className="relative py-4">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
@@ -206,21 +216,21 @@ const Analysis = () => {
                         ))}
                       </ul>
 
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-auto">
+                      <div className="flex flex-col gap-3 mt-auto">
                         <p className="font-bebas text-xl text-accent tracking-wide">{service.price}</p>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Button 
                             variant="ghost"
                             onClick={() => openWhatsIncluded(service.serviceType)}
-                            className="font-bebas tracking-wider text-white/70 hover:text-white hover:bg-white/10 px-4"
+                            className="font-bebas tracking-wider text-white/70 hover:text-white hover:bg-white/10 px-3 text-sm"
                           >
-                            <Info className="w-4 h-4 mr-2" />
+                            <Info className="w-4 h-4 mr-1" />
                             WHAT'S INCLUDED
                           </Button>
                           <LocalizedLink to={`/services?service=${service.productId}`}>
-                            <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-6 group/btn">
+                            <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-4 text-sm group/btn">
                               LEARN MORE
-                              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                              <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
                             </Button>
                           </LocalizedLink>
                         </div>
@@ -246,7 +256,7 @@ const Analysis = () => {
       </section>
 
       {/* In Detail Section - Seamless */}
-      <section className="relative py-6 overflow-hidden">
+      <section className="relative py-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
@@ -271,6 +281,17 @@ const Analysis = () => {
                       </p>
                     </div>
                   ))}
+                  {/* Product Link at the end */}
+                  {tab.productId && (
+                    <div className="pt-2">
+                      <LocalizedLink to={`/services?service=${tab.productId}`}>
+                        <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-6 group/btn">
+                          LEARN MORE ABOUT {tab.label.toUpperCase()}
+                          <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                        </Button>
+                      </LocalizedLink>
+                    </div>
+                  )}
                 </div>
               )
             }))} />
@@ -279,7 +300,7 @@ const Analysis = () => {
       </section>
 
       {/* Full Package - Seamless with Dark Green Background */}
-      <section className="relative">
+      <section className="relative py-4">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
         <div className="relative z-10">
