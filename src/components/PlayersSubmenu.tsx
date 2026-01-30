@@ -15,20 +15,18 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     label: "General",
-    links: ["/consultation", "/pro-performance", "/elite-performance"],
+    links: ["/consultation", "/mentorship"],
     items: [
       { label: "Consultation", link: "/consultation", description: "One-on-one expert guidance to identify your development needs and create a personalized pathway." },
-      { label: "Pro Performance", link: "/pro-performance", description: "Our flagship programme for professional players seeking elite-level holistic development." },
-      { label: "Elite Performance", link: "/elite-performance", description: "Comprehensive training for aspiring professionals ready to take the next step." },
+      { label: "Mentorship", link: "/mentorship", description: "Ongoing support and guidance from experienced football performance specialists." },
     ]
   },
   {
     label: "Holistic",
-    links: ["/pro-performance", "/elite-performance", "/mentorship"],
+    links: ["/pro-performance", "/elite-performance"],
     items: [
-      { label: "Pro Performance", link: "/pro-performance", description: "Full-spectrum development covering tactical, technical, physical and mental pillars." },
-      { label: "Elite Performance", link: "/elite-performance", description: "Structured progression across all performance areas for emerging talent." },
-      { label: "Mentorship", link: "/mentorship", description: "Ongoing support and guidance from experienced football performance specialists." },
+      { label: "Pro Performance Programme", link: "/pro-performance", description: "Our flagship programme for professional players seeking elite-level holistic development." },
+      { label: "Elite Performance Programme", link: "/elite-performance", description: "Comprehensive training for aspiring professionals ready to take the next step." },
     ]
   },
   {
