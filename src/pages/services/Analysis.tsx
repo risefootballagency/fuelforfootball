@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import {
@@ -7,9 +8,14 @@ import {
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
+import { AnalysisExampleDialog } from "@/components/services/AnalysisExampleDialog";
+import { GrassTextureBackground } from "@/components/GrassBackground";
 import { ArrowRight, Eye } from "lucide-react";
 
 const Analysis = () => {
+  const [exampleDialogOpen, setExampleDialogOpen] = useState(false);
+  const [selectedServiceType, setSelectedServiceType] = useState("post-match");
+
   const pillars = [
     { icon: "https://static.wixstatic.com/media/c4f4b1_3cb0b27e76454bdea2d63ff66acfddfa~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Positioning.png", label: "POSITIONING" },
     { icon: "https://static.wixstatic.com/media/c4f4b1_34064a3af1fb4cda857abb786edea7ae~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Movement.png", label: "MOVEMENT" },
@@ -30,6 +36,7 @@ const Analysis = () => {
       example: "Example: Slovakia vs England (30/06/24)",
       price: "FROM £85.00",
       productId: "6c369b05-d410-4955-98e6-20a936019079",
+      serviceType: "pre-match",
       image: "https://static.wixstatic.com/media/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg",
     },
     {
@@ -44,6 +51,7 @@ const Analysis = () => {
       example: "Example: Máté Sajbán vs Debrecen (13/08/23)",
       price: "FROM £85.00",
       productId: "bd421bfa-2819-444b-aaa7-8de168f2b171",
+      serviceType: "post-match",
       image: "https://static.wixstatic.com/media/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg",
     },
     {
@@ -58,6 +66,7 @@ const Analysis = () => {
       example: "Example: Winger Positioning & Movement",
       price: "FROM £85.00",
       productId: "853b38f5-27f3-4482-9ad2-99c10983e988",
+      serviceType: "positional",
       image: "https://static.wixstatic.com/media/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg/v1/fill/w_848,h_334,q_90,enc_avif,quality_auto/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg",
     },
     {
@@ -72,6 +81,7 @@ const Analysis = () => {
       example: "Example: Michael Mulligan (23/24)",
       price: "FROM £95.00",
       productId: "309ecacf-22ee-4467-8674-c6686968f6db",
+      serviceType: "efficiency",
       image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
     }
   ];
@@ -86,7 +96,7 @@ const Analysis = () => {
       ]
     },
     {
-      label: "Pre-Match",
+      label: "Pre-Match Opposition Analysis",
       paragraphs: [
         "Pre-match opposition analysis is delivered to our players at the start of the match week, giving time to absorb the information and use it in preparation.",
         "We analyse your direct opponents - their strengths, weaknesses, preferred movements, and tendencies. You'll know exactly what to expect and how to exploit their vulnerabilities.",
@@ -94,7 +104,7 @@ const Analysis = () => {
       ]
     },
     {
-      label: "Post-Match",
+      label: "Post-Match Analysis",
       paragraphs: [
         "In post-match analysis, we cut through the game to focus on how to be more consistent with your strengths and how to eliminate your weaknesses.",
         "We review every touch, every decision, and every movement - identifying patterns in your play and specific moments where different choices could have led to better outcomes.",
@@ -102,7 +112,7 @@ const Analysis = () => {
       ]
     },
     {
-      label: "Positional",
+      label: "Positional Guide",
       paragraphs: [
         "Positional guide pieces utilise the best players in the world to explain advanced tactical ideas, allowing you to see the game through a more intellectual lens.",
         "We create bespoke content specific to your position and the areas you need to develop. Using examples from elite players, we show you exactly how to execute at the highest level.",
@@ -110,7 +120,7 @@ const Analysis = () => {
       ]
     },
     {
-      label: "Efficiency",
+      label: "Player Efficiency Report",
       paragraphs: [
         "The Player Efficiency Report provides a comprehensive analysis of the performance statistics that clubs use to evaluate and recruit players.",
         "We compare your statistics against positional benchmarks, league averages, and top performers. This gives you clear evidence of your strengths and specific targets for improvement.",
@@ -119,22 +129,35 @@ const Analysis = () => {
     }
   ];
 
+  const openExample = (serviceType: string) => {
+    setSelectedServiceType(serviceType);
+    setExampleDialogOpen(true);
+  };
+
   return (
     <ServicePageLayout
       category="ANALYSIS"
       title="SEE THE GAME BEFORE IT HAPPENS"
       heroVideo="/videos/players-hero.mp4"
     >
-      {/* Four Pillars as Large Cards */}
-      <ServicePillars pillars={pillars} large />
+      {/* Four Pillars with Grass Background */}
+      <section className="relative py-8">
+        <GrassTextureBackground className="opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+        <div className="relative z-10">
+          <ServicePillars pillars={pillars} large />
+        </div>
+      </section>
 
-      {/* Our Analysis Services Title */}
-      <ServiceSectionTitle>OUR ANALYSIS SERVICES</ServiceSectionTitle>
-
-      {/* Analysis Service Cards - Alternating Layout */}
-      <section className="py-4">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-6 max-w-6xl mx-auto">
+      {/* Our Analysis Services - Dark Green Gradient Background */}
+      <section className="relative py-4">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <ServiceSectionTitle>OUR ANALYSIS SERVICES</ServiceSectionTitle>
+          
+          <div className="space-y-6 max-w-6xl mx-auto mt-6">
             {analysisServices.map((service, index) => {
               const isEven = index % 2 === 0;
               return (
@@ -154,19 +177,15 @@ const Analysis = () => {
                       <p className="absolute bottom-4 left-4 text-sm text-white/70">{service.example}</p>
                       
                       {/* View Example Button */}
-                      <LocalizedLink 
-                        to="/player-hub/e3ae5dcd-0a67-4d49-bf04-879040c4b8c3?section=analysis"
+                      <button 
+                        onClick={() => openExample(service.serviceType)}
                         className="absolute bottom-4 right-4 opacity-60 hover:opacity-100 transition-opacity"
                       >
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="bg-black/40 border-white/30 text-white/80 hover:bg-black/60 hover:text-white text-xs"
-                        >
-                          <Eye className="w-3 h-3 mr-1" />
+                        <span className="inline-flex items-center gap-1 bg-black/40 border border-white/30 text-white/80 hover:bg-black/60 hover:text-white text-xs px-3 py-1.5 rounded-md">
+                          <Eye className="w-3 h-3" />
                           View Example
-                        </Button>
-                      </LocalizedLink>
+                        </span>
+                      </button>
                     </div>
 
                     {/* Content Section */}
@@ -201,7 +220,7 @@ const Analysis = () => {
                         <p className="font-bebas text-xl text-accent tracking-wide">{service.price}</p>
                         <LocalizedLink to={`/services?service=${service.productId}`}>
                           <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-6 group/btn">
-                            REQUEST QUOTE
+                            LEARN MORE
                             <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
                           </Button>
                         </LocalizedLink>
@@ -215,9 +234,8 @@ const Analysis = () => {
         </div>
       </section>
 
-      {/* In Detail Section */}
+      {/* In Detail Section - No extra spacing */}
       <section className="relative py-8 overflow-hidden">
-        {/* Dark green gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
@@ -232,10 +250,10 @@ const Analysis = () => {
                   {tab.paragraphs.map((text, pIndex) => (
                     <div 
                       key={pIndex}
-                      className="group/card relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-sm border border-white/10 rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-accent/50 hover:from-white/[0.12] hover:to-white/[0.05] hover:scale-[1.01] hover:shadow-lg hover:shadow-accent/5 cursor-default"
+                      className="group/card relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-sm border border-white/10 rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-accent/50 hover:from-white/[0.12] hover:to-white/[0.05] hover:scale-[1.02] hover:shadow-xl hover:shadow-accent/10 cursor-pointer"
                     >
                       {/* Animated accent bar */}
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/30 rounded-l-xl transition-all duration-300 group-hover/card:bg-accent group-hover/card:w-1.5" />
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/30 rounded-l-xl transition-all duration-300 group-hover/card:bg-accent group-hover/card:w-1.5 group-hover/card:shadow-lg group-hover/card:shadow-accent/50" />
                       
                       <p className="text-white/90 text-sm md:text-base leading-relaxed pl-3">
                         {text}
@@ -249,7 +267,21 @@ const Analysis = () => {
         </div>
       </section>
 
-      <ServiceFullPackage />
+      {/* Full Package with Dark Green Background */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10">
+          <ServiceFullPackage />
+        </div>
+      </section>
+
+      {/* Example Dialog */}
+      <AnalysisExampleDialog 
+        open={exampleDialogOpen}
+        onOpenChange={setExampleDialogOpen}
+        serviceType={selectedServiceType}
+      />
     </ServicePageLayout>
   );
 };
