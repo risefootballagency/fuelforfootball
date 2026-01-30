@@ -8,12 +8,13 @@ import {
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
-import { AnalysisExampleDialog } from "@/components/services/AnalysisExampleDialog";
-import { GrassTextureBackground } from "@/components/GrassBackground";
-import { ArrowRight, Eye } from "lucide-react";
+import { WhatsIncludedDialog } from "@/components/services/WhatsIncludedDialog";
+import { PortalExampleDialog } from "@/components/services/PortalExampleDialog";
+import { ArrowRight, Info, Eye } from "lucide-react";
 
 const Analysis = () => {
-  const [exampleDialogOpen, setExampleDialogOpen] = useState(false);
+  const [whatsIncludedOpen, setWhatsIncludedOpen] = useState(false);
+  const [portalExampleOpen, setPortalExampleOpen] = useState(false);
   const [selectedServiceType, setSelectedServiceType] = useState("post-match");
 
   const pillars = [
@@ -129,9 +130,9 @@ const Analysis = () => {
     }
   ];
 
-  const openExample = (serviceType: string) => {
+  const openWhatsIncluded = (serviceType: string) => {
     setSelectedServiceType(serviceType);
-    setExampleDialogOpen(true);
+    setWhatsIncludedOpen(true);
   };
 
   return (
@@ -140,24 +141,24 @@ const Analysis = () => {
       title="SEE THE GAME BEFORE IT HAPPENS"
       heroVideo="/videos/players-hero.mp4"
     >
-      {/* Four Pillars with Grass Background */}
-      <section className="relative py-8">
-        <GrassTextureBackground className="opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
+      {/* Four Pillars with Dark Green Background - No extra spacing */}
+      <section className="relative py-6">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
         <div className="relative z-10">
           <ServicePillars pillars={pillars} large />
         </div>
       </section>
 
-      {/* Our Analysis Services - Dark Green Gradient Background */}
-      <section className="relative py-4">
+      {/* Our Analysis Services - Seamless with above */}
+      <section className="relative py-6">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <ServiceSectionTitle>OUR ANALYSIS SERVICES</ServiceSectionTitle>
           
-          <div className="space-y-6 max-w-6xl mx-auto mt-6">
+          <div className="space-y-6 max-w-6xl mx-auto mt-4">
             {analysisServices.map((service, index) => {
               const isEven = index % 2 === 0;
               return (
@@ -175,17 +176,6 @@ const Analysis = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <p className="absolute bottom-4 left-4 text-sm text-white/70">{service.example}</p>
-                      
-                      {/* View Example Button */}
-                      <button 
-                        onClick={() => openExample(service.serviceType)}
-                        className="absolute bottom-4 right-4 opacity-60 hover:opacity-100 transition-opacity"
-                      >
-                        <span className="inline-flex items-center gap-1 bg-black/40 border border-white/30 text-white/80 hover:bg-black/60 hover:text-white text-xs px-3 py-1.5 rounded-md">
-                          <Eye className="w-3 h-3" />
-                          View Example
-                        </span>
-                      </button>
                     </div>
 
                     {/* Content Section */}
@@ -216,14 +206,24 @@ const Analysis = () => {
                         ))}
                       </ul>
 
-                      <div className="flex items-center justify-between mt-auto">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-auto">
                         <p className="font-bebas text-xl text-accent tracking-wide">{service.price}</p>
-                        <LocalizedLink to={`/services?service=${service.productId}`}>
-                          <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-6 group/btn">
-                            LEARN MORE
-                            <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost"
+                            onClick={() => openWhatsIncluded(service.serviceType)}
+                            className="font-bebas tracking-wider text-white/70 hover:text-white hover:bg-white/10 px-4"
+                          >
+                            <Info className="w-4 h-4 mr-2" />
+                            WHAT'S INCLUDED
                           </Button>
-                        </LocalizedLink>
+                          <LocalizedLink to={`/services?service=${service.productId}`}>
+                            <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-6 group/btn">
+                              LEARN MORE
+                              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                            </Button>
+                          </LocalizedLink>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -231,18 +231,29 @@ const Analysis = () => {
               );
             })}
           </div>
+
+          {/* View Example Button */}
+          <div className="flex justify-center mt-8">
+            <Button 
+              onClick={() => setPortalExampleOpen(true)}
+              className="font-bebas tracking-wider bg-accent/20 border border-accent text-accent hover:bg-accent hover:text-black px-8 py-6 text-lg"
+            >
+              <Eye className="w-5 h-5 mr-3" />
+              VIEW PLAYER PORTAL EXAMPLE
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* In Detail Section - No extra spacing */}
-      <section className="relative py-8 overflow-hidden">
+      {/* In Detail Section - Seamless */}
+      <section className="relative py-6 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
           
-          <div className="max-w-5xl mx-auto mt-6">
+          <div className="max-w-5xl mx-auto mt-4">
             <ServiceDetailTabs tabs={detailTabs.map(tab => ({
               label: tab.label,
               content: (
@@ -267,7 +278,7 @@ const Analysis = () => {
         </div>
       </section>
 
-      {/* Full Package with Dark Green Background */}
+      {/* Full Package - Seamless with Dark Green Background */}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
@@ -276,11 +287,15 @@ const Analysis = () => {
         </div>
       </section>
 
-      {/* Example Dialog */}
-      <AnalysisExampleDialog 
-        open={exampleDialogOpen}
-        onOpenChange={setExampleDialogOpen}
+      {/* Dialogs */}
+      <WhatsIncludedDialog 
+        open={whatsIncludedOpen}
+        onOpenChange={setWhatsIncludedOpen}
         serviceType={selectedServiceType}
+      />
+      <PortalExampleDialog
+        open={portalExampleOpen}
+        onOpenChange={setPortalExampleOpen}
       />
     </ServicePageLayout>
   );

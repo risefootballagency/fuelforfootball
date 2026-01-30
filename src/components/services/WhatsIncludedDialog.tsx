@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { X, Play, FileText, BarChart3 } from "lucide-react";
 
-interface AnalysisExampleDialogProps {
+interface WhatsIncludedDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   serviceType: string;
@@ -71,7 +71,7 @@ const exampleContent: Record<string, {
   }
 };
 
-export const AnalysisExampleDialog = ({ open, onOpenChange, serviceType }: AnalysisExampleDialogProps) => {
+export const WhatsIncludedDialog = ({ open, onOpenChange, serviceType }: WhatsIncludedDialogProps) => {
   const content = exampleContent[serviceType] || exampleContent["post-match"];
   
   return (
