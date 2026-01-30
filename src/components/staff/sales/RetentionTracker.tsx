@@ -6,13 +6,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { Plus, Edit, Trash2, Users, Target, TrendingUp } from "lucide-react";
-import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
+import { Plus, Edit, Trash2, Users, Target, TrendingUp, Calendar, Loader2 } from "lucide-react";
+import { format, parseISO } from "date-fns";
+
+interface ServiceDate {
+  service: string;
+  start_date: string | null;
+  end_date: string | null;
+}
 
 interface RetentionClient {
   id: string;
@@ -26,6 +33,8 @@ interface RetentionClient {
   status: string;
   notes: string | null;
   total_revenue: number;
+  services_worked: string[];
+  service_dates: ServiceDate[];
   created_at: string;
 }
 
@@ -40,13 +49,37 @@ interface RetentionTarget {
   sales_actual: number;
 }
 
+interface Player {
+  id: string;
+  name: string;
+  email: string | null;
+  category: string | null;
+}
+
+const SERVICES = [
+  "Analysis",
+  "Action Reports",
+  "Efficiency Reports",
+  "Technical Training",
+  "Strength Power & Speed",
+  "Conditioning",
+  "Nutrition",
+  "Mental Performance",
+  "Mentorship",
+  "Consultation",
+  "Pro Performance Programme",
+  "Elite Performance Programme"
+];
+
 export function RetentionTracker() {
   const [clients, setClients] = useState<RetentionClient[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [targets, setTargets] = useState<RetentionTarget | null>(null);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [targetDialogOpen, setTargetDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<RetentionClient | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string>("");
   const [formData, setFormData] = useState({
     client_name: "",
     client_type: "existing",
@@ -57,6 +90,8 @@ export function RetentionTracker() {
     status: "active",
     notes: "",
     total_revenue: 0,
+    services_worked: [] as string[],
+    service_dates: [] as ServiceDate[],
   });
   const [targetData, setTargetData] = useState({
     outreach_target: 0,
@@ -69,7 +104,23 @@ export function RetentionTracker() {
   useEffect(() => {
     fetchClients();
     fetchTargets();
+    fetchPlayers();
   }, []);
+
+  const fetchPlayers = async () => {
+    const { data, error } = await supabase
+      .from("players")
+      .select("id, name, email, category")
+      .eq("category", "Fuel For Football")
+      .order("name");
+
+    if (error) {
+      console.error("Error fetching players:", error);
+      toast.error("Failed to fetch players");
+    } else {
+      setPlayers(data || []);
+    }
+  };
 
   const fetchClients = async () => {
     const { data, error } = await supabase
@@ -78,9 +129,14 @@ export function RetentionTracker() {
       .order("created_at", { ascending: false });
 
     if (error) {
+      console.error("Error fetching clients:", error);
       toast.error("Failed to fetch clients");
     } else {
-      setClients(data || []);
+      setClients((data || []).map(c => ({
+        ...c,
+        services_worked: c.services_worked || [],
+        service_dates: c.service_dates || []
+      })));
     }
     setLoading(false);
   };
@@ -102,16 +158,62 @@ export function RetentionTracker() {
     }
   };
 
+  const handlePlayerSelect = (playerId: string) => {
+    setSelectedPlayerId(playerId);
+    const player = players.find(p => p.id === playerId);
+    if (player) {
+      setFormData(prev => ({
+        ...prev,
+        client_name: player.name,
+        contact_email: player.email || "",
+      }));
+    }
+  };
+
+  const handleServiceToggle = (service: string) => {
+    setFormData(prev => {
+      const exists = prev.services_worked.includes(service);
+      if (exists) {
+        return {
+          ...prev,
+          services_worked: prev.services_worked.filter(s => s !== service),
+          service_dates: prev.service_dates.filter(sd => sd.service !== service)
+        };
+      } else {
+        return {
+          ...prev,
+          services_worked: [...prev.services_worked, service],
+          service_dates: [...prev.service_dates, { service, start_date: null, end_date: null }]
+        };
+      }
+    });
+  };
+
+  const handleServiceDateChange = (service: string, field: 'start_date' | 'end_date', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      service_dates: prev.service_dates.map(sd => 
+        sd.service === service ? { ...sd, [field]: value || null } : sd
+      )
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const payload = {
-      ...formData,
+      client_name: formData.client_name,
+      client_type: formData.client_type,
       contact_email: formData.contact_email || null,
       contact_phone: formData.contact_phone || null,
+      player_id: selectedPlayerId || null,
       last_contact_date: formData.last_contact_date || null,
       next_contact_date: formData.next_contact_date || null,
+      status: formData.status,
       notes: formData.notes || null,
+      total_revenue: formData.total_revenue,
+      services_worked: formData.services_worked,
+      service_dates: formData.service_dates,
     };
 
     if (editingClient) {
@@ -121,6 +223,7 @@ export function RetentionTracker() {
         .eq("id", editingClient.id);
 
       if (error) {
+        console.error("Update error:", error);
         toast.error("Failed to update client");
       } else {
         toast.success("Client updated");
@@ -132,6 +235,7 @@ export function RetentionTracker() {
         .insert(payload);
 
       if (error) {
+        console.error("Insert error:", error);
         toast.error("Failed to add client");
       } else {
         toast.success("Client added");
@@ -207,12 +311,16 @@ export function RetentionTracker() {
       status: "active",
       notes: "",
       total_revenue: 0,
+      services_worked: [],
+      service_dates: [],
     });
+    setSelectedPlayerId("");
     setEditingClient(null);
   };
 
   const openEditDialog = (client: RetentionClient) => {
     setEditingClient(client);
+    setSelectedPlayerId(client.player_id || "");
     setFormData({
       client_name: client.client_name,
       client_type: client.client_type,
@@ -223,13 +331,13 @@ export function RetentionTracker() {
       status: client.status,
       notes: client.notes || "",
       total_revenue: client.total_revenue || 0,
+      services_worked: client.services_worked || [],
+      service_dates: client.service_dates || [],
     });
     setDialogOpen(true);
   };
 
   const activeClients = clients.filter(c => c.status === "active").length;
-  const churnedClients = clients.filter(c => c.status === "churned").length;
-  const reEngagedClients = clients.filter(c => c.status === "re-engaged").length;
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -240,28 +348,36 @@ export function RetentionTracker() {
     return <Badge variant={variants[status] || "outline"}>{status}</Badge>;
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Stats Cards */}
+      {/* Stats Cards - Mobile optimized */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         <Card>
-          <CardContent className="p-3 sm:pt-6">
+          <CardContent className="p-3 sm:p-6">
             <div className="flex items-center gap-2 sm:gap-3">
-              <Users className="h-5 w-5 sm:h-8 sm:w-8 text-primary" />
-              <div>
+              <Users className="h-5 w-5 sm:h-8 sm:w-8 text-primary shrink-0" />
+              <div className="min-w-0">
                 <p className="text-lg sm:text-2xl font-bold">{activeClients}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Active</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Active</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-3 sm:pt-6">
+          <CardContent className="p-3 sm:p-6">
             <div className="flex items-center gap-2 sm:gap-3">
-              <Target className="h-5 w-5 sm:h-8 sm:w-8 text-orange-500" />
-              <div>
+              <Target className="h-5 w-5 sm:h-8 sm:w-8 text-orange-500 shrink-0" />
+              <div className="min-w-0">
                 <p className="text-lg sm:text-2xl font-bold">{targets?.outreach_actual || 0}/{targets?.outreach_target || 0}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Outreach</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Outreach</p>
               </div>
             </div>
             {targets && targets.outreach_target > 0 && (
@@ -270,12 +386,12 @@ export function RetentionTracker() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-3 sm:pt-6">
+          <CardContent className="p-3 sm:p-6">
             <div className="flex items-center gap-2 sm:gap-3">
-              <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-green-500" />
-              <div>
+              <TrendingUp className="h-5 w-5 sm:h-8 sm:w-8 text-green-500 shrink-0" />
+              <div className="min-w-0">
                 <p className="text-lg sm:text-2xl font-bold">{targets?.conversion_actual || 0}/{targets?.conversion_target || 0}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Conversions</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Conversions</p>
               </div>
             </div>
             {targets && targets.conversion_target > 0 && (
@@ -284,13 +400,10 @@ export function RetentionTracker() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-3 sm:pt-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="text-lg sm:text-2xl">£</div>
-              <div>
-                <p className="text-lg sm:text-2xl font-bold">£{(targets?.sales_actual || 0).toLocaleString()}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">/ £{(targets?.sales_target || 0).toLocaleString()}</p>
-              </div>
+          <CardContent className="p-3 sm:p-6">
+            <div className="min-w-0">
+              <p className="text-lg sm:text-2xl font-bold">£{(targets?.sales_actual || 0).toLocaleString()}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">/ £{(targets?.sales_target || 0).toLocaleString()}</p>
             </div>
             {targets && targets.sales_target > 0 && (
               <Progress value={(targets.sales_actual / targets.sales_target) * 100} className="mt-2 h-1.5 sm:h-2" />
@@ -299,104 +412,183 @@ export function RetentionTracker() {
         </Card>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-2">
+      {/* Actions - Stack on mobile */}
+      <div className="flex flex-col sm:flex-row gap-2">
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" /> Add Client</Button>
+            <Button className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-2" /> Add Client</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
             <DialogHeader>
-              <DialogTitle>{editingClient ? "Edit Client" : "Add Client"}</DialogTitle>
+              <DialogTitle>{editingClient ? "Edit Client" : "Add Retention Client"}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label>Client Name *</Label>
-                <Input
-                  value={formData.client_name}
-                  onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+            <ScrollArea className="flex-1 pr-4">
+              <form onSubmit={handleSubmit} className="space-y-4 pb-4">
+                {/* Player Selection */}
                 <div>
-                  <Label>Type</Label>
-                  <Select value={formData.client_type} onValueChange={(v) => setFormData({ ...formData, client_type: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Label>Select from FFF Players</Label>
+                  <Select value={selectedPlayerId} onValueChange={handlePlayerSelect}>
+                    <SelectTrigger><SelectValue placeholder="Select a player..." /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="existing">Existing</SelectItem>
-                      <SelectItem value="previous">Previous</SelectItem>
+                      <SelectItem value="">-- Manual Entry --</SelectItem>
+                      {players.map(player => (
+                        <SelectItem key={player.id} value={player.id}>{player.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {players.length} players in Fuel For Football category
+                  </p>
                 </div>
+
                 <div>
-                  <Label>Status</Label>
-                  <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="churned">Churned</SelectItem>
-                      <SelectItem value="re-engaged">Re-engaged</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div>
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={formData.contact_email}
-                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Phone</Label>
-                <Input
-                  value={formData.contact_phone}
-                  onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Last Contact</Label>
+                  <Label>Client Name *</Label>
                   <Input
-                    type="date"
-                    value={formData.last_contact_date}
-                    onChange={(e) => setFormData({ ...formData, last_contact_date: e.target.value })}
+                    value={formData.client_name}
+                    onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
+                    required
                   />
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Type</Label>
+                    <Select value={formData.client_type} onValueChange={(v) => setFormData({ ...formData, client_type: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="existing">Existing</SelectItem>
+                        <SelectItem value="previous">Previous</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Status</Label>
+                    <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="churned">Churned</SelectItem>
+                        <SelectItem value="re-engaged">Re-engaged</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
                 <div>
-                  <Label>Next Contact</Label>
+                  <Label>Email</Label>
                   <Input
-                    type="date"
-                    value={formData.next_contact_date}
-                    onChange={(e) => setFormData({ ...formData, next_contact_date: e.target.value })}
+                    type="email"
+                    value={formData.contact_email}
+                    onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                   />
                 </div>
-              </div>
-              <div>
-                <Label>Total Revenue (£)</Label>
-                <Input
-                  type="number"
-                  value={formData.total_revenue}
-                  onChange={(e) => setFormData({ ...formData, total_revenue: parseFloat(e.target.value) || 0 })}
-                />
-              </div>
-              <div>
-                <Label>Notes</Label>
-                <Textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                />
-              </div>
-              <Button type="submit" className="w-full">{editingClient ? "Update" : "Add"} Client</Button>
-            </form>
+
+                <div>
+                  <Label>Phone</Label>
+                  <Input
+                    value={formData.contact_phone}
+                    onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Last Contact</Label>
+                    <Input
+                      type="date"
+                      value={formData.last_contact_date}
+                      onChange={(e) => setFormData({ ...formData, last_contact_date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Next Contact</Label>
+                    <Input
+                      type="date"
+                      value={formData.next_contact_date}
+                      onChange={(e) => setFormData({ ...formData, next_contact_date: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Total Revenue (£)</Label>
+                  <Input
+                    type="number"
+                    value={formData.total_revenue}
+                    onChange={(e) => setFormData({ ...formData, total_revenue: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                {/* Services Worked */}
+                <div>
+                  <Label className="flex items-center gap-2 mb-2">
+                    <Calendar className="h-4 w-4" />
+                    Services Worked On
+                  </Label>
+                  <div className="space-y-3 border rounded-lg p-3 bg-muted/20">
+                    {SERVICES.map(service => {
+                      const isSelected = formData.services_worked.includes(service);
+                      const serviceDate = formData.service_dates.find(sd => sd.service === service);
+                      
+                      return (
+                        <div key={service} className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`service-${service}`}
+                              checked={isSelected}
+                              onCheckedChange={() => handleServiceToggle(service)}
+                            />
+                            <label
+                              htmlFor={`service-${service}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            >
+                              {service}
+                            </label>
+                          </div>
+                          {isSelected && (
+                            <div className="grid grid-cols-2 gap-2 ml-6">
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Start</Label>
+                                <Input
+                                  type="date"
+                                  className="h-8 text-xs"
+                                  value={serviceDate?.start_date || ""}
+                                  onChange={(e) => handleServiceDateChange(service, 'start_date', e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">End</Label>
+                                <Input
+                                  type="date"
+                                  className="h-8 text-xs"
+                                  value={serviceDate?.end_date || ""}
+                                  onChange={(e) => handleServiceDateChange(service, 'end_date', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Notes</Label>
+                  <Textarea
+                    value={formData.notes}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  />
+                </div>
+                <Button type="submit" className="w-full">{editingClient ? "Update" : "Add"} Client</Button>
+              </form>
+            </ScrollArea>
           </DialogContent>
         </Dialog>
 
         <Dialog open={targetDialogOpen} onOpenChange={setTargetDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline"><Target className="h-4 w-4 mr-2" /> Set Targets</Button>
+            <Button variant="outline" className="w-full sm:w-auto"><Target className="h-4 w-4 mr-2" /> Set Targets</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -433,63 +625,65 @@ export function RetentionTracker() {
         </Dialog>
       </div>
 
-      {/* Clients Table */}
+      {/* Clients List - Mobile Card Layout */}
       <Card>
-        <CardHeader>
-          <CardTitle>Retention Clients</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base sm:text-lg">Retention Clients</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Contact</TableHead>
-                <TableHead>Next Contact</TableHead>
-                <TableHead>Revenue</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <CardContent className="p-2 sm:p-6">
+          {clients.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No retention clients yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
               {clients.map((client) => (
-                <TableRow key={client.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{client.client_name}</p>
+                <div key={client.id} className="border rounded-lg p-3 sm:p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate">{client.client_name}</p>
                       {client.contact_email && (
-                        <p className="text-sm text-muted-foreground">{client.contact_email}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{client.contact_email}</p>
                       )}
                     </div>
-                  </TableCell>
-                  <TableCell className="capitalize">{client.client_type}</TableCell>
-                  <TableCell>{getStatusBadge(client.status)}</TableCell>
-                  <TableCell>
-                    {client.last_contact_date ? format(parseISO(client.last_contact_date), "dd MMM yyyy") : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {client.next_contact_date ? format(parseISO(client.next_contact_date), "dd MMM yyyy") : "-"}
-                  </TableCell>
-                  <TableCell>£{(client.total_revenue || 0).toLocaleString()}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(client)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(client.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {getStatusBadge(client.status)}
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(client)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(client.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Services */}
+                  {client.services_worked && client.services_worked.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {client.services_worked.map(service => (
+                        <Badge key={service} variant="outline" className="text-xs">
+                          {service}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Info Row */}
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+                    <span className="capitalize">{client.client_type}</span>
+                    {client.last_contact_date && (
+                      <span>Last: {format(parseISO(client.last_contact_date), "dd MMM")}</span>
+                    )}
+                    {client.next_contact_date && (
+                      <span>Next: {format(parseISO(client.next_contact_date), "dd MMM")}</span>
+                    )}
+                    <span className="font-medium text-foreground">£{(client.total_revenue || 0).toLocaleString()}</span>
+                  </div>
+                </div>
               ))}
-              {clients.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                    No clients yet. Add your first client above.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

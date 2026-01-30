@@ -211,101 +211,175 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       </Card>
 
       <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Link</TableHead>
-                <TableHead>Created</TableHead>
-                {isAdmin && <TableHead>Actions</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
+        <CardContent className="p-2 sm:p-0">
+          {/* Desktop Table View */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                  </TableCell>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Link</TableHead>
+                  <TableHead>Created</TableHead>
+                  {isAdmin && <TableHead>Actions</TableHead>}
                 </TableRow>
-              ) : payLinks.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    No pay links created yet
-                  </TableCell>
-                </TableRow>
-              ) : (
-                payLinks.map((payLink) => (
-                  <TableRow key={payLink.id}>
-                    <TableCell className="font-medium">
-                      <div>
-                        {payLink.title}
-                        {payLink.description && (
-                          <p className="text-xs text-muted-foreground truncate max-w-[200px]">{payLink.description}</p>
-                        )}
-                      </div>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                     </TableCell>
-                    <TableCell className="font-medium">
-                      £{payLink.amount.toFixed(2)} {payLink.currency !== 'GBP' && payLink.currency}
+                  </TableRow>
+                ) : payLinks.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No pay links created yet
                     </TableCell>
-                    <TableCell>{getStatusBadge(payLink.status)}</TableCell>
-                    <TableCell>
-                      {payLink.stripe_payment_link_url ? (
-                        <div className="flex items-center gap-1">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => copyLink(payLink.stripe_payment_link_url!)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => window.open(payLink.stripe_payment_link_url!, '_blank')}
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => createStripePaymentLink(payLink.id, {
-                            title: payLink.title,
-                            amount: payLink.amount,
-                            currency: payLink.currency,
-                            description: payLink.description,
-                          })}
-                          disabled={creatingStripeLink}
-                        >
-                          {creatingStripeLink ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4 mr-1" />}
-                          Generate
-                        </Button>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {format(new Date(payLink.created_at), 'dd/MM/yyyy')}
-                    </TableCell>
-                    {isAdmin && (
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button size="icon" variant="ghost" onClick={() => openDialog(payLink)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost" onClick={() => handleDelete(payLink.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                  </TableRow>
+                ) : (
+                  payLinks.map((payLink) => (
+                    <TableRow key={payLink.id}>
+                      <TableCell className="font-medium">
+                        <div>
+                          {payLink.title}
+                          {payLink.description && (
+                            <p className="text-xs text-muted-foreground truncate max-w-[200px]">{payLink.description}</p>
+                          )}
                         </div>
                       </TableCell>
+                      <TableCell className="font-medium">
+                        £{payLink.amount.toFixed(2)} {payLink.currency !== 'GBP' && payLink.currency}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(payLink.status)}</TableCell>
+                      <TableCell>
+                        {payLink.stripe_payment_link_url ? (
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => copyLink(payLink.stripe_payment_link_url!)}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => window.open(payLink.stripe_payment_link_url!, '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => createStripePaymentLink(payLink.id, {
+                              title: payLink.title,
+                              amount: payLink.amount,
+                              currency: payLink.currency,
+                              description: payLink.description,
+                            })}
+                            disabled={creatingStripeLink}
+                          >
+                            {creatingStripeLink ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4 mr-1" />}
+                            Generate
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {format(new Date(payLink.created_at), 'dd/MM/yyyy')}
+                      </TableCell>
+                      {isAdmin && (
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button size="icon" variant="ghost" onClick={() => openDialog(payLink)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" onClick={() => handleDelete(payLink.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {loading ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+              </div>
+            ) : payLinks.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No pay links created yet
+              </div>
+            ) : (
+              payLinks.map((payLink) => (
+                <div key={payLink.id} className="border rounded-lg p-3 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate">{payLink.title}</p>
+                      {payLink.description && (
+                        <p className="text-xs text-muted-foreground truncate">{payLink.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {getStatusBadge(payLink.status)}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">£{payLink.amount.toFixed(2)}</span>
+                    <span className="text-xs text-muted-foreground">{format(new Date(payLink.created_at), 'dd/MM/yyyy')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1 border-t">
+                    {payLink.stripe_payment_link_url ? (
+                      <>
+                        <Button size="sm" variant="outline" className="flex-1" onClick={() => copyLink(payLink.stripe_payment_link_url!)}>
+                          <Copy className="h-4 w-4 mr-1" /> Copy
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => window.open(payLink.stripe_payment_link_url!, '_blank')}>
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => createStripePaymentLink(payLink.id, {
+                          title: payLink.title,
+                          amount: payLink.amount,
+                          currency: payLink.currency,
+                          description: payLink.description,
+                        })}
+                        disabled={creatingStripeLink}
+                      >
+                        {creatingStripeLink ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4 mr-1" />}
+                        Generate Link
+                      </Button>
                     )}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                    {isAdmin && (
+                      <>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openDialog(payLink)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(payLink.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </CardContent>
       </Card>
 

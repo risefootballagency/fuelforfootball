@@ -588,86 +588,141 @@ export const InvoiceManagement = ({ isAdmin }: { isAdmin: boolean }) => {
               <div className="text-center py-8">Loading invoices...</div>
             ) : (
               <Card>
-                <CardContent className="p-0">
-                  <ScrollArea className="w-full">
-                    <div className="min-w-[900px]">
-                      <Table>
-                        <TableHeader>
+                <CardContent className="p-2 sm:p-0">
+                  {/* Desktop Table View */}
+                  <div className="hidden lg:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Invoice #</TableHead>
+                          <TableHead>Month</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Due Date</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Paid</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredInvoices.length === 0 ? (
                           <TableRow>
-                            <TableHead>Invoice #</TableHead>
-                            <TableHead>Month</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Due Date</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Paid</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
+                            <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                              No invoices found
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredInvoices.length === 0 ? (
-                            <TableRow>
-                              <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                                No invoices found
-                              </TableCell>
-                            </TableRow>
-                          ) : (
-                            filteredInvoices.map((invoice) => {
-                              const remaining = invoice.amount - (invoice.amount_paid || 0);
-                              const isPartiallyPaid = (invoice.amount_paid || 0) > 0 && remaining > 0;
-                              
-                              return (
-                                <TableRow key={invoice.id}>
-                                  <TableCell className="font-mono">{invoice.invoice_number}</TableCell>
-                                  <TableCell className="text-muted-foreground">{invoice.billing_month || "-"}</TableCell>
-                                  <TableCell>{format(new Date(invoice.invoice_date), 'dd/MM/yyyy')}</TableCell>
-                                  <TableCell>{format(new Date(invoice.due_date), 'dd/MM/yyyy')}</TableCell>
-                                  <TableCell>
-                                    <div className="flex flex-col">
-                                      <span>{invoice.amount.toFixed(2)} {invoice.currency}</span>
-                                      {invoice.converted_amount && invoice.converted_currency && (
-                                        <span className="text-xs text-muted-foreground">
-                                          ({invoice.converted_amount.toFixed(2)} {invoice.converted_currency})
-                                        </span>
-                                      )}
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    {isPartiallyPaid ? (
-                                      <span className="text-primary font-medium">
-                                        {(invoice.amount_paid || 0).toFixed(2)} / {invoice.amount.toFixed(2)}
+                        ) : (
+                          filteredInvoices.map((invoice) => {
+                            const remaining = invoice.amount - (invoice.amount_paid || 0);
+                            const isPartiallyPaid = (invoice.amount_paid || 0) > 0 && remaining > 0;
+                            
+                            return (
+                              <TableRow key={invoice.id}>
+                                <TableCell className="font-mono">{invoice.invoice_number}</TableCell>
+                                <TableCell className="text-muted-foreground">{invoice.billing_month || "-"}</TableCell>
+                                <TableCell>{format(new Date(invoice.invoice_date), 'dd/MM/yyyy')}</TableCell>
+                                <TableCell>{format(new Date(invoice.due_date), 'dd/MM/yyyy')}</TableCell>
+                                <TableCell>
+                                  <div className="flex flex-col">
+                                    <span>{invoice.amount.toFixed(2)} {invoice.currency}</span>
+                                    {invoice.converted_amount && invoice.converted_currency && (
+                                      <span className="text-xs text-muted-foreground">
+                                        ({invoice.converted_amount.toFixed(2)} {invoice.converted_currency})
                                       </span>
-                                    ) : invoice.status === "paid" ? (
-                                      <span className="text-green-500">Paid</span>
-                                    ) : (
-                                      <span className="text-muted-foreground">-</span>
                                     )}
-                                  </TableCell>
-                                  <TableCell>{getStatusBadge(invoice.status)}</TableCell>
-                                  <TableCell>
-                                    <div className="flex gap-1 items-center">
-                                      {invoice.status !== 'paid' && remaining > 0 && (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="h-7 text-xs"
-                                          onClick={() => openPayDialog(invoice)}
-                                        >
-                                          <DollarSign className="w-3 h-3 mr-1" />
-                                          Pay
-                                        </Button>
-                                      )}
-                                      {renderQuickActions(invoice)}
-                                    </div>
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })
-                          )}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </ScrollArea>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  {isPartiallyPaid ? (
+                                    <span className="text-primary font-medium">
+                                      {(invoice.amount_paid || 0).toFixed(2)} / {invoice.amount.toFixed(2)}
+                                    </span>
+                                  ) : invoice.status === "paid" ? (
+                                    <span className="text-green-500">Paid</span>
+                                  ) : (
+                                    <span className="text-muted-foreground">-</span>
+                                  )}
+                                </TableCell>
+                                <TableCell>{getStatusBadge(invoice.status)}</TableCell>
+                                <TableCell>
+                                  <div className="flex gap-1 items-center">
+                                    {invoice.status !== 'paid' && remaining > 0 && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 text-xs"
+                                        onClick={() => openPayDialog(invoice)}
+                                      >
+                                        <DollarSign className="w-3 h-3 mr-1" />
+                                        Pay
+                                      </Button>
+                                    )}
+                                    {renderQuickActions(invoice)}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  
+                  {/* Mobile Card View */}
+                  <div className="lg:hidden space-y-3">
+                    {filteredInvoices.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        No invoices found
+                      </div>
+                    ) : (
+                      filteredInvoices.map((invoice) => {
+                        const remaining = invoice.amount - (invoice.amount_paid || 0);
+                        const isPartiallyPaid = (invoice.amount_paid || 0) > 0 && remaining > 0;
+                        
+                        return (
+                          <div key={invoice.id} className="border rounded-lg p-3 space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <p className="font-mono font-medium">{invoice.invoice_number}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {invoice.billing_month || format(new Date(invoice.invoice_date), 'MMM yyyy')}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                {getStatusBadge(invoice.status)}
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Due: {format(new Date(invoice.due_date), 'dd/MM/yy')}</span>
+                              <span className="font-medium">{invoice.amount.toFixed(2)} {invoice.currency}</span>
+                            </div>
+                            
+                            {isPartiallyPaid && (
+                              <div className="text-xs text-primary">
+                                Paid: {(invoice.amount_paid || 0).toFixed(2)} / {invoice.amount.toFixed(2)}
+                              </div>
+                            )}
+                            
+                            <div className="flex items-center gap-2 pt-1 border-t">
+                              {invoice.status !== 'paid' && remaining > 0 && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="flex-1 h-8 text-xs"
+                                  onClick={() => openPayDialog(invoice)}
+                                >
+                                  <DollarSign className="w-3 h-3 mr-1" />
+                                  Record Payment
+                                </Button>
+                              )}
+                              {renderQuickActions(invoice)}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}

@@ -446,54 +446,95 @@ export const PaymentsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           )}
 
           <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Player</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>Reference</TableHead>
-                    <TableHead>Invoice</TableHead>
-                    {isAdmin && <TableHead>Actions</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {insPayments.length === 0 ? (
+            <CardContent className="p-2 sm:p-0">
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        No payments recorded
-                      </TableCell>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Player</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Method</TableHead>
+                      <TableHead>Reference</TableHead>
+                      <TableHead>Invoice</TableHead>
+                      {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
-                  ) : (
-                    insPayments.map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell>{format(new Date(payment.payment_date), 'dd/MM/yyyy')}</TableCell>
-                        <TableCell>{getPlayerName(payment.player_id)}</TableCell>
-                        <TableCell className="font-medium text-green-500">
-                          +{payment.amount.toFixed(2)} {payment.currency}
+                  </TableHeader>
+                  <TableBody>
+                    {insPayments.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          No payments recorded
                         </TableCell>
-                        <TableCell>{getPaymentMethodBadge(payment.payment_method)}</TableCell>
-                        <TableCell className="text-muted-foreground">{payment.reference || '-'}</TableCell>
-                        <TableCell className="font-mono text-sm">{getInvoiceNumber(payment.invoice_id)}</TableCell>
-                        {isAdmin && (
-                          <TableCell>
-                            <div className="flex gap-1">
-                              <Button size="icon" variant="ghost" onClick={() => openPaymentDialog(payment)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button size="icon" variant="ghost" onClick={() => handleDeletePayment(payment.id)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        )}
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : (
+                      insPayments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell>{format(new Date(payment.payment_date), 'dd/MM/yyyy')}</TableCell>
+                          <TableCell>{getPlayerName(payment.player_id)}</TableCell>
+                          <TableCell className="font-medium text-green-500">
+                            +{payment.amount.toFixed(2)} {payment.currency}
+                          </TableCell>
+                          <TableCell>{getPaymentMethodBadge(payment.payment_method)}</TableCell>
+                          <TableCell className="text-muted-foreground">{payment.reference || '-'}</TableCell>
+                          <TableCell className="font-mono text-sm">{getInvoiceNumber(payment.invoice_id)}</TableCell>
+                          {isAdmin && (
+                            <TableCell>
+                              <div className="flex gap-1">
+                                <Button size="icon" variant="ghost" onClick={() => openPaymentDialog(payment)}>
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button size="icon" variant="ghost" onClick={() => handleDeletePayment(payment.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
+                {insPayments.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No payments recorded
+                  </div>
+                ) : (
+                  insPayments.map((payment) => (
+                    <div key={payment.id} className="border rounded-lg p-3 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium truncate">{getPlayerName(payment.player_id)}</p>
+                          <p className="text-xs text-muted-foreground">{format(new Date(payment.payment_date), 'dd/MM/yyyy')}</p>
+                        </div>
+                        <span className="font-medium text-green-500 shrink-0">
+                          +{payment.amount.toFixed(2)} {payment.currency}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        {getPaymentMethodBadge(payment.payment_method)}
+                        {payment.reference && <span className="text-muted-foreground">Ref: {payment.reference}</span>}
+                        {payment.invoice_id && <span className="font-mono">Inv: {getInvoiceNumber(payment.invoice_id)}</span>}
+                      </div>
+                      {isAdmin && (
+                        <div className="flex justify-end gap-1 pt-1 border-t">
+                          <Button size="sm" variant="ghost" onClick={() => openPaymentDialog(payment)}>
+                            <Pencil className="h-4 w-4 mr-1" /> Edit
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleDeletePayment(payment.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -528,52 +569,92 @@ export const PaymentsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           )}
 
           <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>Reference</TableHead>
-                    {isAdmin && <TableHead>Actions</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {outsPayments.length === 0 ? (
+            <CardContent className="p-2 sm:p-0">
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No expenses recorded
-                      </TableCell>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Method</TableHead>
+                      <TableHead>Reference</TableHead>
+                      {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
-                  ) : (
-                    outsPayments.map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell>{format(new Date(payment.payment_date), 'dd/MM/yyyy')}</TableCell>
-                        <TableCell>{payment.description || '-'}</TableCell>
-                        <TableCell className="font-medium text-destructive">
-                          -{payment.amount.toFixed(2)} {payment.currency}
+                  </TableHeader>
+                  <TableBody>
+                    {outsPayments.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                          No expenses recorded
                         </TableCell>
-                        <TableCell>{getPaymentMethodBadge(payment.payment_method)}</TableCell>
-                        <TableCell className="text-muted-foreground">{payment.reference || '-'}</TableCell>
-                        {isAdmin && (
-                          <TableCell>
-                            <div className="flex gap-1">
-                              <Button size="icon" variant="ghost" onClick={() => openPaymentDialog(payment)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button size="icon" variant="ghost" onClick={() => handleDeletePayment(payment.id)}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        )}
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : (
+                      outsPayments.map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell>{format(new Date(payment.payment_date), 'dd/MM/yyyy')}</TableCell>
+                          <TableCell>{payment.description || '-'}</TableCell>
+                          <TableCell className="font-medium text-destructive">
+                            -{payment.amount.toFixed(2)} {payment.currency}
+                          </TableCell>
+                          <TableCell>{getPaymentMethodBadge(payment.payment_method)}</TableCell>
+                          <TableCell className="text-muted-foreground">{payment.reference || '-'}</TableCell>
+                          {isAdmin && (
+                            <TableCell>
+                              <div className="flex gap-1">
+                                <Button size="icon" variant="ghost" onClick={() => openPaymentDialog(payment)}>
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button size="icon" variant="ghost" onClick={() => handleDeletePayment(payment.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
+                {outsPayments.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No expenses recorded
+                  </div>
+                ) : (
+                  outsPayments.map((payment) => (
+                    <div key={payment.id} className="border rounded-lg p-3 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium truncate">{payment.description || 'No description'}</p>
+                          <p className="text-xs text-muted-foreground">{format(new Date(payment.payment_date), 'dd/MM/yyyy')}</p>
+                        </div>
+                        <span className="font-medium text-destructive shrink-0">
+                          -{payment.amount.toFixed(2)} {payment.currency}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        {getPaymentMethodBadge(payment.payment_method)}
+                        {payment.reference && <span className="text-muted-foreground">Ref: {payment.reference}</span>}
+                      </div>
+                      {isAdmin && (
+                        <div className="flex justify-end gap-1 pt-1 border-t">
+                          <Button size="sm" variant="ghost" onClick={() => openPaymentDialog(payment)}>
+                            <Pencil className="h-4 w-4 mr-1" /> Edit
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleDeletePayment(payment.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -140,41 +140,41 @@ export const ExpensesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Calculator className="h-6 w-6" />
+          <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <Calculator className="h-5 w-5 sm:h-6 sm:w-6" />
             Expenses
           </h2>
-          <p className="text-muted-foreground mt-1">Track and manage business expenses</p>
+          <p className="text-sm text-muted-foreground mt-1">Track and manage business expenses</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
+        <Button onClick={() => setDialogOpen(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add Expense
         </Button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">£{totalExpenses.toFixed(2)}</div>
-            <p className="text-sm text-muted-foreground">Total Expenses</p>
+          <CardContent className="p-3 sm:pt-6">
+            <div className="text-lg sm:text-2xl font-bold truncate">£{totalExpenses.toFixed(2)}</div>
+            <p className="text-xs sm:text-sm text-muted-foreground">Total</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{filteredExpenses.length}</div>
-            <p className="text-sm text-muted-foreground">Entries</p>
+          <CardContent className="p-3 sm:pt-6">
+            <div className="text-lg sm:text-2xl font-bold">{filteredExpenses.length}</div>
+            <p className="text-xs sm:text-sm text-muted-foreground">Entries</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">
+          <CardContent className="p-3 sm:pt-6">
+            <div className="text-lg sm:text-2xl font-bold truncate">
               £{filteredExpenses.filter(e => e.tax_deductible).reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
             </div>
-            <p className="text-sm text-muted-foreground">Tax Deductible</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Tax Ded.</p>
           </CardContent>
         </Card>
       </div>
@@ -196,7 +196,7 @@ export const ExpensesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
 
       {/* Expenses Table */}
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="p-2 sm:p-0">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin" />
@@ -211,51 +211,88 @@ export const ExpensesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
               </Button>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Tax Ded.</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Vendor</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                      <TableHead>Tax Ded.</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredExpenses.map(expense => (
+                      <TableRow key={expense.id}>
+                        <TableCell>{format(new Date(expense.date), 'dd MMM yyyy')}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{expense.category}</Badge>
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">{expense.description}</TableCell>
+                        <TableCell>{expense.vendor || '-'}</TableCell>
+                        <TableCell className="text-right font-medium">
+                          {expense.currency} {expense.amount.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          {expense.tax_deductible ? (
+                            <Badge className="bg-green-500/20 text-green-400">Yes</Badge>
+                          ) : (
+                            <Badge variant="secondary">No</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => handleEdit(expense)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(expense.id)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
                 {filteredExpenses.map(expense => (
-                  <TableRow key={expense.id}>
-                    <TableCell>{format(new Date(expense.date), 'dd MMM yyyy')}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{expense.category}</Badge>
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate">{expense.description}</TableCell>
-                    <TableCell>{expense.vendor || '-'}</TableCell>
-                    <TableCell className="text-right font-medium">
-                      {expense.currency} {expense.amount.toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      {expense.tax_deductible ? (
-                        <Badge className="bg-green-500/20 text-green-400">Yes</Badge>
-                      ) : (
-                        <Badge variant="secondary">No</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(expense)}>
+                  <div key={expense.id} className="border rounded-lg p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate">{expense.description}</p>
+                        <p className="text-xs text-muted-foreground">{expense.vendor || 'No vendor'}</p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(expense)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(expense.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(expense.id)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline" className="text-xs">{expense.category}</Badge>
+                      {expense.tax_deductible && (
+                        <Badge className="bg-green-500/20 text-green-400 text-xs">Tax Ded.</Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{format(new Date(expense.date), 'dd MMM yyyy')}</span>
+                      <span className="font-medium">{expense.currency} {expense.amount.toFixed(2)}</span>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

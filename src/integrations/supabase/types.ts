@@ -3060,6 +3060,8 @@ export type Database = {
           next_contact_date: string | null
           notes: string | null
           player_id: string | null
+          service_dates: Json | null
+          services_worked: string[] | null
           status: string
           total_revenue: number | null
           updated_at: string
@@ -3075,6 +3077,8 @@ export type Database = {
           next_contact_date?: string | null
           notes?: string | null
           player_id?: string | null
+          service_dates?: Json | null
+          services_worked?: string[] | null
           status?: string
           total_revenue?: number | null
           updated_at?: string
@@ -3090,6 +3094,8 @@ export type Database = {
           next_contact_date?: string | null
           notes?: string | null
           player_id?: string | null
+          service_dates?: Json | null
+          services_worked?: string[] | null
           status?: string
           total_revenue?: number | null
           updated_at?: string
