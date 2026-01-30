@@ -152,10 +152,10 @@ const Analysis = () => {
       heroVideoWithBorders
     >
       {/* Four Pillars with Dark Green Background - No gap from video */}
-      <section className="relative -mt-12 md:-mt-20">
+      <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
-        <div className="relative z-10 pt-4 pb-0">
+        <div className="relative z-10">
           <ServicePillars pillars={pillars} large />
         </div>
       </section>
@@ -259,14 +259,14 @@ const Analysis = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-8 pb-4">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-6">
           <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
           
-          <div className="max-w-5xl mx-auto mt-4">
+          <div className="max-w-5xl mx-auto mt-6">
             <ServiceDetailTabs tabs={detailTabs.map(tab => ({
               label: tab.label,
               content: (
-                <div className="grid gap-4">
+                <div className="space-y-4">
                   {tab.paragraphs.map((text, pIndex) => (
                     <div 
                       key={pIndex}
@@ -282,7 +282,7 @@ const Analysis = () => {
                   ))}
                   {/* Product Link at the end - Prominent button */}
                   {tab.productId && (
-                    <div className="pt-4">
+                    <div className="mt-6">
                       <LocalizedLink to={`/services?service=${tab.productId}`}>
                         <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-8 py-3 text-lg group/btn">
                           LEARN MORE
@@ -299,10 +299,10 @@ const Analysis = () => {
       </section>
 
       {/* Full Package - Seamless with Dark Green Background */}
-      <section className="relative py-4">
+      <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
-        <div className="relative z-10">
+        <div className="relative z-10 py-6">
           <ServiceFullPackage />
         </div>
       </section>
