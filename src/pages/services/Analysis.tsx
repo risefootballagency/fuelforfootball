@@ -259,7 +259,7 @@ const Analysis = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-0">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
           <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
           
           <div className="max-w-6xl mx-auto mt-4">
