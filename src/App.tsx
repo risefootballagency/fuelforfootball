@@ -57,6 +57,7 @@ const FluidCursor = lazy(() => import("./components/FluidCursor"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 const Jobs = lazy(() => import("./pages/Jobs"));
 const Customisation = lazy(() => import("./pages/Customisation"));
+const PublicHub = lazy(() => import("./pages/PublicHub"));
 
 // Service pages
 const Mentorship = lazy(() => import("./pages/services/Mentorship"));
@@ -188,6 +189,8 @@ const App = () => {
                     <Route path="/pdf-viewer" element={<PDFViewer />} />
                     <Route path="/pay/:id" element={<PayLink />} />
                     <Route path="/sign/:slug" element={<SignContract />} />
+                    <Route path="/hub/:playerId" element={<PublicHub />} />
+                    <Route path="/hub" element={<PublicHub />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
