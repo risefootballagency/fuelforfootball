@@ -20,16 +20,20 @@ export const PortalExampleDialog = ({ open, onOpenChange }: PortalExampleDialogP
           <DialogTitle>Player Portal Example</DialogTitle>
         </DialogHeader>
         
-        {/* Close button */}
+        {/* Improved Close button - larger, more visible */}
         <button 
           onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 z-[60] p-2 rounded-full bg-black/70 text-white/70 hover:text-white hover:bg-black/90 transition-colors"
+          className="absolute right-4 top-4 z-[60] px-4 py-2 rounded-lg bg-accent text-black font-bebas tracking-wider hover:bg-accent/90 transition-colors flex items-center gap-2"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
+          CLOSE
         </button>
 
-        <div className="h-full overflow-y-auto">
-          <PortalExample isEmbedded />
+        {/* Prevent horizontal overflow */}
+        <div className="h-full overflow-y-auto overflow-x-hidden">
+          <div className="w-full max-w-full">
+            <PortalExample isEmbedded />
+          </div>
         </div>
       </DialogContent>
     </Dialog>
