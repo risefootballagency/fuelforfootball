@@ -70,22 +70,22 @@ export const ServicePageLayout = ({
           </section>
           
           {/* Hero Section */}
-          <section className="relative py-12 md:py-20 overflow-hidden">
-            {/* Yellow border lines for video */}
-            {heroVideoWithBorders && heroVideo && (
-              <div className="absolute top-0 left-0 right-0 h-1 bg-accent z-20" />
-            )}
-            
-            {/* Media Background */}
-            {hasMedia && (
-              <div className="absolute inset-0 z-0">
+          {hasMedia && (
+            <section className="relative overflow-hidden">
+              {/* Yellow border line at top */}
+              {heroVideoWithBorders && heroVideo && (
+                <div className="w-full h-1 bg-accent" />
+              )}
+              
+              {/* Media Container - proper aspect ratio */}
+              <div className="relative w-full" style={{ aspectRatio: '16/7' }}>
                 {heroVideo ? (
                   <video 
                     autoPlay 
                     loop 
                     muted 
                     playsInline
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   >
                     <source src={heroVideo} type="video/mp4" />
                   </video>
@@ -93,35 +93,31 @@ export const ServicePageLayout = ({
                   <img 
                     src={heroImage} 
                     alt={title}
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : null}
                 {/* Dark overlay for text readability */}
-                <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+                
+                {/* Title overlay */}
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <h1 className="font-bebas text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-white text-center leading-[0.95] drop-shadow-lg px-4">
+                    {title.split('\n').map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        {i < title.split('\n').length - 1 && <br />}
+                      </span>
+                    ))}
+                  </h1>
+                </div>
               </div>
-            )}
-            
-            {/* Yellow border lines for video */}
-            {heroVideoWithBorders && heroVideo && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent z-20" />
-            )}
-            
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-              <h1 className={`font-bebas text-4xl md:text-5xl lg:text-6xl xl:text-7xl mb-4 leading-[0.95] animate-fade-in [animation-delay:100ms] ${hasMedia ? 'text-white drop-shadow-lg' : 'text-foreground'}`}>
-                {title.split('\n').map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    {i < title.split('\n').length - 1 && <br />}
-                  </span>
-                ))}
-              </h1>
-              {subtitle && (
-                <p className={`max-w-2xl mx-auto text-base md:text-lg leading-relaxed animate-fade-in [animation-delay:200ms] ${hasMedia ? 'text-white/90' : 'text-muted-foreground'}`}>
-                  {subtitle}
-                </p>
+              
+              {/* Yellow border line at bottom */}
+              {heroVideoWithBorders && heroVideo && (
+                <div className="w-full h-1 bg-accent" />
               )}
-            </div>
-          </section>
+            </section>
+          )}
           
           {children}
         </main>
