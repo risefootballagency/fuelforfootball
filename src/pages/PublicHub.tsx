@@ -191,40 +191,36 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
         </div>
       </header>
 
-      {/* Navigation - Dropdown Menu matching Dashboard style */}
-      <nav className={`bg-card border-b border-border ${isEmbedded ? '' : 'sticky top-[57px]'} z-40`}>
-        <div className="container mx-auto px-4 py-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="w-full justify-between font-bebas tracking-wider text-lg border-accent/30 hover:border-accent bg-background"
+      {/* Navigation - Dropdown Menu matching Dashboard style exactly */}
+      <nav className="w-full z-40">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline" 
+              className="w-full justify-center font-bebas uppercase text-xl px-6 py-6 bg-card hover:bg-card/80 border-t-2 border-accent border-x-0 border-b-2 !text-accent hover:!text-accent z-50 rounded-none"
+            >
+              <span>
+                {activeSection === 'hub' && 'Hub'}
+                {activeSection === 'schedule' && 'Schedule'}
+                {activeSection === 'analysis' && 'Analysis'}
+                {activeSection === 'programmes' && 'Programmes'}
+                {activeSection === 'highlights' && 'Highlights'}
+              </span>
+              <ChevronDown className="ml-2 h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-[280px] bg-card border-2 border-accent shadow-lg shadow-accent/20 z-50">
+            {sections.map((section) => (
+              <DropdownMenuItem 
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className="font-bebas uppercase text-base py-3 cursor-pointer text-accent hover:text-accent/80 hover:bg-accent/10"
               >
-                <div className="flex items-center gap-2">
-                  {currentSection.icon && <currentSection.icon className="w-5 h-5 text-accent" />}
-                  <span>{currentSection.label}</span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[calc(100vw-2rem)] max-w-md bg-card border border-border z-50">
-              {sections.map((section) => (
-                <DropdownMenuItem
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`font-bebas tracking-wider text-base cursor-pointer ${
-                    activeSection === section.id 
-                      ? 'bg-accent text-black' 
-                      : 'text-foreground hover:bg-muted'
-                  }`}
-                >
-                  <section.icon className="w-4 h-4 mr-2" />
-                  {section.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                {section.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </nav>
 
       {/* Main Content - Tab-based like Dashboard */}
