@@ -47,10 +47,10 @@ export const Footer = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
       
-      {/* Change The Game Divider - uses same background as footer */}
+      {/* Change The Game Divider - uses same background as footer gradient */}
       <div className="relative flex items-center justify-center py-4 md:py-6">
         <div className="absolute left-0 right-0 h-0.5 md:h-1 bg-accent top-1/2 -translate-y-1/2" />
-        <span className="relative px-4 md:px-8 text-2xl md:text-4xl font-bebas uppercase tracking-wider text-accent italic" style={{ backgroundColor: '#081f12' }}>
+        <span className="relative px-4 md:px-8 text-2xl md:text-4xl font-bebas uppercase tracking-wider text-accent italic bg-[#0a2f1a]">
           Change The Game
         </span>
       </div>
@@ -71,7 +71,7 @@ export const Footer = () => {
         {/* Top Section - Logo & Description */}
         <div className="max-w-4xl mx-auto text-center mb-5 md:mb-8">
           <img src={logo} alt="Fuel For Football" className="h-12 md:h-16 mx-auto mb-4 md:mb-6" />
-          <p className="text-sm md:text-lg text-mint-dim leading-relaxed max-w-3xl mx-auto px-2">
+          <p className="text-sm md:text-base text-mint-dim leading-relaxed max-w-2xl mx-auto px-2">
             {t("footer.description", "Fuel For Football is football's leading performance consultancy. We help players, coaches, and clubs reach their full potential through elite physical training, tactical analysis, psychological development, and data-driven insights.")}
           </p>
         </div>
