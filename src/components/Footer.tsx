@@ -42,20 +42,21 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="text-[hsl(0_0%_98%)] border-t border-primary/10">
-      {/* Smooth transition gradient from page to footer */}
-      <div className="h-16 md:h-24 bg-gradient-to-b from-transparent via-[hsl(var(--bg-dark))]/50 to-[hsl(var(--bg-dark))]" />
+    <footer className="text-[hsl(0_0%_98%)] relative">
+      {/* Dark green gradient background matching In Detail section */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
       
       {/* Change The Game Divider */}
-      <div className="relative flex items-center justify-center py-4 md:py-6 bg-[hsl(var(--bg-dark))]">
-        <div className="absolute left-0 right-0 h-0.5 md:h-1 bg-primary top-1/2 -translate-y-1/2" />
-        <span className="relative bg-[hsl(var(--bg-dark))] px-4 md:px-8 text-2xl md:text-4xl font-bebas uppercase tracking-wider text-mint italic">
+      <div className="relative flex items-center justify-center py-4 md:py-6 border-t border-accent/30">
+        <div className="absolute left-0 right-0 h-0.5 md:h-1 bg-accent top-1/2 -translate-y-1/2" />
+        <span className="relative bg-[#081f12] px-4 md:px-8 text-2xl md:text-4xl font-bebas uppercase tracking-wider text-accent italic">
           Change The Game
         </span>
       </div>
 
       {/* Partners Section */}
-      <div className="bg-[hsl(120_40%_10%)] py-6 md:py-8 border-b border-border/10">
+      <div className="relative py-6 md:py-8 border-b border-white/10">
         <div className="container mx-auto px-4">
           <h3 className="font-bebas text-sm md:text-lg uppercase tracking-widest text-title text-center mb-3 md:mb-4">
             Partners
@@ -66,7 +67,7 @@ export const Footer = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-5 md:py-8">
+      <div className="container mx-auto px-4 py-5 md:py-8 relative z-10">
         {/* Top Section - Logo & Description */}
         <div className="max-w-4xl mx-auto text-center mb-5 md:mb-8">
           <img src={logo} alt="Fuel For Football" className="h-12 md:h-16 mx-auto mb-4 md:mb-6" />

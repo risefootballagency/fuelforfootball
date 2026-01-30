@@ -13,6 +13,7 @@ interface ServicePageLayoutProps {
   subtitle?: string;
   heroImage?: string;
   heroVideo?: string;
+  heroVideoWithBorders?: boolean;
   showSubmenu?: boolean;
   seoTitle?: string;
   seoDescription?: string;
@@ -27,6 +28,7 @@ export const ServicePageLayout = ({
   subtitle,
   heroImage,
   heroVideo,
+  heroVideoWithBorders = false,
   showSubmenu = true,
   seoTitle,
   seoDescription,
@@ -68,7 +70,12 @@ export const ServicePageLayout = ({
           </section>
           
           {/* Hero Section */}
-          <section className="relative py-16 md:py-24 overflow-hidden">
+          <section className="relative py-12 md:py-20 overflow-hidden">
+            {/* Yellow border lines for video */}
+            {heroVideoWithBorders && heroVideo && (
+              <div className="absolute top-0 left-0 right-0 h-1 bg-accent z-20" />
+            )}
+            
             {/* Media Background */}
             {hasMedia && (
               <div className="absolute inset-0 z-0">
@@ -92,6 +99,11 @@ export const ServicePageLayout = ({
                 {/* Dark overlay for text readability */}
                 <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
               </div>
+            )}
+            
+            {/* Yellow border lines for video */}
+            {heroVideoWithBorders && heroVideo && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent z-20" />
             )}
             
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
