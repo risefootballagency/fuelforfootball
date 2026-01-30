@@ -15,8 +15,8 @@ export const ServiceDetailTabs = ({ tabs, className = "" }: ServiceDetailTabsPro
 
   return (
     <div className={className}>
-      {/* Tab Buttons - Full width matching content cards (max-w-5xl) */}
-      <div className="w-full max-w-5xl mx-auto mb-6">
+      {/* Tab Buttons - Full width matching content cards (max-w-6xl) */}
+      <div className="w-full max-w-6xl mx-auto mb-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           {tabs.map((tab, index) => (
             <button

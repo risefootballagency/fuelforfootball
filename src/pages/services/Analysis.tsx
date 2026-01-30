@@ -254,19 +254,19 @@ const Analysis = () => {
         </div>
       </section>
 
-      {/* In Detail Section - Zero gap with services */}
-      <section className="relative overflow-hidden">
+      {/* In Detail Section - Seamless dark green background */}
+      <section className="relative overflow-hidden bg-[#051208]">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-0">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-0">
           <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
           
-          <div className="max-w-5xl mx-auto mt-4">
+          <div className="max-w-6xl mx-auto mt-4">
             <ServiceDetailTabs tabs={detailTabs.map(tab => ({
               label: tab.label,
               content: (
-                <div className="space-y-3">
+                <div className="space-y-3 max-w-6xl mx-auto">
                   {tab.paragraphs.map((text, pIndex) => (
                     <div 
                       key={pIndex}
@@ -282,7 +282,7 @@ const Analysis = () => {
                   ))}
                   {/* Product Link at the end - Prominent button - CENTERED */}
                   {tab.productId && (
-                    <div className="flex justify-center pt-4">
+                    <div className="flex justify-center pt-4 pb-2">
                       <LocalizedLink to={`/services?service=${tab.productId}`}>
                         <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-10 py-3 text-lg group/btn">
                           LEARN MORE
