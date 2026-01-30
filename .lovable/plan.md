@@ -1,157 +1,238 @@
 
 
-# Fix Analysis Page Spacing, Portal Example Navigation & Dialog Layout
+# Update All Service Pages to Match Analysis Page UI Design
 
-## Issues to Fix
+## Summary
 
-### 1. Analysis Page - "Our Analysis Services" Section Height
-- The section cuts off abruptly at the bottom
-- Need to add `pb-6` padding to ensure the last card has breathing room
+Every individual service page will be updated to exactly match the seamless, gap-free UI design perfected on the Analysis page. This means:
 
-### 2. Analysis Page - Space at End of "In Detail" Section
-- Looking at the screenshot, there's visible empty space between the "In Detail" content and "THE FULL PACKAGE" section
-- The container has `pb-4` which is causing this gap
-- Change `pb-4` to `pb-0` to eliminate the space
-
-### 3. Portal Example - Incorrect Dropdown Menu Design
-The current PublicHub navigation doesn't match the Dashboard.tsx design:
-
-**Current Problem:**
-- Uses a different dropdown styling with simpler colors
-- Button styling doesn't match Dashboard (missing gold borders, gold text colors)
-- DropdownMenuContent styling is different
-
-**Dashboard Pattern (Lines 1750-1807):**
-```tsx
-<DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <Button
-      variant="outline" 
-      className="w-full justify-center font-bebas uppercase text-xl px-6 py-6 bg-card hover:bg-card/80 border-t-2 border-gold border-x-0 border-b-2 !text-gold hover:!text-gold z-50 rounded-none"
-    >
-      <span>{activeTab === "hub" && "Hub"}</span>
-      <ChevronDown className="ml-2 h-5 w-5" />
-    </Button>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent align="start" className="w-[280px] bg-card border-2 border-gold shadow-lg shadow-gold/20 z-50">
-    <DropdownMenuItem 
-      onClick={() => setActiveTab("hub")}
-      className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
-    >
-      Hub
-    </DropdownMenuItem>
-    ...
-  </DropdownMenuContent>
-</DropdownMenu>
-```
-
-**Fix:** Update PublicHub.tsx to use the exact same dropdown styling as Dashboard.tsx:
-- Gold border (border-gold/border-accent)
-- Gold text (!text-gold/text-accent)
-- Uppercase font-bebas text
-- Same padding and hover states
-
-### 4. Portal Example Dialog - Lateral Scrolling & Exit Button
-The PortalExampleDialog needs fixes:
-
-**Current Issues:**
-- Content can overflow horizontally causing lateral scrolling
-- Close button exists but may need better visibility
-
-**Fixes:**
-- Add `overflow-x-hidden` to prevent lateral scrolling
-- Update content wrapper to use proper width constraints
-- Make close button more visible with text "CLOSE" or larger styling
+1. **Seamless dark green gradient backgrounds** that flow between sections with zero gaps
+2. **Unified `max-w-6xl` content width** across all components (tabs, cards, content blocks)
+3. **Proper section structure** with explicit gradient backgrounds and `py-0` or minimal padding
+4. **Hero video with borders** using `heroVideoWithBorders={true}`
+5. **ServiceDetailTabs** using the fixed grid layout (grid-cols-2 md:grid-cols-5)
 
 ---
 
-## Technical Implementation
+## Files to Update (12 Total)
 
-### File: `src/pages/services/Analysis.tsx`
+| File | Current Issues |
+|------|---------------|
+| `Mentorship.tsx` | Uses `ServiceSection` wrapper with padding gaps; `max-w-5xl` content width |
+| `Consultation.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width; no seamless background |
+| `StrengthPowerSpeed.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width; old tab system |
+| `Technical.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width |
+| `Conditioning.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width |
+| `Mental.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width |
+| `ProPerformance.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width; custom tabs not using ServiceDetailTabs |
+| `ElitePerformance.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width; custom tabs |
+| `Nutrition.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width |
+| `ActionReports.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width |
+| `EfficiencyReports.tsx` | Uses `ServiceSection` wrapper; `max-w-5xl` width |
 
-**"Our Analysis Services" section (around line 164-255):**
-- Change container padding from `pt-0 pb-0` to `pt-0 pb-6`
-- This adds bottom padding so the last card doesn't cut off abruptly
+---
 
-**"In Detail" section (around line 257-299):**
-- Change container padding from `pt-0 pb-4` to `pt-0 pb-0`
-- This removes the empty space before "THE FULL PACKAGE"
+## Design Pattern from Analysis.tsx
 
-### File: `src/pages/PublicHub.tsx`
-
-**Navigation Section (around line 194-228):**
-Replace the current dropdown styling with the exact Dashboard pattern:
-
-```tsx
-// Replace the nav section with Dashboard-style navigation
-<nav className="w-full z-40">
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button
-        variant="outline" 
-        className="w-full justify-center font-bebas uppercase text-xl px-6 py-6 bg-card hover:bg-card/80 border-t-2 border-accent border-x-0 border-b-2 !text-accent hover:!text-accent z-50 rounded-none"
-      >
-        <span>
-          {activeSection === 'hub' && 'Hub'}
-          {activeSection === 'schedule' && 'Schedule'}
-          {activeSection === 'analysis' && 'Analysis'}
-          {activeSection === 'programmes' && 'Programmes'}
-          {activeSection === 'highlights' && 'Highlights'}
-        </span>
-        <ChevronDown className="ml-2 h-5 w-5" />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="start" className="w-[280px] bg-card border-2 border-accent shadow-lg shadow-accent/20 z-50">
-      {sections.map((section) => (
-        <DropdownMenuItem 
-          key={section.id}
-          onClick={() => setActiveSection(section.id)}
-          className="font-bebas uppercase text-base py-3 cursor-pointer text-accent hover:text-accent/80 hover:bg-accent/10"
-        >
-          {section.label}
-        </DropdownMenuItem>
-      ))}
-    </DropdownMenuContent>
-  </DropdownMenu>
-</nav>
-```
-
-### File: `src/components/services/PortalExampleDialog.tsx`
-
-**Prevent lateral scrolling and improve close button:**
+Each section follows this structure:
 
 ```tsx
-<DialogContent className="max-w-[95vw] w-full h-[95vh] bg-background border-white/10 p-0 overflow-hidden">
-  <DialogHeader className="sr-only">
-    <DialogTitle>Player Portal Example</DialogTitle>
-  </DialogHeader>
+{/* Section - Seamless dark green background */}
+<section className="relative">
+  <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
   
-  {/* Improved Close button - larger, more visible */}
-  <button 
-    onClick={() => onOpenChange(false)}
-    className="absolute right-4 top-4 z-[60] px-4 py-2 rounded-lg bg-accent text-black font-bebas tracking-wider hover:bg-accent/90 transition-colors flex items-center gap-2"
-  >
-    <X className="w-4 h-4" />
-    CLOSE
-  </button>
-
-  {/* Prevent horizontal overflow */}
-  <div className="h-full overflow-y-auto overflow-x-hidden">
-    <div className="w-full max-w-full">
-      <PortalExample isEmbedded />
+  <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+    <ServiceSectionTitle>SECTION TITLE</ServiceSectionTitle>
+    
+    <div className="max-w-6xl mx-auto mt-4">
+      {/* Content */}
     </div>
   </div>
-</DialogContent>
+</section>
 ```
 
 ---
 
-## Summary of Changes
+## Changes Per File
 
-| File | Change | Purpose |
-|------|--------|---------|
-| `Analysis.tsx` | Add `pb-6` to Services section | Prevent abrupt cut-off |
-| `Analysis.tsx` | Remove `pb-4` from In Detail section | Eliminate empty space before Full Package |
-| `PublicHub.tsx` | Replace dropdown with Dashboard-style nav | Exact UI match with authenticated portal |
-| `PortalExampleDialog.tsx` | Add `overflow-x-hidden`, improve close button | Prevent lateral scroll, better UX |
+### 1. Mentorship.tsx
+
+**Current:** 4 sections using `<ServiceSection>` wrapper
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit `<section>` tags with dark green gradient
+- Change all `max-w-5xl` to `max-w-6xl`
+- Wrap `<ServiceFullPackage />` in gradient section like Analysis.tsx
+
+### 2. Consultation.tsx
+
+**Current:** 4 sections using `<ServiceSection>` wrapper
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Change all `max-w-5xl` to `max-w-6xl`
+- Wrap `<ServiceFullPackage />` in gradient section
+
+### 3. StrengthPowerSpeed.tsx
+
+**Current:** Uses ServiceDetailTabs, 4 sections with `<ServiceSection>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Change all `max-w-5xl` to `max-w-6xl`
+- Wrap `<ServiceFullPackage />` in gradient section
+
+### 4. Technical.tsx
+
+**Current:** Uses ServiceDetailTabs, sections with `<ServiceSection>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Change all `max-w-5xl` and `max-w-2xl` to `max-w-6xl` where appropriate
+- Wrap `<ServiceFullPackage />` in gradient section
+
+### 5. Conditioning.tsx
+
+**Current:** Uses ServiceDetailTabs, sections with `<ServiceSection>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Change all `max-w-4xl`/`max-w-5xl` to `max-w-6xl`
+- Wrap `<ServiceFullPackage />` in gradient section
+
+### 6. Mental.tsx
+
+**Current:** Uses ServiceDetailTabs, sections with `<ServiceSection>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Change all `max-w-5xl` to `max-w-6xl`
+- Wrap `<ServiceFullPackage />` in gradient section
+
+### 7. ProPerformance.tsx
+
+**Current:** Custom tab buttons (not ServiceDetailTabs), sections with `<ServiceSection>`, no `<ServiceFullPackage>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Convert custom tabs to use `ServiceDetailTabs` component
+- Change all `max-w-5xl` to `max-w-6xl`
+- Add `<ServiceFullPackage />` wrapped in gradient section at bottom
+
+### 8. ElitePerformance.tsx
+
+**Current:** Custom tab buttons with state, sections with `<ServiceSection>`, no `<ServiceFullPackage>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Convert custom tabs to use `ServiceDetailTabs` component
+- Change all `max-w-5xl` to `max-w-6xl`
+- Add `<ServiceFullPackage />` wrapped in gradient section at bottom
+
+### 9. Nutrition.tsx
+
+**Current:** Uses ServiceDetailTabs, sections with `<ServiceSection>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace custom benefits section with gradient structure
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Change all `max-w-5xl` to `max-w-6xl`
+- Wrap `<ServiceFullPackage />` in gradient section
+
+### 10. ActionReports.tsx
+
+**Current:** Sections with `<ServiceSection>`, no `<ServiceFullPackage>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Change all `max-w-5xl` to `max-w-6xl`
+- Add `<ServiceFullPackage />` wrapped in gradient section at bottom
+
+### 11. EfficiencyReports.tsx
+
+**Current:** Uses ServiceDetailTabs, sections with `<ServiceSection>`
+
+**Changes:**
+- Add `heroVideoWithBorders={true}` to layout
+- Replace all `<ServiceSection>` with explicit gradient sections
+- Change all `max-w-5xl` to `max-w-6xl`
+- Wrap `<ServiceFullPackage />` in gradient section
+
+---
+
+## Technical Details
+
+### Common Section Template
+
+For every section in every file, replace:
+```tsx
+<ServiceSection dark>
+  <ServiceSectionTitle>TITLE</ServiceSectionTitle>
+  {/* content */}
+</ServiceSection>
+```
+
+With:
+```tsx
+<section className="relative">
+  <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+  
+  <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+    <ServiceSectionTitle>TITLE</ServiceSectionTitle>
+    
+    <div className="max-w-6xl mx-auto mt-4">
+      {/* content */}
+    </div>
+  </div>
+</section>
+```
+
+### Pillars Section Template
+
+Wrap the pillars in same gradient structure:
+```tsx
+<section className="relative">
+  <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+  <div className="relative z-10">
+    <ServicePillars pillars={pillars} large />
+  </div>
+</section>
+```
+
+### Full Package Section Template
+
+```tsx
+<section className="relative">
+  <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+  <div className="relative z-10 pt-0 pb-4">
+    <ServiceFullPackage />
+  </div>
+</section>
+```
+
+### Hero Video Update
+
+Every page gets:
+```tsx
+<ServicePageLayout
+  category="CATEGORY NAME"
+  title="PAGE TITLE"
+  heroVideo="/videos/players-hero.mp4"
+  heroVideoWithBorders  // Add this!
+>
+```
 
