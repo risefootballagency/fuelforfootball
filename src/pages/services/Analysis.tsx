@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import {
   ServicePageLayout,
-  ServiceSection,
-  ServiceSectionTitle,
   ServicePillars,
+  ServiceSectionTitle,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
+import { ArrowRight, Eye } from "lucide-react";
 
 const Analysis = () => {
   const pillars = [
@@ -20,68 +20,59 @@ const Analysis = () => {
   const analysisServices = [
     {
       title: "PRE-MATCH OPPOSITION ANALYSIS",
+      subtitle: "KNOW YOUR ENEMY",
       features: [
         "Read ahead of play more easily",
         "Know your matchup's weaknesses", 
         "Feel prepared going into any game"
       ],
-      description: "Pre-match opposition analysis is delivered to our players at the start of the match week, giving time to absorb the information and use it in preparation. Unlike the analysis delivered at club-level, we focus in much greater detail on what is important to you for a strong individual performance.",
-      example: "Example Pre-Match Analysis: Slovakia vs England (30/06/24)",
-      price: "From £85.00",
+      description: "Our pre-match opposition analysis provides a competitive edge by examining the opposing team's tactics and formations before an upcoming game. We focus on their defensive and offensive patterns, directly relating to your position and tactics.",
+      example: "Example: Slovakia vs England (30/06/24)",
+      price: "FROM £85.00",
       productId: "6c369b05-d410-4955-98e6-20a936019079",
-      images: [
-        "https://static.wixstatic.com/media/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg",
-        "https://static.wixstatic.com/media/c4f4b1_76a25c0356644727afcfbae3da9165df~mv2.png/v1/fill/w_612,h_334,q_90,enc_avif,quality_auto/c4f4b1_76a25c0356644727afcfbae3da9165df~mv2.png"
-      ]
+      image: "https://static.wixstatic.com/media/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_25e04aa87e0040c98ae2bee0a8c3b6b2f003.jpg",
     },
     {
       title: "POST-MATCH ANALYSIS",
+      subtitle: "LEARN FROM EVERY PERFORMANCE",
       features: [
         "See the game through experienced eyes",
         "The fastest way to improving in matches",
         "It is not what you look at, it is what you see"
       ],
-      description: "In post-match analysis, we cut through the game to focus on how to be more consistent with your strengths and how to eliminate your weaknesses. Although highly critical, even with our Premier League level players, the detail in our analysis will make vast improvements to your game when applied.",
-      example: "Example Post-Match Analysis: Máté Sajbán vs Debrecen (13/08/23)",
-      price: "From £85.00",
+      description: "In post-match analysis, we cut through the game to focus on how to be more consistent with your strengths and how to eliminate your weaknesses. The detail in our analysis will make vast improvements to your game when applied.",
+      example: "Example: Máté Sajbán vs Debrecen (13/08/23)",
+      price: "FROM £85.00",
       productId: "bd421bfa-2819-444b-aaa7-8de168f2b171",
-      images: [
-        "https://static.wixstatic.com/media/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg",
-        "https://static.wixstatic.com/media/c4f4b1_aabad9361c374361957951326c7b6634~mv2.png/v1/fill/w_591,h_334,q_90,enc_avif,quality_auto/c4f4b1_aabad9361c374361957951326c7b6634~mv2.png"
-      ]
+      image: "https://static.wixstatic.com/media/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg/v1/fill/w_940,h_334,q_90,enc_avif,quality_auto/c4f4b1_ebc7223a00854d46a2b7930e3230fc67f003.jpg",
     },
     {
       title: "POSITIONAL GUIDE",
+      subtitle: "MASTER YOUR ROLE",
       features: [
         "Break down any concept at a higher level",
         "Easily access solutions to the problems you face",
         "See the game differently"
       ],
-      description: "Positional guide pieces utilise the best players in the world to explain advanced tactical ideas, allowing you to see the game through a more intellectual lens. No matter the concept, we break down everything important to learn and apply in a simple format so that you can apply your learnings out on the pitch.",
-      example: "Example Positional Guide: Winger Positioning & Movement",
-      price: "From £85.00",
+      description: "Positional guide pieces utilise the best players in the world to explain advanced tactical ideas, allowing you to see the game through a more intellectual lens. We break down everything important to learn and apply in a simple format.",
+      example: "Example: Winger Positioning & Movement",
+      price: "FROM £85.00",
       productId: "853b38f5-27f3-4482-9ad2-99c10983e988",
-      images: [
-        "https://static.wixstatic.com/media/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg/v1/fill/w_848,h_334,q_90,enc_avif,quality_auto/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg",
-        "https://static.wixstatic.com/media/c4f4b1_a95a7a590b15494a88dcb0dfe1d6e4b5~mv2.png/v1/fill/w_585,h_334,q_90,enc_avif,quality_auto/c4f4b1_a95a7a590b15494a88dcb0dfe1d6e4b5~mv2.png"
-      ]
+      image: "https://static.wixstatic.com/media/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg/v1/fill/w_848,h_334,q_90,enc_avif,quality_auto/c4f4b1_73bcabee53f44b339d8241c83f3e10f8f003.jpg",
     },
     {
       title: "PLAYER EFFICIENCY REPORT",
+      subtitle: "DATA-DRIVEN INSIGHTS",
       features: [
         "Earn new contracts and club interest",
         "Evaluate performance more objectively",
         "Measure progress"
       ],
-      description: "The Player Efficiency Report has its primary objective to provide a comprehensive analysis of the performance statistics that clubs use to evaluate and recruit players. In addition to presenting the data, the report also includes a detailed plan for improving performance.",
-      example: "Example Player Efficiency Report: Michael Mulligan (23/24)",
-      price: "From £95.00",
+      description: "The Player Efficiency Report provides a comprehensive analysis of the performance statistics that clubs use to evaluate and recruit players. In addition to presenting the data, the report includes a detailed plan for improving performance.",
+      example: "Example: Michael Mulligan (23/24)",
+      price: "FROM £95.00",
       productId: "309ecacf-22ee-4467-8674-c6686968f6db",
-      images: [
-        "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_170,h_486,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
-        "https://static.wixstatic.com/media/c4f4b1_6133d8c4af914df7b79d69bb05196698~mv2.png/v1/fill/w_170,h_486,q_90,enc_avif,quality_auto/c4f4b1_6133d8c4af914df7b79d69bb05196698~mv2.png"
-      ],
-      isVertical: true
+      image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
     }
   ];
 
@@ -140,75 +131,100 @@ const Analysis = () => {
       {/* Our Analysis Services Title */}
       <ServiceSectionTitle>OUR ANALYSIS SERVICES</ServiceSectionTitle>
 
-      {/* Analysis Service Cards */}
-      <section className="py-8 md:py-12">
+      {/* Analysis Service Cards - Alternating Layout */}
+      <section className="py-4">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-            {analysisServices.map((service, index) => (
-              <div 
-                key={index}
-                className="group bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-sm border border-white/20 rounded-2xl overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-2xl hover:shadow-accent/10"
-              >
-                {/* Image Section */}
-                <div className={`relative overflow-hidden ${service.isVertical ? 'h-48' : 'h-40'}`}>
-                  <div className="absolute inset-0 flex gap-2 p-3">
-                    {service.images.map((img, imgIndex) => (
+          <div className="space-y-6 max-w-6xl mx-auto">
+            {analysisServices.map((service, index) => {
+              const isEven = index % 2 === 0;
+              return (
+                <div 
+                  key={index}
+                  className="group bg-gradient-to-br from-black/80 to-black/60 border border-white/10 rounded-xl overflow-hidden transition-all duration-500 hover:border-accent/40"
+                >
+                  <div className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
+                    {/* Image Section */}
+                    <div className="relative lg:w-1/2 h-64 lg:h-auto min-h-[280px]">
                       <img 
-                        key={imgIndex}
-                        src={img}
-                        alt={`${service.title} example ${imgIndex + 1}`}
-                        className={`${service.isVertical ? 'h-full w-auto object-contain' : 'flex-1 object-cover'} rounded-lg`}
+                        src={service.image}
+                        alt={service.title}
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
-                    ))}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <p className="absolute bottom-4 left-4 text-sm text-white/70">{service.example}</p>
+                      
+                      {/* View Example Button */}
+                      <LocalizedLink 
+                        to="/player-hub/e3ae5dcd-0a67-4d49-bf04-879040c4b8c3?section=analysis"
+                        className="absolute bottom-4 right-4 opacity-60 hover:opacity-100 transition-opacity"
+                      >
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="bg-black/40 border-white/30 text-white/80 hover:bg-black/60 hover:text-white text-xs"
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          View Example
+                        </Button>
+                      </LocalizedLink>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="lg:w-1/2 p-6 lg:p-8 flex flex-col justify-center">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+                          <div className="w-3 h-3 rounded-full bg-accent" />
+                        </div>
+                        <h3 className="font-bebas text-2xl lg:text-3xl text-white tracking-wide">
+                          {service.title}
+                        </h3>
+                      </div>
+                      
+                      <p className="text-accent font-bebas text-sm tracking-widest mb-4">
+                        {service.subtitle}
+                      </p>
+
+                      <p className="text-white/80 text-sm leading-relaxed mb-5">
+                        {service.description}
+                      </p>
+
+                      <ul className="space-y-2 mb-6">
+                        {service.features.map((feature, fIndex) => (
+                          <li key={fIndex} className="flex items-center gap-2 text-white/90 text-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="flex items-center justify-between mt-auto">
+                        <p className="font-bebas text-xl text-accent tracking-wide">{service.price}</p>
+                        <LocalizedLink to={`/services?service=${service.productId}`}>
+                          <Button className="font-bebas tracking-wider bg-transparent border-2 border-accent text-white hover:bg-accent hover:text-black px-6 group/btn">
+                            REQUEST QUOTE
+                            <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
+                          </Button>
+                        </LocalizedLink>
+                      </div>
+                    </div>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  <p className="absolute bottom-2 left-3 text-xs text-white/60">{service.example}</p>
                 </div>
-
-                {/* Content Section */}
-                <div className="p-5 md:p-6 space-y-4">
-                  <h3 className="font-bebas text-xl md:text-2xl text-accent tracking-wide">
-                    {service.title}
-                  </h3>
-
-                  <ul className="space-y-2">
-                    {service.features.map((feature, fIndex) => (
-                      <li key={fIndex} className="flex items-center gap-2 text-white/90 text-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <p className="text-white/70 text-sm leading-relaxed line-clamp-3">
-                    {service.description}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-2">
-                    <p className="font-bebas text-xl text-accent">{service.price}</p>
-                    <LocalizedLink to={`/services?service=${service.productId}`}>
-                      <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black px-6">
-                        LEARN MORE
-                      </Button>
-                    </LocalizedLink>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* In Detail Section with improved background */}
-      <section className="relative py-12 md:py-16 overflow-hidden">
+      {/* In Detail Section */}
+      <section className="relative py-8 overflow-hidden">
         {/* Dark green gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(150,60%,8%)] via-[hsl(150,50%,6%)] to-[hsl(150,40%,4%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(150,60%,12%)_0%,transparent_70%)] opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
           
-          <div className="max-w-5xl mx-auto mt-8">
+          <div className="max-w-5xl mx-auto mt-6">
             <ServiceDetailTabs tabs={detailTabs.map(tab => ({
               label: tab.label,
               content: (
@@ -216,9 +232,12 @@ const Analysis = () => {
                   {tab.paragraphs.map((text, pIndex) => (
                     <div 
                       key={pIndex}
-                      className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-accent/40 hover:from-white/15 hover:to-white/8"
+                      className="group/card relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-sm border border-white/10 rounded-xl p-5 md:p-6 transition-all duration-300 hover:border-accent/50 hover:from-white/[0.12] hover:to-white/[0.05] hover:scale-[1.01] hover:shadow-lg hover:shadow-accent/5 cursor-default"
                     >
-                      <p className="text-white/90 text-sm md:text-base leading-relaxed">
+                      {/* Animated accent bar */}
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent/30 rounded-l-xl transition-all duration-300 group-hover/card:bg-accent group-hover/card:w-1.5" />
+                      
+                      <p className="text-white/90 text-sm md:text-base leading-relaxed pl-3">
                         {text}
                       </p>
                     </div>
