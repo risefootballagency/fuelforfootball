@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import {
   ServicePageLayout,
-  ServiceSection,
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
@@ -62,73 +61,103 @@ const EfficiencyReports = () => {
       category="TACTICAL"
       title="EFFICIENCY REPORTS"
       heroVideo="/videos/players-hero.mp4"
+      heroVideoWithBorders
     >
-      <ServicePillars pillars={pillars} />
+      {/* Pillars Section */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10">
+          <ServicePillars pillars={pillars} large />
+        </div>
+      </section>
 
       {/* In Detail Section */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-5xl mx-auto">
-          <ServiceDetailTabs tabs={tabContent} />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4">
+            <ServiceDetailTabs tabs={tabContent} />
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
       {/* What's Included Section */}
-      <ServiceSection>
-        <ServiceSectionTitle>WHAT'S INCLUDED</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-6">
-          <ServiceInfoCard
-            title="POSITIONAL BENCHMARKING"
-            content="Compare your performance metrics against players in your position across your league and beyond."
-            items={["League percentile rankings", "Position-specific KPIs", "Peer comparison analysis", "Trend tracking over time"]}
-          />
-          <ServiceInfoCard
-            title="SCOUT-VIEW ANALYSIS"
-            content="Understand how professional scouts and recruitment teams evaluate players using industry-standard metrics."
-            items={["Expected goals (xG) breakdown", "Passing network analysis", "Defensive contribution metrics", "Physical output data"]}
-          />
-          <ServiceInfoCard
-            title="STRENGTHS IDENTIFICATION"
-            content="Highlight your standout attributes with data-backed evidence that can be shared with clubs and agents."
-            items={["Key strength areas", "Unique selling points", "Market positioning", "Value indicators"]}
-          />
-          <ServiceInfoCard
-            title="IMPROVEMENT AREAS"
-            content="Identify specific areas where focused development can elevate your overall performance rating."
-            items={["Gap analysis", "Priority development areas", "Targeted recommendations", "Progress benchmarks"]}
-          />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>WHAT'S INCLUDED</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 gap-6">
+            <ServiceInfoCard
+              title="POSITIONAL BENCHMARKING"
+              content="Compare your performance metrics against players in your position across your league and beyond."
+              items={["League percentile rankings", "Position-specific KPIs", "Peer comparison analysis", "Trend tracking over time"]}
+            />
+            <ServiceInfoCard
+              title="SCOUT-VIEW ANALYSIS"
+              content="Understand how professional scouts and recruitment teams evaluate players using industry-standard metrics."
+              items={["Expected goals (xG) breakdown", "Passing network analysis", "Defensive contribution metrics", "Physical output data"]}
+            />
+            <ServiceInfoCard
+              title="STRENGTHS IDENTIFICATION"
+              content="Highlight your standout attributes with data-backed evidence that can be shared with clubs and agents."
+              items={["Key strength areas", "Unique selling points", "Market positioning", "Value indicators"]}
+            />
+            <ServiceInfoCard
+              title="IMPROVEMENT AREAS"
+              content="Identify specific areas where focused development can elevate your overall performance rating."
+              items={["Gap analysis", "Priority development areas", "Targeted recommendations", "Progress benchmarks"]}
+            />
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
       {/* Pricing Section */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>PRICING</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-4xl mx-auto grid sm:grid-cols-2 gap-6">
-          <ServiceInfoCard
-            title="Single Report"
-            content="Comprehensive efficiency analysis covering one match period or season segment."
-            featured
-          />
-          <ServiceInfoCard
-            title="Season Package"
-            content="Regular efficiency reports throughout the season with trend analysis and progress tracking."
-          />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>PRICING</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 gap-6">
+            <ServiceInfoCard
+              title="Single Report"
+              content="Comprehensive efficiency analysis covering one match period or season segment."
+              featured
+            />
+            <ServiceInfoCard
+              title="Season Package"
+              content="Regular efficiency reports throughout the season with trend analysis and progress tracking."
+            />
+          </div>
+          
+          <div className="max-w-6xl mx-auto mt-8 text-center">
+            <p className="font-bebas text-xl md:text-2xl text-accent mb-4">From £95.00</p>
+            <LocalizedLink to="/contact">
+              <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">
+                Get Your Report
+              </Button>
+            </LocalizedLink>
+          </div>
         </div>
-        
-        <div className="max-w-4xl mx-auto mt-8 text-center">
-          <p className="font-bebas text-xl md:text-2xl text-accent mb-4">From £95.00</p>
-          <LocalizedLink to="/contact">
-            <Button className="font-bebas tracking-wider bg-accent hover:bg-accent/90 text-black">
-              Get Your Report
-            </Button>
-          </LocalizedLink>
-        </div>
-      </ServiceSection>
+      </section>
 
-      <ServiceFullPackage />
+      {/* Full Package */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10 pt-0 pb-4">
+          <ServiceFullPackage />
+        </div>
+      </section>
     </ServicePageLayout>
   );
 };

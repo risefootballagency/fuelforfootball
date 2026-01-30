@@ -4,11 +4,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Heart, Target, Lightbulb, Shield, CheckCircle2 } from "lucide-react";
 import {
   ServicePageLayout,
-  ServiceSection,
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
-  ServiceCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 
@@ -97,85 +95,115 @@ const Mentorship = () => {
       category="HOLISTIC"
       title="MENTORSHIP - GUIDANCE FOR SUCCESS"
       heroVideo="/videos/players-hero.mp4"
+      heroVideoWithBorders
     >
-      <ServicePillars pillars={pillars} />
-
-      {/* In Detail Section */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>THE FOUR PILLARS</ServiceSectionTitle>
-        
-        <div className="max-w-5xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {mentorshipPillars.map((pillar, index) => (
-            <div 
-              key={index}
-              className="group bg-black/40 border border-white/10 rounded-xl p-6 hover:border-accent/50 transition-all duration-300 hover:shadow-xl text-center"
-            >
-              <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-accent/20 transition-colors">
-                <pillar.icon className="h-8 w-8 text-accent" />
-              </div>
-              <h3 className="font-bebas text-2xl text-accent mb-2">{pillar.title}</h3>
-              <p className="text-white/70 text-sm">{pillar.description}</p>
-            </div>
-          ))}
+      {/* Pillars Section */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10">
+          <ServicePillars pillars={pillars} large />
         </div>
-      </ServiceSection>
+      </section>
 
-      {/* Why Mentorship Matters */}
-      <ServiceSection>
-        <ServiceSectionTitle>WHY MENTORSHIP MATTERS</ServiceSectionTitle>
+      {/* The Four Pillars Section */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <ServiceContentBlock
-            paragraphs={[
-              t("services_mentorship.why_matters_p1", "The football industry can be challenging to navigate alone. Having an experienced mentor by your side provides invaluable guidance, helping you avoid common pitfalls and make better decisions for your career."),
-              t("services_mentorship.why_matters_p2", "Our mentors have been where you are now. They understand the pressures, the sacrifices, and the rewards of pursuing a football career. They're here to share their wisdom and help you write your own success story."),
-            ]}
-          />
-          <div className="bg-black/40 border border-white/10 rounded-xl p-8">
-            <h3 className="font-bebas text-2xl text-accent mb-6">{t("services_mentorship.key_benefits", "KEY BENEFITS")}</h3>
-            <ul className="space-y-3">
-              {mentorshipBenefits.map((benefit, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                  <span className="text-white/70 text-sm">{benefit}</span>
-                </li>
-              ))}
-            </ul>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>THE FOUR PILLARS</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {mentorshipPillars.map((pillar, index) => (
+              <div 
+                key={index}
+                className="group bg-black/40 border border-white/10 rounded-xl p-6 hover:border-accent/50 transition-all duration-300 hover:shadow-xl text-center"
+              >
+                <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-accent/20 transition-colors">
+                  <pillar.icon className="h-8 w-8 text-accent" />
+                </div>
+                <h3 className="font-bebas text-2xl text-accent mb-2">{pillar.title}</h3>
+                <p className="text-white/70 text-sm">{pillar.description}</p>
+              </div>
+            ))}
           </div>
         </div>
-      </ServiceSection>
+      </section>
 
-      {/* Programmes */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>OUR PROGRAMMES</ServiceSectionTitle>
+      {/* Why Mentorship Matters */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <p className="text-white/80 text-center max-w-4xl mx-auto mb-10 leading-relaxed text-sm md:text-base">
-          {t("services_mentorship.our_programmes_desc", "Choose the mentorship programme that best fits your current stage and goals.")}
-        </p>
-        
-        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
-          {programmes.map((programme, index) => (
-            <div 
-              key={index}
-              className="bg-black/40 border-2 border-white/10 rounded-xl p-8 hover:border-accent/50 transition-all duration-300"
-            >
-              <h3 className="font-bebas text-2xl text-accent mb-3">{programme.title}</h3>
-              <p className="text-white/70 text-sm mb-6">{programme.description}</p>
-              <ul className="space-y-2 mb-6">
-                {programme.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-sm">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-                    <span className="text-white/70">{feature}</span>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>WHY MENTORSHIP MATTERS</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4 grid md:grid-cols-2 gap-12 items-center">
+            <ServiceContentBlock
+              paragraphs={[
+                t("services_mentorship.why_matters_p1", "The football industry can be challenging to navigate alone. Having an experienced mentor by your side provides invaluable guidance, helping you avoid common pitfalls and make better decisions for your career."),
+                t("services_mentorship.why_matters_p2", "Our mentors have been where you are now. They understand the pressures, the sacrifices, and the rewards of pursuing a football career. They're here to share their wisdom and help you write your own success story."),
+              ]}
+            />
+            <div className="bg-black/40 border border-white/10 rounded-xl p-8">
+              <h3 className="font-bebas text-2xl text-accent mb-6">{t("services_mentorship.key_benefits", "KEY BENEFITS")}</h3>
+              <ul className="space-y-3">
+                {mentorshipBenefits.map((benefit, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                    <span className="text-white/70 text-sm">{benefit}</span>
                   </li>
                 ))}
               </ul>
-              <p className="text-xl font-semibold text-accent">{programme.price}</p>
             </div>
-          ))}
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
-      <ServiceFullPackage />
+      {/* Programmes */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>OUR PROGRAMMES</ServiceSectionTitle>
+          
+          <p className="text-white/80 text-center max-w-4xl mx-auto mb-10 leading-relaxed text-sm md:text-base">
+            {t("services_mentorship.our_programmes_desc", "Choose the mentorship programme that best fits your current stage and goals.")}
+          </p>
+          
+          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+            {programmes.map((programme, index) => (
+              <div 
+                key={index}
+                className="bg-black/40 border-2 border-white/10 rounded-xl p-8 hover:border-accent/50 transition-all duration-300"
+              >
+                <h3 className="font-bebas text-2xl text-accent mb-3">{programme.title}</h3>
+                <p className="text-white/70 text-sm mb-6">{programme.description}</p>
+                <ul className="space-y-2 mb-6">
+                  {programme.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-sm">
+                      <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+                      <span className="text-white/70">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xl font-semibold text-accent">{programme.price}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Full Package */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10 pt-0 pb-4">
+          <ServiceFullPackage />
+        </div>
+      </section>
     </ServicePageLayout>
   );
 };

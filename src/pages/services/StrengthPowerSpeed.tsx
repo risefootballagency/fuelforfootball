@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import {
   ServicePageLayout,
-  ServiceSection,
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
@@ -63,87 +62,122 @@ const StrengthPowerSpeed = () => {
       category="STRENGTH, POWER & SPEED"
       title="RUN LIKE A SPORTS CAR, NOT A HATCHBACK"
       heroVideo="/videos/players-hero.mp4"
+      heroVideoWithBorders
     >
-      <ServicePillars pillars={pillars} />
+      {/* Pillars Section */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10">
+          <ServicePillars pillars={pillars} large />
+        </div>
+      </section>
 
       {/* In Detail Section */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-5xl mx-auto">
-          <ServiceDetailTabs tabs={tabContent} />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>IN DETAIL</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4">
+            <ServiceDetailTabs tabs={tabContent} />
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
       {/* Training Section */}
-      <ServiceSection>
-        <ServiceSectionTitle>TRAINING</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-md mx-auto">
-          <ServiceCard
-            image="https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png"
-            title="Strength, Power & Speed Training"
-            price="From £120.00"
-            link="/contact"
-            featured
-          />
-        </div>
-      </ServiceSection>
-
-      {/* Programming Section */}
-      <ServiceSection dark>
-        <ServiceSectionTitle>PROGRAMMING</ServiceSectionTitle>
-        
-        <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-10 md:gap-14 items-center">
-          <div className="rounded-xl overflow-hidden shadow-xl shadow-accent/5 border border-white/10">
-            <img 
-              src="https://static.wixstatic.com/media/c4f4b1_a6c9eb3e990c426385f9e145c4eec75c~mv2.png/v1/fill/w_600,h_339,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e_g_.png"
-              alt="Programming Example"
-              className="w-full"
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>TRAINING</ServiceSectionTitle>
+          
+          <div className="max-w-md mx-auto mt-4">
+            <ServiceCard
+              image="https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png"
+              title="Strength, Power & Speed Training"
+              price="From £120.00"
+              link="/contact"
+              featured
             />
           </div>
+        </div>
+      </section>
+
+      {/* Programming Section */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>PROGRAMMING</ServiceSectionTitle>
           
-          <div className="space-y-4">
-            <div className="space-y-3 text-white/80 text-sm md:text-base">
-              <p>In-person training sessions for UK players and remote support for those abroad via FaceTime.</p>
-              <p>Tailored components based on position and physical capabilities, maximising the player's threshold.</p>
-              <p>Our program is available in 6 or 12-month programming, adjusted to your club and individual schedule, season, and other factors affecting your training.</p>
+          <div className="max-w-6xl mx-auto mt-4 grid lg:grid-cols-2 gap-10 md:gap-14 items-center">
+            <div className="rounded-xl overflow-hidden shadow-xl shadow-accent/5 border border-white/10">
+              <img 
+                src="https://static.wixstatic.com/media/c4f4b1_a6c9eb3e990c426385f9e145c4eec75c~mv2.png/v1/fill/w_600,h_339,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/e_g_.png"
+                alt="Programming Example"
+                className="w-full"
+              />
             </div>
             
-            <div className="py-4">
-              <h3 className="font-bebas text-lg md:text-xl text-accent leading-relaxed">
-                REDUCE THE RISK OF INJURY • TURN EVERY 50:50 IN YOUR FAVOUR • DEVELOP FASTER
-              </h3>
+            <div className="space-y-4">
+              <div className="space-y-3 text-white/80 text-sm md:text-base">
+                <p>In-person training sessions for UK players and remote support for those abroad via FaceTime.</p>
+                <p>Tailored components based on position and physical capabilities, maximising the player's threshold.</p>
+                <p>Our program is available in 6 or 12-month programming, adjusted to your club and individual schedule, season, and other factors affecting your training.</p>
+              </div>
+              
+              <div className="py-4">
+                <h3 className="font-bebas text-lg md:text-xl text-accent leading-relaxed">
+                  REDUCE THE RISK OF INJURY • TURN EVERY 50:50 IN YOUR FAVOUR • DEVELOP FASTER
+                </h3>
+              </div>
+              
+              <LocalizedLink to="/contact">
+                <Button variant="outline" className="font-bebas tracking-wider border-white/30 text-white hover:border-accent hover:text-accent">
+                  SEE EXAMPLE
+                </Button>
+              </LocalizedLink>
             </div>
-            
-            <LocalizedLink to="/contact">
-              <Button variant="outline" className="font-bebas tracking-wider border-white/30 text-white hover:border-accent hover:text-accent">
-                SEE EXAMPLE
-              </Button>
-            </LocalizedLink>
           </div>
         </div>
-      </ServiceSection>
+      </section>
 
       {/* Options Section */}
-      <ServiceSection>
-        <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
-        <div className="max-w-4xl mx-auto grid sm:grid-cols-2 gap-6">
-          <ServiceCard
-            image="https://static.wixstatic.com/media/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png"
-            title="Strength, Power & Speed Programming"
-            link="/contact"
-          />
-          <ServiceCard
-            image="https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png"
-            title="Strength, Power & Speed Training"
-            link="/contact"
-          />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
+          <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+          
+          <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 gap-6">
+            <ServiceCard
+              image="https://static.wixstatic.com/media/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png"
+              title="Strength, Power & Speed Programming"
+              link="/contact"
+            />
+            <ServiceCard
+              image="https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png"
+              title="Strength, Power & Speed Training"
+              link="/contact"
+            />
+          </div>
         </div>
-      </ServiceSection>
+      </section>
 
-      <ServiceFullPackage />
+      {/* Full Package */}
+      <section className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
+        <div className="relative z-10 pt-0 pb-4">
+          <ServiceFullPackage />
+        </div>
+      </section>
     </ServicePageLayout>
   );
 };
