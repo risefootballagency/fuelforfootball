@@ -94,7 +94,7 @@ const ProPerformance = () => {
     <ServicePageLayout
       category="HOLISTIC"
       title="PRO PERFORMANCE - RUN THE SHOW"
-      heroVideo="/videos/players-hero.mp4"
+      heroVideo="/videos/pro-performance-hero.mp4"
       heroVideoWithBorders
     >
       {/* Pillars Section */}

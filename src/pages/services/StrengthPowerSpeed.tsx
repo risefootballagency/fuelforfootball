@@ -5,10 +5,10 @@ import {
   ServiceSectionTitle,
   ServicePillars,
   ServiceContentBlock,
-  ServiceCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
+import { ServiceOfferingCard } from "@/components/services/ServiceOfferingCard";
 
 const StrengthPowerSpeed = () => {
   const pillars = [
@@ -57,11 +57,38 @@ const StrengthPowerSpeed = () => {
     }
   ];
 
+  const spsServices = [
+    {
+      title: "STRENGTH, POWER & SPEED TRAINING",
+      subtitle: "IN-PERSON SESSIONS",
+      description: "In-person training sessions are available for UK-based players at our partner facilities. Each session is tailored to your specific physical profile and positional demands. Our SPS coach works 1:1 to offer full support during sessions.",
+      features: [
+        "Personalised physical assessment",
+        "Technique corrections in real-time",
+        "Comprehensive warm-up protocols"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png",
+      price: "FROM £120.00",
+    },
+    {
+      title: "STRENGTH, POWER & SPEED PROGRAMMING",
+      subtitle: "REMOTE SUPPORT",
+      description: "For players abroad, we provide remote support via FaceTime and video analysis. Your program is delivered digitally with detailed video demonstrations and written guidance. Available in 6 or 12-month formats.",
+      features: [
+        "Video demonstrations included",
+        "Daily messaging support",
+        "Monthly program adjustments"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png",
+      price: "FROM £200.00",
+    },
+  ];
+
   return (
     <ServicePageLayout
       category="STRENGTH, POWER & SPEED"
       title="RUN LIKE A SPORTS CAR, NOT A HATCHBACK"
-      heroVideo="/videos/players-hero.mp4"
+      heroVideo="/videos/strength-power-speed-hero.mp4"
       heroVideoWithBorders
     >
       {/* Pillars Section */}
@@ -87,22 +114,27 @@ const StrengthPowerSpeed = () => {
         </div>
       </section>
 
-      {/* Training Section */}
+      {/* Our SPS Services */}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>TRAINING</ServiceSectionTitle>
+          <ServiceSectionTitle>OUR SPS SERVICES</ServiceSectionTitle>
           
-          <div className="max-w-md mx-auto mt-4">
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png"
-              title="Strength, Power & Speed Training"
-              price="From £120.00"
-              link="/contact"
-              featured
-            />
+          <div className="space-y-6 max-w-6xl mx-auto mt-4">
+            {spsServices.map((service, index) => (
+              <ServiceOfferingCard
+                key={index}
+                title={service.title}
+                subtitle={service.subtitle}
+                description={service.description}
+                features={service.features}
+                image={service.image}
+                price={service.price}
+                reverse={index % 2 !== 0}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -143,29 +175,6 @@ const StrengthPowerSpeed = () => {
                 </Button>
               </LocalizedLink>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Options Section */}
-      <section className="relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
-        
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
-          
-          <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 gap-6">
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_9e15981f708d47ab9d94c8c8bf241a9d~mv2.png"
-              title="Strength, Power & Speed Programming"
-              link="/contact"
-            />
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png"
-              title="Strength, Power & Speed Training"
-              link="/contact"
-            />
           </div>
         </div>
       </section>

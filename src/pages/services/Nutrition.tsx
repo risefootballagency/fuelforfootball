@@ -4,10 +4,10 @@ import {
   ServicePageLayout,
   ServiceSectionTitle,
   ServiceContentBlock,
-  ServiceCard,
   ServiceFullPackage,
 } from "@/components/services/ServicePageLayout";
 import { ServiceDetailTabs } from "@/components/services/ServiceDetailTabs";
+import { ServiceOfferingCard } from "@/components/services/ServiceOfferingCard";
 
 const Nutrition = () => {
   const benefits = [
@@ -83,6 +83,45 @@ const Nutrition = () => {
     }
   ];
 
+  const nutritionServices = [
+    {
+      title: "NUTRITION REVIEW",
+      subtitle: "COMPREHENSIVE ANALYSIS",
+      description: "Our Nutrition Review offers a comprehensive snapshot of your current dietary habits, providing specific recommendations and improvements that can be made. We analyse your macronutrient and micronutrient intake, meal timing, hydration, and supplementation.",
+      features: [
+        "Detailed dietary analysis",
+        "Personalised recommendations",
+        "Clear action plan"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png",
+      price: "FROM £85.00",
+    },
+    {
+      title: "NUTRITION PROGRAMMING",
+      subtitle: "PERIODISED PLANS",
+      description: "Personalised nutrition programming which is specific to your needs. Programming includes periodised nutrition plans that adapt to your training load, match schedule, and personal goals.",
+      features: [
+        "Match day fuelling strategies",
+        "Recovery nutrition protocols",
+        "Body composition management"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png",
+      price: "FROM £150.00",
+    },
+    {
+      title: "NUTRITION PROGRAMMING & RECIPES",
+      subtitle: "COMPLETE PACKAGE",
+      description: "Complete nutrition support including programming and tailored recipes. Our recipe packages provide footballer-specific meals designed to support performance and recovery.",
+      features: [
+        "Full nutrition programming",
+        "Tailored recipe collection",
+        "24/7 daily support"
+      ],
+      image: "https://static.wixstatic.com/media/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png",
+      price: "FROM £200.00",
+    },
+  ];
+
   return (
     <ServicePageLayout
       category="NUTRITION"
@@ -134,46 +173,27 @@ const Nutrition = () => {
         </div>
       </section>
 
-      {/* Options Section */}
+      {/* Our Nutrition Services */}
       <section className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a2f1a] via-[#081f12] to-[#051208]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>OPTIONS</ServiceSectionTitle>
+          <ServiceSectionTitle>OUR NUTRITION SERVICES</ServiceSectionTitle>
           
-          {/* Features Grid */}
-          <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-3 mb-10 md:mb-14">
-            {[
-              "Comprehensive Nutritional Analysis",
-              "Daily Support",
-              "1:1 Coaching",
-              "In-Depth Programming",
-              "Monitoring",
-              "Tailored Recipes"
-            ].map((feature, index) => (
-              <div key={index} className="bg-black/40 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2.5 text-center">
-                <span className="text-xs md:text-sm text-white/80">{feature}</span>
-              </div>
+          <div className="space-y-6 max-w-6xl mx-auto mt-4">
+            {nutritionServices.map((service, index) => (
+              <ServiceOfferingCard
+                key={index}
+                title={service.title}
+                subtitle={service.subtitle}
+                description={service.description}
+                features={service.features}
+                image={service.image}
+                price={service.price}
+                reverse={index % 2 !== 0}
+              />
             ))}
-          </div>
-          
-          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_a08f374420154bd881dd65c67a18eae3~mv2.png"
-              title="Nutrition Review"
-              link="/contact"
-            />
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cf2ae92e59c4ae9a8dcffc79ea5fca9~mv2.png"
-              title="Nutrition Programming"
-              link="/contact"
-            />
-            <ServiceCard
-              image="https://static.wixstatic.com/media/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_8c340cc141d4403896766ed99062189d~mv2.png"
-              title="Nutrition Programming & Recipes"
-              link="/contact"
-            />
           </div>
         </div>
       </section>
