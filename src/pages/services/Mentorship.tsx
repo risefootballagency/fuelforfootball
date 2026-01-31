@@ -56,7 +56,7 @@ const Mentorship = () => {
 
   const programmes = [
     {
-      title: t("services_mentorship.youth_title", "Youth Mentorship"),
+      title: t("services_mentorship.youth_title", "Youth Development Programme"),
       description: t("services_mentorship.youth_desc", "For aspiring young players aged 12-18 looking to navigate the academy system."),
       features: [
         t("services_mentorship.youth_feature_1", "Monthly mentor sessions"),
@@ -64,7 +64,8 @@ const Mentorship = () => {
         t("services_mentorship.youth_feature_3", "Academic balance guidance"),
         t("services_mentorship.youth_feature_4", "Character development")
       ],
-      price: t("services_mentorship.youth_price", "From £150/month")
+      price: t("services_mentorship.youth_price", "From £150/month"),
+      link: "/services"
     },
     {
       title: t("services_mentorship.pro_title", "Pro Mentorship"),
@@ -75,25 +76,15 @@ const Mentorship = () => {
         t("services_mentorship.pro_feature_3", "Media training"),
         t("services_mentorship.pro_feature_4", "Financial guidance")
       ],
-      price: t("services_mentorship.pro_price", "From £300/month")
+      price: t("services_mentorship.pro_price", "From £300/month"),
+      link: "/services"
     },
-    {
-      title: t("services_mentorship.transition_title", "Transition Mentorship"),
-      description: t("services_mentorship.transition_desc", "For players transitioning out of football into new careers."),
-      features: [
-        t("services_mentorship.transition_feature_1", "Career exploration"),
-        t("services_mentorship.transition_feature_2", "Skills translation"),
-        t("services_mentorship.transition_feature_3", "Network building"),
-        t("services_mentorship.transition_feature_4", "Identity transition support")
-      ],
-      price: t("services_mentorship.transition_price", "From £200/month")
-    }
   ];
 
   return (
     <ServicePageLayout
-      category="HOLISTIC"
-      title="MENTORSHIP - GUIDANCE FOR SUCCESS"
+      category="MENTORSHIP"
+      title="GUIDANCE FOR SUCCESS"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
     >
@@ -173,7 +164,7 @@ const Mentorship = () => {
             {t("services_mentorship.our_programmes_desc", "Choose the mentorship programme that best fits your current stage and goals.")}
           </p>
           
-          <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
             {programmes.map((programme, index) => (
               <div 
                 key={index}
@@ -189,7 +180,14 @@ const Mentorship = () => {
                     </li>
                   ))}
                 </ul>
-                <p className="text-xl font-semibold text-accent">{programme.price}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xl font-semibold text-accent">{programme.price}</p>
+                  <LocalizedLink to={programme.link}>
+                    <Button variant="outline" className="font-bebas tracking-wider border-accent text-accent hover:bg-accent hover:text-black">
+                      LEARN MORE
+                    </Button>
+                  </LocalizedLink>
+                </div>
               </div>
             ))}
           </div>

@@ -100,8 +100,8 @@ const ElitePerformance = () => {
 
   return (
     <ServicePageLayout
-      category="HOLISTIC"
-      title="ELITE PERFORMANCE - THE FULL PACKAGE"
+      category="ELITE PERFORMANCE PROGRAMME"
+      title="THE FULL PACKAGE"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
     >

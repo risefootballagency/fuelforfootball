@@ -352,7 +352,7 @@ export const VisionBoardSection = () => {
             const Icon = getCategoryIcon(item.category);
             const isCompleted = item.status === 'completed';
             return (
-              <Card key={item.id} className={isCompleted ? 'opacity-75' : ''}>
+              <Card key={item.id} className={`${isCompleted ? 'opacity-75' : ''} bg-card`}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
@@ -370,7 +370,7 @@ export const VisionBoardSection = () => {
                           </span>
                         )}
                       </div>
-                      <h3 className="font-semibold mb-1">{item.vision}</h3>
+                      <h3 className="font-semibold mb-1 text-foreground">{item.vision}</h3>
                       {item.action_plan && (
                         <p className="text-sm text-muted-foreground mb-2">{item.action_plan}</p>
                       )}
@@ -378,7 +378,7 @@ export const VisionBoardSection = () => {
                         <div className="flex-1">
                           <Progress value={item.progress} className="h-2" />
                         </div>
-                        <span className="text-sm font-medium">{item.progress}%</span>
+                        <span className="text-sm font-medium text-foreground">{item.progress}%</span>
                       </div>
                     </div>
                     <div className="flex gap-1">

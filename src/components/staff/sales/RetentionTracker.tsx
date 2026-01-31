@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { Plus, Edit, Trash2, Users, ChevronDown, ChevronUp, X, Save, Loader2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
@@ -96,7 +97,8 @@ export function RetentionTracker() {
   }, []);
 
   const fetchPlayers = async () => {
-    const { data, error } = await supabase
+    // Fetch players from shared database
+    const { data, error } = await sharedSupabase
       .from("players")
       .select("id, name, email, category, bio")
       .eq("category", "Fuel For Football")
@@ -121,8 +123,8 @@ export function RetentionTracker() {
     } else {
       setClients((data || []).map(c => ({
         ...c,
-        services_worked: c.services_worked || [],
-        service_dates: c.service_dates || []
+        services_worked: (c.services_worked as unknown as string[]) || [],
+        service_dates: (c.service_dates as unknown as ServiceDate[]) || []
       })));
     }
     setLoading(false);
@@ -181,15 +183,15 @@ export function RetentionTracker() {
       client_name: formData.client_name,
       client_type: formData.client_type,
       contact_email: formData.contact_email || null,
-      contact_phone: null,
+      contact_phone: null as string | null,
       player_id: selectedPlayerId || null,
       last_contact_date: formData.last_contact_year ? `${formData.last_contact_year}-01-01` : null,
-      next_contact_date: null,
+      next_contact_date: null as string | null,
       status: formData.status,
       notes: formData.notes || null,
       total_revenue: 0,
       services_worked: formData.services_worked,
-      service_dates: formData.service_dates,
+      service_dates: JSON.parse(JSON.stringify(formData.service_dates)),
     };
 
     if (editingId) {

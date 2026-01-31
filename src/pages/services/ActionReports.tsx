@@ -40,7 +40,7 @@ const ActionReports = () => {
       price: "FROM £85.00",
     },
     {
-      title: "SEASON PACKAGE",
+      title: "10 REPORT PACKAGE",
       subtitle: "COMPREHENSIVE TRACKING",
       description: "Regular action reports throughout your season with trend analysis and progress tracking. See how your decision-making and execution improves over time with detailed performance data.",
       features: [
@@ -55,8 +55,8 @@ const ActionReports = () => {
 
   return (
     <ServicePageLayout
-      category="TACTICAL"
-      title="ACTION REPORTS"
+      category="ACTION REPORTS"
+      title="EVERY ACTION MATTERS"
       subtitle="Deep-dive analysis of your in-game actions with video clips, tactical breakdowns, and actionable insights to elevate every touch."
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
