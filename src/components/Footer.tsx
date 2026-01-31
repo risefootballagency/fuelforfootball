@@ -275,14 +275,17 @@ export const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="pt-3 md:pt-4 border-t border-primary/10">
-          <p className="text-[9px] md:text-xs text-mint-dim/80 text-center max-w-3xl mx-auto mb-4 md:mb-6 px-2 md:px-4 leading-relaxed">
-            {t("footer.regulatory_text", "Fuel For Football operates in accordance with the regulatory frameworks established by FIFA and UEFA. Our work follows the standards required for player representation, governance and integrity.")}
-          </p>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs md:text-sm text-mint-dim">
               © {new Date().getFullYear()} Fuel For Football. {t("footer.all_rights_reserved", "All rights reserved.")}
             </p>
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 md:gap-6">
+              <LocalizedLink to="/login" className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1">
+                Portal
+              </LocalizedLink>
+              <Link to="/staff" className="text-xs md:text-sm text-mint-dim hover:text-primary transition-colors font-bebas uppercase tracking-wider py-1">
+                Staff
+              </Link>
               <a 
                 href="https://open.spotify.com/show/1Ep6k8p6j4rMT1a0AFqX8C" 
                 target="_blank" 
