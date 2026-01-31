@@ -58,7 +58,7 @@ const navItems: NavItem[] = [
     items: [
       { label: "Strength, Power & Speed", link: "/strength-power-speed", description: "Develop explosive power and acceleration to dominate physical battles on the pitch." },
       { label: "Conditioning", link: "/conditioning", description: "Build endurance and work capacity to maintain peak performance throughout matches." },
-      { label: "Nutrition", link: "/nutrition", description: "Optimize your diet to fuel training, recovery and match-day performance." },
+      { label: "Nutrition", link: "/nutrition", description: "Optimise your diet to fuel training, recovery and match-day performance." },
     ]
   },
 ];

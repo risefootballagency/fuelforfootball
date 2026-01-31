@@ -72,24 +72,12 @@ const EfficiencyReports = () => {
       image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
       price: "FROM £95.00",
     },
-    {
-      title: "SEASON EFFICIENCY PACKAGE",
-      subtitle: "TREND TRACKING",
-      description: "Regular efficiency reports throughout the season with trend analysis and progress tracking. Demonstrate consistent improvement to agents, clubs, and scouts with professional-grade documentation.",
-      features: [
-        "Monthly reports",
-        "Progress tracking",
-        "Trend analysis"
-      ],
-      image: "https://static.wixstatic.com/media/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png/v1/fill/w_400,h_300,q_90,enc_avif,quality_auto/c4f4b1_52a05da011a64119a92fb43810dad5eb~mv2.png",
-      price: "FROM £450.00",
-    },
   ];
 
   return (
     <ServicePageLayout
-      category="TACTICAL"
-      title="EFFICIENCY REPORTS"
+      category="EFFICIENCY REPORTS"
+      title="PERFORMANCES THAT SHOW UP IN THE DATA"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
     >

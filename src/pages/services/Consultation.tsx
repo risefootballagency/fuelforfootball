@@ -72,8 +72,8 @@ const Consultation = () => {
 
   return (
     <ServicePageLayout
-      category="GENERAL"
-      title="CONSULTATION"
+      category="CONSULTATION"
+      title="KNOW THYSELF"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
     >
