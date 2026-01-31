@@ -190,24 +190,21 @@ export const ServicePillars = ({
     <section className={`${large ? 'py-4 md:py-6' : 'py-6 md:py-8'} bg-black/20 backdrop-blur-sm`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {large ? (
-          <div className={`flex flex-wrap justify-center gap-4 md:gap-6 max-w-5xl mx-auto`}>
+          <div className={`grid grid-cols-2 ${pillars.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-4 md:gap-6 max-w-5xl mx-auto`}>
             {pillars.map((pillar, index) => (
               <div 
                 key={index} 
-                className="group bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-6 md:p-8 flex flex-col items-center gap-4 transition-all duration-300 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 animate-fade-in w-[calc(50%-8px)] lg:w-[calc(25%-12px)]"
-                style={{ 
-                  animationDelay: `${index * 100}ms`,
-                  ...(pillars.length === 3 && { width: 'calc(33.333% - 11px)' })
-                }}
+                className="group bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl p-4 md:p-6 flex flex-col items-center gap-3 transition-all duration-300 hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-accent/50 transition-all duration-300">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-accent/50 transition-all duration-300">
                   <img 
                     src={pillar.icon}
                     alt={pillar.label}
-                    className="w-14 h-14 md:w-16 md:h-16 object-contain"
+                    className="w-10 h-10 md:w-12 md:h-12 object-contain"
                   />
                 </div>
-                <span className="font-bebas text-base md:text-lg tracking-[0.15em] text-white text-center drop-shadow-md">
+                <span className="font-bebas text-xs md:text-sm tracking-[0.15em] text-white text-center drop-shadow-md whitespace-nowrap">
                   {pillar.label}
                 </span>
               </div>
