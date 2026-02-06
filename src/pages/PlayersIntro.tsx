@@ -5,9 +5,12 @@ import { ArrowRight, Sparkles, BookOpen } from "lucide-react";
 import GrassBackground from "@/assets/Grass-Background.png";
 import grassSmoky from "@/assets/grass-smoky-3.png";
 import { useImagePreloader } from "@/hooks/useImagePreloader";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageMapSelector } from "@/components/LanguageMapSelector";
 
 const PlayersIntro = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [hoveredCard, setHoveredCard] = useState<'left' | 'right' | null>(null);
   
   // Use preloader hook - 12 for mobile, 54 for desktop (we'll handle this with CSS)
@@ -95,18 +98,18 @@ const PlayersIntro = () => {
               transition={{ delay: 0.4 }}
             >
               <BookOpen className="w-4 h-4 text-accent" />
-              <span className="text-sm md:text-sm font-medium text-white whitespace-nowrap">Our Approach</span>
+              <span className="text-sm md:text-sm font-medium text-white whitespace-nowrap">{t('players_intro.our_approach', 'Our Approach')}</span>
             </motion.div>
             
             <h2 
               className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-none tracking-wide" 
               style={{ transform: 'scaleY(1.15)' }}
             >
-              Learn How<br /><span className="text-accent">We Work</span>
+              {t('players_intro.learn_how', 'Learn How')}<br /><span className="text-accent">{t('players_intro.we_work', 'We Work')}</span>
             </h2>
             
             <p className="text-sm md:text-lg text-white/80 max-w-md hidden md:block">
-              Discover our methodology, philosophy, and how we fuel players to reach their full potential.
+              {t('players_intro.methodology_description', 'Discover our methodology, philosophy, and how we fuel players to reach their full potential.')}
             </p>
             
             <motion.button
@@ -118,7 +121,7 @@ const PlayersIntro = () => {
               }}
               whileHover={{ x: 10 }}
             >
-              <span>Explore Our Story</span>
+              <span>{t('players_intro.explore_story', 'Explore Our Story')}</span>
               <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
             </motion.button>
           </div>
@@ -163,18 +166,18 @@ const PlayersIntro = () => {
               transition={{ delay: 0.5 }}
             >
               <Sparkles className="w-4 h-4 text-accent" />
-              <span className="text-sm md:text-sm font-medium text-white whitespace-nowrap">Premium Services</span>
+              <span className="text-sm md:text-sm font-medium text-white whitespace-nowrap">{t('players_intro.premium_services', 'Premium Services')}</span>
             </motion.div>
             
             <h2 
               className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-none tracking-wide" 
               style={{ transform: 'scaleY(1.15)' }}
             >
-              View Our<br /><span className="text-accent">Services</span>
+              {t('players_intro.view_our', 'View Our')}<br /><span className="text-accent">{t('players_intro.services', 'Services')}</span>
             </h2>
             
             <p className="text-sm md:text-lg text-white/80 max-w-md hidden md:block">
-              Explore our comprehensive range of performance services designed to elevate every aspect of your game.
+              {t('players_intro.services_description', 'Explore our comprehensive range of performance services designed to elevate every aspect of your game.')}
             </p>
             
             <motion.button
@@ -186,7 +189,7 @@ const PlayersIntro = () => {
               }}
               whileHover={{ x: 10 }}
             >
-              <span>Browse Services</span>
+              <span>{t('players_intro.browse_services', 'Browse Services')}</span>
               <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
             </motion.button>
           </div>
@@ -198,15 +201,16 @@ const PlayersIntro = () => {
         </motion.div>
       </div>
 
-      {/* Footer tagline */}
+      {/* Footer with language selector and tagline */}
       <motion.footer 
-        className="py-2 md:py-6 text-center relative z-10"
+        className="py-2 md:py-6 text-center relative z-10 flex flex-col items-center gap-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
+        <LanguageMapSelector />
         <p className="text-muted-foreground text-xs md:text-sm tracking-widest uppercase">
-          Change The Game
+          {t('players_intro.change_the_game', 'Change The Game')}
         </p>
       </motion.footer>
     </div>
