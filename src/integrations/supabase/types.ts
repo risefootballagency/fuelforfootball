@@ -3100,22 +3100,7 @@ export type Database = {
           total_revenue?: number | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "retention_clients_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "players"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "retention_clients_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "players_public"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       retention_targets: {
         Row: {
