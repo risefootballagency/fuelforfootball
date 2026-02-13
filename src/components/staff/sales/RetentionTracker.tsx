@@ -203,6 +203,7 @@ export function RetentionTracker() {
       if (error) {
         console.error("Update error:", error);
         toast.error("Failed to update client");
+        return;
       } else {
         toast.success("Client updated");
         fetchClients();
@@ -215,6 +216,7 @@ export function RetentionTracker() {
       if (error) {
         console.error("Insert error:", error);
         toast.error("Failed to add client");
+        return;
       } else {
         toast.success("Client added");
         fetchClients();
