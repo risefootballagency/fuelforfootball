@@ -1,0 +1,1 @@
+ALTER TABLE public.retention_clients DROP CONSTRAINT retention_clients_player_id_fkey;
