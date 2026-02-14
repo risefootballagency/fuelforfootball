@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { sharedSupabase as supabase } from '@/integrations/supabase/sharedClient';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -81,7 +81,7 @@ export const ContractSignature = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setContracts(data || []);
+      setContracts((data || []) as SignatureContract[]);
     } catch (error: any) {
       console.error('Error fetching contracts:', error);
       toast.error('Failed to load contracts');
@@ -155,8 +155,9 @@ export const ContractSignature = () => {
 
       if (createError) throw createError;
 
-      setContracts([contract, ...contracts]);
-      setSelectedContract(contract);
+      const typedContract = contract as SignatureContract;
+      setContracts([typedContract, ...contracts]);
+      setSelectedContract(typedContract);
       setCreateDialogOpen(false);
       setNewContract({ title: '', description: '' });
       setSelectedFile(null);
@@ -300,7 +301,7 @@ export const ContractSignature = () => {
           .insert(newFields);
       }
 
-      setContracts([data, ...contracts]);
+      setContracts([data as SignatureContract, ...contracts]);
       toast.success('Contract duplicated');
     } catch (error: any) {
       console.error('Error duplicating contract:', error);

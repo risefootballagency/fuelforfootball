@@ -56,7 +56,7 @@ import { ServiceCatalogManagement } from "@/components/staff/ServiceCatalogManag
 import { StaffPushNotifications } from "@/components/staff/StaffPushNotifications";
 import { HighlightMaker } from "@/components/staff/HighlightMaker";
 import { useStaffNotifications } from "@/hooks/useStaffNotifications";
-import { TransferHub } from "@/components/staff/TransferHub";
+
 import { ExpensesManagement } from "@/components/staff/ExpensesManagement";
 import { TaxRecordsManagement } from "@/components/staff/TaxRecordsManagement";
 import { BudgetsManagement } from "@/components/staff/BudgetsManagement";
@@ -64,7 +64,7 @@ import { FinancialReports } from "@/components/staff/FinancialReports";
 import { PaymentsManagement } from "@/components/staff/PaymentsManagement";
 import { AthleteCentre } from "@/components/staff/AthleteCentre";
 import { CoachingAIChat } from "@/components/staff/coaching/CoachingAIChat";
-import { OpenAccessManagement } from "@/components/staff/OpenAccessManagement";
+
 import { SalesManagement } from "@/components/staff/SalesManagement";
 import { ShopCatalogManagement } from "@/components/staff/ShopCatalogManagement";
 import { ContractSignature } from "@/components/staff/ContractSignature";
@@ -589,7 +589,6 @@ const Staff = () => {
       locked: isMarketeer,
       sections: [
         { id: 'players', title: 'Player Management', icon: UserCog },
-        { id: 'transferhub', title: 'Transfer Hub', icon: Building2 },
         { id: 'highlightmaker', title: 'Highlight Maker', icon: Film },
         { id: 'updates', title: 'Player Updates', icon: BellRing },
       ]
@@ -622,7 +621,7 @@ const Staff = () => {
         { id: 'blog', title: 'News Articles', icon: Newspaper },
         { id: 'dailyfuel', title: 'Daily Fuel', icon: FileText },
         { id: 'pressreleases', title: 'Press Releases', icon: Newspaper },
-        { id: 'openaccess', title: 'Open Access', icon: FileText },
+        
         { id: 'visitors', title: 'Site Visitors', icon: Eye },
       ]
     },
@@ -1010,7 +1009,7 @@ const Staff = () => {
                   {expandedSection === 'blog' && <BlogManagement isAdmin={isAdmin} />}
                   {expandedSection === 'dailyfuel' && <DailyFuelManagement isAdmin={isAdmin} />}
                   {expandedSection === 'pressreleases' && <PressReleasesManagement isAdmin={isAdmin} />}
-                  {expandedSection === 'openaccess' && <OpenAccessManagement />}
+                  
                   {expandedSection === 'submissions' && <FormSubmissionsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'visitors' && <SiteVisitorsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'invoices' && <InvoiceManagement isAdmin={isAdmin} />}
@@ -1028,7 +1027,7 @@ const Staff = () => {
                   {expandedSection === 'saleshub' && <SalesHub />}
                   {expandedSection === 'updates' && <UpdatesManagement isAdmin={isAdmin} />}
                   {expandedSection === 'clubnetwork' && <ClubNetworkManagement />}
-                  {expandedSection === 'transferhub' && <TransferHub isAdmin={isAdmin} />}
+                  
                   {expandedSection === 'athletecentre' && <AthleteCentre />}
                   {expandedSection === 'coachingchat' && <CoachingAIChat />}
                   {expandedSection === 'legal' && <LegalManagement isAdmin={isAdmin} />}
