@@ -6,87 +6,61 @@ interface PerformanceCheckResult {
   reason?: string;
 }
 
+// Run cheap checks synchronously to avoid spinner delay
+function runCheapChecks(): { failed: boolean; reason?: string } {
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (isMobile && isTouchDevice) return { failed: true, reason: 'Mobile device detected' };
+
+  const canvas = document.createElement('canvas');
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return { failed: true, reason: 'WebGL not supported' };
+
+  const nav = navigator as any;
+  if (nav.deviceMemory && nav.deviceMemory < 4) return { failed: true, reason: 'Low device memory' };
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) return { failed: true, reason: 'Low CPU cores' };
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return { failed: true, reason: 'Reduced motion preferred' };
+
+  return { failed: false };
+}
+
 export function usePerformanceCheck(): PerformanceCheckResult {
-  const [isLowPerformance, setIsLowPerformance] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-  const [reason, setReason] = useState<string | undefined>();
+  // Run cheap checks immediately — no spinner for fast devices
+  const cheapResult = runCheapChecks();
+
+  const [isLowPerformance, setIsLowPerformance] = useState(cheapResult.failed);
+  const [isChecking, setIsChecking] = useState(!cheapResult.failed); // only checking if cheap checks passed
+  const [reason, setReason] = useState<string | undefined>(cheapResult.reason);
 
   useEffect(() => {
-    const checkPerformance = async () => {
-      try {
-        // Check for mobile device first - mobile devices often struggle with heavy 3D
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        
-        if (isMobile && isTouchDevice) {
-          setIsLowPerformance(true);
-          setReason('Mobile device detected');
-          setIsChecking(false);
-          return;
-        }
+    // If cheap checks already failed, nothing more to do
+    if (cheapResult.failed) {
+      setIsChecking(false);
+      return;
+    }
 
-        // Check for WebGL support
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        
-        if (!gl) {
-          setIsLowPerformance(true);
-          setReason('WebGL not supported');
-          setIsChecking(false);
-          return;
-        }
+    // Run FPS test in background — page is already visible
+    let frameCount = 0;
+    const startTime = performance.now();
+    let cancelled = false;
 
-        // Check device memory (if available)
-        const nav = navigator as any;
-        if (nav.deviceMemory && nav.deviceMemory < 4) {
-          setIsLowPerformance(true);
-          setReason('Low device memory');
-          setIsChecking(false);
-          return;
-        }
-
-        // Check hardware concurrency (CPU cores)
-        if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
-          setIsLowPerformance(true);
-          setReason('Low CPU cores');
-          setIsChecking(false);
-          return;
-        }
-
-        // Check for reduced motion preference
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          setIsLowPerformance(true);
-          setReason('Reduced motion preferred');
-          setIsChecking(false);
-          return;
-        }
-
-        // Simple frame rate check
-        let frameCount = 0;
-        const startTime = performance.now();
-        
-        const countFrames = () => {
-          frameCount++;
-          if (performance.now() - startTime < 500) {
-            requestAnimationFrame(countFrames);
-          } else {
-            const fps = (frameCount / 500) * 1000;
-            if (fps < 30) {
-              setIsLowPerformance(true);
-              setReason('Low frame rate detected');
-            }
-            setIsChecking(false);
-          }
-        };
-        
+    const countFrames = () => {
+      if (cancelled) return;
+      frameCount++;
+      if (performance.now() - startTime < 500) {
         requestAnimationFrame(countFrames);
-      } catch (error) {
-        // If any check fails, assume decent performance
+      } else {
+        const fps = (frameCount / 500) * 1000;
+        if (fps < 30) {
+          setIsLowPerformance(true);
+          setReason('Low frame rate detected');
+        }
         setIsChecking(false);
       }
     };
 
-    checkPerformance();
+    requestAnimationFrame(countFrames);
+    return () => { cancelled = true; };
   }, []);
 
   return { isLowPerformance, isChecking, reason };

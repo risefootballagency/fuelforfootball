@@ -42,7 +42,7 @@ export const LazyPlayer3D = ({ className, imagePrefix = "player" }: LazyPlayer3D
   }
 
   return (
-    <div className={className}>
+    <div className={className} style={{ willChange: 'transform' }}>
       {isReady ? (
         <Suspense fallback={<StaticPlaceholder className={className} imagePrefix={imagePrefix} />}>
           <Player3DEffect className={className} imagePrefix={imagePrefix} />

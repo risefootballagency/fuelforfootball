@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useXRay } from "@/contexts/XRayContext";
 
@@ -8,13 +8,10 @@ interface WallImage {
   title: string;
 }
 
-// Generate random sizes for the mismatched wall effect
 const generateRandomSizes = (count: number): { width: number; height: number }[] => {
   const sizes: { width: number; height: number }[] = [];
-  const baseSize = 80; // Base size in pixels
-  
+  const baseSize = 80;
   for (let i = 0; i < count; i++) {
-    // Random variation: 0.6x to 1.6x base size
     const widthMult = 0.6 + Math.random() * 1.0;
     const heightMult = 0.6 + Math.random() * 1.0;
     sizes.push({
@@ -25,7 +22,6 @@ const generateRandomSizes = (count: number): { width: number; height: number }[]
   return sizes;
 };
 
-// Masonry-style layout for mismatched sizes
 const calculatePositions = (
   sizes: { width: number; height: number }[],
   containerWidth: number,
@@ -41,13 +37,10 @@ const calculatePositions = (
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < columns; col++) {
       if (index >= sizes.length) break;
-      
       const size = sizes[index];
-      // Add some random offset within the cell for organic feel
       const offsetX = (Math.random() - 0.5) * cellWidth * 0.3;
       const offsetY = (Math.random() - 0.5) * cellHeight * 0.3;
-      const rotation = (Math.random() - 0.5) * 8; // -4 to +4 degrees
-      
+      const rotation = (Math.random() - 0.5) * 8;
       positions.push({
         x: col * cellWidth + cellWidth / 2 - size.width / 2 + offsetX,
         y: row * cellHeight + cellHeight / 2 - size.height / 2 + offsetY,
@@ -58,7 +51,6 @@ const calculatePositions = (
       index++;
     }
   }
-  
   return positions;
 };
 
@@ -66,14 +58,18 @@ export const LandingImageWall = () => {
   const { xrayState } = useXRay();
   const [images, setImages] = useState<WallImage[]>([]);
   const [containerSize, setContainerSize] = useState({ width: 1920, height: 1080 });
+  const hasFetchedRef = useRef(false);
   
-  // Calculate opacity based on X-ray state
   const wallOpacity = xrayState.isActive ? xrayState.intensity * 0.7 : 0;
   const cursorX = xrayState.position.x * 100;
   const cursorY = xrayState.position.y * 100;
-  const bubbleRadius = 18; // Slightly larger bubble for images
+  const bubbleRadius = 18;
   
+  // Defer fetch until X-ray first activates
   useEffect(() => {
+    if (!xrayState.isActive || hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     const fetchImages = async () => {
       const { data, error } = await supabase
         .from("marketing_gallery")
@@ -82,52 +78,31 @@ export const LandingImageWall = () => {
         .not("file_url", "is", null)
         .eq("file_type", "image")
         .limit(100);
-      
-      if (!error && data) {
-        setImages(data);
-      }
+      if (!error && data) setImages(data);
     };
-    
     fetchImages();
-    
-    // Update container size on resize
+  }, [xrayState.isActive]);
+
+  // Resize listener
+  useEffect(() => {
     const updateSize = () => {
-      setContainerSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
+      setContainerSize({ width: window.innerWidth, height: window.innerHeight });
     };
-    
     updateSize();
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
   }, []);
   
-  // Generate stable random sizes based on image count
-  const sizes = useMemo(() => {
-    return generateRandomSizes(Math.min(images.length, 100));
-  }, [images.length]);
+  const sizes = useMemo(() => generateRandomSizes(Math.min(images.length, 100)), [images.length]);
+  const positions = useMemo(() => calculatePositions(sizes, containerSize.width, containerSize.height), [sizes, containerSize]);
   
-  // Calculate positions for all images
-  const positions = useMemo(() => {
-    return calculatePositions(sizes, containerSize.width, containerSize.height);
-  }, [sizes, containerSize]);
-  
-  // Don't render if no images or no x-ray active
-  if (images.length === 0 || wallOpacity === 0) {
-    return null;
-  }
+  if (images.length === 0 || wallOpacity === 0) return null;
   
   return (
     <div
       className="absolute inset-0 pointer-events-none overflow-hidden"
-      style={{
-        zIndex: 1, // Behind player (z-2) but in front of background
-        opacity: wallOpacity,
-        transition: "opacity 0.15s ease-out",
-      }}
+      style={{ zIndex: 1, opacity: wallOpacity, transition: "opacity 0.15s ease-out" }}
     >
-      {/* SVG mask for the X-ray bubble effect */}
       <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }}>
         <defs>
           <radialGradient id="imageWallMaskGradient" cx={`${cursorX}%`} cy={`${cursorY}%`} r={`${bubbleRadius}%`}>
@@ -141,7 +116,6 @@ export const LandingImageWall = () => {
         </defs>
       </svg>
       
-      {/* Image wall container with mask applied */}
       <div
         className="absolute inset-0"
         style={{
@@ -152,7 +126,6 @@ export const LandingImageWall = () => {
         {images.slice(0, positions.length).map((image, index) => {
           const pos = positions[index];
           if (!pos) return null;
-          
           return (
             <div
               key={image.id}
@@ -171,16 +144,12 @@ export const LandingImageWall = () => {
                 alt={image.title}
                 className="w-full h-full object-cover"
                 loading="lazy"
-                style={{
-                  filter: "saturate(0.8) contrast(1.1)",
-                }}
+                decoding="async"
+                style={{ filter: "saturate(0.8) contrast(1.1)" }}
               />
-              {/* Subtle vignette overlay */}
               <div
                 className="absolute inset-0"
-                style={{
-                  background: "radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.3) 100%)",
-                }}
+                style={{ background: "radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.3) 100%)" }}
               />
             </div>
           );

@@ -5,14 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 interface PreloaderOptions {
   folder: string;
   limit: number;
-  threshold?: number; // Percentage of images to load before showing (0-1)
+  threshold?: number;
+  batchSize?: number;
 }
 
-export const useImagePreloader = ({ folder, limit, threshold = 0.8 }: PreloaderOptions) => {
+export const useImagePreloader = ({ folder, limit, threshold = 0.5, batchSize = 12 }: PreloaderOptions) => {
   const [loadedCount, setLoadedCount] = useState(0);
   const [isReady, setIsReady] = useState(false);
 
-  // Fetch URLs from database
   const { data: imageUrls = [], isLoading: isFetching } = useQuery({
     queryKey: ["preload-images", folder, limit],
     queryFn: async () => {
@@ -22,57 +22,53 @@ export const useImagePreloader = ({ folder, limit, threshold = 0.8 }: PreloaderO
         .eq("folder", folder)
         .not("file_url", "is", null)
         .limit(limit);
-
       if (error) throw error;
       return data.map((item) => item.file_url) as string[];
     },
-    staleTime: Infinity, // Cache forever
+    staleTime: Infinity,
     gcTime: Infinity,
   });
 
-  // Preload images in parallel
   useEffect(() => {
     if (imageUrls.length === 0) return;
 
     let mounted = true;
     let loaded = 0;
+    const total = imageUrls.length;
+    const thresholdCount = Math.ceil(total * threshold);
 
     const preloadImage = (url: string): Promise<void> => {
       return new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => {
+        const done = () => {
           if (mounted) {
             loaded++;
             setLoadedCount(loaded);
-            // Check if we've hit the threshold
-            if (loaded >= imageUrls.length * threshold) {
+            if (!isReady && loaded >= thresholdCount) {
               setIsReady(true);
             }
           }
           resolve();
         };
-        img.onerror = () => {
-          // Still count failed loads to avoid hanging
-          if (mounted) {
-            loaded++;
-            setLoadedCount(loaded);
-            if (loaded >= imageUrls.length * threshold) {
-              setIsReady(true);
-            }
-          }
-          resolve();
-        };
+        img.onload = done;
+        img.onerror = done;
         img.src = url;
       });
     };
 
-    // Preload all images in parallel
-    Promise.all(imageUrls.map(preloadImage));
-
-    return () => {
-      mounted = false;
+    // Batch-load in groups to avoid flooding the network
+    const loadInBatches = async () => {
+      for (let i = 0; i < total; i += batchSize) {
+        if (!mounted) break;
+        const batch = imageUrls.slice(i, i + batchSize);
+        await Promise.all(batch.map(preloadImage));
+      }
     };
-  }, [imageUrls, threshold]);
+
+    loadInBatches();
+
+    return () => { mounted = false; };
+  }, [imageUrls, threshold, batchSize]);
 
   return {
     imageUrls,

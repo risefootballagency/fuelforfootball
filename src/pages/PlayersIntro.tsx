@@ -17,7 +17,7 @@ const PlayersIntro = () => {
   const { imageUrls, isReady } = useImagePreloader({
     folder: 'landing',
     limit: 54,
-    threshold: 0.8,
+    threshold: 0.5,
   });
 
   return (

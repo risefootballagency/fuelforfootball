@@ -190,7 +190,7 @@ export const Player3DEffect = ({ className = "", imagePrefix = "player" }: Playe
         float value = 0.0;
         float amplitude = 0.5;
         vec2 flow = vec2(t * 0.15, t * 0.1);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 3; i++) {
           value += amplitude * snoise(p + flow);
           p *= 2.0;
           flow *= 1.25;
@@ -247,8 +247,8 @@ export const Player3DEffect = ({ className = "", imagePrefix = "player" }: Playe
       float waterLobes(vec2 uv, vec2 center, float baseRadius, vec2 velocity, float speed, float timeOffset) {
         float combinedSDF = circleSDF(uv, center, baseRadius);
         
-        // Generate 4 connected lobes with noise-driven positions for more detail
-        for (int i = 0; i < 4; i++) {
+        // Generate 3 connected lobes with noise-driven positions
+        for (int i = 0; i < 3; i++) {
           float fi = float(i);
           
           // Lobe offset driven by smooth noise (not angle-based) - MORE DETAIL
@@ -308,7 +308,7 @@ export const Player3DEffect = ({ className = "", imagePrefix = "player" }: Playe
         
         float baseSDF = circleSDF(uv, center, baseRadius * 1.2);
         
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
           float fi = float(i);
           
           // Droplets positioned with noise, biased toward velocity direction
