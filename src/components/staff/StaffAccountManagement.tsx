@@ -155,7 +155,8 @@ export const StaffAccountManagement = () => {
         fullName: "",
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "An error occurred";
+      console.error('Account creation error:', error);
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
       toast.error(errorMessage);
     } finally {
       setCreating(false);
