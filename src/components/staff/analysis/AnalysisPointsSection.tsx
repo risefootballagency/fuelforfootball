@@ -33,6 +33,7 @@ interface PointsSectionProps {
   aiGenerating: boolean;
   analysisType: "pre-match" | "post-match" | "concept";
   defaultOpen?: boolean;
+  hideAI?: boolean;
 }
 
 export const AnalysisPointsSection = ({
@@ -49,6 +50,7 @@ export const AnalysisPointsSection = ({
   aiGenerating,
   analysisType,
   defaultOpen = false,
+  hideAI = false,
 }: PointsSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -76,16 +78,18 @@ export const AnalysisPointsSection = ({
                   <div>
                     <div className="flex items-center justify-between">
                       <Label>Title</Label>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => generateWithAI('point_title', index)}
-                        disabled={aiGenerating}
-                      >
-                        <Sparkles className="w-3 h-3 mr-1" />
-                        {aiGenerating ? 'Generating...' : 'Use AI'}
-                      </Button>
+                      {!hideAI && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => generateWithAI('point_title', index)}
+                          disabled={aiGenerating}
+                        >
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          {aiGenerating ? 'Generating...' : 'Use AI'}
+                        </Button>
+                      )}
                     </div>
                     <Input
                       value={point.title}
@@ -95,16 +99,18 @@ export const AnalysisPointsSection = ({
                   <div>
                     <div className="flex items-center justify-between">
                       <Label>Paragraph 1</Label>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => generateWithAI('point_paragraph_1', index)}
-                        disabled={aiGenerating}
-                      >
-                        <Sparkles className="w-3 h-3 mr-1" />
-                        {aiGenerating ? 'Generating...' : 'Use AI'}
-                      </Button>
+                      {!hideAI && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => generateWithAI('point_paragraph_1', index)}
+                          disabled={aiGenerating}
+                        >
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          {aiGenerating ? 'Generating...' : 'Use AI'}
+                        </Button>
+                      )}
                     </div>
                     <Textarea
                       value={point.paragraph_1}
@@ -114,16 +120,18 @@ export const AnalysisPointsSection = ({
                   <div>
                     <div className="flex items-center justify-between">
                       <Label>Paragraph 2</Label>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => generateWithAI('point_paragraph_2', index)}
-                        disabled={aiGenerating}
-                      >
-                        <Sparkles className="w-3 h-3 mr-1" />
-                        {aiGenerating ? 'Generating...' : 'Use AI'}
-                      </Button>
+                      {!hideAI && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => generateWithAI('point_paragraph_2', index)}
+                          disabled={aiGenerating}
+                        >
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          {aiGenerating ? 'Generating...' : 'Use AI'}
+                        </Button>
+                      )}
                     </div>
                     <Textarea
                       value={point.paragraph_2}

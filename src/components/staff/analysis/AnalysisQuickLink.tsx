@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Link2, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ChevronDown, Link2, Loader2, Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Collapsible,
   CollapsibleContent,
@@ -53,6 +60,16 @@ export const AnalysisQuickLink = ({
   const [selectedFixtureId, setSelectedFixtureId] = useState<string>("none");
   const [loadingPlayers, setLoadingPlayers] = useState(true);
   const [loadingFixtures, setLoadingFixtures] = useState(false);
+  const [createFixtureOpen, setCreateFixtureOpen] = useState(false);
+  const [newFixture, setNewFixture] = useState({
+    home_team: '',
+    away_team: '',
+    match_date: '',
+    competition: '',
+    home_score: '',
+    away_score: '',
+  });
+  const [creatingFixture, setCreatingFixture] = useState(false);
 
   // Fetch players on mount
   useEffect(() => {
@@ -61,7 +78,6 @@ export const AnalysisQuickLink = ({
         const { data, error } = await supabase
           .from("players")
           .select("id, name, club")
-          .in("representation_status", ["represented", "mandated"])
           .order("name");
 
         if (error) throw error;
@@ -178,8 +194,54 @@ export const AnalysisQuickLink = ({
       : '';
     return `${fixture.home_team} vs ${fixture.away_team}${score} - ${date}`;
   };
+  const handleCreateFixture = async () => {
+    if (!newFixture.home_team || !newFixture.away_team || !newFixture.match_date) {
+      toast.error("Please fill in home team, away team, and match date");
+      return;
+    }
+    setCreatingFixture(true);
+    try {
+      const fixtureData: any = {
+        home_team: newFixture.home_team,
+        away_team: newFixture.away_team,
+        match_date: newFixture.match_date,
+      };
+      if (newFixture.competition) fixtureData.competition = newFixture.competition;
+      if (newFixture.home_score !== '') fixtureData.home_score = parseInt(newFixture.home_score);
+      if (newFixture.away_score !== '') fixtureData.away_score = parseInt(newFixture.away_score);
+
+      const { data, error } = await supabase
+        .from("fixtures")
+        .insert(fixtureData)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Link fixture to selected player
+      if (selectedPlayerId && selectedPlayerId !== "none") {
+        await supabase
+          .from("player_fixtures")
+          .insert({ player_id: selectedPlayerId, fixture_id: data.id });
+        
+        // Refresh fixtures list and select the new one
+        await fetchPlayerFixtures(selectedPlayerId);
+        setSelectedFixtureId(data.id);
+      }
+
+      setCreateFixtureOpen(false);
+      setNewFixture({ home_team: '', away_team: '', match_date: '', competition: '', home_score: '', away_score: '' });
+      toast.success("Fixture created successfully");
+    } catch (error: any) {
+      console.error("Failed to create fixture:", error);
+      toast.error(error.message || "Failed to create fixture");
+    } finally {
+      setCreatingFixture(false);
+    }
+  };
 
   return (
+    <>
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-primary/10 border border-primary/30 rounded-lg hover:bg-primary/20 transition-colors">
         <div className="flex items-center gap-2">
@@ -218,31 +280,46 @@ export const AnalysisQuickLink = ({
           
           <div>
             <Label>Fixture</Label>
-            <Select 
-              value={selectedFixtureId} 
-              onValueChange={setSelectedFixtureId}
-              disabled={!selectedPlayerId || selectedPlayerId === "none" || loadingFixtures}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={
-                  loadingFixtures 
-                    ? "Loading fixtures..." 
-                    : selectedPlayerId === "none" 
-                      ? "Select player first" 
-                      : playerFixtures.length === 0 
-                        ? "No fixtures found" 
-                        : "Select fixture"
-                } />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Select a fixture</SelectItem>
-                {playerFixtures.map((fixture) => (
-                  <SelectItem key={fixture.id} value={fixture.id}>
-                    {formatFixtureLabel(fixture)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Select 
+                  value={selectedFixtureId} 
+                  onValueChange={setSelectedFixtureId}
+                  disabled={!selectedPlayerId || selectedPlayerId === "none" || loadingFixtures}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={
+                      loadingFixtures 
+                        ? "Loading fixtures..." 
+                        : selectedPlayerId === "none" 
+                          ? "Select player first" 
+                          : playerFixtures.length === 0 
+                            ? "No fixtures found" 
+                            : "Select fixture"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Select a fixture</SelectItem>
+                    {playerFixtures.map((fixture) => (
+                      <SelectItem key={fixture.id} value={fixture.id}>
+                        {formatFixtureLabel(fixture)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="shrink-0 mt-0"
+                disabled={!selectedPlayerId || selectedPlayerId === "none"}
+                onClick={() => setCreateFixtureOpen(true)}
+                title="Create new fixture"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -266,5 +343,85 @@ export const AnalysisQuickLink = ({
         </Button>
       </CollapsibleContent>
     </Collapsible>
+
+    {/* Create Fixture Dialog */}
+    <Dialog open={createFixtureOpen} onOpenChange={setCreateFixtureOpen}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Create New Fixture</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Home Team *</Label>
+              <Input
+                value={newFixture.home_team}
+                onChange={(e) => setNewFixture({ ...newFixture, home_team: e.target.value })}
+                placeholder="Home team"
+              />
+            </div>
+            <div>
+              <Label>Away Team *</Label>
+              <Input
+                value={newFixture.away_team}
+                onChange={(e) => setNewFixture({ ...newFixture, away_team: e.target.value })}
+                placeholder="Away team"
+              />
+            </div>
+          </div>
+          <div>
+            <Label>Match Date *</Label>
+            <Input
+              type="date"
+              value={newFixture.match_date}
+              onChange={(e) => setNewFixture({ ...newFixture, match_date: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label>Competition</Label>
+            <Input
+              value={newFixture.competition}
+              onChange={(e) => setNewFixture({ ...newFixture, competition: e.target.value })}
+              placeholder="e.g. Premier League"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Home Score</Label>
+              <Input
+                type="number"
+                value={newFixture.home_score}
+                onChange={(e) => setNewFixture({ ...newFixture, home_score: e.target.value })}
+                placeholder="—"
+              />
+            </div>
+            <div>
+              <Label>Away Score</Label>
+              <Input
+                type="number"
+                value={newFixture.away_score}
+                onChange={(e) => setNewFixture({ ...newFixture, away_score: e.target.value })}
+                placeholder="—"
+              />
+            </div>
+          </div>
+          <Button 
+            onClick={handleCreateFixture} 
+            disabled={creatingFixture}
+            className="w-full"
+          >
+            {creatingFixture ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create Fixture"
+            )}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };

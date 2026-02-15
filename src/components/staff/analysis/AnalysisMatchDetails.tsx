@@ -159,17 +159,9 @@ export const AnalysisMatchDetails = ({
           />
         </div>
 
-        {/* Video URL and Upload */}
+        {/* Video Upload */}
         <div>
-          <Label>Video URL (Optional)</Label>
-          <Input
-            value={formData.video_url || ""}
-            onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-            placeholder="Video URL or upload below..."
-          />
-        </div>
-        <div>
-          <Label>Or Upload Video</Label>
+          <Label>Upload Video (Optional)</Label>
           <Input
             type="file"
             accept="video/*"
