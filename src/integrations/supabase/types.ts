@@ -87,6 +87,7 @@ export type Database = {
           title: string | null
           updated_at: string
           video_url: string | null
+          writer_user_id: string | null
         }
         Insert: {
           analysis_type: string
@@ -130,6 +131,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           video_url?: string | null
+          writer_user_id?: string | null
         }
         Update: {
           analysis_type?: string
@@ -173,6 +175,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           video_url?: string | null
+          writer_user_id?: string | null
         }
         Relationships: [
           {
@@ -4766,7 +4769,7 @@ export type Database = {
       setup_app_settings: { Args: never; Returns: undefined }
     }
     Enums: {
-      app_role: "admin" | "staff" | "user" | "marketeer"
+      app_role: "admin" | "staff" | "user" | "marketeer" | "analyst"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4894,7 +4897,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "staff", "user", "marketeer"],
+      app_role: ["admin", "staff", "user", "marketeer", "analyst"],
     },
   },
 } as const

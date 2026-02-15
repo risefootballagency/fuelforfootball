@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 interface StaffAccount {
   email: string;
   password: string;
-  role: "admin" | "staff" | "marketeer";
+  role: "admin" | "staff" | "marketeer" | "analyst";
   fullName: string;
 }
 
@@ -52,7 +52,7 @@ export const StaffAccountManagement = () => {
             full_name
           )
         `)
-        .in('role', ['admin', 'staff', 'marketeer']);
+        .in('role', ['admin', 'staff', 'marketeer', 'analyst']);
 
       if (error) throw error;
       console.log('Fetched accounts:', data);
@@ -195,7 +195,7 @@ export const StaffAccountManagement = () => {
       setCreatedAccount({
         email: email,
         password: newPassword,
-        role: role as "admin" | "staff" | "marketeer",
+        role: role as "admin" | "staff" | "marketeer" | "analyst",
         fullName: fullName,
       });
     } catch (error) {
@@ -244,7 +244,7 @@ export const StaffAccountManagement = () => {
     }
   };
 
-  const handleChangeRole = async (userId: string, email: string, newRole: "admin" | "staff" | "marketeer") => {
+  const handleChangeRole = async (userId: string, email: string, newRole: "admin" | "staff" | "marketeer" | "analyst") => {
     setUpdatingRole(userId);
 
     try {
@@ -345,6 +345,7 @@ export const StaffAccountManagement = () => {
                           <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="staff">Staff</SelectItem>
                           <SelectItem value="marketeer">Marketeer</SelectItem>
+                          <SelectItem value="analyst">Analyst</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -509,6 +510,7 @@ export const StaffAccountManagement = () => {
                     <SelectItem value="admin">Admin (Full Access)</SelectItem>
                     <SelectItem value="staff">Staff (View Only)</SelectItem>
                     <SelectItem value="marketeer">Marketeer (Marketing & Recruitment)</SelectItem>
+                    <SelectItem value="analyst">Analyst (Analysis Only)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

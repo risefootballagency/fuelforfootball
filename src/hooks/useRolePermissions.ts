@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 
-export type AppRole = 'admin' | 'staff' | 'marketeer' | 'scout' | 'player';
+export type AppRole = 'admin' | 'staff' | 'marketeer' | 'scout' | 'player' | 'analyst';
 
 interface RolePermissions {
   isAdmin: boolean;

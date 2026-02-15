@@ -393,13 +393,46 @@ export const ShopCatalogManagement = ({ isAdmin }: ShopCatalogManagementProps) =
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
-                />
+                <Label>Product Image</Label>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted/80 rounded-md cursor-pointer transition-colors text-sm">
+                    <Upload className="w-4 h-4" />
+                    Upload Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const fileExt = file.name.split('.').pop();
+                          const fileName = `shop-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+                          const { error: uploadError } = await supabase.storage
+                            .from('catalog-images')
+                            .upload(fileName, file);
+                          if (uploadError) throw uploadError;
+                          const { data: urlData } = supabase.storage
+                            .from('catalog-images')
+                            .getPublicUrl(fileName);
+                          setFormData({ ...formData, image_url: urlData.publicUrl });
+                          toast.success('Image uploaded');
+                        } catch (err: any) {
+                          console.error(err);
+                          toast.error('Failed to upload image');
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {formData.image_url && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <img src={formData.image_url} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                    <Button variant="ghost" size="sm" onClick={() => setFormData({ ...formData, image_url: '' })} className="text-destructive h-6">
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
