@@ -234,8 +234,7 @@ const Staff = () => {
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', userId)
-        .in('role', ['staff', 'admin', 'marketeer', 'analyst']);
+        .eq('user_id', userId);
 
       if (error) {
         console.error('Error checking staff role:', error);
