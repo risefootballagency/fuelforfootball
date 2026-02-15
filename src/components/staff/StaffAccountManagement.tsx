@@ -103,6 +103,7 @@ export const StaffAccountManagement = () => {
     try {
       const tempClient = createTempClient();
       let newUserId: string | undefined;
+      let userClient = tempClient; // client authenticated as the new user
 
       // Try signing up the new user
       const { data: signUpData, error: signUpError } = await tempClient.auth.signUp({
@@ -128,36 +129,39 @@ export const StaffAccountManagement = () => {
           }
 
           newUserId = signInData.user?.id;
-          // Sign out the temp client immediately
-          await tempClient.auth.signOut();
+          userClient = tempClient; // tempClient now has new user's session
         } else {
           throw signUpError;
         }
       } else {
         newUserId = signUpData.user?.id;
+        // After signUp, tempClient has the new user's session
       }
 
       if (!newUserId) throw new Error("User creation failed — no user ID returned");
 
-      // Upsert role — handles both new and existing users
-      const { data: existingRole } = await supabase
+      // Use the new user's own session to insert/update their role (bypasses RLS auth.uid() check)
+      const { data: existingRole } = await userClient
         .from("user_roles")
         .select("id")
         .eq("user_id", newUserId)
         .maybeSingle();
 
       if (existingRole) {
-        await supabase
+        const { error: updateError } = await userClient
           .from("user_roles")
           .update({ role: newAccount.role })
           .eq("user_id", newUserId);
+        if (updateError) throw updateError;
       } else {
-        const { error: roleError } = await supabase
+        const { error: roleError } = await userClient
           .from("user_roles")
           .insert({ user_id: newUserId, role: newAccount.role });
-
         if (roleError) throw roleError;
       }
+
+      // Sign out the temp client now that role is assigned
+      await tempClient.auth.signOut();
 
       const roleLabel = newAccount.role === "admin" ? "Admin" : newAccount.role === "marketeer" ? "Marketeer" : newAccount.role === "analyst" ? "Analyst" : "Staff";
       toast.success(`${roleLabel} account created successfully`);
