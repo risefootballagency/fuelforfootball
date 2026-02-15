@@ -29,6 +29,7 @@ interface SchemeSectionProps {
   handleVideoUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   uploadingImage: boolean;
   defaultOpen?: boolean;
+  hideAI?: boolean;
 }
 
 export const AnalysisSchemeSection = ({
@@ -43,6 +44,7 @@ export const AnalysisSchemeSection = ({
   handleVideoUpload,
   uploadingImage,
   defaultOpen = false,
+  hideAI = false,
 }: SchemeSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -299,16 +301,18 @@ export const AnalysisSchemeSection = ({
         <div>
           <div className="flex items-center justify-between">
             <Label>Paragraph 1</Label>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => generateWithAI('scheme_paragraph_1')}
-              disabled={aiGenerating}
-            >
-              <Sparkles className="w-3 h-3 mr-1" />
-              {aiGenerating ? 'Generating...' : 'Use AI'}
-            </Button>
+            {!hideAI && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => generateWithAI('scheme_paragraph_1')}
+                disabled={aiGenerating}
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                {aiGenerating ? 'Generating...' : 'Use AI'}
+              </Button>
+            )}
           </div>
           <Textarea
             value={formData.scheme_paragraph_1 || ""}
@@ -318,16 +322,18 @@ export const AnalysisSchemeSection = ({
         <div>
           <div className="flex items-center justify-between">
             <Label>Paragraph 2</Label>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => generateWithAI('scheme_paragraph_2')}
-              disabled={aiGenerating}
-            >
-              <Sparkles className="w-3 h-3 mr-1" />
-              {aiGenerating ? 'Generating...' : 'Use AI'}
-            </Button>
+            {!hideAI && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => generateWithAI('scheme_paragraph_2')}
+                disabled={aiGenerating}
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                {aiGenerating ? 'Generating...' : 'Use AI'}
+              </Button>
+            )}
           </div>
           <Textarea
             value={formData.scheme_paragraph_2 || ""}

@@ -262,7 +262,9 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       if (error) throw error;
       setAnalyses((data as Analysis[]) || []);
     } catch (error: any) {
-      toast.error("Failed to fetch analyses");
+      if (!isAnalystOnly) {
+        toast.error("Failed to fetch analyses");
+      }
       console.error(error);
     } finally {
       setLoading(false);
@@ -1316,6 +1318,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
               handleImageUpload={handleImageUpload}
               handleVideoUpload={handleVideoUpload}
               uploadingImage={uploadingImage}
+              hideAI={isAnalystOnly}
             />
           )}
 
@@ -1351,6 +1354,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
             generateWithAI={generateWithAI}
             aiGenerating={aiGenerating}
             analysisType={activeView}
+            hideAI={isAnalystOnly}
           />
 
           {/* Overview Section (Pre-Match and Post-Match - shown after points) */}
@@ -1388,14 +1392,16 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       {/* Header with Settings button */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Analysis</h2>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setSettingsDialogOpen(true)}
-        >
-          <Settings className="w-4 h-4 mr-2" />
-          Settings
-        </Button>
+        {!isAnalystOnly && (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setSettingsDialogOpen(true)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
+        )}
       </div>
 
       <Tabs defaultValue="pre-match" className="space-y-4">
@@ -1439,15 +1445,17 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         </TabsContent>
 
         <TabsContent value="other" className="space-y-4">
-          <div className="flex gap-2 flex-wrap">
-            <Button 
-              onClick={() => setAiWriter({ ...aiWriter, open: true, category: 'other', paragraph1Info: '', paragraph2Info: '' })}
-              variant="outline"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI Point Writer
-            </Button>
-          </div>
+          {!isAnalystOnly && (
+            <div className="flex gap-2 flex-wrap">
+              <Button 
+                onClick={() => setAiWriter({ ...aiWriter, open: true, category: 'other', paragraph1Info: '', paragraph2Info: '' })}
+                variant="outline"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                AI Point Writer
+              </Button>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

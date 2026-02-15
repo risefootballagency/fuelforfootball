@@ -9,3 +9,6 @@ The staff analysis system manages Pre-Match, Post-Match, and Concept reports via
 - Matchups: Includes an editable 'notes' field for brief player introductions.
 - Points: Images and videos are both marked as "(Optional)" - either or both can be used.
 - Save Logic: Uses graceful degradation for shared database compatibility. Attempts save with new UI-only fields (kit_collar_color, kit_number_color, kit_stripe_style, player_team), and if the shared database lacks these columns, automatically retries without them. Only includes fields with defined values to avoid undefined errors.
+- Video URL: Removed the optional video URL text input from all analysis sections (MatchDetails, Overview, KeyDetails). Only the file upload option remains.
+- Quick Link: Player dropdown now shows ALL players (no representation_status filter). A "+" button next to the fixture selector opens a dialog to create a new fixture inline, linking it to the selected player.
+- Analyst Restrictions: Analysts (isAnalystOnly) cannot see the Settings button, AI Point Writer tab, or any "Use AI" buttons on points/schemes. Error toasts for failed fetch are suppressed for analysts.
