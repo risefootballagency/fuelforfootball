@@ -51,8 +51,7 @@ export const StaffAccountManagement = () => {
             email,
             full_name
           )
-        `)
-        .in('role', ['admin', 'staff', 'marketeer', 'analyst']);
+        `);
 
       if (error) throw error;
       console.log('Fetched accounts:', data);
