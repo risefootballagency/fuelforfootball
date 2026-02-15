@@ -1,43 +1,44 @@
 
 
-## Fix: JWT Signature Mismatch Between Shared Database and Edge Function
+## Fix: Remove Edge Function Dependency for Staff Account Management
 
-### Root Cause
+### Problem
+The `create-staff-account` edge function runs on Lovable Cloud but needs to authenticate against the shared database -- requiring secret keys you don't have access to.
 
-The app uses **two different Supabase projects**:
-- **Shared database** (`qwethimbtaamlhbajmal.supabase.co`) -- where users log in and sessions are created
-- **Lovable Cloud** (`wodoiizsonuwtniziicv.supabase.co`) -- where edge functions run
+### Solution
+Move all account management logic from the edge function to **client-side code** using the shared database client that already works. We'll use `auth.signUp()` with a **separate, non-persisting client** so the admin stays logged in while creating new accounts.
 
-When the admin clicks "Create Account," the client grabs the session token from the **shared** project and sends it to the edge function on the **Lovable Cloud** project. The edge function then calls `auth.getUser(token)` against its own (Lovable Cloud) auth, which rejects it because the token was signed by the shared project. This is the "invalid signature" error in every log.
+### Changes
 
-### Fix
+**File: `src/components/staff/StaffAccountManagement.tsx`**
 
-Update the edge function to verify the JWT against the **shared** Supabase project (the one that actually issued the token), not the Lovable Cloud project.
+1. Remove all `fetch()` calls to the edge function
+2. Create a helper function that builds a temporary shared Supabase client (no session persistence) for `signUp` calls -- this prevents the admin from being signed out
+3. `handleCreateAccount`: Use `tempClient.auth.signUp()` to create the user, then insert the role into `user_roles` and profile into `profiles` using the main shared client
+4. `handleResetPassword`: Use shared client's `auth.updateUser()` -- note: this only works for the currently logged-in user, so we'll need to adjust this to send a password reset email instead via `auth.resetPasswordForEmail()`
+5. `handleChangeRole`: Update `user_roles` directly via the shared client (no edge function needed)
+6. `handleDeleteAccount`: Remove the role from `user_roles` and profile from `profiles` directly (we cannot delete auth users without a service role key, but removing their role effectively revokes access)
 
-**File: `supabase/functions/create-staff-account/index.ts`**
+### Technical Details
 
-1. Read the shared database URL and anon key from Deno environment secrets
-2. Create the auth-verification client using those shared credentials (not `SUPABASE_URL`/`SUPABASE_ANON_KEY`)
-3. Keep the admin/service-role client on Lovable Cloud for any privileged operations that target the shared DB (or switch it to the shared service role key if roles live there)
-
-Since user roles and profiles live on the **shared** database, the service-role admin client also needs to point there. So both clients in the function should target the shared project:
-
-```text
-Auth verification client:  shared URL + shared anon key + user's Authorization header
-Admin operations client:   shared URL + shared service role key
+**Temporary client for signUp (prevents admin session loss):**
+```typescript
+const createTempClient = () => createClient(SHARED_URL, SHARED_ANON_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 ```
 
-**New secrets needed** (added via the secrets tool):
-- `SHARED_SUPABASE_URL` = `https://qwethimbtaamlhbajmal.supabase.co`
-- `SHARED_SUPABASE_ANON_KEY` = the shared project's anon key
-- `SHARED_SUPABASE_SERVICE_ROLE_KEY` = the shared project's service role key
+**Account creation flow:**
+```text
+1. tempClient.auth.signUp({ email, password, options: { data: { full_name } } })
+2. sharedSupabase.from('user_roles').insert({ user_id, role })
+```
 
-**Code changes (single file):**
-- Replace `Deno.env.get("SUPABASE_URL")` and `Deno.env.get("SUPABASE_ANON_KEY")` in the auth client with `Deno.env.get("SHARED_SUPABASE_URL")` and `Deno.env.get("SHARED_SUPABASE_ANON_KEY")`
-- Replace `Deno.env.get("SUPABASE_URL")` and `Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")` in the admin client with `Deno.env.get("SHARED_SUPABASE_URL")` and `Deno.env.get("SHARED_SUPABASE_SERVICE_ROLE_KEY")`
-- Redeploy the function
+**Limitations vs. the edge function approach:**
+- Password reset becomes "send reset email" instead of setting a new password directly (no service role key means no `admin.updateUserById`)
+- Account deletion removes role + profile but the auth user remains (harmless since they have no role, so access is denied)
+- New users may need to confirm their email if the shared project has email confirmation enabled
 
-### Important
-
-You will need to provide the **service role key** for the shared Supabase project (`qwethimbtaamlhbajmal`). This is found in that project's Supabase dashboard under Settings > API. I will prompt you to enter it as a secret.
+### Files Modified
+- `src/components/staff/StaffAccountManagement.tsx` -- rewrite all handlers to use direct client calls
 
