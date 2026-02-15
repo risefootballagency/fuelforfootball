@@ -91,9 +91,11 @@ interface AIWriterState {
 
 interface AnalysisManagementProps {
   isAdmin: boolean;
+  currentUserId?: string;
+  isAnalystOnly?: boolean;
 }
 
-export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
+export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = false }: AnalysisManagementProps) => {
   const navigate = useNavigate();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
@@ -245,10 +247,17 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
 
   const fetchAnalyses = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("analyses")
         .select("*")
         .order("created_at", { ascending: false });
+
+      // Analysts only see analyses assigned to them
+      if (isAnalystOnly && currentUserId) {
+        query = query.eq("writer_user_id", currentUserId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setAnalyses((data as Analysis[]) || []);
@@ -497,6 +506,7 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
       const dataToSaveWithNewFields: Record<string, any> = {
         ...restFormData,
         analysis_type: analysisType,
+        ...(currentUserId && isAnalystOnly ? { writer_user_id: currentUserId } : {}),
       };
       
       // Only add new fields if they have actual values
@@ -1233,13 +1243,36 @@ export const AnalysisManagement = ({ isAdmin }: AnalysisManagementProps) => {
     return (
       <div className="space-y-4">
         {/* Header with back button */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={handleCloseDialog}>
-            ← Back
-          </Button>
-          <h2 className="text-lg font-semibold">
-            {editingAnalysis ? "Edit" : "New"} {isPreMatch ? "Pre-Match Analysis" : isPostMatch ? "Post-Match Analysis" : "Concept"}
-          </h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={handleCloseDialog}>
+              ← Back
+            </Button>
+            <h2 className="text-lg font-semibold">
+              {editingAnalysis ? "Edit" : "New"} {isPreMatch ? "Pre-Match Analysis" : isPostMatch ? "Post-Match Analysis" : "Concept"}
+            </h2>
+          </div>
+          {currentUserId && editingAnalysis && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const { error } = await supabase
+                    .from("analyses")
+                    .update({ writer_user_id: currentUserId })
+                    .eq("id", editingAnalysis.id);
+                  if (error) throw error;
+                  toast.success("Assigned to you");
+                } catch (err: any) {
+                  toast.error("Failed to assign");
+                  console.error(err);
+                }
+              }}
+            >
+              Assign to Me
+            </Button>
+          )}
         </div>
 
         <div className="space-y-4">

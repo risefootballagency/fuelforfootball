@@ -130,6 +130,8 @@ const Staff = () => {
   const [isStaff, setIsStaff] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMarketeer, setIsMarketeer] = useState(false);
+  const [isAnalyst, setIsAnalyst] = useState(false);
+  const [isActualStaff, setIsActualStaff] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'serviceaudit' | 'analysis' | 'highlightmaker' | 'marketing' | 'contentcreator' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'catalogue' | 'shopcatalogue' | 'jobs' | 'partners' | 'docs' | 'sheets' | 'casestudies' | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -206,7 +208,9 @@ const Staff = () => {
         } else {
           setIsStaff(false);
           setIsAdmin(false);
+          setIsActualStaff(false);
           setIsMarketeer(false);
+          setIsAnalyst(false);
           setLoading(false);
         }
       }
@@ -231,25 +235,38 @@ const Staff = () => {
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
-        .in('role', ['staff', 'admin', 'marketeer']);
+        .in('role', ['staff', 'admin', 'marketeer', 'analyst']);
 
       if (error) {
         console.error('Error checking staff role:', error);
         setIsStaff(false);
         setIsAdmin(false);
+        setIsActualStaff(false);
         setIsMarketeer(false);
+        setIsAnalyst(false);
       } else {
         const hasStaffOrAdmin = data?.some(row => row.role === 'staff' || row.role === 'admin') ?? false;
         const hasMarketeer = data?.some(row => row.role === 'marketeer') ?? false;
-        setIsStaff(hasStaffOrAdmin || hasMarketeer);
+        const hasAnalyst = data?.some(row => row.role === 'analyst') ?? false;
+        setIsStaff(hasStaffOrAdmin || hasMarketeer || hasAnalyst);
+        setIsActualStaff(hasStaffOrAdmin);
         setIsAdmin(data?.some(row => row.role === 'admin') ?? false);
         setIsMarketeer(hasMarketeer);
+        setIsAnalyst(hasAnalyst);
+        
+        // Auto-open to analysis section for analysts
+        if (hasAnalyst && !hasStaffOrAdmin && !hasMarketeer) {
+          setExpandedSection('analysis');
+          setExpandedCategory('coaching');
+        }
       }
     } catch (err) {
       console.error('Error:', err);
       setIsStaff(false);
       setIsAdmin(false);
+      setIsActualStaff(false);
       setIsMarketeer(false);
+      setIsAnalyst(false);
     } finally {
       setLoading(false);
     }
@@ -449,7 +466,9 @@ const Staff = () => {
     setUser(null);
     setIsStaff(false);
     setIsAdmin(false);
+    setIsActualStaff(false);
     setIsMarketeer(false);
+    setIsAnalyst(false);
     setEmail("");
     setPassword("");
     toast.success("Logged out");
@@ -552,7 +571,20 @@ const Staff = () => {
     );
   }
 
-  const categories = [
+  // Analysts who are not also staff/admin only see Analysis
+  const isAnalystOnly = isAnalyst && !isActualStaff && !isMarketeer;
+  
+  const categories = isAnalystOnly ? [
+    {
+      id: 'coaching',
+      title: 'Analysis',
+      icon: LineChart,
+      locked: false,
+      sections: [
+        { id: 'analysis', title: 'Analysis', icon: LineChart },
+      ]
+    }
+  ] : [
     {
       id: 'overview',
       title: 'Overview',
@@ -999,7 +1031,7 @@ const Staff = () => {
                   {expandedSection === 'serviceaudit' && <ServiceAudit />}
                   {expandedSection === 'docs' && <DocsSection />}
                   {expandedSection === 'sheets' && <SheetsSection />}
-                  {expandedSection === 'analysis' && <AnalysisManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'analysis' && <AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} />}
                   {expandedSection === 'highlightmaker' && <HighlightMaker isAdmin={isAdmin} />}
                   {expandedSection === 'marketing' && <MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
                   {expandedSection === 'contentcreator' && <ContentCreator />}

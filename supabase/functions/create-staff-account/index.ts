@@ -69,9 +69,9 @@ serve(async (req) => {
     }
 
     // Validate role
-    if (!["admin", "staff", "marketeer"].includes(role)) {
+    if (!["admin", "staff", "marketeer", "analyst"].includes(role)) {
       return new Response(
-        JSON.stringify({ error: "Role must be 'admin', 'staff', or 'marketeer'" }),
+        JSON.stringify({ error: "Role must be 'admin', 'staff', 'marketeer', or 'analyst'" }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
