@@ -102,8 +102,9 @@ export const StaffAccountManagement = () => {
 
     try {
       const tempClient = createTempClient();
+      let newUserId: string | undefined;
 
-      // Sign up the new user via the temp client (admin session stays intact)
+      // Try signing up the new user
       const { data: signUpData, error: signUpError } = await tempClient.auth.signUp({
         email: newAccount.email,
         password: newAccount.password,
@@ -112,12 +113,33 @@ export const StaffAccountManagement = () => {
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        // If user already registered, sign in to get their ID
+        if (signUpError.message?.toLowerCase().includes('already registered')) {
+          const { data: signInData, error: signInError } = await tempClient.auth.signInWithPassword({
+            email: newAccount.email,
+            password: newAccount.password,
+          });
 
-      const newUserId = signUpData.user?.id;
+          if (signInError) {
+            toast.error("User exists but couldn't verify with that password. Try a different password or use the existing account.");
+            setCreating(false);
+            return;
+          }
+
+          newUserId = signInData.user?.id;
+          // Sign out the temp client immediately
+          await tempClient.auth.signOut();
+        } else {
+          throw signUpError;
+        }
+      } else {
+        newUserId = signUpData.user?.id;
+      }
+
       if (!newUserId) throw new Error("User creation failed — no user ID returned");
 
-      // Check if this user already has a role (existing account)
+      // Upsert role — handles both new and existing users
       const { data: existingRole } = await supabase
         .from("user_roles")
         .select("id")
@@ -125,26 +147,21 @@ export const StaffAccountManagement = () => {
         .maybeSingle();
 
       if (existingRole) {
-        // Update existing role
         await supabase
           .from("user_roles")
           .update({ role: newAccount.role })
           .eq("user_id", newUserId);
-
-        toast.success(`Account role updated to ${newAccount.role}`);
-        setCreatedAccount(null);
       } else {
-        // Insert new role
         const { error: roleError } = await supabase
           .from("user_roles")
           .insert({ user_id: newUserId, role: newAccount.role });
 
         if (roleError) throw roleError;
-
-        const roleLabel = newAccount.role === "admin" ? "Admin" : newAccount.role === "marketeer" ? "Marketeer" : newAccount.role === "analyst" ? "Analyst" : "Staff";
-        toast.success(`${roleLabel} account created successfully`);
-        setCreatedAccount({ ...newAccount });
       }
+
+      const roleLabel = newAccount.role === "admin" ? "Admin" : newAccount.role === "marketeer" ? "Marketeer" : newAccount.role === "analyst" ? "Analyst" : "Staff";
+      toast.success(`${roleLabel} account created successfully`);
+      setCreatedAccount({ ...newAccount });
 
       fetchExistingAccounts();
 
