@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { UserPlus, Trash2 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
+const SHARED_SUPABASE_URL = 'https://qwethimbtaamlhbajmal.supabase.co';
+const SHARED_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXRoaW1idGFhbWxoYmFqbWFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3ODQzNDMsImV4cCI6MjA3NjM2MDM0M30.FNM354bgxhdtM4F_KGbQQnJwX7-WngaX58kPvPYnUEY';
+
+/** Creates a temporary client that won't persist sessions — prevents admin logout when creating new users */
+const createTempClient = () =>
+  createClient(SHARED_SUPABASE_URL, SHARED_SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
 interface StaffAccount {
   email: string;
@@ -54,7 +63,6 @@ export const StaffAccountManagement = () => {
         `);
 
       if (error) throw error;
-      console.log('Fetched accounts:', data);
       setExistingAccounts(data || []);
     } catch (error) {
       console.error('Error fetching accounts:', error);
@@ -78,7 +86,7 @@ export const StaffAccountManagement = () => {
         .select("role")
         .eq("user_id", user.id)
         .eq("role", "admin")
-        .single();
+        .maybeSingle();
 
       setIsAdmin(!!data);
     } catch (error) {
@@ -93,51 +101,53 @@ export const StaffAccountManagement = () => {
     setCreating(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Not authenticated");
-        return;
-      }
+      const tempClient = createTempClient();
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-staff-account`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            email: newAccount.email,
-            password: newAccount.password,
-            role: newAccount.role,
-            full_name: newAccount.fullName,
-          }),
-        }
-      );
+      // Sign up the new user via the temp client (admin session stays intact)
+      const { data: signUpData, error: signUpError } = await tempClient.auth.signUp({
+        email: newAccount.email,
+        password: newAccount.password,
+        options: {
+          data: { full_name: newAccount.fullName },
+        },
+      });
 
-      const result = await response.json();
+      if (signUpError) throw signUpError;
 
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to create account");
-      }
+      const newUserId = signUpData.user?.id;
+      if (!newUserId) throw new Error("User creation failed — no user ID returned");
 
-      // Check if account was newly created or updated
-      if (result.updated) {
+      // Check if this user already has a role (existing account)
+      const { data: existingRole } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", newUserId)
+        .maybeSingle();
+
+      if (existingRole) {
+        // Update existing role
+        await supabase
+          .from("user_roles")
+          .update({ role: newAccount.role })
+          .eq("user_id", newUserId);
+
         toast.success(`Account role updated to ${newAccount.role}`);
-        // Don't show credentials for existing accounts
         setCreatedAccount(null);
       } else {
-        const roleLabel = newAccount.role === "admin" ? "Admin" : newAccount.role === "marketeer" ? "Marketeer" : "Staff";
+        // Insert new role
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: newUserId, role: newAccount.role });
+
+        if (roleError) throw roleError;
+
+        const roleLabel = newAccount.role === "admin" ? "Admin" : newAccount.role === "marketeer" ? "Marketeer" : newAccount.role === "analyst" ? "Analyst" : "Staff";
         toast.success(`${roleLabel} account created successfully`);
-        // Store created account details to display (only for new accounts)
         setCreatedAccount({ ...newAccount });
       }
-      
-      // Refresh the accounts list
+
       fetchExistingAccounts();
-      
-      // Reset form
+
       setNewAccount({
         email: "",
         password: "",
@@ -152,51 +162,17 @@ export const StaffAccountManagement = () => {
     }
   };
 
-  const handleResetPassword = async (email: string, role: string, fullName: string) => {
+  const handleResetPassword = async (email: string) => {
     setResettingPassword(email);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Not authenticated");
-        return;
-      }
-
-      // Generate a new random password
-      const newPassword = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12).toUpperCase() + "!@#";
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-staff-account`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            email: email,
-            password: newPassword,
-            role: role,
-            full_name: fullName,
-            reset_password: true,
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to reset password");
-      }
-
-      toast.success("Password reset successfully");
-      // Display the new credentials
-      setCreatedAccount({
-        email: email,
-        password: newPassword,
-        role: role as "admin" | "staff" | "marketeer" | "analyst",
-        fullName: fullName,
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
       });
+
+      if (error) throw error;
+
+      toast.success("Password reset email sent to " + email);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred";
       toast.error(errorMessage);
@@ -209,31 +185,21 @@ export const StaffAccountManagement = () => {
     setDeletingAccount(userId);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Not authenticated");
-        return;
-      }
+      // Remove role (revokes all access)
+      const { error: roleError } = await supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", userId);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-staff-account`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ user_id: userId }),
-        }
-      );
+      if (roleError) throw roleError;
 
-      const result = await response.json();
+      // Remove profile
+      await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", userId);
 
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to delete account");
-      }
-
-      toast.success(`Account ${email} deleted successfully`);
+      toast.success(`Account ${email} access revoked`);
       fetchExistingAccounts();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred";
@@ -243,36 +209,16 @@ export const StaffAccountManagement = () => {
     }
   };
 
-  const handleChangeRole = async (userId: string, email: string, newRole: "admin" | "staff" | "marketeer" | "analyst") => {
+  const handleChangeRole = async (userId: string, _email: string, newRole: "admin" | "staff" | "marketeer" | "analyst") => {
     setUpdatingRole(userId);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Not authenticated");
-        return;
-      }
+      const { error } = await supabase
+        .from("user_roles")
+        .update({ role: newRole })
+        .eq("user_id", userId);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-staff-account`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            email: email,
-            role: newRole,
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to update role");
-      }
+      if (error) throw error;
 
       toast.success(`Role updated to ${newRole}`);
       fetchExistingAccounts();
@@ -315,8 +261,8 @@ export const StaffAccountManagement = () => {
           ) : (
             <div className="space-y-2">
               {existingAccounts.map((account) => (
-                <div 
-                  key={account.user_id} 
+                <div
+                  key={account.user_id}
                   className="p-3 md:p-4 border border-primary/20 rounded-lg bg-muted/30"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 items-center">
@@ -332,7 +278,7 @@ export const StaffAccountManagement = () => {
                       <p className="text-xs md:text-sm text-muted-foreground mb-1">Role</p>
                       <Select
                         value={account.role}
-                        onValueChange={(value: "admin" | "staff" | "marketeer") =>
+                        onValueChange={(value: "admin" | "staff" | "marketeer" | "analyst") =>
                           handleChangeRole(account.user_id, account.profiles?.email || '', value)
                         }
                         disabled={updatingRole === account.user_id}
@@ -353,15 +299,11 @@ export const StaffAccountManagement = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleResetPassword(
-                        account.profiles?.email || '',
-                        account.role,
-                        account.profiles?.full_name || ''
-                      )}
+                      onClick={() => handleResetPassword(account.profiles?.email || '')}
                       disabled={resettingPassword === account.profiles?.email}
                       className="w-full sm:w-auto"
                     >
-                      {resettingPassword === account.profiles?.email ? "Resetting..." : "Reset Password"}
+                      {resettingPassword === account.profiles?.email ? "Sending..." : "Send Reset Email"}
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -371,14 +313,14 @@ export const StaffAccountManagement = () => {
                           disabled={deletingAccount === account.user_id}
                           className="w-full sm:w-auto"
                         >
-                          {deletingAccount === account.user_id ? "Deleting..." : <><Trash2 className="h-4 w-4 mr-1" /> Delete</>}
+                          {deletingAccount === account.user_id ? "Revoking..." : <><Trash2 className="h-4 w-4 mr-1" /> Revoke Access</>}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Staff Account</AlertDialogTitle>
+                          <AlertDialogTitle>Revoke Staff Access</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Are you sure you want to delete the account for <strong>{account.profiles?.email}</strong>? This action cannot be undone.
+                            Are you sure you want to revoke access for <strong>{account.profiles?.email}</strong>? Their role and profile will be removed.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -387,7 +329,7 @@ export const StaffAccountManagement = () => {
                             onClick={() => handleDeleteAccount(account.user_id, account.profiles?.email || '')}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            Delete
+                            Revoke Access
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -498,7 +440,7 @@ export const StaffAccountManagement = () => {
                 <Label htmlFor="staff-role">Role *</Label>
                 <Select
                   value={newAccount.role}
-                  onValueChange={(value: "admin" | "staff" | "marketeer") =>
+                  onValueChange={(value: "admin" | "staff" | "marketeer" | "analyst") =>
                     setNewAccount({ ...newAccount, role: value })
                   }
                 >
@@ -521,6 +463,7 @@ export const StaffAccountManagement = () => {
                 <li>• <strong>Admin:</strong> Can view and edit all content</li>
                 <li>• <strong>Staff:</strong> Can view all content but cannot make changes</li>
                 <li>• <strong>Marketeer:</strong> Can edit Network & Recruitment and Marketing & Brand sections</li>
+                <li>• <strong>Analyst:</strong> Can only access the Analysis section</li>
               </ul>
             </div>
 
