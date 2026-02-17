@@ -972,6 +972,8 @@ const Dashboard = () => {
         .eq("player_id", playerData.id)
         .order("analysis_date", { ascending: false });
 
+      console.log('[Portal Debug] Player ID:', playerData.id, 'Name:', playerData.name, 'Club:', playerData.club);
+      console.log('[Portal Debug] player_analysis results:', analysisData?.length || 0, analysisError ? `Error: ${analysisError.message}` : 'OK');
       if (analysisError) throw analysisError;
       
       // Calculate xGChain for analyses based on actions (always derived from actions)
@@ -1013,11 +1015,12 @@ const Dashboard = () => {
       let mergedAnalyses = [...analysesWithXGChain] as Analysis[];
 
       // Fetch ALL pre-match and post-match analyses to match with player's fixtures
-      const { data: allTacticalAnalyses } = await supabase
+      const { data: allTacticalAnalyses, error: tacticalError } = await supabase
         .from("analyses")
         .select("*")
         .in("analysis_type", ["pre-match", "post-match"]);
 
+      console.log('[Portal Debug] Tactical analyses (pre/post-match):', allTacticalAnalyses?.length || 0, tacticalError ? `Error: ${tacticalError.message}` : 'OK');
       if (allTacticalAnalyses && allTacticalAnalyses.length > 0) {
         // Match tactical analyses to player_analysis by opponent and date
         allTacticalAnalyses.forEach(tacticalAnalysis => {
@@ -1129,6 +1132,7 @@ const Dashboard = () => {
           return { ...concept, points };
         });
         setConcepts(normalizedConcepts);
+        console.log('[Portal Debug] Concepts found:', normalizedConcepts.length, normalizedConcepts.map(c => c.title));
       }
 
       // Also fetch tactical analyses linked to player's fixtures (without action reports)
@@ -1289,8 +1293,9 @@ const Dashboard = () => {
         return dateB - dateA;
       });
 
+      console.log('[Portal Debug] Final merged analyses:', mergedAnalyses.length, 'with writer data:', mergedAnalyses.filter(a => a.analysis_writer_data).length);
+      console.log('[Portal Debug] Analyses with video_url:', mergedAnalyses.filter(a => a.video_url).length);
       setAnalyses(mergedAnalyses);
-
       // Fetch other analyses assigned to this player
       const { data: otherAnalysesData, error: otherAnalysesError } = await supabase
         .from("player_other_analysis")
@@ -1372,6 +1377,7 @@ const Dashboard = () => {
         scheme.offence
       );
       
+      console.log('[Portal Debug] Schemes for position', position, ':', filledSchemes.length);
       setSchemes(filledSchemes);
     } catch (error: any) {
       console.error("Error fetching schemes:", error);
@@ -1841,6 +1847,14 @@ const Dashboard = () => {
                 >
                   Programming
                 </DropdownMenuItem>
+                {hasNutritionPrograms && (
+                  <DropdownMenuItem 
+                    onClick={() => setActiveTab("nutrition")}
+                    className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
+                  >
+                    Nutrition
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem 
                   onClick={() => setActiveTab("invoices")}
                   className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
@@ -1859,14 +1873,6 @@ const Dashboard = () => {
                 >
                   Highlights
                 </DropdownMenuItem>
-                {hasNutritionPrograms && (
-                  <DropdownMenuItem 
-                    onClick={() => setActiveTab("nutrition")}
-                    className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
-                  >
-                    Nutrition
-                  </DropdownMenuItem>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
         </div>
