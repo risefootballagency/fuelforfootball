@@ -1,0 +1,142 @@
+import { useEffect, useRef, useState, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+
+interface ParallaxHeroProps {
+  imageUrl: string | null;
+  imageUrls?: string[];
+  imageFocalPoints?: string[];
+  playerName: string;
+  clubName?: string;
+  position?: string;
+  nextFixture?: { home_team: string; away_team: string; match_date: string; venue?: string } | null;
+}
+
+export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName, clubName, position, nextFixture }: ParallaxHeroProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [offset, setOffset] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const images = useMemo(() => {
+    const list: string[] = [];
+    if (imageUrls && imageUrls.length > 0) {
+      list.push(...imageUrls);
+    } else if (imageUrl) {
+      list.push(imageUrl);
+    }
+    return list;
+  }, [imageUrl, imageUrls]);
+
+  // Cycle images every 6s
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentImageIndex(prev => (prev + 1) % images.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const scrollProgress = -rect.top / (window.innerHeight + rect.height);
+        setOffset(scrollProgress * 40);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Countdown logic
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    if (!nextFixture) return;
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, [nextFixture]);
+
+  const countdown = useMemo(() => {
+    if (!nextFixture) return null;
+    const target = new Date(nextFixture.match_date);
+    const diff = target.getTime() - now.getTime();
+    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, passed: true };
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    return { days, hours, minutes, seconds, passed: false };
+  }, [nextFixture, now]);
+
+  if (images.length === 0) return null;
+
+  const units = countdown ? [
+    { label: "DAYS", value: countdown.days },
+    { label: "HRS", value: countdown.hours },
+    { label: "MIN", value: countdown.minutes },
+    { label: "SEC", value: countdown.seconds },
+  ] : [];
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] h-[200px] md:h-[280px] overflow-hidden"
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentImageIndex}
+          className="absolute inset-0 bg-cover"
+          style={{
+            backgroundImage: `url(${images[currentImageIndex]})`,
+            backgroundPosition: (imageFocalPoints?.[currentImageIndex] || 'center').replace('-', ' '),
+            transform: `translateY(${offset}px) scale(1.1)`,
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+        />
+      </AnimatePresence>
+
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
+      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 container mx-auto">
+        <h1 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-white drop-shadow-lg">
+          {playerName}
+        </h1>
+        <div className="flex items-center gap-2 mt-1">
+          {position && (
+            <span className="text-xs md:text-sm font-semibold text-primary bg-black/60 px-2 py-0.5 rounded">
+              {position}
+            </span>
+          )}
+          {clubName && (
+            <span className="text-xs md:text-sm text-white/80">{clubName}</span>
+          )}
+        </div>
+
+        {countdown && !countdown.passed && nextFixture && (
+          <div className="mt-2">
+            <p className="text-[10px] text-white/60 mb-1">
+              {nextFixture.home_team} vs {nextFixture.away_team}
+            </p>
+            <div className="flex gap-2">
+              {units.map(unit => (
+                <div key={unit.label} className="flex flex-col items-center">
+                  <div className="bg-black/70 border border-primary/30 rounded px-2 py-1 min-w-[36px]">
+                    <span className="text-lg md:text-xl font-bold text-primary tabular-nums">
+                      {String(unit.value).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <span className="text-[8px] text-white/50 mt-0.5 font-medium">{unit.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {countdown?.passed && nextFixture && (
+          <p className="text-primary font-bold text-sm mt-2">Match day!</p>
+        )}
+      </div>
+    </div>
+  );
+};
