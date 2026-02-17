@@ -12,6 +12,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { PerformanceActionsDialog } from "./PerformanceActionsDialog";
 import { CreatePerformanceReportDialog } from "./CreatePerformanceReportDialog";
 import { ProgrammingManagement } from "./ProgrammingManagement";
+import { AISessionSuggestions } from "./AISessionSuggestions";
 import { PlayerFixtures } from "./PlayerFixtures";
 import { PlayerImages } from "./PlayerImages";
 import { PlayerScoutingManagement } from "./PlayerScoutingManagement";
@@ -2341,6 +2342,12 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                     </CardContent>
                   </Card>
                 </div>
+
+                <AISessionSuggestions
+                  playerName={selectedPlayer?.name || ''}
+                  position={selectedPlayer?.position || undefined}
+                  notes={selectedPlayer?.agent_notes || undefined}
+                />
 
                 <Card>
                   <CardHeader className="px-3 md:px-6 py-3 md:py-4">
