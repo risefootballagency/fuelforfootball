@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import { Edit, FileText, LineChart, Video, Calendar, Plus, DollarSign, User, Trash2, Eye, TrendingUp, GripVertical, ChevronLeft, ChevronRight, ChevronDown, Image as ImageIcon, X, Download } from "lucide-react";
+import { DraggableTabsList, TabItem } from "./DraggableTabsList";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";
 import { PerformanceActionsDialog } from "./PerformanceActionsDialog";
 import { CreatePerformanceReportDialog } from "./CreatePerformanceReportDialog";
@@ -1923,29 +1924,16 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
               </div>
 
               {/* Desktop Tabs */}
-              <TabsList className="hidden md:grid md:grid-cols-5 w-full gap-1.5 bg-sidebar-accent/50 backdrop-blur-sm rounded-lg p-1.5 mb-4">
-                <TabsTrigger value="analysis" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <LineChart className="w-4 h-4 flex-shrink-0" />
-                  <span>Analysis</span>
-                </TabsTrigger>
-                <TabsTrigger value="programming" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <FileText className="w-4 h-4 flex-shrink-0" />
-                  <span>Programs</span>
-                </TabsTrigger>
-                <TabsTrigger value="highlights" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <Video className="w-4 h-4 flex-shrink-0" />
-                  <span>Videos</span>
-                </TabsTrigger>
-                <TabsTrigger value="fixtures" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <Calendar className="w-4 h-4 flex-shrink-0" />
-                  <span>Fixtures</span>
-                </TabsTrigger>
-                <TabsTrigger value="invoices" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <DollarSign className="w-4 h-4 flex-shrink-0" />
-                  <span>Invoices</span>
-                </TabsTrigger>
-              </TabsList>
-
+              <DraggableTabsList
+                tabs={[
+                  { value: "analysis", label: "Analysis", icon: <LineChart className="w-4 h-4" /> },
+                  { value: "programming", label: "Programs", icon: <FileText className="w-4 h-4" /> },
+                  { value: "highlights", label: "Videos", icon: <Video className="w-4 h-4" /> },
+                  { value: "fixtures", label: "Fixtures", icon: <Calendar className="w-4 h-4" /> },
+                  { value: "invoices", label: "Invoices", icon: <DollarSign className="w-4 h-4" /> },
+                ] as TabItem[]}
+                className="hidden md:grid md:grid-cols-5 w-full gap-1.5 bg-sidebar-accent/50 backdrop-blur-sm rounded-lg p-1.5 mb-4"
+              />
               {/* Analysis with nested tabs */}
               <TabsContent value="analysis" className="mt-0 pt-10 md:mt-0 md:pt-0">
                 <Tabs defaultValue="performance" className="w-full">
