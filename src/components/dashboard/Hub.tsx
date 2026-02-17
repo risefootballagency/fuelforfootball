@@ -209,21 +209,31 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
         return;
       }
       
-      // Fetch images filtered by this specific player's ID - no category filter
-      const { data: images, error } = await localSupabase
+      // Try local DB first, then shared DB
+      let imageUrls: string[] = [];
+      
+      const { data: localImages } = await localSupabase
         .from('marketing_gallery')
         .select('file_url')
         .eq('file_type', 'image')
         .eq('player_id', playerData.id)
         .order('created_at', { ascending: false });
       
-      if (error) {
-        console.error('Error fetching player images:', error);
-        setImagesPreloaded(true);
-        return;
+      if (localImages && localImages.length > 0) {
+        imageUrls = localImages.map(img => img.file_url);
+      } else {
+        // Fallback to shared DB
+        const { data: sharedImages } = await sharedSupabase
+          .from('marketing_gallery' as any)
+          .select('file_url')
+          .eq('file_type', 'image')
+          .eq('player_id', playerData.id)
+          .order('created_at', { ascending: false });
+        
+        if (sharedImages && sharedImages.length > 0) {
+          imageUrls = (sharedImages as any[]).map(img => img.file_url);
+        }
       }
-      
-      const imageUrls = images?.map(img => img.file_url) || [];
       const focalPoints = imageUrls.map(() => 'center');
       
       if (imageUrls.length === 0) {
@@ -715,7 +725,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                       setSelectedReportId(analysis.id);
                       setReportDialogOpen(true);
                     }}
-                    className="w-full text-left block border-l-2 border-primary pl-3 pt-0 pb-2 hover:bg-accent/5 transition-colors rounded"
+                    className="w-full text-left block border-l-2 border-accent pl-3 pt-0 pb-2 hover:bg-accent/5 transition-colors rounded"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">

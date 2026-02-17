@@ -155,14 +155,14 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
   };
 
   return (
-    <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-primary border-b-0">
+    <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-accent border-b-0">
       <CardHeader marble className="py-2">
         <div className="flex items-center justify-between container mx-auto px-4 pr-6">
           <div className="flex items-center gap-2">
             <Inbox className="h-5 w-5" />
             <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">Inbox</CardTitle>
             {unreadCount > 0 && (
-              <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+              <span className="bg-accent text-accent-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                 {unreadCount}
               </span>
             )}
@@ -173,7 +173,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
                 variant="ghost"
                 size="sm"
                 onClick={onNavigateToAnalysis}
-                className="flex items-center gap-1 text-sm text-primary hover:text-black hover:bg-primary h-10"
+                className="flex items-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
               >
                 See All
                 <ArrowRight className="h-4 w-4" />
@@ -208,7 +208,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
                       onClick={() => handleSelectItem(item)}
                       className={`w-full flex items-start gap-2 p-2 rounded-lg text-left transition-all ${
                         isSelected
-                          ? "bg-primary/10 border border-primary/30"
+                          ? "bg-accent/10 border border-accent/30"
                           : isRead
                           ? "opacity-45 hover:opacity-70 hover:bg-accent/5"
                           : "hover:bg-accent/10"
@@ -220,7 +220,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
                           {!isRead && (
-                            <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-primary" />
+                            <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-accent" />
                           )}
                           <p className="text-xs font-medium truncate">{item.title}</p>
                         </div>
@@ -270,7 +270,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
                       <Button
                         size="sm"
                         onClick={selectedItem.onClick}
-                        className="mt-2"
+                        className="mt-2 bg-accent text-accent-foreground hover:bg-accent/80"
                       >
                         <Eye className="h-3.5 w-3.5 mr-1.5" />
                         {selectedItem.linkLabel || "View"}
