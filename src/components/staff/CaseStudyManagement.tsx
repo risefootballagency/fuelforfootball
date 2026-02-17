@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, Save, Edit2, X, GripVertical, Eye, EyeOff, Upload, Image } from "lucide-react";
 import { toast } from "sonner";
+import { CaseStudyPathways } from "./CaseStudyPathways";
 
 interface CaseStudy {
   id: string;
@@ -590,6 +591,9 @@ export const CaseStudyManagement = () => {
           ))
         )}
       </div>
+
+      {/* Message Pathways */}
+      <CaseStudyPathways />
     </div>
   );
 };

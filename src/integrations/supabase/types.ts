@@ -4396,6 +4396,57 @@ export type Database = {
         }
         Relationships: []
       }
+      streams: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          is_live: boolean | null
+          is_visible: boolean | null
+          platform: string | null
+          scheduled_at: string | null
+          stream_type: string | null
+          stream_url: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_live?: boolean | null
+          is_visible?: boolean | null
+          platform?: string | null
+          scheduled_at?: string | null
+          stream_type?: string | null
+          stream_url?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_live?: boolean | null
+          is_visible?: boolean | null
+          platform?: string | null
+          scheduled_at?: string | null
+          stream_type?: string | null
+          stream_url?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tactical_schemes: {
         Row: {
           created_at: string
