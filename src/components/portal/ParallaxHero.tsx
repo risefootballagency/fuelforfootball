@@ -105,9 +105,9 @@ export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName
         </h1>
         <div className="flex items-center gap-2 mt-1">
           {position && (
-            <span className="text-xs md:text-sm font-semibold text-primary bg-black/60 px-2 py-0.5 rounded">
-              {position}
-            </span>
+             <span className="text-xs md:text-sm font-semibold text-accent bg-black/60 px-2 py-0.5 rounded">
+               {position}
+             </span>
           )}
           {clubName && (
             <span className="text-xs md:text-sm text-white/80">{clubName}</span>
@@ -122,8 +122,8 @@ export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName
             <div className="flex gap-2">
               {units.map(unit => (
                 <div key={unit.label} className="flex flex-col items-center">
-                  <div className="bg-black/70 border border-primary/30 rounded px-2 py-1 min-w-[36px]">
-                    <span className="text-lg md:text-xl font-bold text-primary tabular-nums">
+                  <div className="bg-black/70 border border-accent/30 rounded px-2 py-1 min-w-[36px]">
+                    <span className="text-lg md:text-xl font-bold text-accent tabular-nums">
                       {String(unit.value).padStart(2, "0")}
                     </span>
                   </div>
@@ -134,7 +134,7 @@ export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName
           </div>
         )}
         {countdown?.passed && nextFixture && (
-          <p className="text-primary font-bold text-sm mt-2">Match day!</p>
+          <p className="text-accent font-bold text-sm mt-2">Match day!</p>
         )}
       </div>
     </div>

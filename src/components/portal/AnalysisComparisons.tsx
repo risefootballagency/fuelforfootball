@@ -122,7 +122,15 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                 type="category"
                 dataKey="name"
                 width={80}
-                tick={{ fontSize: 12, fill: "hsl(var(--foreground))" }}
+                tick={({ x, y, payload }: any) => {
+                  const entry = chartData.find(d => d.name === payload.value);
+                  const color = entry?.isPlayer ? "hsl(var(--accent))" : "hsl(var(--muted-foreground))";
+                  return (
+                    <text x={x} y={y} dy={4} textAnchor="end" fill={color} fontSize={12} fontWeight={entry?.isPlayer ? 700 : 400}>
+                      {payload.value}
+                    </text>
+                  );
+                }}
                 axisLine={false}
                 tickLine={false}
               />

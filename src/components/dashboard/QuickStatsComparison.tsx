@@ -146,7 +146,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, onS
   if (!loading && !chartData) return null;
 
   return (
-    <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-primary border-b-0">
+    <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-accent border-b-0">
       <CardHeader marble className="py-2">
         <div className="flex items-center justify-between container mx-auto px-4 pr-6">
           <div className="flex items-center gap-2">
@@ -155,12 +155,12 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, onS
           </div>
           <div className="flex items-center gap-1">
             {onSeeAll && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onSeeAll}
-                className="flex items-center gap-1 text-sm text-primary hover:text-black hover:bg-primary h-10"
-              >
+               <Button
+                 variant="ghost"
+                 size="sm"
+                 onClick={onSeeAll}
+                 className="flex items-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
+                >
                 See All
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -186,8 +186,8 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, onS
                 transition={{ duration: 0.4 }}
               >
                 <p className="text-xs text-muted-foreground mb-3">
-                  <span className="font-semibold text-foreground">{statLabel}</span> — Last 5 games avg vs{" "}
-                  <span className="font-semibold text-primary">{benchmarkName}</span>
+                 <span className="font-semibold text-foreground">{statLabel}</span> — Last 5 games avg vs{" "}
+                  <span className="font-semibold text-accent">{benchmarkName}</span>
                 </p>
                 <div className="h-[120px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -197,15 +197,23 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, onS
                         type="category"
                         dataKey="name"
                         width={80}
-                        tick={{ fontSize: 12, fill: "hsl(var(--foreground))" }}
+                        tick={({ x, y, payload }: any) => {
+                          const idx = chartData.findIndex(d => d.name === payload.value);
+                          const color = idx === 0 ? "hsl(var(--accent))" : "hsl(var(--muted-foreground))";
+                          return (
+                            <text x={x} y={y} dy={4} textAnchor="end" fill={color} fontSize={12} fontWeight={idx === 0 ? 700 : 400}>
+                              {payload.value}
+                            </text>
+                          );
+                        }}
                         axisLine={false}
                         tickLine={false}
                       />
                       <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={28}>
-                        {chartData.map((entry, index) => (
+                         {chartData.map((entry, index) => (
                           <Cell
                             key={entry.name}
-                            fill={index === 0 ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.4)"}
+                            fill={index === 0 ? "hsl(var(--accent))" : "hsl(var(--muted-foreground) / 0.4)"}
                           />
                         ))}
                         <LabelList
