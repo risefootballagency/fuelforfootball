@@ -1957,6 +1957,31 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                   </TabsList>
 
                   <TabsContent value="performance" className="mt-0">
+                    {isCreateReportDialogOpen ? (
+                      <CreatePerformanceReportDialog
+                        open={true}
+                        onOpenChange={(open) => {
+                          if (!open) {
+                            setIsCreateReportDialogOpen(false);
+                            setEditReportAnalysisId(undefined);
+                          }
+                        }}
+                        playerId={createReportPlayerId}
+                        playerName={createReportPlayerName}
+                        analysisId={editReportAnalysisId}
+                        inline={true}
+                        onBack={() => {
+                          setIsCreateReportDialogOpen(false);
+                          setEditReportAnalysisId(undefined);
+                        }}
+                        onSuccess={() => {
+                          fetchAllAnalyses();
+                          fetchTacticalAnalyses();
+                          toast.success(`Performance report ${editReportAnalysisId ? 'updated' : 'created'} successfully`);
+                          setEditReportAnalysisId(undefined);
+                        }}
+                      />
+                    ) : (
                     <Card>
                       <CardHeader className="px-3 md:px-6 py-3 md:py-4">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -2116,6 +2141,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                         )}
                       </CardContent>
                     </Card>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="tactical" className="mt-0">
@@ -3061,24 +3087,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         isAdmin={isAdmin}
       />
 
-      <CreatePerformanceReportDialog
-        open={isCreateReportDialogOpen}
-        onOpenChange={(open) => {
-          setIsCreateReportDialogOpen(open);
-          if (!open) {
-            setEditReportAnalysisId(undefined);
-          }
-        }}
-        playerId={createReportPlayerId}
-        playerName={createReportPlayerName}
-        analysisId={editReportAnalysisId}
-        onSuccess={() => {
-          fetchAllAnalyses();
-          fetchTacticalAnalyses();
-          toast.success(`Performance report ${editReportAnalysisId ? 'updated' : 'created'} successfully`);
-          setEditReportAnalysisId(undefined);
-        }}
-      />
+      {/* CreatePerformanceReportDialog is now rendered inline in the performance tab */}
 
       <ProgrammingManagement
         isOpen={isProgrammingDialogOpen}
