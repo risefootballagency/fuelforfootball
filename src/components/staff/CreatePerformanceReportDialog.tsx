@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Plus, Trash2, EyeOff, AlertTriangle, LineChart, Sparkles, Search, Loader2, ChevronDown, ChevronUp, List, GripVertical } from "lucide-react";
+import { Plus, Trash2, EyeOff, AlertTriangle, LineChart, Sparkles, Search, Loader2, ChevronDown, ChevronUp, List, GripVertical, ArrowLeft } from "lucide-react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -20,6 +20,7 @@ import { R90RatingsViewer } from "./R90RatingsViewer";
 import { formatScoreWithFrequency } from "@/lib/utils";
 import { ActionsByTypeDialog } from "./ActionsByTypeDialog";
 import { ActionVideoUpload } from "./ActionVideoUpload";
+import { ActionStatRecorder, RecordedStat } from "./ActionStatRecorder";
 
 interface CreatePerformanceReportDialogProps {
   open: boolean;
@@ -28,6 +29,8 @@ interface CreatePerformanceReportDialogProps {
   playerName: string;
   onSuccess?: () => void;
   analysisId?: string; // For edit mode
+  inline?: boolean; // When true, renders as full-page editor instead of dialog
+  onBack?: () => void; // Called when back button clicked in inline mode
 }
 
 interface Fixture {
@@ -49,6 +52,7 @@ interface PerformanceAction {
   action_description: string;
   notes: string;
   video_url?: string;
+  recorded_stat?: RecordedStat | RecordedStat[] | null;
 }
 
 interface SortableStatItemProps {
@@ -95,6 +99,8 @@ export const CreatePerformanceReportDialog = ({
   playerName,
   onSuccess,
   analysisId,
+  inline = false,
+  onBack,
 }: CreatePerformanceReportDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
@@ -240,7 +246,7 @@ export const CreatePerformanceReportDialog = ({
 
   // Performance actions
   const [actions, setActions] = useState<PerformanceAction[]>([
-    { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "", video_url: "" }
+    { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "", video_url: "", recorded_stat: null }
   ]);
 
   // Drag and drop sensors
@@ -265,7 +271,7 @@ export const CreatePerformanceReportDialog = ({
   };
 
   useEffect(() => {
-    if (open) {
+    if (open || inline) {
       fetchActionTypes();
       if (analysisId) {
         // Edit mode
@@ -279,7 +285,7 @@ export const CreatePerformanceReportDialog = ({
       fetchFixtures();
       fetchPlayerClub();
     }
-  }, [open, analysisId]);
+  }, [open, inline, analysisId]);
 
   // Auto-calculate per90 statistics
   useEffect(() => {
@@ -577,6 +583,7 @@ export const CreatePerformanceReportDialog = ({
             action_description: action.action_description || "",
             notes: action.notes || "",
             video_url: action.video_url || "",
+            recorded_stat: (action as any).recorded_stat || null,
           }))
         );
         
@@ -1132,6 +1139,7 @@ export const CreatePerformanceReportDialog = ({
           action_description: a.action_description || null,
           notes: a.notes || null,
           video_url: a.video_url || null,
+          recorded_stat: a.recorded_stat || null,
         }));
 
       if (actionsToInsert.length > 0) {
@@ -1158,12 +1166,17 @@ export const CreatePerformanceReportDialog = ({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl lg:max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">{analysisId ? 'Edit' : 'Create'} Performance Report - {playerName}</DialogTitle>
-        </DialogHeader>
+  const editorContent = (
+    <>
+      <div className={inline ? "flex items-center gap-3 mb-4" : ""}>
+        {inline && onBack && (
+          <Button variant="ghost" size="sm" onClick={onBack} className="h-8 px-2">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back
+          </Button>
+        )}
+        <h2 className="text-lg sm:text-xl font-semibold">{analysisId ? 'Edit' : 'Create'} Performance Report - {playerName}</h2>
+      </div>
 
         {loadingData ? (
           <div className="flex items-center justify-center py-8">
@@ -1628,6 +1641,14 @@ export const CreatePerformanceReportDialog = ({
                           <Sparkles className="h-4 w-4 text-blue-600" />
                         )}
                       </Button>
+                      <ActionStatRecorder
+                        currentStat={action.recorded_stat || null}
+                        onStatRecorded={(stat) => {
+                          const updated = [...actions];
+                          updated[index] = { ...updated[index], recorded_stat: stat };
+                          setActions(updated);
+                        }}
+                      />
                       <Button
                         onClick={() => removeAction(index)}
                         size="icon"
@@ -1870,6 +1891,14 @@ export const CreatePerformanceReportDialog = ({
                               <Sparkles className="h-4 w-4 text-blue-600" />
                             )}
                           </Button>
+                          <ActionStatRecorder
+                            currentStat={action.recorded_stat || null}
+                            onStatRecorded={(stat) => {
+                              const updated = [...actions];
+                              updated[index] = { ...updated[index], recorded_stat: stat };
+                              setActions(updated);
+                            }}
+                          />
                           <Button
                             onClick={() => removeAction(index)}
                             size="icon"
@@ -2019,8 +2048,8 @@ export const CreatePerformanceReportDialog = ({
               </AlertDialog>
             )}
             <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
-              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading || deleting || isFillingScores} className="w-full sm:w-auto">
-                Cancel
+              <Button variant="outline" onClick={() => inline && onBack ? onBack() : onOpenChange(false)} disabled={loading || deleting || isFillingScores} className="w-full sm:w-auto">
+                {inline ? 'Back' : 'Cancel'}
               </Button>
               <Button 
                 variant="secondary" 
@@ -2049,7 +2078,8 @@ export const CreatePerformanceReportDialog = ({
           </div>
         </div>
         )}
-      </DialogContent>
+
+
 
       {/* R90 Ratings Viewer */}
       <R90RatingsViewer
@@ -2326,6 +2356,18 @@ export const CreatePerformanceReportDialog = ({
           </ScrollArea>
         </DialogContent>
       </Dialog>
+    </>
+  );
+
+  if (inline) {
+    return <div className="w-full">{editorContent}</div>;
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl lg:max-w-6xl max-h-[90vh] overflow-y-auto">
+        {editorContent}
+      </DialogContent>
     </Dialog>
   );
 };
