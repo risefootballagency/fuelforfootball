@@ -1,13 +1,60 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, ArrowRight, Trophy, X } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList, ReferenceLine, Rectangle } from "recharts";
-import { format, parseISO, startOfWeek, endOfWeek, isWithinInterval, addDays } from "date-fns";
-import { Link } from "react-router-dom";
+import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
+import { format, parseISO, isWithinInterval, addDays } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { getR90Grade } from "@/lib/gradeCalculations";
 import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
+import { createAnalysisSlug } from "@/lib/urlHelpers";
+import { QuickStatsComparison } from "./QuickStatsComparison";
+import { NewsFeed } from "./NewsFeed";
+import { ParallaxHero } from "@/components/portal/ParallaxHero";
+import { checkAndFireConfetti } from "@/lib/confetti";
+
+// Helper: fetches next fixture for player's club and renders ParallaxHero with countdown
+const ParallaxHeroWithFixture = ({ playerData, marketingImages, imageFocalPoints }: { playerData: any; marketingImages: string[]; imageFocalPoints: string[] }) => {
+  const [nextFixture, setNextFixture] = React.useState<{ home_team: string; away_team: string; match_date: string; venue?: string } | null>(null);
+
+  React.useEffect(() => {
+    const fetchNext = async () => {
+      const club = playerData?.current_club || playerData?.club;
+      if (!club) return;
+      const today = new Date().toISOString().split("T")[0];
+      const { data } = await sharedSupabase
+        .from("fixtures")
+        .select("match_date, home_team, away_team, venue")
+        .gte("match_date", today)
+        .or(`home_team.ilike.%${club}%,away_team.ilike.%${club}%`)
+        .order("match_date", { ascending: true })
+        .limit(1);
+      if (data && data.length > 0) setNextFixture(data[0]);
+    };
+    fetchNext();
+  }, [playerData?.current_club, playerData?.club]);
+
+  const imageUrls = React.useMemo(() => {
+    const urls: string[] = [];
+    if (marketingImages.length > 0) urls.push(...marketingImages);
+    else if (playerData?.image_url) urls.push(playerData.image_url);
+    return urls;
+  }, [marketingImages, playerData?.image_url]);
+
+  return (
+    <ParallaxHero
+      imageUrl={imageUrls[0] || null}
+      imageUrls={imageUrls}
+      imageFocalPoints={imageFocalPoints}
+      playerName={playerData?.name || "Player"}
+      clubName={playerData?.current_club || playerData?.club}
+      position={playerData?.position}
+      nextFixture={nextFixture}
+    />
+  );
+};
 
 interface PlayerProgram {
   id: string;
@@ -26,6 +73,10 @@ interface PlayerAnalysis {
   result: string;
   minutes_played?: number;
   striker_stats?: any;
+  fixture_id?: string;
+  analysis_writer_id?: string | null;
+  analysis_writer_data?: any;
+  tagged_analyses?: any[];
 }
 
 interface HubProps {
@@ -34,19 +85,58 @@ interface HubProps {
   playerData: any;
   dailyAphorism?: any;
   onNavigateToAnalysis: () => void;
+  onNavigateToComparisons?: () => void;
   onNavigateToForm?: () => void;
   onNavigateToSession?: (sessionKey: string) => void;
+  onNavigateToSchedule?: () => void;
 }
 
-export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateToAnalysis, onNavigateToForm, onNavigateToSession }: HubProps) => {
+export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateToAnalysis, onNavigateToComparisons, onNavigateToForm, onNavigateToSession, onNavigateToSchedule }: HubProps) => {
+  const navigate = useNavigate();
   const [marketingImages, setMarketingImages] = React.useState<string[]>([]);
+  const [imageFocalPoints, setImageFocalPoints] = React.useState<string[]>([]);
   const [imagesPreloaded, setImagesPreloaded] = React.useState(false);
   const hasAnimated = React.useRef(false);
   const chartRef = React.useRef<HTMLDivElement>(null);
   const [tooltipVisible, setTooltipVisible] = React.useState(true);
   const [reportDialogOpen, setReportDialogOpen] = React.useState(false);
   const [selectedReportId, setSelectedReportId] = React.useState<string | null>(null);
-  
+  const [postMatchAnalyses, setPostMatchAnalyses] = React.useState<Map<string, { id: string; homeTeam: string; awayTeam: string }>>(new Map());
+  const confettiFired = React.useRef(false);
+
+  // Fire confetti on personal best R90
+  React.useEffect(() => {
+    if (confettiFired.current || analyses.length < 2) return;
+    const sorted = [...analyses].sort((a, b) => new Date(b.analysis_date).getTime() - new Date(a.analysis_date).getTime());
+    const latest = sorted[0];
+    const previousBest = Math.max(...sorted.slice(1).map(a => a.r90_score ?? 0));
+    if (latest?.r90_score != null && checkAndFireConfetti(latest.r90_score, previousBest)) {
+      confettiFired.current = true;
+    }
+  }, [analyses]);
+
+  // Fetch post-match analyses linked to fixtures
+  React.useEffect(() => {
+    const fetchPostMatchAnalyses = async () => {
+      const { data } = await sharedSupabase
+        .from('analyses')
+        .select('id, fixture_id, home_team, away_team')
+        .eq('analysis_type', 'post-match')
+        .not('fixture_id', 'is', null);
+
+      if (data) {
+        const map = new Map<string, { id: string; homeTeam: string; awayTeam: string }>();
+        data.forEach(a => {
+          if (a.fixture_id) {
+            map.set(a.fixture_id, { id: a.id, homeTeam: a.home_team || '', awayTeam: a.away_team || '' });
+          }
+        });
+        setPostMatchAnalyses(map);
+      }
+    };
+    fetchPostMatchAnalyses();
+  }, []);
+
   // Custom Tooltip Component with close button
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload || !payload.length || !tooltipVisible) return null;
@@ -111,101 +201,61 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     );
   };
   
-  // Fetch marketing gallery images for this player
+  // Fetch marketing gallery images for this player - simplified (no category filter, no name fallback)
   React.useEffect(() => {
     const fetchMarketingImages = async () => {
       if (!playerData?.name) {
-        console.log('No player name available');
-        setImagesPreloaded(true); // Allow carousel to check other sources
-        return;
-      }
-      
-      console.log('Fetching marketing images for player:', playerData?.id, playerData?.name);
-      
-      // Fetch images filtered by this specific player's ID from LOCAL database
-      // Try player-specific images first, fallback to general player images
-      let { data: images, error } = await localSupabase
-        .from('marketing_gallery')
-        .select('file_url')
-        .eq('category', 'players')
-        .eq('file_type', 'image')
-        .eq('player_id', playerData.id)
-        .order('created_at', { ascending: false });
-      
-      // If no player-specific images found, try images with matching player name in title
-      if (!images || images.length === 0) {
-        console.log('No player-specific images, checking by player name in title');
-        const { data: nameMatchImages } = await localSupabase
-          .from('marketing_gallery')
-          .select('file_url')
-          .eq('category', 'players')
-          .eq('file_type', 'image')
-          .ilike('title', `%${playerData.name}%`)
-          .order('created_at', { ascending: false });
-        
-        if (nameMatchImages && nameMatchImages.length > 0) {
-          images = nameMatchImages;
-        }
-      }
-      
-      if (error) {
-        console.error('Error fetching player images:', error, error.message, error.details);
-        setImagesPreloaded(true); // Still allow carousel to show
-        return;
-      }
-      
-      console.log('Player images from DB:', images?.length, 'URLs:', images?.map(i => i.file_url));
-      const imageUrls = images?.map(img => img.file_url) || [];
-      
-      if (imageUrls.length === 0) {
-        console.log('No images to preload');
         setImagesPreloaded(true);
         return;
       }
       
-      // Set images immediately so they're available
-      setMarketingImages(imageUrls);
+      // Fetch images filtered by this specific player's ID - no category filter
+      const { data: images, error } = await localSupabase
+        .from('marketing_gallery')
+        .select('file_url')
+        .eq('file_type', 'image')
+        .eq('player_id', playerData.id)
+        .order('created_at', { ascending: false });
       
-      // Priority load: Load first 4 images immediately, then show carousel
+      if (error) {
+        console.error('Error fetching player images:', error);
+        setImagesPreloaded(true);
+        return;
+      }
+      
+      const imageUrls = images?.map(img => img.file_url) || [];
+      const focalPoints = imageUrls.map(() => 'center');
+      
+      if (imageUrls.length === 0) {
+        setImagesPreloaded(true);
+        return;
+      }
+      
+      setMarketingImages(imageUrls);
+      setImageFocalPoints(focalPoints);
+      
+      // Priority load first 4 images
       const priorityCount = Math.min(4, imageUrls.length);
       const priorityImages = imageUrls.slice(0, priorityCount);
       const remainingImages = imageUrls.slice(priorityCount);
       
-      console.log('Priority loading first', priorityCount, 'images');
-      
-      // Load priority images first
       Promise.all(
         priorityImages.map(url => {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             const img = new Image();
-            img.onload = () => {
-              console.log('Priority loaded:', url);
-              resolve(url);
-            };
-            img.onerror = (err) => {
-              console.error('Failed to load priority image:', url, err);
-              resolve(url); // Resolve anyway to not block
-            };
+            img.onload = () => resolve(url);
+            img.onerror = () => resolve(url);
             img.src = url;
           });
         })
       ).then(() => {
-        console.log('Priority images loaded, showing carousel');
-        setImagesPreloaded(true); // Show carousel now
-        
-        // Load remaining images in background
-        if (remainingImages.length > 0) {
-          console.log('Background loading remaining', remainingImages.length, 'images');
-          remainingImages.forEach(url => {
-            const img = new Image();
-            img.onload = () => console.log('Background loaded:', url);
-            img.onerror = (err) => console.error('Failed to load background image:', url, err);
-            img.src = url;
-          });
-        }
-      }).catch(err => {
-        console.error('Error loading priority images:', err);
-        setImagesPreloaded(true); // Show anyway
+        setImagesPreloaded(true);
+        remainingImages.forEach(url => {
+          const img = new Image();
+          img.src = url;
+        });
+      }).catch(() => {
+        setImagesPreloaded(true);
       });
     };
     
@@ -229,7 +279,6 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     
     const today = new Date();
     
-    // Find the schedule that applies to today by checking if today falls within any week
     const matchingSchedule = currentProgram.weekly_schedules.find((schedule: any) => {
       if (!schedule.week_start_date) return false;
       try {
@@ -241,7 +290,6 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
       }
     });
     
-    // Fall back to first schedule if no match found
     return matchingSchedule || currentProgram.weekly_schedules[0] || null;
   }, [currentProgram]);
   
@@ -252,12 +300,11 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     
     for (let i = 0; i < 7; i++) {
       const date = addDays(today, i);
-      // Get the day name (monday, tuesday, etc.) for mapping to schedule
       const dayName = format(date, 'EEEE').toLowerCase();
       days.push({
         date,
         dayName,
-        displayDay: format(date, 'EEE').toUpperCase(), // MON, TUE, etc.
+        displayDay: format(date, 'EEE').toUpperCase(),
         displayDate: format(date, 'd'),
         isToday: i === 0
       });
@@ -266,52 +313,29 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
     return days;
   }, []);
 
-  // FFF Gold color - matches design system --accent (47 100% 51%)
-  const FFF_GOLD = 'hsl(47, 100%, 51%)';
-  
-  // Session color mapping - using FFF brand gold
+  // Session color mapping
   const getSessionColor = (sessionKey: string) => {
     const key = sessionKey.toUpperCase();
     const colorMap: Record<string, { bg: string; text: string; hover: string }> = {
-      'A': { bg: 'hsl(220, 70%, 35%)', text: FFF_GOLD, hover: 'hsl(220, 70%, 45%)' },
-      'B': { bg: 'hsl(140, 50%, 30%)', text: FFF_GOLD, hover: 'hsl(140, 50%, 40%)' },
-      'C': { bg: 'hsl(0, 50%, 35%)', text: FFF_GOLD, hover: 'hsl(0, 50%, 45%)' },
-      'D': { bg: 'hsl(47, 70%, 40%)', text: FFF_GOLD, hover: 'hsl(47, 70%, 50%)' },
-      'E': { bg: 'hsl(70, 20%, 40%)', text: FFF_GOLD, hover: 'hsl(70, 20%, 50%)' },
-      'F': { bg: 'hsl(270, 60%, 40%)', text: FFF_GOLD, hover: 'hsl(270, 60%, 50%)' },
-      'G': { bg: 'hsl(190, 70%, 45%)', text: FFF_GOLD, hover: 'hsl(190, 70%, 55%)' },
-      'H': { bg: 'hsl(340, 60%, 40%)', text: FFF_GOLD, hover: 'hsl(340, 60%, 50%)' },
-      'T': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
-      'TESTING': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
+      'A': { bg: 'hsl(220, 70%, 35%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(220, 70%, 45%)' },
+      'B': { bg: 'hsl(140, 50%, 30%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(140, 50%, 40%)' },
+      'C': { bg: 'hsl(0, 50%, 35%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(0, 50%, 45%)' },
+      'D': { bg: 'hsl(47, 70%, 40%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(47, 70%, 50%)' },
+      'E': { bg: 'hsl(70, 20%, 40%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(70, 20%, 50%)' },
+      'F': { bg: 'hsl(270, 60%, 40%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(270, 60%, 50%)' },
+      'G': { bg: 'hsl(190, 70%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(190, 70%, 55%)' },
+      'H': { bg: 'hsl(30, 80%, 45%)', text: 'hsl(45, 100%, 60%)', hover: 'hsl(30, 80%, 55%)' },
+      'T': { bg: 'hsl(47, 100%, 51%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
+      'TESTING': { bg: 'hsl(47, 100%, 51%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
       'REST': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
       'R': { bg: 'hsl(0, 0%, 20%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 30%)' },
-      'MATCH': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
-      'M': { bg: FFF_GOLD, text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
+      'MATCH': { bg: 'hsl(47, 100%, 51%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
+      'M': { bg: 'hsl(47, 100%, 51%)', text: 'hsl(0, 0%, 0%)', hover: 'hsl(47, 100%, 60%)' },
     };
     return colorMap[key] || { bg: 'hsl(0, 0%, 10%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 15%)' };
   };
 
-  const getWeekDates = (weekStartDate: string | null) => {
-    if (!weekStartDate) return null;
-    
-    try {
-      const startDate = parseISO(weekStartDate);
-      return {
-        monday: startDate,
-        tuesday: addDays(startDate, 1),
-        wednesday: addDays(startDate, 2),
-        thursday: addDays(startDate, 3),
-        friday: addDays(startDate, 4),
-        saturday: addDays(startDate, 5),
-        sunday: addDays(startDate, 6),
-      };
-    } catch (error) {
-      console.error('Error parsing week start date:', error);
-      return null;
-    }
-  };
-
-  // Prepare R90 chart data - showing opponent and result
+  // Prepare R90 chart data
   const chartData = analyses
     .filter(a => a.r90_score != null)
     .sort((a, b) => new Date(a.analysis_date).getTime() - new Date(b.analysis_date).getTime())
@@ -326,72 +350,51 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
       strikerStats: a.striker_stats
     }));
 
-  // Calculate max Y-axis value
   const maxScore = chartData.length > 0 
     ? Math.ceil(Math.max(...chartData.map(d => d.score)))
     : 4;
 
-  // Calculate average score for reference line
   const averageScore = chartData.length > 0
     ? chartData.reduce((sum, d) => sum + d.score, 0) / chartData.length
     : 0;
 
-  // Function to get R90 color based on score - matches Performance Analysis colors
   const getR90Color = (score: number) => {
-    if (score < 0) return "hsl(0, 93%, 12%)"; // red-950: Dark red for negative
-    if (score >= 0 && score < 0.2) return "hsl(0, 84%, 60%)"; // red-600: Red
-    if (score >= 0.2 && score < 0.4) return "hsl(0, 91%, 71%)"; // red-400: Light red
-    if (score >= 0.4 && score < 0.6) return "hsl(25, 95%, 37%)"; // orange-700: Orange-brown
-    if (score >= 0.6 && score < 0.8) return "hsl(25, 95%, 53%)"; // orange-500: Yellow-orange
-    if (score >= 0.8 && score < 1.0) return "hsl(48, 96%, 53%)"; // yellow-400: Yellow
-    if (score >= 1.0 && score < 1.4) return "hsl(82, 84%, 67%)"; // lime-400: Light Green
-    if (score >= 1.4 && score < 1.8) return "hsl(142, 76%, 36%)"; // green-500: Green
-    if (score >= 1.8 && score < 2.5) return "hsl(142, 72%, 29%)"; // green-700: Dark green
-    return "hsl(36, 100%, 50%)"; // FFF gold for 2.5+
+    if (score < 0) return "hsl(0, 93%, 12%)";
+    if (score >= 0 && score < 0.2) return "hsl(0, 84%, 60%)";
+    if (score >= 0.2 && score < 0.4) return "hsl(0, 91%, 71%)";
+    if (score >= 0.4 && score < 0.6) return "hsl(25, 95%, 37%)";
+    if (score >= 0.6 && score < 0.8) return "hsl(25, 95%, 53%)";
+    if (score >= 0.8 && score < 1.0) return "hsl(48, 96%, 53%)";
+    if (score >= 1.0 && score < 1.4) return "hsl(82, 84%, 67%)";
+    if (score >= 1.4 && score < 1.8) return "hsl(142, 76%, 36%)";
+    if (score >= 1.8 && score < 2.5) return "hsl(142, 72%, 29%)";
+    return "hsl(36, 100%, 50%)";
   };
 
-  // Get latest 5 analyses
   const recentAnalyses = analyses
     .sort((a, b) => new Date(b.analysis_date).getTime() - new Date(a.analysis_date).getTime())
     .slice(0, 5);
 
-  // Extract video thumbnails from highlights and marketing gallery images
-  const videoThumbnails = React.useMemo(() => {
-    const thumbnails: string[] = [];
-    
-    // Add marketing gallery images first
-    thumbnails.push(...marketingImages);
-    
-    if (playerData?.highlights) {
-      Object.values(playerData.highlights).forEach((highlight: any) => {
-        if (highlight?.clips && Array.isArray(highlight.clips)) {
-          highlight.clips.forEach((clip: any) => {
-            if (clip?.videoUrl) {
-              // Generate thumbnail URL from video URL
-              const videoUrl = clip.videoUrl;
-              // If it's a Supabase storage URL, we can try to get a frame
-              thumbnails.push(videoUrl);
-            }
-          });
-        }
-      });
-    }
-    
-    // Filter out videos - only keep images
-    const imageOnly = thumbnails.filter(url => !(url.includes('supabase') && url.includes('videos')));
-    
-    // No fallback - only show 21:9 marketing gallery images
-    
-    console.log('Image thumbnails generated:', imageOnly.length, imageOnly);
-    return imageOnly;
-  }, [playerData, marketingImages]);
-
   return (
     <>
+      {/* Parallax Hero Header with countdown overlay */}
+      {(playerData?.image_url || marketingImages.length > 0) && (
+        <ParallaxHeroWithFixture
+          playerData={playerData}
+          marketingImages={marketingImages}
+          imageFocalPoints={imageFocalPoints}
+        />
+      )}
+
       <div className="space-y-0 mb-0">
+        {/* Gold line above schedule */}
+        <div className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
+          <div className="border-t-2 border-accent"></div>
+        </div>
+
         {/* Schedule Card - Full Width */}
-        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-accent border-b-0 z-30">
-          <CardHeader marble className="py-2 border-b-[2px] border-b-accent">
+        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-0 border-b-0 z-30">
+          <CardHeader marble className="py-2">
             <div className="flex items-center justify-between container mx-auto px-4 pr-6">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
@@ -400,6 +403,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
               <Button 
                 variant="ghost" 
                 size="sm"
+                onClick={onNavigateToSchedule}
                 className="flex items-center justify-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
               >
                 See All
@@ -410,27 +414,24 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
           <CardContent className="container mx-auto px-4 pt-3 pb-3">
             {currentSchedule ? (
               <div className="grid grid-cols-8 gap-1 md:gap-2">
-                {/* Today Cell - FFF Gold */}
+                {/* Today Cell */}
                 <div 
                   className="p-2 md:p-4 flex flex-col items-center justify-center rounded-lg bg-accent text-black"
                 >
                   <div className="text-center">
                     <div className="text-sm md:text-2xl font-bold mb-1 text-black">{format(new Date(), 'd')}<sup className="text-[8px] md:text-sm">th</sup></div>
-                    <div className="text-[8px] md:text-sm font-medium italic text-black">
-                      <span className="md:hidden">Today</span>
-                      <span className="hidden md:inline">Today</span>
-                    </div>
+                    <div className="text-[8px] md:text-sm font-medium italic text-black">Today</div>
                   </div>
                 </div>
               
-                {/* Day Cells - Rolling 7 days from today */}
+                {/* Day Cells - Rolling 7 days with 3-tier layout */}
                 {rolling7Days.map((dayInfo, index) => {
                   const sessionValue = currentSchedule[dayInfo.dayName] || '';
+                  const teamSessionValue = currentSchedule[`${dayInfo.dayName}Team`] || '';
                   const colors = sessionValue ? getSessionColor(sessionValue) : { bg: 'hsl(0, 0%, 10%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 15%)' };
                   const dayImageKey = `${dayInfo.dayName}Image`;
                   const clubLogoUrl = currentSchedule[dayImageKey];
                   
-                  // Check if it's a clickable session (A-H)
                   const isClickableSession = sessionValue && /^[A-H]$/i.test(sessionValue);
                   
                   return (
@@ -438,28 +439,44 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                       key={index}
                       onClick={() => isClickableSession && onNavigateToSession?.(sessionValue.toUpperCase())}
                       disabled={!isClickableSession}
-                      className="relative p-2 md:p-4 rounded-lg transition-all flex flex-col items-center justify-center min-h-[60px] md:min-h-[80px] disabled:cursor-default"
+                      className="relative rounded-lg transition-all flex flex-col min-h-[80px] md:min-h-[100px] disabled:cursor-default overflow-hidden"
                       style={{
                         backgroundColor: colors.bg,
                         color: colors.text,
                         cursor: isClickableSession ? 'pointer' : 'default',
                       }}
                     >
-                      <div className="text-[8px] md:text-xs font-medium mb-1 opacity-70 uppercase">
-                        {dayInfo.displayDay}
+                      {/* Top 1/4 - Date */}
+                      <div className="h-1/4 flex items-center justify-center px-1 bg-black/20">
+                        <div className="text-[8px] md:text-xs font-bold leading-tight">
+                          {dayInfo.displayDay} {dayInfo.displayDate}
+                        </div>
                       </div>
-                      <div className="text-[10px] md:text-sm font-bold mb-1">
-                        {dayInfo.displayDate}
+
+                      {/* Middle 2/4 - Regular session content */}
+                      <div className="h-2/4 flex flex-col items-center justify-center">
+                        {clubLogoUrl ? (
+                          <img 
+                            src={clubLogoUrl} 
+                            alt={`${dayInfo.dayName} session`}
+                            className="w-6 h-6 md:w-8 md:h-8 object-contain"
+                          />
+                        ) : sessionValue ? (
+                          <div className="text-base md:text-lg font-bold text-center">
+                            {sessionValue.toUpperCase()}
+                          </div>
+                        ) : !teamSessionValue ? (
+                          <div className="text-base md:text-lg font-bold text-center opacity-50">-</div>
+                        ) : null}
                       </div>
-                      {clubLogoUrl && (
-                        <img 
-                          src={clubLogoUrl} 
-                          alt={`${dayInfo.dayName} opponent`}
-                          className="w-4 h-4 md:w-6 md:h-6 object-contain mb-1"
-                        />
-                      )}
-                      <div className="text-[10px] md:text-sm font-bold text-center">
-                        {sessionValue || '-'}
+
+                      {/* Bottom 1/4 - Team training */}
+                      <div className="h-1/4 flex items-center justify-center bg-black/30 px-1">
+                        {teamSessionValue && (
+                          <div className="text-[6px] md:text-[8px] font-bold text-center truncate w-full" style={{ color: 'hsl(45, 100%, 80%)' }}>
+                            {teamSessionValue}
+                          </div>
+                        )}
                       </div>
                     </button>
                   );
@@ -471,51 +488,22 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
           </CardContent>
         </Card>
 
-        {/* Video/Image Carousel - Full Width - Always visible */}
-        <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-primary border-b-[2px] border-b-primary z-25 !mt-0 !mb-[13px]">
-          <CardContent className="p-0 overflow-hidden">
-            {!imagesPreloaded || videoThumbnails.length === 0 ? (
-              // Loading skeleton - shown while images load
-              <div className="infinite-scroll-container">
-                <div className="infinite-scroll-content" style={{ animationPlayState: 'paused' }}>
-                  {[1, 2, 3].map((index) => (
-                    <div key={index} className="inline-block px-2">
-                      <div 
-                        className="relative bg-muted animate-pulse" 
-                        style={{ aspectRatio: '21/9', width: '85vw' }}
-                      >
-                        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
-                          Loading...
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              // Actual images - shown when loaded
-              <div className="infinite-scroll-container">
-                <div className="infinite-scroll-content">
-                  {[...videoThumbnails, ...videoThumbnails].map((thumbnail, index) => (
-                    <div key={index} className="inline-block px-2">
-                      <div className="relative" style={{ aspectRatio: '21/9', width: '85vw' }}>
-                        <img
-                          src={thumbnail}
-                          alt={`Player content ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* News Feed / Inbox - directly below schedule */}
+        {playerData?.id && (
+          <NewsFeed
+            playerId={playerData.id}
+            playerName={playerData.name || "Player"}
+            onNavigateToAnalysis={onNavigateToAnalysis}
+            onOpenReport={(id) => {
+              setSelectedReportId(id);
+              setReportDialogOpen(true);
+            }}
+          />
+        )}
 
-        {/* R90 Performance Chart & Recent Analysis Combined - Full Width */}
+        {/* R90 Performance Chart - Full Width */}
         <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0 border-t-[2px] border-t-accent z-20 overflow-visible">
-          <CardHeader marble className="py-2 border-b-[2px] border-b-accent">
+          <CardHeader marble className="py-2">
             <div className="flex items-center justify-between container mx-auto px-4 pr-6">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
@@ -579,7 +567,6 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                     <defs>
                       {chartData.map((entry, index) => {
                         const baseColor = getR90Color(entry.score);
-                        // Parse HSL color to manipulate it
                         const hslMatch = baseColor.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
                         if (hslMatch) {
                           const [, h, s, l] = hslMatch;
@@ -606,7 +593,6 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                       onMouseEnter={() => setTooltipVisible(true)}
                       background={(props: any) => {
                         const { x, y, width, height } = props;
-                        // Calculate the Y position for the average line
                         const chartHeight = height;
                         const yScale = chartHeight / maxScore;
                         const lineY = y + chartHeight - (averageScore * yScale);
@@ -627,18 +613,16 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                         );
                       }}
                     >
-                      {chartData.map((entry, index) => {
-                        return (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={`url(#barGradient-${index})`}
-                            style={{
-                              animation: !hasAnimated.current ? `barSlideUp 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) ${index * 0.25}s both` : 'none',
-                              filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2))'
-                            }}
-                          />
-                        );
-                      })}
+                      {chartData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={`url(#barGradient-${index})`}
+                          style={{
+                            animation: !hasAnimated.current ? `barSlideUp 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) ${index * 0.25}s both` : 'none',
+                            filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2))'
+                          }}
+                        />
+                      ))}
                       <LabelList 
                         dataKey="score" 
                         position="center"
@@ -702,10 +686,10 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
           </CardContent>
         </Card>
 
-        {/* Performance Section - Recent Fixtures - Full Width */}
+        {/* Performance Section - Recent Fixtures with PRE/POST buttons */}
         {recentAnalyses.length > 0 && (
           <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-accent border-b-0 z-10">
-            <CardHeader marble className="py-2 border-b-[2px] border-b-accent">
+            <CardHeader marble className="py-2">
               <div className="flex items-center justify-between container mx-auto px-4 pr-6">
                 <div className="flex items-center gap-2">
                   <Trophy className="h-5 w-5 mt-[1px]" />
@@ -733,21 +717,88 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
                     }}
                     className="w-full text-left block border-l-2 border-primary pl-3 pt-0 pb-2 hover:bg-accent/5 transition-colors rounded"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <div className="font-medium text-sm">{analysis.opponent}</div>
                         <div className="text-xs text-muted-foreground">
                           {format(new Date(analysis.analysis_date), "MMM dd, yyyy")}
                         </div>
                       </div>
-                      {analysis.r90_score != null && (
-                        <div 
-                          className="px-3 py-1 rounded text-white text-sm font-bold mt-[3px] -ml-1 mr-2 border-2 border-transparent hover:border-[hsl(var(--gold))] transition-colors duration-200"
-                          style={{ backgroundColor: getR90Color(analysis.r90_score) }}
-                        >
-                          R90: {analysis.r90_score}
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {/* Pre-match analysis button */}
+                        {(() => {
+                          const preMatch = (analysis as any).analysis_writer_data?.analysis_type === 'pre-match'
+                            ? (analysis as any).analysis_writer_data
+                            : (analysis as any).tagged_analyses?.find((ta: any) => ta.analysis_type === 'pre-match');
+                          if (!preMatch) return null;
+                          return (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="p-0 h-8 w-auto px-2 bg-black text-white border border-white hover:bg-accent hover:text-black rounded font-bold text-[10px] flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const slug = createAnalysisSlug(preMatch.home_team || '', preMatch.away_team || '', preMatch.id);
+                                navigate(slug);
+                              }}
+                              title="View Pre-Match Analysis"
+                            >
+                              <Eye className="h-3 w-3" />
+                              PRE
+                            </Button>
+                          );
+                        })()}
+                        {/* Post-match analysis button */}
+                        {(() => {
+                          if (postMatchAnalyses.has((analysis as any).fixture_id)) {
+                            const postMatch = postMatchAnalyses.get((analysis as any).fixture_id)!;
+                            return (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="p-0 h-8 w-auto px-2 bg-black text-white border border-white hover:bg-accent hover:text-black rounded font-bold text-[10px] flex items-center gap-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const slug = createAnalysisSlug(postMatch.homeTeam, postMatch.awayTeam, postMatch.id);
+                                  navigate(slug);
+                                }}
+                                title="View Post-Match Analysis"
+                              >
+                                <Eye className="h-3 w-3" />
+                                POST
+                              </Button>
+                            );
+                          }
+                          const postMatch = (analysis as any).analysis_writer_data?.analysis_type === 'post-match'
+                            ? (analysis as any).analysis_writer_data
+                            : (analysis as any).tagged_analyses?.find((ta: any) => ta.analysis_type === 'post-match');
+                          if (!postMatch) return null;
+                          return (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="p-0 h-8 w-auto px-2 bg-black text-white border border-white hover:bg-accent hover:text-black rounded font-bold text-[10px] flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const slug = createAnalysisSlug(postMatch.home_team || '', postMatch.away_team || '', postMatch.id);
+                                navigate(slug);
+                              }}
+                              title="View Post-Match Analysis"
+                            >
+                              <Eye className="h-3 w-3" />
+                              POST
+                            </Button>
+                          );
+                        })()}
+                        {analysis.r90_score != null && (
+                          <div 
+                            className="px-3 py-1 rounded text-white text-sm font-bold border-2 border-transparent hover:border-accent transition-colors duration-200"
+                            style={{ backgroundColor: getR90Color(analysis.r90_score) }}
+                          >
+                            R90: {analysis.r90_score}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -763,6 +814,16 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
         onOpenChange={setReportDialogOpen}
         analysisId={selectedReportId}
       />
+
+      {/* Quick Stats Comparison - before aphorism */}
+      {playerData?.id && (
+        <QuickStatsComparison
+          playerId={playerData.id}
+          playerName={playerData.name || "You"}
+          playerPosition={playerData.position || "CF"}
+          onSeeAll={onNavigateToComparisons || onNavigateToAnalysis}
+        />
+      )}
 
       {/* Gold Separator Line */}
       {dailyAphorism && (
