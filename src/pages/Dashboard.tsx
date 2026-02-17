@@ -1818,9 +1818,16 @@ const Dashboard = () => {
               setActiveTab("analysis");
               setActiveAnalysisTab("performance");
             }}
+            onNavigateToComparisons={() => {
+              setActiveTab("analysis");
+              setActiveAnalysisTab("performance");
+            }}
             onNavigateToForm={() => {
               setActiveTab("analysis");
               setActiveAnalysisTab("form");
+            }}
+            onNavigateToSchedule={() => {
+              setActiveTab("physical");
             }}
             onNavigateToSession={(sessionKey) => {
               setActiveTab("physical");

@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Edit, FileText, LineChart, Video, Calendar, Plus, DollarSign, User, Trash2, Eye, TrendingUp, GripVertical, ChevronLeft, ChevronRight, ChevronDown, Image as ImageIcon, X, Download } from "lucide-react";
+import { Edit, FileText, LineChart, Video, Calendar, Plus, DollarSign, User, Trash2, Eye, TrendingUp, GripVertical, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Image as ImageIcon, X, Download, FileDown } from "lucide-react";
+import { NutritionProgramManagement } from "./NutritionProgramManagement";
 import { DraggableTabsList, TabItem } from "./DraggableTabsList";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext } from "@/components/ui/pagination";
 import { PerformanceActionsDialog } from "./PerformanceActionsDialog";
@@ -1902,6 +1903,12 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                         <span>Programs</span>
                       </div>
                     </SelectItem>
+                    <SelectItem value="nutrition">
+                      <div className="flex items-center gap-2">
+                        <FileDown className="w-4 h-4" />
+                        <span>Nutrition</span>
+                      </div>
+                    </SelectItem>
                     <SelectItem value="highlights">
                       <div className="flex items-center gap-2">
                         <Video className="w-4 h-4" />
@@ -1929,11 +1936,12 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                 tabs={[
                   { value: "analysis", label: "Analysis", icon: <LineChart className="w-4 h-4" /> },
                   { value: "programming", label: "Programs", icon: <FileText className="w-4 h-4" /> },
+                  { value: "nutrition", label: "Nutrition", icon: <FileDown className="w-4 h-4" /> },
                   { value: "highlights", label: "Videos", icon: <Video className="w-4 h-4" /> },
                   { value: "fixtures", label: "Fixtures", icon: <Calendar className="w-4 h-4" /> },
                   { value: "invoices", label: "Invoices", icon: <DollarSign className="w-4 h-4" /> },
                 ] as TabItem[]}
-                className="hidden md:grid md:grid-cols-5 w-full gap-1.5 bg-sidebar-accent/50 backdrop-blur-sm rounded-lg p-1.5 mb-4"
+                className="hidden md:grid md:grid-cols-6 w-full gap-1.5 bg-sidebar-accent/50 backdrop-blur-sm rounded-lg p-1.5 mb-4"
               />
               {/* Analysis with nested tabs */}
               <TabsContent value="analysis" className="mt-0 pt-10 md:mt-0 md:pt-0">
@@ -2479,6 +2487,14 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                     )}
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              {/* Nutrition Programs */}
+              <TabsContent value="nutrition" className="mt-4 md:mt-0">
+                <NutritionProgramManagement
+                  playerId={selectedPlayerId!}
+                  playerName={selectedPlayer?.name || ''}
+                />
               </TabsContent>
 
               <TabsContent value="highlights" className="mt-4 md:mt-0">
