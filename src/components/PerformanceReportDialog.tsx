@@ -1,11 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade } from "@/lib/gradeCalculations";
-import { Download, X } from "lucide-react";
+import { Download, X, ImageIcon, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award } from "lucide-react";
 import { toast } from "sonner";
+import html2canvas from "html2canvas";
+import { ActionVideoPopup } from "@/components/ActionVideoPopup";
+import { ClippedActionsPlayer } from "@/components/ClippedActionsPlayer";
+import { STAT_TYPE_CONFIGS, StatTypeConfig } from "@/components/staff/ActionStatRecorder";
+import { R90FlowChart } from "@/components/report/R90FlowChart";
+import { ActionHeatmap } from "@/components/report/ActionHeatmap";
+import { ChanceCreationFlow } from "@/components/report/ChanceCreationFlow";
+import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
+
+// Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
+const formatMinute = (minute: number | null | undefined): string => {
+  if (minute === null || minute === undefined) return "-";
+  const minPart = Math.floor(minute);
+  const secPart = Math.round((minute - minPart) * 100);
+  return `${minPart}.${secPart.toString().padStart(2, '0')}`;
+};
 
 interface PerformanceAction {
   id: string;
@@ -15,6 +31,7 @@ interface PerformanceAction {
   action_type: string;
   action_description: string;
   notes: string | null;
+  video_url?: string | null;
 }
 
 interface StrikerStats {
@@ -44,6 +61,16 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   const [analysis, setAnalysis] = useState<AnalysisDetails | null>(null);
   const [actions, setActions] = useState<PerformanceAction[]>([]);
   const [prefetchedId, setPrefetchedId] = useState<string | null>(null);
+  const [savingImage, setSavingImage] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
+  const [showR90Flow, setShowR90Flow] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showChanceCreation, setShowChanceCreation] = useState(false);
+  const [showRankedPlayer, setShowRankedPlayer] = useState(false);
+  const [rankedMode, setRankedMode] = useState<"chronological" | "ranked">("chronological");
+  const [showClippedActions, setShowClippedActions] = useState(false);
 
   // Pre-fetch data when analysisId changes (even before dialog opens)
   useEffect(() => {
@@ -61,10 +88,9 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
 
   const fetchPerformanceData = async (id: string) => {
     if (!id) return;
-    
+
     setLoading(true);
     try {
-      // Fetch both in parallel for faster loading
       const [analysisResult, actionsResult] = await Promise.all([
         sharedSupabase
           .from("player_analysis")
@@ -101,8 +127,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
 
       if (actionsResult.error) throw actionsResult.error;
       setActions(actionsResult.data || []);
-      
-      // Mark this ID as prefetched
+
       setPrefetchedId(id);
     } catch (error: any) {
       console.error("Error fetching performance data:", error);
@@ -138,12 +163,71 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
     }, 0);
   };
 
-  const handleSaveAsPDF = () => {
-    window.print();
+  const handleSaveAsWebp = async () => {
+    if (!contentRef.current || !analysis) return;
+
+    setSavingImage(true);
+    try {
+      const originalBg = contentRef.current.style.backgroundColor;
+      contentRef.current.style.backgroundColor = '#000000';
+
+      const canvas = await html2canvas(contentRef.current, {
+        backgroundColor: '#000000',
+        useCORS: true,
+        logging: false,
+        scale: 2,
+      } as any);
+
+      contentRef.current.style.backgroundColor = originalBg;
+
+      const fileName = `${analysis.player_name}-vs-${analysis.opponent}-performance-report`;
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+      if (isMobile) {
+        const dataUrl = canvas.toDataURL('image/png', 0.95);
+        if (!dataUrl || dataUrl === 'data:,') {
+          toast.error('Failed to create image');
+          return;
+        }
+        const newTab = window.open();
+        if (newTab) {
+          newTab.document.write(`<html><head><title>${fileName}</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;}</style></head><body><img src="${dataUrl}" style="max-width:100%;height:auto;" /></body></html>`);
+          newTab.document.close();
+          toast.success('Image opened - long-press to save');
+        } else {
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = `${fileName}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.success('Image saved');
+        }
+      } else {
+        const dataUrl = canvas.toDataURL('image/webp', 0.9);
+        const link = document.createElement('a');
+        link.download = `${fileName}.webp`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Image saved successfully');
+      }
+    } catch (error) {
+      console.error('Error saving image:', error);
+      toast.error('Failed to save image');
+    } finally {
+      setSavingImage(false);
+    }
   };
 
-  // Format stat key to readable label
+  // Format stat key to readable label using config lookup
   const formatStatLabel = (key: string): string => {
+    let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
+    if (config) return config.name;
+    const keyLower = key.toLowerCase();
+    config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
+    if (config) return config.name;
     return key
       .replace(/_/g, ' ')
       .replace(/([A-Z])/g, ' $1')
@@ -154,40 +238,175 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   // Get advanced stats from striker_stats, excluding internal fields
   const getAdvancedStats = () => {
     if (!analysis?.striker_stats) return [];
-    
+
     const excludeKeys = ['selected_stats', 'stats_order'];
-    const stats: { key: string; value: number | string }[] = [];
-    
-    for (const [key, value] of Object.entries(analysis.striker_stats)) {
-      if (excludeKeys.includes(key)) continue;
-      if (typeof value === 'number' || typeof value === 'string') {
-        stats.push({ key, value });
+    const stats: {
+      key: string;
+      value: number | string;
+      per90Value?: number | string;
+      isPaired?: boolean;
+      successful?: number;
+      attempted?: number;
+      percentage?: string;
+    }[] = [];
+    const processedKeys = new Set<string>();
+
+    const statsOrder = analysis.striker_stats.stats_order as string[] | undefined;
+    const selectedStats = analysis.striker_stats.selected_stats as string[] | undefined;
+    const rawKeysToShow = statsOrder || selectedStats || Object.keys(analysis.striker_stats);
+    const keysToShow = rawKeysToShow.filter(key => !excludeKeys.includes(key));
+
+    for (const key of keysToShow) {
+      if (key.includes('_per90')) continue;
+      if (processedKeys.has(key)) continue;
+
+      const value = analysis.striker_stats[key];
+      if (value === null || value === undefined) continue;
+      if (typeof value === 'string' && value.trim() === '') continue;
+      if (typeof value === 'number' && isNaN(value)) continue;
+
+      let attemptedKey = `${key}_attempted`;
+      let baseKey = key;
+
+      if (key.endsWith('_won')) {
+        baseKey = key.replace('_won', '');
+        attemptedKey = `${baseKey}_attempted`;
+      } else if (key.endsWith('_completed')) {
+        baseKey = key.replace('_completed', '');
+        attemptedKey = `${baseKey}_attempted`;
       }
+
+      if (analysis.striker_stats[attemptedKey] != null && !key.endsWith('_attempted')) {
+        const attempted = Number(analysis.striker_stats[attemptedKey]);
+        const successful = Number(value);
+        if (!isNaN(attempted) && !isNaN(successful)) {
+          processedKeys.add(attemptedKey);
+          const per90Key = `${key}_per90`;
+          const per90Value = analysis.striker_stats[per90Key];
+          stats.push({
+            key: baseKey !== key ? baseKey : key,
+            value: successful,
+            per90Value: per90Value !== null && per90Value !== undefined ? per90Value as number | string : undefined,
+            isPaired: true,
+            successful,
+            attempted,
+            percentage: attempted > 0 ? ((successful / attempted) * 100).toFixed(1) : '0'
+          });
+          continue;
+        }
+      }
+
+      if (key.endsWith('_attempted')) {
+        processedKeys.add(key);
+        continue;
+      }
+
+      if (typeof value !== 'number' && typeof value !== 'string') continue;
+
+      const keyLower = key.toLowerCase();
+      const rateBasedPrefixes = ['xg', 'xa', 'xc', 'xgchain'];
+      const isRateBased = rateBasedPrefixes.some(prefix => keyLower.includes(prefix));
+      const per90Key = `${key}_per90`;
+      const per90Value = isRateBased ? analysis.striker_stats[per90Key] : undefined;
+
+      stats.push({
+        key,
+        value,
+        per90Value: per90Value !== null && per90Value !== undefined ? per90Value as number | string : undefined
+      });
     }
-    
+
     return stats;
   };
 
+  // Calculate derived stats from the base stats
+  const getCalculatedStats = () => {
+    if (!analysis?.striker_stats) return [];
+
+    const strikerStats = analysis.striker_stats;
+    const calculated: { key: string; displayName: string; value: number; description: string }[] = [];
+
+    const getVal = (key: string): number | null => {
+      const val = strikerStats[key];
+      if (val === null || val === undefined) return null;
+      return typeof val === 'number' ? val : null;
+    };
+
+    const getSuccessVal = (baseKey: string): number | null => {
+      return getVal(`${baseKey}_successful`) ?? getVal(baseKey);
+    };
+
+    const getTotalVal = (baseKey: string): number | null => {
+      return getVal(`${baseKey}_total`) ?? getVal(`${baseKey}_attempted`);
+    };
+
+    const recoveries = getVal('recoveries');
+    const turnovers = getVal('turnovers');
+    if (recoveries !== null && turnovers !== null) {
+      const ratio = turnovers === 0 ? (recoveries > 0 ? recoveries : 0) : recoveries / turnovers;
+      calculated.push({ key: 'recovery_turnover_ratio', displayName: 'Recovery/Turnover', value: ratio, description: 'Recoveries ÷ Turnovers' });
+    }
+
+    const ppSuccess = getSuccessVal('progressive_passes');
+    if (ppSuccess !== null && turnovers !== null) {
+      const ratio = turnovers === 0 ? (ppSuccess > 0 ? ppSuccess : 0) : ppSuccess / turnovers;
+      calculated.push({ key: 'pp_turnovers_ratio', displayName: 'PP/Turnovers', value: ratio, description: 'Progressive Passes ÷ Turnovers' });
+    }
+
+    const aerialSuccess = getSuccessVal('aerial_duels');
+    const aerialTotal = getTotalVal('aerial_duels');
+    if (aerialSuccess !== null && aerialTotal !== null && aerialTotal > 0) {
+      calculated.push({ key: 'aerial_duel_win_pct', displayName: 'Aerial Duel Win %', value: (aerialSuccess / aerialTotal) * 100, description: 'Aerial Duels Won ÷ Total' });
+    }
+
+    const passSuccess = getSuccessVal('passes');
+    const passTotal = getTotalVal('passes');
+    if (passSuccess !== null && passTotal !== null && passTotal > 0) {
+      calculated.push({ key: 'pass_completion', displayName: 'Pass Completion %', value: (passSuccess / passTotal) * 100, description: 'Passes Completed ÷ Total' });
+    }
+
+    const dribbleSuccess = getSuccessVal('dribbles');
+    const dribbleTotal = getTotalVal('dribbles');
+    if (dribbleSuccess !== null && dribbleTotal !== null && dribbleTotal > 0) {
+      calculated.push({ key: 'dribble_success_pct', displayName: 'Dribble Success %', value: (dribbleSuccess / dribbleTotal) * 100, description: 'Dribbles Completed ÷ Total' });
+    }
+
+    const tackleSuccess = getSuccessVal('tackles');
+    const tackleTotal = getTotalVal('tackles');
+    if (tackleSuccess !== null && tackleTotal !== null && tackleTotal > 0) {
+      calculated.push({ key: 'tackle_success_pct', displayName: 'Tackle Success %', value: (tackleSuccess / tackleTotal) * 100, description: 'Tackles Won ÷ Total' });
+    }
+
+    const xg = getVal('xg');
+    const shotsTotal = getTotalVal('shots') ?? getVal('shots');
+    if (xg !== null && shotsTotal !== null && shotsTotal > 0) {
+      calculated.push({ key: 'xg_per_shot', displayName: 'xG per Shot', value: xg / shotsTotal, description: 'xG ÷ Total Shots' });
+    }
+
+    return calculated;
+  };
+
   const advancedStats = getAdvancedStats();
+  const calculatedStats = getCalculatedStats();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] w-full max-h-[95vh] overflow-y-auto overflow-x-hidden p-0">
-        <div className="sticky top-0 z-10 bg-background border-b p-4 flex items-center justify-between">
-          <h2 className="text-xl font-bebas uppercase tracking-wider">Performance Report</h2>
-          <div className="flex gap-2">
-            <Button onClick={handleSaveAsPDF} size="sm" className="bg-accent hover:bg-accent/90 text-black">
-              <Download className="mr-2 h-4 w-4" />
-              Save as PDF
+      <DialogContent className="max-w-[98vw] md:max-w-[95vw] w-full max-h-[95vh] overflow-y-auto overflow-x-hidden p-0">
+        <div className="sticky top-0 z-10 bg-background border-b p-2 md:p-4 flex items-center justify-between gap-2">
+          <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">Performance Report</h2>
+          <div className="flex gap-1 md:gap-2 flex-shrink-0">
+            <Button onClick={handleSaveAsWebp} variant="default" size="sm" className="px-2 md:px-3" disabled={savingImage || loading}>
+              <ImageIcon className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">{savingImage ? 'Saving...' : 'Save'}</span>
             </Button>
-            <Button onClick={() => onOpenChange(false)} variant="outline" size="sm">
-              <X className="mr-2 h-4 w-4" />
-              Close
+            <Button onClick={() => onOpenChange(false)} variant="outline" size="sm" className="px-2 md:px-3">
+              <X className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Close</span>
             </Button>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-3 md:p-6 overflow-x-hidden">
           {loading ? (
             <div className="space-y-6 animate-pulse">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -198,7 +417,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-4 gap-4 p-4 bg-accent/20 rounded-lg">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-accent/20 rounded-lg">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="text-center">
                     <div className="h-4 w-16 bg-muted rounded mx-auto mb-2"></div>
@@ -211,101 +430,212 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
           ) : !analysis ? (
             <div className="text-center py-8 text-muted-foreground">Performance report not found</div>
           ) : (
-            <div className="space-y-6">
-              {/* Player Info */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Player</p>
-                  <p className="font-bold">{analysis.player_name}</p>
+            <div ref={contentRef} className="space-y-4 md:space-y-6 bg-background p-2 md:p-4 rounded-lg overflow-x-hidden">
+              {/* Player Info with Clipped Actions Button */}
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
+                  <div>
+                    <p className="text-xs md:text-sm text-muted-foreground">Player</p>
+                    <p className="font-bold text-sm md:text-base truncate">{analysis.player_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-muted-foreground">Date</p>
+                    <p className="font-bold text-sm md:text-base">{new Date(analysis.analysis_date).toLocaleDateString('en-GB')}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-muted-foreground">Opponent</p>
+                    <p className="font-bold text-sm md:text-base truncate">{analysis.opponent || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs md:text-sm text-muted-foreground">Result</p>
+                    <p className="font-bold text-sm md:text-base">{analysis.result || "N/A"}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Date</p>
-                  <p className="font-bold">{new Date(analysis.analysis_date).toLocaleDateString('en-GB')}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Opponent</p>
-                  <p className="font-bold">{analysis.opponent || "N/A"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Result</p>
-                  <p className="font-bold">{analysis.result || "N/A"}</p>
-                </div>
+
+                {/* Clipped Actions Button */}
+                {actions.filter(a => a.video_url).length > 0 && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold flex items-center gap-2"
+                    onClick={() => setShowClippedActions(true)}
+                  >
+                    <Play className="h-4 w-4" />
+                    {actions.filter(a => a.video_url).length}
+                  </Button>
+                )}
               </div>
 
-              {/* Key Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white/15 rounded-lg">
-                <div className="text-center">
-                  <p className="text-xs md:text-sm text-muted-foreground mb-1">Raw Score</p>
-                  <p className="text-xl md:text-2xl font-bold">{calculateRScore().toFixed(5)}</p>
+              {/* Graphics Buttons Row */}
+              {actions.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={showR90Flow ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { setShowR90Flow(!showR90Flow); setShowHeatmap(false); }}
+                    className="text-xs"
+                  >
+                    <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+                    R90 Flow
+                  </Button>
+                  <Button
+                    variant={showHeatmap ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { setShowHeatmap(!showHeatmap); setShowR90Flow(false); setShowChanceCreation(false); }}
+                    className="text-xs"
+                  >
+                    <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
+                    Period Grade Map
+                  </Button>
+                  {analysis.striker_stats && ['crossing_movement_xC', 'movement_in_behind_xC', 'movement_down_side_xC', 'triple_threat_xC', 'movement_to_feet_xC'].some(k => (analysis.striker_stats as any)?.[k] > 0) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { setShowChanceCreation(!showChanceCreation); setShowR90Flow(false); setShowHeatmap(false); }}
+                      className="text-xs"
+                    >
+                      <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+                      Chance Creation Flow
+                    </Button>
+                  )}
+                  {actions.filter(a => a.video_url).length > 0 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setRankedMode("chronological"); setShowRankedPlayer(true); }}
+                        className="text-xs"
+                      >
+                        <Film className="h-3.5 w-3.5 mr-1.5" />
+                        Full Match Video
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setRankedMode("ranked"); setShowRankedPlayer(true); }}
+                        className="text-xs"
+                      >
+                        <Award className="h-3.5 w-3.5 mr-1.5" />
+                        Ranked Actions
+                      </Button>
+                    </>
+                  )}
                 </div>
-                <div className="text-center bg-white/20 rounded-lg p-4">
-                  <p className="text-xs md:text-sm mb-1 text-muted-foreground">R90 Score</p>
-                  <p className="text-2xl md:text-3xl font-bold">
-                    {analysis.minutes_played 
-                      ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2)
-                      : "N/A"
+              )}
+
+              {/* R90 Flow Chart */}
+              {showR90Flow && analysis.minutes_played && (
+                <Card className="overflow-hidden">
+                  <CardContent className="p-3 md:p-6">
+                    <R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Action Heatmap */}
+              {showHeatmap && analysis.minutes_played && (
+                <Card className="overflow-hidden">
+                  <CardContent className="p-3 md:p-6">
+                    <ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Chance Creation Flow */}
+              {showChanceCreation && analysis.striker_stats && (
+                <Card className="overflow-hidden">
+                  <CardContent className="p-3 md:p-6">
+                    <ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Key Stats */}
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
+                <div className="text-center p-2">
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
+                  <p className="text-base md:text-2xl font-bold">
+                    {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
+                  </p>
+                </div>
+                <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4">
+                  <p className="text-[10px] md:text-sm mb-0.5 md:mb-1 opacity-90">R90</p>
+                  <p className="text-lg md:text-3xl font-bold">
+                    {analysis.r90_score !== null
+                      ? analysis.r90_score.toFixed(2)
+                      : analysis.minutes_played && actions.length > 0
+                        ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2)
+                        : "N/A"
                     }
                   </p>
                 </div>
-                <div className="text-center">
-                  <p className="text-xs md:text-sm text-muted-foreground mb-1">xG Chain</p>
-                  <p className="text-xl md:text-2xl font-bold">{calculateXGChain().toFixed(3)}</p>
+                <div className="text-center p-2">
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">xG Chain</p>
+                  <p className="text-base md:text-2xl font-bold">{actions.length > 0 ? calculateXGChain().toFixed(2) : "N/A"}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-xs md:text-sm text-muted-foreground mb-1">Minutes Played</p>
-                  <p className="text-xl md:text-2xl font-bold">{analysis.minutes_played || "N/A"}</p>
+                <div className="text-center p-2">
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
+                  <p className="text-base md:text-2xl font-bold">{analysis.minutes_played ?? "N/A"}</p>
                 </div>
               </div>
 
               {/* Advanced Stats */}
               {advancedStats.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Match Statistics</CardTitle>
+                <Card className="overflow-hidden">
+                  <CardHeader className="py-2 md:py-4">
+                    <CardTitle className="text-sm md:text-lg">Match Statistics</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        {advancedStats.map(({ key, value }) => {
-                        // Get grade color based on stat type
-                        const numValue = typeof value === 'number' ? value : 0;
-                        let gradeInfo = { grade: '-', color: 'hsl(var(--muted-foreground))' };
-                        
-                        // Map stat keys to appropriate grade functions
-                        const keyLower = key.toLowerCase();
-                        if (keyLower.includes('xg') && !keyLower.includes('chain')) {
-                          gradeInfo = getXGGrade(numValue);
-                        } else if (keyLower.includes('xa')) {
-                          gradeInfo = getXAGrade(numValue);
-                        } else if (keyLower.includes('regain')) {
-                          gradeInfo = getRegainsGrade(numValue);
-                        } else if (keyLower.includes('intercept')) {
-                          gradeInfo = getInterceptionsGrade(numValue);
-                        } else if (keyLower.includes('chain')) {
-                          gradeInfo = getXGChainGrade(numValue);
-                        } else if (keyLower.includes('progressive') && keyLower.includes('pass')) {
-                          gradeInfo = getProgressivePassesGrade(numValue);
-                        } else if (keyLower.includes('ratio') || keyLower.includes('turnover')) {
-                          gradeInfo = getPPTurnoversRatioGrade(numValue);
-                        } else if (keyLower.includes('r90')) {
-                          gradeInfo = getR90Grade(numValue);
-                        }
-                        
-                        return (
-                          <div 
-                            key={key} 
-                            className="text-center p-3 rounded-lg border-2"
-                            style={{ 
-                              backgroundColor: `${gradeInfo.color}20`,
-                              borderColor: gradeInfo.color
-                            }}
-                          >
-                            <p className="text-xs text-muted-foreground mb-1 capitalize">{formatStatLabel(key)}</p>
-                            <p className="text-lg font-bold text-foreground">
-                              {typeof value === 'number' ? value.toFixed(2) : value}
+                  <CardContent className="p-2 md:p-6">
+                    <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
+                      {advancedStats.map((stat) => (
+                        <div key={stat.key} className="text-center p-1.5 md:p-3 bg-accent/10 rounded">
+                          <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5 capitalize truncate">{formatStatLabel(stat.key)}</p>
+                          {stat.isPaired ? (
+                            <>
+                              <p className="text-sm md:text-lg font-bold">{stat.percentage}%</p>
+                              <p className="text-[9px] md:text-xs text-muted-foreground">{stat.successful}/{stat.attempted}</p>
+                            </>
+                          ) : (
+                            <p className="text-sm md:text-lg font-bold">{stat.value}</p>
+                          )}
+                          {stat.per90Value !== undefined && (
+                            <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5">
+                              p90: {stat.per90Value}
                             </p>
-                          </div>
-                        );
-                      })}
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Auto-Calculated Ratios */}
+              {calculatedStats.length > 0 && (
+                <Card className="overflow-hidden border-primary/20">
+                  <CardHeader className="py-2 md:py-4 bg-primary/5">
+                    <CardTitle className="text-sm md:text-lg flex items-center gap-2">
+                      <Calculator className="h-4 w-4 text-primary" />
+                      <span className="text-primary">Calculated Ratios</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-2 md:p-6">
+                    <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
+                      {calculatedStats.map((stat) => (
+                        <div key={stat.key} className="text-center p-1.5 md:p-3 bg-primary/5 rounded border border-primary/10">
+                          <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5 truncate" title={stat.description}>
+                            {stat.displayName}
+                          </p>
+                          <p className="text-sm md:text-lg font-bold text-primary">
+                            {stat.key.includes('pct') || stat.key.includes('completion') || stat.key.includes('success')
+                              ? `${stat.value.toFixed(1)}%`
+                              : stat.value.toFixed(2)}
+                          </p>
+                          <p className="text-[8px] md:text-[10px] text-muted-foreground mt-0.5">
+                            {stat.description}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -313,25 +643,60 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
 
               {/* Performance Overview */}
               {analysis.performance_overview && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Performance Overview</CardTitle>
+                <Card className="overflow-hidden">
+                  <CardHeader className="py-2 md:py-4">
+                    <CardTitle className="text-sm md:text-lg">Overview</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground whitespace-pre-wrap">{analysis.performance_overview}</p>
+                  <CardContent className="p-2 md:p-6">
+                    <p className="text-muted-foreground whitespace-pre-wrap text-center text-xs md:text-sm">{analysis.performance_overview}</p>
                   </CardContent>
                 </Card>
               )}
 
               {/* Performance Actions */}
               {actions.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Performance Actions ({actions.length})</CardTitle>
+                <Card className="overflow-hidden">
+                  <CardHeader className="py-2 md:py-4">
+                    <CardTitle className="text-sm md:text-lg">Actions ({actions.length})</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    {/* Desktop Table */}
-                    <div className="hidden md:block">
+                  <CardContent className="p-2 md:p-6">
+                    {/* Mobile: Compact card layout */}
+                    <div className="block md:hidden space-y-2">
+                      {actions.map((action) => (
+                        <div key={action.id} className="p-2 bg-muted/30 rounded">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="font-semibold text-xs">#{action.action_number}</span>
+                              <span className="text-[10px] text-muted-foreground">{formatMinute(action.minute)}'</span>
+                              <span className={`text-xs font-bold ${getActionScoreColor(action.action_score)}`}>
+                                {action.action_score?.toFixed(3)}
+                              </span>
+                            </div>
+                            {action.video_url && (
+                              <button
+                                onClick={() => {
+                                  setSelectedVideoUrl(action.video_url!);
+                                  setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
+                                }}
+                                className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0"
+                              >
+                                <Video className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          <div className="font-medium text-xs mt-1 truncate">{action.action_type}</div>
+                          <div className="text-[10px] text-foreground/80 line-clamp-2">{action.action_description}</div>
+                          {action.notes && (
+                            <div className="text-[9px] text-muted-foreground italic mt-1 pt-1 border-t border-border/50 truncate">
+                              {action.notes}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Desktop: Table layout */}
+                    <div className="hidden md:block overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b">
@@ -341,45 +706,39 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                             <th className="text-left py-2 px-2">Description</th>
                             <th className="text-left py-2 px-2">Notes</th>
                             <th className="text-right py-2 px-2">Score</th>
+                            <th className="text-center py-2 px-2">Clip</th>
                           </tr>
                         </thead>
                         <tbody>
                           {actions.map((action) => (
                             <tr key={action.id} className="border-b border-border/50">
                               <td className="py-2 px-2">{action.action_number}</td>
-                              <td className="py-2 px-2">{action.minute}</td>
+                              <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
                               <td className="py-2 px-2">{action.action_type}</td>
                               <td className="py-2 px-2">{action.action_description}</td>
                               <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>
                               <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>
                                 {action.action_score?.toFixed(5)}
                               </td>
+                              <td className="py-2 px-2 text-center">
+                                {action.video_url ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedVideoUrl(action.video_url!);
+                                      setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
+                                    }}
+                                    className="text-accent hover:text-accent/80 p-1"
+                                  >
+                                    <Video className="h-4 w-4" />
+                                  </button>
+                                ) : (
+                                  <span className="text-muted-foreground">-</span>
+                                )}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
-                    </div>
-                    
-                    {/* Mobile Card Layout */}
-                    <div className="md:hidden space-y-3">
-                      {actions.map((action) => (
-                        <div key={action.id} className="bg-muted/30 rounded-lg p-3 border border-border/50">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold bg-accent/20 px-2 py-0.5 rounded">#{action.action_number}</span>
-                              <span className="text-xs text-muted-foreground">{action.minute}</span>
-                            </div>
-                            <span className={`text-sm font-bold ${getActionScoreColor(action.action_score)}`}>
-                              {action.action_score?.toFixed(5)}
-                            </span>
-                          </div>
-                          <div className="text-sm font-medium mb-1">{action.action_type}</div>
-                          <div className="text-sm text-muted-foreground">{action.action_description}</div>
-                          {action.notes && (
-                            <div className="text-xs text-muted-foreground mt-2 italic">{action.notes}</div>
-                          )}
-                        </div>
-                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -388,6 +747,55 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
           )}
         </div>
       </DialogContent>
+
+      {/* Video Popup for single action */}
+      {selectedVideoUrl && (
+        <ActionVideoPopup
+          open={!!selectedVideoUrl}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedVideoUrl(null);
+              setSelectedVideoTitle("");
+            }
+          }}
+          videoUrl={selectedVideoUrl}
+          actionTitle={selectedVideoTitle}
+        />
+      )}
+
+      {/* Clipped Actions Player */}
+      <ClippedActionsPlayer
+        open={showClippedActions}
+        onOpenChange={setShowClippedActions}
+        clips={actions
+          .filter(a => a.video_url)
+          .map(a => ({
+            id: a.id,
+            action_number: a.action_number,
+            action_type: a.action_type,
+            action_description: a.action_description,
+            video_url: a.video_url!,
+            minute: a.minute,
+          }))}
+      />
+
+      {/* Ranked/Full Match Video Player */}
+      <RankedActionsPlayer
+        open={showRankedPlayer}
+        onOpenChange={setShowRankedPlayer}
+        mode={rankedMode}
+        clips={actions
+          .filter(a => a.video_url)
+          .map(a => ({
+            id: a.id,
+            action_number: a.action_number,
+            action_type: a.action_type,
+            action_description: a.action_description,
+            action_score: a.action_score,
+            video_url: a.video_url!,
+            minute: a.minute,
+          }))}
+      />
     </Dialog>
   );
 };
