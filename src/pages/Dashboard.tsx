@@ -141,6 +141,7 @@ const Dashboard = () => {
   const [schemes, setSchemes] = useState<any[]>([]);
   const [selectedTeamScheme, setSelectedTeamScheme] = useState<string>('');
   const [selectedOppositionScheme, setSelectedOppositionScheme] = useState<string>('');
+  const [hasNutritionPrograms, setHasNutritionPrograms] = useState(false);
   
   // Performance Report Dialog state
   const [performanceReportDialogOpen, setPerformanceReportDialogOpen] = useState(false);
@@ -156,6 +157,21 @@ const Dashboard = () => {
   const [selectedHistoryMonth, setSelectedHistoryMonth] = useState<string>(format(new Date(), 'yyyy-MM'));
   const [savingTestResult, setSavingTestResult] = useState(false);
 
+  const checkNutritionPrograms = async (playerId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("coaching_programmes" as any)
+        .select("id")
+        .or(`title.ilike.%nutrition%,category.ilike.%nutrition%`)
+        .limit(1);
+      
+      if (!error && data && data.length > 0) {
+        setHasNutritionPrograms(true);
+      }
+    } catch {
+      // Silently fail
+    }
+  };
 
   // Initialize push notifications with player ID
   usePushNotifications(playerData?.id);
@@ -826,6 +842,7 @@ const Dashboard = () => {
       await fetchInvoices(playerEmail);
       await fetchUpdates(player.id);
       await fetchTestResults(player.id);
+      checkNutritionPrograms(player.id);
     } catch (error) {
       console.error("Error loading data:", error);
       
@@ -1771,6 +1788,7 @@ const Dashboard = () => {
                     {activeTab === "invoices" && "Key Documents"}
                     {activeTab === "updates" && "Updates"}
                     {activeTab === "highlights" && "Highlights"}
+                    {activeTab === "nutrition" && "Nutrition"}
                   </span>
                   <ChevronDown className="ml-2 h-5 w-5" />
                 </Button>
@@ -1812,6 +1830,14 @@ const Dashboard = () => {
                 >
                   Highlights
                 </DropdownMenuItem>
+                {hasNutritionPrograms && (
+                  <DropdownMenuItem 
+                    onClick={() => setActiveTab("nutrition")}
+                    className="font-bebas uppercase text-base py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10"
+                  >
+                    Nutrition
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
         </div>
@@ -1920,18 +1946,6 @@ const Dashboard = () => {
                   <TabsTrigger value="comparisons" className="font-bebas uppercase text-sm sm:text-base">
                     Comparisons
                   </TabsTrigger>
-                  <TabsTrigger value="goals" className="font-bebas uppercase text-sm sm:text-base">
-                    Goals
-                  </TabsTrigger>
-                  <TabsTrigger value="injury" className="font-bebas uppercase text-sm sm:text-base">
-                    Injury Log
-                  </TabsTrigger>
-                  <TabsTrigger value="nutrition" className="font-bebas uppercase text-sm sm:text-base">
-                    Nutrition
-                  </TabsTrigger>
-                  <TabsTrigger value="match-clips" className="font-bebas uppercase text-sm sm:text-base">
-                    Match Clips
-                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="performance">
@@ -2032,6 +2046,14 @@ const Dashboard = () => {
                               </div>
                             </div>
                           ))}
+                        </div>
+                      )}
+                      
+                      {/* Goal Tracking - integrated into performance */}
+                      {analyses.length > 0 && (
+                        <div className="mt-4">
+                          <h3 className="font-bebas text-lg uppercase tracking-wider mb-3 text-accent">Goal Tracking</h3>
+                          <GoalTracking playerData={playerData} fixtureAnalyses={analyses} formWindow={5} />
                         </div>
                       )}
                     </CardContent>
@@ -2351,58 +2373,6 @@ const Dashboard = () => {
                           />
                         </div>
                       )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="goals">
-                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
-                    <CardHeader marble>
-                      <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">Goal Tracking</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="container mx-auto px-4">
-                      <GoalTracking playerData={playerData} fixtureAnalyses={analyses} formWindow={5} />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="injury">
-                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
-                    <CardHeader marble>
-                      <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">Injury Log</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="container mx-auto px-4">
-                      <InjuryLog playerId={playerData?.id || ""} />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="nutrition">
-                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
-                    <CardHeader marble>
-                      <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">Nutrition</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="container mx-auto px-4">
-                      <NutritionProgramDisplay playerId={playerData?.id || ""} />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="match-clips">
-                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
-                    <CardHeader marble>
-                      <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">Match Clips</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="container mx-auto px-4">
-                      <PlayerMatchClipper playerId={playerData?.id || ""} playerEmail={playerData?.email || ""} />
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -4307,6 +4277,21 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {hasNutritionPrograms && (
+            <TabsContent value="nutrition">
+              <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                <CardHeader marble>
+                  <div className="container mx-auto px-4">
+                    <CardTitle className="font-heading tracking-tight">Nutrition</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="container mx-auto px-4">
+                  <NutritionProgramDisplay playerId={playerData?.id || ""} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            )}
 
             <TabsContent value="updates">
               <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0">
