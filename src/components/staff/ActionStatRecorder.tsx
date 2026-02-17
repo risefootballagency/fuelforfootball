@@ -208,8 +208,24 @@ export const ActionStatRecorder = ({
     if (mode === 'score' && stat.score !== undefined) {
       return `${stat.stat_type}: ${stat.score.toFixed(2)}`;
     }
-    if (mode === 'count') return stat.stat_type;
+    if (mode === 'count') return `${stat.stat_type} ×${stat.count || 1}`;
     return stat.stat_type;
+  };
+
+  // Calculate live aggregated ratios for success/fail stats
+  const getLiveRatios = (): Record<string, { successful: number; total: number; pct: number }> => {
+    const ratios: Record<string, { successful: number; total: number; pct: number }> = {};
+    for (const s of stats) {
+      if ((s.mode || 'success_fail') !== 'success_fail') continue;
+      if (!ratios[s.stat_type]) ratios[s.stat_type] = { successful: 0, total: 0, pct: 0 };
+      ratios[s.stat_type].total += 1;
+      if (s.is_successful) ratios[s.stat_type].successful += 1;
+    }
+    for (const key of Object.keys(ratios)) {
+      const r = ratios[key];
+      r.pct = r.total > 0 ? Math.round((r.successful / r.total) * 100) : 0;
+    }
+    return ratios;
   };
 
   const getStatBadgeVariant = (stat: RecordedStat): "default" | "destructive" | "secondary" => {
@@ -267,6 +283,29 @@ export const ActionStatRecorder = ({
                   </Badge>
                 ))}
               </div>
+
+              {/* Auto-calculated ratios */}
+              {(() => {
+                const ratios = getLiveRatios();
+                const entries = Object.entries(ratios).filter(([, r]) => r.total > 1);
+                if (entries.length === 0) return null;
+                return (
+                  <div className="mt-2 space-y-1 border-t border-border pt-2">
+                    <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Auto Ratios</Label>
+                    {entries.map(([key, r]) => (
+                      <div key={key} className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">{key}</span>
+                        <span className="font-mono">
+                          {r.successful}/{r.total}{' '}
+                          <span className={r.pct >= 60 ? 'text-green-500' : r.pct >= 40 ? 'text-yellow-500' : 'text-destructive'}>
+                            ({r.pct}%)
+                          </span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -395,7 +434,10 @@ export const aggregateRecordedStats = (
 };
 
 export const formatAggregatedStat = (stat: AggregatedStat): string => {
-  if (stat.type === 'success_fail') return `${stat.successful} / ${stat.total}`;
+  if (stat.type === 'success_fail') {
+    const pct = stat.total > 0 ? Math.round((stat.successful / stat.total) * 100) : 0;
+    return `${stat.successful}/${stat.total} (${pct}%)`;
+  }
   if (stat.type === 'count') return `${stat.count}`;
   if (stat.type === 'score') return stat.totalScore.toFixed(2);
   return '-';

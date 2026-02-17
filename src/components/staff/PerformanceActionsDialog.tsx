@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, Plus, LineChart, Search, Loader2, Sparkles, ChevronDown, ChevronUp, List } from "lucide-react";
+import { Trash2, Plus, LineChart, Search, Loader2, Sparkles, ChevronDown, ChevronUp, List, Edit2, Save, X as XIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { R90RatingsViewer } from "./R90RatingsViewer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,6 +58,8 @@ export const PerformanceActionsDialog = ({
   const [aiSearchAction, setAiSearchAction] = useState<{ type: string; context: string } | null>(null);
   const [fillingScores, setFillingScores] = useState(false);
   const [isByActionDialogOpen, setIsByActionDialogOpen] = useState(false);
+  const [editingActionId, setEditingActionId] = useState<string | null>(null);
+  const [editAction, setEditAction] = useState<PerformanceAction | null>(null);
   const [newAction, setNewAction] = useState<PerformanceAction>({
     action_number: 1,
     minute: 0,
@@ -412,6 +414,42 @@ export const PerformanceActionsDialog = ({
     }
   };
 
+  const handleInlineSave = async () => {
+    if (!editAction || !editingActionId) return;
+    try {
+      const { error } = await supabase
+        .from("performance_report_actions")
+        .update({
+          action_number: editAction.action_number,
+          minute: editAction.minute,
+          action_score: editAction.action_score,
+          action_type: editAction.action_type,
+          action_description: editAction.action_description,
+          notes: editAction.notes,
+          zone: editAction.zone,
+          is_successful: editAction.is_successful,
+        })
+        .eq("id", editingActionId);
+      if (error) throw error;
+      toast.success("Action updated");
+      setEditingActionId(null);
+      setEditAction(null);
+      await fetchActions();
+    } catch (err: any) {
+      toast.error("Failed to update: " + err.message);
+    }
+  };
+
+  const startInlineEdit = (action: PerformanceAction) => {
+    setEditingActionId(action.id || null);
+    setEditAction({ ...action });
+  };
+
+  const cancelInlineEdit = () => {
+    setEditingActionId(null);
+    setEditAction(null);
+  };
+
   const getActionScoreColor = (score: number) => {
     if (score >= 0.1) return "text-green-600 font-bold";
     if (score > 0) return "text-green-500";
@@ -731,79 +769,98 @@ export const PerformanceActionsDialog = ({
               <div className="space-y-2 max-h-[400px] overflow-y-auto">
                 {actions.map((action) => (
                   <div key={action.id} className="p-3 border rounded hover:bg-accent/50 space-y-2">
-                    {/* Single line header with key info */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 flex-wrap min-w-0">
-                        <span className="font-bold text-muted-foreground whitespace-nowrap">#{action.action_number}</span>
-                        <span className="text-sm text-muted-foreground whitespace-nowrap">{(action.minute ?? 0).toFixed(2)}'</span>
-                        <span className={`text-sm font-mono whitespace-nowrap ${getActionScoreColor(action.action_score ?? 0)}`}>
-                          {(action.action_score ?? 0).toFixed(5)}
-                        </span>
-                        <span className="font-semibold truncate">{action.action_type}</span>
+                    {editingActionId === action.id && editAction ? (
+                      /* Inline Edit Mode */
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-4 gap-2">
+                          <div>
+                            <Label className="text-[10px]">Action #</Label>
+                            <Input type="number" className="h-7 text-xs" value={editAction.action_number} onChange={(e) => setEditAction({ ...editAction, action_number: parseInt(e.target.value) || 1 })} />
+                          </div>
+                          <div>
+                            <Label className="text-[10px]">Minute</Label>
+                            <Input type="number" step="0.01" className="h-7 text-xs" value={editAction.minute} onChange={(e) => setEditAction({ ...editAction, minute: parseFloat(e.target.value) || 0 })} />
+                          </div>
+                          <div>
+                            <Label className="text-[10px]">Score</Label>
+                            <Input type="number" step="0.00001" className="h-7 text-xs" value={editAction.action_score} onChange={(e) => setEditAction({ ...editAction, action_score: parseFloat(e.target.value) || 0 })} />
+                          </div>
+                          <div>
+                            <Label className="text-[10px]">Zone</Label>
+                            <Select value={editAction.zone?.toString() || "none"} onValueChange={(v) => setEditAction({ ...editAction, zone: v === "none" ? null : parseInt(v) })}>
+                              <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                {Array.from({ length: 18 }, (_, i) => i + 1).map(z => (
+                                  <SelectItem key={z} value={z.toString()}>Z{z}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-[10px]">Type</Label>
+                          <Input className="h-7 text-xs" list="action-types-list" value={editAction.action_type} onChange={(e) => setEditAction({ ...editAction, action_type: e.target.value })} />
+                        </div>
+                        <div>
+                          <Label className="text-[10px]">Description</Label>
+                          <Textarea className="text-xs min-h-[40px]" rows={2} value={editAction.action_description} onChange={(e) => setEditAction({ ...editAction, action_description: e.target.value })} />
+                        </div>
+                        <div>
+                          <Label className="text-[10px]">Notes</Label>
+                          <Textarea className="text-xs min-h-[30px]" rows={1} value={editAction.notes} onChange={(e) => setEditAction({ ...editAction, notes: e.target.value })} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Switch checked={editAction.is_successful ?? true} onCheckedChange={(v) => setEditAction({ ...editAction, is_successful: v })} />
+                            <Label className="text-xs">{editAction.is_successful ? 'Successful' : 'Unsuccessful'}</Label>
+                          </div>
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="ghost" onClick={cancelInlineEdit}><XIcon className="w-4 h-4" /></Button>
+                            <Button size="sm" onClick={handleInlineSave} className="gap-1"><Save className="w-3 h-3" /> Save</Button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openAiSearch(action)}
-                          title="AI Search for Rating"
-                        >
-                          <Search className="w-4 h-4 text-purple-600" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openSmartR90Viewer(action)}
-                          title="Smart Link to R90 Ratings"
-                        >
-                          <LineChart className="w-4 h-4 text-green-600" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setR90ViewerCategory(undefined);
-                            setR90ViewerSearch(undefined);
-                            setAiSearchAction(null);
-                            setIsR90ViewerOpen(true);
-                          }}
-                          title="View All R90 Ratings"
-                        >
-                          <LineChart className="w-4 h-4 text-indigo-600" />
-                        </Button>
-                        {isAdmin && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => fillSingleActionScore(action)}
-                              title="Fill Score with AI"
-                              disabled={fillingScores}
-                            >
-                              {fillingScores ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                              ) : (
-                                <Sparkles className="w-4 h-4 text-blue-600" />
-                              )}
+                    ) : (
+                      /* Display Mode */
+                      <>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-wrap min-w-0">
+                            <span className="font-bold text-muted-foreground whitespace-nowrap">#{action.action_number}</span>
+                            <span className="text-sm text-muted-foreground whitespace-nowrap">{(action.minute ?? 0).toFixed(2)}'</span>
+                            <span className={`text-sm font-mono whitespace-nowrap ${getActionScoreColor(action.action_score ?? 0)}`}>
+                              {(action.action_score ?? 0).toFixed(5)}
+                            </span>
+                            <span className="font-semibold truncate">{action.action_type}</span>
+                          </div>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <Button variant="ghost" size="sm" onClick={() => openAiSearch(action)} title="AI Search for Rating">
+                              <Search className="w-4 h-4 text-purple-600" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => action.id && handleDeleteAction(action.id)}
-                            >
-                              <Trash2 className="w-4 h-4 text-destructive" />
+                            <Button variant="ghost" size="sm" onClick={() => openSmartR90Viewer(action)} title="Smart Link to R90 Ratings">
+                              <LineChart className="w-4 h-4 text-green-600" />
                             </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Description on its own line */}
-                    <p className="text-sm">{action.action_description}</p>
-                    
-                    {/* Notes if present */}
-                    {action.notes && (
-                      <p className="text-xs text-muted-foreground italic">{action.notes}</p>
+                            <Button variant="ghost" size="sm" onClick={() => { setR90ViewerCategory(undefined); setR90ViewerSearch(undefined); setAiSearchAction(null); setIsR90ViewerOpen(true); }} title="View All R90 Ratings">
+                              <LineChart className="w-4 h-4 text-indigo-600" />
+                            </Button>
+                            {isAdmin && (
+                              <>
+                                <Button variant="ghost" size="sm" onClick={() => startInlineEdit(action)} title="Edit Action">
+                                  <Edit2 className="w-4 h-4 text-primary" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => fillSingleActionScore(action)} title="Fill Score with AI" disabled={fillingScores}>
+                                  {fillingScores ? <Loader2 className="w-4 h-4 animate-spin text-blue-600" /> : <Sparkles className="w-4 h-4 text-blue-600" />}
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => action.id && handleDeleteAction(action.id)}>
+                                  <Trash2 className="w-4 h-4 text-destructive" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-sm">{action.action_description}</p>
+                        {action.notes && <p className="text-xs text-muted-foreground italic">{action.notes}</p>}
+                      </>
                     )}
                   </div>
                 ))}
