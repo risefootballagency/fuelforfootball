@@ -1077,30 +1077,58 @@ const Dashboard = () => {
         }
       }
 
-      // Also fetch concepts separately
+      // Fetch concepts: via analysis_writer_id linkage AND by player_name match
       const conceptIds = (analysisData || [])
         .filter(a => a.analysis_writer_id)
         .map(a => a.analysis_writer_id);
       
+      // Fetch all concepts - by linked IDs and by player_name match
+      const conceptPromises: PromiseLike<any>[] = [];
+      
       if (conceptIds.length > 0) {
-        const { data: conceptsData } = await supabase
-          .from("analyses")
-          .select("*")
-          .in("id", conceptIds)
-          .eq("analysis_type", "concept");
-
-        if (conceptsData) {
-          const normalizedConcepts = conceptsData.map(concept => {
-            const points = concept.points && typeof concept.points === 'object' && Array.isArray(concept.points)
-              ? concept.points.map((point: any) => ({
-                  ...point,
-                  images: Array.isArray(point?.images) ? point.images : []
-                }))
-              : [];
-            return { ...concept, points };
-          });
-          setConcepts(normalizedConcepts);
-        }
+        conceptPromises.push(
+          supabase
+            .from("analyses")
+            .select("*")
+            .in("id", conceptIds)
+            .eq("analysis_type", "concept")
+            .then(r => r)
+        );
+      }
+      
+      // Also fetch concepts where player_name matches
+      if (parsedPlayerData.name) {
+        conceptPromises.push(
+          supabase
+            .from("analyses")
+            .select("*")
+            .eq("analysis_type", "concept")
+            .eq("player_name", parsedPlayerData.name)
+            .then(r => r)
+        );
+      }
+      
+      if (conceptPromises.length > 0) {
+        const conceptResults = await Promise.all(conceptPromises);
+        const allConceptsRaw = conceptResults.flatMap(r => r.data || []);
+        // Deduplicate by id
+        const seenIds = new Set<string>();
+        const uniqueConcepts = allConceptsRaw.filter(c => {
+          if (seenIds.has(c.id)) return false;
+          seenIds.add(c.id);
+          return true;
+        });
+        
+        const normalizedConcepts = uniqueConcepts.map(concept => {
+          const points = concept.points && typeof concept.points === 'object' && Array.isArray(concept.points)
+            ? concept.points.map((point: any) => ({
+                ...point,
+                images: Array.isArray(point?.images) ? point.images : []
+              }))
+            : [];
+          return { ...concept, points };
+        });
+        setConcepts(normalizedConcepts);
       }
 
       // Also fetch tactical analyses linked to player's fixtures (without action reports)
@@ -3139,7 +3167,7 @@ const Dashboard = () => {
                                                   {/* Day Cells */}
                                                   {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day, dayIdx) => {
                                                     const sessionValue = week[day] || '';
-                                                    const colors = sessionValue ? getSessionColor(sessionValue) : { bg: 'hsl(0, 0%, 10%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 15%)' };
+                                                    const colors = sessionValue ? getSessionColor(sessionValue) : { bg: 'hsla(0, 0%, 10%, 0.2)', text: 'hsl(0, 0%, 60%)', hover: 'hsla(0, 0%, 15%, 0.3)' };
                                                     const weekDates = getWeekDates(week.week_start_date);
                                                     const dayDate = weekDates ? weekDates[day as keyof typeof weekDates] : null;
                                                     const dayImageKey = `${day}Image`; // Use camelCase for image field
@@ -3424,7 +3452,7 @@ const Dashboard = () => {
                                                                   <div 
                                                                     className="p-2 md:p-4 text-xs md:text-sm italic border-r-2 border-white flex items-center justify-center text-center"
                                                                     style={{ 
-                                                                      backgroundColor: 'hsl(0, 0%, 10%)',
+                                                                      backgroundColor: 'hsla(0, 0%, 10%, 0.2)',
                                                                       color: 'hsl(0, 0%, 100%)'
                                                                     }}
                                                                   >
@@ -3433,7 +3461,7 @@ const Dashboard = () => {
                                                                   <div
                                                                     className="p-2 md:p-4 text-xs md:text-sm italic border-r-2 border-white flex items-center justify-center text-center"
                                                                     style={{ 
-                                                                      backgroundColor: 'hsl(0, 0%, 10%)',
+                                                                      backgroundColor: 'hsla(0, 0%, 10%, 0.2)',
                                                                       color: 'hsl(0, 0%, 100%)'
                                                                     }}
                                                                   >
@@ -3442,7 +3470,7 @@ const Dashboard = () => {
                                                                   <div 
                                                                     className="p-2 md:p-4 text-xs md:text-sm italic border-r-2 border-white flex items-center justify-center text-center"
                                                                     style={{ 
-                                                                      backgroundColor: 'hsl(0, 0%, 10%)',
+                                                                      backgroundColor: 'hsla(0, 0%, 10%, 0.2)',
                                                                       color: 'hsl(0, 0%, 100%)'
                                                                     }}
                                                                   >
@@ -3451,7 +3479,7 @@ const Dashboard = () => {
                                                                   <div 
                                                                     className="p-2 md:p-4 text-xs md:text-sm italic flex items-center justify-center text-center"
                                                                     style={{ 
-                                                                      backgroundColor: 'hsl(0, 0%, 10%)',
+                                                                      backgroundColor: 'hsla(0, 0%, 10%, 0.2)',
                                                                       color: 'hsl(0, 0%, 100%)'
                                                                     }}
                                                                   >
@@ -3543,7 +3571,7 @@ const Dashboard = () => {
                                                                   <div 
                                                                     className="p-2 md:p-4 text-xs md:text-sm italic border-r-2 border-white flex items-center justify-center text-center"
                                                                     style={{ 
-                                                                      backgroundColor: 'hsl(0, 0%, 10%)',
+                                                                      backgroundColor: 'hsla(0, 0%, 10%, 0.2)',
                                                                       color: 'hsl(0, 0%, 100%)'
                                                                     }}
                                                                   >
@@ -3552,7 +3580,7 @@ const Dashboard = () => {
                                                                   <div
                                                                     className="p-2 md:p-4 text-xs md:text-sm italic border-r-2 border-white flex items-center justify-center text-center"
                                                                     style={{ 
-                                                                      backgroundColor: 'hsl(0, 0%, 10%)',
+                                                                      backgroundColor: 'hsla(0, 0%, 10%, 0.2)',
                                                                       color: 'hsl(0, 0%, 100%)'
                                                                     }}
                                                                   >
@@ -3561,7 +3589,7 @@ const Dashboard = () => {
                                                                   <div 
                                                                     className="p-2 md:p-4 text-xs md:text-sm italic border-r-2 border-white flex items-center justify-center text-center"
                                                                     style={{ 
-                                                                      backgroundColor: 'hsl(0, 0%, 10%)',
+                                                                      backgroundColor: 'hsla(0, 0%, 10%, 0.2)',
                                                                       color: 'hsl(0, 0%, 100%)'
                                                                     }}
                                                                   >
@@ -3570,7 +3598,7 @@ const Dashboard = () => {
                                                                   <div 
                                                                     className="p-2 md:p-4 text-xs md:text-sm italic flex items-center justify-center text-center"
                                                                     style={{ 
-                                                                      backgroundColor: 'hsl(0, 0%, 10%)',
+                                                                      backgroundColor: 'hsla(0, 0%, 10%, 0.2)',
                                                                       color: 'hsl(0, 0%, 100%)'
                                                                     }}
                                                                   >
@@ -3681,10 +3709,10 @@ const Dashboard = () => {
                                                     >
                                                       <div className="flex justify-between items-start gap-2">
                                                         <div className="flex-1">
-                                                          <span className="font-medium text-foreground group-hover:text-primary transition-colors">{test.name}</span>
+                                                          <span className="font-medium text-foreground group-hover:text-accent transition-colors">{test.name}</span>
                                                           {latestResult && (
                                                             <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                                              <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">
+                                                              <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">
                                                                 Latest: {latestResult.score}
                                                               </span>
                                                               {latestResult.status === 'draft' && (
@@ -3700,7 +3728,7 @@ const Dashboard = () => {
                                                         </div>
                                                         <div className="text-right text-sm">
                                                           {test.sets && <span className="text-muted-foreground">{test.sets}x </span>}
-                                                          <span className="font-medium text-primary">{test.reps}</span>
+                                                          <span className="font-medium text-muted-foreground">{test.reps}</span>
                                                         </div>
                                                       </div>
                                                     </div>
