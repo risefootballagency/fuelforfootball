@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { Search, Menu, ChevronRight, ChevronLeft } from "lucide-react";
+import { Search, Menu, ChevronRight, ChevronLeft, Star, Plus } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { StaffBreadcrumb } from "@/components/staff/StaffBreadcrumb";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -80,12 +80,15 @@ import { PressReleasesManagement } from "@/components/staff/PressReleasesManagem
 import { DocsSection } from "@/components/staff/sections/DocsSection";
 import { SheetsSection } from "@/components/staff/sections/SheetsSection";
 import { ServiceAudit } from "@/components/staff/coaching/ServiceAudit";
+import { TransferHub } from "@/components/staff/TransferHub";
 import PageLoading from "@/components/PageLoading";
+import { NutritionProgramManagement } from "@/components/staff/NutritionProgramManagement";
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
 import { Checkbox } from "@/components/ui/checkbox";
 import marbleBackground from "@/assets/smudged-marble-overlay.png";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { 
   Calendar, 
   Users, 
@@ -125,6 +128,12 @@ import {
   Radio,
   Palette,
   Pencil,
+  LayoutGrid,
+  Briefcase,
+  Handshake,
+  Database,
+  Tv,
+  Apple,
 } from "lucide-react";
 
 const Staff = () => {
@@ -139,16 +148,21 @@ const Staff = () => {
   const [isAnalyst, setIsAnalyst] = useState(false);
   const [isActualStaff, setIsActualStaff] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'overview' | 'schedule' | 'goalstasks' | 'visionboard' | 'focusedtasks' | 'staffschedules' | 'staffaccounts' | 'passwords' | 'pwainstall' | 'offlinemanager' | 'pushnotifications' | 'players' | 'playerlist' | 'recruitment' | 'playerdatabase' | 'scouts' | 'scoutingcentre' | 'blog' | 'dailyfuel' | 'openaccess' | 'coaching' | 'coachingchat' | 'serviceaudit' | 'analysis' | 'highlightmaker' | 'klipdraw' | 'marketing' | 'contentcreator' | 'designstudio' | 'marketingideas' | 'marketingtips' | 'pressreleases' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'cluboutreach' | 'legal' | 'languages' | 'sitemanagement' | 'transferhub' | 'payments' | 'expenses' | 'taxrecords' | 'financialreports' | 'budgets' | 'athletecentre' | 'sales' | 'contracts' | 'retention' | 'salestracker' | 'outreach' | 'saleshub' | 'timemanagement' | 'catalogue' | 'shopcatalogue' | 'jobs' | 'partners' | 'docs' | 'sheets' | 'casestudies' | 'streams' | null>('overview');
+  const [expandedSection, setExpandedSection] = useState<string | null>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  
-  // Enable staff notifications
-  useStaffNotifications({
-    onVisitor: true,
-    onFormSubmission: true,
-    onClipUpload: true,
-    onPlaylistChange: true,
+  const [pinnedSections, setPinnedSections] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('staff_pinned_sections') || '[]'); } catch { return []; }
   });
+  
+  // Notification triggers memoized
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => { setIsHydrated(true); }, []);
+  const notificationTriggers = useMemo(() => {
+    if (!isHydrated) return {};
+    return { onVisitor: true, onFormSubmission: true, onClipUpload: true, onPlaylistChange: true };
+  }, [isHydrated]);
+  useStaffNotifications(notificationTriggers);
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [sidebarSearchOpen, setSidebarSearchOpen] = useState(false);
@@ -163,32 +177,115 @@ const Staff = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Tab system state
+  const [tabOverflowOpen, setTabOverflowOpen] = useState(false);
+  const [draggingTabId, setDraggingTabId] = useState<string | null>(null);
+  const [dragOverTabId, setDragOverTabId] = useState<string | null>(null);
+  const dragStartXRef = useRef<number>(0);
+  const isDragConfirmedRef = useRef(false);
+
+  // Persist pinned sections
+  useEffect(() => {
+    localStorage.setItem('staff_pinned_sections', JSON.stringify(pinnedSections));
+  }, [pinnedSections]);
+
+  const togglePin = (sectionId: string) => {
+    setPinnedSections(prev =>
+      prev.includes(sectionId) ? prev.filter(id => id !== sectionId) : [...prev, sectionId]
+    );
+  };
 
   // Check URL parameters for section and player
   useEffect(() => {
     const section = searchParams.get('section');
     if (section && isStaff) {
-      setExpandedSection(section as any);
+      setExpandedSection(section);
+      const cats = buildCategories();
+      const parentCat = cats.find(c => c.sections.some(s => s.id === section));
+      if (parentCat) setExpandedCategory(parentCat.id);
     }
   }, [searchParams, isStaff]);
 
-  // Keyboard shortcut for search
+  // Keyboard shortcuts
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setSidebarSearchOpen((open) => !open);
+        return;
+      }
+      if (e.key === "Escape") {
+        setExpandedSection('overview');
+        setExpandedCategory('overview');
+        return;
+      }
+      // Number keys 1-9 to jump to categories
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= 9) {
+        const cats = buildCategories();
+        const target = cats[num - 1];
+        if (target) {
+          setExpandedCategory(target.id);
+          const realSections = target.sections.filter(s => !(s as any).isGroupLabel);
+          if (realSections.length === 1) {
+            handleSectionToggle(realSections[0].id);
+          }
+        }
+        return;
+      }
+      // Arrow keys to navigate sections within expanded category
+      if ((e.key === "ArrowUp" || e.key === "ArrowDown") && expandedCategory) {
+        e.preventDefault();
+        const cat = buildCategories().find(c => c.id === expandedCategory);
+        if (!cat) return;
+        const realSections = cat.sections.filter(s => !(s as any).isGroupLabel);
+        const currentIdx = realSections.findIndex(s => s.id === expandedSection);
+        const nextIdx = e.key === "ArrowDown"
+          ? Math.min(currentIdx + 1, realSections.length - 1)
+          : Math.max(currentIdx - 1, 0);
+        handleSectionToggle(realSections[nextIdx].id);
       }
     };
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
+  }, [expandedCategory, expandedSection]);
 
-  const handleSectionToggle = (section: 'overview' | 'staffaccounts' | 'players' | 'playerlist' | 'recruitment' | 'blog' | 'dailyfuel' | 'coaching' | 'analysis' | 'marketing' | 'submissions' | 'visitors' | 'invoices' | 'updates' | 'clubnetwork' | 'legal') => {
-    setExpandedSection(expandedSection === section ? null : section);
-    // Scroll to top when section changes
+  const handleSectionToggle = (section: string) => {
+    setExpandedSection(section);
+    setSearchParams({ section });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const addSectionAsTab = (section: string) => {
+    try {
+      const tabs = JSON.parse(localStorage.getItem('staff_open_tabs') || '[]') as string[];
+      if (!tabs.includes(section)) {
+        const updated = [...tabs, section].slice(-12);
+        localStorage.setItem('staff_open_tabs', JSON.stringify(updated));
+      }
+    } catch {}
+    handleSectionToggle(section);
+  };
+
+  const removeTab = (tabId: string) => {
+    try {
+      const tabs = JSON.parse(localStorage.getItem('staff_open_tabs') || '[]') as string[];
+      const updated = tabs.filter(t => t !== tabId);
+      localStorage.setItem('staff_open_tabs', JSON.stringify(updated));
+      if (expandedSection === tabId) {
+        if (updated.length > 0) {
+          handleSectionToggle(updated[updated.length - 1]);
+        } else {
+          handleSectionToggle('overview');
+        }
+      }
+      setExpandedSection(prev => prev); // force re-render
+    } catch {}
   };
 
   // Load saved email and remember me preference on mount
@@ -198,14 +295,12 @@ const Staff = () => {
     if (savedEmail) setEmail(savedEmail);
     if (savedRememberMe === "true") setRememberMe(true);
     
-    // Initialize version manager for PWA cache control
     if (navigator.onLine) {
       VersionManager.initialize(true);
     }
   }, []);
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null);
@@ -222,7 +317,6 @@ const Staff = () => {
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -259,7 +353,6 @@ const Staff = () => {
         setIsMarketeer(hasMarketeer);
         setIsAnalyst(hasAnalyst);
         
-        // Auto-open to analysis section for analysts
         if (hasAnalyst && !hasStaffOrAdmin && !hasMarketeer) {
           setExpandedSection('analysis');
           setExpandedCategory('coaching');
@@ -296,130 +389,64 @@ const Staff = () => {
     try {
       const searchTerm = `%${query}%`;
 
-      // Search players
-      const { data: players } = await supabase
-        .from('players')
-        .select('id, name, position, club')
-        .ilike('name', searchTerm)
-        .limit(10);
+      const [
+        playersRes,
+        updatesRes,
+        blogsRes,
+        analysesRes,
+        prospectsRes,
+        scoutingRes,
+        invoicesRes,
+        drillsRes,
+        sessionsRes,
+        exercisesRes,
+        contactsRes,
+      ] = await Promise.all([
+        supabase.from('players').select('id, name, position, club').ilike('name', searchTerm).limit(10),
+        supabase.from('updates').select('id, title, content, date').or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`).limit(5),
+        supabase.from('blog_posts').select('id, title, excerpt').or(`title.ilike.${searchTerm},excerpt.ilike.${searchTerm}`).limit(5),
+        supabase.from('analyses').select('id, title, analysis_type').ilike('title', searchTerm).limit(5),
+        supabase.from('prospects').select('id, name, position, current_club').ilike('name', searchTerm).limit(5),
+        supabase.from('scouting_reports').select('id, player_name, position, current_club, status').ilike('player_name', searchTerm).limit(5),
+        supabase.from('invoices').select('id, invoice_number, description, amount').or(`invoice_number.ilike.${searchTerm},description.ilike.${searchTerm}`).limit(5),
+        supabase.from('coaching_drills').select('id, title, category').ilike('title', searchTerm).limit(5),
+        supabase.from('coaching_sessions').select('id, title, category').ilike('title', searchTerm).limit(5),
+        supabase.from('coaching_exercises').select('id, title, category').ilike('title', searchTerm).limit(5),
+        supabase.from('club_network_contacts').select('id, name, club_name, position').or(`name.ilike.${searchTerm},club_name.ilike.${searchTerm}`).limit(5),
+      ]);
 
-      players?.forEach(player => {
-        results.push({
-          id: player.id,
-          title: player.name,
-          description: `${player.position}${player.club ? ` at ${player.club}` : ''}`,
-          section: 'Player Management',
-          sectionId: 'players',
-          type: 'player'
-        });
+      playersRes.data?.forEach(player => {
+        results.push({ id: player.id, title: player.name, description: `${player.position}${player.club ? ` at ${player.club}` : ''}`, section: 'Player Management', sectionId: 'players', type: 'player' });
       });
-
-      // Search updates
-      const { data: updates } = await supabase
-        .from('updates')
-        .select('id, title, content, date')
-        .or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`)
-        .limit(5);
-
-      updates?.forEach(update => {
-        results.push({
-          id: update.id,
-          title: update.title,
-          description: update.content?.substring(0, 80) + '...',
-          section: 'Player Updates',
-          sectionId: 'updates',
-          type: 'update'
-        });
+      updatesRes.data?.forEach(update => {
+        results.push({ id: update.id, title: update.title, description: update.content?.substring(0, 80) + '...', section: 'Player Updates', sectionId: 'updates', type: 'update' });
       });
-
-      // Search blog posts
-      const { data: blogs } = await supabase
-        .from('blog_posts')
-        .select('id, title, excerpt')
-        .or(`title.ilike.${searchTerm},excerpt.ilike.${searchTerm}`)
-        .limit(5);
-
-      blogs?.forEach(blog => {
-        results.push({
-          id: blog.id,
-          title: blog.title,
-          description: blog.excerpt?.substring(0, 80),
-          section: 'News Articles',
-          sectionId: 'blog',
-          type: 'blog'
-        });
+      blogsRes.data?.forEach(blog => {
+        results.push({ id: blog.id, title: blog.title, description: blog.excerpt?.substring(0, 80), section: 'News Articles', sectionId: 'blog', type: 'blog' });
       });
-
-      // Search analyses
-      const { data: analyses } = await supabase
-        .from('analyses')
-        .select('id, title, analysis_type')
-        .ilike('title', searchTerm)
-        .limit(5);
-
-      analyses?.forEach(analysis => {
-        results.push({
-          id: analysis.id,
-          title: analysis.title || 'Untitled Analysis',
-          description: analysis.analysis_type,
-          section: 'Analysis',
-          sectionId: 'analysis',
-          type: 'analysis'
-        });
+      analysesRes.data?.forEach(analysis => {
+        results.push({ id: analysis.id, title: analysis.title || 'Untitled Analysis', description: analysis.analysis_type, section: 'Analysis', sectionId: 'analysis', type: 'analysis' });
       });
-
-      // Search prospects
-      const { data: prospects } = await supabase
-        .from('prospects')
-        .select('id, name, position, current_club')
-        .ilike('name', searchTerm)
-        .limit(5);
-
-      prospects?.forEach(prospect => {
-        results.push({
-          id: prospect.id,
-          title: prospect.name,
-          description: `${prospect.position || 'Unknown'}${prospect.current_club ? ` at ${prospect.current_club}` : ''}`,
-          section: 'Recruitment',
-          sectionId: 'recruitment',
-          type: 'prospect'
-        });
+      prospectsRes.data?.forEach(prospect => {
+        results.push({ id: prospect.id, title: prospect.name, description: `${prospect.position || 'Unknown'}${prospect.current_club ? ` at ${prospect.current_club}` : ''}`, section: 'Recruitment', sectionId: 'recruitment', type: 'prospect' });
       });
-
-      // Search scouting reports
-      const { data: scoutingReports } = await supabase
-        .from('scouting_reports')
-        .select('id, player_name, position, current_club, status')
-        .ilike('player_name', searchTerm)
-        .limit(5);
-
-      scoutingReports?.forEach(report => {
-        results.push({
-          id: report.id,
-          title: report.player_name,
-          description: `${report.position || 'Unknown'}${report.current_club ? ` at ${report.current_club}` : ''} - ${report.status}`,
-          section: 'Scouting Centre',
-          sectionId: 'scoutingcentre',
-          type: 'scouting_report'
-        });
+      scoutingRes.data?.forEach(report => {
+        results.push({ id: report.id, title: report.player_name, description: `${report.position || 'Unknown'}${report.current_club ? ` at ${report.current_club}` : ''} - ${report.status}`, section: 'Scouting Centre', sectionId: 'scoutingcentre', type: 'scouting_report' });
       });
-
-      // Search invoices
-      const { data: invoices } = await supabase
-        .from('invoices')
-        .select('id, invoice_number, description, amount')
-        .or(`invoice_number.ilike.${searchTerm},description.ilike.${searchTerm}`)
-        .limit(5);
-
-      invoices?.forEach(invoice => {
-        results.push({
-          id: invoice.id,
-          title: invoice.invoice_number,
-          description: `${invoice.description || ''} - €${invoice.amount}`,
-          section: 'Invoices',
-          sectionId: 'invoices',
-          type: 'invoice'
-        });
+      invoicesRes.data?.forEach(invoice => {
+        results.push({ id: invoice.id, title: invoice.invoice_number, description: `${invoice.description || ''} - €${invoice.amount}`, section: 'Invoices', sectionId: 'invoices', type: 'invoice' });
+      });
+      drillsRes.data?.forEach(drill => {
+        results.push({ id: drill.id, title: drill.title, description: drill.category || 'Drill', section: 'Coaching Database', sectionId: 'coaching', type: 'drill' });
+      });
+      sessionsRes.data?.forEach(session => {
+        results.push({ id: session.id, title: session.title, description: session.category || 'Session', section: 'Coaching Database', sectionId: 'coaching', type: 'coaching_session' });
+      });
+      exercisesRes.data?.forEach(exercise => {
+        results.push({ id: exercise.id, title: exercise.title, description: exercise.category || 'Exercise', section: 'Coaching Database', sectionId: 'coaching', type: 'coaching_exercise' });
+      });
+      contactsRes.data?.forEach(contact => {
+        results.push({ id: contact.id, title: contact.name, description: `${contact.position || ''}${contact.club_name ? ` at ${contact.club_name}` : ''}`, section: 'Club Network', sectionId: 'clubnetwork', type: 'contact' });
       });
 
       setSearchResults(results);
@@ -448,7 +475,6 @@ const Staff = () => {
       }
 
       if (data.user) {
-        // Save email and remember me preference if checked
         if (rememberMe) {
           localStorage.setItem("staff_saved_email", email);
           localStorage.setItem("staff_remember_me", "true");
@@ -483,162 +509,239 @@ const Staff = () => {
     return <PageLoading />;
   }
 
-  // Show login form if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="py-20">
-          <div className="max-w-md mx-4 md:mx-auto">
-            <Card className="w-full">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-center">
-                  Staff Login
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleLogin} className="space-y-4" autoComplete="on">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="staff@example.com"
-                      required
-                      autoFocus
-                      autoComplete="email"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      autoComplete="current-password"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="remember-me-staff"
-                      checked={rememberMe}
-                      onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                    />
-                    <Label htmlFor="remember-me-staff" className="text-sm cursor-pointer">
-                      Remember me
-                    </Label>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Logging in..." : "Access Dashboard"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
-        <Footer />
+      <div className="min-h-screen bg-background flex items-center justify-center overflow-x-hidden">
+        <div className="max-w-md w-full mx-4">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-center">
+                Staff Login
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleLogin} className="space-y-4" autoComplete="on">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="staff@example.com"
+                    required
+                    autoFocus
+                    autoComplete="email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember-me-staff"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  />
+                  <Label htmlFor="remember-me-staff" className="text-sm cursor-pointer">
+                    Remember me
+                  </Label>
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Logging in..." : "Access Dashboard"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
-  // Show access denied if user is authenticated but not staff
   if (!isStaff) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="py-20">
-          <div className="max-w-md mx-4 md:mx-auto">
-            <Card className="w-full">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-center text-destructive">
-                  Access Denied
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-center text-muted-foreground">
-                  You do not have staff permissions to access this page.
-                </p>
-                <Button onClick={handleLogout} className="w-full" variant="outline">
-                  Logout
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
-        <Footer />
+      <div className="min-h-screen bg-background flex items-center justify-center overflow-x-hidden">
+        <div className="max-w-md w-full mx-4">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-center text-destructive">
+                Access Denied
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-center text-muted-foreground">
+                You do not have staff permissions to access this page.
+              </p>
+              <Button onClick={handleLogout} className="w-full" variant="outline">
+                Logout
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
-  // Analysts who are not also staff/admin only see Analysis
   const isAnalystOnly = isAnalyst && !isActualStaff && !isMarketeer;
-  
-  const categories = isAnalystOnly ? [
-    {
-      id: 'coaching',
-      title: 'Analysis',
-      icon: LineChart,
-      locked: false,
-      sections: [
-        { id: 'analysis', title: 'Analysis', icon: LineChart },
-      ]
-    }
-  ] : [
-    {
-      id: 'overview',
-      title: 'Overview',
-      icon: Calendar,
-      sections: [
-        { id: 'overview', title: 'Overview', icon: Calendar },
-        { id: 'docs', title: 'Documents', icon: FileText },
-        { id: 'sheets', title: 'Sheets', icon: FileSpreadsheet },
-        { id: 'focusedtasks', title: 'Focused Tasks', icon: Target },
-        { id: 'visionboard', title: 'Vision Board', icon: Target },
-        { id: 'goalstasks', title: 'Goals & Tasks', icon: Target },
-        { id: 'staffschedules', title: 'Staff Schedules', icon: Users },
-      ],
-      locked: false
-    },
-    {
-      id: 'coaching',
-      title: 'Coaching',
-      icon: Dumbbell,
-      locked: isMarketeer,
-      sections: [
-        { id: 'schedule', title: 'Schedule', icon: Calendar },
-        { id: 'coaching', title: 'Coaching Database', icon: Dumbbell },
-        { id: 'coachingchat', title: 'AI Chat', icon: MessageSquare },
-        { id: 'analysis', title: 'Analysis', icon: LineChart },
-        { id: 'athletecentre', title: 'Athlete Centre', icon: UserRound },
-        { id: 'serviceaudit', title: 'Service Audit', icon: Calculator },
-      ]
-    },
-    {
-      id: 'management',
-      title: 'Management',
-      icon: UserCog,
-      locked: isMarketeer,
-      sections: [
-        { id: 'players', title: 'Player Management', icon: UserCog },
-        { id: 'highlightmaker', title: 'Highlight Maker', icon: Film },
-        { id: 'klipdraw', title: 'KlipDraw', icon: Pencil },
-        { id: 'updates', title: 'Player Updates', icon: BellRing },
-      ]
-    },
-    {
-      id: 'network',
-      title: 'Network & Recruitment',
-      icon: Network,
-      locked: false,
+
+  const buildCategories = () => {
+    if (isAnalystOnly) {
+      return [{
+        id: 'coaching',
+        title: 'Analysis',
+        icon: LineChart,
+        locked: false,
         sections: [
+          { id: 'analysis', title: 'Analysis', icon: LineChart },
+        ]
+      }];
+    }
+
+    if (isMarketeer && !isAdmin && !isActualStaff) {
+      return [
+        {
+          id: 'overview',
+          title: 'Overview',
+          icon: Calendar,
+          sections: [
+            { id: 'overview', title: 'Overview', icon: Calendar },
+            { id: 'focusedtasks', title: 'Focused Tasks', icon: ClipboardList },
+            { id: 'visionboard', title: 'Vision Board', icon: Target },
+            { id: 'docs', title: 'Docs', icon: FileText },
+            { id: 'sheets', title: 'Sheets', icon: FileSpreadsheet },
+          ],
+          locked: false
+        },
+        {
+          id: 'management',
+          title: 'Management',
+          icon: UserCog,
+          locked: false,
+          sections: [
+            { id: 'players', title: 'Player Management', icon: UserCog },
+          ]
+        },
+        {
+          id: 'network',
+          title: 'Network & Recruitment',
+          icon: Network,
+          locked: false,
+          sections: [
+            { id: 'clubnetwork', title: 'Club Network', icon: Network },
+            { id: 'playerlist', title: 'Player List', icon: Users },
+            { id: 'recruitment', title: 'Recruitment', icon: Target },
+            { id: 'playerdatabase', title: 'Player Database', icon: Users },
+            { id: 'scoutingcentre', title: 'Scouting Centre', icon: ClipboardList },
+            { id: 'submissions', title: 'Form Submissions', icon: Mail },
+          ]
+        },
+        {
+          id: 'marketing',
+          title: 'Marketing & Brand',
+          icon: Megaphone,
+          locked: false,
+          sections: [
+            { id: 'marketing', title: 'Marketing', icon: Megaphone },
+            { id: 'contentcreator', title: 'Content Creator', icon: Film },
+            { id: 'visitors', title: 'Site Visitors', icon: Eye },
+          ]
+        },
+        {
+          id: 'admin',
+          title: 'Admin & Legal',
+          icon: Scale,
+          locked: false,
+          sections: [
+            { id: 'legal', title: 'Legal', icon: Scale },
+            { id: 'pwainstall', title: 'PWA Install', icon: Download },
+            { id: 'offlinemanager', title: 'Offline Content', icon: HardDrive },
+          ]
+        }
+      ];
+    }
+
+    // Full staff/admin
+    return [
+      {
+        id: 'overview',
+        title: 'Overview',
+        icon: Calendar,
+        sections: [
+          { id: 'overview', title: 'Overview', icon: Calendar },
+          { id: '_group_schedule', title: 'Schedule', isGroupLabel: true } as any,
+          { id: 'schedule', title: 'Schedule', icon: Calendar },
+          { id: 'staffschedules', title: 'Staff Schedules', icon: Users },
+          { id: '_group_tasks', title: 'Tasks', isGroupLabel: true } as any,
+          { id: 'focusedtasks', title: 'Focused Tasks', icon: ClipboardList },
+          { id: 'visionboard', title: 'Vision Board', icon: Target },
+          { id: 'goalstasks', title: 'Goals & Tasks', icon: Target },
+        ],
+        locked: false
+      },
+      {
+        id: 'apps',
+        title: 'Apps',
+        icon: LayoutGrid,
+        locked: false,
+        sections: [
+          { id: 'docs', title: 'Docs', icon: FileText },
+          { id: 'sheets', title: 'Sheets', icon: FileSpreadsheet },
+          { id: 'designstudio', title: 'Design Studio', icon: Palette },
+          { id: 'klipdraw', title: 'KlipDraw', icon: Pencil },
+          { id: 'streams', title: 'Streams', icon: Tv },
+        ],
+      },
+      {
+        id: 'coaching',
+        title: 'Coaching',
+        icon: Dumbbell,
+        locked: false,
+        sections: [
+          { id: 'coaching', title: 'Coaching Database', icon: Dumbbell },
+          { id: 'coachingchat', title: 'AI Chat', icon: MessageSquare },
+          { id: '_group_analysis', title: 'Analysis', isGroupLabel: true } as any,
+          { id: 'analysis', title: 'Analysis', icon: LineChart },
+          { id: '_group_planning', title: 'Planning', isGroupLabel: true } as any,
+          { id: 'athletecentre', title: 'Athlete Centre', icon: UserRound },
+          { id: 'serviceaudit', title: 'Service Audit', icon: Calculator },
+          { id: '_group_programming', title: 'Programming', isGroupLabel: true } as any,
+          { id: 'nutrition', title: 'Nutrition', icon: Apple },
+        ]
+      },
+      {
+        id: 'management',
+        title: 'Management',
+        icon: UserCog,
+        locked: false,
+        sections: [
+          { id: 'players', title: 'Players', icon: UserCog },
+          { id: 'highlightmaker', title: 'Highlight Maker', icon: Film },
+          { id: '_group_transfers', title: 'Transfers', isGroupLabel: true } as any,
+          { id: 'transferhub', title: 'Transfer Hub', icon: Building2 },
+          { id: 'updates', title: 'Player Updates', icon: BellRing },
+        ]
+      },
+      {
+        id: 'network',
+        title: 'Network & Recruitment',
+        icon: Network,
+        locked: false,
+        sections: [
+          { id: '_group_network', title: 'Network', isGroupLabel: true } as any,
           { id: 'clubnetwork', title: 'Club Network', icon: Network },
           { id: 'playerlist', title: 'Player List', icon: Users },
+          { id: 'casestudies', title: 'Case Studies', icon: MessageSquare },
+          { id: '_group_scouting', title: 'Scouting', isGroupLabel: true } as any,
           { id: 'recruitment', title: 'Recruitment', icon: Target },
           { id: 'playerdatabase', title: 'Player Database', icon: Users },
           { id: 'scouts', title: 'Scouts', icon: Users },
@@ -646,88 +749,127 @@ const Staff = () => {
           { id: 'submissions', title: 'Form Submissions', icon: Mail },
         ]
       },
-    {
-      id: 'marketing',
-      title: 'Marketing & Brand',
-      icon: Megaphone,
-      locked: false,
-      sections: [
-        { id: 'marketing', title: 'Marketing', icon: Megaphone },
-        { id: 'contentcreator', title: 'Content Creator', icon: Film },
-        { id: 'designstudio', title: 'Design Studio', icon: Palette },
-        { id: 'casestudies', title: 'Case Studies', icon: Users },
-        { id: 'marketingtips', title: 'Tips & Lessons', icon: Target },
-        { id: 'blog', title: 'News Articles', icon: Newspaper },
-        { id: 'dailyfuel', title: 'Daily Fuel', icon: FileText },
-        { id: 'pressreleases', title: 'Press Releases', icon: Newspaper },
-        { id: 'streams', title: 'Streams', icon: Radio },
-        { id: 'visitors', title: 'Site Visitors', icon: Eye },
-      ]
-    },
-    {
-      id: 'sales',
-      title: 'Sales',
-      icon: ShoppingCart,
-      locked: isMarketeer,
-      sections: [
-        { id: 'sales', title: 'Sales & Pay Links', icon: ShoppingCart },
-        { id: 'catalogue', title: 'Service Catalogue', icon: FileText },
-        { id: 'shopcatalogue', title: 'Shop Catalogue', icon: Package },
-        { id: 'salestracker', title: 'Sales Tracker', icon: TrendingUp },
-        { id: 'retention', title: 'Retention', icon: Users },
-        { id: 'outreach', title: 'Outreach', icon: UserCog },
-        { id: 'saleshub', title: 'Sales Hub', icon: FileText },
-      ]
-    },
-    {
-      id: 'financial',
-      title: 'Financial',
-      icon: Wallet,
-      locked: isMarketeer,
-      sections: [
-        { id: 'invoices', title: 'Invoices', icon: FileCheck },
-        { id: 'payments', title: 'Payments In/Out', icon: Receipt },
-        { id: 'expenses', title: 'Expenses', icon: Calculator },
-        { id: 'taxrecords', title: 'Tax Records', icon: FileSpreadsheet },
-        { id: 'budgets', title: 'Budgets', icon: PiggyBank },
-        { id: 'financialreports', title: 'Reports', icon: TrendingUp },
-      ]
-    },
-    {
-      id: 'admin',
-      title: 'Admin & Legal',
-      icon: Scale,
-      locked: isMarketeer,
-      sections: [
-        { id: 'legal', title: 'Legal', icon: Scale },
-        { id: 'contracts', title: 'Contracts', icon: FileCheck },
-        { id: 'languages', title: 'Languages', icon: Languages },
-        ...(isAdmin ? [
-          { id: 'jobs', title: 'Jobs', icon: FileCheck },
-          { id: 'partners', title: 'Partners', icon: Network },
+      {
+        id: 'marketing',
+        title: 'Marketing & Brand',
+        icon: Megaphone,
+        locked: false,
+        sections: [
+          { id: '_group_content', title: 'Content', isGroupLabel: true } as any,
+          { id: 'marketing', title: 'Marketing', icon: Megaphone },
+          { id: 'contentcreator', title: 'Content Creator', icon: Film },
+          { id: 'marketingideas', title: 'Marketing Ideas', icon: Target },
+          { id: 'marketingtips', title: 'Tips & Lessons', icon: Target },
+          { id: '_group_publishing', title: 'Publishing', isGroupLabel: true } as any,
+          { id: 'blog', title: 'News Articles', icon: Newspaper },
+          { id: 'dailyfuel', title: 'Daily Fuel', icon: FileText },
+          { id: 'pressreleases', title: 'Press Releases', icon: Newspaper },
+          { id: 'visitors', title: 'Site Visitors', icon: Eye },
+        ]
+      },
+      {
+        id: 'sales',
+        title: 'Sales',
+        icon: ShoppingCart,
+        locked: false,
+        sections: [
+          { id: 'sales', title: 'Sales & Pay Links', icon: ShoppingCart },
+          { id: 'catalogue', title: 'Service Catalogue', icon: FileText },
+          { id: 'shopcatalogue', title: 'Shop Catalogue', icon: Package },
+          { id: 'salestracker', title: 'Sales Tracker', icon: TrendingUp },
+          { id: 'retention', title: 'Retention', icon: Users },
+          { id: 'outreach', title: 'Outreach', icon: UserCog },
+          { id: 'saleshub', title: 'Sales Hub', icon: FileText },
+        ]
+      },
+      {
+        id: 'financial',
+        title: 'Financial',
+        icon: Wallet,
+        locked: false,
+        sections: [
+          { id: '_group_billing', title: 'Billing', isGroupLabel: true } as any,
+          { id: 'invoices', title: 'Invoices', icon: FileCheck },
+          { id: 'payments', title: 'Payments In/Out', icon: Receipt },
+          { id: '_group_tracking', title: 'Tracking', isGroupLabel: true } as any,
+          { id: 'expenses', title: 'Expenses', icon: Calculator },
+          { id: 'taxrecords', title: 'Tax Records', icon: FileSpreadsheet },
+          { id: '_group_overview_fin', title: 'Overview', isGroupLabel: true } as any,
+          { id: 'budgets', title: 'Budgets', icon: PiggyBank },
+          { id: 'financialreports', title: 'Reports', icon: TrendingUp },
+        ]
+      },
+      {
+        id: 'legal',
+        title: 'Legal',
+        icon: Scale,
+        locked: false,
+        sections: [
+          { id: 'legal', title: 'Legal', icon: Scale },
+          { id: 'contracts', title: 'Contracts', icon: FileCheck },
+          { id: 'partners', title: 'Partners', icon: Handshake },
+          { id: 'jobs', title: 'Jobs', icon: Briefcase },
+          { id: 'languages', title: 'Languages', icon: Languages },
+        ]
+      },
+      {
+        id: 'admin',
+        title: 'Admin',
+        icon: Shield,
+        locked: false,
+        sections: [
+          { id: '_group_site', title: 'Site', isGroupLabel: true } as any,
           { id: 'sitemanagement', title: 'Site Management', icon: Settings },
-          { id: 'passwords', title: 'Player Passwords', icon: Lock },
-          { id: 'staffaccounts', title: 'Staff Accounts', icon: Shield },
-        ] : []),
-        ...(isAdmin || isStaff || isMarketeer ? [
+          ...(isAdmin ? [
+            { id: '_group_access', title: 'Access', isGroupLabel: true } as any,
+            { id: 'passwords', title: 'Player Passwords', icon: Lock },
+            { id: 'staffaccounts', title: 'Staff Accounts', icon: Shield },
+          ] : []),
+          { id: '_group_system', title: 'System', isGroupLabel: true } as any,
           { id: 'pwainstall', title: 'PWA Install', icon: Download },
           { id: 'offlinemanager', title: 'Offline Content', icon: HardDrive },
-          { id: 'pushnotifications', title: 'Push Notifications', icon: Bell }
-        ] : []),
-      ]
-    }
-  ];
+          { id: 'pushnotifications', title: 'Push Notifications', icon: Bell },
+        ]
+      }
+    ];
+  };
+
+  const categories = buildCategories();
+
+  // Keyword map for deeper sidebar search
+  const SECTION_KEYWORDS: Record<string, string[]> = {
+    coaching: ['drills', 'sessions', 'exercises', 'database', 'training'],
+    analysis: ['match', 'pre-match', 'post-match', 'video', 'reports'],
+    players: ['player', 'management', 'squad', 'roster', 'profile'],
+    marketing: ['campaigns', 'social', 'brand', 'content', 'posts'],
+    invoices: ['billing', 'payments', 'fees', 'charges'],
+    legal: ['contracts', 'documents', 'compliance', 'agreements'],
+    clubnetwork: ['contacts', 'clubs', 'agents', 'scouts', 'network'],
+    casestudies: ['messaging', 'conversations', 'case studies', 'outreach', 'examples'],
+    recruitment: ['prospects', 'signings', 'targets', 'transfers'],
+    expenses: ['costs', 'receipts', 'spending', 'reimbursement'],
+    athletecentre: ['athlete', 'development', 'programming', 'periodisation'],
+    nutrition: ['nutrition', 'diet', 'food', 'macros', 'calories', 'meal'],
+    streams: ['stream', 'live', 'watch', 'channel', 'broadcast', 'tv'],
+    scoutingcentre: ['scouting', 'reports', 'scouts', 'evaluations'],
+    transferhub: ['transfers', 'outreach', 'clubs', 'deals'],
+  };
 
   const filteredCategories = categories.map(category => ({
     ...category,
-    sections: category.sections.filter(section =>
-      section.title.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })).filter(category => category.sections.length > 0);
+    sections: category.sections.filter(section => {
+      if ((section as any).isGroupLabel) return true;
+      const q = searchQuery.toLowerCase();
+      if (!q) return true;
+      if (section.title.toLowerCase().includes(q)) return true;
+      const keywords = SECTION_KEYWORDS[section.id] || [];
+      return keywords.some(kw => kw.includes(q));
+    })
+  })).filter(category => category.sections.filter(s => !(s as any).isGroupLabel).length > 0);
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Marble background with more visible overlay */}
+      {/* Marble background */}
       <div 
         className="fixed inset-0 pointer-events-none z-0"
         style={{
@@ -739,15 +881,163 @@ const Staff = () => {
         }}
       />
 
-      {/* Header with Logo - always visible */}
+      {/* Header with Logo and Tabs */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center h-16">
+        <div className="flex items-center h-16 px-4 relative">
+          {/* Centre logo */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
             <img 
               src="/fff_logo.png"
               alt="Fuel For Football"
               className="h-10 w-auto"
             />
+          </div>
+
+          {/* Left side: open tabs */}
+          <div className="flex items-center gap-1.5 overflow-hidden min-w-0 mr-4"
+            style={{ maxWidth: 'calc(50% - 60px)' }}
+            onDragOver={(e) => e.preventDefault()}
+            onDragEnd={() => { setDraggingTabId(null); setDragOverTabId(null); isDragConfirmedRef.current = false; }}
+          >
+            {(() => {
+              const openTabs: string[] = (() => { try { return JSON.parse(localStorage.getItem('staff_open_tabs') || '[]'); } catch { return []; } })();
+              const allSections = categories.flatMap(c => c.sections.filter(s => !(s as any).isGroupLabel));
+              const MAX_VISIBLE = isMobile ? 2 : 3;
+
+              const displayTabs = (() => {
+                if (draggingTabId && dragOverTabId && draggingTabId !== dragOverTabId) {
+                  const reordered = [...openTabs];
+                  const fromIdx = reordered.indexOf(draggingTabId);
+                  const toIdx = reordered.indexOf(dragOverTabId);
+                  if (fromIdx !== -1 && toIdx !== -1) {
+                    reordered.splice(fromIdx, 1);
+                    reordered.splice(toIdx, 0, draggingTabId);
+                    return reordered;
+                  }
+                }
+                return openTabs;
+              })();
+
+              const visibleTabs = displayTabs.slice(0, MAX_VISIBLE);
+              const overflowTabs = displayTabs.slice(MAX_VISIBLE);
+
+              return (
+                <>
+                  {visibleTabs.map((tabId) => {
+                    const sec = allSections.find(s => s.id === tabId);
+                    if (!sec) return null;
+                    const TabIcon = sec.icon;
+                    const isActive = expandedSection === tabId;
+
+                    return (
+                      <motion.div key={tabId} layout transition={{ type: 'spring', stiffness: 500, damping: 35 }} className="shrink-0">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              draggable
+                              onDragStart={(e) => {
+                                e.dataTransfer.setData('text/plain', tabId);
+                                e.dataTransfer.effectAllowed = 'move';
+                                dragStartXRef.current = e.clientX;
+                                isDragConfirmedRef.current = false;
+                                setDraggingTabId(tabId);
+                              }}
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = 'move';
+                                if (!isDragConfirmedRef.current && Math.abs(e.clientX - dragStartXRef.current) < 30) return;
+                                isDragConfirmedRef.current = true;
+                                if (dragOverTabId !== tabId) setDragOverTabId(tabId);
+                              }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                const draggedId = e.dataTransfer.getData('text/plain');
+                                if (draggedId === tabId) { setDraggingTabId(null); setDragOverTabId(null); isDragConfirmedRef.current = false; return; }
+                                if (!isDragConfirmedRef.current) { setDraggingTabId(null); setDragOverTabId(null); return; }
+                                const updated = [...openTabs];
+                                const fromIdx = updated.indexOf(draggedId);
+                                const toIdx = updated.indexOf(tabId);
+                                if (fromIdx === -1 || toIdx === -1) return;
+                                updated.splice(fromIdx, 1);
+                                updated.splice(toIdx, 0, draggedId);
+                                localStorage.setItem('staff_open_tabs', JSON.stringify(updated));
+                                setDraggingTabId(null);
+                                setDragOverTabId(null);
+                                isDragConfirmedRef.current = false;
+                                setExpandedSection(prev => prev);
+                              }}
+                              onClick={() => handleSectionToggle(tabId)}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all shrink-0 rounded-full border cursor-grab active:cursor-grabbing ${
+                                isActive
+                                  ? 'border-primary/40 text-primary bg-primary/10'
+                                  : 'border-border/50 text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/40'
+                              }`}
+                            >
+                              <TabIcon className="w-3.5 h-3.5" />
+                              <span className="truncate max-w-[80px]">{sec.title}</span>
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent side="bottom" align="start" className="w-32 p-1">
+                            <Button variant="ghost" size="sm" className="w-full justify-start text-xs text-destructive" onClick={() => removeTab(tabId)}>
+                              Remove tab
+                            </Button>
+                          </PopoverContent>
+                        </Popover>
+                      </motion.div>
+                    );
+                  })}
+
+                  {overflowTabs.length > 0 && (
+                    <>
+                      <button
+                        onClick={() => setTabOverflowOpen(true)}
+                        className="flex items-center px-2.5 py-1.5 text-xs font-medium rounded-full border border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted/40 shrink-0"
+                      >
+                        +{overflowTabs.length}
+                      </button>
+                      <Dialog open={tabOverflowOpen} onOpenChange={setTabOverflowOpen}>
+                        <DialogContent className="max-w-sm">
+                          <div className="space-y-3">
+                            <p className="text-sm font-semibold">Open Tabs</p>
+                            <div className="space-y-1 max-h-80 overflow-y-auto">
+                              {openTabs.map(tId => {
+                                const s = allSections.find(x => x.id === tId);
+                                if (!s) return null;
+                                const TIcon = s.icon;
+                                const active = expandedSection === tId;
+                                return (
+                                  <div key={tId} className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer ${active ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50'}`}>
+                                    <TIcon className="w-4 h-4 shrink-0" />
+                                    <span className="text-sm flex-1 truncate" onClick={() => { handleSectionToggle(tId); setTabOverflowOpen(false); }}>{s.title}</span>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0" onClick={() => removeTab(tId)}>
+                                      <span className="text-xs">×</span>
+                                    </Button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </>
+                  )}
+
+                  {/* Add tab button */}
+                  <button
+                    className="flex items-center justify-center w-7 h-7 rounded-full border border-dashed border-border/50 text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/40 shrink-0 transition-colors"
+                    onClick={() => addSectionAsTab('overview')}
+                    title="Open new tab"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </>
+              );
+            })()}
+          </div>
+
+          {/* Right side: notifications */}
+          <div className="flex items-center gap-3 shrink-0 ml-auto">
+            {user && <StaffNotificationsDropdown />}
           </div>
         </div>
       </header>
@@ -756,134 +1046,127 @@ const Staff = () => {
       <div className="flex flex-1 relative">
         {/* Quick Search Command Dialog */}
         <Dialog open={sidebarSearchOpen} onOpenChange={setSidebarSearchOpen}>
-          <DialogContent className="overflow-hidden p-0 shadow-lg">
+          <DialogContent className="overflow-hidden p-0 shadow-lg max-w-3xl w-[90vw]">
             <Command shouldFilter={false} className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
               <CommandInput 
                 placeholder="Search players, updates, content..." 
                 onValueChange={(value) => {
-                  // Clear previous timeout
                   if (searchTimeoutRef.current) {
                     clearTimeout(searchTimeoutRef.current);
                   }
-                  // Set new timeout for debounced search
                   searchTimeoutRef.current = setTimeout(() => {
                     performGlobalSearch(value);
                   }, 300);
                 }}
               />
               <CommandList>
-            {searchLoading ? (
-              <div className="py-6 text-center text-sm text-muted-foreground">Searching...</div>
-            ) : (
-              <>
-                {searchResults.length > 0 && (
-                  <CommandGroup heading={`Found ${searchResults.length} result${searchResults.length !== 1 ? 's' : ''}`}>
-                    {searchResults.map((result) => (
-                      <CommandItem
-                        key={`${result.type}-${result.id}`}
-                        onSelect={() => {
-                          // Always expand the section (don't toggle)
-                          setExpandedSection(result.sectionId as any);
-                          setExpandedCategory(
-                            categories.find(c => c.sections.some(s => s.id === result.sectionId))?.id || null
+                {searchLoading ? (
+                  <div className="py-6 text-center text-sm text-muted-foreground">Searching...</div>
+                ) : (
+                  <>
+                    {searchResults.length > 0 && (
+                      <CommandGroup heading={`Found ${searchResults.length} result${searchResults.length !== 1 ? 's' : ''}`}>
+                        {searchResults.map((result) => (
+                          <CommandItem
+                            key={`${result.type}-${result.id}`}
+                            onSelect={() => {
+                              setExpandedSection(result.sectionId);
+                              setExpandedCategory(
+                                categories.find(c => c.sections.some(s => s.id === result.sectionId))?.id || null
+                              );
+                              
+                              if (result.type === 'player') {
+                                navigate(`/staff?section=${result.sectionId}&player=${result.id}`);
+                                toast.success(`Opening ${result.title} in ${result.section}`);
+                              } else {
+                                toast.success(`Opening ${result.section}`);
+                              }
+                              
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                              setSidebarSearchOpen(false);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <div className="flex flex-col gap-1 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{result.title}</span>
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">{result.section}</span>
+                              </div>
+                              {result.description && (
+                                <span className="text-xs text-muted-foreground line-clamp-1">{result.description}</span>
+                              )}
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    )}
+                    
+                    {searchResults.length === 0 && (
+                      <CommandEmpty>
+                        {searchLoading ? 'Searching...' : 'No results found. Try searching for players, updates, or other content.'}
+                      </CommandEmpty>
+                    )}
+                    
+                    <CommandGroup heading="Jump to Section">
+                      {(() => {
+                        const searchInput = document.querySelector('[cmdk-input]') as HTMLInputElement;
+                        const currentSearch = searchInput?.value?.toLowerCase() || '';
+                        
+                        const allSections = categories.flatMap(category => 
+                          category.sections.filter(s => !(s as any).isGroupLabel).map(section => ({ section, category }))
+                        );
+                        
+                        const sortedSections = allSections.sort((a, b) => {
+                          if (!currentSearch) return 0;
+                          
+                          const aTitle = a.section.title.toLowerCase();
+                          const bTitle = b.section.title.toLowerCase();
+                          
+                          const aExact = aTitle === currentSearch;
+                          const bExact = bTitle === currentSearch;
+                          if (aExact && !bExact) return -1;
+                          if (bExact && !aExact) return 1;
+                          
+                          const aStarts = aTitle.startsWith(currentSearch);
+                          const bStarts = bTitle.startsWith(currentSearch);
+                          if (aStarts && !bStarts) return -1;
+                          if (bStarts && !aStarts) return 1;
+                          
+                          const aContains = aTitle.includes(currentSearch);
+                          const bContains = bTitle.includes(currentSearch);
+                          if (aContains && !bContains) return -1;
+                          if (bContains && !aContains) return 1;
+                          
+                          return 0;
+                        });
+                        
+                        return sortedSections.map(({ section, category }) => {
+                          const Icon = section.icon;
+                          return (
+                            <CommandItem
+                              key={section.id}
+                              onSelect={() => {
+                                if (category.locked) {
+                                  toast.error("You don't have permission to access this section");
+                                  return;
+                                }
+                                handleSectionToggle(section.id);
+                                setExpandedCategory(category.id);
+                                setSidebarSearchOpen(false);
+                              }}
+                              disabled={category.locked}
+                              className="cursor-pointer"
+                            >
+                              <Icon className="mr-2 h-4 w-4" />
+                              <span>{section.title}</span>
+                            </CommandItem>
                           );
-                          
-                          // Navigate with player ID if it's a player search result
-                          if (result.type === 'player') {
-                            navigate(`/staff?section=${result.sectionId}&player=${result.id}`);
-                            toast.success(`Opening ${result.title} in ${result.section}`);
-                          } else {
-                            toast.success(`Opening ${result.section}`);
-                          }
-                          
-                          // Ensure the opened section is visible at the top of the page
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                          setSidebarSearchOpen(false);
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <div className="flex flex-col gap-1 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{result.title}</span>
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">{result.section}</span>
-                          </div>
-                          {result.description && (
-                            <span className="text-xs text-muted-foreground line-clamp-1">{result.description}</span>
-                          )}
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                        });
+                      })()}
+                    </CommandGroup>
+                  </>
                 )}
-                
-                {searchResults.length === 0 && (
-                  <CommandEmpty>
-                    {searchLoading ? 'Searching...' : 'No results found. Try searching for players, updates, or other content.'}
-                  </CommandEmpty>
-                )}
-                
-                <CommandGroup heading="Jump to Section">
-                  {(() => {
-                    const searchInput = document.querySelector('[cmdk-input]') as HTMLInputElement;
-                    const currentSearch = searchInput?.value?.toLowerCase() || '';
-                    
-                    // Flatten sections and sort by relevance to search
-                    const allSections = categories.flatMap(category => 
-                      category.sections.map(section => ({ section, category }))
-                    );
-                    
-                    // Sort: exact matches first, then starts-with, then contains
-                    const sortedSections = allSections.sort((a, b) => {
-                      if (!currentSearch) return 0;
-                      
-                      const aTitle = a.section.title.toLowerCase();
-                      const bTitle = b.section.title.toLowerCase();
-                      
-                      const aExact = aTitle === currentSearch;
-                      const bExact = bTitle === currentSearch;
-                      if (aExact && !bExact) return -1;
-                      if (bExact && !aExact) return 1;
-                      
-                      const aStarts = aTitle.startsWith(currentSearch);
-                      const bStarts = bTitle.startsWith(currentSearch);
-                      if (aStarts && !bStarts) return -1;
-                      if (bStarts && !aStarts) return 1;
-                      
-                      const aContains = aTitle.includes(currentSearch);
-                      const bContains = bTitle.includes(currentSearch);
-                      if (aContains && !bContains) return -1;
-                      if (bContains && !aContains) return 1;
-                      
-                      return 0;
-                    });
-                    
-                    return sortedSections.map(({ section, category }) => {
-                      const Icon = section.icon;
-                      return (
-                        <CommandItem
-                          key={section.id}
-                          onSelect={() => {
-                            if (category.locked) {
-                              toast.error("You don't have permission to access this section");
-                              return;
-                            }
-                            handleSectionToggle(section.id as any);
-                            setExpandedCategory(category.id);
-                            setSidebarSearchOpen(false);
-                          }}
-                          disabled={category.locked}
-                          className="cursor-pointer"
-                        >
-                          <Icon className="mr-2 h-4 w-4" />
-                          <span>{section.title}</span>
-                        </CommandItem>
-                      );
-                    });
-                  })()}
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
+              </CommandList>
             </Command>
           </DialogContent>
         </Dialog>
@@ -891,7 +1174,7 @@ const Staff = () => {
         {/* Sidebar Collapse Toggle Button */}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className={`fixed ${isMobile ? 'top-20' : 'top-20'} left-2 z-20 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border shadow-lg hover:bg-background transition-all duration-300 ${
+          className={`fixed top-20 left-2 z-20 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border shadow-lg hover:bg-background transition-all duration-300 ${
             sidebarCollapsed ? 'opacity-50 hover:opacity-100' : ''
           }`}
           aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -904,9 +1187,40 @@ const Staff = () => {
         </button>
 
         {/* Left Sidebar - Fixed */}
-        <div className={`fixed ${isMobile ? 'top-16' : 'top-16'} left-0 bottom-0 border-r bg-muted/30 backdrop-blur-sm flex flex-col items-start py-4 gap-2 overflow-y-auto scrollbar-thin z-10 transition-all duration-300 pb-24 ${
+        <div className={`fixed top-16 left-0 bottom-0 border-r bg-muted/30 backdrop-blur-sm flex flex-col items-start py-4 pb-20 gap-2 overflow-y-auto scrollbar-thin z-10 transition-all duration-300 ${
           sidebarCollapsed ? 'w-0 border-0 opacity-0 pointer-events-none' : 'w-14 md:w-24'
         }`}>
+          {/* Pinned Sections */}
+          {pinnedSections.length > 0 && !expandedCategory && (
+            <div className="w-full space-y-1 pb-1">
+              {pinnedSections.map(pinId => {
+                const section = categories.flatMap(c => c.sections).find(s => s.id === pinId && !(s as any).isGroupLabel);
+                if (!section) return null;
+                const PinIcon = section.icon;
+                const isActive = expandedSection === pinId;
+                return (
+                  <button
+                    key={pinId}
+                    onClick={() => {
+                      handleSectionToggle(pinId);
+                      const parent = categories.find(c => c.sections.some(s => s.id === pinId));
+                      if (parent) setExpandedCategory(parent.id);
+                    }}
+                    className={`group w-full rounded-lg flex flex-col items-center justify-center py-1.5 px-1 transition-all ${
+                      isActive ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-primary/10'
+                    }`}
+                    title={section.title}
+                  >
+                    <PinIcon className={`w-4 h-4 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
+                  </button>
+                );
+              })}
+              <div className="w-full px-2 py-1">
+                <div className="h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
+              </div>
+            </div>
+          )}
+
           {/* Search Button */}
           <button
             onClick={() => setSidebarSearchOpen(true)}
@@ -920,11 +1234,11 @@ const Staff = () => {
           {filteredCategories.map((category, index) => {
             const CategoryIcon = category.icon;
             const isExpanded = expandedCategory === category.id;
-            const hasActiveSection = category.sections.some(s => s.id === expandedSection);
-            const isSingleSection = category.sections.length === 1;
+            const hasActiveSection = category.sections.filter(s => !(s as any).isGroupLabel).some(s => s.id === expandedSection);
+            const realSections = category.sections.filter(s => !(s as any).isGroupLabel);
+            const isSingleSection = realSections.length === 1;
             
-            // Hide this category if another one is expanded
-            const shouldShow = !expandedCategory || expandedCategory === category.id || isSingleSection;
+            const shouldShow = !expandedCategory || expandedCategory === category.id;
             
             return (
               <div key={category.id} className={`w-full ${!shouldShow ? 'hidden' : ''}`}>
@@ -936,7 +1250,7 @@ const Staff = () => {
                       return;
                     }
                     if (isSingleSection) {
-                      handleSectionToggle(category.sections[0].id as any);
+                      handleSectionToggle(realSections[0].id);
                     } else {
                       setExpandedCategory(isExpanded ? null : category.id);
                     }
@@ -944,9 +1258,9 @@ const Staff = () => {
                   className={`group relative w-full rounded-lg flex flex-col items-center justify-center py-2 md:py-3 px-1 md:px-2 transition-all ${
                     category.locked 
                       ? 'opacity-50 cursor-not-allowed hover:bg-muted/30' 
-                      : 'hover:bg-accent/20'
+                      : 'hover:bg-primary/20'
                   } ${
-                    hasActiveSection || isExpanded ? 'bg-accent shadow-lg' : ''
+                    hasActiveSection || isExpanded ? 'bg-gradient-to-br from-primary via-primary to-primary shadow-lg' : ''
                   }`}
                 >
                   <CategoryIcon className={`w-5 h-5 md:w-6 md:h-6 mb-0.5 md:mb-1 ${hasActiveSection || isExpanded ? 'text-primary-foreground' : ''}`} />
@@ -955,39 +1269,75 @@ const Staff = () => {
                       <span key={i} className="block">{word}</span>
                     ))}
                   </span>
-                  {/* Lock icon */}
                   {category.locked && (
                     <Lock className="absolute bottom-1 right-1 w-2.5 h-2.5 md:w-3 md:h-3 text-muted-foreground" />
                   )}
                 </button>
 
-                {/* Sections (shown when expanded) */}
+                {/* Sections (shown when expanded) - staggered animation */}
+                <AnimatePresence>
                 {isExpanded && !isSingleSection && (
-                  <div className="w-full space-y-1.5 mt-2">
+                  <motion.div
+                    className="w-full space-y-1 mt-2 pb-16"
+                    initial="hidden"
+                    animate="show"
+                    exit="hidden"
+                    variants={{ hidden: {}, show: { transition: { staggerChildren: 0.04 } } }}
+                  >
                     {category.sections.map((section) => {
+                      if ((section as any).isGroupLabel) {
+                        return (
+                          <motion.div
+                            key={section.id}
+                            className="pt-2 pb-0.5 px-1"
+                            variants={{ hidden: { x: -10, opacity: 0 }, show: { x: 0, opacity: 1 } }}
+                          >
+                            <span className="text-[5px] sm:text-[6px] uppercase tracking-widest text-primary/60 font-bold text-center block">
+                              {section.title}
+                            </span>
+                            <div className="h-px bg-primary/20 mt-0.5" />
+                          </motion.div>
+                        );
+                      }
                       const SectionIcon = section.icon;
                       const isActive = expandedSection === section.id;
+                      const isPinned = pinnedSections.includes(section.id);
                       return (
-                        <button
+                        <motion.div
                           key={section.id}
-                          onClick={() => handleSectionToggle(section.id as any)}
-                          className={`group relative w-full rounded-lg flex flex-col items-center justify-center py-1.5 md:py-2 px-1 transition-all ${
-                            isActive 
-                              ? 'bg-accent shadow-md' 
-                              : 'hover:bg-accent/10'
-                          }`}
+                          variants={{ hidden: { x: -10, opacity: 0 }, show: { x: 0, opacity: 1 } }}
                         >
-                          <SectionIcon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 md:mb-1 ${isActive ? 'text-[#0a3622]' : ''}`} />
-                          <span className={`text-[5px] sm:text-[6px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${isActive ? 'text-[#0a3622] font-bold' : 'text-muted-foreground'}`}>
-                            {section.title.split(' ').map((word, i) => (
-                              <span key={i} className="block">{word}</span>
-                            ))}
-                          </span>
-                        </button>
+                          <button
+                            onClick={() => handleSectionToggle(section.id)}
+                            className={`group relative w-full rounded-lg flex flex-col items-center justify-center py-1.5 md:py-2 px-1 transition-all ${
+                              isActive 
+                                ? 'bg-primary text-primary-foreground shadow-md' 
+                                : 'hover:bg-primary/10'
+                            }`}
+                          >
+                            <SectionIcon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 md:mb-1 ${isActive ? 'text-primary-foreground' : ''}`} />
+                            <span className={`text-[5px] sm:text-[6px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                              {section.title.split(' ').map((word, i) => (
+                                <span key={i} className="block">{word}</span>
+                              ))}
+                            </span>
+                            {/* Pin/star icon on hover */}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); togglePin(section.id); }}
+                              className={`absolute -top-0.5 -right-0.5 p-0.5 rounded-full transition-all ${
+                                isPinned ? 'opacity-100 text-primary' : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-primary'
+                              }`}
+                              title={isPinned ? 'Unpin section' : 'Pin section'}
+                            >
+                              <Star className={`w-2.5 h-2.5 ${isPinned ? 'fill-primary' : ''}`} />
+                            </button>
+                          </button>
+                        </motion.div>
                       );
                     })}
-                  </div>
+                  </motion.div>
                 )}
+                </AnimatePresence>
                 
                 {/* Gold divider between categories */}
                 {index < filteredCategories.length - 1 && (
@@ -1006,13 +1356,28 @@ const Staff = () => {
         } ${isMobile ? 'pb-[60px]' : ''}`}>
           {expandedSection ? (
             <div className="container mx-auto px-3 md:px-6 py-4 md:py-6">
+              {/* Breadcrumb */}
+              {(() => {
+                const parentCat = categories.find(c => c.sections.some(s => s.id === expandedSection && !(s as any).isGroupLabel));
+                const activeSection = parentCat?.sections.find(s => s.id === expandedSection && !(s as any).isGroupLabel);
+                if (parentCat && activeSection) {
+                  return (
+                    <StaffBreadcrumb
+                      categoryTitle={parentCat.title}
+                      categoryIcon={parentCat.icon}
+                      sectionTitle={activeSection.title}
+                      onCategoryClick={() => {
+                        setExpandedCategory(parentCat.id);
+                        setExpandedSection(null);
+                        setSearchParams({});
+                      }}
+                    />
+                  );
+                }
+                return null;
+              })()}
               <Card className="animate-in fade-in slide-in-from-top-4 duration-300">
-                <CardHeader>
-                  <CardTitle className="text-2xl">
-                    {categories.flatMap(c => c.sections).find(s => s.id === expandedSection)?.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   {expandedSection === 'overview' && <StaffOverview isAdmin={isAdmin} userId={user?.id} />}
                   {expandedSection === 'schedule' && (
                     <div className="space-y-6">
@@ -1027,6 +1392,11 @@ const Staff = () => {
                   {expandedSection === 'visionboard' && <VisionBoardSection />}
                   {expandedSection === 'focusedtasks' && <FocusedTasksSection />}
                   {expandedSection === 'staffschedules' && <StaffSchedulesManagement />}
+                  {expandedSection === 'docs' && <DocsSection />}
+                  {expandedSection === 'sheets' && <SheetsSection />}
+                  {expandedSection === 'designstudio' && <DesignStudio />}
+                  {expandedSection === 'klipdraw' && <KlipDraw />}
+                  {expandedSection === 'streams' && <StreamsManagement />}
                   {expandedSection === 'playerlist' && <PlayerList isAdmin={isAdmin} />}
                   {expandedSection === 'players' && <PlayerManagement isAdmin={isAdmin} />}
                   {expandedSection === 'recruitment' && <RecruitmentManagement isAdmin={isAdmin} />}
@@ -1034,24 +1404,27 @@ const Staff = () => {
                   {expandedSection === 'scouts' && <ScoutsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'scoutingcentre' && <ScoutingCentreManagement isAdmin={isAdmin} />}
                   {expandedSection === 'coaching' && <CoachingDatabase isAdmin={isAdmin} />}
-                  {expandedSection === 'timemanagement' && <TimeManagement />}
+                  {expandedSection === 'coachingchat' && <CoachingAIChat />}
                   {expandedSection === 'serviceaudit' && <ServiceAudit />}
-                  {expandedSection === 'docs' && <DocsSection />}
-                  {expandedSection === 'sheets' && <SheetsSection />}
+                  {expandedSection === 'nutrition' && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Apple className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium">Nutrition Programs</p>
+                      <p className="text-sm">Select a player from Player Management to manage their nutrition program</p>
+                    </div>
+                  )}
                   {expandedSection === 'analysis' && <AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} />}
                   {expandedSection === 'highlightmaker' && <HighlightMaker isAdmin={isAdmin} />}
-                  {expandedSection === 'klipdraw' && <KlipDraw />}
+                  {expandedSection === 'athletecentre' && <AthleteCentre />}
+                  {expandedSection === 'transferhub' && <TransferHub isAdmin={isAdmin} />}
                   {expandedSection === 'marketing' && <MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
                   {expandedSection === 'contentcreator' && <ContentCreator />}
-                  {expandedSection === 'designstudio' && <DesignStudio />}
-                  {expandedSection === 'casestudies' && <CaseStudyManagement />}
                   {expandedSection === 'marketingideas' && <MarketingIdeas />}
                   {expandedSection === 'marketingtips' && <MarketingTipsManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'casestudies' && <CaseStudyManagement />}
                   {expandedSection === 'blog' && <BlogManagement isAdmin={isAdmin} />}
                   {expandedSection === 'dailyfuel' && <DailyFuelManagement isAdmin={isAdmin} />}
                   {expandedSection === 'pressreleases' && <PressReleasesManagement isAdmin={isAdmin} />}
-                  {expandedSection === 'streams' && <StreamsManagement />}
-                  
                   {expandedSection === 'submissions' && <FormSubmissionsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'visitors' && <SiteVisitorsManagement isAdmin={isAdmin} />}
                   {expandedSection === 'invoices' && <InvoiceManagement isAdmin={isAdmin} />}
@@ -1069,20 +1442,18 @@ const Staff = () => {
                   {expandedSection === 'saleshub' && <SalesHub />}
                   {expandedSection === 'updates' && <UpdatesManagement isAdmin={isAdmin} />}
                   {expandedSection === 'clubnetwork' && <ClubNetworkManagement />}
-                  
-                  {expandedSection === 'athletecentre' && <AthleteCentre />}
-                  {expandedSection === 'coachingchat' && <CoachingAIChat />}
                   {expandedSection === 'legal' && <LegalManagement isAdmin={isAdmin} />}
                   {expandedSection === 'contracts' && <ContractSignature />}
                   {expandedSection === 'languages' && <LanguagesManagement isAdmin={isAdmin} />}
-                  {expandedSection === 'sitemanagement' && isAdmin && <SiteManagement isAdmin={isAdmin} />}
-                  {expandedSection === 'jobs' && isAdmin && <JobsManagement isAdmin={isAdmin} />}
-                  {expandedSection === 'partners' && isAdmin && <PartnersManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'sitemanagement' && <SiteManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'jobs' && <JobsManagement isAdmin={isAdmin} />}
+                  {expandedSection === 'partners' && <PartnersManagement isAdmin={isAdmin} />}
                   {expandedSection === 'passwords' && isAdmin && <PlayerPasswordManagement />}
                   {expandedSection === 'staffaccounts' && isAdmin && <StaffAccountManagement />}
-                  {expandedSection === 'pwainstall' && isAdmin && <StaffPWAInstall />}
-                  {expandedSection === 'offlinemanager' && isAdmin && <StaffOfflineManager />}
-                  {expandedSection === 'pushnotifications' && isAdmin && <StaffPushNotifications />}
+                  {expandedSection === 'pwainstall' && <StaffPWAInstall />}
+                  {expandedSection === 'offlinemanager' && <StaffOfflineManager />}
+                  {expandedSection === 'pushnotifications' && <StaffPushNotifications />}
+                  {expandedSection === 'timemanagement' && <TimeManagement />}
                 </CardContent>
               </Card>
             </div>
@@ -1117,13 +1488,20 @@ const Staff = () => {
                       </h3>
                       <div className="space-y-1">
                         {category.sections.map((section) => {
+                          if ((section as any).isGroupLabel) {
+                            return (
+                              <p key={section.id} className="text-[10px] font-bold uppercase tracking-wider text-primary/60 px-2 pt-2">
+                                {section.title}
+                              </p>
+                            );
+                          }
                           const Icon = section.icon;
                           return (
                             <Button
                               key={section.id}
                               variant={expandedSection === section.id ? "default" : "ghost"}
                               className="w-full justify-start text-sm h-10"
-                              onClick={() => handleSectionToggle(section.id as any)}
+                              onClick={() => handleSectionToggle(section.id)}
                             >
                               <Icon className="w-4 h-4 mr-2 shrink-0" />
                               <span className="truncate">{section.title}</span>
