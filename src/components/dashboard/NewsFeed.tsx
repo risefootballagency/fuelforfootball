@@ -34,11 +34,11 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 };
 
 const COLOUR_MAP: Record<string, string> = {
-  report: "bg-blue-500/15 text-blue-500",
-  analysis: "bg-primary/15 text-primary",
-  highlight: "bg-purple-500/15 text-purple-500",
-  programme: "bg-green-500/15 text-green-500",
-  comparison: "bg-orange-500/15 text-orange-500",
+  report: "bg-accent/15 text-accent",
+  analysis: "bg-accent/15 text-accent",
+  highlight: "bg-accent/15 text-accent",
+  programme: "bg-accent/15 text-accent",
+  comparison: "bg-accent/15 text-accent",
 };
 
 const STORAGE_KEY = "newsfeed_read_items";
