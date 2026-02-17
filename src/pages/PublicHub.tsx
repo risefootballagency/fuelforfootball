@@ -234,8 +234,10 @@ const PublicHub = ({ playerId: propPlayerId, isEmbedded = false }: PublicHubProp
               playerData={playerData}
               dailyAphorism={dailyAphorism}
               onNavigateToAnalysis={() => setActiveSection('analysis')}
+              onNavigateToComparisons={() => setActiveSection('analysis')}
               onNavigateToForm={() => {}}
               onNavigateToSession={() => setActiveSection('programmes')}
+              onNavigateToSchedule={() => setActiveSection('schedule')}
             />
           </TabsContent>
 
