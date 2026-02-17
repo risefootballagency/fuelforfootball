@@ -37,6 +37,15 @@ import { ProtectedContracts } from "@/components/player/ProtectedContracts";
 import { PaymentOptions } from "@/components/player/PaymentOptions";
 import { PlayerTransferHub } from "@/components/player/TransferHub";
 import { CognisanceSection } from "@/components/portal/CognisanceSection";
+import { AnalysisDataTab } from "@/components/portal/AnalysisDataTab";
+import { AnalysisVideoReports } from "@/components/portal/AnalysisVideoReports";
+import { AnalysisComparisons } from "@/components/portal/AnalysisComparisons";
+import { GoalTracking } from "@/components/portal/GoalTracking";
+import { InjuryLog } from "@/components/portal/InjuryLog";
+import { NutritionProgramDisplay } from "@/components/portal/NutritionProgramDisplay";
+import { PlayerMatchClipper } from "@/components/portal/PlayerMatchClipper";
+import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparisonMatrix";
+import { RadarChart3D } from "@/components/portal/RadarChart3D";
 
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
@@ -1820,7 +1829,7 @@ const Dashboard = () => {
             }}
             onNavigateToComparisons={() => {
               setActiveTab("analysis");
-              setActiveAnalysisTab("performance");
+              setActiveAnalysisTab("comparisons");
             }}
             onNavigateToForm={() => {
               setActiveTab("analysis");
@@ -1901,6 +1910,27 @@ const Dashboard = () => {
                   </TabsTrigger>
                   <TabsTrigger value="cognisance" className="font-bebas uppercase text-sm sm:text-base">
                     Cognisance
+                  </TabsTrigger>
+                  <TabsTrigger value="data" className="font-bebas uppercase text-sm sm:text-base">
+                    Data
+                  </TabsTrigger>
+                  <TabsTrigger value="video-reports" className="font-bebas uppercase text-sm sm:text-base">
+                    Video Reports
+                  </TabsTrigger>
+                  <TabsTrigger value="comparisons" className="font-bebas uppercase text-sm sm:text-base">
+                    Comparisons
+                  </TabsTrigger>
+                  <TabsTrigger value="goals" className="font-bebas uppercase text-sm sm:text-base">
+                    Goals
+                  </TabsTrigger>
+                  <TabsTrigger value="injury" className="font-bebas uppercase text-sm sm:text-base">
+                    Injury Log
+                  </TabsTrigger>
+                  <TabsTrigger value="nutrition" className="font-bebas uppercase text-sm sm:text-base">
+                    Nutrition
+                  </TabsTrigger>
+                  <TabsTrigger value="match-clips" className="font-bebas uppercase text-sm sm:text-base">
+                    Match Clips
                   </TabsTrigger>
                 </TabsList>
 
@@ -2270,6 +2300,109 @@ const Dashboard = () => {
                         playerId={playerData?.id || ""} 
                         playerPosition={playerData?.position}
                       />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="data">
+                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                    <CardHeader marble>
+                      <div className="container mx-auto px-4">
+                        <CardTitle className="font-heading tracking-tight">Data Overview</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="container mx-auto px-4">
+                      <AnalysisDataTab analyses={analyses} playerData={playerData} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="video-reports">
+                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                    <CardHeader marble>
+                      <div className="container mx-auto px-4">
+                        <CardTitle className="font-heading tracking-tight">Video Reports</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="container mx-auto px-4">
+                      <AnalysisVideoReports analyses={analyses} playerId={playerData?.id || ""} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="comparisons">
+                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                    <CardHeader marble>
+                      <div className="container mx-auto px-4">
+                        <CardTitle className="font-heading tracking-tight">Comparisons</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="container mx-auto px-4">
+                      <AnalysisComparisons analyses={analyses} playerData={playerData} />
+                      {playerData && (
+                        <div className="mt-4">
+                          <ScoutingComparisonMatrix
+                            playerName={playerData.name || ""}
+                            portalMetrics={{}}
+                            hasPortalData={analyses.length > 0}
+                            comparisonPlayers={[]}
+                            selectedPlayerIds={[]}
+                            formWindow={5}
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="goals">
+                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                    <CardHeader marble>
+                      <div className="container mx-auto px-4">
+                        <CardTitle className="font-heading tracking-tight">Goal Tracking</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="container mx-auto px-4">
+                      <GoalTracking playerData={playerData} fixtureAnalyses={analyses} formWindow={5} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="injury">
+                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                    <CardHeader marble>
+                      <div className="container mx-auto px-4">
+                        <CardTitle className="font-heading tracking-tight">Injury Log</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="container mx-auto px-4">
+                      <InjuryLog playerId={playerData?.id || ""} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="nutrition">
+                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                    <CardHeader marble>
+                      <div className="container mx-auto px-4">
+                        <CardTitle className="font-heading tracking-tight">Nutrition</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="container mx-auto px-4">
+                      <NutritionProgramDisplay playerId={playerData?.id || ""} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="match-clips">
+                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                    <CardHeader marble>
+                      <div className="container mx-auto px-4">
+                        <CardTitle className="font-heading tracking-tight">Match Clips</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="container mx-auto px-4">
+                      <PlayerMatchClipper playerId={playerData?.id || ""} playerEmail={playerData?.email || ""} />
                     </CardContent>
                   </Card>
                 </TabsContent>
