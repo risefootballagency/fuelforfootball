@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { findClubCountry } from "@/lib/clubNameUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -3382,7 +3383,29 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                     <Input
                       id="club"
                       value={formData.club}
-                      onChange={(e) => setFormData({ ...formData, club: e.target.value })}
+                      onChange={async (e) => {
+                        const newClub = e.target.value;
+                        setFormData({ ...formData, club: newClub });
+                        // Auto-detect country from club name
+                        if (newClub.length >= 3 && !formData.nationality) {
+                          try {
+                            const { data: mapData } = await supabase
+                              .from("club_map_positions" as any)
+                              .select("club_name, country");
+                            if (mapData) {
+                              const countryMap: Record<string, string> = {};
+                              (mapData as any[]).forEach((c: any) => {
+                                if (c.club_name && c.country) countryMap[c.club_name.toLowerCase()] = c.country;
+                              });
+                              const detected = findClubCountry(newClub, countryMap);
+                              if (detected) {
+                                setFormData(prev => ({ ...prev, club: newClub, nationality: detected }));
+                                toast.success(`Country auto-detected: ${detected}`);
+                              }
+                            }
+                          } catch { /* silently fail */ }
+                        }
+                      }}
                       placeholder="e.g., FC Barcelona"
                     />
                   </div>

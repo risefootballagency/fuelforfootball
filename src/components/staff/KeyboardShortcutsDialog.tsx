@@ -12,6 +12,8 @@ export const KeyboardShortcutsDialog = ({ open, onOpenChange }: KeyboardShortcut
     { keys: ['Esc'], description: 'Go to Overview' },
     { keys: ['1-9'], description: 'Jump to category' },
     { keys: ['↑', '↓'], description: 'Navigate sections' },
+    { keys: ['⌘', '⇧', 'F'], description: 'Create new fixture (in analysis)' },
+    { keys: ['⌘', '⇧', 'L'], description: 'Import fixture details (in analysis)' },
   ];
 
   return (
