@@ -4,3 +4,5 @@ export { OutreachTracker } from './OutreachTracker';
 export { SalesHub } from './SalesHub';
 export { TimeManagement } from './TimeManagement';
 export { PortalManagement } from './PortalManagement';
+export { OutreachKanban } from './OutreachKanban';
+export { RevenueCharts } from './RevenueCharts';
