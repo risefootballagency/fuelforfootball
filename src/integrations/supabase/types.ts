@@ -1907,6 +1907,7 @@ export type Database = {
           installment_count: number | null
           invoice_notes: string | null
           payment_type: string | null
+          player_id: string | null
           product_id: string | null
           recurring_interval: string | null
           status: string
@@ -1927,6 +1928,7 @@ export type Database = {
           installment_count?: number | null
           invoice_notes?: string | null
           payment_type?: string | null
+          player_id?: string | null
           product_id?: string | null
           recurring_interval?: string | null
           status?: string
@@ -1947,6 +1949,7 @@ export type Database = {
           installment_count?: number | null
           invoice_notes?: string | null
           payment_type?: string | null
+          player_id?: string | null
           product_id?: string | null
           recurring_interval?: string | null
           status?: string
@@ -1956,6 +1959,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "pay_links_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pay_links_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "pay_links_product_id_fkey"
             columns: ["product_id"]
