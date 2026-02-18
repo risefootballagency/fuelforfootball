@@ -1,17 +1,26 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp } from "lucide-react";
-import { format } from "date-fns";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
+import { User, Calendar, MapPin, Trophy, Pencil, Check, X } from "lucide-react";
+import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+import { toast } from "sonner";
 
 interface Analysis {
   id: string;
   analysis_date: string;
   r90_score: number;
+  minutes_played: number | null;
   opponent: string | null;
   result: string | null;
-  minutes_played: number | null;
   striker_stats?: any;
+  fixture_stats?: any;
 }
 
 interface Props {
@@ -20,152 +29,328 @@ interface Props {
   embedded?: boolean;
 }
 
+const STAT_DEFS = [
+  { key: 'xG_adj_per90', label: 'xG (p90)' },
+  { key: 'xA_adj_per90', label: 'xA (p90)' },
+  { key: 'regains_adj_per90', label: 'Regains (p90)' },
+  { key: 'interceptions_per90', label: 'Interceptions (p90)' },
+  { key: 'xGChain_per90', label: 'xG Chain (p90)' },
+  { key: 'progressive_passes_adj_per90', label: 'Prog. Passes (p90)' },
+  { key: 'dribbles_per90', label: 'Dribbles (p90)' },
+  { key: 'turnovers_adj_per90', label: 'Turnovers (p90)' },
+  { key: 'ShotsOnTarget_per90', label: 'Shots on Target (p90)' },
+];
+
 const getR90Color = (score: number) => {
-  if (score >= 8) return "hsl(var(--accent))";
-  if (score >= 6) return "hsl(120, 50%, 45%)";
-  if (score >= 4) return "hsl(47, 80%, 50%)";
-  return "hsl(0, 60%, 50%)";
+  if (score < 0) return "hsl(0, 70%, 35%)";
+  if (score < 0.2) return "hsl(0, 60%, 50%)";
+  if (score < 0.5) return "hsl(30, 70%, 50%)";
+  if (score < 1) return "hsl(45, 80%, 50%)";
+  return "hsl(140, 60%, 40%)";
+};
+
+const getStatValue = (analysis: Analysis, key: string): number | null => {
+  if (analysis.fixture_stats?.[key] != null) {
+    return Number(analysis.fixture_stats[key]);
+  }
+  if (analysis.striker_stats?.[key] != null) {
+    return Number(analysis.striker_stats[key]);
+  }
+  return null;
 };
 
 export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
-  const [expanded, setExpanded] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(analyses.map(a => a.id)));
+  const [activeStatCategory, setActiveStatCategory] = useState("Shooting");
+  const [editingCell, setEditingCell] = useState<{ analysisId: string; metricKey: string } | null>(null);
+  const [editValue, setEditValue] = useState("");
 
-  const sortedAnalyses = useMemo(() => 
-    [...analyses].sort((a, b) => new Date(b.analysis_date).getTime() - new Date(a.analysis_date).getTime()),
-    [analyses]
-  );
+  const toggleMatch = (id: string) => {
+    setSelectedIds(prev => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
+  };
 
-  const chartData = useMemo(() => 
-    [...sortedAnalyses].reverse().slice(-15).map(a => ({
-      date: format(new Date(a.analysis_date), "dd MMM"),
-      opponent: a.opponent || "Unknown",
-      r90: a.r90_score,
-      minutes: a.minutes_played || 0,
-    })),
-    [sortedAnalyses]
-  );
+  const selectAll = () => setSelectedIds(new Set(analyses.map(a => a.id)));
 
-  const averageR90 = useMemo(() => {
-    if (analyses.length === 0) return 0;
-    return analyses.reduce((sum, a) => sum + (a.r90_score || 0), 0) / analyses.length;
-  }, [analyses]);
+  const selectedAnalyses = analyses.filter(a => selectedIds.has(a.id));
 
-  const recentTrend = useMemo(() => {
-    if (sortedAnalyses.length < 3) return "neutral";
-    const recent3 = sortedAnalyses.slice(0, 3).reduce((s, a) => s + a.r90_score, 0) / 3;
-    const older = sortedAnalyses.slice(3, 6);
-    if (older.length === 0) return "neutral";
-    const older3 = older.reduce((s, a) => s + a.r90_score, 0) / older.length;
-    if (recent3 > older3 + 0.3) return "up";
-    if (recent3 < older3 - 0.3) return "down";
-    return "neutral";
-  }, [sortedAnalyses]);
+  const currentMetrics = useMemo(() => {
+    return METRIC_CATEGORIES.find(c => c.category === activeStatCategory)?.metrics || [];
+  }, [activeStatCategory]);
 
-  const displayedAnalyses = expanded ? sortedAnalyses : sortedAnalyses.slice(0, 5);
+  const seasonAverages = useMemo(() => {
+    if (selectedAnalyses.length === 0) return {};
+    const result: Record<string, number> = {};
 
-  if (analyses.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground text-sm">
-        No analysis data available yet.
-      </div>
-    );
-  }
+    const r90Values = selectedAnalyses.filter(a => a.r90_score != null).map(a => a.r90_score);
+    if (r90Values.length > 0) result.r90 = r90Values.reduce((s, v) => s + v, 0) / r90Values.length;
+
+    const mins = selectedAnalyses.filter(a => a.minutes_played != null).map(a => a.minutes_played!);
+    if (mins.length > 0) result.totalMinutes = mins.reduce((s, v) => s + v, 0);
+
+    ALL_METRICS.forEach(m => {
+      const values = selectedAnalyses
+        .map(a => getStatValue(a, m.key))
+        .filter((v): v is number => v != null);
+      if (values.length > 0) result[m.key] = values.reduce((s, v) => s + v, 0) / values.length;
+    });
+
+    STAT_DEFS.forEach(sd => {
+      if (result[sd.key] != null) return;
+      const values = selectedAnalyses
+        .filter(a => a.striker_stats?.[sd.key] != null)
+        .map(a => Number(a.striker_stats[sd.key]));
+      if (values.length > 0) result[sd.key] = values.reduce((s, v) => s + v, 0) / values.length;
+    });
+
+    return result;
+  }, [selectedAnalyses]);
+
+  const r90BarData = useMemo(() => {
+    return selectedAnalyses
+      .filter(a => a.r90_score != null)
+      .sort((a, b) => a.analysis_date.localeCompare(b.analysis_date))
+      .map(a => ({
+        name: a.opponent || new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
+        r90: a.r90_score,
+      }));
+  }, [selectedAnalyses]);
+
+  const radarData = useMemo(() => {
+    return STAT_DEFS
+      .filter(sd => seasonAverages[sd.key] != null)
+      .map(sd => ({ metric: sd.label, value: seasonAverages[sd.key] }));
+  }, [seasonAverages]);
+
+  const handleStartEdit = (analysisId: string, metricKey: string, currentValue: number | null) => {
+    setEditingCell({ analysisId, metricKey });
+    setEditValue(currentValue != null ? String(currentValue) : "");
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingCell) return;
+    const { analysisId, metricKey } = editingCell;
+    const analysis = analyses.find(a => a.id === analysisId);
+    if (!analysis) return;
+
+    const numVal = editValue === "" ? null : parseFloat(editValue);
+
+    const updatedFixtureStats = { ...(analysis.fixture_stats || {}), [metricKey]: numVal };
+    if (numVal === null) delete updatedFixtureStats[metricKey];
+
+    const { error } = await sharedSupabase
+      .from("player_analysis" as any)
+      .update({ fixture_stats: updatedFixtureStats })
+      .eq("id", analysisId);
+
+    if (error) {
+      toast.error("Failed to save");
+    } else {
+      analysis.fixture_stats = updatedFixtureStats;
+      toast.success("Saved");
+    }
+    setEditingCell(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCell(null);
+    setEditValue("");
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Summary Stats */}
-      <div className="grid grid-cols-3 gap-2">
-        <Card>
-          <CardContent className="p-3 text-center">
-            <p className="text-xs text-muted-foreground">Avg R90</p>
-            <p className="text-2xl font-bebas" style={{ color: getR90Color(averageR90) }}>
-              {averageR90.toFixed(2)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 text-center">
-            <p className="text-xs text-muted-foreground">Matches</p>
-            <p className="text-2xl font-bebas text-foreground">{analyses.length}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 text-center">
-            <p className="text-xs text-muted-foreground">Trend</p>
-            <div className="flex items-center justify-center">
-              {recentTrend === "up" && <TrendingUp className="h-6 w-6 text-green-500" />}
-              {recentTrend === "down" && <TrendingDown className="h-6 w-6 text-red-500" />}
-              {recentTrend === "neutral" && <Minus className="h-6 w-6 text-muted-foreground" />}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* R90 Chart */}
-      {chartData.length > 1 && (
-        <Card>
-          <CardHeader className="px-3 py-2">
-            <CardTitle className="text-sm font-bebas tracking-wider">R90 Performance</CardTitle>
-          </CardHeader>
-          <CardContent className="px-1 pb-2">
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                <YAxis domain={[0, 10]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
-                  labelStyle={{ color: "hsl(var(--foreground))" }}
-                  formatter={(value: number) => [value.toFixed(2), "R90"]}
-                />
-                <ReferenceLine y={averageR90} stroke="hsl(var(--accent))" strokeDasharray="3 3" opacity={0.5} />
-                <Bar dataKey="r90" radius={[4, 4, 0, 0]}>
-                  {chartData.map((entry, index) => (
-                    <Cell key={index} fill={getR90Color(entry.r90)} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Match List */}
-      <div className="space-y-1">
-        {displayedAnalyses.map((analysis) => (
-          <div
-            key={analysis.id}
-            className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border/50"
-          >
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {analysis.opponent || "Match"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {format(new Date(analysis.analysis_date), "dd MMM yyyy")}
-                {analysis.minutes_played ? ` · ${analysis.minutes_played}'` : ""}
-                {analysis.result ? ` · ${analysis.result}` : ""}
-              </p>
-            </div>
-            <div className="text-right ml-2">
-              <span
-                className="text-lg font-bebas"
-                style={{ color: getR90Color(analysis.r90_score) }}
-              >
-                {analysis.r90_score?.toFixed(2)}
-              </span>
-            </div>
+    <div className="space-y-8">
+      {/* Player Summary */}
+      <div className="bg-card border rounded-lg p-6">
+        <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+          <User className="w-5 h-5 text-primary" /> Player Summary
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Name</p>
+            <p className="font-semibold">{playerData?.name || '-'}</p>
           </div>
-        ))}
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Age</p>
+            <p className="font-semibold">{playerData?.age || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Position</p>
+            <p className="font-semibold">{playerData?.position || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Club</p>
+            <p className="font-semibold">{playerData?.club || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Minutes Played</p>
+            <p className="font-semibold text-primary">{seasonAverages.totalMinutes?.toFixed(0) || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Season R90</p>
+            <p className="font-semibold text-primary">{seasonAverages.r90?.toFixed(2) || '-'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Matches</p>
+            <p className="font-semibold">{selectedAnalyses.length}</p>
+          </div>
+        </div>
+
+        {(() => {
+          const availableStats = ALL_METRICS.filter(m => seasonAverages[m.key] != null);
+          if (availableStats.length === 0) return null;
+          return (
+            <div className="mt-4 pt-4 border-t">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Season Averages</p>
+              <div className="flex flex-wrap gap-3">
+                {availableStats.map(m => (
+                  <div key={m.key} className="bg-muted/50 px-3 py-1.5 rounded text-sm">
+                    <span className="text-muted-foreground">{m.label}:</span>{' '}
+                    <span className="font-semibold">{seasonAverages[m.key]?.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
-      {sortedAnalyses.length > 5 && (
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="w-full flex items-center justify-center gap-1 text-xs text-accent hover:text-accent/80 py-1"
-        >
-          {expanded ? <><ChevronUp className="h-3 w-3" /> Show Less</> : <><ChevronDown className="h-3 w-3" /> Show All ({sortedAnalyses.length})</>}
-        </button>
+      {/* Category filter tabs for match data */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-sm uppercase tracking-wider">Match-by-Match</h3>
+          <Button variant="ghost" size="sm" onClick={selectAll}>Select All</Button>
+        </div>
+
+        <Tabs value={activeStatCategory} onValueChange={setActiveStatCategory} className="mb-4">
+          <TabsList className="grid grid-cols-4 gap-1">
+            {METRIC_CATEGORIES.map(cat => (
+              <TabsTrigger key={cat.category} value={cat.category} className="text-xs">
+                {cat.category}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {/* Match table */}
+      <div className="border rounded-lg overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[40px]"></TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Opponent</TableHead>
+              <TableHead>Mins</TableHead>
+              <TableHead>R90</TableHead>
+              {currentMetrics.map(m => (
+                <TableHead key={m.key} className="text-xs min-w-[80px]">{m.label}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {analyses.map(a => (
+              <TableRow key={a.id} className={selectedIds.has(a.id) ? '' : 'opacity-40'}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedIds.has(a.id)}
+                    onCheckedChange={() => toggleMatch(a.id)}
+                  />
+                </TableCell>
+                <TableCell className="text-sm">{new Date(a.analysis_date).toLocaleDateString('en-GB')}</TableCell>
+                <TableCell className="text-sm font-medium">{a.opponent || '-'}</TableCell>
+                <TableCell className="text-sm">{a.minutes_played ?? '-'}</TableCell>
+                <TableCell>
+                  {a.r90_score != null ? (
+                    <span className="font-bold text-sm" style={{ color: getR90Color(a.r90_score) }}>
+                      {a.r90_score.toFixed(2)}
+                    </span>
+                  ) : '-'}
+                </TableCell>
+                {currentMetrics.map(m => {
+                  const val = getStatValue(a, m.key);
+                  const isEditing = editingCell?.analysisId === a.id && editingCell?.metricKey === m.key;
+
+                  return (
+                    <TableCell key={m.key} className="text-sm">
+                      {isEditing ? (
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            className="h-7 w-16 text-xs"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSaveEdit();
+                              if (e.key === 'Escape') handleCancelEdit();
+                            }}
+                          />
+                          <button onClick={handleSaveEdit} className="text-green-500 hover:text-green-400">
+                            <Check className="w-3 h-3" />
+                          </button>
+                          <button onClick={handleCancelEdit} className="text-destructive hover:text-destructive/80">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleStartEdit(a.id, m.key, val)}
+                          className="group flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
+                        >
+                          <span>{val != null ? val.toFixed(2) : '-'}</span>
+                          <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+                        </button>
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Visual Stats */}
+      {selectedAnalyses.length > 0 && (
+        <>
+          {r90BarData.length > 0 && (
+            <div className="bg-card border rounded-lg p-4">
+              <h4 className="font-semibold mb-4">R90 Distribution</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={r90BarData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip />
+                  <Bar dataKey="r90" radius={[4, 4, 0, 0]}>
+                    {r90BarData.map((entry, i) => (
+                      <Cell key={i} fill={getR90Color(entry.r90)} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {radarData.length >= 3 && (
+            <div className="bg-card border rounded-lg p-4">
+              <h4 className="font-semibold mb-4">Performance Radar</h4>
+              <ResponsiveContainer width="100%" height={350}>
+                <RadarChart data={radarData}>
+                  <PolarGrid stroke="hsl(var(--border))" />
+                  <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                  <PolarRadiusAxis tick={{ fontSize: 9 }} />
+                  <Radar name="Average" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} strokeWidth={2} />
+                  <Tooltip />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -1,155 +1,412 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, BarChart3 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList, CartesianGrid, Tooltip } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Users, BarChart3, Target, Box, Crosshair } from "lucide-react";
+import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
+import { GoalTracking } from "@/components/portal/GoalTracking";
+import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparisonMatrix";
+
+const RadarChart3D = lazy(() => import("@/components/portal/RadarChart3D").then(m => ({ default: m.RadarChart3D })));
+
+interface Analysis {
+  id: string;
+  analysis_date: string;
+  r90_score: number;
+  minutes_played: number | null;
+  striker_stats?: any;
+  opponent?: string | null;
+  fixture_stats?: Record<string, number>;
+}
+
+interface ComparisonPlayer {
+  id: string;
+  name: string;
+  position: string;
+  club: string | null;
+  season: string;
+  image_url: string | null;
+  metrics: Record<string, number>;
+  r90_average: number | null;
+}
+
+const PLAYER_COLOURS = ['hsl(220, 70%, 50%)', 'hsl(0, 70%, 50%)', 'hsl(140, 60%, 40%)', 'hsl(45, 80%, 50%)'];
+const PORTAL_COLOUR = 'hsl(43, 49%, 61%)';
 
 interface Props {
-  analyses: any[];
+  analyses: Analysis[];
   playerData: any;
   embedded?: boolean;
 }
 
-const getR90Color = (score: number) => {
-  if (score >= 8) return "hsl(var(--accent))";
-  if (score >= 6) return "hsl(120, 50%, 45%)";
-  if (score >= 4) return "hsl(47, 80%, 50%)";
-  return "hsl(0, 60%, 50%)";
-};
-
 export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) => {
-  const [comparisonPlayers, setComparisonPlayers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedStat, setSelectedStat] = useState("r90_score");
+  const [comparisonPlayers, setComparisonPlayers] = useState<ComparisonPlayer[]>([]);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
+  const [formWindow, setFormWindow] = useState<number>(5);
+  const [subTab, setSubTab] = useState<string>("percentile");
+  const [fixtureAnalyses, setFixtureAnalyses] = useState<Analysis[]>([]);
+  const [selectedMetricKey, setSelectedMetricKey] = useState<string>('goals_per90');
+
+  const playerPosition = playerData?.position || '';
+  const playerName = playerData?.name || 'You';
 
   useEffect(() => {
-    const fetchComparisons = async () => {
-      try {
-        const { data } = await sharedSupabase
-          .from("comparison_players" as any)
-          .select("*")
-          .eq("position", playerData?.position || "");
-        setComparisonPlayers(data || []);
-      } catch {
-        // Table may not exist
+    const fetchFixtureData = async () => {
+      if (!playerData?.id) return;
+      const { data } = await sharedSupabase
+        .from('player_analysis' as any)
+        .select('id, analysis_date, r90_score, minutes_played, opponent, fixture_stats')
+        .eq('player_id', playerData.id)
+        .order('analysis_date', { ascending: false })
+        .limit(20);
+      if (data) {
+        setFixtureAnalyses((data as any[]).map(a => ({
+          ...a,
+          r90_score: a.r90_score ?? 0,
+          fixture_stats: (a.fixture_stats as Record<string, number>) || {},
+        })));
       }
-      setLoading(false);
     };
-    fetchComparisons();
-  }, [playerData?.position]);
+    fetchFixtureData();
+  }, [playerData?.id]);
 
-  const statOptions = useMemo(() => {
-    const opts = [
-      { key: "r90_score", label: "R90 Score" },
-      { key: "xG_adj_per90", label: "xG /90" },
-      { key: "xA_adj_per90", label: "xA /90" },
-      { key: "progressive_passes_adj_per90", label: "Prog. Passes /90" },
-      { key: "progressive_carries_adj_per90", label: "Prog. Carries /90" },
-    ];
-    return opts;
-  }, []);
+  useEffect(() => {
+    const fetchComps = async () => {
+      const { data } = await sharedSupabase
+        .from('comparison_players' as any)
+        .select('*')
+        .eq('position', playerPosition)
+        .order('name');
+      if (data) setComparisonPlayers((data as any[]).map(p => ({ ...p, metrics: (p.metrics || {}) as Record<string, number> })));
+    };
+    if (playerPosition) fetchComps();
+  }, [playerPosition]);
 
-  const chartData = useMemo(() => {
-    if (!analyses || analyses.length === 0) return [];
+  const selectedComps = comparisonPlayers.filter(p => selectedPlayerIds.includes(p.id));
 
-    // Player average
-    let playerVal: number;
-    if (selectedStat === "r90_score") {
-      const scores = analyses.map((a: any) => a.r90_score).filter((v: any): v is number => typeof v === "number");
-      playerVal = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-    } else {
-      const vals = analyses
-        .map((a: any) => (a.striker_stats as any)?.[selectedStat])
-        .filter((v: any): v is number => typeof v === "number");
-      playerVal = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+  const togglePlayer = (id: string) => {
+    setSelectedPlayerIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const portalMetrics = useMemo(() => {
+    const windowAnalyses = fixtureAnalyses.slice(0, formWindow);
+    const result: Record<string, number | null> = {};
+    ALL_METRICS.forEach(m => {
+      const vals = windowAnalyses
+        .map(a => a.fixture_stats?.[m.key])
+        .filter((v): v is number => v != null && !isNaN(v));
+      result[m.key] = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+    });
+    return result;
+  }, [fixtureAnalyses, formWindow]);
+
+  const hasPortalData = Object.values(portalMetrics).some(v => v != null);
+
+  const selectedMetric = ALL_METRICS.find(m => m.key === selectedMetricKey);
+  const barData = useMemo(() => {
+    if (!selectedMetric) return [];
+    const items: { name: string; value: number; colour: string }[] = [];
+    if (hasPortalData && portalMetrics[selectedMetricKey] != null) {
+      items.push({ name: playerName, value: portalMetrics[selectedMetricKey]!, colour: PORTAL_COLOUR });
     }
-
-    const surname = (name: string) => {
-      const parts = name.trim().split(" ");
-      return parts.length > 1 ? parts[parts.length - 1] : parts[0];
-    };
-
-    const entries = [
-      { name: surname(playerData?.name || "You"), value: Math.round(playerVal * 100) / 100, isPlayer: true },
-    ];
-
-    comparisonPlayers.forEach((cp: any) => {
-      const metrics = cp.metrics || {};
-      const statKey = selectedStat === "r90_score" ? "r90_score" : selectedStat;
-      const val = metrics[statKey];
-      if (typeof val === "number") {
-        entries.push({ name: surname(cp.name), value: Math.round(val * 100) / 100, isPlayer: false });
+    selectedComps.forEach((cp, idx) => {
+      if (cp.metrics[selectedMetricKey] != null) {
+        items.push({ name: cp.name, value: cp.metrics[selectedMetricKey], colour: PLAYER_COLOURS[idx % PLAYER_COLOURS.length] });
       }
     });
-
-    return entries.sort((a, b) => b.value - a.value);
-  }, [analyses, comparisonPlayers, selectedStat, playerData]);
-
-  if (loading) {
-    return <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
-  }
-
-  if (comparisonPlayers.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground text-sm">
-        <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        No comparison players configured for this position yet.
-      </div>
-    );
-  }
+    return items;
+  }, [selectedComps, portalMetrics, hasPortalData, playerName, selectedMetricKey, selectedMetric]);
 
   return (
-    <div className="space-y-3">
-      <Select value={selectedStat} onValueChange={setSelectedStat}>
-        <SelectTrigger className="w-full">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {statOptions.map(opt => (
-            <SelectItem key={opt.key} value={opt.key}>{opt.label}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="space-y-6">
+      {/* Form window selector */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">Form window:</span>
+        {[5, 10, 20].map(n => (
+          <button
+            key={n}
+            onClick={() => setFormWindow(n)}
+            className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+              formWindow === n
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'border-border hover:bg-muted'
+            }`}
+          >
+            Last {n}
+          </button>
+        ))}
+      </div>
 
-      {chartData.length > 0 && (
-        <div className="h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 50, top: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} horizontal={false} />
-              <XAxis type="number" hide />
-              <YAxis
-                type="category"
-                dataKey="name"
-                width={80}
-                tick={({ x, y, payload }: any) => {
-                  const entry = chartData.find(d => d.name === payload.value);
-                  const color = entry?.isPlayer ? "hsl(var(--accent))" : "hsl(var(--muted-foreground))";
-                  return (
-                    <text x={x} y={y} dy={4} textAnchor="end" fill={color} fontSize={12} fontWeight={entry?.isPlayer ? 700 : 400}>
-                      {payload.value}
-                    </text>
-                  );
-                }}
-                axisLine={false}
-                tickLine={false}
+      {/* Player picker */}
+      <div className="mb-4">
+        <p className="text-sm font-medium mb-2">Select comparison players ({playerPosition} only):</p>
+        {comparisonPlayers.length === 0 ? (
+          <p className="text-muted-foreground text-sm">No players stored for this position.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {comparisonPlayers.map(cp => (
+              <button
+                key={cp.id}
+                onClick={() => togglePlayer(cp.id)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-colors ${
+                  selectedPlayerIds.includes(cp.id)
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-border hover:bg-muted'
+                }`}
+              >
+                <Avatar className="h-5 w-5">
+                  {cp.image_url ? <AvatarImage src={cp.image_url} /> : null}
+                  <AvatarFallback className="text-[10px]">{cp.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                {cp.name}
+                <span className="text-xs opacity-70">{cp.club} · {cp.season}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Tabs value={subTab} onValueChange={setSubTab}>
+        <TabsList>
+          <TabsTrigger value="percentile"><BarChart3 className="w-4 h-4 mr-1" /> Percentile</TabsTrigger>
+          <TabsTrigger value="radar3d"><Box className="w-4 h-4 mr-1" /> 3D Radar</TabsTrigger>
+          <TabsTrigger value="comparison"><Users className="w-4 h-4 mr-1" /> Player Comparison</TabsTrigger>
+          <TabsTrigger value="scouting"><Crosshair className="w-4 h-4 mr-1" /> Scouting Matrix</TabsTrigger>
+          <TabsTrigger value="goals"><Target className="w-4 h-4 mr-1" /> Goals</TabsTrigger>
+        </TabsList>
+
+        {/* 3D Radar Tab */}
+        <TabsContent value="radar3d" className="mt-4">
+          {hasPortalData ? (
+            <Suspense fallback={<div className="h-[400px] flex items-center justify-center text-muted-foreground">Loading 3D radar...</div>}>
+              <RadarChart3D
+                playerName={playerName}
+                metrics={(() => {
+                  const radarMetrics = ALL_METRICS
+                    .filter(m => portalMetrics[m.key] != null)
+                    .slice(0, 8)
+                    .map(m => {
+                      const value = portalMetrics[m.key]!;
+                      const allVals = comparisonPlayers.map(cp => cp.metrics[m.key]).filter((v): v is number => v != null);
+                      const belowCount = allVals.filter(v => v < value).length;
+                      const pct = allVals.length > 0 ? Math.round((belowCount / allVals.length) * 100) : 50;
+                      return { label: m.label.replace(/ \/ Game$/, ''), value: pct };
+                    });
+                  return radarMetrics;
+                })()}
               />
-              <Tooltip
-                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
-              />
-              <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={24}>
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={index}
-                    fill={entry.isPlayer ? "hsl(var(--accent))" : "hsl(var(--muted-foreground) / 0.35)"}
-                  />
-                ))}
-                <LabelList dataKey="value" position="right" style={{ fontSize: 12, fontWeight: 700, fill: "hsl(var(--foreground))" }} />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+            </Suspense>
+          ) : (
+            <p className="text-muted-foreground text-center py-6">No fixture stats recorded yet.</p>
+          )}
+        </TabsContent>
+
+        {/* Percentile Tab */}
+        <TabsContent value="percentile" className="space-y-6 mt-4">
+          {comparisonPlayers.length === 0 ? (
+            <p className="text-muted-foreground text-center py-6">No comparison players stored for position: {playerPosition}</p>
+          ) : !hasPortalData ? (
+            <p className="text-muted-foreground text-center py-6">
+              No fixture stats recorded yet. Stats will appear once your performance data is entered.
+            </p>
+          ) : (
+            <div className="space-y-6">
+              {METRIC_CATEGORIES.map(cat => {
+                const metricsWithValues = cat.metrics.filter(m => portalMetrics[m.key] != null);
+                if (metricsWithValues.length === 0) return null;
+
+                return (
+                  <div key={cat.category}>
+                    <h4 className="font-semibold text-sm mb-3">{cat.category}</h4>
+                    <div className="space-y-3">
+                      {metricsWithValues.map(m => {
+                        const value = portalMetrics[m.key]!;
+                        const allVals = comparisonPlayers
+                          .map(cp => cp.metrics[m.key])
+                          .filter((v): v is number => v != null);
+                        const belowCount = allVals.filter(v => v < value).length;
+                        const pct = allVals.length > 0 ? Math.round((belowCount / allVals.length) * 100) : 50;
+
+                        return (
+                          <div key={m.key} className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm">{m.label}{m.key.endsWith('_pct') ? '' : ' / Game'}</span>
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm text-muted-foreground">{value.toFixed(2)}{m.key.endsWith('_pct') ? '%' : ''}</span>
+                                <span className="text-lg font-bold text-primary w-12 text-right">{pct}%</span>
+                              </div>
+                            </div>
+                            <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-700 ${
+                                  pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Direct Comparison Tab */}
+        <TabsContent value="comparison" className="space-y-6 mt-4">
+          {(selectedComps.length > 0 || hasPortalData) && (
+            <>
+              {/* Stat Picker Comparison */}
+              <div className="bg-card border rounded-lg p-4 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <h4 className="font-semibold">Stat Comparison</h4>
+                  <Select value={selectedMetricKey} onValueChange={setSelectedMetricKey}>
+                    <SelectTrigger className="w-full sm:w-[260px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {METRIC_CATEGORIES.map(cat => (
+                        <div key={cat.category}>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
+                          {cat.metrics.map(m => (
+                            <SelectItem key={m.key} value={m.key}>
+                              {m.label}{m.key.endsWith('_pct') ? '' : ' / Game'}
+                            </SelectItem>
+                          ))}
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {barData.length > 0 ? (
+                  <div className="space-y-3">
+                    {(() => {
+                      const maxVal = Math.max(...barData.map(d => d.value), 0.01);
+                      const isPercentage = selectedMetricKey.endsWith('_pct');
+                      return barData.map((item, idx) => (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium">{item.name}</span>
+                            <span className="font-bold tabular-nums">
+                              {item.value.toFixed(2)}{isPercentage ? '%' : ''}
+                            </span>
+                          </div>
+                          <div className="h-6 bg-muted rounded-md overflow-hidden">
+                            <div
+                              className="h-full rounded-md transition-all duration-700"
+                              style={{
+                                width: `${(item.value / (isPercentage ? 100 : maxVal)) * 100}%`,
+                                backgroundColor: item.colour,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                    <p className="text-xs text-muted-foreground pt-1">
+                      {selectedMetric?.label}{selectedMetricKey.endsWith('_pct') ? '' : ' per game'} · Last {formWindow} avg for {playerName}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Select players above to compare stats
+                  </p>
+                )}
+              </div>
+
+              {/* Comparison Table by Category */}
+              {METRIC_CATEGORIES.map(cat => {
+                const catMetrics = cat.metrics.filter(m =>
+                  (hasPortalData && portalMetrics[m.key] != null) ||
+                  selectedComps.some(cp => cp.metrics[m.key] != null)
+                );
+                if (catMetrics.length === 0) return null;
+
+                return (
+                  <div key={cat.category} className="border rounded-lg overflow-hidden">
+                    <div className="bg-muted px-4 py-2">
+                      <h4 className="font-semibold text-sm">{cat.category}</h4>
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Metric / Game</TableHead>
+                          {hasPortalData && (
+                            <TableHead>
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PORTAL_COLOUR }} />
+                                <div>
+                                  <div className="text-xs font-medium">{playerName}</div>
+                                  <div className="text-[10px] text-muted-foreground">Last {formWindow} avg</div>
+                                </div>
+                              </div>
+                            </TableHead>
+                          )}
+                          {selectedComps.map(cp => (
+                            <TableHead key={cp.id}>
+                              <div className="flex items-center gap-1.5">
+                                <Avatar className="h-5 w-5">
+                                  {cp.image_url ? <AvatarImage src={cp.image_url} /> : null}
+                                  <AvatarFallback className="text-[10px]">{cp.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="text-xs font-medium">{cp.name}</div>
+                                  <div className="text-[10px] text-muted-foreground">{cp.club} · {cp.season}</div>
+                                </div>
+                              </div>
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {catMetrics.map(m => (
+                          <TableRow key={m.key}>
+                            <TableCell className="font-medium text-sm">{m.label}</TableCell>
+                            {hasPortalData && (
+                              <TableCell className="font-semibold">
+                                {portalMetrics[m.key] != null ? portalMetrics[m.key]!.toFixed(2) : '-'}
+                              </TableCell>
+                            )}
+                            {selectedComps.map(cp => {
+                              const val = cp.metrics[m.key];
+                              return <TableCell key={cp.id}>{val?.toFixed(2) ?? '-'}</TableCell>;
+                            })}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </TabsContent>
+        {/* Scouting Matrix Tab */}
+        <TabsContent value="scouting" className="mt-4">
+          <ScoutingComparisonMatrix
+            playerName={playerName}
+            portalMetrics={portalMetrics}
+            hasPortalData={hasPortalData}
+            comparisonPlayers={comparisonPlayers}
+            selectedPlayerIds={selectedPlayerIds}
+            formWindow={formWindow}
+          />
+        </TabsContent>
+        {/* Goals Tab */}
+        <TabsContent value="goals" className="mt-4">
+          <GoalTracking playerData={playerData} fixtureAnalyses={fixtureAnalyses} formWindow={formWindow} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

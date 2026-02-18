@@ -2078,6 +2078,25 @@ const Dashboard = () => {
                                     {analysis.analysis_writer_data.analysis_type === "pre-match" ? "Pre-Match" : "Post-Match"} Analysis
                                   </Button>
                                 )}
+                                {/* Render tagged_analyses (e.g. post-match when pre-match already attached) */}
+                                {analysis.tagged_analyses && analysis.tagged_analyses.map((ta: any, taIdx: number) => (
+                                  <Button
+                                    key={`tagged-${taIdx}`}
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      navigate(`/analysis/${(ta.home_team || 'home').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-vs-${(ta.away_team || 'away').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${ta.id}`);
+                                    }}
+                                    className={`text-xs border-0 ${
+                                      ta.analysis_type === "pre-match"
+                                        ? "bg-gradient-to-r from-slate-300 to-slate-400 text-slate-900 hover:from-slate-400 hover:to-slate-500"
+                                        : "bg-[hsl(43,49%,61%)] text-black hover:bg-[hsl(43,49%,71%)]"
+                                    }`}
+                                  >
+                                    <FileText className="w-3 h-3 mr-1" />
+                                    {ta.analysis_type === "pre-match" ? "Pre-Match" : "Post-Match"} Analysis
+                                  </Button>
+                                ))}
                                 
                                 {analysis.pdf_url && (
                                   <Button 
