@@ -1,470 +1,321 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Plus, Film, Trash2, Copy, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { AnnotationEditor } from "./AnnotationEditor";
 import { toast } from "sonner";
-import {
-  Pencil, Circle, ArrowRight, Type, Undo2, Redo2, Trash2, Download,
-  Play, Pause, SkipBack, SkipForward, Palette, Plus, Eye, Save,
-  Square, Triangle, Minus, Upload, X,
-} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
-type Tool = "pen" | "arrow" | "circle" | "rectangle" | "text" | "line";
+// ── Types ──
 
-interface DrawAction {
-  tool: Tool;
-  color: string;
-  lineWidth: number;
-  points: { x: number; y: number }[];
-  text?: string;
-}
-
-interface AnnotationFrame {
-  id: string;
+export interface ElementKeyframe {
   time: number;
-  actions: DrawAction[];
-  label: string;
+  x: number;
+  y: number;
+  opacity?: number;
+  scale?: number;
 }
 
-interface AnnotationProject {
+export interface AnnotationElement {
+  id: string;
+  type: 'line' | 'arrow' | 'curved-arrow' | 'curve' | 'rect' | 'circle' | 'spotlight' | 'text' | 'freehand'
+    | 'player-marker' | 'vision-cone' | 'distance' | 'magnifier' | 'linked-line'
+    | 'semi-circle' | 'point' | 'space-oval' | 'image-layer';
+  x: number;
+  y: number;
+  x2?: number;
+  y2?: number;
+  width?: number;
+  height?: number;
+  radius?: number;
+  color: string;
+  strokeWidth: number;
+  text?: string;
+  fontSize?: number;
+  opacity?: number;
+  fillOpacity?: number;
+  points?: { x: number; y: number }[];
+  number?: number;
+  angle?: number;
+  coneLength?: number;
+  coneSpread?: number;
+  linkedTo?: string;
+  zoomLevel?: number;
+  dashPattern?: 'solid' | 'dashed' | 'dotted' | 'dash-dot';
+  curveOffset?: number;
+  layerZIndex?: number;
+
+  // ── Timeline event properties ──
+  appearAt: number;
+  duration?: number;
+  animateIn?: number;
+  animateOut?: number;
+  keyframes?: ElementKeyframe[];
+  isTrackingEvent?: boolean;
+  holdFrame?: boolean;
+}
+
+export interface Klip {
   id: string;
   name: string;
-  video_url: string;
-  frames: AnnotationFrame[];
-  created_at: string;
+  startTime: number;
+  endTime: number;
+  elements: AnnotationElement[];
+  color: string;
 }
 
-const COLORS = ["#00FF87", "#FF4444", "#FFD700", "#3B82F6", "#FFFFFF", "#FF6B35", "#8B5CF6", "#EC4899"];
+export interface AnnotationProject {
+  id: string;
+  name: string;
+  videoUrl: string;
+  videoName: string;
+  createdAt: string;
+  klips: Klip[];
+}
+
+// ── Projects Dashboard ──
 
 export const AnnotationProjects = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const { user } = useAuth();
   const [projects, setProjects] = useState<AnnotationProject[]>([]);
   const [activeProject, setActiveProject] = useState<AnnotationProject | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const [uploading, setUploading] = useState(false);
-
-  // Editor state
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [tool, setTool] = useState<Tool>("pen");
-  const [color, setColor] = useState("#00FF87");
-  const [lineWidth, setLineWidth] = useState(3);
-  const [actions, setActions] = useState<DrawAction[]>([]);
-  const [undoneActions, setUndoneActions] = useState<DrawAction[]>([]);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [currentAction, setCurrentAction] = useState<DrawAction | null>(null);
-  const [activeFrame, setActiveFrame] = useState<AnnotationFrame | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadProjects();
-  }, []);
+    if (!user) { setLoading(false); return; }
+    const load = async () => {
+      const { data, error } = await supabase
+        .from('annotation_projects')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-  const loadProjects = async () => {
-    const { data } = await supabase
-      .from("coaching_analysis" as any)
-      .select("*")
-      .eq("analysis_type", "annotation_project")
-      .order("created_at", { ascending: false });
-    
-    if (data) {
-      setProjects(data.map((d: any) => ({
-        id: d.id,
-        name: d.title,
-        video_url: d.content || "",
-        frames: Array.isArray(d.attachments) ? d.attachments : [],
-        created_at: d.created_at,
-      })));
-    }
-  };
-
-  const handleCreateProject = async () => {
-    if (!newName || !videoFile) {
-      toast.error("Name and video required");
-      return;
-    }
-    setUploading(true);
-    try {
-      const ext = videoFile.name.split(".").pop();
-      const path = `annotations/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("analysis-videos").upload(path, videoFile);
-      if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("analysis-videos").getPublicUrl(path);
-      
-      const { error } = await supabase.from("coaching_analysis" as any).insert({
-        title: newName,
-        analysis_type: "annotation_project",
-        content: urlData.publicUrl,
-        attachments: [],
-      });
-      if (error) throw error;
-      toast.success("Project created");
-      setShowCreate(false);
-      setNewName("");
-      setVideoFile(null);
-      loadProjects();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to create project");
-    }
-    setUploading(false);
-  };
-
-  const deleteProject = async (id: string) => {
-    await supabase.from("coaching_analysis" as any).delete().eq("id", id);
-    if (activeProject?.id === id) setActiveProject(null);
-    toast.success("Deleted");
-    loadProjects();
-  };
-
-  const openProject = (p: AnnotationProject) => {
-    setActiveProject(p);
-    setActions([]);
-    setUndoneActions([]);
-    setActiveFrame(null);
-  };
-
-  // ── Canvas drawing logic ──
-  const getCanvasPoint = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: (e.clientX - rect.left) * (canvas.width / rect.width),
-      y: (e.clientY - rect.top) * (canvas.height / rect.height),
+      if (error) {
+        console.error('Failed to load annotation projects:', error);
+        toast.error('Failed to load projects');
+      } else if (data) {
+        setProjects(data.map(row => ({
+          id: row.id,
+          name: row.name,
+          videoUrl: row.video_url,
+          videoName: row.video_name,
+          createdAt: row.created_at,
+          klips: (row.klips as unknown as Klip[]) || [],
+        })));
+      }
+      setLoading(false);
     };
-  }, []);
+    load();
+  }, [user]);
 
-  const redrawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    const video = videoRef.current;
-    if (!canvas || !video) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  const handleNewProject = () => {
+    if (!user) { toast.error('You must be logged in'); return; }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      setUploading(true);
+      const projectId = crypto.randomUUID();
+      const ext = file.name.split('.').pop() || 'mp4';
+      const storagePath = `${projectId}.${ext}`;
 
-    canvas.width = video.videoWidth || 854;
-    canvas.height = video.videoHeight || 480;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const { error } = await supabase.storage
+        .from('annotation-videos')
+        .upload(storagePath, file, { upsert: true });
 
-    const allActions = [...actions, ...(currentAction ? [currentAction] : [])];
-    allActions.forEach(action => {
-      ctx.strokeStyle = action.color;
-      ctx.fillStyle = action.color;
-      ctx.lineWidth = action.lineWidth;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-
-      if (action.tool === "pen" && action.points.length > 1) {
-        ctx.beginPath();
-        action.points.forEach((p, i) => { if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
-        ctx.stroke();
-      } else if ((action.tool === "arrow" || action.tool === "line") && action.points.length >= 2) {
-        const s = action.points[0], e = action.points[action.points.length - 1];
-        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(e.x, e.y); ctx.stroke();
-        if (action.tool === "arrow") {
-          const angle = Math.atan2(e.y - s.y, e.x - s.x);
-          const hl = 15;
-          ctx.beginPath();
-          ctx.moveTo(e.x, e.y);
-          ctx.lineTo(e.x - hl * Math.cos(angle - 0.4), e.y - hl * Math.sin(angle - 0.4));
-          ctx.moveTo(e.x, e.y);
-          ctx.lineTo(e.x - hl * Math.cos(angle + 0.4), e.y - hl * Math.sin(angle + 0.4));
-          ctx.stroke();
-        }
-      } else if (action.tool === "circle" && action.points.length >= 2) {
-        const s = action.points[0], e = action.points[action.points.length - 1];
-        const rx = Math.abs(e.x - s.x) / 2, ry = Math.abs(e.y - s.y) / 2;
-        ctx.beginPath();
-        ctx.ellipse((s.x + e.x) / 2, (s.y + e.y) / 2, rx, ry, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (action.tool === "rectangle" && action.points.length >= 2) {
-        const s = action.points[0], e = action.points[action.points.length - 1];
-        ctx.strokeRect(s.x, s.y, e.x - s.x, e.y - s.y);
-      } else if (action.tool === "text" && action.text && action.points.length >= 1) {
-        ctx.font = `bold ${action.lineWidth * 5}px sans-serif`;
-        ctx.fillText(action.text, action.points[0].x, action.points[0].y);
+      if (error) {
+        toast.error('Failed to upload video: ' + error.message);
+        setUploading(false);
+        return;
       }
-    });
-  }, [actions, currentAction]);
 
-  useEffect(() => {
-    if (activeProject) {
-      const interval = setInterval(redrawCanvas, 50);
-      return () => clearInterval(interval);
-    }
-  }, [activeProject, redrawCanvas]);
+      const { data: urlData } = supabase.storage
+        .from('annotation-videos')
+        .getPublicUrl(storagePath);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const pt = getCanvasPoint(e);
-    if (tool === "text") {
-      const text = prompt("Enter text:");
-      if (text) {
-        setActions(prev => [...prev, { tool, color, lineWidth, points: [pt], text }]);
-        setUndoneActions([]);
+      const project: AnnotationProject = {
+        id: projectId,
+        name: file.name.replace(/\.[^.]+$/, ''),
+        videoUrl: urlData.publicUrl,
+        videoName: file.name,
+        createdAt: new Date().toISOString(),
+        klips: [],
+      };
+
+      const { error: dbError } = await supabase
+        .from('annotation_projects')
+        .insert({
+          id: project.id,
+          name: project.name,
+          video_url: project.videoUrl,
+          video_name: project.videoName,
+          klips: JSON.parse(JSON.stringify(project.klips)),
+          user_id: user.id,
+        } as any);
+
+      if (dbError) {
+        toast.error('Failed to save project: ' + dbError.message);
+        setUploading(false);
+        return;
       }
-      return;
-    }
-    setIsDrawing(true);
-    setCurrentAction({ tool, color, lineWidth, points: [pt] });
+
+      setActiveProject(project);
+      setProjects(prev => [project, ...prev]);
+      setUploading(false);
+    };
+    input.click();
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !currentAction) return;
-    const pt = getCanvasPoint(e);
-    if (tool === "pen") {
-      setCurrentAction({ ...currentAction, points: [...currentAction.points, pt] });
-    } else {
-      setCurrentAction({ ...currentAction, points: [currentAction.points[0], pt] });
-    }
+  const handleDelete = async (id: string) => {
+    await supabase.from('annotation_projects').delete().eq('id', id);
+    setProjects(prev => prev.filter(p => p.id !== id));
+    toast.success("Project deleted");
   };
 
-  const handleMouseUp = () => {
-    if (isDrawing && currentAction && currentAction.points.length >= 2) {
-      setActions(prev => [...prev, currentAction]);
-      setUndoneActions([]);
-    }
-    setIsDrawing(false);
-    setCurrentAction(null);
-  };
-
-  const undo = () => {
-    if (actions.length === 0) return;
-    setUndoneActions(prev => [...prev, actions[actions.length - 1]]);
-    setActions(prev => prev.slice(0, -1));
-  };
-
-  const redo = () => {
-    if (undoneActions.length === 0) return;
-    setActions(prev => [...prev, undoneActions[undoneActions.length - 1]]);
-    setUndoneActions(prev => prev.slice(0, -1));
-  };
-
-  const saveFrame = async () => {
-    if (!activeProject) return;
-    const frame: AnnotationFrame = {
+  const handleDuplicate = async (project: AnnotationProject) => {
+    if (!user) return;
+    const dup: AnnotationProject = {
+      ...project,
       id: crypto.randomUUID(),
-      time: currentTime,
-      actions: [...actions],
-      label: `Frame @ ${Math.floor(currentTime)}s`,
+      name: `${project.name} (copy)`,
+      createdAt: new Date().toISOString(),
     };
-    const updatedFrames = [...activeProject.frames, frame];
-    const { error } = await supabase
-      .from("coaching_analysis" as any)
-      .update({ attachments: updatedFrames as any })
-      .eq("id", activeProject.id);
-    if (error) { toast.error("Save failed"); return; }
-    setActiveProject({ ...activeProject, frames: updatedFrames });
-    toast.success("Frame saved");
+    await supabase.from('annotation_projects').insert({
+      id: dup.id,
+      name: dup.name,
+      video_url: dup.videoUrl,
+      video_name: dup.videoName,
+      klips: JSON.parse(JSON.stringify(dup.klips)),
+      user_id: user.id,
+    } as any);
+    setProjects(prev => [dup, ...prev]);
+    toast.success("Project duplicated");
   };
 
-  const loadFrame = (frame: AnnotationFrame) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = frame.time;
-      videoRef.current.pause();
-      setIsPlaying(false);
-    }
-    setActions(frame.actions);
-    setUndoneActions([]);
-    setActiveFrame(frame);
+  const handleRename = async (id: string) => {
+    await supabase.from('annotation_projects').update({ name: renameValue }).eq('id', id);
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, name: renameValue } : p));
+    setRenaming(null);
   };
 
-  const exportFrame = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement("a");
-    link.download = `annotation-${Date.now()}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-    toast.success("Exported");
+  const handleSave = async (project: AnnotationProject) => {
+    setProjects(prev => prev.map(p => p.id === project.id ? project : p));
+    setActiveProject(project);
+
+    await supabase.from('annotation_projects').update({
+      name: project.name,
+      video_url: project.videoUrl,
+      video_name: project.videoName,
+      klips: JSON.parse(JSON.stringify(project.klips)),
+    } as any).eq('id', project.id);
   };
 
-  const togglePlayPause = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) videoRef.current.pause(); else videoRef.current.play();
-    setIsPlaying(!isPlaying);
-  };
-
-  const tools: { id: Tool; icon: any; label: string }[] = [
-    { id: "pen", icon: Pencil, label: "Pen" },
-    { id: "arrow", icon: ArrowRight, label: "Arrow" },
-    { id: "line", icon: Minus, label: "Line" },
-    { id: "circle", icon: Circle, label: "Circle" },
-    { id: "rectangle", icon: Square, label: "Rectangle" },
-    { id: "text", icon: Type, label: "Text" },
-  ];
-
-  // ── Projects List ──
-  if (!activeProject) {
+  if (activeProject) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Pencil className="h-6 w-6 text-primary" />
-            <div>
-              <h2 className="text-xl font-semibold">Annotations</h2>
-              <p className="text-sm text-muted-foreground">{projects.length} project{projects.length !== 1 ? "s" : ""}</p>
-            </div>
-          </div>
-          <Button onClick={() => setShowCreate(true)} size="sm">
-            <Plus className="w-4 h-4 mr-1" /> New Project
-          </Button>
-        </div>
+      <AnnotationEditor
+        project={activeProject}
+        onSave={handleSave}
+        onBack={() => setActiveProject(null)}
+      />
+    );
+  }
 
-        {projects.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <Pencil className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No annotation projects</p>
-              <p className="text-sm">Upload a video and draw annotations on freeze-frames</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-3">
-            {projects.map(p => (
-              <Card key={p.id} className="cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => openProject(p)}>
-                <CardContent className="py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Pencil className="w-5 h-5 text-primary shrink-0" />
-                    <div>
-                      <p className="font-medium text-sm">{p.name}</p>
-                      <p className="text-xs text-muted-foreground">{p.frames.length} frame{p.frames.length !== 1 ? "s" : ""}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        <Dialog open={showCreate} onOpenChange={setShowCreate}>
-          <DialogContent>
-            <DialogHeader><DialogTitle>New Annotation Project</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <Label>Project Name *</Label>
-                <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. vs Arsenal analysis" />
-              </div>
-              <div>
-                <Label>Video File *</Label>
-                <Input type="file" accept="video/*" onChange={e => setVideoFile(e.target.files?.[0] || null)} />
-              </div>
-              <Button onClick={handleCreateProject} disabled={uploading} className="w-full">
-                {uploading ? "Uploading..." : "Create Project"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-  // ── Annotation Editor ──
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => setActiveProject(null)}>← Back</Button>
-        <h2 className="text-lg font-semibold truncate">{activeProject.name}</h2>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Annotations</h2>
+        <p className="text-muted-foreground text-sm">Draw tactical annotations on video clips with timeline events and motion tracking</p>
       </div>
 
-      {/* Hidden video for source */}
-      <video
-        ref={videoRef}
-        src={activeProject.video_url}
-        className="hidden"
-        onTimeUpdate={() => { if (videoRef.current) setCurrentTime(videoRef.current.currentTime); }}
-        onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }}
-      />
-
-      {/* Canvas */}
-      <div className="relative">
-        <canvas
-          ref={canvasRef}
-          className="w-full rounded-lg border border-border cursor-crosshair"
-          style={{ aspectRatio: "16/9" }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Card
+          className="flex flex-col items-center justify-center p-8 cursor-pointer hover:border-primary/50 transition-colors border-dashed border-2 min-h-[180px]"
+          onClick={uploading ? undefined : handleNewProject}
+        >
+          <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+            {uploading ? <Loader2 className="w-8 h-8 text-primary animate-spin" /> : <Plus className="w-8 h-8 text-primary" />}
+          </div>
+          <span className="font-semibold">{uploading ? 'Uploading...' : 'New Project'}</span>
+          <span className="text-xs text-muted-foreground mt-1">{uploading ? 'Saving video to cloud storage' : 'Upload a video to annotate'}</span>
+        </Card>
       </div>
 
-      {/* Transport */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <Button variant="outline" size="sm" onClick={() => { if (videoRef.current) videoRef.current.currentTime -= 5; }}>
-          <SkipBack className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={togglePlayPause}>
-          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => { if (videoRef.current) videoRef.current.currentTime += 5; }}>
-          <SkipForward className="w-4 h-4" />
-        </Button>
-        <span className="text-xs text-muted-foreground font-mono">
-          {Math.floor(currentTime)}s / {Math.floor(duration)}s
-        </span>
-
-        <div className="ml-auto flex items-center gap-1">
-          {tools.map(t => {
-            const Icon = t.icon;
-            return (
-              <Button key={t.id} variant={tool === t.id ? "default" : "outline"} size="sm" onClick={() => setTool(t.id)} title={t.label}>
-                <Icon className="w-4 h-4" />
-              </Button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Color & line width + actions */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex gap-1">
-          {COLORS.map(c => (
-            <button
-              key={c}
-              className={`w-5 h-5 rounded-full border-2 ${color === c ? "border-foreground scale-110" : "border-transparent"}`}
-              style={{ backgroundColor: c }}
-              onClick={() => setColor(c)}
-            />
-          ))}
-        </div>
-        <div className="w-24">
-          <Slider value={[lineWidth]} onValueChange={v => setLineWidth(v[0])} min={1} max={8} step={1} />
-        </div>
-        <div className="h-5 w-px bg-border" />
-        <Button variant="outline" size="sm" onClick={undo}><Undo2 className="w-4 h-4" /></Button>
-        <Button variant="outline" size="sm" onClick={redo}><Redo2 className="w-4 h-4" /></Button>
-        <Button variant="outline" size="sm" onClick={() => { setActions([]); setUndoneActions([]); }}><Trash2 className="w-4 h-4" /></Button>
-        <Button variant="outline" size="sm" onClick={saveFrame}><Save className="w-4 h-4 mr-1" /> Save Frame</Button>
-        <Button variant="outline" size="sm" onClick={exportFrame}><Download className="w-4 h-4 mr-1" /> Export</Button>
-      </div>
-
-      {/* Saved Frames */}
-      {activeProject.frames.length > 0 && (
-        <div className="space-y-1">
-          <h4 className="text-xs font-semibold text-muted-foreground">Saved Frames ({activeProject.frames.length})</h4>
-          <div className="flex gap-2 flex-wrap">
-            {activeProject.frames.map(f => (
-              <Badge
-                key={f.id}
-                variant={activeFrame?.id === f.id ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => loadFrame(f)}
-              >
-                {f.label} ({f.actions.length} drawings)
-              </Badge>
-            ))}
+      {projects.length > 0 && (
+        <div>
+          <h3 className="font-semibold mb-3">Recent Projects</h3>
+          <div className="rounded-lg border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="text-left p-3 font-medium">Name</th>
+                  <th className="text-left p-3 font-medium">Video</th>
+                  <th className="text-left p-3 font-medium">Annotations</th>
+                  <th className="text-left p-3 font-medium">Date</th>
+                  <th className="text-right p-3 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projects.map(project => (
+                  <tr
+                    key={project.id}
+                    className="border-b last:border-0 hover:bg-muted/30 cursor-pointer"
+                    onClick={() => setActiveProject(project)}
+                  >
+                    <td className="p-3">
+                      {renaming === project.id ? (
+                        <Input
+                          value={renameValue}
+                          onChange={e => setRenameValue(e.target.value)}
+                          onBlur={() => handleRename(project.id)}
+                          onKeyDown={e => e.key === 'Enter' && handleRename(project.id)}
+                          className="h-7 text-sm"
+                          autoFocus
+                          onClick={e => e.stopPropagation()}
+                        />
+                      ) : (
+                        <span
+                          className="flex items-center gap-2"
+                          onDoubleClick={(e) => { e.stopPropagation(); setRenaming(project.id); setRenameValue(project.name); }}
+                        >
+                          <Film className="w-4 h-4 text-muted-foreground shrink-0" />
+                          {project.name}
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-3 text-muted-foreground">{project.videoName}</td>
+                    <td className="p-3 text-muted-foreground">{project.klips.reduce((sum, k) => sum + k.elements.length, 0)}</td>
+                    <td className="p-3 text-muted-foreground">
+                      {new Date(project.createdAt).toLocaleDateString('en-GB')}
+                    </td>
+                    <td className="p-3 text-right space-x-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7"
+                        onClick={(e) => { e.stopPropagation(); handleDuplicate(project); }}>
+                        <Copy className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7"
+                        onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
