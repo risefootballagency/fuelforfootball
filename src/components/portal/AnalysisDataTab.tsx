@@ -186,11 +186,11 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Minutes Played</p>
-            <p className="font-semibold text-primary">{seasonAverages.totalMinutes?.toFixed(0) || '-'}</p>
+            <p className="font-semibold text-foreground">{seasonAverages.totalMinutes?.toFixed(0) || '-'}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Season R90</p>
-            <p className="font-semibold text-primary">{seasonAverages.r90?.toFixed(2) || '-'}</p>
+            <p className="font-semibold" style={seasonAverages.r90 != null ? { color: getR90Color(seasonAverages.r90) } : undefined}>{seasonAverages.r90?.toFixed(2) || '-'}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Matches</p>

@@ -982,15 +982,15 @@ const Staff = () => {
                     const parent = categories.find(c => c.sections.some(s => s.id === pinId));
                     if (parent) setExpandedCategory(parent.id);
                   }}
-                  className={`group w-full rounded-lg flex flex-col items-center justify-center py-1.5 px-1 transition-all ${isActive ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-primary/10'}`}
+                  className={`group w-full rounded-lg flex flex-col items-center justify-center py-1.5 px-1 transition-all ${isActive ? 'bg-accent text-accent-foreground shadow-md' : 'hover:bg-accent/10'}`}
                   title={section.title}
                 >
-                  <PinIcon className={`w-4 h-4 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
+                  <PinIcon className={`w-4 h-4 ${isActive ? 'text-accent-foreground' : 'text-accent'}`} />
                 </button>
               );
             })}
             <div className="w-full px-2 py-1">
-              <div className="h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
+              <div className="h-px bg-gradient-to-r from-transparent via-accent to-transparent opacity-50" />
             </div>
           </div>
         )}
@@ -998,11 +998,11 @@ const Staff = () => {
         {/* Search Button */}
         <button
           onClick={() => setSidebarSearchOpen(true)}
-          className="group w-full rounded-lg flex flex-col items-center justify-center py-2 md:py-3 px-1 md:px-2 transition-all hover:bg-primary/20"
+          className="group w-full rounded-lg flex flex-col items-center justify-center py-2 md:py-3 px-1 md:px-2 transition-all hover:bg-accent/20"
           title="Search sections (⌘K)"
         >
-          <div className="p-1.5 md:p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors border border-primary/20">
-            <Search className="w-3 h-3 md:w-4 md:h-4 text-primary" />
+          <div className="p-1.5 md:p-2 rounded-full bg-accent/10 group-hover:bg-accent/20 transition-colors border border-accent/20">
+            <Search className="w-3 h-3 md:w-4 md:h-4 text-accent" />
           </div>
         </button>
         {filteredCategories.map((category, index) => {
@@ -1022,11 +1022,11 @@ const Staff = () => {
                   else { setExpandedCategory(isExpanded ? null : category.id); }
                 }}
                 className={`group relative w-full rounded-lg flex flex-col items-center justify-center py-2 md:py-3 px-1 md:px-2 transition-all ${
-                  category.locked ? 'opacity-50 cursor-not-allowed hover:bg-muted/30' : 'hover:bg-primary/20'
-                } ${hasActiveSection || isExpanded ? 'bg-gradient-to-br from-primary via-primary to-primary shadow-lg' : ''}`}
+                  category.locked ? 'opacity-50 cursor-not-allowed hover:bg-muted/30' : 'hover:bg-accent/20'
+                } ${hasActiveSection || isExpanded ? 'bg-gradient-to-br from-accent via-accent to-accent shadow-lg' : ''}`}
               >
-                <CategoryIcon className={`w-5 h-5 md:w-6 md:h-6 mb-0.5 md:mb-1 ${hasActiveSection || isExpanded ? 'text-primary-foreground' : ''}`} />
-                <span className={`text-[6px] sm:text-[7px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${hasActiveSection || isExpanded ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                <CategoryIcon className={`w-5 h-5 md:w-6 md:h-6 mb-0.5 md:mb-1 ${hasActiveSection || isExpanded ? 'text-accent-foreground' : ''}`} />
+                <span className={`text-[6px] sm:text-[7px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${hasActiveSection || isExpanded ? 'text-accent-foreground' : 'text-muted-foreground'}`}>
                   {category.title.split(' ').map((word, i) => <span key={i} className="block">{word}</span>)}
                 </span>
                 {category.locked && <Lock className="absolute bottom-1 right-1 w-2.5 h-2.5 md:w-3 md:h-3 text-muted-foreground" />}
@@ -1044,10 +1044,10 @@ const Staff = () => {
                       return (
                         <motion.div key={section.id} className="pt-2 pb-0.5 px-1"
                           variants={{ hidden: { x: -10, opacity: 0 }, show: { x: 0, opacity: 1 } }}>
-                          <span className="text-[5px] sm:text-[6px] uppercase tracking-widest text-primary/60 font-bold text-center block">
+                          <span className="text-[5px] sm:text-[6px] uppercase tracking-widest text-accent/60 font-bold text-center block">
                             {section.title}
                           </span>
-                          <div className="h-px bg-primary/20 mt-0.5" />
+                          <div className="h-px bg-accent/20 mt-0.5" />
                         </motion.div>
                       );
                     }
@@ -1060,17 +1060,17 @@ const Staff = () => {
                         <button
                           onClick={() => handleSectionToggle(section.id)}
                           className={`group relative w-full rounded-lg flex flex-col items-center justify-center py-1.5 md:py-2 px-1 transition-all ${
-                            isActive ? 'bg-primary text-primary-foreground shadow-md' : 'hover:bg-primary/10'
+                            isActive ? 'bg-accent text-accent-foreground shadow-md' : 'hover:bg-accent/10'
                           }`}
                         >
-                          <SectionIcon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 md:mb-1 ${isActive ? 'text-primary-foreground' : ''}`} />
-                          <span className={`text-[5px] sm:text-[6px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                          <SectionIcon className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 md:mb-1 ${isActive ? 'text-accent-foreground' : ''}`} />
+                          <span className={`text-[5px] sm:text-[6px] leading-tight text-center px-0.5 font-medium uppercase tracking-tight ${isActive ? 'text-accent-foreground' : 'text-muted-foreground'}`}>
                             {section.title.split(' ').map((word, i) => <span key={i} className="block">{word}</span>)}
                           </span>
                           <span
                             role="button"
                             onClick={(e) => { e.stopPropagation(); togglePin(section.id); }}
-                            className={`absolute -top-0.5 -right-0.5 p-0.5 rounded-full transition-all ${isPinned ? 'opacity-100 text-primary' : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-primary'}`}
+                            className={`absolute -top-0.5 -right-0.5 p-0.5 rounded-full transition-all ${isPinned ? 'opacity-100 text-accent' : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-accent'}`}
                             title={isPinned ? 'Unpin section' : 'Pin section'}
                           >
                             <Star className={`w-2.5 h-2.5 ${isPinned ? 'fill-primary' : ''}`} />
@@ -1233,7 +1233,7 @@ const Staff = () => {
                       <div className="space-y-1">
                         {category.sections.map((section) => {
                           if ((section as any).isGroupLabel) {
-                            return <p key={section.id} className="text-[10px] font-bold uppercase tracking-wider text-primary/60 px-2 pt-2">{section.title}</p>;
+                            return <p key={section.id} className="text-[10px] font-bold uppercase tracking-wider text-accent/60 px-2 pt-2">{section.title}</p>;
                           }
                           const Icon = section.icon;
                           return (

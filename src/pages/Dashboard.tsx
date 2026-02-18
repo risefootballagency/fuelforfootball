@@ -1014,7 +1014,8 @@ const Dashboard = () => {
 
       // Start with analysesWithXGChain
       let mergedAnalyses = [...analysesWithXGChain] as Analysis[];
-
+      // Track attached tactical analysis IDs across ALL merge passes to prevent duplicates
+      const attachedTacticalIds = new Set<string>();
       // Fetch ALL pre-match and post-match analyses to match with player's fixtures
       const { data: allTacticalAnalyses, error: tacticalError } = await supabase
         .from("analyses")
@@ -1025,6 +1026,7 @@ const Dashboard = () => {
       if (allTacticalAnalyses && allTacticalAnalyses.length > 0) {
         // Match tactical analyses to player_analysis by opponent and date
         allTacticalAnalyses.forEach(tacticalAnalysis => {
+          if (attachedTacticalIds.has(tacticalAnalysis.id)) return;
           // Try to find matching action report by opponent and date
           const matchingReport = mergedAnalyses.find(report => {
             if (!report.opponent) return false;
@@ -1050,18 +1052,22 @@ const Dashboard = () => {
             const index = mergedAnalyses.findIndex(a => a.id === matchingReport.id);
             if (index !== -1) {
               if (!matchingReport.analysis_writer_data) {
-                // First attachment - set directly
                 mergedAnalyses[index] = {
                   ...mergedAnalyses[index],
                   analysis_writer_data: tacticalAnalysis,
                   analysis_writer_id: tacticalAnalysis.id
                 } as Analysis;
+                attachedTacticalIds.add(tacticalAnalysis.id);
               } else if (matchingReport.analysis_writer_data.analysis_type !== tacticalAnalysis.analysis_type) {
-                // Different type (e.g. already has pre-match, adding post-match) - use tagged_analyses array
-                if (!mergedAnalyses[index].tagged_analyses) {
-                  (mergedAnalyses[index] as any).tagged_analyses = [];
+                // Check not already in tagged_analyses
+                const alreadyTagged = (mergedAnalyses[index].tagged_analyses || []).some((ta: any) => ta.id === tacticalAnalysis.id);
+                if (!alreadyTagged && matchingReport.analysis_writer_data.id !== tacticalAnalysis.id) {
+                  if (!mergedAnalyses[index].tagged_analyses) {
+                    (mergedAnalyses[index] as any).tagged_analyses = [];
+                  }
+                  (mergedAnalyses[index] as any).tagged_analyses.push(tacticalAnalysis);
+                  attachedTacticalIds.add(tacticalAnalysis.id);
                 }
-                (mergedAnalyses[index] as any).tagged_analyses.push(tacticalAnalysis);
               }
             }
           }
@@ -1168,6 +1174,7 @@ const Dashboard = () => {
           
           // Add fixture-linked analyses that aren't already linked via analysis_writer_id
           fixtureAnalyses.forEach(fixtureAnalysis => {
+            if (attachedTacticalIds.has(fixtureAnalysis.id)) return;
             if (!alreadyLinkedIds.has(fixtureAnalysis.id)) {
               // Check if there's an action report for the same fixture
               const existingActionReport = mergedAnalyses.find(
@@ -1175,7 +1182,6 @@ const Dashboard = () => {
               );
               
               if (existingActionReport) {
-                // If there's an action report for this fixture, attach the analysis to it
                 const index = mergedAnalyses.findIndex(a => a.id === existingActionReport.id);
                 if (index !== -1) {
                   if (!mergedAnalyses[index].analysis_writer_data) {
@@ -1184,15 +1190,19 @@ const Dashboard = () => {
                       analysis_writer_data: fixtureAnalysis,
                       analysis_writer_id: fixtureAnalysis.id
                     } as Analysis;
+                    attachedTacticalIds.add(fixtureAnalysis.id);
                   } else if (mergedAnalyses[index].analysis_writer_data.analysis_type !== fixtureAnalysis.analysis_type) {
-                    if (!mergedAnalyses[index].tagged_analyses) {
-                      (mergedAnalyses[index] as any).tagged_analyses = [];
+                    const alreadyTagged = (mergedAnalyses[index].tagged_analyses || []).some((ta: any) => ta.id === fixtureAnalysis.id);
+                    if (!alreadyTagged && mergedAnalyses[index].analysis_writer_data.id !== fixtureAnalysis.id) {
+                      if (!mergedAnalyses[index].tagged_analyses) {
+                        (mergedAnalyses[index] as any).tagged_analyses = [];
+                      }
+                      (mergedAnalyses[index] as any).tagged_analyses.push(fixtureAnalysis);
+                      attachedTacticalIds.add(fixtureAnalysis.id);
                     }
-                    (mergedAnalyses[index] as any).tagged_analyses.push(fixtureAnalysis);
                   }
                 }
               } else {
-                // No action report exists - create a standalone entry for the tactical analysis
                 const standaloneEntry: Analysis = {
                   id: `tactical-${fixtureAnalysis.id}`,
                   analysis_date: fixtureAnalysis.match_date || fixtureAnalysis.created_at,
@@ -1209,6 +1219,7 @@ const Dashboard = () => {
                   analysis_writer_data: fixtureAnalysis
                 };
                 mergedAnalyses.push(standaloneEntry);
+                attachedTacticalIds.add(fixtureAnalysis.id);
               }
             }
           });
@@ -1247,7 +1258,8 @@ const Dashboard = () => {
           );
 
           playerClubAnalyses.forEach(tacticalAnalysis => {
-            // Skip if already linked
+            // Skip if already linked in any previous pass
+            if (attachedTacticalIds.has(tacticalAnalysis.id)) return;
             if (existingAnalysisWriterIds.has(tacticalAnalysis.id)) return;
 
             // Determine opponent - it's the team that is NOT the player's club
@@ -1257,7 +1269,6 @@ const Dashboard = () => {
             );
             const opponentName = isHomeTeam ? tacticalAnalysis.away_team : tacticalAnalysis.home_team;
             
-            // Try to find matching action report by opponent and date
             const matchingReport = mergedAnalyses.find(report => {
               const reportDate = new Date(report.analysis_date).toDateString();
               const analysisDate = new Date(tacticalAnalysis.match_date || tacticalAnalysis.created_at).toDateString();
@@ -1269,7 +1280,6 @@ const Dashboard = () => {
             });
 
             if (matchingReport) {
-              // Attach to existing report
               const index = mergedAnalyses.findIndex(a => a.id === matchingReport.id);
               if (index !== -1) {
                 if (!matchingReport.analysis_writer_data) {
@@ -1278,15 +1288,19 @@ const Dashboard = () => {
                     analysis_writer_data: tacticalAnalysis,
                     analysis_writer_id: tacticalAnalysis.id
                   } as Analysis;
+                  attachedTacticalIds.add(tacticalAnalysis.id);
                 } else if (matchingReport.analysis_writer_data.analysis_type !== tacticalAnalysis.analysis_type) {
-                  if (!mergedAnalyses[index].tagged_analyses) {
-                    (mergedAnalyses[index] as any).tagged_analyses = [];
+                  const alreadyTagged = (mergedAnalyses[index].tagged_analyses || []).some((ta: any) => ta.id === tacticalAnalysis.id);
+                  if (!alreadyTagged && matchingReport.analysis_writer_data.id !== tacticalAnalysis.id) {
+                    if (!mergedAnalyses[index].tagged_analyses) {
+                      (mergedAnalyses[index] as any).tagged_analyses = [];
+                    }
+                    (mergedAnalyses[index] as any).tagged_analyses.push(tacticalAnalysis);
+                    attachedTacticalIds.add(tacticalAnalysis.id);
                   }
-                  (mergedAnalyses[index] as any).tagged_analyses.push(tacticalAnalysis);
                 }
               }
-            } else if (!matchingReport) {
-              // Create standalone entry for this tactical analysis
+            } else {
               const standaloneEntry: Analysis = {
                 id: `tactical-${tacticalAnalysis.id}`,
                 analysis_date: tacticalAnalysis.match_date || tacticalAnalysis.created_at,
@@ -1304,6 +1318,7 @@ const Dashboard = () => {
                 fixture_id: tacticalAnalysis.fixture_id
               };
               mergedAnalyses.push(standaloneEntry);
+              attachedTacticalIds.add(tacticalAnalysis.id);
             }
           });
         }
@@ -2398,6 +2413,7 @@ const Dashboard = () => {
                       <CognisanceSection 
                         playerId={playerData?.id || ""} 
                         playerPosition={playerData?.position}
+                        playerName={playerData?.name}
                       />
                     </CardContent>
                   </Card>

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 interface CognisanceSectionProps {
   playerId: string;
   playerPosition?: string;
+  playerName?: string;
 }
 
 type GameType = "schemes" | "concepts" | "pre-match" | null;
@@ -48,7 +49,7 @@ interface PreMatchData {
   points: any[] | null;
 }
 
-export function CognisanceSection({ playerId, playerPosition }: CognisanceSectionProps) {
+export function CognisanceSection({ playerId, playerPosition, playerName }: CognisanceSectionProps) {
   const [selectedGame, setSelectedGame] = useState<GameType>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   
@@ -92,51 +93,97 @@ export function CognisanceSection({ playerId, playerPosition }: CognisanceSectio
     
     const normalizedPosition = positionMap[playerPosition] || playerPosition;
     
+    // Try position-specific first
     const { data, error } = await sharedSupabase
       .from("tactical_schemes")
       .select("*")
       .eq("position", normalizedPosition);
     
-    if (!error && data) {
+    if (!error && data && data.length > 0) {
       setSchemes(data as SchemeData[]);
       const teamSchemes = [...new Set(data.map((s: any) => s.team_scheme as string))];
       const oppositionSchemes = [...new Set(data.map((s: any) => s.opposition_scheme as string))];
       setAvailableTeamSchemes(teamSchemes);
       setAvailableOppositionSchemes(oppositionSchemes);
+    } else {
+      // Fallback: fetch ALL schemes
+      const { data: allData } = await sharedSupabase
+        .from("tactical_schemes")
+        .select("*");
+      if (allData && allData.length > 0) {
+        setSchemes(allData as SchemeData[]);
+        const teamSchemes = [...new Set(allData.map((s: any) => s.team_scheme as string))];
+        const oppositionSchemes = [...new Set(allData.map((s: any) => s.opposition_scheme as string))];
+        setAvailableTeamSchemes(teamSchemes);
+        setAvailableOppositionSchemes(oppositionSchemes);
+      }
     }
   }, [playerPosition]);
 
   // Fetch concepts linked to the player
   const fetchConcepts = useCallback(async () => {
-    // Get player_analysis records with concept type
+    const allConcepts: ConceptData[] = [];
+    const seenIds = new Set<string>();
+
+    // Method 1: via analysis_writer_id linkage
     const { data: analysisData } = await sharedSupabase
       .from("player_analysis")
       .select("analysis_writer_id")
       .eq("player_id", playerId);
     
-    if (!analysisData || analysisData.length === 0) return;
-    
-    const linkedIds = analysisData
-      .filter((a: any) => a.analysis_writer_id)
-      .map((a: any) => a.analysis_writer_id);
-    
-    if (linkedIds.length === 0) return;
-    
-    const { data: conceptsData } = await sharedSupabase
-      .from("analyses")
-      .select("*")
-      .in("id", linkedIds)
-      .eq("analysis_type", "concept");
-    
-    if (conceptsData) {
-      setConcepts(conceptsData.map((c: any) => ({
-        id: c.id,
-        title: c.title || "Untitled Concept",
-        points: Array.isArray(c.points) ? c.points : [],
-        explanation: c.explanation || undefined
-      })));
+    if (analysisData) {
+      const linkedIds = analysisData
+        .filter((a: any) => a.analysis_writer_id)
+        .map((a: any) => a.analysis_writer_id);
+      
+      if (linkedIds.length > 0) {
+        const { data: conceptsData } = await sharedSupabase
+          .from("analyses")
+          .select("*")
+          .in("id", linkedIds)
+          .eq("analysis_type", "concept");
+        
+        if (conceptsData) {
+          conceptsData.forEach((c: any) => {
+            if (!seenIds.has(c.id)) {
+              seenIds.add(c.id);
+              allConcepts.push({
+                id: c.id,
+                title: c.title || "Untitled Concept",
+                points: Array.isArray(c.points) ? c.points : [],
+                explanation: c.explanation || undefined
+              });
+            }
+          });
+        }
+      }
     }
-  }, [playerId]);
+
+    // Method 2: via player_name match
+    if (playerName) {
+      const { data: nameConceptsData } = await sharedSupabase
+        .from("analyses")
+        .select("*")
+        .eq("analysis_type", "concept")
+        .eq("player_name", playerName);
+      
+      if (nameConceptsData) {
+        nameConceptsData.forEach((c: any) => {
+          if (!seenIds.has(c.id)) {
+            seenIds.add(c.id);
+            allConcepts.push({
+              id: c.id,
+              title: c.title || "Untitled Concept",
+              points: Array.isArray(c.points) ? c.points : [],
+              explanation: c.explanation || undefined
+            });
+          }
+        });
+      }
+    }
+
+    setConcepts(allConcepts);
+  }, [playerId, playerName]);
 
   // Fetch pre-match analyses linked to the player
   const fetchPreMatchAnalyses = useCallback(async () => {
