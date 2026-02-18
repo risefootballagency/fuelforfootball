@@ -1,281 +1,276 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useRef, useCallback } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tv, ExternalLink, Maximize2, Minimize2, ArrowLeft, ArrowRight, RotateCcw, Link as LinkIcon, Settings, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Trash2, Save, Edit2, X, Eye, EyeOff, Radio, Video, ExternalLink } from "lucide-react";
-import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-interface Stream {
+interface StreamChannel {
   id: string;
-  title: string;
-  description: string | null;
-  stream_url: string | null;
-  thumbnail_url: string | null;
-  platform: string | null;
-  stream_type: string | null;
-  scheduled_at: string | null;
-  is_live: boolean | null;
-  is_visible: boolean | null;
-  display_order: number | null;
-  tags: string[] | null;
+  label: string;
+  url: string;
+  region: string;
+  embedMode: 'iframe' | 'link-only';
 }
 
-const emptyStream = {
-  title: "",
-  description: null as string | null,
-  stream_url: null as string | null,
-  thumbnail_url: null as string | null,
-  platform: "youtube",
-  stream_type: "recorded",
-  scheduled_at: null as string | null,
-  is_live: false,
-  is_visible: true,
-  display_order: 0,
-  tags: [] as string[],
-};
+interface StreamCredentials {
+  username: string;
+  password: string;
+}
+
+const EMBEDDABLE_CHANNELS: StreamChannel[] = [
+  { id: "chnliga", label: "Chance Liga", url: "https://www.chnliga.tv/cze", region: "Czechia", embedMode: "iframe" },
+  { id: "tvcom", label: "TVCom", url: "https://www.tvcom.cz/", region: "Czechia", embedMode: "iframe" },
+  { id: "vidio", label: "Vidio Sports", url: "https://www.vidio.com/categories/sports", region: "Indonesia", embedMode: "iframe" },
+  { id: "sportsebooks", label: "Sportsebooks UK", url: "https://sportsebooks.eu", region: "UK", embedMode: "iframe" },
+];
+
+const LINK_ONLY_CHANNELS: StreamChannel[] = [
+  { id: "camel", label: "Camel International", url: "https://www.camel1.live/e/home", region: "International", embedMode: "link-only" },
+  { id: "buffstreams", label: "Buffstreams US", url: "https://buffstreams.plus/index2", region: "US", embedMode: "link-only" },
+];
+
+const EMBED_EXTRA_CHANNELS: StreamChannel[] = [
+  { id: "youtube", label: "YouTube", url: "https://www.youtube.com", region: "Global", embedMode: "iframe" },
+  { id: "ytmusic", label: "YouTube Music", url: "https://music.youtube.com", region: "Global", embedMode: "iframe" },
+];
+
+const ALL_CHANNELS = [...EMBEDDABLE_CHANNELS, ...EMBED_EXTRA_CHANNELS, ...LINK_ONLY_CHANNELS];
 
 export const StreamsManagement = () => {
-  const [streams, setStreams] = useState<Stream[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
-  const [form, setForm] = useState(emptyStream);
-  const [tagInput, setTagInput] = useState("");
+  const [activeTab, setActiveTab] = useState(() => {
+    try { return localStorage.getItem('streams_active_tab') || EMBEDDABLE_CHANNELS[0].id; }
+    catch { return EMBEDDABLE_CHANNELS[0].id; }
+  });
+  const [expanded, setExpanded] = useState(() => {
+    try { return localStorage.getItem('streams_expanded') === 'true'; }
+    catch { return false; }
+  });
+  const [credentials, setCredentials] = useState<Record<string, StreamCredentials>>(() => {
+    try { return JSON.parse(localStorage.getItem('streams_credentials') || '{}'); }
+    catch { return {}; }
+  });
+  const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
+  const iframeRefs = useRef<Record<string, HTMLIFrameElement | null>>({});
 
-  useEffect(() => { fetchStreams(); }, []);
+  const activeChannel = ALL_CHANNELS.find((c) => c.id === activeTab);
 
-  const fetchStreams = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("streams")
-      .select("*")
-      .order("display_order", { ascending: true });
-    if (error) {
-      toast.error("Failed to load streams");
-    } else {
-      setStreams(data || []);
-    }
-    setLoading(false);
-  };
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+    try { localStorage.setItem('streams_active_tab', tab); } catch {}
+  }, []);
 
-  const handleSave = async () => {
-    if (!form.title.trim()) {
-      toast.error("Title is required");
-      return;
-    }
-    setSaving(true);
-    try {
-      if (editingId) {
-        const { error } = await supabase.from("streams").update(form).eq("id", editingId);
-        if (error) throw error;
-        toast.success("Stream updated");
-      } else {
-        const { error } = await supabase.from("streams").insert({ ...form, display_order: streams.length });
-        if (error) throw error;
-        toast.success("Stream added");
-      }
-      setEditingId(null);
-      setIsAdding(false);
-      setForm(emptyStream);
-      fetchStreams();
-    } catch (err: any) {
-      toast.error(err.message || "Save failed");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this stream?")) return;
-    const { error } = await supabase.from("streams").delete().eq("id", id);
-    if (error) toast.error("Delete failed");
-    else { toast.success("Stream deleted"); fetchStreams(); }
-  };
-
-  const toggleVisibility = async (id: string, current: boolean) => {
-    await supabase.from("streams").update({ is_visible: !current }).eq("id", id);
-    fetchStreams();
-  };
-
-  const toggleLive = async (id: string, current: boolean) => {
-    await supabase.from("streams").update({ is_live: !current }).eq("id", id);
-    fetchStreams();
-  };
-
-  const startEdit = (s: Stream) => {
-    setEditingId(s.id);
-    setIsAdding(false);
-    setForm({
-      title: s.title,
-      description: s.description,
-      stream_url: s.stream_url,
-      thumbnail_url: s.thumbnail_url,
-      platform: s.platform || "youtube",
-      stream_type: s.stream_type || "recorded",
-      scheduled_at: s.scheduled_at,
-      is_live: s.is_live ?? false,
-      is_visible: s.is_visible ?? true,
-      display_order: s.display_order ?? 0,
-      tags: s.tags || [],
+  const handleExpandToggle = useCallback(() => {
+    setExpanded(prev => {
+      const next = !prev;
+      try { localStorage.setItem('streams_expanded', String(next)); } catch {}
+      return next;
     });
-  };
+  }, []);
 
-  const cancel = () => { setEditingId(null); setIsAdding(false); setForm(emptyStream); };
-
-  const addTag = () => {
-    if (tagInput.trim()) {
-      setForm({ ...form, tags: [...(form.tags || []), tagInput.trim()] });
-      setTagInput("");
+  const navigateIframe = useCallback((direction: 'back' | 'forward' | 'reload') => {
+    const iframe = iframeRefs.current[activeTab];
+    if (!iframe?.contentWindow) return;
+    try {
+      if (direction === 'back') iframe.contentWindow.history.back();
+      else if (direction === 'forward') iframe.contentWindow.history.forward();
+      else iframe.contentWindow.location.reload();
+    } catch {
+      if (direction === 'reload' && iframe) {
+        const src = iframe.src;
+        iframe.src = '';
+        setTimeout(() => { iframe.src = src; }, 50);
+      }
     }
-  };
+  }, [activeTab]);
 
-  if (loading) {
-    return <div className="flex items-center justify-center p-8"><div className="animate-pulse text-primary font-bebas text-xl">Loading streams...</div></div>;
-  }
+  const saveCredentials = useCallback((channelId: string, creds: StreamCredentials) => {
+    setCredentials(prev => {
+      const updated = { ...prev, [channelId]: creds };
+      try { localStorage.setItem('streams_credentials', JSON.stringify(updated)); } catch {}
+      return updated;
+    });
+  }, []);
+
+  const getCredentials = (channelId: string): StreamCredentials => {
+    return credentials[channelId] || { username: '', password: '' };
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bebas text-2xl text-foreground tracking-wider flex items-center gap-2">
-          <Video className="w-5 h-5 text-primary" />
-          Streams
-        </h2>
-        <Button onClick={() => { setIsAdding(true); setEditingId(null); setForm(emptyStream); }} disabled={isAdding} size="sm" className="gap-2">
-          <Plus className="w-4 h-4" /> Add Stream
-        </Button>
-      </div>
-
-      {/* Editor */}
-      {(isAdding || editingId) && (
-        <Card className="border-primary/30">
-          <CardContent className="p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bebas text-lg text-primary">{isAdding ? "New Stream" : "Edit Stream"}</h3>
-              <Button variant="ghost" size="sm" onClick={cancel}><X className="w-4 h-4" /></Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Stream title" />
-              </div>
-              <div className="space-y-2">
-                <Label>Platform</Label>
-                <Select value={form.platform || "youtube"} onValueChange={(v) => setForm({ ...form, platform: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="youtube">YouTube</SelectItem>
-                    <SelectItem value="twitch">Twitch</SelectItem>
-                    <SelectItem value="vimeo">Vimeo</SelectItem>
-                    <SelectItem value="instagram">Instagram Live</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Stream URL</Label>
-              <Input value={form.stream_url || ""} onChange={(e) => setForm({ ...form, stream_url: e.target.value })} placeholder="https://..." />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="What's this stream about?" rows={2} />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Type</Label>
-                <Select value={form.stream_type || "recorded"} onValueChange={(v) => setForm({ ...form, stream_type: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="recorded">Recorded</SelectItem>
-                    <SelectItem value="live">Live</SelectItem>
-                    <SelectItem value="scheduled">Scheduled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Scheduled Date/Time</Label>
-                <Input type="datetime-local" value={form.scheduled_at?.slice(0, 16) || ""} onChange={(e) => setForm({ ...form, scheduled_at: e.target.value ? new Date(e.target.value).toISOString() : null })} />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Tags</Label>
-              <div className="flex gap-2">
-                <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Add tag" onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())} />
-                <Button type="button" onClick={addTag} size="sm"><Plus className="w-4 h-4" /></Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {(form.tags || []).map((tag, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 px-2 py-1 bg-primary/20 text-primary text-xs rounded-full">
-                    {tag}
-                    <button onClick={() => setForm({ ...form, tags: form.tags!.filter((_, idx) => idx !== i) })}><X className="w-3 h-3" /></button>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6 pt-2 border-t border-border">
-              <div className="flex items-center gap-2">
-                <Switch checked={form.is_visible ?? true} onCheckedChange={(v) => setForm({ ...form, is_visible: v })} />
-                <Label className="text-sm">Visible</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch checked={form.is_live ?? false} onCheckedChange={(v) => setForm({ ...form, is_live: v })} />
-                <Label className="text-sm">Live Now</Label>
-              </div>
-              <div className="flex-1" />
-              <Button onClick={handleSave} disabled={saving} size="sm" className="gap-2">
-                <Save className="w-4 h-4" /> {saving ? "Saving..." : "Save"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* List */}
-      <div className="space-y-2">
-        {streams.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">No streams yet.</div>
-        ) : streams.map((s) => (
-          <div key={s.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${editingId === s.id ? "bg-primary/10 border-primary" : "bg-card border-border hover:border-primary/50"}`}>
-            {s.is_live && <Radio className="w-4 h-4 text-red-500 animate-pulse flex-shrink-0" />}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h4 className="font-bebas text-base text-foreground truncate">{s.title}</h4>
-                <span className="text-[10px] uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{s.platform}</span>
-              </div>
-              <p className="text-xs text-muted-foreground truncate">{s.description || "No description"}</p>
-            </div>
-            <div className="flex items-center gap-1">
-              {s.stream_url && (
-                <Button variant="ghost" size="sm" onClick={() => window.open(s.stream_url!, "_blank")}>
-                  <ExternalLink className="w-4 h-4" />
+    <Card className="border-border/50">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Tv className="h-5 w-5" />
+            Streams
+          </CardTitle>
+          <div className="flex items-center gap-1">
+            {activeChannel?.embedMode === 'iframe' && (
+              <>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigateIframe('back')} title="Back">
+                  <ArrowLeft className="h-3.5 w-3.5" />
                 </Button>
-              )}
-              <Button variant="ghost" size="sm" onClick={() => toggleLive(s.id, s.is_live ?? false)} className={s.is_live ? "text-red-500" : "text-muted-foreground"}>
-                <Radio className="w-4 h-4" />
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigateIframe('forward')} title="Forward">
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigateIframe('reload')} title="Reload">
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
+            {activeChannel && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" title="Stream credentials">
+                    <Settings className="h-3.5 w-3.5" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64" align="end">
+                  <div className="space-y-3">
+                    <p className="text-xs font-medium">{activeChannel.label} Credentials</p>
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="Username / email"
+                        value={getCredentials(activeChannel.id).username}
+                        onChange={e => saveCredentials(activeChannel.id, { ...getCredentials(activeChannel.id), username: e.target.value })}
+                        className="h-7 text-xs"
+                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword[activeChannel.id] ? "text" : "password"}
+                          placeholder="Password"
+                          value={getCredentials(activeChannel.id).password}
+                          onChange={e => saveCredentials(activeChannel.id, { ...getCredentials(activeChannel.id), password: e.target.value })}
+                          className="h-7 text-xs pr-8"
+                        />
+                        <button
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          onClick={() => setShowPassword(prev => ({ ...prev, [activeChannel.id]: !prev[activeChannel.id] }))}
+                        >
+                          {showPassword[activeChannel.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">Saved locally for quick reference when logging in.</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleExpandToggle}
+              title={expanded ? "Collapse" : "Theatre mode"}
+            >
+              {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
+            {activeChannel && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(activeChannel.url, "_blank", "noopener,noreferrer")}
+              >
+                <ExternalLink className="h-3 w-3 mr-1.5" />
+                Open in tab
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => toggleVisibility(s.id, s.is_visible ?? true)} className={s.is_visible ? "text-green-500" : "text-muted-foreground"}>
-                {s.is_visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => startEdit(s)}><Edit2 className="w-4 h-4" /></Button>
-              <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="text-destructive"><Trash2 className="w-4 h-4" /></Button>
-            </div>
+            )}
           </div>
-        ))}
-      </div>
-    </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <div className="px-4 pb-2">
+            <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
+              {[...EMBEDDABLE_CHANNELS, ...EMBED_EXTRA_CHANNELS].map((ch) => {
+                const creds = getCredentials(ch.id);
+                const hasCreds = creds.username || creds.password;
+                return (
+                  <TooltipProvider key={ch.id} delayDuration={300}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <TabsTrigger
+                          value={ch.id}
+                          className="text-xs px-3 py-1.5 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
+                        >
+                          <span>{ch.label}</span>
+                          <span className="ml-1.5 text-[10px] opacity-60">{ch.region}</span>
+                        </TabsTrigger>
+                      </TooltipTrigger>
+                      {hasCreds && (
+                        <TooltipContent side="bottom" className="text-xs space-y-0.5">
+                          {creds.username && <p>User: {creds.username}</p>}
+                          {creds.password && <p>Pass: {'•'.repeat(Math.min(creds.password.length, 12))}</p>}
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              {LINK_ONLY_CHANNELS.map((ch) => {
+                const creds = getCredentials(ch.id);
+                const hasCreds = creds.username || creds.password;
+                return (
+                  <TooltipProvider key={ch.id} delayDuration={300}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <TabsTrigger
+                          value={ch.id}
+                          className="text-xs px-3 py-1.5 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
+                        >
+                          <LinkIcon className="h-3 w-3 mr-1 opacity-60" />
+                          <span>{ch.label}</span>
+                          <span className="ml-1.5 text-[10px] opacity-60">{ch.region}</span>
+                        </TabsTrigger>
+                      </TooltipTrigger>
+                      {hasCreds && (
+                        <TooltipContent side="bottom" className="text-xs space-y-0.5">
+                          {creds.username && <p>User: {creds.username}</p>}
+                          {creds.password && <p>Pass: {'•'.repeat(Math.min(creds.password.length, 12))}</p>}
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+            </TabsList>
+          </div>
+
+          {ALL_CHANNELS.map((ch) => (
+            <TabsContent key={ch.id} value={ch.id} className="mt-0 p-0">
+              <div className="px-4 pb-4">
+                {ch.embedMode === 'link-only' ? (
+                  <div className={`w-full rounded-lg border border-border/50 bg-muted/30 flex flex-col items-center justify-center gap-4 ${expanded ? "h-[85vh]" : "h-[600px]"}`}>
+                    <Tv className="h-16 w-16 text-muted-foreground/40" />
+                    <div className="text-center space-y-1">
+                      <p className="text-sm font-medium">{ch.label}</p>
+                      <p className="text-xs text-muted-foreground">This source doesn't support embedding. Click below to open it directly.</p>
+                    </div>
+                    <Button onClick={() => window.open(ch.url, "_blank", "noopener,noreferrer")}>
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Open {ch.label}
+                    </Button>
+                  </div>
+                ) : (
+                  <iframe
+                    ref={(el) => { iframeRefs.current[ch.id] = el; }}
+                    src={ch.url}
+                    title={ch.label}
+                    className={`w-full rounded-lg border border-border/50 bg-black ${expanded ? "h-[85vh]" : "h-[600px]"}`}
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-storage-access-by-user-activation allow-popups-to-escape-sandbox"
+                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                    allowFullScreen
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
-
-export default StreamsManagement;
