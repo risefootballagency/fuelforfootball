@@ -281,6 +281,7 @@ export function PortalManagement() {
         description: payLinkForm.description || null,
         customer_name: player?.name || null,
         customer_email: player?.email || null,
+        player_id: selectedPlayerId,
         status: "active",
         payment_type: payLinkForm.payment_type === "subscription" ? "subscription" : "one_off",
         recurring_interval: payLinkForm.payment_type === "subscription" ? payLinkForm.recurring_interval : null,

@@ -55,14 +55,21 @@ export const PaymentOptions = ({ playerId }: PaymentOptionsProps) => {
       .select('name, email')
       .eq('id', playerId)
       .maybeSingle();
-    if (!player) return;
 
-    const { data } = await supabase
+    // Fetch by player_id OR by name/email match
+    let query = supabase
       .from('pay_links')
       .select('*')
       .eq('status', 'active')
-      .or(`customer_name.ilike.%${player.name}%,customer_email.ilike.%${player.email}%`)
       .order('created_at', { ascending: false });
+
+    if (player) {
+      query = query.or(`player_id.eq.${playerId},customer_name.ilike.%${player.name}%,customer_email.ilike.%${player.email}%`);
+    } else {
+      query = query.eq('player_id', playerId);
+    }
+
+    const { data } = await query;
     setPayLinks(data || []);
   };
 

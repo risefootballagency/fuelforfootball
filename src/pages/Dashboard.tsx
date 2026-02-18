@@ -3928,7 +3928,7 @@ const Dashboard = () => {
                   <TabsTrigger value="invoices" className="font-bebas uppercase text-sm sm:text-base">
                     Invoices
                   </TabsTrigger>
-                  <TabsTrigger value="payment" className="font-bebas uppercase text-sm sm:text-base">
+                  <TabsTrigger value="payment" data-value="payment" className="font-bebas uppercase text-sm sm:text-base">
                     Make Payment
                   </TabsTrigger>
                 </TabsList>
@@ -4038,16 +4038,27 @@ const Dashboard = () => {
                                     </div>
                                   </div>
 
-                                  {invoice.pdf_url && (
+                                  <div className="flex gap-2">
+                                    {invoice.pdf_url && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => window.open(invoice.pdf_url!, '_blank')}
+                                      >
+                                        <FileText className="w-4 h-4 mr-2" />
+                                        View PDF
+                                      </Button>
+                                    )}
                                     <Button
-                                      variant="outline"
                                       size="sm"
-                                      onClick={() => window.open(invoice.pdf_url!, '_blank')}
+                                      onClick={() => {
+                                        const paymentTab = document.querySelector('[data-value="payment"]') as HTMLElement;
+                                        if (paymentTab) paymentTab.click();
+                                      }}
                                     >
-                                      <FileText className="w-4 h-4 mr-2" />
-                                      View PDF
+                                      Pay Now
                                     </Button>
-                                  )}
+                                  </div>
                                 </div>
                               );
                             })}
