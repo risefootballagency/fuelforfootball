@@ -606,21 +606,6 @@ const Staff = () => {
           { id: '_group_transfers', title: 'Transfers', isGroupLabel: true } as any,
           { id: 'transferhub', title: 'Transfer Hub', icon: Building2 },
           { id: 'updates', title: 'Player Updates', icon: BellRing },
-          { id: 'requests', title: 'Requests', icon: MessageSquare },
-        ]
-      },
-      {
-        id: 'network', title: 'Network & Recruitment', icon: Network, locked: false,
-        sections: [
-          { id: '_group_network', title: 'Network', isGroupLabel: true } as any,
-          { id: 'clubnetwork', title: 'Club Network', icon: Network },
-          { id: 'playerlist', title: 'Player List', icon: Users },
-          { id: 'casestudies', title: 'Case Studies', icon: MessageSquare },
-          { id: '_group_scouting', title: 'Scouting', isGroupLabel: true } as any,
-          { id: 'recruitment', title: 'Recruitment', icon: Target },
-          { id: 'playerdatabase', title: 'Player Database', icon: Users },
-          { id: 'scoutingcentre', title: 'Scouting Centre', icon: ClipboardList },
-          { id: 'submissions', title: 'Form Submissions', icon: Mail },
         ]
       },
       {
@@ -665,6 +650,20 @@ const Staff = () => {
           { id: '_group_overview_fin', title: 'Overview', isGroupLabel: true } as any,
           { id: 'budgets', title: 'Budgets', icon: PiggyBank },
           { id: 'financialreports', title: 'Reports', icon: TrendingUp },
+        ]
+      },
+      {
+        id: 'network', title: 'Network & Recruitment', icon: Network, locked: false,
+        sections: [
+          { id: '_group_network', title: 'Network', isGroupLabel: true } as any,
+          { id: 'clubnetwork', title: 'Club Network', icon: Network },
+          { id: 'playerlist', title: 'Player List', icon: Users },
+          { id: 'casestudies', title: 'Case Studies', icon: MessageSquare },
+          { id: '_group_scouting', title: 'Scouting', isGroupLabel: true } as any,
+          { id: 'recruitment', title: 'Recruitment', icon: Target },
+          { id: 'playerdatabase', title: 'Player Database', icon: Users },
+          { id: 'scoutingcentre', title: 'Scouting Centre', icon: ClipboardList },
+          { id: 'submissions', title: 'Form Submissions', icon: Mail },
         ]
       },
       {
@@ -778,10 +777,10 @@ const Staff = () => {
                   onDragOver={(e) => handleTabDragOver(e, tab.id)}
                   onDragEnd={handleTabDragEnd}
                   className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all select-none ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
-                  } ${draggingTabId === tab.id ? 'opacity-50' : ''} ${dragOverTabId === tab.id ? 'ring-2 ring-primary' : ''}`}
+                   isActive
+                       ? 'bg-accent text-accent-foreground shadow-md'
+                       : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
+                  } ${draggingTabId === tab.id ? 'opacity-50' : ''} ${dragOverTabId === tab.id ? 'ring-2 ring-accent' : ''}`}
                   onClick={() => {
                     handleSectionToggle(tab.id);
                     const parent = categories.find(c => c.sections.some(s => s.id === tab.id));

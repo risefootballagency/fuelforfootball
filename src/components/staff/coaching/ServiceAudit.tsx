@@ -420,7 +420,7 @@ export const ServiceAudit = () => {
                       {formatDuration(service.average_duration_minutes)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className="font-bold text-primary">
+                     <span className="font-bold text-accent">
                         {formatCurrency(service.hourly_value || 0, service.currency)}/hr
                       </span>
                     </TableCell>

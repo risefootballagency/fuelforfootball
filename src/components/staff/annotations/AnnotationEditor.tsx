@@ -141,7 +141,7 @@ export const AnnotationEditor = ({ project, onSave, onBack }: AnnotationEditorPr
     }));
   }, [activeKlipId]);
 
-  const klipColors = ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#f97316'];
+  const klipColors = ['hsl(47, 100%, 51%)', '#3b82f6', '#ef4444', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#f97316'];
 
   useEffect(() => {
     if (duration > 0 && klips.length === 0 && !autoCreated) {
@@ -959,7 +959,7 @@ export const AnnotationEditor = ({ project, onSave, onBack }: AnnotationEditorPr
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 text-xs gap-1 border-green-500/50 text-green-400 hover:bg-green-500/10 hover:text-green-300"
+                    className="flex-1 text-xs gap-1 border-accent/50 text-accent hover:bg-accent/10 hover:text-accent"
                     onClick={saveDrawing}
                   >
                     <Save className="w-3.5 h-3.5" /> Save
@@ -977,7 +977,7 @@ export const AnnotationEditor = ({ project, onSave, onBack }: AnnotationEditorPr
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs gap-1.5 border-primary/50 text-primary hover:bg-primary/10"
+                  className="w-full text-xs gap-1.5 border-accent/50 text-accent hover:bg-accent/10"
                   onClick={startDrawing}
                 >
                   <Pencil className="w-3.5 h-3.5" /> Draw on Frame

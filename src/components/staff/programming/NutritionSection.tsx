@@ -18,9 +18,9 @@ export const NutritionSection = () => {
   const loadPlayers = async () => {
     const { data } = await supabase
       .from("players" as any)
-      .select("id, name, current_club, position")
+      .select("id, name, club, position")
       .order("name");
-    if (data) setPlayers(data);
+    if (data) setPlayers(data.map((p: any) => ({ ...p, current_club: p.club })));
   };
 
   const filtered = players.filter(p => {

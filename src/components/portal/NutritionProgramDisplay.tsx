@@ -27,24 +27,32 @@ export const NutritionProgramDisplay = ({ playerId }: NutritionProgramDisplayPro
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        // Try nutrition_programs table first
+        // Nutrition programs are stored in coaching_analysis with analysis_type = 'nutrition_program' and folder = playerId
         const { data, error } = await sharedSupabase
-          .from("coaching_programmes" as any)
+          .from("coaching_analysis" as any)
           .select("*")
-          .or(`title.ilike.%nutrition%,category.ilike.%nutrition%`)
+          .eq("analysis_type", "nutrition_program")
+          .eq("folder", playerId)
           .order("created_at", { ascending: false });
 
         if (!error && data && data.length > 0) {
-          const mapped = data.map((p: any) => ({
-            id: p.id,
-            player_id: playerId,
-            program_name: p.title,
-            description: p.description,
-            meal_plan: p.content ? JSON.parse(typeof p.content === "string" ? p.content : JSON.stringify(p.content)) : null,
-            guidelines: null,
-            is_active: true,
-            created_at: p.created_at,
-          }));
+          const mapped = data.map((p: any) => {
+            let mealPlan = null;
+            try {
+              const attachments = typeof p.attachments === 'string' ? JSON.parse(p.attachments) : p.attachments;
+              if (attachments?.meal_plan) mealPlan = attachments.meal_plan;
+            } catch {}
+            return {
+              id: p.id,
+              player_id: playerId,
+              program_name: p.title,
+              description: p.description,
+              meal_plan: mealPlan,
+              guidelines: null,
+              is_active: true,
+              created_at: p.created_at,
+            };
+          });
           setPrograms(mapped);
         }
       } catch {

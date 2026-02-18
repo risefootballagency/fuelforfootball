@@ -1893,7 +1893,7 @@ const Dashboard = () => {
                     {activeTab === "hub" && "Hub"}
                     {activeTab === "analysis" && "Analysis"}
                     {activeTab === "physical" && "Programming"}
-                    {activeTab === "invoices" && "Key Documents"}
+                    {activeTab === "invoices" && "Invoices"}
                     {activeTab === "updates" && "Updates"}
                     {activeTab === "highlights" && "Highlights"}
                     {activeTab === "nutrition" && "Nutrition"}
@@ -1933,7 +1933,7 @@ const Dashboard = () => {
                     onClick={() => setActiveTab("invoices")}
                     className="font-bebas uppercase text-sm py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10 justify-center"
                   >
-                    Key Docs
+                    Invoices
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setActiveTab("updates")}
@@ -3874,15 +3874,12 @@ const Dashboard = () => {
               <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0">
                 <CardContent className="container mx-auto px-4 pt-2">
                   <Tabs defaultValue="invoices" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2 mb-0 bg-muted h-auto p-2">
+                    <TabsList className="grid w-full grid-cols-3 gap-2 mb-0 bg-muted h-auto p-2">
                   <TabsTrigger value="invoices" className="font-bebas uppercase text-sm sm:text-base">
                     Invoices
                   </TabsTrigger>
                   <TabsTrigger value="payment" className="font-bebas uppercase text-sm sm:text-base">
                     Make Payment
-                  </TabsTrigger>
-                  <TabsTrigger value="contracts" className="font-bebas uppercase text-sm sm:text-base">
-                    Contracts
                   </TabsTrigger>
                   <TabsTrigger value="other" className="font-bebas uppercase text-sm sm:text-base">
                     Other
@@ -4085,27 +4082,8 @@ const Dashboard = () => {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="contracts">
-                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
-                    <CardHeader marble>
-                      <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight flex items-center gap-2">
-                          <Lock className="h-5 w-5" />
-                          Contracts
-                        </CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="container mx-auto px-4">
-                      {playerData?.id ? (
-                        <ProtectedContracts playerId={playerData.id} />
-                      ) : (
-                        <div className="py-8 text-center text-muted-foreground">
-                          Loading...
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+
+
 
                 <TabsContent value="other">
                   <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
