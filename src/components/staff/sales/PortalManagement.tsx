@@ -378,12 +378,12 @@ export function PortalManagement() {
                     <div>
                       <Label>Upgrade Product</Label>
                       <Select
-                        value={formData.upgrade_product_id}
-                        onValueChange={v => setFormData(prev => ({ ...prev, upgrade_product_id: v }))}
+                        value={formData.upgrade_product_id || "none"}
+                        onValueChange={v => setFormData(prev => ({ ...prev, upgrade_product_id: v === "none" ? "" : v }))}
                       >
                         <SelectTrigger><SelectValue placeholder="Select upgrade product..." /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {products.map(p => (
                             <SelectItem key={p.id} value={p.id}>
                               {p.name} — £{p.price}/mo
