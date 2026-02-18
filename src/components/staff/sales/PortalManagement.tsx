@@ -30,6 +30,14 @@ interface ServiceProduct {
   options: any[] | null;
 }
 
+interface CurrentPackage {
+  name: string;
+  price: string;
+  currency: string;
+  frequency: string; // monthly, annual, weekly, one-off, 6-monthly
+  features: string[];
+}
+
 interface UpgradeOffer {
   id?: string;
   name: string;
@@ -39,6 +47,8 @@ interface UpgradeOffer {
   message: string;
   pay_link_url: string;
   product_id: string;
+  payment_type: "one_off" | "subscription";
+  recurring_interval: string; // month, year, week
 }
 
 export function PortalManagement() {
@@ -51,7 +61,6 @@ export function PortalManagement() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [newFeature, setNewFeature] = useState("");
   const [previewProduct, setPreviewProduct] = useState<ServiceProduct | null>(null);
 
   // Invoice creation form
@@ -80,16 +89,19 @@ export function PortalManagement() {
   // Widget form state
   const [formData, setFormData] = useState({
     hub_widget_type: "aphorisms" as "aphorisms" | "sales_box",
-    current_package_name: "",
-    current_package_price: "",
-    current_package_currency: "GBP",
-    current_package_features: [] as string[],
+    current_packages: [] as CurrentPackage[],
     upgrade_offers: [] as UpgradeOffer[],
   });
+
+  // New package being added
+  const [showPackageForm, setShowPackageForm] = useState(false);
+  const [newPackage, setNewPackage] = useState<CurrentPackage>({ name: "", price: "", currency: "GBP", frequency: "monthly", features: [] });
+  const [newPackageFeature, setNewPackageFeature] = useState("");
 
   // New offer being edited
   const [newOffer, setNewOffer] = useState<UpgradeOffer>({
     name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "",
+    payment_type: "subscription", recurring_interval: "month",
   });
   const [newOfferFeature, setNewOfferFeature] = useState("");
   const [showOfferForm, setShowOfferForm] = useState(false);
@@ -131,10 +143,29 @@ export function PortalManagement() {
     if (settingsData) {
       setSettings(settingsData);
       const raw = settingsData as any;
-      // Parse upgrade_offers from the stored JSON or build from legacy single-offer fields
+
+      // Parse current_packages from stored JSON or migrate from legacy single package
+      let packages: CurrentPackage[] = [];
+      if (raw.current_packages && Array.isArray(raw.current_packages)) {
+        packages = raw.current_packages;
+      } else if (raw.current_package_name) {
+        packages = [{
+          name: raw.current_package_name || "",
+          price: raw.current_package_price?.toString() || "",
+          currency: raw.current_package_currency || "GBP",
+          frequency: "monthly",
+          features: raw.current_package_features || [],
+        }];
+      }
+
+      // Parse upgrade_offers
       let offers: UpgradeOffer[] = [];
       if (raw.upgrade_offers && Array.isArray(raw.upgrade_offers)) {
-        offers = raw.upgrade_offers;
+        offers = raw.upgrade_offers.map((o: any) => ({
+          ...o,
+          payment_type: o.payment_type || "subscription",
+          recurring_interval: o.recurring_interval || "month",
+        }));
       } else if (raw.upgrade_name) {
         offers = [{
           name: raw.upgrade_name || "",
@@ -144,24 +175,21 @@ export function PortalManagement() {
           message: settingsData.upgrade_message || "",
           pay_link_url: raw.upgrade_pay_link_url || "",
           product_id: settingsData.upgrade_product_id || "",
+          payment_type: "subscription",
+          recurring_interval: "month",
         }];
       }
+
       setFormData({
         hub_widget_type: settingsData.hub_widget_type as "aphorisms" | "sales_box",
-        current_package_name: settingsData.current_package_name || "",
-        current_package_price: settingsData.current_package_price?.toString() || "",
-        current_package_currency: settingsData.current_package_currency || "GBP",
-        current_package_features: settingsData.current_package_features || [],
+        current_packages: packages,
         upgrade_offers: offers,
       });
     } else {
       setSettings(null);
       setFormData({
         hub_widget_type: "aphorisms",
-        current_package_name: "",
-        current_package_price: "",
-        current_package_currency: "GBP",
-        current_package_features: [],
+        current_packages: [],
         upgrade_offers: [],
       });
     }
@@ -178,7 +206,7 @@ export function PortalManagement() {
       const { data: payLinkData } = await supabase
         .from("pay_links")
         .select("*")
-        .or(`customer_name.ilike.%${player.name}%,customer_email.ilike.%${player.email}%`)
+        .or(`player_id.eq.${playerId},customer_email.ilike.%${player.email}%`)
         .order("created_at", { ascending: false });
       setPayLinks(payLinkData || []);
     }
@@ -190,15 +218,19 @@ export function PortalManagement() {
     if (!selectedPlayerId) return;
     setSaving(true);
 
-    // Map first offer to legacy fields for backward compatibility + store all offers
     const firstOffer = formData.upgrade_offers[0];
+    const firstPkg = formData.current_packages[0];
     const payload: any = {
       player_id: selectedPlayerId,
       hub_widget_type: formData.hub_widget_type,
-      current_package_name: formData.current_package_name || null,
-      current_package_price: formData.current_package_price ? parseFloat(formData.current_package_price) : null,
-      current_package_currency: formData.current_package_currency,
-      current_package_features: formData.current_package_features.length > 0 ? formData.current_package_features : null,
+      // Legacy single-package fields for backward compat
+      current_package_name: firstPkg?.name || null,
+      current_package_price: firstPkg?.price ? parseFloat(firstPkg.price) : null,
+      current_package_currency: firstPkg?.currency || "GBP",
+      current_package_features: firstPkg?.features?.length ? firstPkg.features : null,
+      // Multi-package storage
+      current_packages: formData.current_packages.length > 0 ? formData.current_packages : null,
+      // Legacy single-offer fields
       upgrade_product_id: firstOffer?.product_id || null,
       upgrade_message: firstOffer?.message || null,
       upgrade_name: firstOffer?.name || null,
@@ -206,6 +238,7 @@ export function PortalManagement() {
       upgrade_currency: firstOffer?.currency || "GBP",
       upgrade_features: firstOffer?.features?.length ? firstOffer.features : null,
       upgrade_pay_link_url: firstOffer?.pay_link_url || null,
+      // Multi-offer storage
       upgrade_offers: formData.upgrade_offers.length > 0 ? formData.upgrade_offers : null,
     };
 
@@ -223,16 +256,6 @@ export function PortalManagement() {
     fetchPlayerData(selectedPlayerId);
   };
 
-  const addFeature = () => {
-    if (!newFeature.trim()) return;
-    setFormData(prev => ({ ...prev, current_package_features: [...prev.current_package_features, newFeature.trim()] }));
-    setNewFeature("");
-  };
-
-  const removeFeature = (index: number) => {
-    setFormData(prev => ({ ...prev, current_package_features: prev.current_package_features.filter((_, i) => i !== index) }));
-  };
-
   const copyToClipboard = async (text: string, field: string) => {
     await navigator.clipboard.writeText(text);
     setCopiedField(field);
@@ -240,6 +263,20 @@ export function PortalManagement() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
+  // --- Current Package management ---
+  const addPackage = () => {
+    if (!newPackage.name.trim()) return;
+    setFormData(prev => ({ ...prev, current_packages: [...prev.current_packages, { ...newPackage }] }));
+    setNewPackage({ name: "", price: "", currency: "GBP", frequency: "monthly", features: [] });
+    setNewPackageFeature("");
+    setShowPackageForm(false);
+  };
+
+  const removePackage = (index: number) => {
+    setFormData(prev => ({ ...prev, current_packages: prev.current_packages.filter((_, i) => i !== index) }));
+  };
+
+  // --- Invoice ---
   const createInvoice = async () => {
     if (!selectedPlayerId || !invoiceForm.invoice_number || !invoiceForm.amount || !invoiceForm.due_date) {
       toast.error("Fill in invoice number, amount, and due date");
@@ -264,6 +301,7 @@ export function PortalManagement() {
     }
   };
 
+  // --- Pay Link ---
   const createPayLink = async () => {
     if (!selectedPlayerId || !payLinkForm.title || !payLinkForm.amount) {
       toast.error("Fill in title and amount");
@@ -320,7 +358,7 @@ export function PortalManagement() {
     fetchPlayerData(selectedPlayerId);
   };
 
-  // Create a Stripe payment link for an upgrade offer
+  // --- Upgrade Offers ---
   const createOfferPayLink = async () => {
     if (!newOffer.name || !newOffer.price) {
       toast.error("Fill in offer name and price");
@@ -335,19 +373,16 @@ export function PortalManagement() {
           amount: parseFloat(newOffer.price),
           currency: newOffer.currency,
           description: newOffer.message || `Upgrade to ${newOffer.name}`,
-          paymentType: "subscription",
-          recurringInterval: "month",
+          paymentType: newOffer.payment_type,
+          recurringInterval: newOffer.payment_type === "subscription" ? newOffer.recurring_interval : undefined,
         },
       });
 
       if (error) throw error;
       if (data?.url) {
-        const offer: UpgradeOffer = {
-          ...newOffer,
-          pay_link_url: data.url,
-        };
+        const offer: UpgradeOffer = { ...newOffer, pay_link_url: data.url };
         setFormData(prev => ({ ...prev, upgrade_offers: [...prev.upgrade_offers, offer] }));
-        setNewOffer({ name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "" });
+        setNewOffer({ name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "", payment_type: "subscription", recurring_interval: "month" });
         setNewOfferFeature("");
         setShowOfferForm(false);
         toast.success("Offer created with payment link");
@@ -378,8 +413,17 @@ export function PortalManagement() {
   };
 
   const selectedPlayer = players.find(p => p.id === selectedPlayerId);
-
   const currencySymbol = (c: string) => c === "EUR" ? "€" : c === "USD" ? "$" : "£";
+  const frequencyLabel = (f: string) => {
+    switch (f) {
+      case "weekly": return "/wk";
+      case "monthly": return "/mo";
+      case "6-monthly": return "/6mo";
+      case "annual": return "/yr";
+      case "one-off": return "";
+      default: return "/mo";
+    }
+  };
 
   const portalLoginUrl = typeof window !== 'undefined' ? `${window.location.origin}/login` : '/login';
 
@@ -418,11 +462,7 @@ export function PortalManagement() {
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 flex-1 min-w-0">
                   <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <Input
-                    value={selectedPlayer?.email || ""}
-                    readOnly
-                    className="flex-1 font-mono text-sm"
-                  />
+                  <span className="flex-1 font-mono text-sm truncate">{selectedPlayer?.email || "No email set"}</span>
                 </div>
                 <Button
                   variant="outline"
@@ -482,50 +522,52 @@ export function PortalManagement() {
 
               {formData.hub_widget_type === "sales_box" && (
                 <>
-                  {/* Current Package */}
+                  {/* Current Packages (multiple) */}
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Current Package</CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base">Current Packages</CardTitle>
+                        <Button size="sm" variant="outline" onClick={() => setShowPackageForm(!showPackageForm)}>
+                          <Plus className="h-4 w-4 mr-1" /> Add Package
+                        </Button>
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={!!formData.current_package_name}
-                          onCheckedChange={(checked) => {
-                            if (!checked) setFormData(prev => ({ ...prev, current_package_name: "", current_package_price: "", current_package_features: [] }));
-                            else setFormData(prev => ({ ...prev, current_package_name: "Package" }));
-                          }}
-                        />
-                        <span className="text-sm">{formData.current_package_name ? "On a package" : "Not currently on a package"}</span>
-                      </div>
+                      {formData.current_packages.map((pkg, idx) => (
+                        <div key={idx} className="border rounded-lg p-3 relative">
+                          <button onClick={() => removePackage(idx)} className="absolute top-2 right-2 text-muted-foreground hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                          <div className="flex items-center justify-between pr-8">
+                            <p className="font-medium">{pkg.name}</p>
+                            <p className="text-sm font-bold">{currencySymbol(pkg.currency)}{pkg.price}{frequencyLabel(pkg.frequency)}</p>
+                          </div>
+                          {pkg.features.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {pkg.features.map((f, i) => (
+                                <Badge key={i} variant="secondary" className="text-xs">{f}</Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
 
-                      {formData.current_package_name && (
-                        <>
+                      {showPackageForm && (
+                        <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-4 space-y-3">
+                          <p className="text-sm font-semibold">Add Current Package</p>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <Label>Package Name</Label>
-                              <Input
-                                value={formData.current_package_name}
-                                onChange={e => setFormData(prev => ({ ...prev, current_package_name: e.target.value }))}
-                                placeholder="e.g. Pro Performance"
-                              />
+                              <Label className="text-xs">Package Name</Label>
+                              <Input value={newPackage.name} onChange={e => setNewPackage(prev => ({ ...prev, name: e.target.value }))} placeholder="e.g. Pro Performance" />
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-3 gap-2">
                               <div>
-                                <Label>Price</Label>
-                                <Input
-                                  type="number"
-                                  value={formData.current_package_price}
-                                  onChange={e => setFormData(prev => ({ ...prev, current_package_price: e.target.value }))}
-                                  placeholder="299"
-                                />
+                                <Label className="text-xs">Price</Label>
+                                <Input type="number" value={newPackage.price} onChange={e => setNewPackage(prev => ({ ...prev, price: e.target.value }))} placeholder="299" />
                               </div>
                               <div>
-                                <Label>Currency</Label>
-                                <Select
-                                  value={formData.current_package_currency}
-                                  onValueChange={v => setFormData(prev => ({ ...prev, current_package_currency: v }))}
-                                >
+                                <Label className="text-xs">Currency</Label>
+                                <Select value={newPackage.currency} onValueChange={v => setNewPackage(prev => ({ ...prev, currency: v }))}>
                                   <SelectTrigger><SelectValue /></SelectTrigger>
                                   <SelectContent>
                                     <SelectItem value="GBP">GBP</SelectItem>
@@ -534,29 +576,63 @@ export function PortalManagement() {
                                   </SelectContent>
                                 </Select>
                               </div>
+                              <div>
+                                <Label className="text-xs">Frequency</Label>
+                                <Select value={newPackage.frequency} onValueChange={v => setNewPackage(prev => ({ ...prev, frequency: v }))}>
+                                  <SelectTrigger><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="weekly">Weekly</SelectItem>
+                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="6-monthly">6-Monthly</SelectItem>
+                                    <SelectItem value="annual">Annual</SelectItem>
+                                    <SelectItem value="one-off">One-off</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
                           </div>
                           <div>
-                            <Label>Package Features</Label>
+                            <Label className="text-xs">Features</Label>
                             <div className="flex gap-2 mt-1">
                               <Input
-                                value={newFeature}
-                                onChange={e => setNewFeature(e.target.value)}
+                                value={newPackageFeature}
+                                onChange={e => setNewPackageFeature(e.target.value)}
                                 placeholder="e.g. Weekly analysis"
-                                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addFeature())}
+                                onKeyDown={e => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    if (newPackageFeature.trim()) {
+                                      setNewPackage(prev => ({ ...prev, features: [...prev.features, newPackageFeature.trim()] }));
+                                      setNewPackageFeature("");
+                                    }
+                                  }
+                                }}
                               />
-                              <Button variant="outline" size="sm" onClick={addFeature}><Plus className="h-4 w-4" /></Button>
+                              <Button variant="outline" size="sm" onClick={() => {
+                                if (newPackageFeature.trim()) {
+                                  setNewPackage(prev => ({ ...prev, features: [...prev.features, newPackageFeature.trim()] }));
+                                  setNewPackageFeature("");
+                                }
+                              }}><Plus className="h-4 w-4" /></Button>
                             </div>
                             <div className="flex flex-wrap gap-1 mt-2">
-                              {formData.current_package_features.map((f, i) => (
-                                <Badge key={i} variant="secondary" className="gap-1">
+                              {newPackage.features.map((f, i) => (
+                                <Badge key={i} variant="secondary" className="gap-1 text-xs">
                                   {f}
-                                  <button onClick={() => removeFeature(i)} className="ml-1 hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
+                                  <button onClick={() => setNewPackage(prev => ({ ...prev, features: prev.features.filter((_, idx) => idx !== i) }))} className="ml-1 hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
                                 </Badge>
                               ))}
                             </div>
                           </div>
-                        </>
+                          <div className="flex gap-2">
+                            <Button onClick={addPackage} className="flex-1">Add Package</Button>
+                            <Button variant="outline" onClick={() => { setShowPackageForm(false); setNewPackage({ name: "", price: "", currency: "GBP", frequency: "monthly", features: [] }); setNewPackageFeature(""); }}>Cancel</Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {formData.current_packages.length === 0 && !showPackageForm && (
+                        <p className="text-sm text-muted-foreground text-center py-4">Not currently on a package. Add one above.</p>
                       )}
                     </CardContent>
                   </Card>
@@ -572,18 +648,22 @@ export function PortalManagement() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {/* Existing offers */}
                       {formData.upgrade_offers.map((offer, idx) => (
                         <div key={idx} className="border rounded-lg p-3 space-y-2 relative">
-                          <button
-                            onClick={() => removeOffer(idx)}
-                            className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
-                          >
+                          <button onClick={() => removeOffer(idx)} className="absolute top-2 right-2 text-muted-foreground hover:text-destructive">
                             <Trash2 className="h-4 w-4" />
                           </button>
                           <div className="flex items-center justify-between pr-8">
                             <p className="font-medium">{offer.name}</p>
-                            <p className="text-sm font-bold text-accent">{currencySymbol(offer.currency)}{offer.price}/mo</p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {offer.payment_type === "subscription" ? `Sub / ${offer.recurring_interval}` : "One-off"}
+                              </Badge>
+                              <p className="text-sm font-bold text-accent">
+                                {currencySymbol(offer.currency)}{offer.price}
+                                {offer.payment_type === "subscription" ? `/${offer.recurring_interval === "month" ? "mo" : offer.recurring_interval === "year" ? "yr" : "wk"}` : ""}
+                              </p>
+                            </div>
                           </div>
                           {offer.features.length > 0 && (
                             <div className="flex flex-wrap gap-1">
@@ -606,7 +686,7 @@ export function PortalManagement() {
                       {showOfferForm && (
                         <div className="border-2 border-dashed border-accent/30 rounded-lg p-4 space-y-3">
                           <p className="text-sm font-semibold text-accent">New Upgrade Offer</p>
-                          
+
                           {/* Pre-fill from product */}
                           <div>
                             <Label className="text-xs">Pre-fill from Catalogue</Label>
@@ -614,11 +694,8 @@ export function PortalManagement() {
                               <Select
                                 value={newOffer.product_id || "none"}
                                 onValueChange={v => {
-                                  if (v === "none") {
-                                    setNewOffer(prev => ({ ...prev, product_id: "" }));
-                                  } else {
-                                    prefillOfferFromProduct(v);
-                                  }
+                                  if (v === "none") setNewOffer(prev => ({ ...prev, product_id: "" }));
+                                  else prefillOfferFromProduct(v);
                                 }}
                               >
                                 <SelectTrigger className="text-sm"><SelectValue placeholder="Select product..." /></SelectTrigger>
@@ -670,28 +747,16 @@ export function PortalManagement() {
                           <div className="grid grid-cols-2 gap-3">
                             <div>
                               <Label className="text-xs">Package Name</Label>
-                              <Input
-                                value={newOffer.name}
-                                onChange={e => setNewOffer(prev => ({ ...prev, name: e.target.value }))}
-                                placeholder="e.g. Elite Performance"
-                              />
+                              <Input value={newOffer.name} onChange={e => setNewOffer(prev => ({ ...prev, name: e.target.value }))} placeholder="e.g. Elite Performance" />
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
                                 <Label className="text-xs">Price</Label>
-                                <Input
-                                  type="number"
-                                  value={newOffer.price}
-                                  onChange={e => setNewOffer(prev => ({ ...prev, price: e.target.value }))}
-                                  placeholder="499"
-                                />
+                                <Input type="number" value={newOffer.price} onChange={e => setNewOffer(prev => ({ ...prev, price: e.target.value }))} placeholder="499" />
                               </div>
                               <div>
                                 <Label className="text-xs">Currency</Label>
-                                <Select
-                                  value={newOffer.currency}
-                                  onValueChange={v => setNewOffer(prev => ({ ...prev, currency: v }))}
-                                >
+                                <Select value={newOffer.currency} onValueChange={v => setNewOffer(prev => ({ ...prev, currency: v }))}>
                                   <SelectTrigger><SelectValue /></SelectTrigger>
                                   <SelectContent>
                                     <SelectItem value="GBP">GBP</SelectItem>
@@ -701,6 +766,33 @@ export function PortalManagement() {
                                 </Select>
                               </div>
                             </div>
+                          </div>
+
+                          {/* Payment type + interval */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-xs">Payment Type</Label>
+                              <Select value={newOffer.payment_type} onValueChange={v => setNewOffer(prev => ({ ...prev, payment_type: v as "one_off" | "subscription" }))}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="one_off">One-off Payment</SelectItem>
+                                  <SelectItem value="subscription">Subscription</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            {newOffer.payment_type === "subscription" && (
+                              <div>
+                                <Label className="text-xs">Recurring Interval</Label>
+                                <Select value={newOffer.recurring_interval} onValueChange={v => setNewOffer(prev => ({ ...prev, recurring_interval: v }))}>
+                                  <SelectTrigger><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="week">Weekly</SelectItem>
+                                    <SelectItem value="month">Monthly</SelectItem>
+                                    <SelectItem value="year">Yearly</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
                           </div>
 
                           {/* Features */}
@@ -752,7 +844,7 @@ export function PortalManagement() {
                             <Button onClick={createOfferPayLink} disabled={creatingOfferLink} className="flex-1">
                               {creatingOfferLink ? "Creating Link..." : "Create Offer + Payment Link"}
                             </Button>
-                            <Button variant="outline" onClick={() => { setShowOfferForm(false); setNewOffer({ name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "" }); }}>
+                            <Button variant="outline" onClick={() => { setShowOfferForm(false); setNewOffer({ name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "", payment_type: "subscription", recurring_interval: "month" }); }}>
                               Cancel
                             </Button>
                           </div>
@@ -891,7 +983,6 @@ export function PortalManagement() {
                       </div>
                     </div>
 
-                    {/* Payment type */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label>Payment Type</Label>
