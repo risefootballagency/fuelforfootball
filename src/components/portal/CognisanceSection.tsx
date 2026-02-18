@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
-import { Brain, Shuffle, ChevronLeft, ChevronRight, RotateCcw, Target, Lightbulb, BookOpen, Eye, Zap, Map, Clock, Star, CheckCircle2 } from "lucide-react";
+import { Brain, Shuffle, ChevronLeft, ChevronRight, RotateCcw, Target, Lightbulb, BookOpen, Eye, Zap, Map, Clock, Star, CheckCircle2, TrendingUp, BarChart3, Filter, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -17,13 +17,14 @@ interface CognisanceSectionProps {
 }
 
 type GameType = "schemes" | "concepts" | "pre-match" | "positional-guides" | "ai-quiz" | null;
+type DifficultyFilter = "all" | "new" | "learning" | "due" | "mature";
 
 interface FlashcardData {
   id: string;
   front: string;
   back: string;
   category?: string;
-  cardKey: string; // unique key for SM-2 tracking
+  cardKey: string;
 }
 
 interface CardProgress {
@@ -76,19 +77,24 @@ interface QuizQuestion {
   explanation: string;
 }
 
+interface SessionResult {
+  cardKey: string;
+  front: string;
+  quality: number;
+  previousInterval: number;
+  newInterval: number;
+}
+
 // SM-2 Algorithm
 const sm2 = (quality: number, prev: CardProgress): CardProgress => {
-  // quality: 0-5, where 0=complete blackout, 5=perfect
   let { ease_factor, interval_days, repetitions } = prev;
 
   if (quality >= 3) {
-    // correct
     if (repetitions === 0) interval_days = 1;
     else if (repetitions === 1) interval_days = 6;
     else interval_days = Math.round(interval_days * ease_factor);
     repetitions += 1;
   } else {
-    // incorrect - reset
     repetitions = 0;
     interval_days = 1;
   }
@@ -118,6 +124,7 @@ const defaultProgress: CardProgress = {
 export function CognisanceSection({ playerId, playerPosition, playerName }: CognisanceSectionProps) {
   const [selectedGame, setSelectedGame] = useState<GameType>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showSessionResults, setShowSessionResults] = useState(false);
 
   // Scheme game state
   const [schemes, setSchemes] = useState<SchemeData[]>([]);
@@ -146,6 +153,15 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
   // SM-2 progress tracking
   const [cardProgressMap, setCardProgressMap] = useState<Record<string, CardProgress>>({});
   const [sessionStats, setSessionStats] = useState({ reviewed: 0, newCards: 0, dueCards: 0 });
+  const [sessionResults, setSessionResults] = useState<SessionResult[]>([]);
+
+  // Difficulty filter
+  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
+
+  // Streak tracking
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [tempStreak, setTempStreak] = useState(0);
 
   // AI Quiz state
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
@@ -173,6 +189,27 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
         };
       });
       setCardProgressMap(map);
+
+      // Calculate streak from review history
+      const reviewDates = data
+        .filter((r: any) => r.last_reviewed)
+        .map((r: any) => new Date(r.last_reviewed).toDateString());
+      const uniqueDates = [...new Set(reviewDates)].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+      
+      let streak = 0;
+      const today = new Date().toDateString();
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      
+      if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
+        streak = 1;
+        for (let i = 1; i < uniqueDates.length; i++) {
+          const diff = new Date(uniqueDates[i - 1]).getTime() - new Date(uniqueDates[i]).getTime();
+          if (diff <= 86400000 * 1.5) streak++;
+          else break;
+        }
+      }
+      setCurrentStreak(streak);
+      setBestStreak(Math.max(streak, parseInt(localStorage.getItem(`cognisance-best-streak-${playerId}`) || '0')));
     }
   }, [playerId]);
 
@@ -237,7 +274,6 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
     const allConcepts: ConceptData[] = [];
     const seenIds = new Set<string>();
 
-    // Via analysis_writer_id linkage
     const { data: analysisData } = await sharedSupabase
       .from("player_analysis")
       .select("analysis_writer_id")
@@ -262,7 +298,6 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
       }
     }
 
-    // Via player_name match
     if (playerName) {
       const { data: nameConceptsData } = await sharedSupabase
         .from("analyses")
@@ -279,7 +314,6 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
       }
     }
 
-    // Also from coaching_analysis table
     const { data: coachingConcepts } = await localSupabase
       .from("coaching_analysis")
       .select("*")
@@ -336,6 +370,18 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
     fetchPositionalGuides();
     loadProgress();
   }, [fetchSchemes, fetchConcepts, fetchPreMatchAnalyses, fetchPositionalGuides, loadProgress]);
+
+  // Overall progress stats
+  const overallStats = useMemo(() => {
+    const entries = Object.entries(cardProgressMap);
+    const total = entries.length;
+    const mature = entries.filter(([, p]) => p.interval_days > 7).length;
+    const learning = entries.filter(([, p]) => p.repetitions > 0 && p.interval_days <= 7).length;
+    const now = new Date();
+    const due = entries.filter(([, p]) => new Date(p.next_review) <= now).length;
+    const avgEase = total > 0 ? entries.reduce((sum, [, p]) => sum + p.ease_factor, 0) / total : 2.5;
+    return { total, mature, learning, due, avgEase };
+  }, [cardProgressMap]);
 
   // Generate flashcards
   const generateFlashcards = useCallback(() => {
@@ -422,9 +468,24 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
       });
     }
 
-    // Sort by SM-2 priority: due cards first, then new cards
+    // Apply difficulty filter
     const now = new Date();
-    const sorted = cards.sort((a, b) => {
+    let filteredCards = cards;
+    if (difficultyFilter !== "all") {
+      filteredCards = cards.filter(card => {
+        const prog = cardProgressMap[card.cardKey];
+        switch (difficultyFilter) {
+          case "new": return !prog;
+          case "learning": return prog && prog.repetitions > 0 && prog.interval_days <= 7;
+          case "due": return prog && new Date(prog.next_review) <= now;
+          case "mature": return prog && prog.interval_days > 7;
+          default: return true;
+        }
+      });
+    }
+
+    // Sort by SM-2 priority: due cards first, then new cards
+    const sorted = filteredCards.sort((a, b) => {
       const progA = cardProgressMap[a.cardKey];
       const progB = cardProgressMap[b.cardKey];
       const dueA = progA ? new Date(progA.next_review) <= now : true;
@@ -447,7 +508,9 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
     setCurrentIndex(0);
     setIsFlipped(false);
     setScore({ correct: 0, incorrect: 0 });
-  }, [selectedGame, schemes, concepts, preMatchAnalyses, positionalGuides, selectedTeamSchemeFilter, selectedOppositionSchemeFilter, selectedConceptFilter, selectedPreMatchFilter, cardProgressMap]);
+    setSessionResults([]);
+    setTempStreak(0);
+  }, [selectedGame, schemes, concepts, preMatchAnalyses, positionalGuides, selectedTeamSchemeFilter, selectedOppositionSchemeFilter, selectedConceptFilter, selectedPreMatchFilter, cardProgressMap, difficultyFilter]);
 
   const startGame = () => {
     if (selectedGame === "ai-quiz") {
@@ -456,6 +519,7 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
     }
     generateFlashcards();
     setIsPlaying(true);
+    setShowSessionResults(false);
   };
 
   // SM-2 quality rating buttons
@@ -467,11 +531,28 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
     const updated = sm2(quality, prev);
     await saveProgress(currentCard.cardKey, updated);
 
+    // Track session result
+    setSessionResults(r => [...r, {
+      cardKey: currentCard.cardKey,
+      front: currentCard.front.split('\n')[0],
+      quality,
+      previousInterval: prev.interval_days,
+      newInterval: updated.interval_days,
+    }]);
+
+    const isCorrect = quality >= 3;
     setScore(prev => ({
-      correct: prev.correct + (quality >= 3 ? 1 : 0),
-      incorrect: prev.incorrect + (quality < 3 ? 1 : 0)
+      correct: prev.correct + (isCorrect ? 1 : 0),
+      incorrect: prev.incorrect + (!isCorrect ? 1 : 0)
     }));
     setSessionStats(prev => ({ ...prev, reviewed: prev.reviewed + 1 }));
+
+    // Streak tracking
+    if (isCorrect) {
+      setTempStreak(s => s + 1);
+    } else {
+      setTempStreak(0);
+    }
 
     if (currentIndex < flashcards.length - 1) {
       setCurrentIndex(prev => prev + 1);
@@ -496,6 +577,9 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
     setQuizIndex(0);
     setSelectedAnswer(null);
     setQuizScore({ correct: 0, total: 0 });
+    setShowSessionResults(false);
+    setSessionResults([]);
+    setTempStreak(0);
   };
 
   const shuffleCards = () => {
@@ -509,7 +593,6 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
   const generateAIQuiz = async () => {
     setQuizLoading(true);
     try {
-      // Collect source material
       const material: string[] = [];
       schemes.slice(0, 5).forEach(s => {
         if (s.defence) material.push(`Defence in ${s.team_scheme} vs ${s.opposition_scheme}: ${s.defence}`);
@@ -559,14 +642,99 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
   // Get progress indicator for a card
   const getCardProgressIndicator = (cardKey: string) => {
     const prog = cardProgressMap[cardKey];
-    if (!prog) return { label: 'New', color: 'text-blue-400' };
-    if (prog.repetitions === 0) return { label: 'Learning', color: 'text-orange-400' };
-    if (prog.interval_days <= 1) return { label: 'Learning', color: 'text-orange-400' };
-    if (prog.interval_days <= 7) return { label: 'Young', color: 'text-yellow-400' };
-    return { label: 'Mature', color: 'text-green-400' };
+    if (!prog) return { label: 'New', color: 'text-blue-400', icon: Star };
+    if (prog.repetitions === 0) return { label: 'Learning', color: 'text-orange-400', icon: Clock };
+    if (prog.interval_days <= 1) return { label: 'Learning', color: 'text-orange-400', icon: Clock };
+    if (prog.interval_days <= 7) return { label: 'Young', color: 'text-yellow-400', icon: TrendingUp };
+    return { label: 'Mature', color: 'text-green-400', icon: CheckCircle2 };
+  };
+
+  const getQualityLabel = (q: number) => {
+    switch (q) {
+      case 1: return { label: 'Again', color: 'text-red-500' };
+      case 3: return { label: 'Hard', color: 'text-orange-500' };
+      case 4: return { label: 'Good', color: 'text-green-500' };
+      case 5: return { label: 'Easy', color: 'text-blue-500' };
+      default: return { label: '?', color: 'text-muted-foreground' };
+    }
   };
 
   // ============ RENDER ============
+
+  // Session results view
+  if (showSessionResults && sessionResults.length > 0) {
+    const accuracy = flashcards.length > 0 ? Math.round((score.correct / flashcards.length) * 100) : 0;
+    const maxSessionStreak = tempStreak;
+
+    // Update best streak
+    if (maxSessionStreak > bestStreak) {
+      localStorage.setItem(`cognisance-best-streak-${playerId}`, maxSessionStreak.toString());
+    }
+
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" onClick={resetGame} className="text-gold hover:text-gold/80">
+          <ChevronLeft className="w-4 h-4 mr-2" /> Back to Games
+        </Button>
+
+        <Card className="border-gold/30">
+          <CardContent className="p-6 text-center">
+            <h3 className="font-bebas text-2xl text-gold mb-2">Session Complete!</h3>
+            <div className="grid grid-cols-4 gap-4 mb-4">
+              <div>
+                <span className="text-green-500 font-bebas text-3xl">{score.correct}</span>
+                <p className="text-xs text-muted-foreground">Correct</p>
+              </div>
+              <div>
+                <span className="text-red-500 font-bebas text-3xl">{score.incorrect}</span>
+                <p className="text-xs text-muted-foreground">Incorrect</p>
+              </div>
+              <div>
+                <span className="text-gold font-bebas text-3xl">{accuracy}%</span>
+                <p className="text-xs text-muted-foreground">Accuracy</p>
+              </div>
+              <div>
+                <span className="text-orange-400 font-bebas text-3xl flex items-center justify-center gap-1">
+                  <Flame className="w-5 h-5" />{maxSessionStreak}
+                </span>
+                <p className="text-xs text-muted-foreground">Best Streak</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Per-card breakdown */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-gold" /> Card-by-Card Results
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            {sessionResults.map((result, idx) => {
+              const q = getQualityLabel(result.quality);
+              return (
+                <div key={idx} className="flex items-center justify-between p-2 rounded bg-muted/30 text-sm">
+                  <span className="truncate flex-1 mr-2">{result.front}</span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={cn("text-xs font-medium", q.color)}>{q.label}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {result.previousInterval}d → {result.newInterval}d
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+
+        <div className="flex gap-2 justify-center">
+          <Button onClick={resetGame} variant="outline"><RotateCcw className="w-4 h-4 mr-2" /> New Session</Button>
+          <Button onClick={() => { resetGame(); setSelectedGame(null); }} variant="ghost">Back to Menu</Button>
+        </div>
+      </div>
+    );
+  }
 
   // AI Quiz playing view
   if (isPlaying && selectedGame === "ai-quiz" && quizQuestions.length > 0) {
@@ -648,10 +816,45 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
   if (!selectedGame) {
     return (
       <div className="space-y-4">
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <h2 className="text-2xl font-bebas text-gold mb-1">Cognisance</h2>
           <p className="text-muted-foreground text-sm">Strengthen your football IQ with spaced repetition</p>
         </div>
+
+        {/* Progress overview */}
+        {overallStats.total > 0 && (
+          <Card className="border-gold/20">
+            <CardContent className="p-3">
+              <div className="grid grid-cols-5 gap-2 text-center">
+                <div>
+                  <span className="font-bebas text-lg text-gold">{overallStats.total}</span>
+                  <p className="text-[10px] text-muted-foreground">Cards</p>
+                </div>
+                <div>
+                  <span className="font-bebas text-lg text-green-400">{overallStats.mature}</span>
+                  <p className="text-[10px] text-muted-foreground">Mature</p>
+                </div>
+                <div>
+                  <span className="font-bebas text-lg text-orange-400">{overallStats.learning}</span>
+                  <p className="text-[10px] text-muted-foreground">Learning</p>
+                </div>
+                <div>
+                  <span className="font-bebas text-lg text-blue-400">{overallStats.due}</span>
+                  <p className="text-[10px] text-muted-foreground">Due</p>
+                </div>
+                <div>
+                  <span className="font-bebas text-lg text-orange-400 flex items-center justify-center gap-0.5">
+                    <Flame className="w-3 h-3" />{currentStreak}
+                  </span>
+                  <p className="text-[10px] text-muted-foreground">Streak</p>
+                </div>
+              </div>
+              {overallStats.total > 0 && (
+                <Progress value={(overallStats.mature / overallStats.total) * 100} className="h-1.5 mt-2" />
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {[
@@ -760,6 +963,23 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
               </p>
             )}
 
+            {/* Difficulty filter - not for AI quiz */}
+            {selectedGame !== "ai-quiz" && (
+              <div className="space-y-1">
+                <Label className="text-xs flex items-center gap-1"><Filter className="w-3 h-3" /> Card Difficulty</Label>
+                <Select value={difficultyFilter} onValueChange={(v) => setDifficultyFilter(v as DifficultyFilter)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Cards</SelectItem>
+                    <SelectItem value="new">New Only</SelectItem>
+                    <SelectItem value="due">Due for Review</SelectItem>
+                    <SelectItem value="learning">Learning</SelectItem>
+                    <SelectItem value="mature">Mature</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <Button
               onClick={startGame}
               disabled={quizLoading}
@@ -812,15 +1032,24 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
             {currentIndex + 1} / {flashcards.length}
           </span>
           {progressIndicator && (
-            <span className={cn("text-xs", progressIndicator.color)}>{progressIndicator.label}</span>
+            <span className={cn("text-xs flex items-center gap-1", progressIndicator.color)}>
+              <progressIndicator.icon className="w-3 h-3" />
+              {progressIndicator.label}
+            </span>
           )}
           <div className="flex items-center gap-2 text-xs">
             <span className="text-green-500">✓{score.correct}</span>
             <span className="text-red-500">✗{score.incorrect}</span>
+            {tempStreak > 2 && (
+              <span className="text-orange-400 flex items-center gap-0.5"><Flame className="w-3 h-3" />{tempStreak}</span>
+            )}
           </div>
         </div>
         <Button variant="ghost" size="sm" onClick={shuffleCards}><Shuffle className="w-4 h-4" /></Button>
       </div>
+
+      {/* Progress bar */}
+      <Progress value={((currentIndex + 1) / flashcards.length) * 100} className="h-1" />
 
       {/* Session stats bar */}
       <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -867,8 +1096,8 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
         )}
 
         {isComplete && (
-          <Button onClick={resetGame} className="bg-gold text-gold-foreground hover:bg-gold/90" size="sm">
-            <RotateCcw className="w-4 h-4 mr-2" /> Play Again
+          <Button onClick={() => setShowSessionResults(true)} className="bg-gold text-gold-foreground hover:bg-gold/90" size="sm">
+            <BarChart3 className="w-4 h-4 mr-2" /> View Results
           </Button>
         )}
 
@@ -876,29 +1105,6 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
           <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
-
-      {/* Score Summary */}
-      {isComplete && (
-        <Card className="border-gold/30">
-          <CardContent className="p-4 text-center">
-            <h3 className="font-bebas text-xl text-gold mb-1">Session Complete!</h3>
-            <div className="flex items-center justify-center gap-6 text-base">
-              <div>
-                <span className="text-green-500 font-bebas text-2xl">{score.correct}</span>
-                <p className="text-xs text-muted-foreground">Correct</p>
-              </div>
-              <div>
-                <span className="text-red-500 font-bebas text-2xl">{score.incorrect}</span>
-                <p className="text-xs text-muted-foreground">Incorrect</p>
-              </div>
-              <div>
-                <span className="text-gold font-bebas text-2xl">{flashcards.length > 0 ? Math.round((score.correct / flashcards.length) * 100) : 0}%</span>
-                <p className="text-xs text-muted-foreground">Accuracy</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

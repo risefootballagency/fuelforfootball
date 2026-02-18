@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +26,7 @@ export const ClubRatings = () => {
 
   const fetchRatings = async () => {
     setLoading(true);
-    const { data, error } = await sharedSupabase
+    const { data, error } = await supabase
       .from("club_ratings" as any)
       .select("*")
       .order("club_name");
@@ -39,14 +39,14 @@ export const ClubRatings = () => {
   const handleSave = async () => {
     if (!formData.club_name) { toast.error("Club name required"); return; }
     if (editing) {
-      const { error } = await sharedSupabase
+      const { error } = await supabase
         .from("club_ratings" as any)
         .update({ club_name: formData.club_name, first_team_rating: formData.first_team_rating, academy_rating: formData.academy_rating })
         .eq("id", editing.id);
       if (error) { toast.error("Failed to update"); return; }
       toast.success("Rating updated");
     } else {
-      const { error } = await sharedSupabase
+      const { error } = await supabase
         .from("club_ratings" as any)
         .insert({ club_name: formData.club_name, first_team_rating: formData.first_team_rating, academy_rating: formData.academy_rating });
       if (error) { toast.error("Failed to create"); return; }
@@ -59,7 +59,7 @@ export const ClubRatings = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await sharedSupabase.from("club_ratings" as any).delete().eq("id", id);
+    const { error } = await supabase.from("club_ratings" as any).delete().eq("id", id);
     if (error) { toast.error("Failed to delete"); return; }
     toast.success("Deleted");
     fetchRatings();
