@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Link2, Loader2, Plus } from "lucide-react";
+import { ChevronDown, Link2, Loader2, Plus, Keyboard } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -70,6 +70,33 @@ export const AnalysisQuickLink = ({
     away_score: '',
   });
   const [creatingFixture, setCreatingFixture] = useState(false);
+
+  // Keyboard shortcuts: Ctrl+Shift+F to open fixture creator, Ctrl+Shift+L to apply link
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+Shift+F: Open create fixture dialog
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+        e.preventDefault();
+        if (selectedPlayerId && selectedPlayerId !== "none") {
+          setCreateFixtureOpen(true);
+        } else {
+          toast.error("Select a player first");
+        }
+      }
+      // Ctrl+Shift+L: Apply/import selected fixture
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
+        e.preventDefault();
+        handleApplyFixture();
+      }
+      // Enter key within create fixture dialog to submit
+      if (e.key === 'Enter' && createFixtureOpen && !creatingFixture) {
+        e.preventDefault();
+        handleCreateFixture();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPlayerId, selectedFixtureId, createFixtureOpen, creatingFixture]);
 
   // Fetch players on mount
   useEffect(() => {
