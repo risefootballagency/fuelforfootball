@@ -87,6 +87,11 @@ interface PortalSettings {
   current_package_features: string[] | null;
   upgrade_product_id: string | null;
   upgrade_message: string | null;
+  upgrade_name: string | null;
+  upgrade_price: number | null;
+  upgrade_currency: string | null;
+  upgrade_features: string[] | null;
+  upgrade_pay_link_url: string | null;
 }
 
 interface HubProps {
@@ -852,6 +857,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
 
         if (showSalesBox) {
           const currencySymbol = portalSettings?.current_package_currency === "EUR" ? "€" : portalSettings?.current_package_currency === "USD" ? "$" : "£";
+          const upgradeCurrencySymbol = portalSettings?.upgrade_currency === "EUR" ? "€" : portalSettings?.upgrade_currency === "USD" ? "$" : "£";
+          const hasCurrentPackage = !!portalSettings?.current_package_name;
           return (
             <>
               <div className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
@@ -860,27 +867,62 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
               <div className="px-4 md:px-0 mt-[10px]">
                 <Card className="relative overflow-hidden border-accent bg-white/10">
                   <CardContent className="relative py-4 px-4 space-y-4">
-                    {portalSettings?.current_package_name && (
+                    {hasCurrentPackage ? (
                       <div className="text-center">
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Current Package</p>
-                        <p className="text-lg font-bold text-accent">{portalSettings.current_package_name}</p>
-                        {portalSettings.current_package_price != null && (
-                          <p className="text-sm text-muted-foreground">{currencySymbol}{portalSettings.current_package_price}/mo</p>
+                        <p className="text-lg font-bold text-accent">{portalSettings!.current_package_name}</p>
+                        {portalSettings!.current_package_price != null && (
+                          <p className="text-sm text-muted-foreground">{currencySymbol}{portalSettings!.current_package_price}/mo</p>
                         )}
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Package Status</p>
+                        <p className="text-base text-muted-foreground">Not currently on a package</p>
                       </div>
                     )}
                     {portalSettings?.current_package_features && portalSettings.current_package_features.length > 0 && (
                       <div className="flex flex-wrap justify-center gap-2">
                         {portalSettings.current_package_features.map((f, i) => (
-                          <span key={i} className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">
-                            {f}
-                          </span>
+                          <span key={i} className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">{f}</span>
                         ))}
                       </div>
                     )}
-                    {portalSettings?.upgrade_message && (
-                      <div className="bg-accent/5 border border-accent/20 rounded-lg p-3 text-center">
-                        <p className="text-sm text-foreground/90">{portalSettings.upgrade_message}</p>
+
+                    {/* Upgrade Offer */}
+                    {(portalSettings?.upgrade_name || portalSettings?.upgrade_message) && (
+                      <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-3">
+                        {portalSettings.upgrade_name && (
+                          <div className="text-center">
+                            <p className="text-xs text-accent uppercase tracking-wider font-semibold">
+                              {hasCurrentPackage ? "Upgrade Available" : "Recommended Package"}
+                            </p>
+                            <p className="text-lg font-bold text-accent">{portalSettings.upgrade_name}</p>
+                            {portalSettings.upgrade_price != null && (
+                              <p className="text-sm text-muted-foreground">{upgradeCurrencySymbol}{portalSettings.upgrade_price}/mo</p>
+                            )}
+                          </div>
+                        )}
+                        {portalSettings.upgrade_features && portalSettings.upgrade_features.length > 0 && (
+                          <div className="flex flex-wrap justify-center gap-1">
+                            {portalSettings.upgrade_features.map((f, i) => (
+                              <span key={i} className="text-xs bg-accent/15 text-accent/90 px-2 py-0.5 rounded">{f}</span>
+                            ))}
+                          </div>
+                        )}
+                        {portalSettings.upgrade_message && (
+                          <p className="text-sm text-foreground/90 text-center">{portalSettings.upgrade_message}</p>
+                        )}
+                        {portalSettings.upgrade_pay_link_url && (
+                          <div className="text-center">
+                            <Button
+                              className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
+                              onClick={() => window.open(portalSettings.upgrade_pay_link_url!, "_blank")}
+                            >
+                              {hasCurrentPackage ? "Upgrade Now" : "Get Started"}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
