@@ -28,12 +28,14 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { title, amount, currency, description, payLinkId } = await req.json();
-    logStep("Request body", { title, amount, currency, payLinkId });
+    const { title, amount, currency, description, payLinkId, paymentType, recurringInterval } = await req.json();
+    logStep("Request body", { title, amount, currency, payLinkId, paymentType, recurringInterval });
 
     if (!title || !amount) throw new Error("Title and amount are required");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const isSubscription = paymentType === "subscription";
+    const interval = recurringInterval || "month";
 
     // Create a product for this pay link
     const product = await stripe.products.create({
@@ -44,12 +46,18 @@ serve(async (req) => {
 
     // Create a price (convert to smallest currency unit)
     const priceAmount = Math.round(amount * 100);
-    const price = await stripe.prices.create({
+    const priceParams: any = {
       product: product.id,
       unit_amount: priceAmount,
       currency: (currency || 'GBP').toLowerCase(),
-    });
-    logStep("Price created", { priceId: price.id });
+    };
+
+    if (isSubscription) {
+      priceParams.recurring = { interval };
+    }
+
+    const price = await stripe.prices.create(priceParams);
+    logStep("Price created", { priceId: price.id, isSubscription, interval });
 
     // Create a payment link
     const paymentLink = await stripe.paymentLinks.create({
