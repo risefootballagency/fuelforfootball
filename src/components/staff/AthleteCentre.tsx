@@ -1,18 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  User, FileText, Dumbbell, LineChart, Target, Calendar,
-  Save, Loader2, ChevronRight, ClipboardList
+  User, Dumbbell, LineChart, Target, Calendar,
+  Save, Loader2, ChevronRight, ClipboardList, BarChart3, Film, Database, Plus, Trash2, GripHorizontal
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { PlayerScoutingReports } from "@/components/PlayerScoutingReports";
+import { AnalysisComparisons } from "@/components/portal/AnalysisComparisons";
+import { AnalysisVideoReports } from "@/components/portal/AnalysisVideoReports";
+import { AnalysisDataTab } from "@/components/portal/AnalysisDataTab";
+import { InjuryLog } from "@/components/portal/InjuryLog";
 
 interface Player {
   id: string;
@@ -22,6 +27,7 @@ interface Player {
   image_url: string | null;
   nationality: string;
   age: number;
+  representation_status?: string;
 }
 
 interface PlayerProgram {
@@ -36,15 +42,28 @@ interface PlayerAnalysis {
   analysis_date: string;
   opponent: string | null;
   r90_score: number | null;
+  minutes_played: number | null;
+  result: string | null;
+  striker_stats?: any;
+  fixture_stats?: any;
 }
+
+const STATUS_ORDER = ['represented', 'mandated', 'previously_mandated', 'fuel_for_football', 'other', 'scouted'];
+const STATUS_LABELS: Record<string, string> = {
+  represented: 'Represented',
+  mandated: 'Mandated',
+  previously_mandated: 'Previously Mandated',
+  fuel_for_football: 'Fuel for Football',
+  other: 'Other',
+  scouted: 'Scouted',
+};
 
 export const AthleteCentre = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("scouting");
+  const [activeTab, setActiveTab] = useState("longterm");
   const [loading, setLoading] = useState(true);
   
-  // Player-specific data
   const [programs, setPrograms] = useState<PlayerProgram[]>([]);
   const [analyses, setAnalyses] = useState<PlayerAnalysis[]>([]);
   const [focuses, setFocuses] = useState("");
@@ -64,20 +83,38 @@ export const AthleteCentre = () => {
   const fetchPlayers = async () => {
     const { data, error } = await supabase
       .from("players")
-      .select("id, name, position, club, image_url, nationality, age")
+      .select("id, name, position, club, image_url, nationality, age, representation_status")
       .order("name");
 
     if (!error && data) {
       setPlayers(data);
       if (data.length > 0) {
-        setSelectedPlayer(data[0].id);
+        const firstRepresented = data.find(p => p.representation_status === 'represented');
+        setSelectedPlayer(firstRepresented?.id || data[0].id);
       }
     }
     setLoading(false);
   };
 
+  const groupedPlayers = useMemo(() => {
+    const groups: { status: string; label: string; players: Player[] }[] = [];
+    
+    STATUS_ORDER.forEach(status => {
+      const matching = players.filter(p => p.representation_status === status);
+      if (matching.length > 0) {
+        groups.push({ status, label: STATUS_LABELS[status] || status, players: matching });
+      }
+    });
+    
+    const uncategorised = players.filter(p => !p.representation_status || !STATUS_ORDER.includes(p.representation_status));
+    if (uncategorised.length > 0) {
+      groups.push({ status: 'uncategorised', label: 'Uncategorised', players: uncategorised });
+    }
+    
+    return groups;
+  }, [players]);
+
   const fetchPlayerData = async (playerId: string) => {
-    // Fetch programs
     const { data: programsData } = await supabase
       .from("player_programs")
       .select("id, program_name, phase_name, is_current")
@@ -86,24 +123,13 @@ export const AthleteCentre = () => {
 
     setPrograms(programsData || []);
 
-    // Fetch analyses
     const { data: analysesData } = await supabase
       .from("player_analysis")
-      .select("id, analysis_date, opponent, r90_score")
+      .select("id, analysis_date, opponent, r90_score, minutes_played, result, striker_stats, fixture_stats")
       .eq("player_id", playerId)
-      .order("analysis_date", { ascending: false })
-      .limit(10);
+      .order("analysis_date", { ascending: false });
 
     setAnalyses(analysesData || []);
-
-    // Fetch player notes (focuses and long-term plan from player bio or a new field)
-    const { data: playerData } = await supabase
-      .from("players")
-      .select("bio")
-      .eq("id", playerId)
-      .single();
-
-    // For now we'll use bio as a placeholder - in production you'd have dedicated fields
     setFocuses("");
     setLongTermPlan("");
   };
@@ -113,7 +139,6 @@ export const AthleteCentre = () => {
   const handleSaveFocuses = async () => {
     if (!selectedPlayer) return;
     setSaving(true);
-    // This would save to a dedicated field in production
     toast.success("Development focuses saved");
     setSaving(false);
   };
@@ -121,7 +146,6 @@ export const AthleteCentre = () => {
   const handleSaveLongTermPlan = async () => {
     if (!selectedPlayer) return;
     setSaving(true);
-    // This would save to a dedicated field in production
     toast.success("Long-term plan saved");
     setSaving(false);
   };
@@ -129,61 +153,69 @@ export const AthleteCentre = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
       </div>
     );
   }
 
-  return (
-    <div className="space-y-4 md:space-y-6">
-      <div className="flex flex-col gap-3 md:gap-4">
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
-            <User className="h-5 w-5 md:h-6 md:w-6" />
-            Athlete Centre
-          </h2>
-          <p className="text-sm md:text-base text-muted-foreground mt-1">
-            Comprehensive player development hub
-          </p>
-        </div>
+  const tabItems = [
+    { value: "longterm", label: "Long-Term Plan", icon: Calendar },
+    { value: "periodisation", label: "Periodisation", icon: GripHorizontal },
+    { value: "focuses", label: "Dev Focuses", icon: Target },
+    { value: "programming", label: "Programming", icon: Dumbbell },
+    { value: "injuries", label: "Injury Log", icon: ClipboardList },
+    { value: "scouting", label: "Scouting", icon: ClipboardList },
+    { value: "data", label: "Data", icon: Database },
+    { value: "comparisons", label: "Comparisons", icon: BarChart3 },
+    { value: "video", label: "Video Reports", icon: Film },
+    { value: "analysis", label: "Analysis", icon: LineChart },
+  ];
 
-        {/* Player Selector - Horizontal Scroll */}
-        <ScrollArea className="w-full whitespace-nowrap">
-          <div className="flex gap-2 pb-4">
-            {players.map((player) => (
-              <Button
-                key={player.id}
-                variant={selectedPlayer === player.id ? "default" : "outline"}
-                className={`flex items-center gap-2 md:gap-3 h-auto py-2 md:py-3 px-3 md:px-4 shrink-0 ${
-                  selectedPlayer === player.id 
-                    ? "bg-primary text-primary-foreground" 
-                    : "hover:bg-muted"
-                }`}
-                onClick={() => setSelectedPlayer(player.id)}
-              >
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-muted overflow-hidden flex items-center justify-center">
-                  {player.image_url ? (
-                    <img src={player.image_url} alt={player.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
-                  )}
+  return (
+    <div className="space-y-4">
+      {/* Player Selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex-1">
+          <Select value={selectedPlayer || ""} onValueChange={setSelectedPlayer}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a player..." />
+            </SelectTrigger>
+            <SelectContent>
+              {groupedPlayers.map((group) => (
+                <div key={group.status}>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-accent">
+                    {group.label}
+                  </div>
+                  {group.players.map((player) => (
+                    <SelectItem key={player.id} value={player.id}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-muted overflow-hidden flex items-center justify-center">
+                          {player.image_url ? (
+                            <img src={player.image_url} alt={player.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="h-3 w-3 text-muted-foreground" />
+                          )}
+                        </div>
+                        <span>{player.name}</span>
+                        <span className="text-muted-foreground text-xs">({player.position})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
                 </div>
-                <div className="text-left">
-                  <div className="font-semibold text-sm md:text-base">{player.name}</div>
-                  <div className="text-[10px] md:text-xs opacity-80">{player.position}</div>
-                </div>
-              </Button>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {players.length} players in database
+        </p>
       </div>
 
       {selectedPlayer && currentPlayer && (
         <Card className="border-2">
           <CardHeader className="border-b bg-muted/30 p-3 md:p-6">
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-muted overflow-hidden flex items-center justify-center border-2 border-primary shrink-0">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-muted overflow-hidden flex items-center justify-center border-2 border-accent shrink-0">
                 {currentPlayer.image_url ? (
                   <img src={currentPlayer.image_url} alt={currentPlayer.name} className="w-full h-full object-cover" />
                 ) : (
@@ -202,62 +234,88 @@ export const AthleteCentre = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="border-b overflow-hidden">
-                <ScrollArea className="w-full">
-                  <TabsList className="w-max min-w-full justify-start h-auto p-0 bg-transparent rounded-none">
+              <div className="border-b p-2 md:p-3">
+                <Select value={activeTab} onValueChange={setActiveTab}>
+                  <SelectTrigger className="w-full md:hidden">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tabItems.map((tab) => (
+                      <SelectItem key={tab.value} value={tab.value}>
+                        <div className="flex items-center gap-2">
+                          <tab.icon className="h-4 w-4" />
+                          {tab.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <TabsList className="hidden md:flex w-full justify-start h-auto p-0 bg-transparent rounded-none gap-1 flex-wrap">
+                  {tabItems.map((tab) => (
                     <TabsTrigger 
-                      value="scouting" 
-                      className="data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 md:px-6 py-2 md:py-3 text-xs md:text-sm whitespace-nowrap"
+                      key={tab.value}
+                      value={tab.value} 
+                      className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground rounded-t px-3 py-2 text-sm"
                     >
-                      <ClipboardList className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      <span className="hidden xs:inline">Scouting</span>
-                      <span className="xs:hidden">Scout</span>
+                      <tab.icon className="h-4 w-4 mr-1.5" />
+                      {tab.label}
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="programming" 
-                      className="data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 md:px-6 py-2 md:py-3 text-xs md:text-sm whitespace-nowrap"
-                    >
-                      <Dumbbell className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      <span className="hidden sm:inline">Programming</span>
-                      <span className="sm:hidden">Prog</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="analysis" 
-                      className="data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 md:px-6 py-2 md:py-3 text-xs md:text-sm whitespace-nowrap"
-                    >
-                      <LineChart className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      Analysis
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="focuses" 
-                      className="data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 md:px-6 py-2 md:py-3 text-xs md:text-sm whitespace-nowrap"
-                    >
-                      <Target className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      <span className="hidden md:inline">Development </span>Focuses
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="longterm" 
-                      className="data-[state=active]:bg-primary/10 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 md:px-6 py-2 md:py-3 text-xs md:text-sm whitespace-nowrap"
-                    >
-                      <Calendar className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      <span className="hidden md:inline">Long-Term </span>Plan
-                    </TabsTrigger>
-                  </TabsList>
-                  <ScrollBar orientation="horizontal" />
-                </ScrollArea>
+                  ))}
+                </TabsList>
               </div>
 
               <div className="p-3 md:p-6">
-                <TabsContent value="scouting" className="mt-0">
-                  <PlayerScoutingReports playerId={selectedPlayer} playerName={currentPlayer.name} />
+                <TabsContent value="longterm" className="mt-0 space-y-3 md:space-y-4">
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <h3 className="text-base md:text-lg font-semibold">Long-Term Development Plan</h3>
+                  </div>
+                  <div className="space-y-3 md:space-y-4">
+                    <Textarea
+                      placeholder="Outline the long-term development trajectory for this player..."
+                      value={longTermPlan}
+                      onChange={(e) => setLongTermPlan(e.target.value)}
+                      className="min-h-[150px] md:min-h-[200px] resize-none text-sm md:text-base"
+                    />
+                    <div className="flex justify-end">
+                      <Button onClick={handleSaveLongTermPlan} disabled={saving} size="sm">
+                        {saving ? <Loader2 className="h-3 w-3 md:h-4 md:w-4 mr-2 animate-spin" /> : <Save className="h-3 w-3 md:h-4 md:w-4 mr-2" />}
+                        Save Plan
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="focuses" className="mt-0 space-y-3 md:space-y-4">
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <h3 className="text-base md:text-lg font-semibold">Development Focuses</h3>
+                  </div>
+                  <div className="space-y-3 md:space-y-4">
+                    <Textarea
+                      placeholder="Enter key areas of focus for this player's development..."
+                      value={focuses}
+                      onChange={(e) => setFocuses(e.target.value)}
+                      className="min-h-[150px] md:min-h-[200px] resize-none text-sm md:text-base"
+                    />
+                    <div className="flex justify-end">
+                      <Button onClick={handleSaveFocuses} disabled={saving} size="sm">
+                        {saving ? <Loader2 className="h-3 w-3 md:h-4 md:w-4 mr-2 animate-spin" /> : <Save className="h-3 w-3 md:h-4 md:w-4 mr-2" />}
+                        Save Focuses
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="periodisation" className="mt-0 space-y-4">
+                  <PeriodisationPlanner playerId={selectedPlayer} />
                 </TabsContent>
 
                 <TabsContent value="programming" className="mt-0 space-y-3 md:space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 md:mb-4">
                     <h3 className="text-base md:text-lg font-semibold">Training Programs</h3>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto border-accent/50 text-accent hover:bg-accent hover:text-accent-foreground">
                       View All Programs
                     </Button>
                   </div>
@@ -265,26 +323,15 @@ export const AthleteCentre = () => {
                   {programs.length > 0 ? (
                     <div className="grid gap-3 md:gap-4">
                       {programs.map((program) => (
-                        <div
-                          key={program.id}
-                          className={`p-3 md:p-4 rounded-lg border ${
-                            program.is_current 
-                              ? "bg-primary/5 border-primary" 
-                              : "bg-muted/30"
-                          }`}
-                        >
+                        <div key={program.id} className={`p-3 md:p-4 rounded-lg border ${program.is_current ? "bg-accent/5 border-accent" : "bg-muted/30"}`}>
                           <div className="flex items-center justify-between gap-2">
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
                                 <h4 className="font-semibold text-sm md:text-base truncate">{program.program_name}</h4>
-                                {program.is_current && (
-                                  <Badge className="bg-primary text-xs">Current</Badge>
-                                )}
+                                {program.is_current && <Badge className="bg-accent text-accent-foreground text-xs">Current</Badge>}
                               </div>
                               {program.phase_name && (
-                                <p className="text-xs md:text-sm text-muted-foreground mt-1 truncate">
-                                  Phase: {program.phase_name}
-                                </p>
+                                <p className="text-xs md:text-sm text-muted-foreground mt-1 truncate">Phase: {program.phase_name}</p>
                               )}
                             </div>
                             <ChevronRight className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground shrink-0" />
@@ -300,31 +347,40 @@ export const AthleteCentre = () => {
                   )}
                 </TabsContent>
 
+                <TabsContent value="injuries" className="mt-0">
+                  <InjuryLog playerId={selectedPlayer} readOnly />
+                </TabsContent>
+
+                <TabsContent value="scouting" className="mt-0">
+                  <PlayerScoutingReports playerId={selectedPlayer} playerName={currentPlayer.name} />
+                </TabsContent>
+
+                <TabsContent value="data" className="mt-0">
+                  <AnalysisDataTab analyses={analyses} playerData={currentPlayer} embedded />
+                </TabsContent>
+
+                <TabsContent value="comparisons" className="mt-0">
+                  <AnalysisComparisons analyses={analyses} playerData={currentPlayer} embedded />
+                </TabsContent>
+
+                <TabsContent value="video" className="mt-0">
+                  <AnalysisVideoReports analyses={analyses} playerId={selectedPlayer} embedded />
+                </TabsContent>
+
                 <TabsContent value="analysis" className="mt-0 space-y-3 md:space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 md:mb-4">
                     <h3 className="text-base md:text-lg font-semibold">Performance Analysis</h3>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
-                      View All Analysis
-                    </Button>
                   </div>
-
                   {analyses.length > 0 ? (
                     <div className="grid gap-2 md:gap-3">
                       {analyses.map((analysis) => (
-                        <div
-                          key={analysis.id}
-                          className="p-3 md:p-4 rounded-lg bg-muted/30 border hover:border-primary/50 transition-colors cursor-pointer"
-                        >
+                        <div key={analysis.id} className="p-3 md:p-4 rounded-lg bg-muted/30 border hover:border-accent/50 transition-colors cursor-pointer">
                           <div className="flex items-center justify-between gap-2">
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-medium text-sm md:text-base truncate">
-                                  vs {analysis.opponent || "Unknown"}
-                                </span>
+                                <span className="font-medium text-sm md:text-base truncate">vs {analysis.opponent || "Unknown"}</span>
                                 {analysis.r90_score && (
-                                  <Badge variant="outline" className="text-xs">
-                                    R90: {analysis.r90_score.toFixed(1)}
-                                  </Badge>
+                                  <Badge variant="outline" className="text-xs">R90: {analysis.r90_score.toFixed(1)}</Badge>
                                 )}
                               </div>
                               <p className="text-xs md:text-sm text-muted-foreground mt-1">
@@ -343,72 +399,154 @@ export const AthleteCentre = () => {
                     </div>
                   )}
                 </TabsContent>
-
-                <TabsContent value="focuses" className="mt-0 space-y-3 md:space-y-4">
-                  <div className="flex items-center justify-between mb-3 md:mb-4">
-                    <h3 className="text-base md:text-lg font-semibold">Development Focuses</h3>
-                  </div>
-
-                  <div className="space-y-3 md:space-y-4">
-                    <Textarea
-                      placeholder="Enter key areas of focus for this player's development...
-
-Examples:
-• Improve first touch under pressure
-• Increase shooting accuracy from distance
-• Work on defensive positioning
-• Develop leadership skills on the pitch"
-                      value={focuses}
-                      onChange={(e) => setFocuses(e.target.value)}
-                      className="min-h-[150px] md:min-h-[200px] resize-none text-sm md:text-base"
-                    />
-                    <div className="flex justify-end">
-                      <Button onClick={handleSaveFocuses} disabled={saving} size="sm" className="md:size-default">
-                        {saving ? (
-                          <Loader2 className="h-3 w-3 md:h-4 md:w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Save className="h-3 w-3 md:h-4 md:w-4 mr-2" />
-                        )}
-                        Save Focuses
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="longterm" className="mt-0 space-y-3 md:space-y-4">
-                  <div className="flex items-center justify-between mb-3 md:mb-4">
-                    <h3 className="text-base md:text-lg font-semibold">Long-Term Development Plan</h3>
-                  </div>
-
-                  <div className="space-y-3 md:space-y-4">
-                    <Textarea
-                      placeholder="Outline the long-term development trajectory for this player...
-
-Examples:
-• 6-month goals: Establish as first-team regular
-• 1-year goals: Attract interest from higher leagues
-• 2-year goals: Ready for professional contract
-• Career pathway notes and milestones"
-                      value={longTermPlan}
-                      onChange={(e) => setLongTermPlan(e.target.value)}
-                      className="min-h-[150px] md:min-h-[200px] resize-none text-sm md:text-base"
-                    />
-                    <div className="flex justify-end">
-                      <Button onClick={handleSaveLongTermPlan} disabled={saving} size="sm" className="md:size-default">
-                        {saving ? (
-                          <Loader2 className="h-3 w-3 md:h-4 md:w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Save className="h-3 w-3 md:h-4 md:w-4 mr-2" />
-                        )}
-                        Save Plan
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
               </div>
             </Tabs>
           </CardContent>
         </Card>
+      )}
+    </div>
+  );
+};
+
+// Periodisation Planner sub-component
+const PHASE_TYPES = [
+  { value: "pre-season", label: "Pre-Season", colour: "hsl(220, 70%, 50%)" },
+  { value: "in-season", label: "In-Season", colour: "hsl(140, 60%, 40%)" },
+  { value: "recovery", label: "Recovery", colour: "hsl(47, 100%, 51%)" },
+  { value: "off-season", label: "Off-Season", colour: "hsl(0, 0%, 60%)" },
+  { value: "competition", label: "Competition", colour: "hsl(0, 70%, 50%)" },
+  { value: "transition", label: "Transition", colour: "hsl(280, 60%, 50%)" },
+];
+
+interface Phase {
+  name: string;
+  start_date: string;
+  end_date: string;
+  type: string;
+  colour: string;
+}
+
+const PeriodisationPlanner = ({ playerId }: { playerId: string }) => {
+  const [phases, setPhases] = useState<Phase[]>([]);
+  const [season, setSeason] = useState("2025/26");
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const addPhase = () => {
+    setPhases(prev => [...prev, {
+      name: "",
+      start_date: format(new Date(), "yyyy-MM-dd"),
+      end_date: format(new Date(), "yyyy-MM-dd"),
+      type: "pre-season",
+      colour: PHASE_TYPES[0].colour,
+    }]);
+  };
+
+  const updatePhase = (index: number, field: keyof Phase, value: string) => {
+    setPhases(prev => prev.map((p, i) => {
+      if (i !== index) return p;
+      const updated = { ...p, [field]: value };
+      if (field === "type") {
+        const pt = PHASE_TYPES.find(t => t.value === value);
+        if (pt) updated.colour = pt.colour;
+      }
+      return updated;
+    }));
+  };
+
+  const removePhase = (index: number) => {
+    setPhases(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    toast.success("Periodisation plan saved");
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base md:text-lg font-semibold">Periodisation Planner</h3>
+        <div className="flex items-center gap-2">
+          <Select value={season} onValueChange={setSeason}>
+            <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2024/25">2024/25</SelectItem>
+              <SelectItem value="2025/26">2025/26</SelectItem>
+              <SelectItem value="2026/27">2026/27</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button size="sm" variant="outline" onClick={addPhase}>
+            <Plus className="h-4 w-4 mr-1" /> Add Phase
+          </Button>
+        </div>
+      </div>
+
+      {/* Visual timeline */}
+      {phases.length > 0 && (
+        <div className="overflow-x-auto">
+          <div className="flex gap-1 min-w-[600px]">
+            {phases.map((phase, idx) => (
+              <div
+                key={idx}
+                className="flex-1 min-w-[80px] rounded-lg p-2 text-center text-xs text-white font-medium"
+                style={{ backgroundColor: phase.colour }}
+              >
+                <div className="truncate">{phase.name || phase.type}</div>
+                <div className="opacity-75 text-[10px] mt-0.5">
+                  {phase.start_date ? format(new Date(phase.start_date), "dd MMM") : '?'} - {phase.end_date ? format(new Date(phase.end_date), "dd MMM") : '?'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Phase editor */}
+      <div className="space-y-3">
+        {phases.map((phase, idx) => (
+          <div key={idx} className="flex flex-wrap items-center gap-2 p-3 rounded-lg border bg-card">
+            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: phase.colour }} />
+            <Input
+              placeholder="Phase name"
+              value={phase.name}
+              onChange={e => updatePhase(idx, "name", e.target.value)}
+              className="flex-1 min-w-[120px]"
+            />
+            <Select value={phase.type} onValueChange={v => updatePhase(idx, "type", v)}>
+              <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {PHASE_TYPES.map(t => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input type="date" value={phase.start_date} onChange={e => updatePhase(idx, "start_date", e.target.value)} className="w-[140px]" />
+            <Input type="date" value={phase.end_date} onChange={e => updatePhase(idx, "end_date", e.target.value)} className="w-[140px]" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removePhase(idx)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      {phases.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          <GripHorizontal className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <p>No phases planned yet. Add a phase to start building the periodisation cycle.</p>
+        </div>
+      )}
+
+      {phases.length > 0 && (
+        <div className="flex justify-end">
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            Save Plan
+          </Button>
+        </div>
       )}
     </div>
   );

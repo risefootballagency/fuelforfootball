@@ -2126,7 +2126,7 @@ const Dashboard = () => {
                                     className={`text-xs border-0 ${
                                       analysis.analysis_writer_data.analysis_type === "pre-match" 
                                         ? "bg-gradient-to-r from-slate-300 to-slate-400 text-slate-900 hover:from-slate-400 hover:to-slate-500" 
-                                        : "bg-[hsl(43,49%,61%)] text-black hover:bg-[hsl(43,49%,71%)]"
+                                        : "bg-accent text-accent-foreground hover:bg-accent/80"
                                     }`}
                                   >
                                     <FileText className="w-3 h-3 mr-1" />
@@ -2145,7 +2145,7 @@ const Dashboard = () => {
                                     className={`text-xs border-0 ${
                                       ta.analysis_type === "pre-match"
                                         ? "bg-gradient-to-r from-slate-300 to-slate-400 text-slate-900 hover:from-slate-400 hover:to-slate-500"
-                                        : "bg-[hsl(43,49%,61%)] text-black hover:bg-[hsl(43,49%,71%)]"
+                                        : "bg-accent text-accent-foreground hover:bg-accent/80"
                                     }`}
                                   >
                                     <FileText className="w-3 h-3 mr-1" />
