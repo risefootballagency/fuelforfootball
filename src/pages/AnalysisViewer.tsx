@@ -5,6 +5,7 @@ import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient
 import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download } from "lucide-react";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
+import { normalizeText } from "@/lib/normalizeText";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { HoverText } from "@/components/HoverText";
@@ -1167,7 +1168,7 @@ const AnalysisViewer = () => {
               <ExpandableSection title="Overview" id={SECTION_IDS.overview} forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-base md:text-lg" style={{ color: BRAND.bodyText }}>
-                    {analysis.key_details}
+                    {normalizeText(analysis.key_details)}
                   </p>
                 </TextReveal>
               </ExpandableSection>
@@ -1298,7 +1299,7 @@ const AnalysisViewer = () => {
                   {analysis.scheme_paragraph_1 && (
                     <TextReveal>
                       <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                        {analysis.scheme_paragraph_1}
+                        {normalizeText(analysis.scheme_paragraph_1)}
                       </p>
                     </TextReveal>
                   )}
@@ -1426,7 +1427,7 @@ const AnalysisViewer = () => {
                   {analysis.scheme_paragraph_2 && (
                     <TextReveal delay={0.3}>
                       <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                        {analysis.scheme_paragraph_2}
+                        {normalizeText(analysis.scheme_paragraph_2)}
                       </p>
                     </TextReveal>
                   )}
@@ -1448,7 +1449,7 @@ const AnalysisViewer = () => {
                       {point.paragraph_1 && (
                         <TextReveal>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                            {point.paragraph_1}
+                            {normalizeText(point.paragraph_1)}
                           </p>
                         </TextReveal>
                       )}
@@ -1479,7 +1480,7 @@ const AnalysisViewer = () => {
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                            {point.paragraph_2}
+                            {normalizeText(point.paragraph_2)}
                           </p>
                         </TextReveal>
                       )}
@@ -1585,7 +1586,7 @@ const AnalysisViewer = () => {
               <ExpandableSection title="Overview" id={SECTION_IDS.overview} forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                    {analysis.key_details}
+                    {normalizeText(analysis.key_details)}
                   </p>
                 </TextReveal>
               </ExpandableSection>
@@ -1596,7 +1597,7 @@ const AnalysisViewer = () => {
               <ExpandableSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements} forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                    {analysis.strengths_improvements}
+                    {normalizeText(analysis.strengths_improvements)}
                   </p>
                 </TextReveal>
               </ExpandableSection>
@@ -1616,7 +1617,7 @@ const AnalysisViewer = () => {
                       {point.paragraph_1 && (
                         <TextReveal>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                            {point.paragraph_1}
+                            {normalizeText(point.paragraph_1)}
                           </p>
                         </TextReveal>
                       )}
@@ -1647,7 +1648,7 @@ const AnalysisViewer = () => {
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                            {point.paragraph_2}
+                            {normalizeText(point.paragraph_2)}
                           </p>
                         </TextReveal>
                       )}
@@ -1733,7 +1734,7 @@ const AnalysisViewer = () => {
               <ExpandableSection title="Concept" defaultOpen forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                    {analysis.concept}
+                    {normalizeText(analysis.concept)}
                   </p>
                 </TextReveal>
               </ExpandableSection>
@@ -1743,7 +1744,7 @@ const AnalysisViewer = () => {
               <ExpandableSection title="Explanation" forceOpen={isSaving}>
                 <TextReveal>
                   <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                    {analysis.explanation}
+                    {normalizeText(analysis.explanation)}
                   </p>
                 </TextReveal>
               </ExpandableSection>
@@ -1762,7 +1763,7 @@ const AnalysisViewer = () => {
                       {point.paragraph_1 && (
                         <TextReveal>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                            {point.paragraph_1}
+                            {normalizeText(point.paragraph_1)}
                           </p>
                         </TextReveal>
                       )}
@@ -1793,7 +1794,7 @@ const AnalysisViewer = () => {
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                            {point.paragraph_2}
+                            {normalizeText(point.paragraph_2)}
                           </p>
                         </TextReveal>
                       )}

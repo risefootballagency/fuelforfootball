@@ -28,10 +28,13 @@ import { R90RatingsManagement } from "./R90RatingsManagement";
 import { TacticalSchemes } from "./TacticalSchemes";
 import { SchemeEditor } from "./SchemeEditor";
 import { PositionalGuides } from "./PositionalGuides";
+import { ClubRatings } from "./ClubRatings";
+import { FormGradesManagement } from "./FormGradesManagement";
+import { ComparisonPlayerData } from "./ComparisonPlayerData";
 import { MarkdownText } from "@/utils/markdownRenderer";
 
 
-type TableType = 'coaching_sessions' | 'coaching_programmes' | 'coaching_drills' | 'coaching_exercises' | 'coaching_analysis' | 'coaching_concepts' | 'psychological_sessions' | 'coaching_aphorisms' | 'r90_ratings' | 'tactical_schemes' | 'performance_statistics' | 'scheme_view' | 'positional_guides';
+type TableType = 'coaching_sessions' | 'coaching_programmes' | 'coaching_drills' | 'coaching_exercises' | 'coaching_analysis' | 'coaching_concepts' | 'psychological_sessions' | 'coaching_aphorisms' | 'r90_ratings' | 'tactical_schemes' | 'performance_statistics' | 'scheme_view' | 'positional_guides' | 'club_ratings' | 'form_grades' | 'comparison_data';
 
 interface Exercise {
   name: string;
@@ -171,6 +174,27 @@ const tableConfigs = {
     fields: [],
     icon: Target,
     color: 'teal',
+  },
+  club_ratings: {
+    label: 'Club Ratings',
+    singular: 'Rating',
+    fields: [],
+    icon: Database,
+    color: 'sky',
+  },
+  form_grades: {
+    label: 'Form Grades',
+    singular: 'Grade',
+    fields: [],
+    icon: BookOpen,
+    color: 'lime',
+  },
+  comparison_data: {
+    label: 'Comparison Data',
+    singular: 'Data',
+    fields: [],
+    icon: LineChart,
+    color: 'fuchsia',
   },
 };
 
@@ -1030,6 +1054,12 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
               <SchemeEditor />
             ) : key === 'positional_guides' ? (
               <PositionalGuides isAdmin={isAdmin} />
+            ) : key === 'club_ratings' ? (
+              <ClubRatings />
+            ) : key === 'form_grades' ? (
+              <FormGradesManagement />
+            ) : key === 'comparison_data' ? (
+              <ComparisonPlayerData />
             ) : (
               <>
             {/* SPS / Nutrition Sub-tabs for Programmes */}
