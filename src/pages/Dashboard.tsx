@@ -65,6 +65,7 @@ interface Analysis {
   analysis_writer_data?: any;
   striker_stats?: any;
   fixture_id?: string | null;
+  tagged_analyses?: any[];
 }
 
 interface PlayerProgram {
@@ -1045,15 +1046,23 @@ const Dashboard = () => {
             return opponentMatch && reportDate === analysisDate;
           });
 
-          if (matchingReport && !matchingReport.analysis_writer_data) {
-            // Attach tactical analysis to existing action report
+          if (matchingReport) {
             const index = mergedAnalyses.findIndex(a => a.id === matchingReport.id);
             if (index !== -1) {
-              mergedAnalyses[index] = {
-                ...mergedAnalyses[index],
-                analysis_writer_data: tacticalAnalysis,
-                analysis_writer_id: tacticalAnalysis.id
-              } as Analysis;
+              if (!matchingReport.analysis_writer_data) {
+                // First attachment - set directly
+                mergedAnalyses[index] = {
+                  ...mergedAnalyses[index],
+                  analysis_writer_data: tacticalAnalysis,
+                  analysis_writer_id: tacticalAnalysis.id
+                } as Analysis;
+              } else if (matchingReport.analysis_writer_data.analysis_type !== tacticalAnalysis.analysis_type) {
+                // Different type (e.g. already has pre-match, adding post-match) - use tagged_analyses array
+                if (!mergedAnalyses[index].tagged_analyses) {
+                  (mergedAnalyses[index] as any).tagged_analyses = [];
+                }
+                (mergedAnalyses[index] as any).tagged_analyses.push(tacticalAnalysis);
+              }
             }
           }
         });
@@ -1168,12 +1177,19 @@ const Dashboard = () => {
               if (existingActionReport) {
                 // If there's an action report for this fixture, attach the analysis to it
                 const index = mergedAnalyses.findIndex(a => a.id === existingActionReport.id);
-                if (index !== -1 && !mergedAnalyses[index].analysis_writer_data) {
-                  mergedAnalyses[index] = {
-                    ...mergedAnalyses[index],
-                    analysis_writer_data: fixtureAnalysis,
-                    analysis_writer_id: fixtureAnalysis.id
-                  } as Analysis;
+                if (index !== -1) {
+                  if (!mergedAnalyses[index].analysis_writer_data) {
+                    mergedAnalyses[index] = {
+                      ...mergedAnalyses[index],
+                      analysis_writer_data: fixtureAnalysis,
+                      analysis_writer_id: fixtureAnalysis.id
+                    } as Analysis;
+                  } else if (mergedAnalyses[index].analysis_writer_data.analysis_type !== fixtureAnalysis.analysis_type) {
+                    if (!mergedAnalyses[index].tagged_analyses) {
+                      (mergedAnalyses[index] as any).tagged_analyses = [];
+                    }
+                    (mergedAnalyses[index] as any).tagged_analyses.push(fixtureAnalysis);
+                  }
                 }
               } else {
                 // No action report exists - create a standalone entry for the tactical analysis
@@ -1252,15 +1268,22 @@ const Dashboard = () => {
               return opponentMatch && reportDate === analysisDate;
             });
 
-            if (matchingReport && !matchingReport.analysis_writer_data) {
+            if (matchingReport) {
               // Attach to existing report
               const index = mergedAnalyses.findIndex(a => a.id === matchingReport.id);
               if (index !== -1) {
-                mergedAnalyses[index] = {
-                  ...mergedAnalyses[index],
-                  analysis_writer_data: tacticalAnalysis,
-                  analysis_writer_id: tacticalAnalysis.id
-                } as Analysis;
+                if (!matchingReport.analysis_writer_data) {
+                  mergedAnalyses[index] = {
+                    ...mergedAnalyses[index],
+                    analysis_writer_data: tacticalAnalysis,
+                    analysis_writer_id: tacticalAnalysis.id
+                  } as Analysis;
+                } else if (matchingReport.analysis_writer_data.analysis_type !== tacticalAnalysis.analysis_type) {
+                  if (!mergedAnalyses[index].tagged_analyses) {
+                    (mergedAnalyses[index] as any).tagged_analyses = [];
+                  }
+                  (mergedAnalyses[index] as any).tagged_analyses.push(tacticalAnalysis);
+                }
               }
             } else if (!matchingReport) {
               // Create standalone entry for this tactical analysis
