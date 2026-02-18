@@ -68,7 +68,7 @@ import { SalesManagement } from "@/components/staff/SalesManagement";
 import { ShopCatalogManagement } from "@/components/staff/ShopCatalogManagement";
 import { ContractSignature } from "@/components/staff/ContractSignature";
 import { VersionManager } from "@/lib/versionManager";
-import { RetentionTracker, SalesTracker, OutreachTracker, SalesHub, TimeManagement } from "@/components/staff/sales";
+import { RetentionTracker, SalesTracker, OutreachTracker, SalesHub, TimeManagement, PortalManagement } from "@/components/staff/sales";
 import { JobsManagement } from "@/components/staff/JobsManagement";
 import { PartnersManagement } from "@/components/staff/PartnersManagement";
 import { MarketingTipsManagement } from "@/components/staff/MarketingTipsManagement";
@@ -636,6 +636,7 @@ const Staff = () => {
           { id: 'retention', title: 'Retention', icon: Users },
           { id: 'outreach', title: 'Outreach', icon: UserCog },
           { id: 'saleshub', title: 'Sales Hub', icon: FileText },
+          { id: 'portalmanagement', title: 'Portal Management', icon: Settings },
         ]
       },
       {
@@ -1185,6 +1186,7 @@ const Staff = () => {
                 {expandedSection === 'retention' && <RetentionTracker />}
                 {expandedSection === 'outreach' && <OutreachTracker />}
                 {expandedSection === 'saleshub' && <SalesHub />}
+                {expandedSection === 'portalmanagement' && <PortalManagement />}
                 {expandedSection === 'legal' && <LegalManagement isAdmin={isAdmin} />}
                 {expandedSection === 'contracts' && <ContractSignature />}
                 {expandedSection === 'partners' && <PartnersManagement isAdmin={isAdmin} />}

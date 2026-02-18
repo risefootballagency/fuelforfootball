@@ -20,14 +20,20 @@ interface BankDetail {
   is_default: boolean;
 }
 
-export const PaymentOptions = () => {
+interface PaymentOptionsProps {
+  playerId?: string;
+}
+
+export const PaymentOptions = ({ playerId }: PaymentOptionsProps) => {
   const [bankDetails, setBankDetails] = useState<BankDetail[]>([]);
+  const [payLinks, setPayLinks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBankDetails();
-  }, []);
+    if (playerId) fetchPayLinks();
+  }, [playerId]);
 
   const fetchBankDetails = async () => {
     const { data, error } = await supabase
@@ -39,6 +45,25 @@ export const PaymentOptions = () => {
       setBankDetails((data || []) as BankDetail[]);
     }
     setLoading(false);
+  };
+
+  const fetchPayLinks = async () => {
+    if (!playerId) return;
+    // Get player name/email to match pay links
+    const { data: player } = await supabase
+      .from('players')
+      .select('name, email')
+      .eq('id', playerId)
+      .maybeSingle();
+    if (!player) return;
+
+    const { data } = await supabase
+      .from('pay_links')
+      .select('*')
+      .eq('status', 'active')
+      .or(`customer_name.ilike.%${player.name}%,customer_email.ilike.%${player.email}%`)
+      .order('created_at', { ascending: false });
+    setPayLinks(data || []);
   };
 
   const copyToClipboard = async (text: string, fieldName: string) => {
@@ -67,7 +92,7 @@ export const PaymentOptions = () => {
     return <div className="text-center py-8">Loading payment options...</div>;
   }
 
-  if (bankDetails.length === 0) {
+  if (bankDetails.length === 0 && payLinks.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         Payment details not yet configured. Please contact us for payment information.
@@ -77,10 +102,43 @@ export const PaymentOptions = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold mb-2">Payment Options</h3>
+      {/* Pay Links for invoices */}
+      {payLinks.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-center">Pay Now</h3>
+          <div className="grid gap-3 md:grid-cols-2">
+            {payLinks.map(link => (
+              <Card key={link.id} className="border-accent border-2">
+                <CardContent className="py-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{link.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {link.currency} {link.amount.toFixed(2)}
+                      </p>
+                    </div>
+                    <CreditCard className="h-5 w-5 text-accent" />
+                  </div>
+                  {link.stripe_payment_link_url && (
+                    <Button
+                      className="w-full"
+                      onClick={() => window.open(link.stripe_payment_link_url, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Pay with Card
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="text-center">
+        <h3 className="text-lg font-semibold mb-2">Bank Transfer</h3>
         <p className="text-sm text-muted-foreground">
-          Choose your preferred payment method below. For international transfers, please use IBAN and SWIFT/BIC codes.
+          For international transfers, please use IBAN and SWIFT/BIC codes.
         </p>
       </div>
 

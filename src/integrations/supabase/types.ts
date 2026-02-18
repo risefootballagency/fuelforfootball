@@ -2494,6 +2494,56 @@ export type Database = {
         }
         Relationships: []
       }
+      player_portal_settings: {
+        Row: {
+          created_at: string
+          current_package_currency: string | null
+          current_package_features: string[] | null
+          current_package_name: string | null
+          current_package_price: number | null
+          hub_widget_type: string
+          id: string
+          player_id: string
+          updated_at: string
+          upgrade_message: string | null
+          upgrade_product_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_package_currency?: string | null
+          current_package_features?: string[] | null
+          current_package_name?: string | null
+          current_package_price?: number | null
+          hub_widget_type?: string
+          id?: string
+          player_id: string
+          updated_at?: string
+          upgrade_message?: string | null
+          upgrade_product_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_package_currency?: string | null
+          current_package_features?: string[] | null
+          current_package_name?: string | null
+          current_package_price?: number | null
+          hub_widget_type?: string
+          id?: string
+          player_id?: string
+          updated_at?: string
+          upgrade_message?: string | null
+          upgrade_product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_portal_settings_upgrade_product_id_fkey"
+            columns: ["upgrade_product_id"]
+            isOneToOne: false
+            referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_programs: {
         Row: {
           created_at: string

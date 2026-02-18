@@ -79,11 +79,22 @@ interface PlayerAnalysis {
   tagged_analyses?: any[];
 }
 
+interface PortalSettings {
+  hub_widget_type: "aphorisms" | "sales_box";
+  current_package_name: string | null;
+  current_package_price: number | null;
+  current_package_currency: string;
+  current_package_features: string[] | null;
+  upgrade_product_id: string | null;
+  upgrade_message: string | null;
+}
+
 interface HubProps {
   programs: PlayerProgram[];
   analyses: PlayerAnalysis[];
   playerData: any;
   dailyAphorism?: any;
+  portalSettings?: PortalSettings | null;
   onNavigateToAnalysis: () => void;
   onNavigateToComparisons?: () => void;
   onNavigateToForm?: () => void;
@@ -91,7 +102,7 @@ interface HubProps {
   onNavigateToSchedule?: () => void;
 }
 
-export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateToAnalysis, onNavigateToComparisons, onNavigateToForm, onNavigateToSession, onNavigateToSchedule }: HubProps) => {
+export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSettings, onNavigateToAnalysis, onNavigateToComparisons, onNavigateToForm, onNavigateToSession, onNavigateToSchedule }: HubProps) => {
   const navigate = useNavigate();
   const [marketingImages, setMarketingImages] = React.useState<string[]>([]);
   const [imageFocalPoints, setImageFocalPoints] = React.useState<string[]>([]);
@@ -835,41 +846,85 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, onNavigateT
         />
       )}
 
-      {/* Gold Separator Line */}
-      {dailyAphorism && (
-        <div className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
-          <div className="border-t-2 border-gold"></div>
-        </div>
-      )}
+      {/* Bottom Widget: Aphorisms or Sales Box */}
+      {(() => {
+        const showSalesBox = portalSettings?.hub_widget_type === "sales_box";
 
-      {/* Daily Aphorism */}
-      {dailyAphorism && (
-        <div className="px-4 md:px-0 mt-[10px]">
-          <Card className="relative overflow-hidden border-accent bg-white/10">
-            <CardContent className="relative py-3 px-3 text-center space-y-3">
-              <div className="bg-black/90 backdrop-blur-sm p-3 rounded-lg inline-block">
-                <p className="text-base md:text-xl font-bold text-accent leading-relaxed tracking-wide">
-                  {dailyAphorism.featured_text}
-                </p>
+        if (showSalesBox) {
+          const currencySymbol = portalSettings?.current_package_currency === "EUR" ? "€" : portalSettings?.current_package_currency === "USD" ? "$" : "£";
+          return (
+            <>
+              <div className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
+                <div className="border-t-2 border-accent"></div>
               </div>
-              {dailyAphorism.author && (
-                <div className="bg-black/90 backdrop-blur-sm px-4 py-2 rounded-lg inline-block">
-                  <p className="text-xs md:text-sm text-gold/80 italic font-medium">
-                    — {dailyAphorism.author}
-                  </p>
-                </div>
-              )}
-              {dailyAphorism.body_text && (
-                <div className="bg-black/90 backdrop-blur-sm p-3 rounded-lg max-w-2xl mx-auto">
-                  <p className="text-sm md:text-base text-white/90 leading-relaxed">
-                    {dailyAphorism.body_text}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              <div className="px-4 md:px-0 mt-[10px]">
+                <Card className="relative overflow-hidden border-accent bg-white/10">
+                  <CardContent className="relative py-4 px-4 space-y-4">
+                    {portalSettings?.current_package_name && (
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Current Package</p>
+                        <p className="text-lg font-bold text-accent">{portalSettings.current_package_name}</p>
+                        {portalSettings.current_package_price != null && (
+                          <p className="text-sm text-muted-foreground">{currencySymbol}{portalSettings.current_package_price}/mo</p>
+                        )}
+                      </div>
+                    )}
+                    {portalSettings?.current_package_features && portalSettings.current_package_features.length > 0 && (
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {portalSettings.current_package_features.map((f, i) => (
+                          <span key={i} className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">
+                            {f}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {portalSettings?.upgrade_message && (
+                      <div className="bg-accent/5 border border-accent/20 rounded-lg p-3 text-center">
+                        <p className="text-sm text-foreground/90">{portalSettings.upgrade_message}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </>
+          );
+        }
+
+        // Default: show aphorism
+        if (!dailyAphorism) return null;
+        return (
+          <>
+            <div className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
+              <div className="border-t-2 border-accent"></div>
+            </div>
+            <div className="px-4 md:px-0 mt-[10px]">
+              <Card className="relative overflow-hidden border-accent bg-white/10">
+                <CardContent className="relative py-3 px-3 text-center space-y-3">
+                  <div className="bg-black/90 backdrop-blur-sm p-3 rounded-lg inline-block">
+                    <p className="text-base md:text-xl font-bold text-accent leading-relaxed tracking-wide">
+                      {dailyAphorism.featured_text}
+                    </p>
+                  </div>
+                  {dailyAphorism.author && (
+                    <div className="bg-black/90 backdrop-blur-sm px-4 py-2 rounded-lg inline-block">
+                      <p className="text-xs md:text-sm text-accent/80 italic font-medium">
+                        — {dailyAphorism.author}
+                      </p>
+                    </div>
+                  )}
+                  {dailyAphorism.body_text && (
+                    <div className="bg-black/90 backdrop-blur-sm p-3 rounded-lg max-w-2xl mx-auto">
+                      <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
+                        {dailyAphorism.body_text}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        );
+      })()}
     </>
   );
 };
