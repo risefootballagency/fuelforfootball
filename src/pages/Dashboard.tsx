@@ -123,6 +123,7 @@ const Dashboard = () => {
   const [selectedExercise, setSelectedExercise] = useState<any>(null);
   const [exerciseDialogOpen, setExerciseDialogOpen] = useState(false);
   const [dailyAphorism, setDailyAphorism] = useState<any>(null);
+  const [portalSettings, setPortalSettings] = useState<any>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [updates, setUpdates] = useState<Update[]>([]);
   const [activeTab, setActiveTab] = useState("hub");
@@ -922,6 +923,18 @@ const Dashboard = () => {
       }
 
       setPlayerData(parsedPlayerData);
+
+      // Fetch portal settings for this player
+      try {
+        const { data: ps } = await supabase
+          .from("player_portal_settings")
+          .select("*")
+          .eq("player_id", parsedPlayerData.id)
+          .maybeSingle();
+        if (ps) setPortalSettings(ps);
+      } catch (e) {
+        console.error("Error fetching portal settings:", e);
+      }
 
       // Fetch tactical schemes for this player's position
       if (parsedPlayerData.position) {
@@ -1959,6 +1972,7 @@ const Dashboard = () => {
             analyses={analyses} 
             playerData={playerData}
             dailyAphorism={dailyAphorism}
+            portalSettings={portalSettings}
             onNavigateToAnalysis={() => {
               setActiveTab("analysis");
               setActiveAnalysisTab("performance");
@@ -3874,15 +3888,12 @@ const Dashboard = () => {
               <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0">
                 <CardContent className="container mx-auto px-4 pt-2">
                   <Tabs defaultValue="invoices" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 gap-2 mb-0 bg-muted h-auto p-2">
+                    <TabsList className="grid w-full grid-cols-2 gap-2 mb-0 bg-muted h-auto p-2">
                   <TabsTrigger value="invoices" className="font-bebas uppercase text-sm sm:text-base">
                     Invoices
                   </TabsTrigger>
                   <TabsTrigger value="payment" className="font-bebas uppercase text-sm sm:text-base">
                     Make Payment
-                  </TabsTrigger>
-                  <TabsTrigger value="other" className="font-bebas uppercase text-sm sm:text-base">
-                    Other
                   </TabsTrigger>
                 </TabsList>
 
@@ -4077,30 +4088,12 @@ const Dashboard = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
-                      <PaymentOptions />
+                      <PaymentOptions playerId={playerData?.id} />
                     </CardContent>
                   </Card>
                 </TabsContent>
 
 
-
-
-                <TabsContent value="other">
-                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
-                    <CardHeader marble>
-                      <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">
-                          Other Documents
-                        </CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="container mx-auto px-4">
-                      <div className="py-8 text-center text-muted-foreground">
-                        No other documents available yet.
-                      </div>
-                    </CardContent>
-                  </Card>
-                  </TabsContent>
                   </Tabs>
                 </CardContent>
               </Card>
