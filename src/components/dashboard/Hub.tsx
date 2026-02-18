@@ -1,9 +1,10 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye } from "lucide-react";
+import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye, Check } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { format, parseISO, isWithinInterval, addDays } from "date-fns";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
@@ -13,6 +14,7 @@ import { createAnalysisSlug } from "@/lib/urlHelpers";
 import { QuickStatsComparison } from "./QuickStatsComparison";
 import { NewsFeed } from "./NewsFeed";
 import { ParallaxHero } from "@/components/portal/ParallaxHero";
+import { ProgressSummary } from "@/components/portal/ProgressSummary";
 import { checkAndFireConfetti } from "@/lib/confetti";
 
 // Helper: fetches next fixture for player's club and renders ParallaxHero with countdown
@@ -889,6 +891,10 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
               <div className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
                 <div className="border-t-2 border-accent"></div>
               </div>
+
+              {/* Progress Summary */}
+              {playerData?.id && <ProgressSummary playerId={playerData.id} />}
+
               <div className="px-4 md:px-0 mt-[10px]">
                 <Card className="relative overflow-hidden border-accent bg-white/10">
                   <CardContent className="relative py-4 px-4 space-y-4">
@@ -909,47 +915,65 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                     {portalSettings?.current_package_features && portalSettings.current_package_features.length > 0 && (
                       <div className="flex flex-wrap justify-center gap-2">
                         {portalSettings.current_package_features.map((f, i) => (
-                          <span key={i} className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">{f}</span>
+                          <div key={i} className="flex items-center gap-1 text-xs text-accent">
+                            <Check className="w-3 h-3" />
+                            <span>{f}</span>
+                          </div>
                         ))}
                       </div>
                     )}
 
-                    {/* Upgrade Offers */}
+                    {/* Upgrade Offers - Shimmer Border Cards */}
                     {offers.length > 0 && (
                       <div className={offers.length > 1 ? "flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-2 px-2" : ""}>
                         {offers.map((offer, idx) => {
                           const offerCurrSym = offer.currency === "EUR" ? "€" : offer.currency === "USD" ? "$" : "£";
                           return (
-                            <div key={idx} className={`bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-3 ${offers.length > 1 ? "min-w-[280px] snap-center flex-shrink-0" : ""}`}>
-                              <div className="text-center">
-                                <p className="text-xs text-accent uppercase tracking-wider font-semibold">
-                                  {hasCurrentPackage ? "Upgrade Available" : "Recommended Package"}
-                                </p>
-                                <p className="text-lg font-bold text-accent">{offer.name}</p>
-                                {offer.price && (
-                                  <p className="text-sm text-muted-foreground">{offerCurrSym}{offer.price}/mo</p>
+                            <div 
+                              key={idx} 
+                              className={`relative rounded-lg p-[2px] ${offers.length > 1 ? "min-w-[280px] snap-center flex-shrink-0" : ""}`}
+                              style={{
+                                background: "linear-gradient(135deg, hsl(47, 100%, 51%), hsl(47, 100%, 30%), hsl(47, 100%, 51%), hsl(47, 100%, 70%))",
+                                backgroundSize: "300% 300%",
+                                animation: "shimmer-border 3s ease infinite",
+                              }}
+                            >
+                              <div className="bg-card rounded-[6px] p-4 space-y-3">
+                                <div className="text-center">
+                                  <p className="text-xs text-accent uppercase tracking-wider font-semibold">
+                                    {hasCurrentPackage ? "Upgrade Available" : "Recommended Package"}
+                                  </p>
+                                  <p className="text-lg font-bold text-accent">{offer.name}</p>
+                                  {offer.price && (
+                                    <p className="text-sm text-muted-foreground">{offerCurrSym}{offer.price}/mo</p>
+                                  )}
+                                </div>
+                                {offer.features && offer.features.length > 0 && (
+                                  <div className="space-y-1">
+                                    {offer.features.map((f, i) => (
+                                      <div key={i} className="flex items-center gap-1.5 text-xs text-foreground/80">
+                                        <Check className="w-3 h-3 text-accent flex-shrink-0" />
+                                        <span>{f}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                {offer.message && (
+                                  <p className="text-sm text-foreground/90 text-center">{offer.message}</p>
+                                )}
+                                {offer.pay_link_url && (
+                                  <div className="text-center">
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                                      <Button
+                                        className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
+                                        onClick={() => window.open(offer.pay_link_url, "_blank")}
+                                      >
+                                        {hasCurrentPackage ? "Upgrade Now" : "Get Started"}
+                                      </Button>
+                                    </motion.div>
+                                  </div>
                                 )}
                               </div>
-                              {offer.features && offer.features.length > 0 && (
-                                <div className="flex flex-wrap justify-center gap-1">
-                                  {offer.features.map((f, i) => (
-                                    <span key={i} className="text-xs bg-accent/15 text-accent/90 px-2 py-0.5 rounded">{f}</span>
-                                  ))}
-                                </div>
-                              )}
-                              {offer.message && (
-                                <p className="text-sm text-foreground/90 text-center">{offer.message}</p>
-                              )}
-                              {offer.pay_link_url && (
-                                <div className="text-center">
-                                  <Button
-                                    className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
-                                    onClick={() => window.open(offer.pay_link_url, "_blank")}
-                                  >
-                                    {hasCurrentPackage ? "Upgrade Now" : "Get Started"}
-                                  </Button>
-                                </div>
-                              )}
                             </div>
                           );
                         })}

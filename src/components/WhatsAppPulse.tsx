@@ -14,6 +14,8 @@ interface WhatsAppPulseProps {
   message?: string;
   /** Show urgency text */
   showUrgency?: boolean;
+  /** Service name for contextual pre-fill */
+  serviceName?: string;
 }
 
 const WHATSAPP_NUMBER = "447508342901";
@@ -23,7 +25,8 @@ export const WhatsAppPulse = ({
   position = "bottom-right",
   size = "md",
   message = "Speak to us now",
-  showUrgency = true
+  showUrgency = true,
+  serviceName
 }: WhatsAppPulseProps) => {
   const [isVisible, setIsVisible] = useState(showDelay === 0);
   const [isHovered, setIsHovered] = useState(false);
@@ -53,7 +56,10 @@ export const WhatsAppPulse = ({
     "inline": "relative"
   };
 
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("I want to take my game to the next level.")}`;
+  const defaultText = serviceName 
+    ? `Hi, I'm interested in your ${serviceName} programme. Can you tell me more?`
+    : "I want to take my game to the next level.";
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(defaultText)}`;
 
   if (position === "inline") {
     return (

@@ -4,6 +4,8 @@ import { PlayersSubmenu } from "@/components/PlayersSubmenu";
 import { AnimatedSmokyBackground } from "@/components/AnimatedSmokyBackground";
 import { HoverText } from "@/components/HoverText";
 import { SEO } from "@/components/SEO";
+import { WhatsAppPulse } from "@/components/WhatsAppPulse";
+import { ServiceStatsBar } from "@/components/services/ServiceStatsBar";
 import { ReactNode } from "react";
 
 interface ServicePageLayoutProps {
@@ -19,6 +21,8 @@ interface ServicePageLayoutProps {
   seoDescription?: string;
   seoImage?: string;
   seoUrl?: string;
+  /** Key for fetching service stats (e.g. "analysis", "nutrition") */
+  statsPageKey?: string;
 }
 
 export const ServicePageLayout = ({ 
@@ -33,7 +37,8 @@ export const ServicePageLayout = ({
   seoTitle,
   seoDescription,
   seoImage,
-  seoUrl
+  seoUrl,
+  statsPageKey
 }: ServicePageLayoutProps) => {
   const hasMedia = heroImage || heroVideo;
   const defaultSeoTitle = `${title} - Fuel For Football`;
@@ -119,9 +124,15 @@ export const ServicePageLayout = ({
             </section>
           )}
           
+          {/* Stats Bar */}
+          {statsPageKey && <ServiceStatsBar pageKey={statsPageKey} />}
+          
           {children}
         </main>
         <Footer />
+        
+        {/* Contextual WhatsApp CTA */}
+        <WhatsAppPulse serviceName={category} />
       </div>
     </div>
     </>
