@@ -8,8 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Target, Package, TrendingUp, DollarSign, ChevronLeft, ChevronRight } from "lucide-react";
+import { Target, Package, TrendingUp, DollarSign, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
 import { format, subMonths, addMonths, parseISO, startOfMonth } from "date-fns";
+import { RevenueCharts } from "./RevenueCharts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface SalesGoal {
   id: string;
@@ -142,6 +144,17 @@ export function SalesTracker() {
     : 0;
 
   return (
+    <Tabs defaultValue="monthly" className="w-full">
+      <TabsList className="mb-4">
+        <TabsTrigger value="monthly">
+          <Target className="h-4 w-4 mr-1.5" /> Monthly
+        </TabsTrigger>
+        <TabsTrigger value="trends">
+          <BarChart3 className="h-4 w-4 mr-1.5" /> Trends
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="monthly">
     <div className="space-y-6">
       {/* Month Navigation */}
       <div className="flex items-center justify-between">
@@ -341,5 +354,11 @@ export function SalesTracker() {
         </DialogContent>
       </Dialog>
     </div>
+      </TabsContent>
+
+      <TabsContent value="trends">
+        <RevenueCharts />
+      </TabsContent>
+    </Tabs>
   );
 }

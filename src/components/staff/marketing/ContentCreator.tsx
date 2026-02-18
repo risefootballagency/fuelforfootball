@@ -6,6 +6,7 @@ import { IdeasReview } from "./IdeasReview";
 import { BTLWriter } from "./BTLWriter";
 import { ImageCreator } from "./ImageCreator";
 import { PostContent } from "./PostContent";
+import { ContentCalendar } from "./ContentCalendar";
 
 export const ContentCreator = () => {
   return (
@@ -27,6 +28,10 @@ export const ContentCreator = () => {
           <Archive className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
           Schedule
         </TabsTrigger>
+        <TabsTrigger value="calendar" className="text-xs sm:text-sm px-2 sm:px-3">
+          <CalendarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+          Calendar
+        </TabsTrigger>
         <TabsTrigger value="tools" className="text-xs sm:text-sm px-2 sm:px-3">Tools</TabsTrigger>
       </TabsList>
 
@@ -44,6 +49,10 @@ export const ContentCreator = () => {
 
       <TabsContent value="post-schedule">
         <PostContent />
+      </TabsContent>
+
+      <TabsContent value="calendar">
+        <ContentCalendar />
       </TabsContent>
 
       <TabsContent value="tools">

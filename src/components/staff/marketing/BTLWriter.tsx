@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, FileText, Trash2, Plus, Send, Save, Copy, ChevronDown, Pencil } from "lucide-react";
+import { Edit, FileText, Trash2, Plus, Send, Save, Copy, ChevronDown, Pencil, Sparkles } from "lucide-react";
+import { AIWriter } from "./AIWriter";
 import { toast } from "sonner";
 
 interface MarketingIdea {
@@ -332,12 +333,28 @@ export const BTLWriter = () => {
                 />
               </div>
             ))}
+            <div className="border-t border-border pt-4">
+              <Label className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-accent" />
+                AI Article Generator
+              </Label>
+              <AIWriter
+                title={draftForm.title}
+                sectionNotes={{
+                  intro: draftForm.intro,
+                  mainPara: draftForm.mainPara,
+                  secondaryPara: draftForm.secondaryPara,
+                  conclusion: draftForm.conclusion,
+                }}
+                onGenerated={(text) => setDraftForm({ ...draftForm, finalArticle: text })}
+              />
+            </div>
             <div className="flex gap-2">
               <Button onClick={() => createDraftMutation.mutate(draftForm)} disabled={createDraftMutation.isPending}>
                 <Save className="w-4 h-4 mr-2" /> Create Draft
               </Button>
               <Button variant="outline" onClick={generateAndCopyPrompt}>
-                <Copy className="w-4 h-4 mr-2" /> Copy AI Prompt
+                <Copy className="w-4 h-4 mr-2" /> Copy Prompt
               </Button>
             </div>
           </div>
@@ -387,9 +404,25 @@ export const BTLWriter = () => {
                 />
               </CollapsibleContent>
             </Collapsible>
+            <div className="border-t border-border pt-4">
+              <Label className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-accent" />
+                AI Article Generator
+              </Label>
+              <AIWriter
+                title={draftForm.title}
+                sectionNotes={{
+                  intro: draftForm.intro,
+                  mainPara: draftForm.mainPara,
+                  secondaryPara: draftForm.secondaryPara,
+                  conclusion: draftForm.conclusion,
+                }}
+                onGenerated={(text) => setDraftForm({ ...draftForm, finalArticle: text })}
+              />
+            </div>
             <div className="flex gap-2">
-              <Button onClick={generateAndCopyPrompt} variant="outline">
-                <Copy className="w-4 h-4 mr-2" /> Copy AI Prompt
+              <Button variant="outline" onClick={generateAndCopyPrompt}>
+                <Copy className="w-4 h-4 mr-2" /> Copy Prompt
               </Button>
             </div>
           </div>
