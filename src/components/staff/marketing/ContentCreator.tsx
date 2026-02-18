@@ -1,37 +1,53 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarIcon, Palette, Lightbulb, Sparkles, Instagram, Twitter, Facebook, Linkedin, Hash, MessageSquare, ExternalLink, Inbox, PlusCircle } from "lucide-react";
+import { Calendar as CalendarIcon, Palette, Lightbulb, Sparkles, Instagram, Twitter, Facebook, Linkedin, Hash, MessageSquare, ExternalLink, Inbox, FileText, Image, Archive } from "lucide-react";
 import { IdeasReview } from "./IdeasReview";
-import { MarketingIdeas } from "./MarketingIdeas";
+import { BTLWriter } from "./BTLWriter";
+import { ImageCreator } from "./ImageCreator";
+import { PostContent } from "./PostContent";
 
 export const ContentCreator = () => {
   return (
     <Tabs defaultValue="ideas" className="w-full">
-      <TabsList className="mb-6">
-        <TabsTrigger value="ideas">
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Ideas
+      <TabsList className="mb-6 flex-wrap h-auto gap-1 w-full justify-start md:justify-start">
+        <TabsTrigger value="ideas" className="text-xs sm:text-sm px-2 sm:px-3">
+          <Inbox className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+          <span className="hidden sm:inline">Review</span> Ideas
         </TabsTrigger>
-        <TabsTrigger value="review">
-          <Inbox className="w-4 h-4 mr-2" />
-          Review Submissions
+        <TabsTrigger value="btl-writer" className="text-xs sm:text-sm px-2 sm:px-3">
+          <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+          BTL
         </TabsTrigger>
-        <TabsTrigger value="tools">Content Tools</TabsTrigger>
+        <TabsTrigger value="image-creator" className="text-xs sm:text-sm px-2 sm:px-3">
+          <Image className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+          Image
+        </TabsTrigger>
+        <TabsTrigger value="post-schedule" className="text-xs sm:text-sm px-2 sm:px-3">
+          <Archive className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+          Schedule
+        </TabsTrigger>
+        <TabsTrigger value="tools" className="text-xs sm:text-sm px-2 sm:px-3">Tools</TabsTrigger>
       </TabsList>
 
       <TabsContent value="ideas">
-        <MarketingIdeas />
+        <IdeasReview />
       </TabsContent>
 
-      <TabsContent value="review">
-        <IdeasReview />
+      <TabsContent value="btl-writer">
+        <BTLWriter />
+      </TabsContent>
+
+      <TabsContent value="image-creator">
+        <ImageCreator />
+      </TabsContent>
+
+      <TabsContent value="post-schedule">
+        <PostContent />
       </TabsContent>
 
       <TabsContent value="tools">
         <div className="space-y-6">
-          {/* Quick Design Link */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -41,12 +57,7 @@ export const ContentCreator = () => {
               <CardDescription>Create stunning visuals for social media</CardDescription>
             </CardHeader>
             <CardContent>
-              <a
-                href="https://www.canva.com/design/DAG0N9vOwtg/6ZmTuSDkJzR9_b0nl7czJA/edit?utm_content=DAG0N9vOwtg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
+              <a href="https://www.canva.com/design/DAG0N9vOwtg/6ZmTuSDkJzR9_b0nl7czJA/edit" target="_blank" rel="noopener noreferrer" className="block">
                 <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20 hover:border-purple-500/50 transition-all hover:shadow-lg cursor-pointer">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -67,14 +78,13 @@ export const ContentCreator = () => {
             </CardContent>
           </Card>
 
-          {/* Post Ideas */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-yellow-500" />
+                <Lightbulb className="w-5 h-5 text-accent" />
                 Post Ideas
               </CardTitle>
-              <CardDescription>Content inspiration for different platforms and occasions</CardDescription>
+              <CardDescription>Content inspiration for different platforms</CardDescription>
             </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible className="w-full">
@@ -90,15 +100,11 @@ export const ContentCreator = () => {
                       <li>• Match day countdown with player focus</li>
                       <li>• Training session highlights & behind the scenes</li>
                       <li>• Player stats infographic after key performances</li>
-                      <li>• "Day in the life" stories</li>
                       <li>• Goal/assist compilation reels</li>
-                      <li>• Player birthday celebrations</li>
                       <li>• Transfer announcement graphics</li>
-                      <li>• Contract extension celebrations</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
-
                 <AccordionItem value="brand-content">
                   <AccordionTrigger className="text-sm font-medium">
                     <div className="flex items-center gap-2">
@@ -110,15 +116,11 @@ export const ContentCreator = () => {
                     <ul className="space-y-2 text-sm text-muted-foreground pl-6">
                       <li>• Success story testimonials</li>
                       <li>• Industry news & insights commentary</li>
-                      <li>• Team culture & values posts</li>
                       <li>• Partnership announcements</li>
-                      <li>• Milestone celebrations (followers, achievements)</li>
-                      <li>• "Meet the team" features</li>
                       <li>• Client spotlight series</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
-
                 <AccordionItem value="engagement">
                   <AccordionTrigger className="text-sm font-medium">
                     <div className="flex items-center gap-2">
@@ -129,32 +131,8 @@ export const ContentCreator = () => {
                   <AccordionContent>
                     <ul className="space-y-2 text-sm text-muted-foreground pl-6">
                       <li>• Polls & quizzes about football</li>
-                      <li>• "Caption this" photo posts</li>
                       <li>• Throwback Thursday / Flashback Friday</li>
-                      <li>• Fan Q&A sessions</li>
                       <li>• Prediction competitions for match outcomes</li>
-                      <li>• User-generated content reposts</li>
-                      <li>• Weekly trivia questions</li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="seasonal">
-                  <AccordionTrigger className="text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <CalendarIcon className="w-4 h-4 text-orange-500" />
-                      Seasonal & Timely
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <ul className="space-y-2 text-sm text-muted-foreground pl-6">
-                      <li>• Transfer window updates & rumours</li>
-                      <li>• Season kickoff / end of season reviews</li>
-                      <li>• Major tournament content (World Cup, Euros, etc.)</li>
-                      <li>• Holiday greetings (Christmas, New Year, etc.)</li>
-                      <li>• International break content</li>
-                      <li>• Award season predictions & reactions</li>
-                      <li>• Summer tour / pre-season coverage</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -162,14 +140,12 @@ export const ContentCreator = () => {
             </CardContent>
           </Card>
 
-          {/* Platform-Specific Tips */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Hash className="w-5 h-5 text-blue-500" />
                 Platform Best Practices
               </CardTitle>
-              <CardDescription>Optimize your content for each platform</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -181,14 +157,11 @@ export const ContentCreator = () => {
                     </div>
                     <ul className="text-xs text-muted-foreground space-y-1">
                       <li>• Best times: 11am-1pm, 7-9pm</li>
-                      <li>• Use 3-5 relevant hashtags</li>
-                      <li>• Stories for behind-the-scenes</li>
                       <li>• Reels for maximum reach</li>
                       <li>• Carousel for detailed content</li>
                     </ul>
                   </CardContent>
                 </Card>
-
                 <Card className="border-blue-400/20">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-3">
@@ -198,13 +171,10 @@ export const ContentCreator = () => {
                     <ul className="text-xs text-muted-foreground space-y-1">
                       <li>• Best times: 8-10am, 12-1pm</li>
                       <li>• Keep tweets under 280 chars</li>
-                      <li>• Use 1-2 hashtags max</li>
                       <li>• Engage with trending topics</li>
-                      <li>• Quick reactions to news</li>
                     </ul>
                   </CardContent>
                 </Card>
-
                 <Card className="border-blue-600/20">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-3">
@@ -212,15 +182,11 @@ export const ContentCreator = () => {
                       <h4 className="font-semibold">Facebook</h4>
                     </div>
                     <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Best times: 1-4pm weekdays</li>
-                      <li>• Longer form content works</li>
                       <li>• Video gets priority in feed</li>
                       <li>• Create events for matches</li>
-                      <li>• Use Facebook Live for Q&As</li>
                     </ul>
                   </CardContent>
                 </Card>
-
                 <Card className="border-blue-700/20">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-3">
@@ -228,11 +194,8 @@ export const ContentCreator = () => {
                       <h4 className="font-semibold">LinkedIn</h4>
                     </div>
                     <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>• Best times: Tue-Thu mornings</li>
                       <li>• Professional tone</li>
                       <li>• Industry insights & analysis</li>
-                      <li>• Business achievements</li>
-                      <li>• Team & company culture</li>
                     </ul>
                   </CardContent>
                 </Card>
@@ -240,14 +203,12 @@ export const ContentCreator = () => {
             </CardContent>
           </Card>
 
-          {/* Content Calendar Template */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-green-500" />
+                <CalendarIcon className="w-5 h-5 text-accent" />
                 Weekly Content Template
               </CardTitle>
-              <CardDescription>Suggested posting schedule for consistent engagement</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
@@ -264,7 +225,7 @@ export const ContentCreator = () => {
                     <CardContent className="p-3 text-center">
                       <div className="text-2xl mb-1">{item.icon}</div>
                       <div className="font-semibold text-xs">{item.day}</div>
-                      <div className="text-[10px] text-primary font-medium">{item.theme}</div>
+                      <div className="text-[10px] text-accent font-medium">{item.theme}</div>
                       <div className="text-[9px] text-muted-foreground mt-1">{item.desc}</div>
                     </CardContent>
                   </Card>
