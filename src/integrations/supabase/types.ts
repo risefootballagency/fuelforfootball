@@ -4350,22 +4350,31 @@ export type Database = {
       }
       staff_notification_events: {
         Row: {
+          body: string | null
           created_at: string | null
           event_data: Json | null
           event_type: string
           id: string
+          read_by: string[] | null
+          title: string | null
         }
         Insert: {
+          body?: string | null
           created_at?: string | null
           event_data?: Json | null
           event_type: string
           id?: string
+          read_by?: string[] | null
+          title?: string | null
         }
         Update: {
+          body?: string | null
           created_at?: string | null
           event_data?: Json | null
           event_type?: string
           id?: string
+          read_by?: string[] | null
+          title?: string | null
         }
         Relationships: []
       }

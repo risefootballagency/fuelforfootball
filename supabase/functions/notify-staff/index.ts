@@ -120,7 +120,10 @@ Deno.serve(async (req) => {
       .from('staff_notification_events')
       .insert({
         event_type,
-        event_data: { title, body, data }
+        title,
+        body,
+        event_data: data || {},
+        read_by: [],
       });
 
     // Get VAPID keys
