@@ -64,7 +64,7 @@ export const ClipNameEditor = ({ initialName, videoUrl, onRename }: ClipNameEdit
         href={videoUrl} 
         target="_blank" 
         rel="noopener noreferrer"
-        className="text-primary hover:underline font-medium"
+        className="text-foreground hover:underline font-medium"
       >
         {initialName}
       </a>

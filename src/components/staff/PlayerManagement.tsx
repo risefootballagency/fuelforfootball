@@ -1252,7 +1252,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           <SelectContent>
             {fuelForFootballPlayers.length > 0 && (
               <>
-                <div className="px-2 py-1.5 text-xs font-semibold text-primary">
+                <div className="px-2 py-1.5 text-xs font-semibold text-accent">
                   Fuel For Football
                 </div>
                 {fuelForFootballPlayers.map((player) => (

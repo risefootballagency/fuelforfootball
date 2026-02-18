@@ -4,6 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ActionReportsList } from "@/components/staff/analysis/ActionReportsList";
 import { AnalysisDataTab } from "@/components/portal/AnalysisDataTab";
 import { AnalysisComparisons } from "@/components/portal/AnalysisComparisons";
+import { CreatePerformanceReportDialog } from "@/components/staff/CreatePerformanceReportDialog";
+import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { ClipboardList, BarChart3, Database } from "lucide-react";
 import { sortPlayersByRepresentation } from "@/lib/playerSorting";
@@ -24,6 +26,15 @@ export const CoachingDataSection = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<string>("all");
   const [players, setPlayers] = useState<{ id: string; name: string; position: string; image_url: string | null; representation_status?: string | null }[]>([]);
   const [analyses, setAnalyses] = useState<PlayerAnalysis[]>([]);
+
+  // Report dialog state
+  const [isCreateReportOpen, setIsCreateReportOpen] = useState(false);
+  const [createReportPlayerId, setCreateReportPlayerId] = useState("");
+  const [createReportPlayerName, setCreateReportPlayerName] = useState("");
+  const [editReportAnalysisId, setEditReportAnalysisId] = useState<string | undefined>(undefined);
+  const [viewReportOpen, setViewReportOpen] = useState(false);
+  const [viewReportAnalysisId, setViewReportAnalysisId] = useState<string | null>(null);
+  const [reportsKey, setReportsKey] = useState(0);
 
   useEffect(() => {
     fetchPlayers();
@@ -50,6 +61,18 @@ export const CoachingDataSection = () => {
       .eq("player_id", playerId)
       .order("analysis_date", { ascending: false });
     setAnalyses(data || []);
+  };
+
+  const handleCreateReport = (playerId: string, playerName: string) => {
+    setCreateReportPlayerId(playerId);
+    setCreateReportPlayerName(playerName);
+    setEditReportAnalysisId(undefined);
+    setIsCreateReportOpen(true);
+  };
+
+  const handleEditReport = (playerId: string, playerName: string, analysisId: string) => {
+    setViewReportAnalysisId(analysisId);
+    setViewReportOpen(true);
   };
 
   const currentPlayer = players.find(p => p.id === selectedPlayer);
@@ -96,8 +119,9 @@ export const CoachingDataSection = () => {
 
         <TabsContent value="reports" className="mt-0">
           <ActionReportsList
-            onCreateReport={() => {}}
-            onEditReport={() => {}}
+            key={reportsKey}
+            onCreateReport={handleCreateReport}
+            onEditReport={handleEditReport}
           />
         </TabsContent>
 
@@ -149,6 +173,29 @@ export const CoachingDataSection = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Create/Edit Performance Report Dialog */}
+      {isCreateReportOpen && (
+        <CreatePerformanceReportDialog
+          open={isCreateReportOpen}
+          onOpenChange={(open) => {
+            setIsCreateReportOpen(open);
+            if (!open) setReportsKey(k => k + 1);
+          }}
+          playerId={createReportPlayerId}
+          playerName={createReportPlayerName}
+          analysisId={editReportAnalysisId}
+        />
+      )}
+
+      {/* View Performance Report Dialog */}
+      {viewReportOpen && viewReportAnalysisId && (
+        <PerformanceReportDialog
+          open={viewReportOpen}
+          onOpenChange={setViewReportOpen}
+          analysisId={viewReportAnalysisId}
+        />
+      )}
     </div>
   );
 };
