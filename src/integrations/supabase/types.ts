@@ -2518,6 +2518,7 @@ export type Database = {
           current_package_features: string[] | null
           current_package_name: string | null
           current_package_price: number | null
+          current_packages: Json | null
           hub_widget_type: string
           id: string
           player_id: string
@@ -2537,6 +2538,7 @@ export type Database = {
           current_package_features?: string[] | null
           current_package_name?: string | null
           current_package_price?: number | null
+          current_packages?: Json | null
           hub_widget_type?: string
           id?: string
           player_id: string
@@ -2556,6 +2558,7 @@ export type Database = {
           current_package_features?: string[] | null
           current_package_name?: string | null
           current_package_price?: number | null
+          current_packages?: Json | null
           hub_widget_type?: string
           id?: string
           player_id?: string
