@@ -5,7 +5,7 @@ import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient
 import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download } from "lucide-react";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { HoverText } from "@/components/HoverText";
 import { AnalysisVideo } from "@/components/AnalysisVideo";
@@ -255,10 +255,7 @@ const ContentCard = ({ children, className = "", transparent = false }: { childr
   </div>
 );
 
-// Global flag to prevent auto-open during navigation - persists until page refresh
-let navigationUsed = false;
-
-// Section component that auto-opens on scroll DOWN only, closes when scrolling off screen
+// Section component - manual toggle, opens via quick nav custom event
 const ExpandableSection = ({ 
   title, 
   children, 
@@ -277,56 +274,27 @@ const ExpandableSection = ({
   forceOpen?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen || forceOpen);
-  const [isAutoOpening, setIsAutoOpening] = useState(false);
-  
-  // Force open when forceOpen prop changes
-  useEffect(() => {
-    if (forceOpen) {
-      setIsOpen(true);
-    }
-  }, [forceOpen]);
-  const [wasManuallyToggled, setWasManuallyToggled] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { margin: "-10% 0px -30% 0px" });
-  
-  // Track scroll direction and auto-open/close
+
   useEffect(() => {
-    const handleScroll = () => {
-      // Disable ALL auto-open/close if navigation was ever used (until page refresh)
-      if (navigationUsed) return;
-      
-      const currentScrollY = window.scrollY;
-      const isScrollingDown = currentScrollY > lastScrollY;
-      setLastScrollY(currentScrollY);
-      
-      // Only auto-manage if not manually toggled
-      if (!wasManuallyToggled) {
-        if (isInView && isScrollingDown && !isOpen) {
-          // Auto-open when scrolling DOWN into view - instant, no scroll hijacking
-          setIsAutoOpening(true);
-          setIsOpen(true);
-        } else if (!isInView && isOpen) {
-          // Close when scrolling off screen
-          setIsOpen(false);
-        }
+    if (forceOpen) setIsOpen(true);
+  }, [forceOpen]);
+
+  // Listen for navigation events from QuickNavDropdown
+  useEffect(() => {
+    if (!id) return;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.sectionId === id) {
+        setIsOpen(true);
       }
     };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isInView, isOpen, lastScrollY, wasManuallyToggled]);
-  
-  // Reset manual toggle flag when section goes off screen
-  useEffect(() => {
-    if (!isInView) {
-      setWasManuallyToggled(false);
-    }
-  }, [isInView]);
+    window.addEventListener('analysis-nav', handler);
+    return () => window.removeEventListener('analysis-nav', handler);
+  }, [id]);
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
-    setWasManuallyToggled(true);
   };
 
   // When forceOpen (for PDF), render content directly without animation
@@ -409,21 +377,20 @@ const ExpandableSection = ({
               <ChevronDown className="w-5 h-5" style={{ color: BRAND.gold }} />
             </motion.div>
           </button>
-          <AnimatePresence initial={false}>
-            {isOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: isAutoOpening ? 0 : 0.4, ease: "easeInOut" }}
-                onAnimationComplete={() => setIsAutoOpening(false)}
-              >
-                <ContentCard transparent={transparentContent}>
-                  {children}
-                </ContentCard>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Always render children so videos preload, animate visibility */}
+          <motion.div
+            initial={false}
+            animate={{
+              height: isOpen ? "auto" : 0,
+              opacity: isOpen ? 1 : 0,
+            }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            style={{ overflow: "hidden" }}
+          >
+            <ContentCard transparent={transparentContent}>
+              {children}
+            </ContentCard>
+          </motion.div>
         </motion.div>
       </div>
     </section>
@@ -695,44 +662,17 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   const handleNavigate = (sectionId: string) => {
     setIsOpen(false);
     
-    // Permanently disable auto-open once navigation is used (persists until refresh)
-    navigationUsed = true;
+    // Dispatch custom event to open the target section
+    window.dispatchEvent(new CustomEvent('analysis-nav', { detail: { sectionId } }));
     
-    // Use requestAnimationFrame for smoother navigation
     requestAnimationFrame(() => {
-      const el = document.getElementById(sectionId);
-      if (el) {
-        // Click button first to start opening
-        const sectionButton = el.querySelector('button');
-        if (sectionButton) {
-          sectionButton.click();
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const finalY = el.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top: Math.max(0, finalY), behavior: 'instant' as ScrollBehavior });
         }
-        
-        // Wait for animation, then scroll to final position
-        // Use longer delay for sections near end of page
-        setTimeout(() => {
-          // Get document height and section position
-          const docHeight = document.documentElement.scrollHeight;
-          const sectionTop = el.getBoundingClientRect().top + window.scrollY;
-          
-          // For sections near bottom (within last 500px), scroll to very bottom first
-          if (sectionTop > docHeight - 800) {
-            window.scrollTo({
-              top: docHeight,
-              behavior: 'instant' as ScrollBehavior
-            });
-          }
-          
-          // Then position the section
-          setTimeout(() => {
-            const finalY = el.getBoundingClientRect().top + window.scrollY - 80;
-            window.scrollTo({
-              top: Math.max(0, finalY),
-              behavior: 'instant' as ScrollBehavior
-            });
-          }, 100);
-        }, 200);
-      }
+      }, 100);
     });
   };
 
