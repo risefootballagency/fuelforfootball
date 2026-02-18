@@ -587,6 +587,36 @@ export type Database = {
           },
         ]
       }
+      club_ratings: {
+        Row: {
+          academy_rating: string | null
+          club_name: string
+          created_at: string
+          first_team_rating: string | null
+          id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          academy_rating?: string | null
+          club_name: string
+          created_at?: string
+          first_team_rating?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          academy_rating?: string | null
+          club_name?: string
+          created_at?: string
+          first_team_rating?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coaching_analysis: {
         Row: {
           analysis_type: string | null
@@ -1043,6 +1073,36 @@ export type Database = {
           status?: string | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      form_grade_configs: {
+        Row: {
+          created_at: string
+          criteria: string
+          description: string | null
+          grade: string
+          id: string
+          position: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          criteria: string
+          description?: string | null
+          grade: string
+          id?: string
+          position: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          criteria?: string
+          description?: string | null
+          grade?: string
+          id?: string
+          position?: string
+          updated_at?: string
         }
         Relationships: []
       }

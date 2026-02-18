@@ -46,6 +46,7 @@ import { NutritionProgramDisplay } from "@/components/portal/NutritionProgramDis
 import { PlayerMatchClipper } from "@/components/portal/PlayerMatchClipper";
 import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparisonMatrix";
 import { RadarChart3D } from "@/components/portal/RadarChart3D";
+import { AllReportsSection } from "@/components/portal/AllReportsSection";
 
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
@@ -2052,10 +2053,13 @@ const Dashboard = () => {
                   <TabsTrigger value="video-reports" className="font-bebas uppercase text-xs sm:text-sm px-1">
                     Video
                   </TabsTrigger>
-                  <TabsTrigger value="comparisons" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Comparisons
-                  </TabsTrigger>
-                </TabsList>
+                   <TabsTrigger value="comparisons" className="font-bebas uppercase text-xs sm:text-sm px-1">
+                     Comparisons
+                   </TabsTrigger>
+                   <TabsTrigger value="all-reports" className="font-bebas uppercase text-xs sm:text-sm px-1">
+                     All Reports
+                   </TabsTrigger>
+                 </TabsList>
 
                 <TabsContent value="performance">
                   <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
@@ -2502,6 +2506,19 @@ const Dashboard = () => {
                           />
                         </div>
                       )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="all-reports">
+                  <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                    <CardHeader marble>
+                      <div className="container mx-auto px-4">
+                        <CardTitle className="font-heading tracking-tight">All Reports</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="container mx-auto px-4">
+                      {playerData && <AllReportsSection playerId={playerData.id} playerName={playerData.name} />}
                     </CardContent>
                   </Card>
                 </TabsContent>

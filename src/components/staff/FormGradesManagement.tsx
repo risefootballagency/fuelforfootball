@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,7 +37,7 @@ export const FormGradesManagement = () => {
 
   const fetchConfigs = async () => {
     setLoading(true);
-    const { data, error } = await sharedSupabase
+    const { data, error } = await supabase
       .from("form_grade_configs" as any)
       .select("*")
       .order("position")
@@ -54,14 +54,14 @@ export const FormGradesManagement = () => {
       return;
     }
     if (editing) {
-      const { error } = await sharedSupabase
+      const { error } = await supabase
         .from("form_grade_configs" as any)
         .update({ position: formData.position, grade: formData.grade, criteria: formData.criteria, description: formData.description || null })
         .eq("id", editing.id);
       if (error) { toast.error("Failed to update"); return; }
       toast.success("Updated");
     } else {
-      const { error } = await sharedSupabase
+      const { error } = await supabase
         .from("form_grade_configs" as any)
         .insert({ position: formData.position, grade: formData.grade, criteria: formData.criteria, description: formData.description || null });
       if (error) { toast.error("Failed to create"); return; }
@@ -74,7 +74,7 @@ export const FormGradesManagement = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await sharedSupabase.from("form_grade_configs" as any).delete().eq("id", id);
+    const { error } = await supabase.from("form_grade_configs" as any).delete().eq("id", id);
     if (error) { toast.error("Failed to delete"); return; }
     toast.success("Deleted");
     fetchConfigs();
