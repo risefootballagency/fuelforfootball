@@ -1,97 +1,136 @@
 
 
-# Comprehensive Sync and Fix Plan
+# Sales & Marketing Enhancement Plan
 
-## 1. Coaching Database (CoachingDatabase.tsx) -- Missing Features
+## What We're Building
 
-**Rise has (1957 lines) vs FFF (1807 lines):**
-- Missing `ClubRatings` component import and tab
-- Missing `FormGradesManagement` component and tab
-- Missing `ComparisonPlayerData` full implementation (FFF has a stub)
-- Missing `ActionReportsList` integration
-- Missing `club_ratings`, `form_grade_configs`, `comparison_player_data`, `performance_data` table types
-- Missing `downloadFile` utility import and file download actions
-- Missing `Grid/List/SortAsc/FileText/FolderPlus/Building2/GraduationCap/UserCheck` icons
-- Rise uses single `supabase` client; FFF uses a `getSupabaseClient()` helper -- this is correct for FFF's dual-DB architecture
-
-**Action:** Port the missing tabs and components from Rise, creating `ClubRatings.tsx` and `FormGradesManagement.tsx` if they don't exist. Update `CoachingDatabase.tsx` to add the missing table types and sub-tabs.
-
-## 2. Message Pathways
-
-Message Pathways already exist in FFF at `src/components/staff/CaseStudyPathways.tsx`, rendered within `CaseStudyManagement.tsx`. Rise does NOT have a separate `MessagePathways.tsx` file either -- it's the same pattern. This feature is already present and working.
-
-## 3. Recent Rise Commits (Feb 18)
-
-Four commits to apply:
-- **Reworked Analysis Grid**: Updated dashboard dropdown to 4x? grid for analysis submenu, wider columns, resized hub and tabs, grid uses 4x6 layout on sub-menu and 0.8/1.4/0.8 fractions for main view
-- **Portal Dropdown 3x3 Grid Navigation**: Redesigned dropdown navigation to use a 3x3 grid layout
-- **Auto-detect Club Country**: AI-based auto-detection for Player Database entries
-- **Inline Fixture Creator with Keyboard Shortcuts**: Keyboard shortcut support for fixture creation in analysis
-
-**Action:** Fetch the affected files from Rise and port the changes, adapting for FFF branding.
-
-## 4. Portal Duplicate Analysis Bug (Analysis Tab)
-
-The duplicate is happening because the merging logic in `Dashboard.tsx` runs three passes:
-1. Opponent + date match (lines 1028-1074)
-2. Fixture ID match (lines 1169-1226)
-3. Club name match (lines 1260-1323)
-
-The same analysis can be matched by multiple passes. While `attachedTacticalIds` prevents the same tactical analysis from attaching twice, the problem is when a tactical analysis matches via Pass 1 (opponent match) AND then the same fixture's action report also has the tactical analysis attached via `analysis_writer_id` from the DB. The `existingAnalysisWriterIds` check on line 1254 uses the writer IDs from merged analyses but doesn't account for IDs already in `attachedTacticalIds` from Pass 1 properly when the same analysis appears as both `analysis_writer_data` and in `tagged_analyses`.
-
-**Fix:** Add a global deduplication at the end that removes any duplicate `analysis_writer_data` or `tagged_analyses` entries where the same analysis ID appears multiple times across different report items. Also ensure `attachedTacticalIds` is checked consistently in ALL three passes.
-
-## 5. CognisanceSection -- Major Gap
-
-**Rise (1337 lines) vs FFF (722 lines). Missing:**
-- SM-2 spaced repetition algorithm with `flashcard_progress` DB persistence
-- AI Quiz mode (`ai-quiz`) with generated multiple-choice questions
-- Positional Guides section (4th game type)
-- `flashcard_progress` table integration (progress tracking per card)
-- Card progress indicators (ease factor, interval, next review)
-- Session stats (reviewed, new cards, due cards)
-- `coaching_analysis` table queries for concepts (Rise uses this table)
-
-**Action:** Port the full Rise CognisanceSection, adapting the supabase client to use `sharedSupabase` for schemes/concepts and keeping AI quiz functionality. Create `flashcard_progress` table if missing.
-
-## 6. Pre-Match Analysis Spacing
-
-The `whitespace-pre-wrap` class on text paragraphs in `AnalysisViewer.tsx` preserves literal whitespace from the database. If the stored data has double newlines between words/sentences, `whitespace-pre-wrap` will render them. The fix needs to either:
-- Clean the text before rendering by collapsing multiple spaces/newlines
-- Or use a text normalizer utility that replaces `\n\n` with `\n` and multiple spaces with single spaces within paragraphs
-
-**Action:** Add a `normalizeText()` utility applied to all `whitespace-pre-wrap` content fields in `AnalysisViewer.tsx` (key_details, scheme_paragraph_1, scheme_paragraph_2, point paragraphs, strengths_improvements, etc.) that collapses excess whitespace while preserving intentional paragraph breaks.
-
-## 7. Design Studio -- Missing DesignProjects.tsx
-
-Rise has 13 files in `design/`. FFF has 12 -- missing `DesignProjects.tsx` (21KB, 454 lines). This is the project management layer that wraps `DesignStudio.tsx`, providing:
-- Project CRUD (create, rename, duplicate, delete)
-- Folder organization with color-coded folders
-- Grid/list view toggle
-- Canvas preset selection (Instagram Post, Story, A4, etc.)
-- LocalStorage persistence for projects and folders
-- Thumbnail generation
-
-**Action:** Port `DesignProjects.tsx` from Rise and update `DesignStudio.tsx` wrapper to use it as the entry point. Also compare file sizes of existing 12 files to ensure parity.
-
-## 8. Notifications
-
-**Already synced.** Both `StaffNotificationsDropdown.tsx` and `useStaffNotifications.ts` are byte-for-byte identical between Rise and FFF. No changes needed.
+Seven improvements across the staff tools, service pages, player portal, and WhatsApp CTA to make the platform more visually premium and conversion-focused.
 
 ---
 
-## Technical Implementation Order
+## 1. Image Gallery AI Tagging (Staff - ImageCreator)
 
-1. **Pre-Match Spacing Fix** (quick win, affects user-facing content)
-2. **Portal Duplicate Analysis Fix** (bug fix)
-3. **CognisanceSection Full Port** (large, requires `flashcard_progress` table migration)
-4. **CoachingDatabase Missing Tabs** (`ClubRatings`, `FormGradesManagement`, extra table types)
-5. **DesignProjects.tsx** (missing file port)
-6. **Recent Rise Commits** (Analysis Grid, Portal Dropdown, Auto-detect Country, Inline Fixture Creator)
+Add an "Auto-Tag" button on each gallery image that uses Lovable AI (Gemini Flash) to analyse the image and generate descriptive tags like "training", "match day", "pitch". Tags are stored in a new `tags` column on the `marketing_gallery` table. Filter chips appear above the gallery grid so staff can quickly find images by tag.
 
-## Database Changes Required
+- Database migration: add `tags text[] DEFAULT '{}'` to `marketing_gallery`
+- New edge function `ai-image-tagger` that accepts an image URL and returns tag suggestions via Gemini Flash
+- UI: small tag icon button on each image thumbnail, filter chip row above gallery
 
-- Create `flashcard_progress` table (player_id, card_key, ease_factor, interval_days, repetitions, next_review)
-- Possibly `club_ratings` and `form_grade_configs` tables if not already present
-- Possibly `positional_guide_points` table if not already present
+---
+
+## 2. Premium Brand Restyling (Staff Sales & Marketing)
+
+Update the visual styling of staff sales and marketing cards to match the FFF premium identity:
+
+- `SalesTracker`, `RetentionTracker`, `SalesHub`, `OutreachKanban`: dark gradient card backgrounds (`from-black/60 to-black/40`), `border-accent/20` borders, `font-bebas` uppercase headings, gold accent on stat numbers and progress bars
+- `BTLWriter`, `ContentCreator`, `ContentCalendar`, `ImageCreator`: same treatment
+- Animated KPI counters using `framer-motion` `useSpring` for numbers like packages sold, revenue, active clients (counting up on mount)
+- All interactive elements (buttons, active tabs, highlights) use FFF Yellow accent
+
+---
+
+## 3. Portal Upgrade Cards Redesign (Hub.tsx)
+
+Enhance the upgrade offer cards on the player Hub:
+
+- Gold gradient shimmer border animation using CSS `@keyframes` on the card border
+- Feature list with checkmark icons instead of plain tag chips
+- Comparison layout: if the player has a current package, show a side-by-side "Current vs Upgrade" view highlighting what they gain
+- Pulsing CTA button with `framer-motion` scale animation on hover
+- "Save X%" badge calculated when upgrading (if price difference is available)
+
+No "Most Popular" or "Recommended" ribbon badges.
+
+---
+
+## 4. "Results You Can Expect" Stats Section (Service Pages)
+
+Add a data-driven stats/evidence section to `ServicePageLayout` that appears between the hero and the main content:
+
+- Staff-controlled: add a new `service_page_stats` table with columns: `page_key` (e.g. "analysis", "conditioning"), `stats` (JSONB array of `{label, value, suffix}`), and `updated_at`
+- Staff management: new "Service Stats" section in the Service Catalogue staff area where staff can set the counter values per service page (e.g. Analysis page: "25% Physical Improvement", "1200+ Matches Analysed")
+- Frontend: `ServiceStatsBar` component fetches stats for the current page key, renders animated count-up numbers using `framer-motion` `whileInView` + `useSpring`
+- Displayed as a compact row of 3-4 stat counters with accent-coloured numbers on a dark semi-transparent bar
+
+---
+
+## 5. Portal "Your Progress" Card (Hub.tsx)
+
+Add a compact progress visualisation to the player Hub:
+
+- Fetch last 10 `r90_score` values from `performance_statistics` for the logged-in player
+- Calculate percentage change vs 3 months ago
+- Only render the card if the percentage change is positive
+- Show a mini Recharts sparkline of score trajectory + a green "+X%" badge
+- Card styled with dark background and accent border, positioned in the Hub sales box area
+
+---
+
+## 6. Animated "Add to Basket" Button (ServiceDetailPanel)
+
+Enhance the existing Add to Basket button:
+
+- On hover: cart icon bounces using `framer-motion` `animate={{ y: [0, -4, 0] }}`
+- On click: brief scale pulse (`scale: [1, 1.1, 1]`) before transitioning to the "Added" state
+- The existing colour transitions and "Added" checkmark state remain unchanged
+- Applied to both the desktop and mobile button instances
+
+---
+
+## 7. Contextual WhatsApp Pre-fill (WhatsAppPulse)
+
+Update `WhatsAppPulse` to accept an optional `serviceName` prop:
+
+- When provided, the WhatsApp URL pre-fills with: "Hi, I'm interested in your {serviceName} programme. Can you tell me more?"
+- When not provided, falls back to the existing default message
+- Update all service pages (`Analysis.tsx`, `Conditioning.tsx`, `Mental.tsx`, etc.) to pass their service name to the floating `WhatsAppPulse` component
+- Update `ServicePageLayout` to optionally render the floating WhatsApp CTA with the category name pre-filled
+
+---
+
+## Technical Details
+
+### Database Migration
+```sql
+-- Add tags to marketing_gallery
+ALTER TABLE marketing_gallery ADD COLUMN IF NOT EXISTS tags text[] DEFAULT '{}';
+
+-- Create service_page_stats table for staff-controlled counters
+CREATE TABLE service_page_stats (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  page_key text UNIQUE NOT NULL,
+  stats jsonb NOT NULL DEFAULT '[]',
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE service_page_stats ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow authenticated read" ON service_page_stats FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Allow anon read" ON service_page_stats FOR SELECT TO anon USING (true);
+CREATE POLICY "Allow staff write" ON service_page_stats FOR ALL TO authenticated
+  USING (public.has_role(auth.uid(), 'admin')) WITH CHECK (public.has_role(auth.uid(), 'admin'));
+```
+
+### New Files
+- `supabase/functions/ai-image-tagger/index.ts` - Edge function for AI image tagging
+- `src/components/services/ServiceStatsBar.tsx` - Animated stats counter bar
+- `src/components/portal/ProgressSummary.tsx` - Hub sparkline progress card
+- `src/components/staff/sales/ServiceStatsManager.tsx` - Staff UI for managing per-page stats
+
+### Modified Files
+- `src/components/staff/marketing/ImageCreator.tsx` - AI tag button + filter chips
+- `src/components/staff/sales/SalesTracker.tsx` - Premium restyling + animated counters
+- `src/components/staff/sales/RetentionTracker.tsx` - Premium restyling
+- `src/components/staff/sales/SalesHub.tsx` - Premium restyling
+- `src/components/staff/sales/OutreachKanban.tsx` - Premium restyling
+- `src/components/staff/marketing/BTLWriter.tsx` - Premium restyling
+- `src/components/staff/marketing/ContentCreator.tsx` - Premium restyling
+- `src/components/staff/marketing/ContentCalendar.tsx` - Premium restyling
+- `src/components/dashboard/Hub.tsx` - Upgrade card redesign + progress summary
+- `src/components/ServiceDetailPanel.tsx` - Animated Add to Basket button
+- `src/components/WhatsAppPulse.tsx` - `serviceName` prop + contextual pre-fill
+- `src/components/services/ServicePageLayout.tsx` - Stats bar + WhatsApp integration
+- Service page files (Analysis, Conditioning, Mental, etc.) - Pass service name to WhatsApp
+
+### Dependencies
+No new packages needed. Uses existing `framer-motion`, `recharts`, `lucide-react`, `date-fns`.
 
