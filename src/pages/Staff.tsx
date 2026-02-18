@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Search, Menu, ChevronRight, ChevronLeft, Star, Plus } from "lucide-react";
+import { Search, Menu, ChevronRight, ChevronLeft, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StaffBreadcrumb } from "@/components/staff/StaffBreadcrumb";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -179,14 +179,7 @@ const Staff = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Tab system state
-  const [tabOverflowOpen, setTabOverflowOpen] = useState(false);
-  const [draggingTabId, setDraggingTabId] = useState<string | null>(null);
-  const [dragOverTabId, setDragOverTabId] = useState<string | null>(null);
-  const dragStartXRef = useRef<number>(0);
-  const isDragConfirmedRef = useRef(false);
-
-  // Persist pinned sections
+  // Search state
   useEffect(() => {
     localStorage.setItem('staff_pinned_sections', JSON.stringify(pinnedSections));
   }, [pinnedSections]);
@@ -259,33 +252,6 @@ const Staff = () => {
     setExpandedSection(section);
     setSearchParams({ section });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const addSectionAsTab = (section: string) => {
-    try {
-      const tabs = JSON.parse(localStorage.getItem('staff_open_tabs') || '[]') as string[];
-      if (!tabs.includes(section)) {
-        const updated = [...tabs, section].slice(-12);
-        localStorage.setItem('staff_open_tabs', JSON.stringify(updated));
-      }
-    } catch {}
-    handleSectionToggle(section);
-  };
-
-  const removeTab = (tabId: string) => {
-    try {
-      const tabs = JSON.parse(localStorage.getItem('staff_open_tabs') || '[]') as string[];
-      const updated = tabs.filter(t => t !== tabId);
-      localStorage.setItem('staff_open_tabs', JSON.stringify(updated));
-      if (expandedSection === tabId) {
-        if (updated.length > 0) {
-          handleSectionToggle(updated[updated.length - 1]);
-        } else {
-          handleSectionToggle('overview');
-        }
-      }
-      setExpandedSection(prev => prev); // force re-render
-    } catch {}
   };
 
   // Load saved email and remember me preference on mount
@@ -709,12 +675,14 @@ const Staff = () => {
         sections: [
           { id: 'coaching', title: 'Coaching Database', icon: Dumbbell },
           { id: 'coachingchat', title: 'AI Chat', icon: MessageSquare },
-          { id: '_group_analysis', title: 'Analysis', isGroupLabel: true } as any,
+           { id: '_group_analysis', title: 'Analysis', isGroupLabel: true } as any,
           { id: 'analysis', title: 'Analysis', icon: LineChart },
+          { id: 'data', title: 'Data', icon: Database },
           { id: '_group_planning', title: 'Planning', isGroupLabel: true } as any,
           { id: 'athletecentre', title: 'Athlete Centre', icon: UserRound },
           { id: 'serviceaudit', title: 'Service Audit', icon: Calculator },
           { id: '_group_programming', title: 'Programming', isGroupLabel: true } as any,
+          { id: 'sps', title: 'SPS Programs', icon: Dumbbell },
           { id: 'nutrition', title: 'Nutrition', icon: Apple },
         ]
       },
@@ -883,161 +851,22 @@ const Staff = () => {
 
       {/* Header with Logo and Tabs */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center h-16 px-4 relative">
-          {/* Centre logo */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
+        <div className="flex items-center justify-between h-14 px-4">
+          {/* Left: Logo */}
+          <div className="flex items-center gap-3">
             <img 
               src="/fff_logo.png"
               alt="Fuel For Football"
-              className="h-10 w-auto"
+              className="h-9 w-auto"
             />
           </div>
 
-          {/* Left side: open tabs */}
-          <div className="flex items-center gap-1.5 overflow-hidden min-w-0 mr-4"
-            style={{ maxWidth: 'calc(50% - 60px)' }}
-            onDragOver={(e) => e.preventDefault()}
-            onDragEnd={() => { setDraggingTabId(null); setDragOverTabId(null); isDragConfirmedRef.current = false; }}
-          >
-            {(() => {
-              const openTabs: string[] = (() => { try { return JSON.parse(localStorage.getItem('staff_open_tabs') || '[]'); } catch { return []; } })();
-              const allSections = categories.flatMap(c => c.sections.filter(s => !(s as any).isGroupLabel));
-              const MAX_VISIBLE = isMobile ? 2 : 3;
-
-              const displayTabs = (() => {
-                if (draggingTabId && dragOverTabId && draggingTabId !== dragOverTabId) {
-                  const reordered = [...openTabs];
-                  const fromIdx = reordered.indexOf(draggingTabId);
-                  const toIdx = reordered.indexOf(dragOverTabId);
-                  if (fromIdx !== -1 && toIdx !== -1) {
-                    reordered.splice(fromIdx, 1);
-                    reordered.splice(toIdx, 0, draggingTabId);
-                    return reordered;
-                  }
-                }
-                return openTabs;
-              })();
-
-              const visibleTabs = displayTabs.slice(0, MAX_VISIBLE);
-              const overflowTabs = displayTabs.slice(MAX_VISIBLE);
-
-              return (
-                <>
-                  {visibleTabs.map((tabId) => {
-                    const sec = allSections.find(s => s.id === tabId);
-                    if (!sec) return null;
-                    const TabIcon = sec.icon;
-                    const isActive = expandedSection === tabId;
-
-                    return (
-                      <motion.div key={tabId} layout transition={{ type: 'spring', stiffness: 500, damping: 35 }} className="shrink-0">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button
-                              draggable
-                              onDragStart={(e) => {
-                                e.dataTransfer.setData('text/plain', tabId);
-                                e.dataTransfer.effectAllowed = 'move';
-                                dragStartXRef.current = e.clientX;
-                                isDragConfirmedRef.current = false;
-                                setDraggingTabId(tabId);
-                              }}
-                              onDragOver={(e) => {
-                                e.preventDefault();
-                                e.dataTransfer.dropEffect = 'move';
-                                if (!isDragConfirmedRef.current && Math.abs(e.clientX - dragStartXRef.current) < 30) return;
-                                isDragConfirmedRef.current = true;
-                                if (dragOverTabId !== tabId) setDragOverTabId(tabId);
-                              }}
-                              onDrop={(e) => {
-                                e.preventDefault();
-                                const draggedId = e.dataTransfer.getData('text/plain');
-                                if (draggedId === tabId) { setDraggingTabId(null); setDragOverTabId(null); isDragConfirmedRef.current = false; return; }
-                                if (!isDragConfirmedRef.current) { setDraggingTabId(null); setDragOverTabId(null); return; }
-                                const updated = [...openTabs];
-                                const fromIdx = updated.indexOf(draggedId);
-                                const toIdx = updated.indexOf(tabId);
-                                if (fromIdx === -1 || toIdx === -1) return;
-                                updated.splice(fromIdx, 1);
-                                updated.splice(toIdx, 0, draggedId);
-                                localStorage.setItem('staff_open_tabs', JSON.stringify(updated));
-                                setDraggingTabId(null);
-                                setDragOverTabId(null);
-                                isDragConfirmedRef.current = false;
-                                setExpandedSection(prev => prev);
-                              }}
-                              onClick={() => handleSectionToggle(tabId)}
-                              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all shrink-0 rounded-full border cursor-grab active:cursor-grabbing ${
-                                isActive
-                                  ? 'border-primary/40 text-primary bg-primary/10'
-                                  : 'border-border/50 text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/40'
-                              }`}
-                            >
-                              <TabIcon className="w-3.5 h-3.5" />
-                              <span className="truncate max-w-[80px]">{sec.title}</span>
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent side="bottom" align="start" className="w-32 p-1">
-                            <Button variant="ghost" size="sm" className="w-full justify-start text-xs text-destructive" onClick={() => removeTab(tabId)}>
-                              Remove tab
-                            </Button>
-                          </PopoverContent>
-                        </Popover>
-                      </motion.div>
-                    );
-                  })}
-
-                  {overflowTabs.length > 0 && (
-                    <>
-                      <button
-                        onClick={() => setTabOverflowOpen(true)}
-                        className="flex items-center px-2.5 py-1.5 text-xs font-medium rounded-full border border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted/40 shrink-0"
-                      >
-                        +{overflowTabs.length}
-                      </button>
-                      <Dialog open={tabOverflowOpen} onOpenChange={setTabOverflowOpen}>
-                        <DialogContent className="max-w-sm">
-                          <div className="space-y-3">
-                            <p className="text-sm font-semibold">Open Tabs</p>
-                            <div className="space-y-1 max-h-80 overflow-y-auto">
-                              {openTabs.map(tId => {
-                                const s = allSections.find(x => x.id === tId);
-                                if (!s) return null;
-                                const TIcon = s.icon;
-                                const active = expandedSection === tId;
-                                return (
-                                  <div key={tId} className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer ${active ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50'}`}>
-                                    <TIcon className="w-4 h-4 shrink-0" />
-                                    <span className="text-sm flex-1 truncate" onClick={() => { handleSectionToggle(tId); setTabOverflowOpen(false); }}>{s.title}</span>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0" onClick={() => removeTab(tId)}>
-                                      <span className="text-xs">×</span>
-                                    </Button>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </>
-                  )}
-
-                  {/* Add tab button */}
-                  <button
-                    className="flex items-center justify-center w-7 h-7 rounded-full border border-dashed border-border/50 text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted/40 shrink-0 transition-colors"
-                    onClick={() => addSectionAsTab('overview')}
-                    title="Open new tab"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </>
-              );
-            })()}
-          </div>
-
-          {/* Right side: notifications */}
-          <div className="flex items-center gap-3 shrink-0 ml-auto">
+          {/* Right side: notifications + logout */}
+          <div className="flex items-center gap-3 shrink-0">
             {user && <StaffNotificationsDropdown />}
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-xs text-muted-foreground hover:text-foreground">
+              Logout
+            </Button>
           </div>
         </div>
       </header>
@@ -1174,7 +1003,7 @@ const Staff = () => {
         {/* Sidebar Collapse Toggle Button */}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className={`fixed top-20 left-2 z-20 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border shadow-lg hover:bg-background transition-all duration-300 ${
+          className={`fixed top-[60px] left-2 z-20 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border shadow-lg hover:bg-background transition-all duration-300 ${
             sidebarCollapsed ? 'opacity-50 hover:opacity-100' : ''
           }`}
           aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -1187,7 +1016,7 @@ const Staff = () => {
         </button>
 
         {/* Left Sidebar - Fixed */}
-        <div className={`fixed top-16 left-0 bottom-0 border-r bg-muted/30 backdrop-blur-sm flex flex-col items-start py-4 pb-20 gap-2 overflow-y-auto scrollbar-thin z-10 transition-all duration-300 ${
+        <div className={`fixed top-14 left-0 bottom-0 border-r bg-muted/30 backdrop-blur-sm flex flex-col items-start py-4 pb-20 gap-2 overflow-y-auto scrollbar-thin z-10 transition-all duration-300 ${
           sidebarCollapsed ? 'w-0 border-0 opacity-0 pointer-events-none' : 'w-14 md:w-24'
         }`}>
           {/* Pinned Sections */}
@@ -1292,7 +1121,7 @@ const Staff = () => {
                             className="pt-2 pb-0.5 px-1"
                             variants={{ hidden: { x: -10, opacity: 0 }, show: { x: 0, opacity: 1 } }}
                           >
-                            <span className="text-[5px] sm:text-[6px] uppercase tracking-widest text-primary/60 font-bold text-center block">
+                            <span className="text-[5px] sm:text-[6px] uppercase tracking-widest text-white/80 font-bold text-center block">
                               {section.title}
                             </span>
                             <div className="h-px bg-primary/20 mt-0.5" />
@@ -1322,7 +1151,8 @@ const Staff = () => {
                               ))}
                             </span>
                             {/* Pin/star icon on hover */}
-                            <button
+                            <span
+                              role="button"
                               onClick={(e) => { e.stopPropagation(); togglePin(section.id); }}
                               className={`absolute -top-0.5 -right-0.5 p-0.5 rounded-full transition-all ${
                                 isPinned ? 'opacity-100 text-primary' : 'opacity-0 group-hover:opacity-60 text-muted-foreground hover:text-primary'
@@ -1330,7 +1160,7 @@ const Staff = () => {
                               title={isPinned ? 'Unpin section' : 'Pin section'}
                             >
                               <Star className={`w-2.5 h-2.5 ${isPinned ? 'fill-primary' : ''}`} />
-                            </button>
+                            </span>
                           </button>
                         </motion.div>
                       );
@@ -1351,7 +1181,7 @@ const Staff = () => {
         </div>
 
         {/* Main Content Area */}
-        <main className={`flex-1 overflow-y-auto scrollbar-thin relative z-10 transition-all duration-300 pt-20 ${
+        <main className={`flex-1 overflow-y-auto scrollbar-thin relative z-10 transition-all duration-300 pt-16 ${
           sidebarCollapsed ? 'ml-0' : 'ml-14 md:ml-24'
         } ${isMobile ? 'pb-[60px]' : ''}`}>
           {expandedSection ? (
@@ -1411,6 +1241,20 @@ const Staff = () => {
                       <Apple className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p className="text-lg font-medium">Nutrition Programs</p>
                       <p className="text-sm">Select a player from Player Management to manage their nutrition program</p>
+                    </div>
+                  )}
+                  {expandedSection === 'sps' && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Dumbbell className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium">SPS Programs</p>
+                      <p className="text-sm">Select a player from Player Management to manage their Strength, Power & Speed program</p>
+                    </div>
+                  )}
+                  {expandedSection === 'data' && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium">Data</p>
+                      <p className="text-sm">Performance data and statistics overview coming soon</p>
                     </div>
                   )}
                   {expandedSection === 'analysis' && <AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} />}
