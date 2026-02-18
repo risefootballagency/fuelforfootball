@@ -1,397 +1,390 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import {
-  LayoutGrid, Undo2, Redo2, Trash2, Download, Pencil, Circle,
-  ArrowRight, Move, RotateCcw, Save, Type,
+  Eraser, Pencil, Circle, X, ArrowRight, Trash2,
+  Download, Move, Undo, Save, FolderOpen, LayoutGrid
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
-type Tool = "move" | "pen" | "arrow" | "circle" | "text";
+interface DroppedItem { id: string; type: "football" | "x" | "o"; x: number; y: number; }
+interface Arrow { id: string; startX: number; startY: number; endX: number; endY: number; }
+interface DrawPath { id: string; points: { x: number; y: number }[]; }
+type Tool = "select" | "draw" | "erase" | "arrow";
+interface BoardTemplate { id: string; name: string; items: DroppedItem[]; arrows: Arrow[]; paths: DrawPath[]; createdAt: string; }
 
-interface PlayerMarker {
-  id: string;
-  x: number;
-  y: number;
-  number: string;
-  team: "home" | "away";
-}
+const TEMPLATES_KEY = "tactics-board-templates";
 
-interface DrawAction {
-  tool: Tool;
-  color: string;
-  lineWidth: number;
-  points: { x: number; y: number }[];
-  text?: string;
-}
+const FORMATIONS = [
+  "4-3-3", "4-2-1-3", "4-2-4", "4-2-2-2", "4-3-1-2",
+  "3-4-3", "3-3-1-3", "3-3-4", "3-3-2-2", "3-4-1-2",
+];
 
-const FORMATIONS: Record<string, { positions: { x: number; y: number }[] }> = {
-  "4-3-3": {
-    positions: [
-      { x: 50, y: 90 }, // GK
-      { x: 15, y: 70 }, { x: 35, y: 75 }, { x: 65, y: 75 }, { x: 85, y: 70 }, // DEF
-      { x: 30, y: 50 }, { x: 50, y: 55 }, { x: 70, y: 50 }, // MID
-      { x: 20, y: 25 }, { x: 50, y: 20 }, { x: 80, y: 25 }, // FWD
+const getFormationPositions = (formation: string, team: "x" | "o"): { x: number; y: number }[] => {
+  const defaults: Record<string, { x: number; y: number }[]> = {
+    "4-3-3": [
+      { x: 400, y: 475 }, { x: 160, y: 375 }, { x: 280, y: 400 }, { x: 520, y: 400 }, { x: 640, y: 375 },
+      { x: 280, y: 275 }, { x: 400, y: 250 }, { x: 520, y: 275 },
+      { x: 160, y: 125 }, { x: 400, y: 100 }, { x: 640, y: 125 },
     ],
-  },
-  "4-4-2": {
-    positions: [
-      { x: 50, y: 90 },
-      { x: 15, y: 70 }, { x: 35, y: 75 }, { x: 65, y: 75 }, { x: 85, y: 70 },
-      { x: 15, y: 45 }, { x: 38, y: 50 }, { x: 62, y: 50 }, { x: 85, y: 45 },
-      { x: 35, y: 22 }, { x: 65, y: 22 },
+    "4-2-1-3": [
+      { x: 400, y: 475 }, { x: 160, y: 375 }, { x: 280, y: 400 }, { x: 520, y: 400 }, { x: 640, y: 375 },
+      { x: 320, y: 300 }, { x: 480, y: 300 }, { x: 400, y: 200 },
+      { x: 160, y: 125 }, { x: 400, y: 100 }, { x: 640, y: 125 },
     ],
-  },
-  "3-5-2": {
-    positions: [
-      { x: 50, y: 90 },
-      { x: 25, y: 72 }, { x: 50, y: 75 }, { x: 75, y: 72 },
-      { x: 10, y: 48 }, { x: 30, y: 50 }, { x: 50, y: 45 }, { x: 70, y: 50 }, { x: 90, y: 48 },
-      { x: 35, y: 22 }, { x: 65, y: 22 },
+    "4-2-4": [
+      { x: 400, y: 475 }, { x: 160, y: 375 }, { x: 280, y: 400 }, { x: 520, y: 400 }, { x: 640, y: 375 },
+      { x: 320, y: 275 }, { x: 480, y: 275 },
+      { x: 120, y: 125 }, { x: 320, y: 100 }, { x: 480, y: 100 }, { x: 680, y: 125 },
     ],
-  },
-  "4-2-3-1": {
-    positions: [
-      { x: 50, y: 90 },
-      { x: 15, y: 70 }, { x: 35, y: 75 }, { x: 65, y: 75 }, { x: 85, y: 70 },
-      { x: 38, y: 55 }, { x: 62, y: 55 },
-      { x: 20, y: 35 }, { x: 50, y: 32 }, { x: 80, y: 35 },
-      { x: 50, y: 15 },
+    "4-2-2-2": [
+      { x: 400, y: 475 }, { x: 160, y: 375 }, { x: 280, y: 400 }, { x: 520, y: 400 }, { x: 640, y: 375 },
+      { x: 320, y: 300 }, { x: 480, y: 300 }, { x: 280, y: 175 }, { x: 520, y: 175 },
+      { x: 320, y: 100 }, { x: 480, y: 100 },
     ],
-  },
-  "3-4-3": {
-    positions: [
-      { x: 50, y: 90 },
-      { x: 25, y: 72 }, { x: 50, y: 75 }, { x: 75, y: 72 },
-      { x: 15, y: 48 }, { x: 38, y: 50 }, { x: 62, y: 50 }, { x: 85, y: 48 },
-      { x: 20, y: 22 }, { x: 50, y: 18 }, { x: 80, y: 22 },
+    "4-3-1-2": [
+      { x: 400, y: 475 }, { x: 160, y: 375 }, { x: 280, y: 400 }, { x: 520, y: 400 }, { x: 640, y: 375 },
+      { x: 280, y: 275 }, { x: 400, y: 275 }, { x: 520, y: 275 }, { x: 400, y: 175 },
+      { x: 320, y: 100 }, { x: 480, y: 100 },
     ],
-  },
+    "3-4-3": [
+      { x: 400, y: 475 }, { x: 240, y: 400 }, { x: 400, y: 425 }, { x: 560, y: 400 },
+      { x: 120, y: 250 }, { x: 320, y: 275 }, { x: 480, y: 275 }, { x: 680, y: 250 },
+      { x: 160, y: 125 }, { x: 400, y: 100 }, { x: 640, y: 125 },
+    ],
+    "3-3-1-3": [
+      { x: 400, y: 475 }, { x: 240, y: 400 }, { x: 400, y: 425 }, { x: 560, y: 400 },
+      { x: 280, y: 275 }, { x: 400, y: 275 }, { x: 520, y: 275 }, { x: 400, y: 175 },
+      { x: 160, y: 125 }, { x: 400, y: 100 }, { x: 640, y: 125 },
+    ],
+    "3-3-4": [
+      { x: 400, y: 475 }, { x: 240, y: 400 }, { x: 400, y: 425 }, { x: 560, y: 400 },
+      { x: 280, y: 300 }, { x: 400, y: 300 }, { x: 520, y: 300 },
+      { x: 120, y: 125 }, { x: 320, y: 100 }, { x: 480, y: 100 }, { x: 680, y: 125 },
+    ],
+    "3-3-2-2": [
+      { x: 400, y: 475 }, { x: 240, y: 400 }, { x: 400, y: 425 }, { x: 560, y: 400 },
+      { x: 280, y: 300 }, { x: 400, y: 300 }, { x: 520, y: 300 },
+      { x: 280, y: 175 }, { x: 520, y: 175 }, { x: 320, y: 100 }, { x: 480, y: 100 },
+    ],
+    "3-4-1-2": [
+      { x: 400, y: 475 }, { x: 240, y: 400 }, { x: 400, y: 425 }, { x: 560, y: 400 },
+      { x: 120, y: 275 }, { x: 320, y: 300 }, { x: 480, y: 300 }, { x: 680, y: 275 },
+      { x: 400, y: 175 }, { x: 320, y: 100 }, { x: 480, y: 100 },
+    ],
+  };
+  const positions = defaults[formation] || defaults["4-3-3"];
+  if (team === "o") return positions.map(pos => ({ x: pos.x, y: 500 - pos.y }));
+  return positions;
 };
-
-const COLORS = ["#00FF87", "#FF4444", "#FFD700", "#3B82F6", "#FFFFFF", "#FF6B35"];
 
 export const TacticsBoard = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [tool, setTool] = useState<Tool>("move");
-  const [color, setColor] = useState("#00FF87");
-  const [lineWidth, setLineWidth] = useState(3);
-  const [formation, setFormation] = useState("4-3-3");
-  const [players, setPlayers] = useState<PlayerMarker[]>([]);
-  const [drawings, setDrawings] = useState<DrawAction[]>([]);
-  const [undone, setUndone] = useState<DrawAction[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [items, setItems] = useState<DroppedItem[]>([]);
+  const [arrows, setArrows] = useState<Arrow[]>([]);
+  const [paths, setPaths] = useState<DrawPath[]>([]);
+  const [activeTool, setActiveTool] = useState<Tool>("select");
   const [isDrawing, setIsDrawing] = useState(false);
-  const [currentDraw, setCurrentDraw] = useState<DrawAction | null>(null);
-  const [draggingPlayer, setDraggingPlayer] = useState<string | null>(null);
+  const [currentPath, setCurrentPath] = useState<{ x: number; y: number }[]>([]);
+  const [arrowStart, setArrowStart] = useState<{ x: number; y: number } | null>(null);
+  const [draggingItem, setDraggingItem] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [history, setHistory] = useState<{ items: DroppedItem[], arrows: Arrow[], paths: DrawPath[] }[]>([]);
+  const [templates, setTemplates] = useState<BoardTemplate[]>([]);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
 
   useEffect(() => {
-    applyFormation(formation);
+    const saved = localStorage.getItem(TEMPLATES_KEY);
+    if (saved) { try { setTemplates(JSON.parse(saved)); } catch {} }
   }, []);
 
-  useEffect(() => {
-    redraw();
-  }, [players, drawings, currentDraw, draggingPlayer]);
-
-  const applyFormation = (f: string) => {
-    const form = FORMATIONS[f];
-    if (!form) return;
-    const markers = form.positions.map((pos, i) => ({
-      id: `p${i}`,
-      x: pos.x,
-      y: pos.y,
-      number: i === 0 ? "GK" : String(i),
-      team: "home" as const,
-    }));
-    setPlayers(markers);
-    setFormation(f);
+  const saveTemplates = (newTemplates: BoardTemplate[]) => {
+    setTemplates(newTemplates);
+    localStorage.setItem(TEMPLATES_KEY, JSON.stringify(newTemplates));
   };
 
-  const getCanvasPoint = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-    };
-  }, []);
+  const handleSaveTemplate = () => {
+    if (!templateName.trim()) { toast.error("Please enter a template name"); return; }
+    const newTemplate: BoardTemplate = { id: `template-${Date.now()}`, name: templateName.trim(), items: [...items], arrows: [...arrows], paths: [...paths], createdAt: new Date().toISOString() };
+    saveTemplates([...templates, newTemplate]);
+    setTemplateName("");
+    setSaveDialogOpen(false);
+    toast.success(`Template "${newTemplate.name}" saved`);
+  };
 
-  const redraw = useCallback(() => {
+  const loadTemplate = (template: BoardTemplate) => {
+    saveToHistory();
+    setItems([...template.items]); setArrows([...template.arrows]); setPaths([...template.paths]);
+    toast.success(`Loaded template "${template.name}"`);
+  };
+
+  const deleteTemplate = (templateId: string) => {
+    saveTemplates(templates.filter(t => t.id !== templateId));
+    toast.success("Template deleted");
+  };
+
+  const saveToHistory = useCallback(() => {
+    setHistory(prev => [...prev.slice(-20), { items: [...items], arrows: [...arrows], paths: [...paths] }]);
+  }, [items, arrows, paths]);
+
+  const undo = () => {
+    if (history.length > 0) {
+      const lastState = history[history.length - 1];
+      setItems(lastState.items); setArrows(lastState.arrows); setPaths(lastState.paths);
+      setHistory(prev => prev.slice(0, -1));
+    }
+  };
+
+  const addItem = (type: "football" | "x" | "o") => {
+    saveToHistory();
+    setItems(prev => [...prev, { id: `${type}-${Date.now()}`, type, x: 200 + Math.random() * 200, y: 150 + Math.random() * 100 }]);
+  };
+
+  const addFormation = (formation: string, team: "x" | "o") => {
+    saveToHistory();
+    const positions = getFormationPositions(formation, team);
+    const newItems: DroppedItem[] = positions.map((pos, index) => ({ id: `${team}-${formation}-${index}-${Date.now()}`, type: team, x: pos.x, y: pos.y }));
+    setItems(prev => [...prev, ...newItems]);
+    toast.success(`Added ${formation} formation for Team ${team.toUpperCase()}`);
+  };
+
+  const clearBoard = () => { saveToHistory(); setItems([]); setArrows([]); setPaths([]); };
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    const w = canvas.width;
-    const h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-
-    // Draw pitch
-    ctx.fillStyle = "#1a472a";
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = "#1a1a1a";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "rgba(255,255,255,0.3)";
     ctx.lineWidth = 2;
-    // Border
-    ctx.strokeRect(w * 0.05, h * 0.05, w * 0.9, h * 0.9);
-    // Centre line
-    ctx.beginPath();
-    ctx.moveTo(w * 0.05, h * 0.5);
-    ctx.lineTo(w * 0.95, h * 0.5);
-    ctx.stroke();
-    // Centre circle
-    ctx.beginPath();
-    ctx.arc(w * 0.5, h * 0.5, w * 0.1, 0, Math.PI * 2);
-    ctx.stroke();
-    // Penalty areas
-    ctx.strokeRect(w * 0.25, h * 0.05, w * 0.5, h * 0.15);
-    ctx.strokeRect(w * 0.25, h * 0.8, w * 0.5, h * 0.15);
-    // Goal areas
-    ctx.strokeRect(w * 0.35, h * 0.05, w * 0.3, h * 0.06);
-    ctx.strokeRect(w * 0.35, h * 0.89, w * 0.3, h * 0.06);
-
-    // Draw drawings
-    [...drawings, ...(currentDraw ? [currentDraw] : [])].forEach(action => {
-      if (action.points.length < 2 && action.tool !== "text") return;
-      ctx.strokeStyle = action.color;
-      ctx.lineWidth = action.lineWidth;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-
-      if (action.tool === "pen") {
-        ctx.beginPath();
-        action.points.forEach((p, i) => {
-          const px = (p.x / 100) * w;
-          const py = (p.y / 100) * h;
-          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-        });
-        ctx.stroke();
-      } else if (action.tool === "arrow" && action.points.length >= 2) {
-        const start = action.points[0];
-        const end = action.points[action.points.length - 1];
-        const sx = (start.x / 100) * w, sy = (start.y / 100) * h;
-        const ex = (end.x / 100) * w, ey = (end.y / 100) * h;
-        ctx.beginPath();
-        ctx.moveTo(sx, sy);
-        ctx.lineTo(ex, ey);
-        ctx.stroke();
-        // Arrowhead
-        const angle = Math.atan2(ey - sy, ex - sx);
-        const headLen = 12;
-        ctx.beginPath();
-        ctx.moveTo(ex, ey);
-        ctx.lineTo(ex - headLen * Math.cos(angle - 0.4), ey - headLen * Math.sin(angle - 0.4));
-        ctx.moveTo(ex, ey);
-        ctx.lineTo(ex - headLen * Math.cos(angle + 0.4), ey - headLen * Math.sin(angle + 0.4));
-        ctx.stroke();
-      } else if (action.tool === "circle" && action.points.length >= 2) {
-        const start = action.points[0];
-        const end = action.points[action.points.length - 1];
-        const cx = ((start.x + end.x) / 200) * w;
-        const cy = ((start.y + end.y) / 200) * h;
-        const rx = Math.abs(end.x - start.x) / 200 * w;
-        const ry = Math.abs(end.y - start.y) / 200 * h;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (action.tool === "text" && action.text && action.points.length >= 1) {
-        ctx.fillStyle = action.color;
-        ctx.font = "bold 14px sans-serif";
-        ctx.fillText(action.text, (action.points[0].x / 100) * w, (action.points[0].y / 100) * h);
-      }
+    ctx.beginPath(); ctx.arc(canvas.width / 2, canvas.height / 2, 60, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height); ctx.stroke();
+    ctx.strokeRect(0, canvas.height / 2 - 100, 80, 200);
+    ctx.strokeRect(canvas.width - 80, canvas.height / 2 - 100, 80, 200);
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    paths.forEach(path => { if (path.points.length < 2) return; ctx.beginPath(); ctx.moveTo(path.points[0].x, path.points[0].y); path.points.forEach(point => ctx.lineTo(point.x, point.y)); ctx.stroke(); });
+    if (currentPath.length >= 2) { ctx.beginPath(); ctx.moveTo(currentPath[0].x, currentPath[0].y); currentPath.forEach(point => ctx.lineTo(point.x, point.y)); ctx.stroke(); }
+    arrows.forEach(arrow => {
+      ctx.strokeStyle = "#d4af37"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(arrow.startX, arrow.startY); ctx.lineTo(arrow.endX, arrow.endY); ctx.stroke();
+      const angle = Math.atan2(arrow.endY - arrow.startY, arrow.endX - arrow.startX);
+      const headLength = 15;
+      ctx.beginPath(); ctx.moveTo(arrow.endX, arrow.endY);
+      ctx.lineTo(arrow.endX - headLength * Math.cos(angle - Math.PI / 6), arrow.endY - headLength * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(arrow.endX - headLength * Math.cos(angle + Math.PI / 6), arrow.endY - headLength * Math.sin(angle + Math.PI / 6));
+      ctx.closePath(); ctx.fillStyle = "#d4af37"; ctx.fill();
     });
+  }, [paths, currentPath, arrows, activeTool]);
 
-    // Draw player markers
-    players.forEach(p => {
-      const px = (p.x / 100) * w;
-      const py = (p.y / 100) * h;
-      const r = 14;
-      ctx.beginPath();
-      ctx.arc(px, py, r, 0, Math.PI * 2);
-      ctx.fillStyle = p.team === "home" ? "#3B82F6" : "#EF4444";
-      ctx.fill();
-      ctx.strokeStyle = "white";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.fillStyle = "white";
-      ctx.font = "bold 10px sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(p.number, px, py);
-    });
-  }, [players, drawings, currentDraw]);
+  const getCanvasCoords = (e: React.MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const pt = getCanvasPoint(e);
-    
-    if (tool === "move") {
-      const hit = players.find(p => Math.hypot(p.x - pt.x, p.y - pt.y) < 5);
-      if (hit) setDraggingPlayer(hit.id);
-      return;
+  const pointToLineDistance = (point: { x: number; y: number }, arrow: Arrow) => {
+    const A = point.x - arrow.startX; const B = point.y - arrow.startY;
+    const C = arrow.endX - arrow.startX; const D = arrow.endY - arrow.startY;
+    const dot = A * C + B * D; const lenSq = C * C + D * D;
+    let param = lenSq !== 0 ? dot / lenSq : -1;
+    let xx, yy;
+    if (param < 0) { xx = arrow.startX; yy = arrow.startY; }
+    else if (param > 1) { xx = arrow.endX; yy = arrow.endY; }
+    else { xx = arrow.startX + param * C; yy = arrow.startY + param * D; }
+    return Math.sqrt((point.x - xx) ** 2 + (point.y - yy) ** 2);
+  };
+
+  const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    const coords = getCanvasCoords(e);
+    if (activeTool === "draw") { setIsDrawing(true); setCurrentPath([coords]); }
+    else if (activeTool === "arrow") { setArrowStart(coords); }
+    else if (activeTool === "erase") {
+      saveToHistory();
+      const clickedArrowIndex = arrows.findIndex(arrow => pointToLineDistance(coords, arrow) < 15);
+      if (clickedArrowIndex !== -1) setArrows(prev => prev.filter((_, i) => i !== clickedArrowIndex));
+      const clickedPathIndex = paths.findIndex(path => path.points.some(point => Math.sqrt((point.x - coords.x) ** 2 + (point.y - coords.y) ** 2) < 20));
+      if (clickedPathIndex !== -1) setPaths(prev => prev.filter((_, i) => i !== clickedPathIndex));
     }
+  };
 
-    if (tool === "text") {
-      const text = prompt("Enter text:");
-      if (text) {
-        setDrawings(prev => [...prev, { tool: "text", color, lineWidth, points: [pt], text }]);
-        setUndone([]);
+  const handleCanvasMouseMove = (e: React.MouseEvent) => {
+    const coords = getCanvasCoords(e);
+    if (isDrawing && activeTool === "draw") setCurrentPath(prev => [...prev, coords]);
+  };
+
+  const handleCanvasMouseUp = (e: React.MouseEvent) => {
+    const coords = getCanvasCoords(e);
+    if (isDrawing && activeTool === "draw") {
+      if (currentPath.length >= 2) { saveToHistory(); setPaths(prev => [...prev, { id: `path-${Date.now()}`, points: currentPath }]); }
+      setCurrentPath([]); setIsDrawing(false);
+    } else if (arrowStart && activeTool === "arrow") {
+      if (Math.abs(coords.x - arrowStart.x) > 20 || Math.abs(coords.y - arrowStart.y) > 20) {
+        saveToHistory();
+        setArrows(prev => [...prev, { id: `arrow-${Date.now()}`, startX: arrowStart.x, startY: arrowStart.y, endX: coords.x, endY: coords.y }]);
       }
-      return;
+      setArrowStart(null);
     }
-
-    setIsDrawing(true);
-    setCurrentDraw({ tool, color, lineWidth, points: [pt] });
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const pt = getCanvasPoint(e);
+  const handleItemMouseDown = (e: React.MouseEvent, itemId: string) => {
+    if (activeTool === "select") {
+      e.stopPropagation();
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+      setDraggingItem(itemId);
+      const container = containerRef.current;
+      if (container) { const rect = container.getBoundingClientRect(); setDragOffset({ x: e.clientX - rect.left - item.x, y: e.clientY - rect.top - item.y }); }
+    } else if (activeTool === "erase") { e.stopPropagation(); saveToHistory(); setItems(prev => prev.filter(i => i.id !== itemId)); }
+  };
 
-    if (draggingPlayer) {
-      setPlayers(prev => prev.map(p => p.id === draggingPlayer ? { ...p, x: pt.x, y: pt.y } : p));
-      return;
-    }
-
-    if (isDrawing && currentDraw) {
-      if (tool === "pen") {
-        setCurrentDraw({ ...currentDraw, points: [...currentDraw.points, pt] });
-      } else {
-        setCurrentDraw({ ...currentDraw, points: [currentDraw.points[0], pt] });
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (draggingItem && activeTool === "select") {
+      const container = containerRef.current;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        setItems(prev => prev.map(item => item.id === draggingItem ? { ...item, x: e.clientX - rect.left - dragOffset.x, y: e.clientY - rect.top - dragOffset.y } : item));
       }
     }
+    handleCanvasMouseMove(e);
   };
 
-  const handleMouseUp = () => {
-    if (draggingPlayer) { setDraggingPlayer(null); return; }
-    if (isDrawing && currentDraw && currentDraw.points.length >= 2) {
-      setDrawings(prev => [...prev, currentDraw]);
-      setUndone([]);
-    }
-    setIsDrawing(false);
-    setCurrentDraw(null);
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (draggingItem) saveToHistory();
+    setDraggingItem(null);
+    handleCanvasMouseUp(e);
   };
 
-  const undo = () => {
-    if (drawings.length === 0) return;
-    const last = drawings[drawings.length - 1];
-    setDrawings(prev => prev.slice(0, -1));
-    setUndone(prev => [...prev, last]);
-  };
-
-  const redo = () => {
-    if (undone.length === 0) return;
-    const last = undone[undone.length - 1];
-    setUndone(prev => prev.slice(0, -1));
-    setDrawings(prev => [...prev, last]);
-  };
-
-  const clearAll = () => {
-    setDrawings([]);
-    setUndone([]);
-  };
-
-  const exportImage = () => {
+  const downloadBoard = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = canvas.width; exportCanvas.height = canvas.height;
+    const ctx = exportCanvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(canvas, 0, 0);
+    items.forEach(item => {
+      if (item.type === "football") { ctx.font = "24px Arial"; ctx.fillText("⚽", item.x - 12, item.y + 8); }
+      else if (item.type === "x") { ctx.font = "bold 28px Arial"; ctx.fillStyle = "#ef4444"; ctx.fillText("X", item.x - 10, item.y + 10); }
+      else if (item.type === "o") { ctx.strokeStyle = "#3b82f6"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(item.x, item.y, 14, 0, Math.PI * 2); ctx.stroke(); }
+    });
     const link = document.createElement("a");
-    link.download = `tactics-${formation}.png`;
-    link.href = canvas.toDataURL("image/png");
+    link.download = `tactics-board-${Date.now()}.png`;
+    link.href = exportCanvas.toDataURL();
     link.click();
-    toast.success("Image exported");
   };
 
-  const tools: { id: Tool; icon: any; label: string }[] = [
-    { id: "move", icon: Move, label: "Move" },
-    { id: "pen", icon: Pencil, label: "Draw" },
-    { id: "arrow", icon: ArrowRight, label: "Arrow" },
-    { id: "circle", icon: Circle, label: "Circle" },
-    { id: "text", icon: Type, label: "Text" },
-  ];
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <LayoutGrid className="h-6 w-6 text-primary" />
-          <h2 className="text-xl font-semibold">Tactics Board</h2>
+    <>
+    <Card className="h-full">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center justify-between flex-wrap gap-2">
+          <span>Tactics Board</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={undo} disabled={history.length === 0}><Undo className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(true)}><Save className="h-4 w-4 mr-2" />Save Template</Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild><Button variant="outline" size="sm"><FolderOpen className="h-4 w-4 mr-2" />Load Template</Button></DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {templates.length === 0 ? (
+                  <DropdownMenuItem disabled>No saved templates</DropdownMenuItem>
+                ) : templates.map(template => (
+                  <DropdownMenuItem key={template.id} className="flex items-center justify-between group">
+                    <span className="flex-1 cursor-pointer" onClick={() => loadTemplate(template)}>{template.name}</span>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); deleteTemplate(template.id); }}>
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </Button>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" size="sm" onClick={downloadBoard}><Download className="h-4 w-4 mr-2" />Export</Button>
+            <Button variant="destructive" size="sm" onClick={clearBoard}><Trash2 className="h-4 w-4 mr-2" />Clear</Button>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg bg-muted/50 border">
+          <div className="flex items-center gap-1 pr-3 border-r">
+            <Button variant={activeTool === "select" ? "default" : "ghost"} size="sm" onClick={() => setActiveTool("select")}><Move className="h-4 w-4 mr-1" />Move</Button>
+            <Button variant={activeTool === "draw" ? "default" : "ghost"} size="sm" onClick={() => setActiveTool("draw")}><Pencil className="h-4 w-4 mr-1" />Draw</Button>
+            <Button variant={activeTool === "arrow" ? "default" : "ghost"} size="sm" onClick={() => setActiveTool("arrow")}><ArrowRight className="h-4 w-4 mr-1" />Arrow</Button>
+            <Button variant={activeTool === "erase" ? "default" : "ghost"} size="sm" onClick={() => setActiveTool("erase")}><Eraser className="h-4 w-4 mr-1" />Erase</Button>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-muted-foreground mr-2">Add:</span>
+            <Button variant="outline" size="sm" onClick={() => addItem("football")}>⚽ Ball</Button>
+            <Button variant="outline" size="sm" onClick={() => addItem("x")} className="text-red-500"><X className="h-4 w-4 mr-1" />Player X</Button>
+            <Button variant="outline" size="sm" onClick={() => addItem("o")} className="text-blue-500"><Circle className="h-4 w-4 mr-1" />Player O</Button>
+          </div>
+          <div className="flex items-center gap-1 pl-3 border-l">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild><Button variant="outline" size="sm"><LayoutGrid className="h-4 w-4 mr-1" />Formations</Button></DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger className="text-red-500"><X className="h-4 w-4 mr-2" />Team X</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {FORMATIONS.map(f => <DropdownMenuItem key={`x-${f}`} onClick={() => addFormation(f, "x")}>{f}</DropdownMenuItem>)}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger className="text-blue-500"><Circle className="h-4 w-4 mr-2" />Team O</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {FORMATIONS.map(f => <DropdownMenuItem key={`o-${f}`} onClick={() => addFormation(f, "o")}>{f}</DropdownMenuItem>)}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-        <Select value={formation} onValueChange={applyFormation}>
-          <SelectTrigger className="w-32 h-8 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.keys(FORMATIONS).map(f => (
-              <SelectItem key={f} value={f}>{f}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
 
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {tools.map(t => {
-          const Icon = t.icon;
-          return (
-            <Button
-              key={t.id}
-              variant={tool === t.id ? "default" : "outline"}
-              size="sm"
-              onClick={() => setTool(t.id)}
-              title={t.label}
-            >
-              <Icon className="w-4 h-4" />
-            </Button>
-          );
-        })}
-        <div className="h-6 w-px bg-border mx-1" />
-        <div className="flex gap-1">
-          {COLORS.map(c => (
-            <button
-              key={c}
-              className={`w-6 h-6 rounded-full border-2 transition-all ${color === c ? "border-foreground scale-110" : "border-transparent"}`}
-              style={{ backgroundColor: c }}
-              onClick={() => setColor(c)}
-            />
+        <div ref={containerRef} className="relative border-2 border-border rounded-lg overflow-hidden bg-[#1a1a1a]"
+          style={{ cursor: activeTool === "draw" ? "crosshair" : activeTool === "erase" ? "not-allowed" : "default" }}
+          onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+          <canvas ref={canvasRef} width={800} height={500} className="w-full h-auto" onMouseDown={handleCanvasMouseDown} />
+          {items.map(item => (
+            <div key={item.id}
+              className={cn("absolute cursor-grab active:cursor-grabbing select-none transition-transform", activeTool === "erase" && "cursor-not-allowed hover:scale-125 hover:opacity-50")}
+              style={{ left: item.x - 16, top: item.y - 16 }}
+              onMouseDown={(e) => handleItemMouseDown(e, item.id)}>
+              {item.type === "football" && <span className="text-3xl">⚽</span>}
+              {item.type === "x" && <span className="text-3xl font-bold text-red-500">X</span>}
+              {item.type === "o" && <div className="w-8 h-8 rounded-full border-4 border-blue-500" />}
+            </div>
           ))}
         </div>
-        <div className="h-6 w-px bg-border mx-1" />
-        <Button variant="outline" size="sm" onClick={undo} title="Undo">
-          <Undo2 className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={redo} title="Redo">
-          <Redo2 className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={clearAll} title="Clear drawings">
-          <Trash2 className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => applyFormation(formation)} title="Reset positions">
-          <RotateCcw className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={exportImage} title="Export image">
-          <Download className="w-4 h-4" />
-        </Button>
-      </div>
+        <p className="text-xs text-muted-foreground text-center">
+          {activeTool === "select" && "Click and drag items to move them"}
+          {activeTool === "draw" && "Click and drag to draw on the board"}
+          {activeTool === "arrow" && "Click and drag to create an arrow"}
+          {activeTool === "erase" && "Click on items, arrows, or drawings to erase them"}
+        </p>
+      </CardContent>
+    </Card>
 
-      {/* Canvas */}
-      <div className="relative">
-        <canvas
-          ref={canvasRef}
-          width={800}
-          height={600}
-          className="w-full rounded-lg cursor-crosshair border border-border"
-          style={{ aspectRatio: "4/3" }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-        />
-      </div>
-
-      <p className="text-xs text-muted-foreground">
-        Drag players to reposition. Select a drawing tool and draw on the pitch. Use formations dropdown to reset.
-      </p>
-    </div>
+    <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Save as Template</DialogTitle></DialogHeader>
+        <div className="py-4">
+          <Input placeholder="Template name..." value={templateName} onChange={(e) => setTemplateName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSaveTemplate()} />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleSaveTemplate}>Save Template</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
