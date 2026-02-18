@@ -226,6 +226,39 @@ export type Database = {
         }
         Relationships: []
       }
+      annotation_projects: {
+        Row: {
+          created_at: string
+          id: string
+          klips: Json | null
+          name: string
+          updated_at: string
+          user_id: string
+          video_name: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          klips?: Json | null
+          name: string
+          updated_at?: string
+          user_id: string
+          video_name?: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          klips?: Json | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+          video_name?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       bank_details: {
         Row: {
           account_name: string | null
@@ -4645,6 +4678,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      video_analyses: {
+        Row: {
+          annotations: Json | null
+          auto_delete_at: string | null
+          clips: Json | null
+          created_at: string
+          created_by: string | null
+          id: string
+          match_date: string | null
+          match_minute_offset: number | null
+          opponent: string | null
+          player_id: string | null
+          title: string
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          annotations?: Json | null
+          auto_delete_at?: string | null
+          clips?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          match_date?: string | null
+          match_minute_offset?: number | null
+          opponent?: string | null
+          player_id?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          annotations?: Json | null
+          auto_delete_at?: string | null
+          clips?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          match_date?: string | null
+          match_minute_offset?: number | null
+          opponent?: string | null
+          player_id?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: []
       }
       vision_board_items: {
         Row: {
