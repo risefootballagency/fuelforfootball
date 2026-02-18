@@ -15,7 +15,7 @@ import { NotificationPermission } from "@/components/NotificationPermission";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { toast } from "sonner";
-import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, Trophy, TrendingUp, Eye, EyeOff, ChevronUp, ChevronDown as ChevronDownIcon, List, RefreshCw, CheckCircle2, WifiOff, Bell } from "lucide-react";
+import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, Trophy, TrendingUp, Eye, EyeOff, ChevronUp, ChevronDown as ChevronDownIcon, List, RefreshCw, CheckCircle2, WifiOff, Bell, BarChart3, ChevronLeft, LineChart, Video, Database, Users, Search, Compass, Layers, Brain, FolderOpen, Activity, Apple } from "lucide-react";
 import { ClipNameEditor } from "@/components/ClipNameEditor";
 import { addDays, format, parseISO, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
 import { SEO } from "@/components/SEO";
@@ -145,6 +145,7 @@ const Dashboard = () => {
   const [selectedTeamScheme, setSelectedTeamScheme] = useState<string>('');
   const [selectedOppositionScheme, setSelectedOppositionScheme] = useState<string>('');
   const [hasNutritionPrograms, setHasNutritionPrograms] = useState(false);
+  const [showAnalysisSub, setShowAnalysisSub] = useState(false);
   
   // Performance Report Dialog state
   const [performanceReportDialogOpen, setPerformanceReportDialogOpen] = useState(false);
@@ -1909,58 +1910,93 @@ const Dashboard = () => {
                     {activeTab === "invoices" && "Invoices"}
                     {activeTab === "updates" && "Updates"}
                     {activeTab === "highlights" && "Highlights"}
+                    {activeTab === "transfer-hub" && "Transfer Hub"}
                     {activeTab === "nutrition" && "Nutrition"}
                   </span>
                   <ChevronDown className="ml-2 h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-[320px] bg-card border-2 border-gold shadow-lg shadow-gold/20 z-50 p-2">
-                <div className="grid grid-cols-3 gap-1">
-                  <DropdownMenuItem 
-                    onClick={() => setActiveTab("hub")}
-                    className="font-bebas uppercase text-sm py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10 justify-center"
-                  >
-                    Hub
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveTab("analysis")}
-                    className="font-bebas uppercase text-sm py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10 justify-center"
-                  >
-                    Analysis
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveTab("physical")}
-                    className="font-bebas uppercase text-sm py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10 justify-center"
-                  >
-                    Programming
-                  </DropdownMenuItem>
-                  {hasNutritionPrograms && (
-                    <DropdownMenuItem 
-                      onClick={() => setActiveTab("nutrition")}
-                      className="font-bebas uppercase text-sm py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10 justify-center"
+               <DropdownMenuContent align="center" sideOffset={0} className="w-[100vw] max-w-[100vw] bg-card border-2 border-gold shadow-lg shadow-gold/20 z-50 p-2 sm:p-3 rounded-none">
+                {showAnalysisSub ? (
+                  <div className="space-y-2">
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowAnalysisSub(false); }}
+                      className="flex items-center gap-2 text-gold/70 hover:text-gold font-bebas uppercase text-sm px-2 py-1 transition-colors"
                     >
-                      Nutrition
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem 
-                    onClick={() => setActiveTab("invoices")}
-                    className="font-bebas uppercase text-sm py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10 justify-center"
-                  >
-                    Invoices
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveTab("updates")}
-                    className="font-bebas uppercase text-sm py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10 justify-center"
-                  >
-                    Updates
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setActiveTab("highlights")}
-                    className="font-bebas uppercase text-sm py-3 cursor-pointer text-gold hover:text-gold/80 hover:bg-gold/10 justify-center"
-                  >
-                    Highlights
-                  </DropdownMenuItem>
-                </div>
+                      <ChevronLeft className="h-4 w-4" />
+                      Back
+                    </button>
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
+                      {[
+                        { value: "performance", label: "Performance", icon: <Activity className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "form", label: "Form", icon: <LineChart className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "video-reports", label: "Video Reports", icon: <Video className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "data", label: "Data", icon: <Database className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "comparisons", label: "Comparisons", icon: <Users className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "scouting", label: "Scouting", icon: <Search className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "positional-guides", label: "Positional", icon: <Compass className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "schemes", label: "Schemes", icon: <Layers className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "concepts", label: "Concepts", icon: <Brain className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "cognisance", label: "Cognisance", icon: <Eye className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "other", label: "Other", icon: <FolderOpen className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                      ].map((tab) => (
+                        <DropdownMenuItem
+                          key={tab.value}
+                          onClick={() => {
+                            setActiveTab("analysis");
+                            setActiveAnalysisTab(tab.value);
+                            setShowAnalysisSub(false);
+                          }}
+                          className={`flex flex-col items-center justify-center gap-1.5 cursor-pointer rounded-lg transition-all py-4 font-bebas uppercase text-xs sm:text-sm ${
+                            activeTab === "analysis" && activeAnalysisTab === tab.value
+                              ? "bg-gold/20 text-gold border border-gold"
+                              : "text-gold/80 hover:text-gold hover:bg-gold/10"
+                          }`}
+                        >
+                          {tab.icon}
+                          <span className="text-center leading-tight">{tab.label}</span>
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid gap-1.5 sm:gap-2" style={{ gridTemplateColumns: '0.8fr 1.4fr 0.8fr', gridTemplateRows: 'auto auto auto' }}>
+                    {[
+                      { tab: "analysis", label: "Analysis", icon: <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true },
+                      { tab: "physical", label: "Programming", icon: <Calendar className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "nutrition", label: "Nutrition", icon: <Apple className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "invoices", label: "Invoices", icon: <FileText className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "hub", label: "Hub", icon: <TrendingUp className="h-8 w-8 sm:h-9 sm:w-9" />, isHub: true },
+                      { tab: "updates", label: "Updates", icon: <Bell className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "highlights", label: "Highlights", icon: <Play className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "transfer-hub", label: "Transfer Hub", icon: <RefreshCw className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "profile", label: "View Profile", icon: <Eye className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                    ].map((item) => (
+                      <DropdownMenuItem
+                        key={item.tab}
+                        onClick={(e) => {
+                          if (item.isAnalysis) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowAnalysisSub(true);
+                          } else if (item.tab === "profile") {
+                            setShowProfileModal(true);
+                          } else {
+                            setActiveTab(item.tab);
+                          }
+                        }}
+                        className={`flex flex-col items-center justify-center gap-2 cursor-pointer rounded-lg transition-all py-6 sm:py-8 ${
+                          item.isHub
+                            ? `font-bebas uppercase text-xl sm:text-2xl border-2 py-8 sm:py-10 ${activeTab === "hub" ? "bg-gold/20 text-gold border-gold" : "text-gold border-gold/30 hover:bg-gold/10 hover:border-gold/60"}`
+                            : `font-bebas uppercase text-sm sm:text-lg ${activeTab === item.tab || (item.isAnalysis && activeTab === "analysis") ? "bg-gold/20 text-gold border border-gold" : "text-gold/80 hover:text-gold hover:bg-gold/10"}`
+                        }`}
+                      >
+                        {item.icon}
+                        <span className="text-center leading-tight">{item.label}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
         </div>

@@ -79,6 +79,16 @@ interface PlayerAnalysis {
   tagged_analyses?: any[];
 }
 
+interface UpgradeOffer {
+  name: string;
+  price: string;
+  currency: string;
+  features: string[];
+  message: string;
+  pay_link_url: string;
+  product_id?: string;
+}
+
 interface PortalSettings {
   hub_widget_type: "aphorisms" | "sales_box";
   current_package_name: string | null;
@@ -92,6 +102,7 @@ interface PortalSettings {
   upgrade_currency: string | null;
   upgrade_features: string[] | null;
   upgrade_pay_link_url: string | null;
+  upgrade_offers: UpgradeOffer[] | null;
 }
 
 interface HubProps {
@@ -857,8 +868,22 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
 
         if (showSalesBox) {
           const currencySymbol = portalSettings?.current_package_currency === "EUR" ? "€" : portalSettings?.current_package_currency === "USD" ? "$" : "£";
-          const upgradeCurrencySymbol = portalSettings?.upgrade_currency === "EUR" ? "€" : portalSettings?.upgrade_currency === "USD" ? "$" : "£";
           const hasCurrentPackage = !!portalSettings?.current_package_name;
+          
+          // Build offers list from upgrade_offers or legacy single offer
+          const offers: UpgradeOffer[] = portalSettings?.upgrade_offers && portalSettings.upgrade_offers.length > 0
+            ? portalSettings.upgrade_offers
+            : portalSettings?.upgrade_name
+              ? [{
+                  name: portalSettings.upgrade_name,
+                  price: portalSettings.upgrade_price?.toString() || "",
+                  currency: portalSettings.upgrade_currency || "GBP",
+                  features: portalSettings.upgrade_features || [],
+                  message: portalSettings.upgrade_message || "",
+                  pay_link_url: portalSettings.upgrade_pay_link_url || "",
+                }]
+              : [];
+
           return (
             <>
               <div className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw]">
@@ -889,40 +914,45 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                       </div>
                     )}
 
-                    {/* Upgrade Offer */}
-                    {(portalSettings?.upgrade_name || portalSettings?.upgrade_message) && (
-                      <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-3">
-                        {portalSettings.upgrade_name && (
-                          <div className="text-center">
-                            <p className="text-xs text-accent uppercase tracking-wider font-semibold">
-                              {hasCurrentPackage ? "Upgrade Available" : "Recommended Package"}
-                            </p>
-                            <p className="text-lg font-bold text-accent">{portalSettings.upgrade_name}</p>
-                            {portalSettings.upgrade_price != null && (
-                              <p className="text-sm text-muted-foreground">{upgradeCurrencySymbol}{portalSettings.upgrade_price}/mo</p>
-                            )}
-                          </div>
-                        )}
-                        {portalSettings.upgrade_features && portalSettings.upgrade_features.length > 0 && (
-                          <div className="flex flex-wrap justify-center gap-1">
-                            {portalSettings.upgrade_features.map((f, i) => (
-                              <span key={i} className="text-xs bg-accent/15 text-accent/90 px-2 py-0.5 rounded">{f}</span>
-                            ))}
-                          </div>
-                        )}
-                        {portalSettings.upgrade_message && (
-                          <p className="text-sm text-foreground/90 text-center">{portalSettings.upgrade_message}</p>
-                        )}
-                        {portalSettings.upgrade_pay_link_url && (
-                          <div className="text-center">
-                            <Button
-                              className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
-                              onClick={() => window.open(portalSettings.upgrade_pay_link_url!, "_blank")}
-                            >
-                              {hasCurrentPackage ? "Upgrade Now" : "Get Started"}
-                            </Button>
-                          </div>
-                        )}
+                    {/* Upgrade Offers */}
+                    {offers.length > 0 && (
+                      <div className={offers.length > 1 ? "flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-2 px-2" : ""}>
+                        {offers.map((offer, idx) => {
+                          const offerCurrSym = offer.currency === "EUR" ? "€" : offer.currency === "USD" ? "$" : "£";
+                          return (
+                            <div key={idx} className={`bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-3 ${offers.length > 1 ? "min-w-[280px] snap-center flex-shrink-0" : ""}`}>
+                              <div className="text-center">
+                                <p className="text-xs text-accent uppercase tracking-wider font-semibold">
+                                  {hasCurrentPackage ? "Upgrade Available" : "Recommended Package"}
+                                </p>
+                                <p className="text-lg font-bold text-accent">{offer.name}</p>
+                                {offer.price && (
+                                  <p className="text-sm text-muted-foreground">{offerCurrSym}{offer.price}/mo</p>
+                                )}
+                              </div>
+                              {offer.features && offer.features.length > 0 && (
+                                <div className="flex flex-wrap justify-center gap-1">
+                                  {offer.features.map((f, i) => (
+                                    <span key={i} className="text-xs bg-accent/15 text-accent/90 px-2 py-0.5 rounded">{f}</span>
+                                  ))}
+                                </div>
+                              )}
+                              {offer.message && (
+                                <p className="text-sm text-foreground/90 text-center">{offer.message}</p>
+                              )}
+                              {offer.pay_link_url && (
+                                <div className="text-center">
+                                  <Button
+                                    className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
+                                    onClick={() => window.open(offer.pay_link_url, "_blank")}
+                                  >
+                                    {hasCurrentPackage ? "Upgrade Now" : "Get Started"}
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </CardContent>

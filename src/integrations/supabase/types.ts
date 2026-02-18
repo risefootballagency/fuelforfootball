@@ -2509,6 +2509,7 @@ export type Database = {
           upgrade_features: string[] | null
           upgrade_message: string | null
           upgrade_name: string | null
+          upgrade_offers: Json | null
           upgrade_pay_link_url: string | null
           upgrade_price: number | null
           upgrade_product_id: string | null
@@ -2527,6 +2528,7 @@ export type Database = {
           upgrade_features?: string[] | null
           upgrade_message?: string | null
           upgrade_name?: string | null
+          upgrade_offers?: Json | null
           upgrade_pay_link_url?: string | null
           upgrade_price?: number | null
           upgrade_product_id?: string | null
@@ -2545,6 +2547,7 @@ export type Database = {
           upgrade_features?: string[] | null
           upgrade_message?: string | null
           upgrade_name?: string | null
+          upgrade_offers?: Json | null
           upgrade_pay_link_url?: string | null
           upgrade_price?: number | null
           upgrade_product_id?: string | null
