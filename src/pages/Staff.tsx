@@ -54,6 +54,7 @@ import { DesignStudio } from "@/components/staff/DesignStudio";
 import { StaffPWAInstall } from "@/components/staff/StaffPWAInstall";
 import { StaffOfflineManager } from "@/components/staff/StaffOfflineManager";
 import { ServiceCatalogManagement } from "@/components/staff/ServiceCatalogManagement";
+import { ServiceStatsManager } from "@/components/staff/sales/ServiceStatsManager";
 import { StaffPushNotifications } from "@/components/staff/StaffPushNotifications";
 import { HighlightMaker } from "@/components/staff/HighlightMaker";
 import { useStaffNotifications } from "@/hooks/useStaffNotifications";
@@ -1180,7 +1181,12 @@ const Staff = () => {
                 {expandedSection === 'budgets' && <BudgetsManagement isAdmin={isAdmin} />}
                 {expandedSection === 'financialreports' && <FinancialReports isAdmin={isAdmin} />}
                 {expandedSection === 'sales' && <SalesManagement isAdmin={isAdmin} />}
-                {expandedSection === 'catalogue' && <ServiceCatalogManagement isAdmin={isAdmin} />}
+                {expandedSection === 'catalogue' && (
+                  <div className="space-y-6">
+                    <ServiceCatalogManagement isAdmin={isAdmin} />
+                    <ServiceStatsManager />
+                  </div>
+                )}
                 {expandedSection === 'shopcatalogue' && <ShopCatalogManagement isAdmin={isAdmin} />}
                 {expandedSection === 'salestracker' && <SalesTracker />}
                 {expandedSection === 'retention' && <RetentionTracker />}

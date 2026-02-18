@@ -1467,6 +1467,7 @@ export type Database = {
           folder: string | null
           id: string
           player_id: string | null
+          tags: string[] | null
           thumbnail_url: string | null
           title: string
           updated_at: string
@@ -1480,6 +1481,7 @@ export type Database = {
           folder?: string | null
           id?: string
           player_id?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string
@@ -1493,6 +1495,7 @@ export type Database = {
           folder?: string | null
           id?: string
           player_id?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
@@ -4071,6 +4074,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      service_page_stats: {
+        Row: {
+          created_at: string | null
+          id: string
+          page_key: string
+          stats: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          page_key: string
+          stats?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          page_key?: string
+          stats?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       service_time_tracking: {
         Row: {
