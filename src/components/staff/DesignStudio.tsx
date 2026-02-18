@@ -1,7 +1,7 @@
-import { DesignCanvas } from './design/DesignCanvas';
+import { DesignProjects } from './design/DesignProjects';
 
 export const DesignStudio = () => {
-  return <DesignCanvas />;
+  return <DesignProjects />;
 };
 
 export default DesignStudio;

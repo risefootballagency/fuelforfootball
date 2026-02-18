@@ -1324,6 +1324,40 @@ const Dashboard = () => {
         }
       }
 
+      // Global deduplication: remove duplicate tagged_analyses entries and standalone tactical entries
+      // that share the same analysis ID as an already-attached analysis_writer_data
+      const allAttachedWriterIds = new Set<string>();
+      mergedAnalyses.forEach(a => {
+        if (a.analysis_writer_data?.id) allAttachedWriterIds.add(a.analysis_writer_data.id);
+      });
+      
+      // Remove standalone tactical entries whose analysis is already attached as writer data on another report
+      mergedAnalyses = mergedAnalyses.filter(a => {
+        if (a.id?.startsWith('tactical-') && a.analysis_writer_id) {
+          // Check if this tactical analysis is already attached to a real report
+          const isAttachedElsewhere = mergedAnalyses.some(other => 
+            other.id !== a.id && 
+            (other.analysis_writer_data?.id === a.analysis_writer_id ||
+             (other.tagged_analyses || []).some((ta: any) => ta.id === a.analysis_writer_id))
+          );
+          if (isAttachedElsewhere) return false;
+        }
+        return true;
+      });
+
+      // Deduplicate tagged_analyses within each report
+      mergedAnalyses.forEach((a, idx) => {
+        if (a.tagged_analyses && a.tagged_analyses.length > 0) {
+          const seen = new Set<string>();
+          if (a.analysis_writer_data?.id) seen.add(a.analysis_writer_data.id);
+          (mergedAnalyses[idx] as any).tagged_analyses = a.tagged_analyses.filter((ta: any) => {
+            if (seen.has(ta.id)) return false;
+            seen.add(ta.id);
+            return true;
+          });
+        }
+      });
+
       // Sort merged analyses by date (newest first)
       mergedAnalyses.sort((a, b) => {
         const dateA = new Date(a.analysis_date).getTime();
