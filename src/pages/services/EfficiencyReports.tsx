@@ -80,6 +80,7 @@ const EfficiencyReports = () => {
       title="PERFORMANCES THAT SHOW UP IN THE DATA"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="efficiency-reports"
     >
       {/* Pillars Section */}
       <section className="relative">

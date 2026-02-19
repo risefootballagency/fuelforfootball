@@ -13,6 +13,7 @@ interface ServiceCardProps {
   badge?: string | null;
   ribbon?: string | null;
   options?: unknown;
+  quickStats?: { label: string }[] | null;
   onClick: () => void;
 }
 
@@ -24,6 +25,7 @@ export const ServiceCard = ({
   badge,
   ribbon,
   options,
+  quickStats,
   onClick,
 }: ServiceCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -135,6 +137,16 @@ export const ServiceCard = ({
           {name}
         </h3>
         <div className="w-4 md:w-8 h-px bg-primary/50 mx-auto my-1 md:my-2" />
+        {/* Quick Stats Tags */}
+        {quickStats && quickStats.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-1 mt-1">
+            {quickStats.slice(0, 3).map((stat, i) => (
+              <span key={i} className="text-[7px] md:text-[9px] bg-accent/15 text-accent border border-accent/20 rounded-full px-1.5 py-0.5 font-medium whitespace-nowrap">
+                {stat.label}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   );

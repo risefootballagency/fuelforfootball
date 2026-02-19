@@ -109,6 +109,7 @@ const Technical = () => {
       title="CONTROL THE BALL, CONTROL THE GAME"
       heroVideo="/videos/technical-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="technical"
     >
       {/* Pillars Section */}
       <section className="relative">

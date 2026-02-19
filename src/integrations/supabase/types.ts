@@ -3971,6 +3971,7 @@ export type Database = {
           name: string
           options: Json | null
           price: number
+          quick_stats: Json | null
           ribbon: string | null
           stripe_price_id: string | null
           stripe_product_id: string | null
@@ -3991,6 +3992,7 @@ export type Database = {
           name: string
           options?: Json | null
           price?: number
+          quick_stats?: Json | null
           ribbon?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
@@ -4011,6 +4013,7 @@ export type Database = {
           name?: string
           options?: Json | null
           price?: number
+          quick_stats?: Json | null
           ribbon?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null

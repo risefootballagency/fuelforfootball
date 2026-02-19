@@ -15,7 +15,7 @@ import { NotificationPermission } from "@/components/NotificationPermission";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { toast } from "sonner";
-import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, Trophy, TrendingUp, Eye, EyeOff, ChevronUp, ChevronDown as ChevronDownIcon, List, RefreshCw, CheckCircle2, WifiOff, Bell, BarChart3, ChevronLeft, LineChart, Video, Database, Users, Search, Compass, Layers, Brain, FolderOpen, Activity, Apple } from "lucide-react";
+import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, Trophy, TrendingUp, Eye, EyeOff, ChevronUp, ChevronDown as ChevronDownIcon, List, RefreshCw, CheckCircle2, WifiOff, Bell, BarChart3, ChevronLeft, LineChart, Video, Database, Users, Search, Compass, Layers, Brain, FolderOpen, Activity, Apple, ShoppingBag } from "lucide-react";
 import { ClipNameEditor } from "@/components/ClipNameEditor";
 import { addDays, format, parseISO, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
 import { SEO } from "@/components/SEO";
@@ -1910,7 +1910,7 @@ const Dashboard = () => {
                     {activeTab === "invoices" && "Invoices"}
                     {activeTab === "updates" && "Updates"}
                     {activeTab === "highlights" && "Highlights"}
-                    {activeTab === "transfer-hub" && "Transfer Hub"}
+                    {activeTab === "services" && "Services"}
                     {activeTab === "nutrition" && "Nutrition"}
                   </span>
                   <ChevronDown className="ml-2 h-5 w-5" />
@@ -1969,7 +1969,7 @@ const Dashboard = () => {
                       { tab: "hub", label: "Hub", icon: <TrendingUp className="h-8 w-8 sm:h-9 sm:w-9" />, isHub: true },
                       { tab: "updates", label: "Updates", icon: <Bell className="h-6 w-6 sm:h-7 sm:w-7" /> },
                       { tab: "highlights", label: "Highlights", icon: <Play className="h-6 w-6 sm:h-7 sm:w-7" /> },
-                      { tab: "transfer-hub", label: "Transfer Hub", icon: <RefreshCw className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "services", label: "Services", icon: <ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7" /> },
                       { tab: "profile", label: "View Profile", icon: <Eye className="h-6 w-6 sm:h-7 sm:w-7" /> },
                     ].map((item) => (
                       <DropdownMenuItem
@@ -1981,6 +1981,8 @@ const Dashboard = () => {
                             setShowAnalysisSub(true);
                           } else if (item.tab === "profile") {
                             setShowProfileModal(true);
+                          } else if (item.tab === "services") {
+                            navigate("/services");
                           } else {
                             setActiveTab(item.tab);
                           }
@@ -4539,27 +4541,7 @@ const Dashboard = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="transfer-hub">
-              <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0">
-                <CardHeader marble>
-                  <div className="container mx-auto px-4">
-                    <CardTitle className="font-heading tracking-tight flex items-center gap-2">
-                      <Lock className="h-5 w-5" />
-                      Transfer Hub
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="container mx-auto px-4">
-                  {playerData?.id ? (
-                    <PlayerTransferHub playerId={playerData.id} />
-                  ) : (
-                    <div className="py-8 text-center text-muted-foreground">
-                      Loading player data...
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+            {/* Transfer Hub removed - Services link navigates directly */}
           </Tabs>
         </div>
         )}

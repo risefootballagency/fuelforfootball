@@ -23,6 +23,7 @@ interface Service {
   description: string | null;
   options: unknown;
   visible: boolean;
+  quick_stats: any;
 }
 
 // Sidebar categories - using exact database category values
@@ -262,6 +263,7 @@ const Services = () => {
                       badge={service.badge}
                       ribbon={service.ribbon}
                       options={service.options}
+                      quickStats={service.quick_stats}
                       onClick={() => setSelectedService(service)}
                     />
                   ))}

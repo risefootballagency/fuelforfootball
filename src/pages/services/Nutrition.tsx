@@ -128,6 +128,7 @@ const Nutrition = () => {
       title="FUELLING PROPERLY IS A MUST"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="nutrition"
     >
       {/* Benefits Section */}
       <section className="relative">
