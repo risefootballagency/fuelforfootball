@@ -104,6 +104,7 @@ const Mental = () => {
       subtitle="Football is not solely about skill. The fine margins are decided by will."
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="mental"
     >
       {/* Pillars Section */}
       <section className="relative">

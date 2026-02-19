@@ -76,6 +76,7 @@ const Consultation = () => {
       title="KNOW THYSELF"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="consultation"
     >
       {/* Pillars Section */}
       <section className="relative">

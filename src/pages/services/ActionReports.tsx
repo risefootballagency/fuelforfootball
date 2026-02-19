@@ -60,6 +60,7 @@ const ActionReports = () => {
       subtitle="Deep-dive analysis of your in-game actions with video clips, tactical breakdowns, and actionable insights to elevate every touch."
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="action-reports"
     >
       {/* What Is Section */}
       <section className="relative">

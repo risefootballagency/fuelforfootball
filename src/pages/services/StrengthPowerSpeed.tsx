@@ -90,6 +90,7 @@ const StrengthPowerSpeed = () => {
       title="RUN LIKE A SPORTS CAR, NOT A HATCHBACK"
       heroVideo="/videos/strength-power-speed-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="strength-power-speed"
     >
       {/* Pillars Section */}
       <section className="relative">

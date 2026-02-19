@@ -94,6 +94,7 @@ const Conditioning = () => {
       title="THE CAPACITY TO COVER EVERY BLADE"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="conditioning"
     >
       {/* Pillars Section */}
       <section className="relative">

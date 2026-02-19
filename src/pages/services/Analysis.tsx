@@ -150,6 +150,7 @@ const Analysis = () => {
       title="SEE THE GAME BEFORE IT HAPPENS"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="analysis"
     >
       {/* Four Pillars with Dark Green Background - No gap from video */}
       <section className="relative">

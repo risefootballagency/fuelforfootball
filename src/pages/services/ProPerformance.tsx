@@ -96,6 +96,7 @@ const ProPerformance = () => {
       title="RUN THE SHOW"
       heroVideo="/videos/pro-performance-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="pro-performance"
     >
       {/* Pillars Section */}
       <section className="relative">

@@ -87,6 +87,7 @@ const Mentorship = () => {
       title="GUIDANCE FOR SUCCESS"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="mentorship"
     >
       {/* Pillars Section */}
       <section className="relative">

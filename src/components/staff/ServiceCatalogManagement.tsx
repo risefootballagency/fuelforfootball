@@ -11,6 +11,10 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Eye, EyeOff, GripVertical, Upload } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface QuickStat {
+  label: string;
+}
+
 interface Service {
   id: string;
   name: string;
@@ -23,6 +27,7 @@ interface Service {
   visible: boolean;
   display_order: number;
   options: any;
+  quick_stats: any;
 }
 
 const categories = [
@@ -58,9 +63,11 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
     visible: true,
     pricing_type: "one_off" as "one_off" | "monthly",
     options: [] as { name: string; price: number }[],
+    quick_stats: [] as QuickStat[],
   });
   const [newOptionName, setNewOptionName] = useState("");
   const [newOptionPrice, setNewOptionPrice] = useState(0);
+  const [newStatLabel, setNewStatLabel] = useState("");
 
   const fetchServices = async () => {
     try {
@@ -87,6 +94,7 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
     setEditingService(service);
     const serviceOptions = service.options as { name: string; price: number }[] | null;
     const pricingType = (service as any).pricing_type || "one_off";
+    const quickStats = (service.quick_stats as QuickStat[]) || [];
     setFormData({
       name: service.name,
       description: service.description || "",
@@ -98,9 +106,11 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
       visible: service.visible,
       pricing_type: pricingType,
       options: serviceOptions || [],
+      quick_stats: quickStats,
     });
     setNewOptionName("");
     setNewOptionPrice(0);
+    setNewStatLabel("");
     setIsDialogOpen(true);
   };
 
@@ -117,6 +127,7 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
       visible: true,
       pricing_type: "one_off",
       options: [],
+      quick_stats: [],
     });
     setNewOptionName("");
     setNewOptionPrice(0);
@@ -152,6 +163,7 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
         ribbon: formData.ribbon || null,
         visible: formData.visible,
         options: formData.options.length > 0 ? formData.options : null,
+        quick_stats: formData.quick_stats.length > 0 ? (formData.quick_stats as any) : null,
       };
 
       if (editingService) {
@@ -482,6 +494,45 @@ export const ServiceCatalogManagement = ({ isAdmin }: ServiceCatalogManagementPr
                   className="w-24"
                 />
                 <Button type="button" variant="outline" onClick={handleAddOption}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Stats / Tags */}
+            <div className="space-y-3">
+              <Label>Quick Stats (shown on service card)</Label>
+              {formData.quick_stats.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.quick_stats.map((stat, index) => (
+                    <div key={index} className="flex items-center gap-1 bg-accent/20 text-accent border border-accent/30 rounded-full px-3 py-1 text-xs">
+                      <span>{stat.label}</span>
+                      <Button variant="ghost" size="sm" onClick={() => setFormData({ ...formData, quick_stats: formData.quick_stats.filter((_, i) => i !== index) })} className="h-4 w-4 p-0 text-accent hover:text-destructive ml-1">
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  value={newStatLabel}
+                  onChange={(e) => setNewStatLabel(e.target.value)}
+                  placeholder="e.g., 25% Physical Improvement"
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newStatLabel.trim()) {
+                      e.preventDefault();
+                      setFormData({ ...formData, quick_stats: [...formData.quick_stats, { label: newStatLabel.trim() }] });
+                      setNewStatLabel("");
+                    }
+                  }}
+                />
+                <Button type="button" variant="outline" onClick={() => {
+                  if (!newStatLabel.trim()) return;
+                  setFormData({ ...formData, quick_stats: [...formData.quick_stats, { label: newStatLabel.trim() }] });
+                  setNewStatLabel("");
+                }}>
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>

@@ -104,6 +104,7 @@ const ElitePerformance = () => {
       title="THE FULL PACKAGE"
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
+      statsPageKey="elite-performance"
     >
       {/* Pillars Section */}
       <section className="relative">
