@@ -51,6 +51,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   portal_analysis_view: { label: "Analysis Views", icon: Search },
   portal_transfer_submission: { label: "Transfer Submissions", icon: Send },
   portal_club_submission: { label: "Club Suggestions", icon: Building2 },
+  comparison_request: { label: "Comparison Requests", icon: Users },
 };
 
 export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdownProps) => {
@@ -210,6 +211,7 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
       case "portal_analysis_view": return "Analysis Viewed";
       case "portal_transfer_submission": return "Transfer Hub Submission";
       case "portal_club_submission": return "Club Suggestion Submitted";
+      case "comparison_request": return "Comparison Player Request";
       default: return "Notification";
     }
   };
@@ -254,6 +256,8 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
         return data?.player_name ? `${data.player_name} made a submission` : "New transfer hub submission";
       case "portal_club_submission":
         return data?.player_name ? `${data.player_name} suggested a club` : "New club suggestion submitted";
+      case "comparison_request":
+        return data?.player_name ? `${data.player_name} requested: ${data.requested_name || 'a player'}` : "New comparison player request";
       default:
         return notification.body || "";
     }

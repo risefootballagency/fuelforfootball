@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.ai-image-tagger]
 verify_jwt = false
+
+[functions.extract-video-links]
+verify_jwt = false

@@ -6,10 +6,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Users, BarChart3, Target, Box, Crosshair } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Users, BarChart3, Target, Box, Crosshair, ChevronsUpDown, X, UserPlus } from "lucide-react";
 import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
 import { GoalTracking } from "@/components/portal/GoalTracking";
 import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparisonMatrix";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const RadarChart3D = lazy(() => import("@/components/portal/RadarChart3D").then(m => ({ default: m.RadarChart3D })));
 
@@ -50,6 +55,8 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
   const [subTab, setSubTab] = useState<string>("percentile");
   const [fixtureAnalyses, setFixtureAnalyses] = useState<Analysis[]>([]);
   const [selectedMetricKey, setSelectedMetricKey] = useState<string>('goals_per90');
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerSearch, setPickerSearch] = useState("");
 
   const playerPosition = playerData?.position || '';
   const playerName = playerData?.name || 'You';
@@ -87,11 +94,40 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
   }, [playerPosition]);
 
   const selectedComps = comparisonPlayers.filter(p => selectedPlayerIds.includes(p.id));
+  const unselectedPlayers = comparisonPlayers.filter(p => !selectedPlayerIds.includes(p.id));
+  const filteredPlayers = unselectedPlayers.filter(p =>
+    p.name.toLowerCase().includes(pickerSearch.toLowerCase())
+  );
+  const hasNoMatch = pickerSearch.trim().length >= 2 && filteredPlayers.length === 0;
 
   const togglePlayer = (id: string) => {
     setSelectedPlayerIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
+  };
+
+  const handleRequestPlayer = async () => {
+    const name = pickerSearch.trim();
+    if (!name) return;
+    try {
+      await supabase.functions.invoke("notify-staff", {
+        body: {
+          event_type: "comparison_request",
+          title: "Comparison Player Request",
+          body: `${playerName} requested: ${name} (${playerPosition})`,
+          event_data: {
+            player_name: playerName,
+            requested_name: name,
+            position: playerPosition,
+          },
+        },
+      });
+      toast.success(`Request sent for "${name}"`);
+      setPickerSearch("");
+      setPickerOpen(false);
+    } catch {
+      toast.error("Failed to send request");
+    }
   };
 
   const portalMetrics = useMemo(() => {
@@ -143,30 +179,73 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
         ))}
       </div>
 
-      {/* Player picker */}
-      <div className="mb-4">
-        <p className="text-sm font-medium mb-2">Select comparison players ({playerPosition} only):</p>
-        {comparisonPlayers.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No players stored for this position.</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {comparisonPlayers.map(cp => (
-              <button
+      {/* Searchable player picker */}
+      <div>
+        <p className="text-sm font-medium mb-2">Compare with ({playerPosition}):</p>
+        <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full sm:w-[300px] justify-between">
+              {selectedPlayerIds.length > 0 ? `${selectedPlayerIds.length} selected` : "Add comparison players..."}
+              <ChevronsUpDown className="h-4 w-4 opacity-50 ml-2" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[300px] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search players..." value={pickerSearch} onValueChange={setPickerSearch} />
+              <CommandList>
+                {filteredPlayers.length === 0 && !hasNoMatch && (
+                  <CommandEmpty>No players for this position.</CommandEmpty>
+                )}
+                <CommandGroup>
+                  {filteredPlayers.map(cp => (
+                    <CommandItem
+                      key={cp.id}
+                      value={cp.name}
+                      onSelect={() => { togglePlayer(cp.id); }}
+                      className="cursor-pointer"
+                    >
+                      <Avatar className="h-5 w-5 mr-2">
+                        {cp.image_url ? <AvatarImage src={cp.image_url} /> : null}
+                        <AvatarFallback className="text-[10px]">{cp.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      {cp.name}
+                      <span className="text-xs opacity-60 ml-auto">{cp.club} · {cp.season}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+                {hasNoMatch && (
+                  <CommandGroup>
+                    <CommandItem
+                      onSelect={handleRequestPlayer}
+                      className="cursor-pointer text-accent"
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Request "{pickerSearch.trim()}"
+                    </CommandItem>
+                  </CommandGroup>
+                )}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+
+        {/* Selected chips */}
+        {selectedComps.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {selectedComps.map(cp => (
+              <Badge
                 key={cp.id}
+                variant="secondary"
+                className="gap-1 pr-1 cursor-pointer hover:bg-destructive/20"
                 onClick={() => togglePlayer(cp.id)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-colors ${
-                  selectedPlayerIds.includes(cp.id)
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border hover:bg-muted'
-                }`}
               >
-                <Avatar className="h-5 w-5">
+                <Avatar className="h-4 w-4">
                   {cp.image_url ? <AvatarImage src={cp.image_url} /> : null}
-                  <AvatarFallback className="text-[10px]">{cp.name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback className="text-[8px]">{cp.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 {cp.name}
-                <span className="text-xs opacity-70">{cp.club} · {cp.season}</span>
-              </button>
+                <X className="h-3 w-3 ml-0.5" />
+              </Badge>
             ))}
           </div>
         )}

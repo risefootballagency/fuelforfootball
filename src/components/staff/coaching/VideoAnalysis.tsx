@@ -208,6 +208,8 @@ export const VideoAnalysis = () => {
 
   const handleDeleteVideo = async (id: string) => {
     const video = videos.find(v => v.id === id);
+    // Unlink any performance report actions referencing this video analysis (preserve clip URLs)
+    await (supabase.from("performance_report_actions") as any).update({ video_analysis_id: null }).eq("video_analysis_id", id);
     if (video?.video_url?.includes('analysis-videos')) { const path = video.video_url.split('analysis-videos/')[1]; if (path) await supabase.storage.from('analysis-videos').remove([path]); }
     const { error } = await supabase.from("video_analyses").delete().eq("id", id);
     if (!error) { setVideos(prev => prev.filter(v => v.id !== id)); if (selectedVideo?.id === id) setSelectedVideo(null); toast.success("Deleted"); }
@@ -346,7 +348,7 @@ export const VideoAnalysis = () => {
                 try {
                   const { data: existing } = await supabase.from("performance_report_actions").select("action_number").eq("analysis_id", selectedReportId).order("action_number", { ascending: false }).limit(1);
                   let nextNumber = (existing?.[0]?.action_number || 0) + 1;
-                  const actionsToInsert = selectedVideo.clips.map((clip, i) => ({ analysis_id: selectedReportId, action_number: nextNumber + i, minute: getMatchMinute(clip.start, selectedVideo.match_minute_offset), action_type: clip.action_type || "other", action_description: clip.action_description || clip.label, notes: clip.notes || null, video_url: selectedVideo.video_url || null, is_successful: true }));
+                  const actionsToInsert = selectedVideo.clips.map((clip, i) => ({ analysis_id: selectedReportId, action_number: nextNumber + i, minute: getMatchMinute(clip.start, selectedVideo.match_minute_offset), action_type: clip.action_type || "other", action_description: clip.action_description || clip.label, notes: clip.notes || null, video_url: selectedVideo.video_url ? `${selectedVideo.video_url}#t=${clip.start},${clip.end}` : null, is_successful: true, video_analysis_id: selectedVideo.id, clip_id: clip.id }));
                   const { error } = await supabase.from("performance_report_actions").insert(actionsToInsert);
                   if (error) throw error;
                   toast.success(`${actionsToInsert.length} actions exported to report`); setShowExportDialog(false);
