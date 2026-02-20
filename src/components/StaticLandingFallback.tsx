@@ -81,13 +81,13 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
         
         {/* Staff, Scout & Portal links - top right */}
         <div className="absolute right-4 flex items-center gap-2 text-[10px] md:text-xs">
-          <Link to="/staff" className="text-[hsl(var(--mint)/0.3)] hover:text-[hsl(var(--mint)/0.6)] transition-colors uppercase tracking-wider font-bebas">
+          <Link to="/staff" className="text-[hsl(var(--mint)/0.55)] hover:text-[hsl(var(--mint)/0.85)] transition-colors uppercase tracking-wider font-bebas">
             {t("header.staff", "Staff")}
           </Link>
-          <button onClick={() => navigateToRole("/scouts")} className="text-[hsl(var(--mint)/0.3)] hover:text-[hsl(var(--mint)/0.6)] transition-colors uppercase tracking-wider font-bebas">
+          <button onClick={() => navigateToRole("/scouts")} className="text-[hsl(var(--mint)/0.55)] hover:text-[hsl(var(--mint)/0.85)] transition-colors uppercase tracking-wider font-bebas">
             {t("landing.nav_scouts", "Scout")}
           </button>
-          <Link to="/portal" className="text-[hsl(var(--mint)/0.3)] hover:text-[hsl(var(--mint)/0.6)] transition-colors uppercase tracking-wider font-bebas">
+          <Link to="/portal" className="text-[hsl(var(--mint)/0.55)] hover:text-[hsl(var(--mint)/0.85)] transition-colors uppercase tracking-wider font-bebas">
             {t("header.portal", "Portal")}
           </Link>
         </div>

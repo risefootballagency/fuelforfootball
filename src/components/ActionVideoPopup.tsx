@@ -75,7 +75,7 @@ export const ActionVideoPopup = ({
             className="w-full max-h-[80vh] object-contain"
             autoPlay
             muted
-            loop
+            loop={!videoUrl.includes('#t=')}
             playsInline
           />
         </div>

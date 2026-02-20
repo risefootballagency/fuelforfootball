@@ -259,13 +259,13 @@ function LandingContent() {
       
       {/* Staff, Scout & Portal links - subtle top right */}
       <div className="absolute top-6 md:top-8 right-4 md:right-8 z-50 flex items-center gap-2 md:gap-3">
-        <Link to="/staff" className="text-light-green/30 hover:text-light-green/60 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
+        <Link to="/staff" className="text-light-green/55 hover:text-light-green/85 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
           {t("header.staff", "Staff")}
         </Link>
-        <button onClick={() => navigateToRole("/scouts")} className="text-light-green/30 hover:text-light-green/60 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
+        <button onClick={() => navigateToRole("/scouts")} className="text-light-green/55 hover:text-light-green/85 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
           {t("landing.nav_scouts", "Scout")}
         </button>
-        <LocalizedLink to="/portal" className="text-light-green/30 hover:text-light-green/60 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
+        <LocalizedLink to="/portal" className="text-light-green/55 hover:text-light-green/85 text-[10px] md:text-xs font-bebas uppercase tracking-wider transition-colors duration-300">
           {t("header.portal", "Portal")}
         </LocalizedLink>
       </div>

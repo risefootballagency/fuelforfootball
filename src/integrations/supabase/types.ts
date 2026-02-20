@@ -2059,6 +2059,7 @@ export type Database = {
           action_score: number | null
           action_type: string | null
           analysis_id: string
+          clip_id: string | null
           created_at: string | null
           id: string
           is_successful: boolean | null
@@ -2066,6 +2067,7 @@ export type Database = {
           notes: string | null
           recorded_stat: Json | null
           updated_at: string | null
+          video_analysis_id: string | null
           video_url: string | null
           zone: number | null
         }
@@ -2075,6 +2077,7 @@ export type Database = {
           action_score?: number | null
           action_type?: string | null
           analysis_id: string
+          clip_id?: string | null
           created_at?: string | null
           id?: string
           is_successful?: boolean | null
@@ -2082,6 +2085,7 @@ export type Database = {
           notes?: string | null
           recorded_stat?: Json | null
           updated_at?: string | null
+          video_analysis_id?: string | null
           video_url?: string | null
           zone?: number | null
         }
@@ -2091,6 +2095,7 @@ export type Database = {
           action_score?: number | null
           action_type?: string | null
           analysis_id?: string
+          clip_id?: string | null
           created_at?: string | null
           id?: string
           is_successful?: boolean | null
@@ -2098,6 +2103,7 @@ export type Database = {
           notes?: string | null
           recorded_stat?: Json | null
           updated_at?: string | null
+          video_analysis_id?: string | null
           video_url?: string | null
           zone?: number | null
         }
@@ -2148,6 +2154,7 @@ export type Database = {
           created_at: string
           fixture_id: string | null
           id: string
+          linked_video_analysis_ids: string[] | null
           minutes_played: number | null
           notes: string | null
           opponent: string | null
@@ -2166,6 +2173,7 @@ export type Database = {
           created_at?: string
           fixture_id?: string | null
           id?: string
+          linked_video_analysis_ids?: string[] | null
           minutes_played?: number | null
           notes?: string | null
           opponent?: string | null
@@ -2184,6 +2192,7 @@ export type Database = {
           created_at?: string
           fixture_id?: string | null
           id?: string
+          linked_video_analysis_ids?: string[] | null
           minutes_played?: number | null
           notes?: string | null
           opponent?: string | null

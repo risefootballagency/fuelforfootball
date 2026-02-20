@@ -97,6 +97,7 @@ import { NotificationSettingsManagement } from "@/components/staff/NotificationS
 import { StaffSMSNotifications } from "@/components/staff/StaffSMSNotifications";
 import { KeyboardShortcutsDialog } from "@/components/staff/KeyboardShortcutsDialog";
 import { SalesDeck } from "@/components/staff/marketing/SalesDeck";
+import { VideoDownloaderSection } from "@/components/staff/VideoDownloaderSection";
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
@@ -580,6 +581,7 @@ const Staff = () => {
           { id: 'annotations', title: 'Annotations', icon: Pencil },
           { id: 'videoanalysis', title: 'Video Analysis', icon: Video },
           { id: 'streams', title: 'Streams', icon: Tv },
+          { id: 'videodownloader', title: 'Video Downloader', icon: Download },
         ],
       },
       {
@@ -589,7 +591,7 @@ const Staff = () => {
           { id: 'coachingchat', title: 'AI Chat', icon: MessageSquare },
           { id: '_group_analysis', title: 'Analysis', isGroupLabel: true } as any,
           { id: 'analysis', title: 'Analysis', icon: LineChart },
-          { id: 'data', title: 'Data', icon: Database },
+          { id: 'coachingdata', title: 'Data', icon: Database },
           { id: '_group_planning', title: 'Planning', isGroupLabel: true } as any,
           { id: 'athletecentre', title: 'Athlete Centre', icon: UserRound },
           { id: 'tacticsboard', title: 'Tactics Board', icon: LayoutGrid },
@@ -730,7 +732,8 @@ const Staff = () => {
     dataexport: ['export', 'csv', 'json', 'download'],
     tacticsboard: ['tactics', 'formation', 'set piece'],
     meetings: ['meeting', 'agenda', 'minutes'],
-    data: ['performance', 'statistics', 'stats', 'metrics'],
+    coachingdata: ['performance', 'statistics', 'stats', 'metrics'],
+    videodownloader: ['download', 'mp4', 'extract', 'links'],
   };
 
   const filteredCategories = categories.map(category => ({
@@ -1153,7 +1156,8 @@ const Staff = () => {
                 {expandedSection === 'serviceaudit' && <ServiceAudit />}
                 {expandedSection === 'nutrition' && <NutritionSection />}
                 {expandedSection === 'sps' && <StrengthPowerSpeedSection />}
-                {expandedSection === 'data' && <CoachingDataSection />}
+                {expandedSection === 'coachingdata' && <CoachingDataSection />}
+                {expandedSection === 'videodownloader' && <VideoDownloaderSection />}
                 {expandedSection === 'analysis' && <AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} />}
                 {expandedSection === 'athletecentre' && <AthleteCentre />}
                 {expandedSection === 'tacticsboard' && <TacticsBoard />}
