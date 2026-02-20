@@ -1,90 +1,136 @@
 
 
-# Sales & Marketing Enhancement Plan
+# Comprehensive Update Plan
 
-## What We're Building
-
-Seven improvements across the staff tools, service pages, player portal, and WhatsApp CTA to make the platform more visually premium and conversion-focused.
-
----
-
-## 1. Image Gallery AI Tagging (Staff - ImageCreator)
-
-Add an "Auto-Tag" button on each gallery image that uses Lovable AI (Gemini Flash) to analyse the image and generate descriptive tags like "training", "match day", "pitch". Tags are stored in a new `tags` column on the `marketing_gallery` table. Filter chips appear above the gallery grid so staff can quickly find images by tag.
-
-- Database migration: add `tags text[] DEFAULT '{}'` to `marketing_gallery`
-- New edge function `ai-image-tagger` that accepts an image URL and returns tag suggestions via Gemini Flash
-- UI: small tag icon button on each image thumbnail, filter chip row above gallery
+## Summary
+This plan covers 6 areas: landing page button visibility, video clip persistence and correctness, portal comparison UX, a new Video Downloader tool, syncing missing RISE features, and fixing the Staff Data section.
 
 ---
 
-## 2. Premium Brand Restyling (Staff Sales & Marketing)
+## 1. Landing Page Top-Right Buttons -- Lighter Colour
 
-Update the visual styling of staff sales and marketing cards to match the FFF premium identity:
+Both `Landing.tsx` (line 262) and `StaticLandingFallback.tsx` (line 83) use very low opacity text for Staff/Scout/Portal buttons:
+- Landing.tsx: `text-light-green/30` hover `text-light-green/60`
+- StaticLandingFallback.tsx: `text-[hsl(var(--mint)/0.3)]` hover `text-[hsl(var(--mint)/0.6)]`
 
-- `SalesTracker`, `RetentionTracker`, `SalesHub`, `OutreachKanban`: dark gradient card backgrounds (`from-black/60 to-black/40`), `border-accent/20` borders, `font-bebas` uppercase headings, gold accent on stat numbers and progress bars
-- `BTLWriter`, `ContentCreator`, `ContentCalendar`, `ImageCreator`: same treatment
-- Animated KPI counters using `framer-motion` `useSpring` for numbers like packages sold, revenue, active clients (counting up on mount)
-- All interactive elements (buttons, active tabs, highlights) use FFF Yellow accent
-
----
-
-## 3. Portal Upgrade Cards Redesign (Hub.tsx)
-
-Enhance the upgrade offer cards on the player Hub:
-
-- Gold gradient shimmer border animation using CSS `@keyframes` on the card border
-- Feature list with checkmark icons instead of plain tag chips
-- Comparison layout: if the player has a current package, show a side-by-side "Current vs Upgrade" view highlighting what they gain
-- Pulsing CTA button with `framer-motion` scale animation on hover
-- "Save X%" badge calculated when upgrading (if price difference is available)
-
-No "Most Popular" or "Recommended" ribbon badges.
+**Change:** Increase base opacity from 30% to 55% and hover from 60% to 85% on both files.
 
 ---
 
-## 4. "Results You Can Expect" Stats Section (Service Pages)
+## 2. Video Clips -- Fix Clip URLs, Persistence, and Annotation Integration
 
-Add a data-driven stats/evidence section to `ServicePageLayout` that appears between the hero and the main content:
+### Problem
+When exporting clips from Video Analysis to performance reports, the current code (VideoAnalysis.tsx line 349) sets `video_url: selectedVideo.video_url` -- the full match video URL, not a clip-specific URL. This means performance reports play the entire match video instead of the clipped segment.
 
-- Staff-controlled: add a new `service_page_stats` table with columns: `page_key` (e.g. "analysis", "conditioning"), `stats` (JSONB array of `{label, value, suffix}`), and `updated_at`
-- Staff management: new "Service Stats" section in the Service Catalogue staff area where staff can set the counter values per service page (e.g. Analysis page: "25% Physical Improvement", "1200+ Matches Analysed")
-- Frontend: `ServiceStatsBar` component fetches stats for the current page key, renders animated count-up numbers using `framer-motion` `whileInView` + `useSpring`
-- Displayed as a compact row of 3-4 stat counters with accent-coloured numbers on a dark semi-transparent bar
+Additionally, clips inherit the 7-day auto-delete lifecycle of the parent video. They should persist indefinitely.
 
----
+### Changes
 
-## 5. Portal "Your Progress" Card (Hub.tsx)
+**A. Fix export to use fragment URLs (VideoAnalysis.tsx)**
+- When exporting clips to a report, use `${selectedVideo.video_url}#t=${clip.start},${clip.end}` instead of the raw full video URL
+- This makes the browser play only the relevant segment
 
-Add a compact progress visualisation to the player Hub:
+**B. Add `video_analysis_id` and `clip_id` columns (database migration)**
+- Add `video_analysis_id` (text, nullable) and `clip_id` (text, nullable) to `performance_report_actions` table
+- These track the source video analysis and specific clip for traceability
 
-- Fetch last 10 `r90_score` values from `performance_statistics` for the logged-in player
-- Calculate percentage change vs 3 months ago
-- Only render the card if the percentage change is positive
-- Show a mini Recharts sparkline of score trajectory + a green "+X%" badge
-- Card styled with dark background and accent border, positioned in the Hub sales box area
+**C. Preserve clips when parent video is deleted (VideoAnalysis.tsx)**
+- Before deleting a video analysis entry, unlink any report actions referencing it by clearing `video_analysis_id` while preserving the `video_url` (clip URL) -- matching RISE behaviour
+- Only delete the main uploaded video file from storage, not fragment references
 
----
+**D. Annotation-aware clip URLs**
+- When a clip has annotations saved in localStorage (`va_annotations_{clipId}`), the export should note this so the performance report player can show annotations
+- The `ActionVideoPopup` and `ClippedActionsPlayer` components already handle video URLs; the fragment URL approach ensures the correct segment plays
 
-## 6. Animated "Add to Basket" Button (ServiceDetailPanel)
-
-Enhance the existing Add to Basket button:
-
-- On hover: cart icon bounces using `framer-motion` `animate={{ y: [0, -4, 0] }}`
-- On click: brief scale pulse (`scale: [1, 1.1, 1]`) before transitioning to the "Added" state
-- The existing colour transitions and "Added" checkmark state remain unchanged
-- Applied to both the desktop and mobile button instances
+**E. Fix existing reports (Loris Mettler vs Kristiansund, Cristiano Ronaldo vs Barcelona)**
+- Query `performance_report_actions` for these reports
+- Update any full-video URLs to fragment URLs using the stored clip start/end data
 
 ---
 
-## 7. Contextual WhatsApp Pre-fill (WhatsAppPulse)
+## 3. Portal Comparisons -- Searchable Dropdown with Request Feature
 
-Update `WhatsAppPulse` to accept an optional `serviceName` prop:
+### Current State
+`AnalysisComparisons.tsx` shows comparison players as a grid of toggle buttons. Users can only select from pre-stored players matching their position.
 
-- When provided, the WhatsApp URL pre-fills with: "Hi, I'm interested in your {serviceName} programme. Can you tell me more?"
-- When not provided, falls back to the existing default message
-- Update all service pages (`Analysis.tsx`, `Conditioning.tsx`, `Mental.tsx`, etc.) to pass their service name to the floating `WhatsAppPulse` component
-- Update `ServicePageLayout` to optionally render the floating WhatsApp CTA with the category name pre-filled
+### Changes
+
+**A. Replace button grid with searchable dropdown (AnalysisComparisons.tsx)**
+- Use a `Command`/`Popover` combo (combobox pattern) with search input
+- Selected players appear as removable chips below the dropdown
+- Players still filtered by position
+
+**B. "Request a Player" option**
+- If the player types a name not found in the database, show a "Request {name}" option at the bottom
+- Clicking it triggers a staff notification via the `notify-staff` edge function with category `comparison_request` and the player name/position requested
+- Show a toast confirming the request was sent
+
+**C. Staff notification handling**
+- Add `comparison_request` to the `StaffNotificationsDropdown.tsx` category map with a suitable label and icon
+
+---
+
+## 4. Video Downloader -- New Staff App Section
+
+### Concept
+A new section under "Apps" on Staff that accepts a URL input, fetches the page content, and extracts all `.mp4` links found on that page. Users can then click links to open them and use the three-dot menu to download.
+
+### Implementation
+
+**A. New component: `src/components/staff/VideoDownloaderSection.tsx`**
+- Text input for URL
+- "Inspect" button that calls a new edge function
+- Results list showing extracted mp4 URLs as clickable links (opens in new tab)
+- Each link opens the mp4 directly where the user can right-click or use three-dot menu to save
+
+**B. New edge function: `supabase/functions/extract-video-links/index.ts`**
+- Accepts a URL in the request body
+- Fetches the page HTML server-side (to avoid CORS)
+- Parses for `.mp4` links using regex on `src=`, `href=`, and common video player attributes
+- Returns array of found mp4 URLs
+
+**C. Register in Staff.tsx**
+- Add `{ id: 'videodownloader', title: 'Video Downloader', icon: Download }` to the Apps sections array
+- Add rendering: `{expandedSection === 'videodownloader' && <VideoDownloaderSection />}`
+
+---
+
+## 5. Sync Missing RISE Features
+
+### A. Video Analysis Enhancements (VideoAnalysis.tsx)
+The RISE version (1622 lines) has significant features missing from this site (471 lines):
+
+1. **Speed controls** -- Playback speed overlay (0.25x to 2x) with hotkeys (+/-/0)
+2. **Keyboard hotkeys** -- Arrow keys for 10s seek, Shift for 30s, Delete for instant clip
+3. **Link/Export split** -- "Link Clips" (makes clips available for selection on report) vs "Export as Actions" (adds directly). Currently only export exists
+4. **Clip-to-action attachment** -- Paperclip button on each clip to attach it to a specific existing action on a linked report, or insert a new action at a specific position
+5. **Editable clip minute field** -- Inline editable match time per clip (mm:ss format)
+6. **Clip saved toast in fullscreen** -- Visual confirmation overlay when clipping during fullscreen playback
+7. **Player grouping in dropdowns** -- Uses `groupPlayersByStatus` for organised player selection
+8. **`linked_video_analysis_ids`** on `player_analysis` table -- Tracks which video analyses are linked to which reports
+
+### B. CoachingDataSection -- Inline Report Editing
+RISE uses inline report editing (`CreatePerformanceReportDialog` with `inline` prop) instead of opening a dialog. The current site opens a `PerformanceReportDialog` viewer and a separate `CreatePerformanceReportDialog`. RISE has no viewer dialog -- it goes straight to inline edit mode.
+
+### Database Migration for Sync
+```sql
+ALTER TABLE player_analysis ADD COLUMN IF NOT EXISTS linked_video_analysis_ids text[] DEFAULT '{}';
+ALTER TABLE performance_report_actions ADD COLUMN IF NOT EXISTS video_analysis_id text;
+ALTER TABLE performance_report_actions ADD COLUMN IF NOT EXISTS clip_id text;
+```
+
+---
+
+## 6. Fix Staff "Data" Section
+
+### Problem
+The Staff Data section currently uses section ID `'data'` and renders `CoachingDataSection`. On RISE the section ID is `'coachingdata'` and it renders the same component but with inline editing behaviour.
+
+### Changes
+- Update section ID from `'data'` to `'coachingdata'` in Staff.tsx sections config
+- Update the rendering condition from `expandedSection === 'data'` to `expandedSection === 'coachingdata'`
+- Update `CoachingDataSection` to match RISE: remove the `PerformanceReportDialog` viewer and use inline editing by passing `inline` prop to `CreatePerformanceReportDialog` with `onClose`/`onSuccess` callbacks
+- Remove the separate view report dialog state
 
 ---
 
@@ -92,45 +138,30 @@ Update `WhatsAppPulse` to accept an optional `serviceName` prop:
 
 ### Database Migration
 ```sql
--- Add tags to marketing_gallery
-ALTER TABLE marketing_gallery ADD COLUMN IF NOT EXISTS tags text[] DEFAULT '{}';
+-- Video clip tracking columns
+ALTER TABLE performance_report_actions ADD COLUMN IF NOT EXISTS video_analysis_id text;
+ALTER TABLE performance_report_actions ADD COLUMN IF NOT EXISTS clip_id text;
 
--- Create service_page_stats table for staff-controlled counters
-CREATE TABLE service_page_stats (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  page_key text UNIQUE NOT NULL,
-  stats jsonb NOT NULL DEFAULT '[]',
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE service_page_stats ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow authenticated read" ON service_page_stats FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Allow anon read" ON service_page_stats FOR SELECT TO anon USING (true);
-CREATE POLICY "Allow staff write" ON service_page_stats FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'admin')) WITH CHECK (public.has_role(auth.uid(), 'admin'));
+-- Video analysis linking to reports
+ALTER TABLE player_analysis ADD COLUMN IF NOT EXISTS linked_video_analysis_ids text[] DEFAULT '{}';
 ```
 
 ### New Files
-- `supabase/functions/ai-image-tagger/index.ts` - Edge function for AI image tagging
-- `src/components/services/ServiceStatsBar.tsx` - Animated stats counter bar
-- `src/components/portal/ProgressSummary.tsx` - Hub sparkline progress card
-- `src/components/staff/sales/ServiceStatsManager.tsx` - Staff UI for managing per-page stats
+- `src/components/staff/VideoDownloaderSection.tsx` -- Video link extractor UI
+- `supabase/functions/extract-video-links/index.ts` -- Server-side page parser
 
 ### Modified Files
-- `src/components/staff/marketing/ImageCreator.tsx` - AI tag button + filter chips
-- `src/components/staff/sales/SalesTracker.tsx` - Premium restyling + animated counters
-- `src/components/staff/sales/RetentionTracker.tsx` - Premium restyling
-- `src/components/staff/sales/SalesHub.tsx` - Premium restyling
-- `src/components/staff/sales/OutreachKanban.tsx` - Premium restyling
-- `src/components/staff/marketing/BTLWriter.tsx` - Premium restyling
-- `src/components/staff/marketing/ContentCreator.tsx` - Premium restyling
-- `src/components/staff/marketing/ContentCalendar.tsx` - Premium restyling
-- `src/components/dashboard/Hub.tsx` - Upgrade card redesign + progress summary
-- `src/components/ServiceDetailPanel.tsx` - Animated Add to Basket button
-- `src/components/WhatsAppPulse.tsx` - `serviceName` prop + contextual pre-fill
-- `src/components/services/ServicePageLayout.tsx` - Stats bar + WhatsApp integration
-- Service page files (Analysis, Conditioning, Mental, etc.) - Pass service name to WhatsApp
+- `src/pages/Landing.tsx` -- Button opacity increase (line 262)
+- `src/components/StaticLandingFallback.tsx` -- Button opacity increase (lines 84-91)
+- `src/components/staff/coaching/VideoAnalysis.tsx` -- Major sync with RISE (speed controls, hotkeys, link/export, clip attachment, fragment URLs, clip persistence)
+- `src/components/portal/AnalysisComparisons.tsx` -- Searchable dropdown with request feature
+- `src/components/staff/StaffNotificationsDropdown.tsx` -- Add `comparison_request` category
+- `src/components/staff/CoachingDataSection.tsx` -- Inline editing, remove viewer dialog
+- `src/pages/Staff.tsx` -- Fix data section ID, add Video Downloader section
+- `src/components/PerformanceReportDialog.tsx` -- Ensure fragment URL playback works correctly
+- `src/components/ActionVideoPopup.tsx` -- Ensure fragment URL playback works correctly
+- `src/components/ClippedActionsPlayer.tsx` -- Ensure fragment URL playback works correctly
 
 ### Dependencies
-No new packages needed. Uses existing `framer-motion`, `recharts`, `lucide-react`, `date-fns`.
+No new packages needed.
 
