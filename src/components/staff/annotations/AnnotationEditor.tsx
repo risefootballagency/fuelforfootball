@@ -19,6 +19,10 @@ interface AnnotationEditorProps {
   project: AnnotationProject;
   onSave: (project: AnnotationProject) => void;
   onBack: () => void;
+  /** When set, constrains video playback to this time range (clip-only mode) */
+  clipConstraint?: { start: number; end: number };
+  /** Auto-start playback once video is loaded */
+  autoPlay?: boolean;
 }
 
 export type AnnotationTool =
@@ -27,7 +31,7 @@ export type AnnotationTool =
   | 'vision-cone' | 'distance' | 'magnifier' | 'linked-line'
   | 'semi-circle' | 'point' | 'space-oval' | 'image-layer';
 
-export const AnnotationEditor = ({ project, onSave, onBack }: AnnotationEditorProps) => {
+export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, autoPlay }: AnnotationEditorProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -166,11 +170,17 @@ export const AnnotationEditor = ({ project, onSave, onBack }: AnnotationEditorPr
     let rafId: number;
     const updateTime = () => {
       setCurrentTime(video.currentTime);
+      // Enforce clip constraint end boundary during playback
+      if (clipConstraint && video.currentTime >= clipConstraint.end) {
+        video.pause();
+        video.currentTime = clipConstraint.end;
+        setIsPlaying(false);
+      }
       if (!video.paused) rafId = requestAnimationFrame(updateTime);
     };
     const onPlay = () => { rafId = requestAnimationFrame(updateTime); };
     const onPause = () => { cancelAnimationFrame(rafId); setCurrentTime(video.currentTime); };
-    const onLoaded = () => setDuration(video.duration);
+    const onLoaded = () => setDuration(clipConstraint ? clipConstraint.end - clipConstraint.start : video.duration);
     const onEnded = () => { setIsPlaying(false); cancelAnimationFrame(rafId); };
     const onTime = () => setCurrentTime(video.currentTime);
     video.addEventListener('play', onPlay);
@@ -288,22 +298,28 @@ export const AnnotationEditor = ({ project, onSave, onBack }: AnnotationEditorPr
   const seek = useCallback((time: number) => {
     const video = videoRef.current;
     if (!video) return;
+    // Clamp to clip constraint if set
+    const clampedTime = clipConstraint
+      ? Math.max(clipConstraint.start, Math.min(clipConstraint.end, time))
+      : time;
     if (playbackFreezeTimerRef.current) clearTimeout(playbackFreezeTimerRef.current);
     setPlaybackFreezeUrl(null);
     setPlaybackFreezeActive(false);
     setPlaybackFreezePhase('idle');
     triggeredTimesRef.current.clear();
-    video.currentTime = time;
-    setCurrentTime(time);
-  }, []);
+    video.currentTime = clampedTime;
+    setCurrentTime(clampedTime);
+  }, [clipConstraint]);
 
   const stepFrame = useCallback((dir: number) => {
     const video = videoRef.current;
     if (!video) return;
     video.pause();
     setIsPlaying(false);
-    video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + dir * (1 / 30)));
-  }, []);
+    const minT = clipConstraint?.start ?? 0;
+    const maxT = clipConstraint?.end ?? video.duration;
+    video.currentTime = Math.max(minT, Math.min(maxT, video.currentTime + dir * (1 / 30)));
+  }, [clipConstraint]);
 
   const cycleSpeed = useCallback(() => {
     const speeds = [0.25, 0.5, 1, 1.5, 2];
