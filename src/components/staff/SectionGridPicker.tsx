@@ -1,0 +1,70 @@
+import { useState, useMemo } from "react";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { motion } from "framer-motion";
+
+interface SectionItem { id: string; title: string; icon?: React.ComponentType<{ className?: string }>; isGroupLabel?: boolean; }
+interface Category { id: string; title: string; icon: React.ComponentType<{ className?: string }>; sections: SectionItem[]; locked?: boolean; }
+interface SectionGridPickerProps { categories: Category[]; onSelect: (sectionId: string, categoryId: string) => void; }
+
+const SECTION_PREVIEWS: Record<string, string> = {
+  overview: "Dashboard overview with key metrics", schedule: "Calendar view of upcoming fixtures", meetings: "Meeting scheduler and notes",
+  docs: "Document editor and file management", sheets: "Spreadsheet editor", annotations: "Video annotation projects",
+  videoanalysis: "Full video analysis with clips", coaching: "Drills, sessions and exercise database", analysis: "Pre/post-match analysis builder",
+  coachingdata: "Performance data and R90 reports", tacticsboard: "Interactive tactics board", strengthpower: "Strength, power and speed programming",
+  nutrition: "Nutrition plans and meal tracking", players: "Player profiles and management", transferhub: "Transfer negotiations and club outreach",
+  clubnetwork: "Club contacts and scouts network", scoutingcentre: "Scouting reports and evaluations", marketing: "Campaign management",
+  invoices: "Invoice creation and billing", legal: "Legal documents and contracts", staffaccounts: "Staff account and role management",
+};
+
+const PREVIEW_GRADIENTS = [
+  "from-blue-600/30 to-blue-900/50", "from-emerald-600/30 to-emerald-900/50", "from-violet-600/30 to-violet-900/50",
+  "from-amber-600/30 to-amber-900/50", "from-rose-600/30 to-rose-900/50", "from-cyan-600/30 to-cyan-900/50",
+  "from-indigo-600/30 to-indigo-900/50", "from-orange-600/30 to-orange-900/50",
+];
+
+export const SectionGridPicker = ({ categories, onSelect }: SectionGridPickerProps) => {
+  const [search, setSearch] = useState("");
+  const filteredCategories = useMemo(() => {
+    const q = search.toLowerCase().trim();
+    if (!q) return categories;
+    return categories.map(cat => ({ ...cat, sections: cat.sections.filter(s => { if ((s as any).isGroupLabel) return false; return s.title.toLowerCase().includes(q) || (SECTION_PREVIEWS[s.id] || "").toLowerCase().includes(q); }) })).filter(cat => cat.sections.length > 0);
+  }, [categories, search]);
+
+  let globalIdx = 0;
+  return (
+    <div className="h-full flex flex-col">
+      <div className="px-6 pt-6 pb-4"><div className="relative max-w-md mx-auto"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search sections..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" autoFocus /></div></div>
+      <div className="flex-1 overflow-y-auto px-6 pb-6">
+        <div className="space-y-8 max-w-6xl mx-auto">
+          {filteredCategories.map(cat => {
+            const realSections = cat.sections.filter(s => !(s as any).isGroupLabel);
+            if (realSections.length === 0) return null;
+            const CatIcon = cat.icon;
+            return (
+              <div key={cat.id}>
+                <div className="flex items-center gap-2 mb-3"><CatIcon className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold uppercase tracking-wider text-primary">{cat.title}</h3><div className="flex-1 h-px bg-border" /></div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {realSections.map((section, idx) => {
+                    const Icon = section.icon || CatIcon;
+                    const preview = SECTION_PREVIEWS[section.id] || "";
+                    const gradientClass = PREVIEW_GRADIENTS[globalIdx % PREVIEW_GRADIENTS.length]; globalIdx++;
+                    return (
+                      <motion.button key={section.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.02 }} onClick={() => onSelect(section.id, cat.id)} className="group relative flex flex-col rounded-xl border border-border/50 bg-card hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all text-center overflow-hidden">
+                        <div className={`relative w-full h-24 bg-gradient-to-br ${gradientClass} flex items-center justify-center`}>
+                          <div className="absolute inset-0 opacity-10"><div className="absolute top-2 right-2 w-8 h-8 border border-white/30 rounded-full" /><div className="absolute bottom-2 left-2 w-5 h-5 border border-white/20 rounded" /></div>
+                          <Icon className="w-10 h-10 text-primary drop-shadow-lg group-hover:scale-110 transition-transform" />
+                        </div>
+                        <div className="px-3 py-3 flex flex-col gap-1"><span className="text-xs font-semibold leading-tight">{section.title}</span>{preview && <span className="text-[10px] text-muted-foreground leading-tight line-clamp-2">{preview}</span>}</div>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
