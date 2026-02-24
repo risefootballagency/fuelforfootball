@@ -14,7 +14,7 @@ import { format } from "date-fns";
 import {
   Search, Filter, Eye, Edit2, Trash2, UserPlus, Check, X, Clock,
   AlertCircle, TrendingUp, Users, MapPin, Building, UserCheck, ChevronRight,
-  FileText, Send, Star, MessageSquare, Video, Link, FileDown
+  FileText, Send, Star, MessageSquare, Video, Link, FileDown, ExternalLink
 } from "lucide-react";
 import { ScoutFeedbackDialog } from "./ScoutFeedbackDialog";
 

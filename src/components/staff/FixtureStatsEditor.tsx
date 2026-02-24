@@ -1,0 +1,188 @@
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { METRIC_CATEGORIES } from "./ComparisonPlayerData";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { toast } from "sonner";
+import { Sparkles, Plus, Loader2 } from "lucide-react";
+
+export const FIXTURE_TO_UNIFIED_MAP: Record<string, { key: string; type: 'count' | 'score' }> = {
+  goals_per90: { key: 'goals', type: 'count' },
+  assists_per90: { key: 'assists', type: 'count' },
+  shots_on_target_per90: { key: 'shots_on_target', type: 'count' },
+  total_shots_per90: { key: 'shots', type: 'count' },
+  progressive_passes_per90: { key: 'progressive_passes', type: 'count' },
+  key_passes_per90: { key: 'key_passes', type: 'count' },
+  successful_dribbles_per90: { key: 'dribbles_completed', type: 'count' },
+  progressive_carries_per90: { key: 'progressive_carries', type: 'count' },
+  carries_into_final_3rd_per90: { key: 'carries_into_final_third', type: 'count' },
+  touches_in_opp_box_per90: { key: 'touches_in_box', type: 'count' },
+  fouls_drawn_per90: { key: 'fouls_won', type: 'count' },
+  tackles_won_per90: { key: 'tackles_won', type: 'count' },
+  aerials_won_per90: { key: 'aerial_duels_won', type: 'count' },
+  duels_won_per90: { key: 'duels_won', type: 'count' },
+  clearances_per90: { key: 'clearances', type: 'count' },
+  interceptions_per90: { key: 'interceptions', type: 'count' },
+  accurate_crosses_per90: { key: 'crosses_completed', type: 'count' },
+  accurate_long_balls_per90: { key: 'long_passes_completed', type: 'count' },
+  npxg_per90: { key: 'npxg', type: 'score' },
+  xa_per90: { key: 'xa', type: 'score' },
+};
+
+export const UNIFIED_TO_FIXTURE_MAP: Record<string, string> = Object.fromEntries(
+  Object.entries(FIXTURE_TO_UNIFIED_MAP).map(([fKey, { key }]) => [key, fKey])
+);
+
+interface AISuggestion {
+  value: number;
+  reasoning: string;
+  contributing_action_numbers: number[];
+}
+
+interface PerformanceActionForAI {
+  action_number: number;
+  minute: string;
+  action_score: string;
+  action_type: string;
+  action_description: string;
+  notes: string;
+}
+
+interface FixtureStatsEditorProps {
+  fixtureStats: Record<string, number>;
+  onStatsChange: (stats: Record<string, number>) => void;
+  actions?: PerformanceActionForAI[];
+  previousFixtureStats?: Record<string, number>;
+}
+
+export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previousFixtureStats }: FixtureStatsEditorProps) => {
+  const [activeCategory, setActiveCategory] = useState("Shooting");
+  const [aiSuggestions, setAiSuggestions] = useState<Record<string, AISuggestion>>({});
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const handleChange = (key: string, value: string) => {
+    const updated = { ...fixtureStats };
+    if (value === '' || isNaN(parseFloat(value))) {
+      delete updated[key];
+    } else {
+      updated[key] = parseFloat(value);
+    }
+    onStatsChange(updated);
+  };
+
+  const handleAcceptSuggestion = (key: string, value: number) => {
+    const updated = { ...fixtureStats, [key]: value };
+    onStatsChange(updated);
+    setAiSuggestions(prev => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const handleSuggestWithAI = async () => {
+    if (!actions || actions.length === 0) {
+      toast.error('No performance actions to analyse');
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const allMetrics = METRIC_CATEGORIES.flatMap(cat =>
+        cat.metrics.map(m => ({ key: m.key, label: m.label }))
+      );
+
+      const { data, error } = await supabase.functions.invoke('suggest-fixture-stats', {
+        body: {
+          actions: actions.map(a => ({
+            action_number: a.action_number,
+            minute: a.minute,
+            action_score: a.action_score,
+            action_type: a.action_type,
+            action_description: a.action_description,
+            notes: a.notes,
+          })),
+          statDefinitions: allMetrics,
+          previousStats: previousFixtureStats || {},
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) { toast.error(data.error); return; }
+      if (data?.suggestions) {
+        setAiSuggestions(data.suggestions);
+        const count = Object.keys(data.suggestions).length;
+        toast.success(`AI suggested ${count} stat${count !== 1 ? 's' : ''}`);
+      }
+    } catch (err: any) {
+      console.error('AI suggestion error:', err);
+      toast.error('Failed to get AI suggestions');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <Label className="text-sm font-semibold">Fixture Stats</Label>
+          <p className="text-xs text-muted-foreground">
+            Raw match totals. Per-90 averages are calculated automatically for portal comparisons.
+          </p>
+        </div>
+        {actions && actions.length > 0 && (
+          <Button variant="outline" size="sm" onClick={handleSuggestWithAI} disabled={aiLoading} className="gap-1.5 shrink-0">
+            {aiLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+            {aiLoading ? 'Analysing...' : 'Suggest with AI'}
+          </Button>
+        )}
+      </div>
+      <Tabs value={activeCategory} onValueChange={setActiveCategory}>
+        <TabsList className="grid grid-cols-4 gap-1">
+          {METRIC_CATEGORIES.map(cat => (
+            <TabsTrigger key={cat.category} value={cat.category} className="text-xs">{cat.category}</TabsTrigger>
+          ))}
+        </TabsList>
+        {METRIC_CATEGORIES.map(cat => (
+          <TabsContent key={cat.category} value={cat.category} className="mt-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {cat.metrics.map(m => {
+                const suggestion = aiSuggestions[m.key];
+                return (
+                  <div key={m.key}>
+                    <Label className="text-xs text-muted-foreground">{m.label}</Label>
+                    <Input type="number" step="0.01" value={fixtureStats[m.key] ?? ''} onChange={(e) => handleChange(m.key, e.target.value)} className="h-8 text-sm" placeholder="-" />
+                    {suggestion && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="mt-1 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer">
+                            <span className="font-mono font-semibold bg-primary/10 px-1.5 py-0.5 rounded">{suggestion.value}</span>
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-72 text-xs" align="start">
+                          <div className="space-y-2">
+                            <p className="font-medium">AI Suggestion: {suggestion.value}</p>
+                            <p className="text-muted-foreground">{suggestion.reasoning}</p>
+                            {suggestion.contributing_action_numbers.length > 0 && (
+                              <p className="text-muted-foreground">Contributing actions: #{suggestion.contributing_action_numbers.join(', #')}</p>
+                            )}
+                            <Button size="sm" className="w-full h-7 text-xs" onClick={() => handleAcceptSuggestion(m.key, suggestion.value)}>Accept suggestion</Button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
+  );
+};
