@@ -1143,11 +1143,11 @@ const Staff = () => {
                 {expandedSection === 'docs' && <DocsSection />}
                 {expandedSection === 'sheets' && <SheetsSection />}
                 {expandedSection === 'designstudio' && <DesignStudio />}
-                {expandedSection === 'annotations' && <AnnotationProjects />}
-                {expandedSection === 'videoanalysis' && <VideoAnalysis />}
+                <div className={expandedSection === 'annotations' ? '' : 'hidden'}><AnnotationProjects /></div>
+                <div className={expandedSection === 'videoanalysis' ? '' : 'hidden'}><VideoAnalysis /></div>
                 {expandedSection === 'streams' && <StreamsManagement />}
                 {expandedSection === 'playerlist' && <PlayerList isAdmin={isAdmin} />}
-                {expandedSection === 'players' && <PlayerManagement isAdmin={isAdmin} />}
+                <div className={expandedSection === 'players' ? '' : 'hidden'}><PlayerManagement isAdmin={isAdmin} /></div>
                 {expandedSection === 'recruitment' && <RecruitmentManagement isAdmin={isAdmin} />}
                 {expandedSection === 'playerdatabase' && <PlayerDatabaseManagement isAdmin={isAdmin} />}
                 {expandedSection === 'scoutingcentre' && <ScoutingCentreManagement isAdmin={isAdmin} />}
@@ -1158,7 +1158,7 @@ const Staff = () => {
                 {expandedSection === 'sps' && <StrengthPowerSpeedSection />}
                 {expandedSection === 'coachingdata' && <CoachingDataSection />}
                 {expandedSection === 'videodownloader' && <VideoDownloaderSection />}
-                {expandedSection === 'analysis' && <AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} />}
+                <div className={expandedSection === 'analysis' ? '' : 'hidden'}><AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} /></div>
                 {expandedSection === 'athletecentre' && <AthleteCentre />}
                 {expandedSection === 'tacticsboard' && <TacticsBoard />}
                 {expandedSection === 'highlightmaker' && <HighlightMaker isAdmin={isAdmin} />}

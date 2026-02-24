@@ -33,6 +33,7 @@ export type AnnotationTool =
 
 export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, autoPlay }: AnnotationEditorProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const autoPlayTriggeredRef = useRef(false);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
@@ -197,6 +198,22 @@ export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, auto
       video.removeEventListener('ended', onEnded);
     };
   }, []);
+
+  // autoPlay: start playback once video metadata is ready
+  useEffect(() => {
+    if (!autoPlay || autoPlayTriggeredRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const startPlay = () => {
+      if (autoPlayTriggeredRef.current) return;
+      autoPlayTriggeredRef.current = true;
+      if (clipConstraint) video.currentTime = clipConstraint.start;
+      video.play().then(() => setIsPlaying(true)).catch(() => {});
+    };
+    if (video.readyState >= 1) startPlay();
+    else video.addEventListener('loadedmetadata', startPlay, { once: true });
+    return () => video.removeEventListener('loadedmetadata', startPlay);
+  }, [autoPlay, clipConstraint]);
 
   useEffect(() => {
     if (isExportingRef.current) return;
@@ -725,7 +742,7 @@ export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, auto
             }}>
               <video
                 ref={videoRef}
-                src={project.videoUrl}
+                src={clipConstraint ? `${project.videoUrl}#t=${clipConstraint.start},${clipConstraint.end}` : project.videoUrl}
                 crossOrigin="anonymous"
                 className={`max-w-full max-h-[calc(100vh-16rem)] block ${drawingMode ? 'invisible' : ''}`}
                 muted={muted}
