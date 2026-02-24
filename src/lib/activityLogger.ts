@@ -18,7 +18,7 @@ export const logActivity = async ({ action, entityType, entityId, entityName, de
     if (!user) return;
 
     // Cast to any to bypass type check for missing table in current types
-    await (supabase.from('staff_activity_log') as any).insert({
+    await (supabase as any).from('staff_activity_log').insert({
       action,
       entity_type: entityType,
       entity_id: entityId || null,

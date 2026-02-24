@@ -1,5 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { sharedSupabase as supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
+
+// Cast helper for tables not in local schema
+const db = supabase as any;
 import { toast } from 'sonner';
 import { calculateAge, calculatePreciseAge, getEligibleDate } from '@/lib/ageUtils';
 import { Button } from '@/components/ui/button';
@@ -99,8 +102,8 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
     try {
       const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
       const [dataResult, rulesResult, clubsResult, ratingsResult] = await Promise.all([
-        supabase.from(tableName).select('*').order('created_at', { ascending: false }),
-        supabase.from('recruitment_age_rules').select('country, country_code, min_contact_age'),
+        db.from(tableName).select('*').order('created_at', { ascending: false }),
+        db.from('recruitment_age_rules').select('country, country_code, min_contact_age'),
         supabase.from('club_map_positions').select('club_name, country'),
         supabase.from('club_ratings').select('club_name, first_team_rating, academy_rating')
       ]);
@@ -110,9 +113,9 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
       if (isYouth) {
         const toMove = outreachData.filter(item => { if (!item.date_of_birth) return false; const age = calculateAge(item.date_of_birth); return age !== null && age >= 18; });
         if (toMove.length > 0) {
-          for (const item of toMove) { await supabase.from('player_outreach_pro').insert({ player_name: item.player_name, ig_handle: item.ig_handle, current_club: item.current_club, date_of_birth: item.date_of_birth, messaged: item.messaged, response_received: item.response_received, initial_message: item.initial_message, notes: item.notes, age: 18, position: item.position, nationality: item.nationality }); await supabase.from('player_outreach_youth').delete().eq('id', item.id); }
+          for (const item of toMove) { await db.from('player_outreach_pro').insert({ player_name: item.player_name, ig_handle: item.ig_handle, current_club: item.current_club, date_of_birth: item.date_of_birth, messaged: item.messaged, response_received: item.response_received, initial_message: item.initial_message, notes: item.notes, age: 18, position: item.position, nationality: item.nationality }); await db.from('player_outreach_youth').delete().eq('id', item.id); }
           toast.info(`${toMove.length} player(s) auto-moved to Pro (turned 18)`);
-          const { data: refreshed } = await supabase.from('player_outreach_youth').select('*').order('created_at', { ascending: false }); outreachData = refreshed || [];
+          const { data: refreshed } = await db.from('player_outreach_youth').select('*').order('created_at', { ascending: false }); outreachData = refreshed || [];
         }
       }
       setData(outreachData);
@@ -125,7 +128,7 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
   const toggleField = async (id: string, field: string, currentValue: boolean) => {
     const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
     setData(prev => prev.map(item => item.id === id ? { ...item, [field]: !currentValue } : item));
-    try { const { error } = await supabase.from(tableName).update({ [field]: !currentValue }).eq('id', id); if (error) throw error; } catch { setData(prev => prev.map(item => item.id === id ? { ...item, [field]: currentValue } : item)); toast.error('Failed to save'); }
+    try { const { error } = await db.from(tableName).update({ [field]: !currentValue }).eq('id', id); if (error) throw error; } catch { setData(prev => prev.map(item => item.id === id ? { ...item, [field]: currentValue } : item)); toast.error('Failed to save'); }
   };
 
   const handleEdit = (item: any) => { setEditingItem(item); setFormData({ ...item }); setDialogOpen(true); };
@@ -135,8 +138,8 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
     e.preventDefault(); const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
     const submitData = { ...formData }; if (submitData.date_of_birth) submitData.age = calculateAge(submitData.date_of_birth);
     try {
-      if (editingItem) { const { error } = await supabase.from(tableName).update(submitData).eq('id', editingItem.id); if (error) throw error; toast.success('Entry updated'); }
-      else { const { error } = await supabase.from(tableName).insert([submitData]); if (error) throw error; toast.success('Entry added'); }
+      if (editingItem) { const { error } = await db.from(tableName).update(submitData).eq('id', editingItem.id); if (error) throw error; toast.success('Entry updated'); }
+      else { const { error } = await db.from(tableName).insert([submitData]); if (error) throw error; toast.success('Entry added'); }
       setDialogOpen(false); setEditingItem(null); setFormData(emptyForm); fetchData();
     } catch (error: any) { toast.error(error.message || 'Failed to save'); }
   };
@@ -144,10 +147,10 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
   const handleDetailSave = async () => {
     if (!detailItem) return; const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
     const submitData = { ...formData }; if (submitData.date_of_birth) submitData.age = calculateAge(submitData.date_of_birth);
-    try { const { error } = await supabase.from(tableName).update(submitData).eq('id', detailItem.id); if (error) throw error; toast.success('Updated'); setDetailOpen(false); fetchData(); } catch (error: any) { toast.error(error.message || 'Failed to save'); }
+    try { const { error } = await db.from(tableName).update(submitData).eq('id', detailItem.id); if (error) throw error; toast.success('Updated'); setDetailOpen(false); fetchData(); } catch (error: any) { toast.error(error.message || 'Failed to save'); }
   };
 
-  const handleDelete = async (id: string) => { if (!confirm('Delete this entry?')) return; const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro'; try { const { error } = await supabase.from(tableName).delete().eq('id', id); if (error) throw error; toast.success('Entry deleted'); fetchData(); } catch { toast.error('Failed to delete'); } };
+  const handleDelete = async (id: string) => { if (!confirm('Delete this entry?')) return; const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro'; try { const { error } = await db.from(tableName).delete().eq('id', id); if (error) throw error; toast.success('Entry deleted'); fetchData(); } catch { toast.error('Failed to delete'); } };
   const handleSort = (field: SortField) => { if (sortField === field) setSortDir(prev => prev === 'asc' ? 'desc' : 'asc'); else { setSortField(field); setSortDir('asc'); } };
   const getSortIcon = (field: SortField) => sortField !== field ? <ArrowUpDown className="h-3 w-3 ml-1 opacity-50" /> : sortDir === 'asc' ? <ArrowUp className="h-3 w-3 ml-1" /> : <ArrowDown className="h-3 w-3 ml-1" />;
 
@@ -215,7 +218,7 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
       <div className="flex items-center justify-between mb-2">
         <div className="text-xs text-muted-foreground">{data.length} {type} outreach entries</div>
         <div className="flex items-center gap-1">
-          <TableSettingsPopover storageKey={`outreach-panel-${type}`} columns={columns} visibleColumns={settings.visibleColumns} onToggleColumn={settings.toggleColumn} columnOrder={settings.columnOrder} onReorderColumns={settings.setColumnOrder} showViewToggle={false} filters={<div className="space-y-3 pt-2 border-t"><button onClick={clearAllFilters} className="text-xs text-muted-foreground hover:text-foreground w-full text-center py-1 border rounded">Clear All Filters</button></div>} />
+          <TableSettingsPopover storageKey={`outreach-panel-${type}`} columns={columns} visibleColumns={settings.visibleColumns} onToggleColumn={settings.toggleColumn} columnOrder={settings.columnOrder} onReorderColumns={settings.setColumnOrder} showViewToggle={false} filters={<div className="space-y-3 pt-2 border-t"><button onClick={() => { setSearchQuery(''); setAgeFilter('all'); setNationFilter('all'); setPositionFilter([]); setDobFrom(''); setDobTo(''); }} className="text-xs text-muted-foreground hover:text-foreground w-full text-center py-1 border rounded">Clear All Filters</button></div>} />
           <Button size="sm" variant="outline" onClick={() => { setEditingItem(null); setFormData(emptyForm); setDialogOpen(true); }}><Plus className="w-3.5 h-3.5 mr-1" /> Add</Button>
         </div>
       </div>

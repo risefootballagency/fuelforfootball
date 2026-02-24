@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+
+// Cast helper for tables not in local schema
+const db = supabase as any;
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,7 +35,7 @@ const MessagePathways = () => {
   const { data: pathways = [], isLoading } = useQuery({
     queryKey: ['message-pathways'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('message_pathways').select('*').order('created_at', { ascending: false });
+      const { data, error } = await db.from('message_pathways').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return (data || []).map(p => ({ ...p, steps: (p.steps as unknown as PathwayStep[]) || [] })) as Pathway[];
     },
@@ -51,10 +54,10 @@ const MessagePathways = () => {
     mutationFn: async (data: { name: string; description: string; steps: PathwayStep[] }) => {
       const stepsJson = JSON.parse(JSON.stringify(data.steps));
       if (editingPathway) {
-        const { error } = await supabase.from('message_pathways').update({ name: data.name, description: data.description || null, steps: stepsJson }).eq('id', editingPathway.id);
+        const { error } = await db.from('message_pathways').update({ name: data.name, description: data.description || null, steps: stepsJson }).eq('id', editingPathway.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('message_pathways').insert([{ name: data.name, description: data.description || null, steps: stepsJson }]);
+        const { error } = await db.from('message_pathways').insert([{ name: data.name, description: data.description || null, steps: stepsJson }]);
         if (error) throw error;
       }
     },
@@ -63,7 +66,7 @@ const MessagePathways = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => { const { error } = await supabase.from('message_pathways').delete().eq('id', id); if (error) throw error; },
+    mutationFn: async (id: string) => { const { error } = await db.from('message_pathways').delete().eq('id', id); if (error) throw error; },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['message-pathways'] }); toast.success('Pathway deleted'); },
     onError: () => { toast.error('Failed to delete pathway'); },
   });
