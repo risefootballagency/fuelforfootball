@@ -1,1 +1,5 @@
-<insert_content_here>
+// AddTestResultDialog.tsx
+
+import { supabase } from "@/lib/supabaseClient";
+
+// component code...
