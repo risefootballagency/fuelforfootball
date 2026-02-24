@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
+// Cast helper for tables not in local schema
+const db = supabase as any;
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -34,9 +37,9 @@ export const RolePermissionsEditor = () => {
 
   const fetchData = async () => {
     try {
-      const [permRes, roleRes] = await Promise.all([supabase.from("role_permissions").select("*").order("category_id").order("section_id"), supabase.from("available_roles").select("*").order("role_key")]);
+      const [permRes, roleRes] = await Promise.all([db.from("role_permissions").select("*").order("category_id").order("section_id"), db.from("available_roles").select("*").order("role_key")]);
       if (permRes.error) throw permRes.error; if (roleRes.error) throw roleRes.error;
-      setPermissions(permRes.data || []); setRoles(roleRes.data || []);
+      setPermissions((permRes.data || []) as Permission[]); setRoles((roleRes.data || []) as AvailableRole[]);
     } catch (error) { console.error("Error fetching data:", error); toast.error("Failed to load permissions"); } finally { setLoading(false); }
   };
 
@@ -54,7 +57,7 @@ export const RolePermissionsEditor = () => {
     setSaving(true);
     try {
       const updates = permissions.map((p) => ({ id: p.id, role: p.role, section_id: p.section_id, section_title: p.section_title, category_id: p.category_id, category_title: p.category_title, can_view: p.can_view, can_edit: p.can_edit }));
-      const { error } = await supabase.from("role_permissions").upsert(updates, { onConflict: "id" });
+      const { error } = await db.from("role_permissions").upsert(updates, { onConflict: "id" });
       if (error) throw error; toast.success("Permissions saved successfully"); setHasChanges(false);
     } catch (error) { console.error("Error saving permissions:", error); toast.error("Failed to save permissions"); } finally { setSaving(false); }
   };
@@ -65,12 +68,12 @@ export const RolePermissionsEditor = () => {
     if (roles.find((r) => r.role_key === key)) { toast.error("A role with that key already exists"); return; }
     setCreatingRole(true);
     try {
-      const { error: roleErr } = await supabase.from("available_roles").insert({ role_key: key, role_label: label, description: newRoleDesc.trim() || null }); if (roleErr) throw roleErr;
+      const { error: roleErr } = await db.from("available_roles").insert({ role_key: key, role_label: label, description: newRoleDesc.trim() || null }); if (roleErr) throw roleErr;
       const { data: sessionData } = await supabase.auth.getSession(); const token = sessionData?.session?.access_token;
       if (token) { const res = await supabase.functions.invoke("manage-roles", { body: { action: "add_enum_value", role_key: key } }); if (res.error) console.warn("Could not add enum value:", res.error); }
       const adminPerms = permissions.filter((p) => p.role === "admin");
       const newPerms = adminPerms.map((p) => ({ role: key, section_id: p.section_id, section_title: p.section_title, category_id: p.category_id, category_title: p.category_title, can_view: false, can_edit: false }));
-      if (newPerms.length > 0) { const { error: permErr } = await supabase.from("role_permissions").insert(newPerms); if (permErr) throw permErr; }
+      if (newPerms.length > 0) { const { error: permErr } = await db.from("role_permissions").insert(newPerms); if (permErr) throw permErr; }
       toast.success(`Role "${label}" created`); setNewRoleKey(""); setNewRoleLabel(""); setNewRoleDesc(""); setDialogOpen(false); setSelectedRole(key); await fetchData();
     } catch (error: any) { console.error("Error creating role:", error); toast.error(error.message || "Failed to create role"); } finally { setCreatingRole(false); }
   };
