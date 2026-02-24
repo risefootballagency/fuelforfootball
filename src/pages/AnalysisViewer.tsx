@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download } from "lucide-react";
+import { AudioPlaybackButton } from "@/components/AudioPlaybackButton";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
 import { normalizeText } from "@/lib/normalizeText";
@@ -89,6 +90,7 @@ interface KitProps {
 
 const PlayerKit = ({ primaryColor, secondaryColor, collarColor, numberColor = 'white', stripeStyle = 'thick', number }: KitProps) => {
   const collar = collarColor || secondaryColor;
+  const showNumber = number && number !== '0' && number.trim() !== '';
   
   return (
     <svg width="50" height="60" viewBox="0 0 100 120" className="drop-shadow-lg">
@@ -134,20 +136,21 @@ const PlayerKit = ({ primaryColor, secondaryColor, collarColor, numberColor = 'w
       {/* Collar base */}
       <ellipse cx="50" cy="25" rx="10" ry="3" fill={collar} />
       
-      {/* Number on shirt - with editable color */}
-      <text 
-        x="50" 
-        y="72" 
-        textAnchor="middle" 
-        fontSize="26" 
-        fontWeight="bold" 
-        fill={numberColor}
-        stroke={numberColor === 'white' || numberColor === '#ffffff' || numberColor === '#FFFFFF' ? 'black' : 'rgba(0,0,0,0.3)'}
-        strokeWidth="0.8"
-        fontFamily="Arial Black, sans-serif"
-      >
-        {number}
-      </text>
+      {showNumber && (
+        <text 
+          x="50" 
+          y="72" 
+          textAnchor="middle" 
+          fontSize="26" 
+          fontWeight="bold" 
+          fill={numberColor}
+          stroke={numberColor === 'white' || numberColor === '#ffffff' || numberColor === '#FFFFFF' ? 'black' : 'rgba(0,0,0,0.3)'}
+          strokeWidth="0.8"
+          fontFamily="Arial Black, sans-serif"
+        >
+          {number}
+        </text>
+      )}
       
       {/* Subtle shading for depth */}
       <path 
@@ -402,9 +405,8 @@ const ExpandableSection = ({
 const TextReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 15 }}
-    whileInView={{ opacity: 1, y: 0 }}
+    animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.6, delay, ease: "easeOut" }}
-    viewport={{ once: true }}
   >
     {children}
   </motion.div>
@@ -793,12 +795,75 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   );
 };
 
+// Parse strengths_improvements text for colour markers [green], [amber], [red]
+const parseColourCodedItems = (text: string) => {
+  const green: string[] = [];
+  const amber: string[] = [];
+  const red: string[] = [];
+  let currentColour: 'green' | 'amber' | 'red' | null = null;
+
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const lower = trimmed.toLowerCase();
+    if (lower.includes('[green]') || lower.startsWith('green:') || lower.startsWith('strengths:')) {
+      currentColour = 'green';
+      const cleaned = trimmed.replace(/\[green\]/gi, '').replace(/^(green|strengths)\s*:?\s*/i, '').trim();
+      if (cleaned) green.push(cleaned);
+    } else if (lower.includes('[amber]') || lower.startsWith('amber:') || lower.startsWith('areas for consistency:')) {
+      currentColour = 'amber';
+      const cleaned = trimmed.replace(/\[amber\]/gi, '').replace(/^(amber|areas for consistency)\s*:?\s*/i, '').trim();
+      if (cleaned) amber.push(cleaned);
+    } else if (lower.includes('[red]') || lower.startsWith('red:') || lower.startsWith('areas for improvement:')) {
+      currentColour = 'red';
+      const cleaned = trimmed.replace(/\[red\]/gi, '').replace(/^(red|areas for improvement)\s*:?\s*/i, '').trim();
+      if (cleaned) red.push(cleaned);
+    } else {
+      const cleaned = trimmed.replace(/^[-•]\s*/, '');
+      if (currentColour === 'green') green.push(cleaned);
+      else if (currentColour === 'amber') amber.push(cleaned);
+      else if (currentColour === 'red') red.push(cleaned);
+      else green.push(cleaned); // default to green if no marker yet
+    }
+  }
+  return { green, amber, red };
+};
+
+// Helper to check if text has colour markers
+const hasColourMarkers = (text: string) => {
+  const lower = text.toLowerCase();
+  return lower.includes('[green]') || lower.includes('[amber]') || lower.includes('[red]') ||
+    lower.includes('green:') || lower.includes('amber:') || lower.includes('red:') ||
+    lower.includes('strengths:') || lower.includes('areas for consistency:') || lower.includes('areas for improvement:');
+};
+
+// Render video_urls array or singular video_url for a point
+const PointVideos = ({ point }: { point: any }) => {
+  const videoUrls: string[] = point.video_urls?.length > 0 ? point.video_urls : point.video_url ? [point.video_url] : [];
+  if (videoUrls.length === 0) return null;
+  return (
+    <TextReveal delay={0.2}>
+      <div className="space-y-3">
+        {videoUrls.map((url: string, i: number) => (
+          <AnalysisVideo
+            key={i}
+            src={url}
+            className="w-full rounded-lg shadow-md border-2"
+            style={{ borderColor: BRAND.gold }}
+          />
+        ))}
+      </div>
+    </TextReveal>
+  );
+};
+
 const AnalysisViewer = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(false);
   // contentRef removed - PDF now uses pure jsPDF rendering from data
   
   // Extract the UUID from the slug (supports both old UUID-only and new team-vs-team-uuid formats)
@@ -854,6 +919,12 @@ const AnalysisViewer = () => {
       setIsSaving(false);
     }
   }, [analysis]);
+
+  // pageLoaded delayed state for future video optimisation
+  useEffect(() => {
+    const timer = setTimeout(() => setPageLoaded(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (analysisId) {
@@ -1468,15 +1539,12 @@ const AnalysisViewer = () => {
                           </div>
                         </TextReveal>
                       )}
-                      {point.video_url && (
-                        <TextReveal delay={0.2}>
-                          <AnalysisVideo
-                            src={point.video_url}
-                            className="w-full rounded-lg shadow-md border-2"
-                            style={{ borderColor: BRAND.gold }}
-                          />
-                        </TextReveal>
+                      {point.audio_url && (
+                        <div className="flex justify-center">
+                          <AudioPlaybackButton audioUrl={point.audio_url} />
+                        </div>
                       )}
+                      <PointVideos point={point} />
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
@@ -1592,14 +1660,56 @@ const AnalysisViewer = () => {
               </ExpandableSection>
             )}
 
-            {/* Strengths & Improvements */}
+            {/* Strengths & Improvements - colour-coded if markers present */}
             {analysis.strengths_improvements && (
-              <ExpandableSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements} forceOpen={isSaving}>
-                <TextReveal>
-                  <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                    {normalizeText(analysis.strengths_improvements)}
-                  </p>
-                </TextReveal>
+              <ExpandableSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements} transparentContent forceOpen={isSaving}>
+                {hasColourMarkers(analysis.strengths_improvements) ? (() => {
+                  const { green, amber, red } = parseColourCodedItems(analysis.strengths_improvements!);
+                  const categories = [
+                    { items: green, label: 'Strengths', color: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.4)' },
+                    { items: amber, label: 'Areas for Consistency', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.4)' },
+                    { items: red, label: 'Areas for Improvement', color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.4)' },
+                  ];
+                  return (
+                    <div className="space-y-3">
+                      {categories.filter(c => c.items.length > 0).map((cat) => (
+                        <TextReveal key={cat.label}>
+                          <div
+                            className="rounded-lg overflow-hidden"
+                            style={{ border: `2px solid ${cat.border}`, backgroundColor: cat.bg }}
+                          >
+                            <div className="px-4 py-2" style={{ backgroundColor: cat.border }}>
+                              <h4 className="font-bebas text-base md:text-lg tracking-wider uppercase text-white">
+                                {cat.label}
+                              </h4>
+                            </div>
+                            <div className="px-4 py-3 space-y-2">
+                              {cat.items.map((item, idx) => (
+                                <div key={idx} className="flex items-start gap-2">
+                                  <div
+                                    className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                                    style={{ backgroundColor: cat.color }}
+                                  />
+                                  <p className="text-sm md:text-base leading-relaxed" style={{ color: BRAND.bodyText }}>
+                                    {item}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </TextReveal>
+                      ))}
+                    </div>
+                  );
+                })() : (
+                  <TextReveal>
+                    <ContentCard>
+                      <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
+                        {normalizeText(analysis.strengths_improvements)}
+                      </p>
+                    </ContentCard>
+                  </TextReveal>
+                )}
               </ExpandableSection>
             )}
 
@@ -1636,15 +1746,12 @@ const AnalysisViewer = () => {
                           </div>
                         </TextReveal>
                       )}
-                      {point.video_url && (
-                        <TextReveal delay={0.2}>
-                          <AnalysisVideo
-                            src={point.video_url}
-                            className="w-full rounded-lg shadow-md border-2"
-                            style={{ borderColor: BRAND.gold }}
-                          />
-                        </TextReveal>
+                      {point.audio_url && (
+                        <div className="flex justify-center">
+                          <AudioPlaybackButton audioUrl={point.audio_url} />
+                        </div>
                       )}
+                      <PointVideos point={point} />
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
@@ -1782,15 +1889,12 @@ const AnalysisViewer = () => {
                           </div>
                         </TextReveal>
                       )}
-                      {point.video_url && (
-                        <TextReveal delay={0.2}>
-                          <AnalysisVideo
-                            src={point.video_url}
-                            className="w-full rounded-lg shadow-md border-2"
-                            style={{ borderColor: BRAND.gold }}
-                          />
-                        </TextReveal>
+                      {point.audio_url && (
+                        <div className="flex justify-center">
+                          <AudioPlaybackButton audioUrl={point.audio_url} />
+                        </div>
                       )}
+                      <PointVideos point={point} />
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>

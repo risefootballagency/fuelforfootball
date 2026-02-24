@@ -8,7 +8,7 @@ Completes remaining Phase 1 items and syncs the Analysis Viewer with RISE, exclu
 
 ---
 
-## 1. AnnotationEditor -- Complete autoPlay and clipConstraint
+## 1. AnnotationEditor -- Complete autoPlay and clipConstraint ✅
 
 ### A. autoPlay Effect
 Add a `useEffect` that auto-starts playback once video metadata loads. If `clipConstraint` is provided, seek to the start time before playing.
@@ -18,7 +18,7 @@ Append `#t=start,end` media fragment to the video src when `clipConstraint` is p
 
 ---
 
-## 2. Staff.tsx -- Hidden Class Pattern
+## 2. Staff.tsx -- Hidden Class Pattern ✅
 
 Switch 4 sections from conditional rendering (`&&`) to `hidden` class pattern to preserve component state (video position, popups, etc.) when switching tabs:
 - `videoanalysis`
@@ -28,32 +28,32 @@ Switch 4 sections from conditional rendering (`&&`) to `hidden` class pattern to
 
 ---
 
-## 3. Analysis Viewer Sync with RISE (excluding flipBackground)
+## 3. Analysis Viewer Sync with RISE (excluding flipBackground) ✅
 
-### A. `video_urls` array support
+### A. `video_urls` array support ✅
 Add support for `point.video_urls` (array) alongside the existing singular `point.video_url`. Render multiple videos when the array is present.
 
-### B. Post-match Strengths/Improvements -- colour-coded cards
+### B. Post-match Strengths/Improvements -- colour-coded cards ✅
 Parse `strengths_improvements` text for colour markers (`[green]`, `[amber]`, `[red]`). Render in 3 categorised cards:
 - "Strengths" (green border/header)
 - "Areas for Consistency" (amber)
 - "Areas for Improvement" (red)
 
-### C. Fix TextReveal animation
+### C. Fix TextReveal animation ✅
 Switch from `whileInView` to `animate` so animations trigger correctly inside collapsed/expandable sections.
 
-### D. Add `showNumber` guard to PlayerKit
+### D. Add `showNumber` guard to PlayerKit ✅
 Only render the shirt number when it is non-empty and not '0'.
 
-### E. Add `pageLoaded` state
+### E. Add `pageLoaded` state ✅
 Delayed state (1.5s) for future video loading optimisation.
 
-### F. AudioPlaybackButton integration
+### F. AudioPlaybackButton integration ✅
 Render a play/stop button with animated audio bars for any point that has an `audio_url`.
 
 ---
 
-## 4. New Component: AudioPlaybackButton
+## 4. New Component: AudioPlaybackButton ✅
 
 ### `src/components/AudioPlaybackButton.tsx`
 - Floating play/stop button with animated audio bars using framer-motion
@@ -75,4 +75,3 @@ Render a play/stop button with animated audio bars for any point that has an `au
 
 ### No Database Changes
 ### No New Dependencies
-
