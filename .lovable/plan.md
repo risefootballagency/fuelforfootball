@@ -1,77 +1,58 @@
 
 
-# Phase 1 Completion + Analysis Viewer Sync (No flipBackground)
+# Fix Pay Link Creation Error + Detailed Error Messages
 
-## Summary
+## Root Cause
 
-Completes remaining Phase 1 items and syncs the Analysis Viewer with RISE, excluding the `flipBackground` alternating black section backgrounds which are RISE-specific branding and don't fit the FFF visual identity.
+The error is **RLS policy violation**: `new row violates row-level security policy for table "pay_links"`. The `pay_links` table has RLS enabled with a policy requiring the `authenticated` role. This means the user's Supabase auth session has either expired or isn't active when the insert is attempted.
 
----
+The current error toast just says "Failed to create pay link" — useless for diagnosis.
 
-## 1. AnnotationEditor -- Complete autoPlay and clipConstraint ✅
+## Changes
 
-### A. autoPlay Effect
-Add a `useEffect` that auto-starts playback once video metadata loads. If `clipConstraint` is provided, seek to the start time before playing.
+### 1. Show detailed error messages in `SalesManagement.tsx`
 
-### B. Video src with clipConstraint fragment URL
-Append `#t=start,end` media fragment to the video src when `clipConstraint` is provided so the browser restricts playback range.
+Replace all generic `toast.error("Failed to ...")` calls with the actual error details from Supabase:
 
----
+```typescript
+// BEFORE
+toast.error("Failed to create pay link");
 
-## 2. Staff.tsx -- Hidden Class Pattern ✅
+// AFTER  
+toast.error(`Failed to create pay link: ${payLinkError.message}`);
+```
 
-Switch 4 sections from conditional rendering (`&&`) to `hidden` class pattern to preserve component state (video position, popups, etc.) when switching tabs:
-- `videoanalysis`
-- `annotations`
-- `players`
-- `analysis`
+Apply this pattern to all error toasts in the file:
+- Line 209: pay link insert error
+- Line 226: pay link items insert error  
+- Line 288: delete pay link error
+- Line 298: update status error
+- Plus any other generic error toasts in the file
 
----
+### 2. Add auth session check before insert
 
-## 3. Analysis Viewer Sync with RISE (excluding flipBackground) ✅
+Before the pay link insert, check if the user has an active session. If not, show a clear message telling them to log in again:
 
-### A. `video_urls` array support ✅
-Add support for `point.video_urls` (array) alongside the existing singular `point.video_url`. Render multiple videos when the array is present.
+```typescript
+const { data: { session } } = await supabase.auth.getSession();
+if (!session) {
+  toast.error("Your session has expired. Please log in again.");
+  return;
+}
+```
 
-### B. Post-match Strengths/Improvements -- colour-coded cards ✅
-Parse `strengths_improvements` text for colour markers (`[green]`, `[amber]`, `[red]`). Render in 3 categorised cards:
-- "Strengths" (green border/header)
-- "Areas for Consistency" (amber)
-- "Areas for Improvement" (red)
+### 3. Also fix the Stripe edge function call error handling (lines ~230-260)
 
-### C. Fix TextReveal animation ✅
-Switch from `whileInView` to `animate` so animations trigger correctly inside collapsed/expandable sections.
+The `create-pay-link` edge function invocation should also surface detailed errors rather than generic messages.
 
-### D. Add `showNumber` guard to PlayerKit ✅
-Only render the shirt number when it is non-empty and not '0'.
+## Files Modified
+- `src/components/staff/SalesManagement.tsx` — detailed error messages + session check
 
-### E. Add `pageLoaded` state ✅
-Delayed state (1.5s) for future video loading optimisation.
+## No database changes needed
+The RLS policy is correct (`authenticated` users can manage pay links with `true` USING/WITH CHECK). The issue is purely that the client isn't sending an authenticated request.
 
-### F. AudioPlaybackButton integration ✅
-Render a play/stop button with animated audio bars for any point that has an `audio_url`.
+## Technical Notes
+- `pay_link_items` table has RLS **disabled**, so it won't hit the same issue
+- The `pay_links` ALL policy covers INSERT/UPDATE/DELETE for authenticated users
+- The session check is a UX safeguard — if the session expired mid-use, the user gets a clear message instead of a cryptic RLS error
 
----
-
-## 4. New Component: AudioPlaybackButton ✅
-
-### `src/components/AudioPlaybackButton.tsx`
-- Floating play/stop button with animated audio bars using framer-motion
-- Uses the browser `Audio` API
-- Styled with FFF gold accent (not RISE blue)
-- Continues playing when user scrolls away
-
----
-
-## Technical Details
-
-### New Files
-- `src/components/AudioPlaybackButton.tsx`
-
-### Modified Files
-- `src/components/staff/annotations/AnnotationEditor.tsx` -- autoPlay effect, clipConstraint fragment URL
-- `src/pages/Staff.tsx` -- hidden class pattern for 4 sections
-- `src/pages/AnalysisViewer.tsx` -- video_urls array, colour-coded improvements, TextReveal fix, showNumber guard, AudioPlaybackButton, pageLoaded state
-
-### No Database Changes
-### No New Dependencies
