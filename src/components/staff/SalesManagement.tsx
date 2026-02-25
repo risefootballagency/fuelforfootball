@@ -187,6 +187,13 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
       return;
     }
 
+    // Check auth session before insert
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("Your session has expired. Please log in again.");
+      return;
+    }
+
     const totalAmount = calculateTotal();
 
     // Create pay link
@@ -206,7 +213,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
 
     if (payLinkError) {
       console.error("Error creating pay link:", payLinkError);
-      toast.error("Failed to create pay link");
+      toast.error(`Failed to create pay link: ${payLinkError.message}`);
       return;
     }
 
@@ -223,7 +230,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
 
     if (itemsError) {
       console.error("Error creating pay link items:", itemsError);
-      toast.error("Pay link created but items failed to save");
+      toast.error(`Pay link created but items failed to save: ${itemsError.message}`);
     }
 
     toast.success("Pay link created!");
@@ -266,7 +273,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
 
     if (error) {
       console.error("Error recording sale:", error);
-      toast.error("Failed to record sale");
+      toast.error(`Failed to record sale: ${error.message}`);
       return;
     }
 
@@ -285,7 +292,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
   const deletePayLink = async (id: string) => {
     const { error } = await supabase.from("pay_links").delete().eq("id", id);
     if (error) {
-      toast.error("Failed to delete pay link");
+      toast.error(`Failed to delete pay link: ${error.message}`);
       return;
     }
     toast.success("Pay link deleted");
@@ -295,7 +302,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
   const updatePayLinkStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("pay_links").update({ status }).eq("id", id);
     if (error) {
-      toast.error("Failed to update status");
+      toast.error(`Failed to update status: ${error.message}`);
       return;
     }
     toast.success("Status updated");

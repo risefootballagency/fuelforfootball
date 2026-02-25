@@ -51,7 +51,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      toast.error("Error fetching pay links");
+      toast.error(`Error fetching pay links: ${error.message}`);
       return;
     }
     setPayLinks((data || []) as PayLink[]);
@@ -77,7 +77,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         .eq('id', editingPayLink.id);
 
       if (error) {
-        toast.error("Error updating pay link");
+        toast.error(`Error updating pay link: ${error.message}`);
         return;
       }
       toast.success("Pay link updated");
@@ -89,7 +89,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         .single();
 
       if (error) {
-        toast.error("Error creating pay link");
+        toast.error(`Error creating pay link: ${error.message}`);
         return;
       }
 
@@ -138,7 +138,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
 
     const { error } = await supabase.from('pay_links').delete().eq('id', id);
     if (error) {
-      toast.error("Error deleting pay link");
+      toast.error(`Error deleting pay link: ${error.message}`);
       return;
     }
     toast.success("Pay link deleted");
