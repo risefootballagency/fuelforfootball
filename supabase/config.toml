@@ -26,3 +26,36 @@ verify_jwt = false
 
 [functions.extract-video-links]
 verify_jwt = false
+
+[functions.check-player-milestones]
+verify_jwt = false
+
+[functions.contract-cross-reference]
+verify_jwt = false
+
+[functions.detect-club-countries]
+verify_jwt = false
+
+[functions.detect-player-actions]
+verify_jwt = false
+
+[functions.extract-player-stats]
+verify_jwt = false
+
+[functions.generate-ai-response]
+verify_jwt = false
+
+[functions.generate-cognisance-question]
+verify_jwt = false
+
+[functions.manage-roles]
+verify_jwt = false
+
+[functions.parse-case-study-images]
+verify_jwt = false
+
+[functions.player-match-clipper]
+verify_jwt = false
+
+[functions.suggest-fixture-stats]
+verify_jwt = false
