@@ -187,13 +187,6 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
       return;
     }
 
-    // Check auth session before insert
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast.error("Your session has expired. Please log in again.");
-      return;
-    }
-
     const totalAmount = calculateTotal();
 
     // Create pay link
