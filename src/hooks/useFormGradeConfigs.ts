@@ -1,0 +1,211 @@
+import { useState, useEffect, useMemo } from "react";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+
+interface GradeThreshold {
+  grade: string;
+  min: number | null;
+  max: number | null;
+}
+
+interface FormGradeConfig {
+  id: string;
+  metric_key: string;
+  metric_name: string;
+  description: string | null;
+  thresholds: GradeThreshold[];
+}
+
+// Grade color mapping following the standard color system
+const GRADE_COLORS: Record<string, string> = {
+  'U': 'hsl(0, 84%, 30%)',
+  'D': 'hsl(0, 84%, 45%)',
+  'C-': 'hsl(0, 84%, 60%)',
+  'C': 'hsl(25, 75%, 45%)',
+  'C+': 'hsl(40, 85%, 50%)',
+  'B-': 'hsl(60, 70%, 50%)',
+  'B': 'hsl(142, 76%, 36%)',
+  'B+': 'hsl(142, 70%, 40%)',
+  'A-': 'hsl(142, 65%, 45%)',
+  'A': 'hsl(142, 70%, 50%)',
+  'A+': 'hsl(142, 76%, 55%)',
+  'A*': 'hsl(43, 96%, 56%)',
+};
+
+export function useFormGradeConfigs() {
+  const [configs, setConfigs] = useState<FormGradeConfig[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchConfigs = async () => {
+      const { data, error } = await (sharedSupabase
+        .from('form_grade_configs' as any)
+        .select('*')
+        .order('metric_name') as any);
+
+      if (!error && data) {
+        const parsedConfigs: FormGradeConfig[] = data.map((item: any) => ({
+          ...item,
+          thresholds: (item.thresholds as unknown as GradeThreshold[]) || []
+        }));
+        setConfigs(parsedConfigs);
+      }
+      setLoading(false);
+    };
+
+    fetchConfigs();
+  }, []);
+
+  const configMap = useMemo(() => {
+    const map: Record<string, FormGradeConfig> = {};
+    configs.forEach(config => {
+      map[config.metric_key] = config;
+    });
+    return map;
+  }, [configs]);
+
+  const getGradeBoundaries = (metricKey: string): { value: number; grade: string; color: string }[] => {
+    const config = configMap[metricKey];
+    if (!config || !config.thresholds || config.thresholds.length === 0) {
+      return [];
+    }
+
+    const boundaries: { value: number; grade: string; color: string }[] = [];
+    
+    config.thresholds.forEach(threshold => {
+      if (threshold.min !== null) {
+        boundaries.push({
+          value: threshold.min,
+          grade: threshold.grade,
+          color: GRADE_COLORS[threshold.grade] || 'hsl(var(--muted-foreground))'
+        });
+      }
+    });
+
+    return boundaries.sort((a, b) => a.value - b.value);
+  };
+
+  const getGradeForScore = (metricKey: string, score: number | null | undefined): { grade: string; color: string } => {
+    if (score === null || score === undefined) {
+      return { grade: '-', color: 'hsl(var(--muted-foreground))' };
+    }
+
+    const config = configMap[metricKey];
+    if (!config || !config.thresholds || config.thresholds.length === 0) {
+      return { grade: '-', color: 'hsl(var(--muted-foreground))' };
+    }
+
+    for (const threshold of config.thresholds) {
+      const minMatch = threshold.min === null || score >= threshold.min;
+      const maxMatch = threshold.max === null || score < threshold.max;
+      
+      if (minMatch && maxMatch) {
+        return {
+          grade: threshold.grade,
+          color: GRADE_COLORS[threshold.grade] || 'hsl(var(--muted-foreground))'
+        };
+      }
+    }
+
+    return { grade: '-', color: 'hsl(var(--muted-foreground))' };
+  };
+
+  const hasThresholds = (metricKey: string): boolean => {
+    const config = configMap[metricKey];
+    return !!(config && config.thresholds && config.thresholds.length > 0);
+  };
+
+  return {
+    configs,
+    loading,
+    configMap,
+    getGradeBoundaries,
+    getGradeForScore,
+    hasThresholds,
+  };
+}
+
+// Mapping from Dashboard selectedFormMetric values to database metric_keys
+export const METRIC_KEY_MAP: Record<string, string> = {
+  'r90': 'r90',
+  'xg': 'xg',
+  'xa': 'xa',
+  'xgchain': 'xg_chain',
+  'xgbuildup': 'xg_buildup',
+  'xgot': 'xgot',
+  'xgpershot': 'xg_per_shot',
+  'npxg': 'npxg',
+  'xc': 'xc',
+  'xg_adj': 'xg',
+  'xa_adj': 'xa',
+  'xgadj': 'xg',
+  'xaadj': 'xa',
+  'regains_adj': 'regains',
+  'regainsadj': 'regains',
+  'turnovers_adj': 'turnovers',
+  'turnoversadj': 'turnovers',
+  'progressive_passes_adj': 'progressive_passes',
+  'progressivepassesadj': 'progressive_passes',
+  'progressivepasses': 'progressive_passes',
+  'progressivepassesreceived': 'progressive_passes_received',
+  'keypasses': 'key_passes',
+  'longpasses': 'long_passes',
+  'longpassescompleted': 'long_passes_completed',
+  'throughballs': 'through_balls',
+  'passcompletion': 'pass_completion',
+  'shots': 'shots',
+  'shotsontarget': 'shots_on_target',
+  'dribbles': 'dribbles',
+  'dribblescompleted': 'dribbles_completed',
+  'dribblesattempted': 'dribbles_attempted',
+  'successfuldribbles': 'dribbles_completed',
+  'crosses': 'crosses',
+  'crossescompleted': 'crosses_completed',
+  'touchesinbox': 'touches_in_box',
+  'boxentries': 'box_entries',
+  'finalthirdentries': 'final_third_entries',
+  'carries_into_box': 'carries_into_box',
+  'carries_into_final_third': 'carries_into_final_third',
+  'progressivecarries': 'progressive_carries',
+  'shotcreatingactions': 'shot_creating_actions',
+  'goalcreatingactions': 'goal_creating_actions',
+  'regains': 'regains',
+  'interceptions': 'interceptions',
+  'tackles': 'tackles',
+  'tackleswon': 'tackles_won',
+  'clearances': 'clearances',
+  'blocks': 'blocks',
+  'recoveries': 'recoveries',
+  'pressingactions': 'pressing_actions',
+  'duels': 'duels',
+  'duelswon': 'duels_won',
+  'aerialduels': 'aerial_duels',
+  'aerialduelswinpct': 'aerial_duel_win_pct',
+  'aerialduelswon': 'aerial_duels_won',
+  'turnovers': 'turnovers',
+  'dispossessed': 'dispossessed',
+  'miscontrols': 'miscontrols',
+  'ppturnoversratio': 'pp_turnovers_ratio',
+  'recoveryturnoverratio': 'recovery_turnover_ratio',
+  'foulswon': 'fouls_won',
+  'foulscommitted': 'fouls_committed',
+  'triplethreatxc': 'triple_threat_xC',
+  'movementtofeetxc': 'movement_to_feet_xC',
+  'movementinbehindxc': 'movement_in_behind_xC',
+  'movementdownsidexc': 'movement_downside_xC',
+  'crossingmovementxc': 'crossing_movement_xC',
+  'touches': 'touches',
+  'goals': 'goals',
+  'assists': 'assists',
+};
+
+export const normalizeStatKey = (key: string): string => {
+  if (METRIC_KEY_MAP[key]) return METRIC_KEY_MAP[key];
+  
+  const keyLower = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (METRIC_KEY_MAP[keyLower]) return METRIC_KEY_MAP[keyLower];
+  
+  const keyWithUnderscores = key.toLowerCase();
+  if (METRIC_KEY_MAP[keyWithUnderscores]) return METRIC_KEY_MAP[keyWithUnderscores];
+  
+  return key;
+};
