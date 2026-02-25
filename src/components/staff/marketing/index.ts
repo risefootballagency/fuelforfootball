@@ -4,3 +4,5 @@ export { MarketingIdeas } from './MarketingIdeas';
 export { SalesDeck } from './SalesDeck';
 export { ContentCalendar } from './ContentCalendar';
 export { AIWriter } from './AIWriter';
+export { CustomResourcesManager } from './CustomResourcesManager';
+export { ScheduleManager } from './ScheduleManager';
