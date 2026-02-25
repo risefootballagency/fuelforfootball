@@ -57,6 +57,10 @@ import { ServiceCatalogManagement } from "@/components/staff/ServiceCatalogManag
 import { ServiceStatsManager } from "@/components/staff/sales/ServiceStatsManager";
 import { StaffPushNotifications } from "@/components/staff/StaffPushNotifications";
 import { HighlightMaker } from "@/components/staff/HighlightMaker";
+import { HighlightCompiler } from "@/components/staff/HighlightCompiler";
+import { SportscodeActionTypes } from "@/components/staff/SportscodeActionTypes";
+import { RecruitmentRulesTab } from "@/components/staff/RecruitmentRulesTab";
+import { PortalManagementAdmin } from "@/components/staff/PortalManagementAdmin";
 import { useStaffNotifications } from "@/hooks/useStaffNotifications";
 import { ExpensesManagement } from "@/components/staff/ExpensesManagement";
 import { TaxRecordsManagement } from "@/components/staff/TaxRecordsManagement";
@@ -104,7 +108,7 @@ import type { User } from "@supabase/supabase-js";
 import { Checkbox } from "@/components/ui/checkbox";
 import marbleBackground from "@/assets/smudged-marble-overlay.png";
 import { 
-  Calendar, Users, UserCog, Target, Dumbbell, LineChart, Megaphone, Newspaper, FileText, Mail, Eye, FileCheck, BellRing, Network, Scale, Shield, Lock, Download, HardDrive, Bell, ClipboardList, Settings, Languages, Film, Building2, Wallet, Receipt, Calculator, PiggyBank, TrendingUp, FileSpreadsheet, UserRound, MessageSquare, ShoppingCart, Package, Radio, Palette, Pencil, LayoutGrid, Briefcase, Handshake, Database, Tv, Apple, Video, Globe, Presentation, ScrollText,
+  Calendar, Users, UserCog, Target, Dumbbell, LineChart, Megaphone, Newspaper, FileText, Mail, Eye, FileCheck, BellRing, Network, Scale, Shield, Lock, Download, HardDrive, Bell, ClipboardList, Settings, Languages, Film, Building2, Wallet, Receipt, Calculator, PiggyBank, TrendingUp, FileSpreadsheet, UserRound, MessageSquare, ShoppingCart, Package, Radio, Palette, Pencil, LayoutGrid, Briefcase, Handshake, Database, Tv, Apple, Video, Globe, Presentation, ScrollText, Monitor,
 } from "lucide-react";
 
 // ──────────────── Tab Types ────────────────
@@ -120,7 +124,7 @@ const MAX_VISIBLE_TABS_MOBILE = 2;
 
 // Icon lookup for header tabs
 const ICON_MAP: Record<string, any> = {
-  Calendar, Users, UserCog, Target, Dumbbell, LineChart, Megaphone, Newspaper, FileText, Mail, Eye, FileCheck, BellRing, Network, Scale, Shield, Lock, Download, HardDrive, Bell, ClipboardList, Settings, Languages, Film, Building2, Wallet, Receipt, Calculator, PiggyBank, TrendingUp, FileSpreadsheet, UserRound, MessageSquare, ShoppingCart, Package, Radio, Palette, Pencil, LayoutGrid, Briefcase, Handshake, Database, Tv, Apple, Video, Globe, Presentation, ScrollText,
+  Calendar, Users, UserCog, Target, Dumbbell, LineChart, Megaphone, Newspaper, FileText, Mail, Eye, FileCheck, BellRing, Network, Scale, Shield, Lock, Download, HardDrive, Bell, ClipboardList, Settings, Languages, Film, Building2, Wallet, Receipt, Calculator, PiggyBank, TrendingUp, FileSpreadsheet, UserRound, MessageSquare, ShoppingCart, Package, Radio, Palette, Pencil, LayoutGrid, Briefcase, Handshake, Database, Tv, Apple, Video, Globe, Presentation, ScrollText, Monitor,
 };
 
 const Staff = () => {
@@ -596,6 +600,7 @@ const Staff = () => {
           { id: 'athletecentre', title: 'Athlete Centre', icon: UserRound },
           { id: 'tacticsboard', title: 'Tactics Board', icon: LayoutGrid },
           { id: 'serviceaudit', title: 'Service Audit', icon: Calculator },
+          { id: 'sportscodeactions', title: 'Sportscode Actions', icon: Video },
           { id: '_group_programming', title: 'Programming', isGroupLabel: true } as any,
           { id: 'sps', title: 'Strength Power & Speed', icon: Dumbbell },
           { id: 'nutrition', title: 'Nutrition', icon: Apple },
@@ -606,6 +611,7 @@ const Staff = () => {
         sections: [
           { id: 'players', title: 'Players', icon: UserCog },
           { id: 'highlightmaker', title: 'Highlight Maker', icon: Film },
+          { id: 'highlightcompiler', title: 'Highlight Compiler', icon: Film },
           { id: '_group_transfers', title: 'Transfers', isGroupLabel: true } as any,
           { id: 'transferhub', title: 'Transfer Hub', icon: Building2 },
           { id: 'updates', title: 'Player Updates', icon: BellRing },
@@ -640,6 +646,7 @@ const Staff = () => {
           { id: 'outreach', title: 'Outreach', icon: UserCog },
           { id: 'saleshub', title: 'Sales Hub', icon: FileText },
           { id: 'portalmanagement', title: 'Portal Management', icon: Settings },
+          { id: 'portaladmin', title: 'Portal Admin', icon: Monitor },
         ]
       },
       {
@@ -665,6 +672,7 @@ const Staff = () => {
           { id: 'casestudies', title: 'Case Studies', icon: MessageSquare },
           { id: '_group_scouting', title: 'Scouting', isGroupLabel: true } as any,
           { id: 'recruitment', title: 'Recruitment', icon: Target },
+          { id: 'recruitmentrules', title: 'Recruitment Rules', icon: Scale },
           { id: 'playerdatabase', title: 'Player Database', icon: Users },
           { id: 'scoutingcentre', title: 'Scouting Centre', icon: ClipboardList },
           { id: 'submissions', title: 'Form Submissions', icon: Mail },
@@ -1162,6 +1170,10 @@ const Staff = () => {
                 {expandedSection === 'athletecentre' && <AthleteCentre />}
                 {expandedSection === 'tacticsboard' && <TacticsBoard />}
                 {expandedSection === 'highlightmaker' && <HighlightMaker isAdmin={isAdmin} />}
+                {expandedSection === 'highlightcompiler' && <HighlightCompiler />}
+                {expandedSection === 'sportscodeactions' && <SportscodeActionTypes />}
+                {expandedSection === 'recruitmentrules' && <RecruitmentRulesTab isAdmin={isAdmin} />}
+                {expandedSection === 'portaladmin' && <PortalManagementAdmin />}
                 {expandedSection === 'transferhub' && <TransferHub isAdmin={isAdmin} />}
                 {expandedSection === 'updates' && <UpdatesManagement isAdmin={isAdmin} />}
                 {expandedSection === 'requests' && <RequestsManagement />}
