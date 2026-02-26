@@ -1998,19 +1998,21 @@ const Dashboard = () => {
                       { tab: "invoices", label: "Invoices", icon: <FileText className="h-6 w-6 sm:h-7 sm:w-7" /> },
                       { tab: "hub", label: "Hub", icon: <TrendingUp className="h-8 w-8 sm:h-9 sm:w-9" />, isHub: true },
                       { tab: "updates", label: "Updates", icon: <Bell className="h-6 w-6 sm:h-7 sm:w-7" /> },
-                      { tab: "highlights", label: "Highlights", icon: <Play className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "analysis", label: "Video Reports", icon: <Play className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "video-reports" },
                       { tab: "services", label: "Services", icon: <ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7" /> },
-                      { tab: "profile", label: "View Profile", icon: <Eye className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "analysis", label: "Comparisons", icon: <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "comparisons" },
                     ].map((item) => (
                       <DropdownMenuItem
-                        key={item.tab}
+                        key={`${item.tab}-${item.label}`}
                         onClick={(e) => {
-                          if (item.isAnalysis) {
+                          if (item.isAnalysis && (item as any).analysisSubTab) {
+                            setActiveTab("analysis");
+                            setActiveAnalysisTab((item as any).analysisSubTab);
+                            setNavDropdownOpen(false);
+                          } else if (item.isAnalysis) {
                             e.preventDefault();
                             e.stopPropagation();
                             setShowAnalysisSub(true);
-                          } else if (item.tab === "profile") {
-                            setShowProfileModal(true);
                           } else if (item.tab === "services") {
                             navigate("/services");
                           } else {
@@ -2593,18 +2595,6 @@ const Dashboard = () => {
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
                       <AnalysisComparisons analyses={analyses} playerData={playerData} />
-                      {playerData && (
-                        <div className="mt-4">
-                          <ScoutingComparisonMatrix
-                            playerName={playerData.name || ""}
-                            portalMetrics={{}}
-                            hasPortalData={analyses.length > 0}
-                            comparisonPlayers={[]}
-                            selectedPlayerIds={[]}
-                            formWindow={5}
-                          />
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>

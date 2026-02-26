@@ -2333,6 +2333,33 @@ export type Database = {
           },
         ]
       }
+      player_goals: {
+        Row: {
+          created_at: string
+          id: string
+          metric_key: string
+          player_id: string
+          target_value: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric_key: string
+          player_id: string
+          target_value: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric_key?: string
+          player_id?: string
+          target_value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       player_hidden_stats: {
         Row: {
           created_at: string

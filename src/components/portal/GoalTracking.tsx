@@ -1,7 +1,12 @@
-import { useState, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Target, TrendingUp, Award, Clock, Zap } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Target, Plus, Trash2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
 
 interface GoalTrackingProps {
   playerData: any;
@@ -9,116 +14,187 @@ interface GoalTrackingProps {
   formWindow: number;
 }
 
-const getR90Color = (score: number) => {
-  if (score >= 8) return "hsl(var(--accent))";
-  if (score >= 6) return "hsl(120, 50%, 45%)";
-  if (score >= 4) return "hsl(47, 80%, 50%)";
-  return "hsl(0, 60%, 50%)";
-};
+interface PlayerGoal {
+  id: string;
+  player_id: string;
+  metric_key: string;
+  target_value: number;
+}
 
 export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTrackingProps) => {
-  const metrics = useMemo(() => {
-    if (!fixtureAnalyses || fixtureAnalyses.length === 0) return null;
+  const [goals, setGoals] = useState<PlayerGoal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [newMetric, setNewMetric] = useState("");
+  const [newTarget, setNewTarget] = useState("");
 
-    const scores = fixtureAnalyses
-      .map((a: any) => a.r90_score)
-      .filter((s: any): s is number => typeof s === "number" && s > 0);
+  const playerId = playerData?.id;
 
-    if (scores.length === 0) return null;
+  useEffect(() => {
+    if (!playerId) return;
+    fetchGoals();
+  }, [playerId]);
 
-    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-    const best = Math.max(...scores);
-    const totalMinutes = fixtureAnalyses.reduce((sum: number, a: any) => sum + (a.minutes_played || 0), 0);
-    const matchesAnalysed = scores.length;
+  const fetchGoals = async () => {
+    const { data, error } = await supabase
+      .from("player_goals" as any)
+      .select("*")
+      .eq("player_id", playerId)
+      .order("created_at");
 
-    // Form window average
-    const recentScores = scores.slice(0, formWindow);
-    const formAvg = recentScores.length > 0 ? recentScores.reduce((a, b) => a + b, 0) / recentScores.length : 0;
+    if (!error && data) setGoals(data as any[]);
+    setLoading(false);
+  };
 
-    // Count how many times they hit 7+ and 8+
-    const sevenPlus = scores.filter(s => s >= 7).length;
-    const eightPlus = scores.filter(s => s >= 8).length;
-
-    return { avg, best, totalMinutes, matchesAnalysed, formAvg, sevenPlus, eightPlus };
+  const currentAverages = useMemo(() => {
+    const windowAnalyses = fixtureAnalyses.slice(0, formWindow);
+    const result: Record<string, number | null> = {};
+    ALL_METRICS.forEach(m => {
+      const vals = windowAnalyses
+        .map(a => a.fixture_stats?.[m.key])
+        .filter((v): v is number => v != null && !isNaN(v));
+      result[m.key] = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+    });
+    return result;
   }, [fixtureAnalyses, formWindow]);
 
-  if (!metrics) {
-    return (
-      <div className="text-center py-8 text-muted-foreground text-sm">
-        <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        No analysis data available to track goals.
-      </div>
-    );
+  const handleAddGoal = async () => {
+    if (!newMetric || !newTarget || !playerId) return;
+    setSaving(true);
+    
+    const { data, error } = await supabase
+      .from("player_goals" as any)
+      .upsert({
+        player_id: playerId,
+        metric_key: newMetric,
+        target_value: parseFloat(newTarget),
+      }, { onConflict: "player_id,metric_key" })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error("Failed to save goal");
+    } else if (data) {
+      setGoals(prev => {
+        const existing = prev.findIndex(g => g.metric_key === newMetric);
+        if (existing >= 0) {
+          const updated = [...prev];
+          updated[existing] = data as any;
+          return updated;
+        }
+        return [...prev, data as any];
+      });
+      setNewMetric("");
+      setNewTarget("");
+      toast.success("Goal saved");
+    }
+    setSaving(false);
+  };
+
+  const handleDeleteGoal = async (goalId: string) => {
+    const { error } = await supabase.from("player_goals" as any).delete().eq("id", goalId);
+    if (!error) {
+      setGoals(prev => prev.filter(g => g.id !== goalId));
+      toast.success("Goal removed");
+    }
+  };
+
+  const usedMetrics = goals.map(g => g.metric_key);
+
+  if (loading) {
+    return <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
 
-  const targets = [
-    {
-      label: "Average R90",
-      value: metrics.avg,
-      target: 7.0,
-      format: (v: number) => v.toFixed(2),
-      icon: TrendingUp,
-    },
-    {
-      label: "Personal Best",
-      value: metrics.best,
-      target: 9.0,
-      format: (v: number) => v.toFixed(2),
-      icon: Award,
-    },
-    {
-      label: `Form (Last ${formWindow})`,
-      value: metrics.formAvg,
-      target: 7.5,
-      format: (v: number) => v.toFixed(2),
-      icon: Zap,
-    },
-    {
-      label: "7+ Performances",
-      value: metrics.sevenPlus,
-      target: Math.max(10, metrics.matchesAnalysed),
-      format: (v: number) => `${v}/${metrics.matchesAnalysed}`,
-      icon: Target,
-    },
-  ];
-
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-2">
-        <Card>
-          <CardContent className="p-3 text-center">
-            <Clock className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Total Minutes</p>
-            <p className="text-xl font-bebas text-foreground">{metrics.totalMinutes.toLocaleString()}'</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 text-center">
-            <Award className="h-4 w-4 mx-auto mb-1 text-accent" />
-            <p className="text-xs text-muted-foreground">8+ Performances</p>
-            <p className="text-xl font-bebas" style={{ color: "hsl(var(--accent))" }}>{metrics.eightPlus}</p>
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      {/* Add new goal */}
+      <div className="flex flex-col sm:flex-row gap-3 p-4 bg-muted/30 rounded-lg border">
+        <Select value={newMetric} onValueChange={setNewMetric}>
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder="Select metric..." />
+          </SelectTrigger>
+          <SelectContent>
+            {METRIC_CATEGORIES.map(cat => (
+              <div key={cat.category}>
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
+                {cat.metrics.filter(m => !usedMetrics.includes(m.key)).map(m => (
+                  <SelectItem key={m.key} value={m.key}>
+                    {m.label}{m.key.endsWith('_pct') ? '' : ' / Game'}
+                  </SelectItem>
+                ))}
+              </div>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input
+          type="number"
+          step="0.01"
+          placeholder="Target value"
+          value={newTarget}
+          onChange={e => setNewTarget(e.target.value)}
+          className="w-full sm:w-32"
+        />
+        <Button onClick={handleAddGoal} disabled={!newMetric || !newTarget || saving} size="sm">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-1" />}
+          Add Goal
+        </Button>
       </div>
 
-      {targets.map((t) => {
-        const pct = Math.min(100, (t.value / t.target) * 100);
-        const Icon = t.icon;
-        return (
-          <div key={t.label} className="p-3 rounded-lg bg-muted/30 border border-border/50">
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">{t.label}</span>
+      {/* Goals list */}
+      {goals.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <p>No goals set yet. Add a target above to start tracking your progress.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {goals.map(goal => {
+            const metric = ALL_METRICS.find(m => m.key === goal.metric_key);
+            const current = currentAverages[goal.metric_key];
+            const isPercentage = goal.metric_key.endsWith('_pct');
+            const progress = current != null && goal.target_value > 0
+              ? Math.min(100, (current / goal.target_value) * 100)
+              : 0;
+            const isAchieved = current != null && current >= goal.target_value;
+
+            return (
+              <div key={goal.id} className={`p-4 rounded-lg border ${isAchieved ? 'border-green-500/50 bg-green-500/5' : 'border-border'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <span className="font-medium text-sm">{metric?.label || goal.metric_key}</span>
+                    <span className="text-xs text-muted-foreground ml-2">
+                      {isPercentage ? '' : '/ Game'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <span className="text-lg font-bold">
+                        {current != null ? current.toFixed(2) : '--'}
+                      </span>
+                      <span className="text-muted-foreground mx-1">/</span>
+                      <span className="text-sm text-muted-foreground">
+                        {goal.target_value}{isPercentage ? '%' : ''}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleDeleteGoal(goal.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <Progress value={progress} className={`h-3 ${isAchieved ? '[&>div]:bg-green-500' : ''}`} />
+                {isAchieved && (
+                  <p className="text-xs text-green-600 mt-1 font-medium">Target achieved!</p>
+                )}
               </div>
-              <span className="text-sm font-bebas" style={{ color: getR90Color(t.value) }}>
-                {t.format(t.value)}
-              </span>
-            </div>
-            <Progress value={pct} className="h-2" />
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
