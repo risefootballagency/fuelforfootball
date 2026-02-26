@@ -83,6 +83,7 @@ interface UpgradeOffer {
   message: string;
   pay_link_url: string;
   product_id: string;
+  product_ids: string[];
   payment_type: "one_off" | "subscription";
   recurring_interval: string;
 }
@@ -191,7 +192,7 @@ export const PortalManagementAdmin = () => {
   const [newPackageFeature, setNewPackageFeature] = useState("");
   const [newOffer, setNewOffer] = useState<UpgradeOffer>({
     name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "",
-    payment_type: "subscription", recurring_interval: "month",
+    product_ids: [], payment_type: "subscription", recurring_interval: "month",
   });
   const [newOfferFeature, setNewOfferFeature] = useState("");
   const [showOfferForm, setShowOfferForm] = useState(false);
@@ -266,9 +267,9 @@ export const PortalManagementAdmin = () => {
       }
       let offers: UpgradeOffer[] = [];
       if (d.upgrade_offers && Array.isArray(d.upgrade_offers)) {
-        offers = d.upgrade_offers.map((o: any) => ({ ...o, payment_type: o.payment_type || "subscription", recurring_interval: o.recurring_interval || "month" }));
+        offers = d.upgrade_offers.map((o: any) => ({ ...o, product_ids: o.product_ids || (o.product_id ? [o.product_id] : []), payment_type: o.payment_type || "subscription", recurring_interval: o.recurring_interval || "month" }));
       } else if (d.upgrade_name) {
-        offers = [{ name: d.upgrade_name || "", price: d.upgrade_price?.toString() || "", currency: d.upgrade_currency || "GBP", features: d.upgrade_features || [], message: d.upgrade_message || "", pay_link_url: d.upgrade_pay_link_url || "", product_id: d.upgrade_product_id || "", payment_type: "subscription", recurring_interval: "month" }];
+        offers = [{ name: d.upgrade_name || "", price: d.upgrade_price?.toString() || "", currency: d.upgrade_currency || "GBP", features: d.upgrade_features || [], message: d.upgrade_message || "", pay_link_url: d.upgrade_pay_link_url || "", product_id: d.upgrade_product_id || "", product_ids: d.upgrade_product_id ? [d.upgrade_product_id] : [], payment_type: "subscription", recurring_interval: "month" }];
       }
       setFormData({ hub_widget_type: d.hub_widget_type as "aphorisms" | "sales_box" || "aphorisms", current_packages: packages, upgrade_offers: offers });
     } else {
@@ -482,7 +483,7 @@ export const PortalManagementAdmin = () => {
       if (error) throw error;
       if (data?.url) {
         setFormData(prev => ({ ...prev, upgrade_offers: [...prev.upgrade_offers, { ...newOffer, pay_link_url: data.url }] }));
-        setNewOffer({ name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "", payment_type: "subscription", recurring_interval: "month" });
+        setNewOffer({ name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "", product_ids: [], payment_type: "subscription", recurring_interval: "month" });
         setNewOfferFeature(""); setShowOfferForm(false);
         toast.success("Offer created with payment link");
       } else throw new Error("No URL returned");
@@ -494,10 +495,24 @@ export const PortalManagementAdmin = () => {
     setFormData(prev => ({ ...prev, upgrade_offers: prev.upgrade_offers.filter((_, i) => i !== index) }));
   };
 
+  const toggleProductInOffer = (productId: string) => {
+    setNewOffer(prev => {
+      const ids = prev.product_ids.includes(productId)
+        ? prev.product_ids.filter(id => id !== productId)
+        : [...prev.product_ids, productId];
+      // Recalculate name, price, and features from selected products
+      const selectedProducts = products.filter(p => ids.includes(p.id));
+      const totalPrice = selectedProducts.reduce((sum, p) => sum + p.price, 0);
+      const allFeatures = selectedProducts.flatMap(p => p.options?.map((o: any) => o.name || o.label || String(o)) || [p.name]);
+      const combinedName = prev.name || selectedProducts.map(p => p.name).join(' + ');
+      return { ...prev, product_ids: ids, product_id: ids[0] || "", price: totalPrice.toString(), features: allFeatures, name: ids.length > 0 ? combinedName : "" };
+    });
+  };
+
   const prefillOfferFromProduct = (productId: string) => {
     const product = products.find(p => p.id === productId);
     if (product) {
-      setNewOffer(prev => ({ ...prev, product_id: productId, name: product.name, price: product.price.toString(), features: product.options?.map((o: any) => o.name || o.label || String(o)) || [] }));
+      setNewOffer(prev => ({ ...prev, product_id: productId, product_ids: [productId], name: product.name, price: product.price.toString(), features: product.options?.map((o: any) => o.name || o.label || String(o)) || [] }));
     }
   };
 
@@ -519,10 +534,10 @@ export const PortalManagementAdmin = () => {
     };
 
     if (settings?.id) {
-      const { error } = await supabase.from("player_portal_settings").update(payload).eq("id", settings.id);
+      const { error } = await sharedSupabase.from("player_portal_settings" as any).update(payload as any).eq("id", settings.id);
       if (error) toast.error("Failed to save settings"); else toast.success("Widget settings saved");
     } else {
-      const { error } = await supabase.from("player_portal_settings").insert(payload);
+      const { error } = await sharedSupabase.from("player_portal_settings" as any).insert(payload as any);
       if (error) toast.error("Failed to save settings"); else toast.success("Widget settings saved");
     }
     setSaving(false);
@@ -793,34 +808,32 @@ export const PortalManagementAdmin = () => {
                         <div className="border-2 border-dashed border-accent/30 rounded-lg p-4 space-y-3">
                           <p className="text-sm font-semibold text-accent">New Upgrade Offer</p>
                           <div>
-                            <Label className="text-xs">Pre-fill from Catalogue</Label>
-                            <div className="flex gap-2">
-                              <Select value={newOffer.product_id || "none"} onValueChange={v => { if (v === "none") setNewOffer(prev => ({ ...prev, product_id: "" })); else prefillOfferFromProduct(v); }}>
-                                <SelectTrigger className="text-sm"><SelectValue placeholder="Select product..." /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="none">Manual entry</SelectItem>
-                                  {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name} — {currencySymbol("GBP")}{p.price}</SelectItem>)}
-                                </SelectContent>
-                              </Select>
-                              {newOffer.product_id && (
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <Button variant="outline" size="icon" onClick={() => { const p = products.find(x => x.id === newOffer.product_id); if (p) setPreviewProduct(p); }}><Eye className="h-4 w-4" /></Button>
-                                  </DialogTrigger>
-                                  <DialogContent className="max-w-md">
-                                    <DialogHeader><DialogTitle>{previewProduct?.name}</DialogTitle></DialogHeader>
-                                    {previewProduct && (
-                                      <div className="space-y-3">
-                                        {previewProduct.image_url && <img src={previewProduct.image_url} alt={previewProduct.name} className="w-full aspect-square object-cover rounded-lg" />}
-                                        <p className="text-lg font-bold">{currencySymbol("GBP")}{previewProduct.price}/mo</p>
-                                        {previewProduct.description && <p className="text-sm text-muted-foreground">{previewProduct.description}</p>}
-                                        {previewProduct.options && previewProduct.options.length > 0 && <div className="flex flex-wrap gap-1">{previewProduct.options.map((o: any, i: number) => <Badge key={i} variant="secondary">{o.name || o.label || String(o)}</Badge>)}</div>}
+                            <Label className="text-xs">Bundle Services from Catalogue</Label>
+                            <p className="text-xs text-muted-foreground mb-2">Select multiple services to package into one offer</p>
+                            <div className="max-h-48 overflow-y-auto border rounded-lg divide-y">
+                              {products.map(p => {
+                                const isSelected = newOffer.product_ids.includes(p.id);
+                                return (
+                                  <button
+                                    key={p.id}
+                                    type="button"
+                                    onClick={() => toggleProductInOffer(p.id)}
+                                    className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm transition-colors ${isSelected ? 'bg-accent/10 font-medium' : 'hover:bg-muted/50'}`}
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${isSelected ? 'bg-primary border-primary' : 'border-muted-foreground/40'}`}>
+                                        {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
                                       </div>
-                                    )}
-                                  </DialogContent>
-                                </Dialog>
-                              )}
+                                      <span className="truncate">{p.name}</span>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground shrink-0 ml-2">{currencySymbol("GBP")}{p.price}</span>
+                                  </button>
+                                );
+                              })}
                             </div>
+                            {newOffer.product_ids.length > 0 && (
+                              <p className="text-xs text-muted-foreground mt-1">{newOffer.product_ids.length} service{newOffer.product_ids.length > 1 ? 's' : ''} selected — Total: {currencySymbol(newOffer.currency)}{newOffer.price}</p>
+                            )}
                           </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div><Label className="text-xs">Package Name</Label><Input value={newOffer.name} onChange={e => setNewOffer(prev => ({ ...prev, name: e.target.value }))} placeholder="e.g. Elite Performance" /></div>
@@ -846,7 +859,7 @@ export const PortalManagementAdmin = () => {
                           <div><Label className="text-xs">Custom Message</Label><Textarea value={newOffer.message} onChange={e => setNewOffer(prev => ({ ...prev, message: e.target.value }))} placeholder="e.g. Upgrade to get nutrition coaching and more!" rows={2} /></div>
                           <div className="flex gap-2">
                             <Button onClick={createOfferPayLink} disabled={creatingOfferLink} className="flex-1">{creatingOfferLink ? "Creating Link..." : "Create Offer + Payment Link"}</Button>
-                            <Button variant="outline" onClick={() => { setShowOfferForm(false); setNewOffer({ name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "", payment_type: "subscription", recurring_interval: "month" }); }}>Cancel</Button>
+                            <Button variant="outline" onClick={() => { setShowOfferForm(false); setNewOffer({ name: "", price: "", currency: "GBP", features: [], message: "", pay_link_url: "", product_id: "", product_ids: [], payment_type: "subscription", recurring_interval: "month" }); }}>Cancel</Button>
                           </div>
                         </div>
                       )}
