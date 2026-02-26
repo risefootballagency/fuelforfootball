@@ -24,7 +24,7 @@ export const MobileBottomNav = ({ activeTab, onTabChange, onMoreClick }: MobileB
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className="relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 group"
+              className="relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 group hover:bg-[hsl(47,100%,51%)]"
             >
               {isActive && (
                 <motion.div
@@ -42,23 +42,16 @@ export const MobileBottomNav = ({ activeTab, onTabChange, onMoreClick }: MobileB
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              {!isActive && (
-                <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity duration-200"
-                  style={{ backgroundColor: 'hsl(47, 100%, 51%)' }}
-                />
-              )}
               <motion.div
                 animate={isActive ? { scale: 1.15, y: -1 } : { scale: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
                 <Icon
-                  className={`h-5 w-5 transition-colors duration-200 ${isActive ? '' : 'text-muted-foreground group-hover:text-foreground'}`}
-                  style={isActive ? { color: 'hsl(47, 100%, 51%)' } : undefined}
+                  className={`h-5 w-5 transition-colors duration-200 ${isActive ? 'text-white' : 'text-muted-foreground'} group-hover:text-[hsl(140,40%,20%)]`}
                 />
               </motion.div>
               <span
-                className={`text-[9px] tracking-wider transition-colors duration-200 ${isActive ? '' : 'text-muted-foreground group-hover:text-foreground'}`}
-                style={isActive ? { color: 'hsl(47, 100%, 51%)' } : undefined}
+                className={`text-[9px] tracking-wider transition-colors duration-200 ${isActive ? 'text-white' : 'text-muted-foreground'} group-hover:text-[hsl(140,40%,20%)]`}
               >
                 {tab.label}
               </span>
@@ -67,18 +60,15 @@ export const MobileBottomNav = ({ activeTab, onTabChange, onMoreClick }: MobileB
         })}
         <button
           onClick={onMoreClick}
-          className="relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 group"
+          className="relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 group hover:bg-[hsl(47,100%,51%)]"
         >
-          <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity duration-200"
-            style={{ backgroundColor: 'hsl(47, 100%, 51%)' }}
-          />
           <motion.div
             whileTap={{ rotate: 90 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
-            <MoreHorizontal className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
+            <MoreHorizontal className="h-5 w-5 text-muted-foreground group-hover:text-[hsl(140,40%,20%)] transition-colors duration-200" />
           </motion.div>
-          <span className="text-[9px] tracking-wider text-muted-foreground group-hover:text-foreground transition-colors duration-200">MORE</span>
+          <span className="text-[9px] tracking-wider text-muted-foreground group-hover:text-[hsl(140,40%,20%)] transition-colors duration-200">MORE</span>
         </button>
       </div>
     </nav>
