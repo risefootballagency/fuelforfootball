@@ -89,6 +89,8 @@ interface UpgradeOffer {
   message: string;
   pay_link_url: string;
   product_id?: string;
+  payment_type?: string;
+  recurring_interval?: string;
 }
 
 interface PortalSettings {
@@ -924,11 +926,9 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Current Package</p>
                         <p className="text-lg font-bold text-accent">{portalSettings!.current_package_name}</p>
                         {portalSettings!.current_package_price != null && (() => {
-                          // Check current_packages for frequency, fallback to /mo
-                          const packages = portalSettings?.upgrade_offers ? [] : [];
                           const currentPkgs = (portalSettings as any)?.current_packages;
                           const freq = Array.isArray(currentPkgs) && currentPkgs[0]?.frequency;
-                          const freqLabel = freq === "one-off" ? "" : freq === "weekly" ? "/wk" : freq === "6-monthly" ? "/6mo" : freq === "annual" ? "/yr" : "/mo";
+                          const freqLabel = freq === "one-off" ? "/pc" : freq === "weekly" ? "/wk" : freq === "6-monthly" ? "/6mo" : freq === "annual" ? "/yr" : freq === "monthly" ? "/mo" : "";
                           return (
                             <p className="text-sm text-muted-foreground">{currencySymbol}{portalSettings!.current_package_price}{freqLabel}</p>
                           );
@@ -972,9 +972,11 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                                     {hasCurrentPackage ? "Upgrade Available" : "Recommended Package"}
                                   </p>
                                   <p className="text-lg font-bold text-accent">{offer.name}</p>
-                                  {offer.price && (
-                                    <p className="text-sm text-muted-foreground">{offerCurrSym}{offer.price}/mo</p>
-                                  )}
+                                  {offer.price && (() => {
+                                    const pt = offer.payment_type || offer.recurring_interval;
+                                    const freqLabel = pt === "one_off" || pt === "one-off" ? "/pc" : pt === "weekly" ? "/wk" : pt === "6-monthly" || pt === "6_monthly" ? "/6mo" : pt === "annual" || pt === "yearly" ? "/yr" : pt === "monthly" || pt === "month" ? "/mo" : "/pc";
+                                    return <p className="text-sm text-muted-foreground">{offerCurrSym}{offer.price}{freqLabel}</p>;
+                                  })()}
                                 </div>
                                 {offer.features && offer.features.length > 0 && (
                                   <div className="space-y-1">

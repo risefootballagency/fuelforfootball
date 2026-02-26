@@ -59,9 +59,13 @@ serve(async (req) => {
     const price = await stripe.prices.create(priceParams);
     logStep("Price created", { priceId: price.id, isSubscription, interval });
 
-    // Create a payment link
+    // Create a payment link with adjustable quantity for one-off payments
+    const lineItem: any = { price: price.id, quantity: 1 };
+    if (!isSubscription) {
+      lineItem.adjustable_quantity = { enabled: true, minimum: 1, maximum: 50 };
+    }
     const paymentLink = await stripe.paymentLinks.create({
-      line_items: [{ price: price.id, quantity: 1 }],
+      line_items: [lineItem],
     });
     logStep("Payment link created", { linkId: paymentLink.id, url: paymentLink.url });
 

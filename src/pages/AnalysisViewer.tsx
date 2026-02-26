@@ -482,19 +482,7 @@ const AnalysisHeader = ({
           Back
         </Button>
         
-        {/* Save button - consistent dimensions with Back button */}
-        {onSave && (
-          <Button
-            onClick={onSave}
-            disabled={isSaving}
-            size="sm"
-            className="absolute right-4 md:right-8 top-4 font-bebas uppercase tracking-wider shadow-lg h-8 py-1.5 px-3 text-xs z-20"
-            style={{ backgroundColor: BRAND.gold, color: 'black' }}
-          >
-            <Download className="w-3 h-3 mr-1" />
-            {isSaving ? 'Saving...' : 'Save'}
-          </Button>
-        )}
+        {/* Save button removed for now */}
         
         <div className="relative flex items-center justify-center py-2">
           <img 
