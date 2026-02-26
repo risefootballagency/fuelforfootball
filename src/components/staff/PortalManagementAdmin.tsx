@@ -235,8 +235,16 @@ export const PortalManagementAdmin = () => {
   }, [players]);
 
   const fetchSettings = async (playerId: string) => {
+    // Feature toggles + hero from SHARED db
     const { data } = await sharedSupabase
       .from("player_portal_settings" as any)
+      .select("*")
+      .eq("player_id", playerId)
+      .maybeSingle();
+
+    // Widget/sales data from LOCAL db
+    const { data: localData } = await supabase
+      .from("player_portal_settings")
       .select("*")
       .eq("player_id", playerId)
       .maybeSingle();
@@ -258,20 +266,26 @@ export const PortalManagementAdmin = () => {
         show_performance_reports: d.show_performance_reports ?? true,
       } as PortalSettings);
 
-      // Parse widget data
+      // Parse widget data from LOCAL db
+      const w = localData as any;
       let packages: CurrentPackage[] = [];
-      if (d.current_packages && Array.isArray(d.current_packages)) {
-        packages = d.current_packages;
-      } else if (d.current_package_name) {
-        packages = [{ name: d.current_package_name || "", price: d.current_package_price?.toString() || "", currency: d.current_package_currency || "GBP", frequency: "monthly", features: d.current_package_features || [] }];
-      }
       let offers: UpgradeOffer[] = [];
-      if (d.upgrade_offers && Array.isArray(d.upgrade_offers)) {
-        offers = d.upgrade_offers.map((o: any) => ({ ...o, product_ids: o.product_ids || (o.product_id ? [o.product_id] : []), payment_type: o.payment_type || "subscription", recurring_interval: o.recurring_interval || "month" }));
-      } else if (d.upgrade_name) {
-        offers = [{ name: d.upgrade_name || "", price: d.upgrade_price?.toString() || "", currency: d.upgrade_currency || "GBP", features: d.upgrade_features || [], message: d.upgrade_message || "", pay_link_url: d.upgrade_pay_link_url || "", product_id: d.upgrade_product_id || "", product_ids: d.upgrade_product_id ? [d.upgrade_product_id] : [], payment_type: "subscription", recurring_interval: "month" }];
+      let widgetType: "aphorisms" | "sales_box" = "aphorisms";
+
+      if (w) {
+        widgetType = (w.hub_widget_type as "aphorisms" | "sales_box") || "aphorisms";
+        if (w.current_packages && Array.isArray(w.current_packages)) {
+          packages = w.current_packages;
+        } else if (w.current_package_name) {
+          packages = [{ name: w.current_package_name || "", price: w.current_package_price?.toString() || "", currency: w.current_package_currency || "GBP", frequency: "monthly", features: w.current_package_features || [] }];
+        }
+        if (w.upgrade_offers && Array.isArray(w.upgrade_offers)) {
+          offers = w.upgrade_offers.map((o: any) => ({ ...o, product_ids: o.product_ids || (o.product_id ? [o.product_id] : []), payment_type: o.payment_type || "subscription", recurring_interval: o.recurring_interval || "month" }));
+        } else if (w.upgrade_name) {
+          offers = [{ name: w.upgrade_name || "", price: w.upgrade_price?.toString() || "", currency: w.upgrade_currency || "GBP", features: w.upgrade_features || [], message: w.upgrade_message || "", pay_link_url: w.upgrade_pay_link_url || "", product_id: w.upgrade_product_id || "", product_ids: w.upgrade_product_id ? [w.upgrade_product_id] : [], payment_type: "subscription", recurring_interval: "month" }];
+        }
       }
-      setFormData({ hub_widget_type: d.hub_widget_type as "aphorisms" | "sales_box" || "aphorisms", current_packages: packages, upgrade_offers: offers });
+      setFormData({ hub_widget_type: widgetType, current_packages: packages, upgrade_offers: offers });
     } else {
       setSettings({ player_id: playerId, ...DEFAULT_SETTINGS });
       setFormData({ hub_widget_type: "aphorisms", current_packages: [], upgrade_offers: [] });
@@ -533,12 +547,21 @@ export const PortalManagementAdmin = () => {
       upgrade_offers: formData.upgrade_offers.length > 0 ? formData.upgrade_offers : null,
     };
 
-    if (settings?.id) {
-      const { error } = await sharedSupabase.from("player_portal_settings" as any).update(payload as any).eq("id", settings.id);
-      if (error) toast.error("Failed to save settings"); else toast.success("Widget settings saved");
+    // Save widget data to LOCAL db (has the widget columns)
+    const { data: existing } = await supabase
+      .from("player_portal_settings")
+      .select("id")
+      .eq("player_id", selectedPlayerId)
+      .maybeSingle();
+
+    if (existing) {
+      const { error } = await supabase.from("player_portal_settings").update(payload).eq("player_id", selectedPlayerId);
+      if (error) { console.error("Widget save error:", error); toast.error("Failed to save: " + error.message); }
+      else toast.success("Widget settings saved");
     } else {
-      const { error } = await sharedSupabase.from("player_portal_settings" as any).insert(payload as any);
-      if (error) toast.error("Failed to save settings"); else toast.success("Widget settings saved");
+      const { error } = await supabase.from("player_portal_settings").insert(payload);
+      if (error) { console.error("Widget save error:", error); toast.error("Failed to save: " + error.message); }
+      else toast.success("Widget settings saved");
     }
     setSaving(false);
     fetchSettings(selectedPlayerId);
