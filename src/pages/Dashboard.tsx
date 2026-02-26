@@ -39,7 +39,7 @@ import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsG
 import { downloadVideo } from "@/lib/videoDownload";
 import { PlayerPositionalGuides } from "@/components/PlayerPositionalGuides";
 import { ProtectedContracts } from "@/components/player/ProtectedContracts";
-import { PaymentOptions } from "@/components/player/PaymentOptions";
+import { PortalPaymentMethods } from "@/components/portal/PortalPaymentMethods";
 import { PlayerTransferHub } from "@/components/player/TransferHub";
 import { CognisanceSection } from "@/components/portal/CognisanceSection";
 import { AnalysisDataTab } from "@/components/portal/AnalysisDataTab";
@@ -4172,7 +4172,7 @@ const Dashboard = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
-                      <PaymentOptions playerId={playerData?.id} />
+                      <PortalPaymentMethods />
                     </CardContent>
                   </Card>
                 </TabsContent>
