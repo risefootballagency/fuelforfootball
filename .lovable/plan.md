@@ -1,262 +1,112 @@
 
 
-# Full Audit: FFF vs RISE — Complete Differences
+# Portal Audit: Missing RISE Features in FFF
+
+## Differences Found
+
+### 1. Missing: MobileBottomNav Integration in Dashboard.tsx
+**Status**: Component exists at `src/components/portal/MobileBottomNav.tsx` but is NOT rendered in `src/pages/Dashboard.tsx`.
+
+RISE Dashboard.tsx (line 4847-4854) renders `<MobileBottomNav>` at the bottom of the page with `activeTab`, `onTabChange`, and `onMoreClick` (scrolls to top and opens the nav dropdown). FFF's Dashboard.tsx does not render it at all.
+
+Also requires: `navDropdownOpen` state + controlled `DropdownMenu` with `open={navDropdownOpen} onOpenChange={setNavDropdownOpen}`. FFF's DropdownMenu is currently uncontrolled.
+
+### 2. Missing: Footer Buttons (Logout + Refresh + Notifications)
+**Status**: FFF has the basic logout section but is missing the **improved refresh button** from RISE.
+
+RISE Dashboard.tsx (lines 4796-4836) has:
+- `NotificationSettings` button
+- Log Out button
+- Refresh button that clears ALL offline caches via `CacheManager.clearAllCaches()`, busts browser cache with timestamp URL param, and forces a hard reload
+
+FFF Dashboard.tsx (lines 4788-4811) has a simpler version: the refresh button only calls `window.location.reload()`. It should match RISE's cache-busting behaviour.
+
+### 3. Missing: `VersionManager.initialize()` Call in Dashboard
+**Status**: FFF has the `VersionManager` class and calls it from `Staff.tsx` and `main.tsx`, but NOT from `Dashboard.tsx`.
+
+RISE Dashboard.tsx (lines 738-743) calls `VersionManager.initialize()` on mount. FFF Dashboard.tsx does not.
+
+### 4. Missing: Staff Notification Tracking (`insertStaffNotification`)
+**Status**: FFF has `src/lib/staffNotifications.ts` but it is NOT imported or used in Dashboard.tsx.
+
+RISE Dashboard.tsx (lines 172-189) tracks portal tab views by calling `insertStaffNotification` when a player views the Analysis or Performance tabs. This creates events in `staff_notification_events` so staff can see which players are engaging.
+
+FFF Dashboard.tsx has no equivalent tracking.
+
+### 5. Missing: `AnimatePresence` Tab Transitions
+**Status**: RISE wraps tab content in `<AnimatePresence mode="wait">` with `<motion.div>` for smooth tab transitions (lines 1796-1853). FFF renders tabs without any animation.
+
+### 6. Missing: Hub Fixture Fetch Enhancement
+**Status**: RISE Hub.tsx `ParallaxHeroWithFixture` (lines 23-102) fetches fixtures via two methods: first from `player_fixtures` table (most reliable), then falls back to club name matching. It also fetches linked pre-match analyses.
+
+FFF Hub.tsx `ParallaxHeroWithFixture` (lines 21-58) only does club name matching, misses the `player_fixtures` join and the pre-match analysis lookup. It also doesn't pass `preMatchAnalysis` to `ParallaxHero`.
+
+### 7. Missing: `PortalEmptyState` Usage in Dashboard
+**Status**: Component exists but is NOT imported or used in FFF's Dashboard.tsx. RISE uses it for empty highlights, empty updates, etc. (e.g., line 4217, 4448).
+
+### 8. Missing: `PortalSettings` fetch on Dashboard.tsx
+**Status**: RISE Dashboard has `fetchPortalSettings` called during auth flow (line 873) and stores it in state. FFF Dashboard.tsx has `portalSettings` state but the fetch path differs — FFF does a dual-fetch (shared + local) which was added recently but the RISE version also uses a simpler direct call to `fetchPortalSettings(player.id)`.
+
+### 9. Missing: Nutrition Programs fetch on Dashboard
+**Status**: RISE has `nutritionPrograms` state and `fetchNutritionPrograms` (line 872, 1388-1407). FFF has `hasNutritionPrograms` boolean + `checkNutritionPrograms` which is a different, simpler check. The RISE version uses a `coaching_programmes` query matching nutrition category and stores the full data.
+
+### 10. Missing: `navDropdownOpen` Controlled State for Nav Dropdown
+**Status**: RISE uses `navDropdownOpen` state (line 164) to programmatically open/close the nav dropdown, especially from the MobileBottomNav "More" button. FFF's dropdown is uncontrolled.
+
+### 11. Missing: `main.pb-16 md:pb-0` for MobileBottomNav Clearance
+**Status**: RISE main content area has `pb-16 md:pb-0` (line 1684) to prevent the bottom nav from covering content. FFF has `pb-0`.
 
 ---
 
-## STAFF COMPONENTS — Missing from FFF
+## Implementation Plan
 
-| File | What it does | Priority |
-|------|-------------|----------|
-| `PortalManagement.tsx` (staff root) | Staff-side portal admin — player email lookup, feature toggles, hero management. FFF has a `sales/PortalManagement.tsx` which is the sales version, NOT the same component. RISE imports from `@/components/staff/PortalManagement` at root level. | HIGH |
-| `SportscodeActionTypes.tsx` | 304-line action type CRUD manager for Sportscode XML integration | HIGH |
-| `HighlightCompiler.tsx` | Highlight reel compilation tool — batch compiling clips into reels | HIGH |
-| `RecruitmentRulesTab.tsx` | Recruitment rules configuration tab | MEDIUM |
-| `StreamsSection.tsx` | RISE uses `StreamsSection.tsx`, FFF has `StreamsManagement.tsx` — different file, needs sync check | MEDIUM |
-| `DocsSection.tsx` / `SheetsSection.tsx` | RISE has these at staff root level; FFF moved them to `staff/sections/` subdirectory. FFF Staff.tsx imports from `sections/` which is correct for FFF. | LOW (just path difference) |
+### Batch 1 — MobileBottomNav + Controlled Dropdown
+1. Add `navDropdownOpen` state to Dashboard.tsx
+2. Make the nav `DropdownMenu` controlled with `open={navDropdownOpen} onOpenChange={setNavDropdownOpen}`
+3. Render `<MobileBottomNav>` at the bottom of the Dashboard return, wired to `activeTab`, `onTabChange`, and `onMoreClick`
+4. Add `pb-16 md:pb-0` to `<main>` for clearance
+5. Update the nav tab change handlers to close the dropdown: `setNavDropdownOpen(false)`
 
-## STAFF SUB-DIRECTORIES — Missing Files
+### Batch 2 — Footer Improvements + VersionManager
+1. Update the refresh button to match RISE: clear `CacheManager.clearAllCaches()`, bust cache with timestamp URL, and force hard reload
+2. Add `VersionManager.initialize()` call in Dashboard's initial `useEffect`
+3. Import `VersionManager` from `@/lib/versionManager`
 
-### `coaching/`
-| File | Notes |
-|------|-------|
-| `AIPlayerDetection.tsx` | AI-powered player detection from video. FFF has `ServiceAudit.tsx` instead (FFF-specific). | 
+### Batch 3 — Staff Notification Tracking
+1. Import `insertStaffNotification` from `@/lib/staffNotifications`
+2. Add portal tab view tracking `useEffect` that fires when `activeTab` or `activeAnalysisTab` changes
 
-### `marketing/`
-| File | Notes |
-|------|-------|
-| `CustomResourcesManager.tsx` | Custom marketing resource management |
-| `ScheduleManager.tsx` | Post scheduling. FFF has `ContentCalendar.tsx` and `AIWriter.tsx` instead (FFF-specific additions). |
+### Batch 4 — AnimatePresence Tab Transitions
+1. Import `AnimatePresence` from `framer-motion` (already imported in RISE)
+2. Wrap Hub content in `<motion.div>` with fade/slide transitions
+3. Wrap non-Hub content similarly
 
-### `widgets/`
-| File | Notes |
-|------|-------|
-| `FinancialOverviewWidget.tsx` | Dashboard financial overview widget |
-| `VisionBoardWidget.tsx` | Vision board widget for dashboard |
+### Batch 5 — Hub Fixture Fetch Enhancement
+1. Update `ParallaxHeroWithFixture` to first check `player_fixtures` table (join on `fixtures`), fallback to club name match
+2. Add pre-match analysis lookup from `analyses` table using `fixture_id`
+3. Pass `preMatchAnalysis` prop to `ParallaxHero`
 
-### `design/`
-| File | Notes |
-|------|-------|
-| `DesignStudio.tsx` | RISE has this in `design/` subdirectory. FFF has `DesignCanvas.tsx` in `design/` plus a wrapper `DesignStudio.tsx` at staff root that just renders `DesignProjects`. The RISE `design/DesignStudio.tsx` is the actual canvas component. Need to check if FFF's `DesignCanvas.tsx` is equivalent. |
+### Batch 6 — PortalEmptyState Integration
+1. Import `PortalEmptyState` in Dashboard.tsx
+2. Replace bare "No X yet" text in highlights and updates sections with `<PortalEmptyState>` component
 
 ---
 
-## PORTAL COMPONENTS — Missing from FFF
-
-| File | What it does |
-|------|-------------|
-| `AnimatedCounter.tsx` | Animated number counter for stats display |
-| `MobileBottomNav.tsx` | Mobile bottom navigation bar for portal |
-| `PortalEmptyState.tsx` | Empty state UI placeholder |
-| `PortalSkeleton.tsx` | Loading skeleton for portal sections |
-| `SectionDivider.tsx` | Visual section divider |
-
-FFF has extra portal components RISE doesn't: `AllReportsSection.tsx`, `ProgressSummary.tsx`, `RadarChart3D.tsx`, `ReadOnlyAnnotationOverlay.tsx`, `ScatterComparisonChart.tsx`, `ScoutingComparisonMatrix.tsx`, `GoalTracking.tsx` — these are FFF-specific and should stay.
-
----
-
-## PLAYER COMPONENTS — Missing from FFF
-
-| File | What it does |
-|------|-------------|
-| `PlayerProgrammingNotes.tsx` | Player programming notes display |
-
----
-
-## TOP-LEVEL COMPONENTS — Missing from FFF
-
-| File | What it does |
-|------|-------------|
-| `HeroVideoPlayer.tsx` | Hero video player component |
-| `MarketingGallery.tsx` | Marketing gallery browser (FFF has `MediaGallery.tsx` — may overlap) |
-| `PlayerReportDialog.tsx` | Player report dialog |
-| `ScrollProgressBar.tsx` | Scroll progress indicator bar |
-| `SequentialLazyVideo.tsx` | Sequential video lazy loading |
-| `PageLoading.tsx` | RISE imports `PageLoading` from `LoadingSpinner`. FFF has a separate `PageLoading.tsx` component. Need sync check. |
-
----
-
-## RADIAL MENU — Missing from FFF
-
-| File | Notes |
-|------|-------|
-| `StarsQuadrantCard.tsx` | RISE-specific "Stars" page quadrant. Skip unless FFF has equivalent. |
-
----
-
-## HOOKS — Missing from FFF
-
-| Hook | What it does |
-|------|-------------|
-| `useFormGradeConfigs.ts` | 256-line form grade threshold configs. RISE Dashboard.tsx imports this; FFF Dashboard.tsx does NOT. |
-| `useImagePreloader.ts` | FFF has this, RISE does not — FFF-specific, keep. |
-| `useMarketingGalleryImages.ts` | FFF-specific, keep. |
-| `useArticleServiceRecommendation.ts` | FFF-specific, keep. |
-
----
-
-## PAGES — Missing from FFF
-
-### Worth copying (functional, not RISE-branding):
-| Page | Notes |
-|------|-------|
-| `AgentRequests.tsx` | Agent request management |
-| `AuthCallback.tsx` | OAuth callback handler |
-| `BetweenTheLines.tsx` | BTL content page |
-| `LearnMorePage.tsx` | Learn more info page |
-| `OpenAccess.tsx` | Open access content |
-| `Packages.tsx` | Packages/pricing display |
-| `PerformancePage.tsx` | Performance data page |
-| `PlayerJourney.tsx` | Player journey visualization |
-| `PlayersList.tsx` | Players list (FFF has `Players.tsx` — need sync) |
-| `PlayersPage.tsx` | Players page variant |
-| `Potential.tsx` | Potential assessment |
-| `PressReleases.tsx` | Press releases page |
-| `ScoutLogin.tsx` | Scout login page |
-| `UpdatePassword.tsx` | Password update page |
-| `YouthPlayers.tsx` | Youth players page |
-
-### Skip (RISE-branding only):
-`HowWeRise.tsx`, `Stars.tsx`, `ClubDirection.tsx`
-
-FFF has pages RISE doesn't: `Cart.tsx`, `Customisation.tsx`, `DailyFuel.tsx`, `Home.tsx`, `PayLink.tsx`, `Players.tsx`, `PlayersIntro.tsx`, `PortalExample.tsx`, `PublicHub.tsx`, `ServiceDetail.tsx`, `Services.tsx`, `Shop.tsx` — FFF-specific, keep.
-
----
-
-## EDGE FUNCTIONS — Missing from FFF
-
-| Function | What it does |
-|----------|-------------|
-| `check-player-milestones/` | Player milestone detection |
-| `contract-cross-reference/` | Contract cross-referencing |
-| `detect-club-countries/` | Auto-detect club countries |
-| `detect-player-actions/` | AI player action detection from video |
-| `extract-player-stats/` | Extract player statistics |
-| `generate-ai-response/` | General AI response generator |
-| `generate-cognisance-question/` | Cognisance quiz question AI |
-| `manage-roles/` | Role management backend |
-| `parse-case-study-images/` | Case study image parser |
-| `player-match-clipper/` | Match clipping backend |
-| `suggest-fixture-stats/` | AI fixture stat suggestions |
-
-Skip: `notificationapi-rise_staff/` (RISE-branding specific)
-
-FFF has functions RISE doesn't: `ai-chat/`, `ai-image-tagger/`, `ai-session-suggest/`, `ai-writer/`, `create-pay-link/`, `create-service-checkout/`, `duplicate-records/`, `extract-video-links/`, `import-players-to-shared/`, `init-web-push/`, `insert-shared-programme/`, `notify-staff/`, `og-image/`, `og-player/`, `proxy-pdf/`, `save-playlist/`, `send-content-notification/`, `split-r90-ratings/`, `stripe-webhook/`, `subscribe-staff-push/`, `update-playlist/`, `upload-player-highlight/`, `verify-contracts-access/`, `weekly-instagram-report/` — FFF-specific, keep.
-
----
-
-## LIB — Missing from FFF
-
-| File | Notes |
-|------|-------|
-| `normalizeText.ts` | FFF has this, RISE does not — FFF-specific |
-| `analysisPdfExport.ts` | FFF has this, RISE does not — FFF-specific |
-
-RISE lib files are all present in FFF. No missing lib files.
-
----
-
-## STAFF.TSX SYNC ISSUES
-
-FFF Staff.tsx (1280 lines) vs RISE Staff.tsx (1721 lines). Key differences:
-
-| Feature | RISE | FFF | Action |
-|---------|------|-----|--------|
-| `PortalManagement` import | From `@/components/staff/PortalManagement` (root) | From `@/components/staff/sales` (different component) | Need to add RISE's root PortalManagement |
-| `HighlightCompiler` | Imported and registered as section | Missing entirely | Add |
-| `VideoCompressor` section | Registered in sidebar | Registered in sidebar | OK |
-| `StreamsSection` | Used | FFF uses `StreamsManagement` | Sync naming |
-| `useRolePermissions` | Used with `currentRole` state | Not used in Staff.tsx | Add role-based permission gating |
-| `useTheme` | Used for dark/light toggle | Not imported | Add |
-| Header tabs (draggable) | Full implementation with `DraggableTabsList` | Full implementation | OK |
-| `useFormGradeConfigs` | Used in Dashboard | Not imported in Dashboard | Add hook |
-| `VersionManager` | Called on load | Not called in Staff | Add |
-| Section type union | Full typed union of all section IDs | Uses string type | Sync |
-
-## DASHBOARD.TSX SYNC ISSUES
-
-FFF Dashboard.tsx (4822 lines) vs RISE Dashboard.tsx (4839 lines). Key differences:
-
-| Feature | RISE | FFF | Action |
-|---------|------|-----|--------|
-| `useFormGradeConfigs` | Imported and used | Not imported | Add hook + import |
-| `PortalEmptyState` | Imported | Not imported | Add component + import |
-| `SectionDivider` | Imported | Not imported | Add component + import |
-| `MobileBottomNav` | Imported | Not imported | Add component + import |
-| `MarkdownContent` | Imported from utils | Not imported | Check if needed |
-| `PageLoading`/`LoadingSpinner` | From `@/components/LoadingSpinner` | Separate `PageLoading` component | Already adapted |
-
----
-
-## SUMMARY TABLE
+## Summary
 
 ```text
-Category                    Missing   Priority
-─────────────────────────────────────────────
-Staff components               4     HIGH
-  (PortalManagement, HighlightCompiler,
-   SportscodeActionTypes, RecruitmentRulesTab)
-Staff sub-dirs                 5     HIGH
-  (AIPlayerDetection, CustomResourcesManager,
-   ScheduleManager, FinancialOverviewWidget,
-   VisionBoardWidget)
-Portal components              5     MEDIUM
-  (AnimatedCounter, MobileBottomNav,
-   PortalEmptyState, PortalSkeleton,
-   SectionDivider)
-Edge functions                11     HIGH
-Player components              1     LOW
-  (PlayerProgrammingNotes)
-Top-level components           5     LOW-MED
-  (HeroVideoPlayer, MarketingGallery,
-   PlayerReportDialog, ScrollProgressBar,
-   SequentialLazyVideo)
-Hooks                          1     MEDIUM
-  (useFormGradeConfigs)
-Pages                        ~15     LOW
-Radial menu                    1     LOW
-─────────────────────────────────────────────
-TOTAL                        ~48     items
+Item                                Status       Priority
+────────────────────────────────────────────────────────
+MobileBottomNav rendering          NOT WIRED     HIGH
+Controlled nav dropdown            MISSING       HIGH  
+Footer cache-bust refresh          PARTIAL       MEDIUM
+VersionManager in Dashboard        MISSING       MEDIUM
+Staff notification tracking        MISSING       MEDIUM
+AnimatePresence transitions        MISSING       LOW
+Hub fixture fetch (player_fixtures) PARTIAL      MEDIUM
+PortalEmptyState usage             NOT IMPORTED  LOW
+Nutrition programs fetch           DIFFERENT     LOW
+────────────────────────────────────────────────────────
 ```
 
----
-
-## IMPLEMENTATION PLAN (Batch Order)
-
-### Batch 1 — HIGH priority staff components
-1. Transfer `PortalManagement.tsx` (staff root version, not sales)
-2. Transfer `HighlightCompiler.tsx`
-3. Transfer `SportscodeActionTypes.tsx`
-4. Transfer `RecruitmentRulesTab.tsx`
-5. Register all 4 in Staff.tsx sidebar + section rendering
-
-### Batch 2 — Staff sub-directory files
-1. Transfer `coaching/AIPlayerDetection.tsx`
-2. Transfer `marketing/CustomResourcesManager.tsx`
-3. Transfer `marketing/ScheduleManager.tsx`
-4. Transfer `widgets/FinancialOverviewWidget.tsx`
-5. Transfer `widgets/VisionBoardWidget.tsx`
-
-### Batch 3 — Portal components + hook
-1. Transfer `AnimatedCounter.tsx`
-2. Transfer `MobileBottomNav.tsx`
-3. Transfer `PortalEmptyState.tsx`
-4. Transfer `PortalSkeleton.tsx`
-5. Transfer `SectionDivider.tsx`
-6. Transfer `useFormGradeConfigs.ts` hook
-7. Transfer `PlayerProgrammingNotes.tsx`
-
-### Batch 4 — Edge functions
-Transfer all 11 missing edge functions, adapting shared DB references.
-
-### Batch 5 — Staff.tsx + Dashboard.tsx sync
-1. Add `VersionManager` call, `useRolePermissions`, `useTheme` to Staff.tsx
-2. Register missing sections in sidebar (portalmanagement root, highlightcompiler, sportscodeactiontypes)
-3. Add `useFormGradeConfigs` import to Dashboard.tsx
-4. Wire in portal components (MobileBottomNav, PortalEmptyState, SectionDivider)
-
-### Batch 6 — Top-level components + pages
-Transfer remaining components and pages as needed.
-
-All transfers will adapt imports to use `sharedSupabase` where needed, and use `as any` casts for tables not in the local `types.ts`.
-
+All changes are in 2 files: `src/pages/Dashboard.tsx` and `src/components/dashboard/Hub.tsx`. The components themselves (MobileBottomNav, PortalEmptyState, SectionDivider) already exist in FFF.
