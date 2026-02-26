@@ -22,7 +22,7 @@ interface Props {
   comparisonPlayers: ComparisonPlayer[];
 }
 
-const PORTAL_COLOUR = "hsl(43, 49%, 61%)";
+const PORTAL_COLOUR = "hsl(47, 100%, 51%)";
 const COMP_COLOUR = "hsl(0, 0%, 55%)";
 const COMP_HOVER_COLOUR = "hsl(0, 0%, 90%)";
 
@@ -219,7 +219,7 @@ export const ScatterComparisonChart = ({
                 const cx = toX(pt.x);
                 const cy = toY(pt.y);
                 const isActive = activeIdx === pt.idx;
-                const size = pt.isPortal ? 3.8 : isActive ? 3.2 : 2.6;
+                const size = pt.isPortal ? 4.5 : isActive ? 3.2 : 2.6;
                 const strokeW = pt.isPortal ? 0.7 : isActive ? 0.6 : 0.45;
                 const colour = pt.isPortal
                   ? PORTAL_COLOUR

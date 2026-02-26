@@ -59,7 +59,7 @@ export const MobileBottomNav = ({
               {isActive && (
                 <motion.div
                   layoutId="bottomNavGlow"
-                  className="absolute inset-0 rounded-lg bg-white/20"
+                  className="absolute inset-0 rounded-lg bg-[hsl(47,100%,51%)]/20"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
