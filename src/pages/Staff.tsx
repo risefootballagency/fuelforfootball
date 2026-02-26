@@ -102,6 +102,7 @@ import { StaffSMSNotifications } from "@/components/staff/StaffSMSNotifications"
 import { KeyboardShortcutsDialog } from "@/components/staff/KeyboardShortcutsDialog";
 import { SalesDeck } from "@/components/staff/marketing/SalesDeck";
 import { VideoDownloaderSection } from "@/components/staff/VideoDownloaderSection";
+import { VideoCompressor } from "@/components/staff/VideoCompressor";
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
@@ -573,7 +574,6 @@ const Staff = () => {
           { id: '_group_tasks', title: 'Tasks', isGroupLabel: true } as any,
           { id: 'focusedtasks', title: 'Focused Tasks', icon: ClipboardList },
           { id: 'visionboard', title: 'Vision Board', icon: Target },
-          { id: 'goalstasks', title: 'Goals & Tasks', icon: Target },
         ],
       },
       {
@@ -582,9 +582,11 @@ const Staff = () => {
           { id: 'docs', title: 'Docs', icon: FileText },
           { id: 'sheets', title: 'Sheets', icon: FileSpreadsheet },
           { id: 'designstudio', title: 'Design Studio', icon: Palette },
-          { id: 'annotations', title: 'Annotations', icon: Pencil },
-          { id: 'videoanalysis', title: 'Video Analysis', icon: Video },
+          { id: 'annotations', title: 'Annotations', icon: Film },
+          { id: 'videoanalysis', title: 'Video Analysis', icon: Film },
           { id: 'streams', title: 'Streams', icon: Tv },
+          { id: 'videocompressor', title: 'Video Compressor', icon: Film },
+          { id: 'highlightcompiler', title: 'Highlight Compiler', icon: Film },
           { id: 'videodownloader', title: 'Video Downloader', icon: Download },
         ],
       },
@@ -611,10 +613,12 @@ const Staff = () => {
         sections: [
           { id: 'players', title: 'Players', icon: UserCog },
           { id: 'highlightmaker', title: 'Highlight Maker', icon: Film },
-          { id: 'highlightcompiler', title: 'Highlight Compiler', icon: Film },
           { id: '_group_transfers', title: 'Transfers', isGroupLabel: true } as any,
           { id: 'transferhub', title: 'Transfer Hub', icon: Building2 },
           { id: 'updates', title: 'Player Updates', icon: BellRing },
+          { id: 'requests', title: 'Requests', icon: Target },
+          { id: '_group_portal', title: 'Portal', isGroupLabel: true } as any,
+          { id: 'portalmanagement', title: 'Portal', icon: Monitor },
         ]
       },
       {
@@ -645,7 +649,6 @@ const Staff = () => {
           { id: 'retention', title: 'Retention', icon: Users },
           { id: 'outreach', title: 'Outreach', icon: UserCog },
           { id: 'saleshub', title: 'Sales Hub', icon: FileText },
-          { id: 'portalmanagement', title: 'Portal Management', icon: Settings },
           { id: 'portaladmin', title: 'Portal Admin', icon: Monitor },
         ]
       },
@@ -693,12 +696,14 @@ const Staff = () => {
           { id: '_group_site', title: 'Site', isGroupLabel: true } as any,
           { id: 'sitetext', title: 'Site Text', icon: Settings },
           { id: 'languages', title: 'Languages', icon: Languages },
-          { id: '_group_comms', title: 'Communications', isGroupLabel: true } as any,
-          { id: 'notifications', title: 'Notifications', icon: Bell },
-          { id: 'sms', title: 'SMS', icon: MessageSquare },
+          ...(isAdmin ? [
+            { id: '_group_comms', title: 'Communications', isGroupLabel: true } as any,
+            { id: 'notifications', title: 'Notifications', icon: Bell },
+            { id: 'sms', title: 'SMS', icon: MessageSquare },
+          ] : []),
           ...(isAdmin ? [
             { id: '_group_access', title: 'Access', isGroupLabel: true } as any,
-            { id: 'passwords', title: 'Passwords', icon: Lock },
+            { id: 'passwords', title: 'Player Passwords', icon: Lock },
             { id: 'staffaccounts', title: 'Staff Accounts', icon: Shield },
             { id: '_group_data', title: 'Data', isGroupLabel: true } as any,
             { id: 'activitylog', title: 'Activity Log', icon: ScrollText },
@@ -1144,7 +1149,7 @@ const Staff = () => {
                   </div>
                 )}
                 {expandedSection === 'meetings' && <Meetings />}
-                {expandedSection === 'goalstasks' && <GoalsTasksManagement />}
+                {expandedSection === 'videocompressor' && <VideoCompressor />}
                 {expandedSection === 'visionboard' && <VisionBoardSection />}
                 {expandedSection === 'focusedtasks' && <FocusedTasksSection />}
                 {expandedSection === 'staffschedules' && <StaffSchedulesManagement />}
@@ -1173,7 +1178,7 @@ const Staff = () => {
                 {expandedSection === 'highlightcompiler' && <HighlightCompiler />}
                 {expandedSection === 'sportscodeactions' && <SportscodeActionTypes />}
                 {expandedSection === 'recruitmentrules' && <RecruitmentRulesTab isAdmin={isAdmin} />}
-                {expandedSection === 'portaladmin' && <PortalManagementAdmin />}
+                {expandedSection === 'portaladmin' && <PortalManagement />}
                 {expandedSection === 'transferhub' && <TransferHub isAdmin={isAdmin} />}
                 {expandedSection === 'updates' && <UpdatesManagement isAdmin={isAdmin} />}
                 {expandedSection === 'requests' && <RequestsManagement />}
@@ -1208,7 +1213,7 @@ const Staff = () => {
                 {expandedSection === 'retention' && <RetentionTracker />}
                 {expandedSection === 'outreach' && <OutreachTracker />}
                 {expandedSection === 'saleshub' && <SalesHub />}
-                {expandedSection === 'portalmanagement' && <PortalManagement />}
+                {expandedSection === 'portalmanagement' && <PortalManagementAdmin />}
                 {expandedSection === 'legal' && <LegalManagement isAdmin={isAdmin} />}
                 {expandedSection === 'contracts' && <ContractSignature />}
                 {expandedSection === 'partners' && <PartnersManagement isAdmin={isAdmin} />}
