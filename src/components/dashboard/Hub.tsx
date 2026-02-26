@@ -923,9 +923,16 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                       <div className="text-center">
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Current Package</p>
                         <p className="text-lg font-bold text-accent">{portalSettings!.current_package_name}</p>
-                        {portalSettings!.current_package_price != null && (
-                          <p className="text-sm text-muted-foreground">{currencySymbol}{portalSettings!.current_package_price}/mo</p>
-                        )}
+                        {portalSettings!.current_package_price != null && (() => {
+                          // Check current_packages for frequency, fallback to /mo
+                          const packages = portalSettings?.upgrade_offers ? [] : [];
+                          const currentPkgs = (portalSettings as any)?.current_packages;
+                          const freq = Array.isArray(currentPkgs) && currentPkgs[0]?.frequency;
+                          const freqLabel = freq === "one-off" ? "" : freq === "weekly" ? "/wk" : freq === "6-monthly" ? "/6mo" : freq === "annual" ? "/yr" : "/mo";
+                          return (
+                            <p className="text-sm text-muted-foreground">{currencySymbol}{portalSettings!.current_package_price}{freqLabel}</p>
+                          );
+                        })()}
                       </div>
                     ) : (
                       <div className="text-center">
