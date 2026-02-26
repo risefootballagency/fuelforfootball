@@ -1524,6 +1524,8 @@ const Dashboard = () => {
   }, []);
 
   const fetchPrograms = async (email: string | undefined) => {
+    setPrograms([]);
+    setSelectedProgramId(null);
     if (!email) return;
     
     try {
@@ -1565,6 +1567,8 @@ const Dashboard = () => {
         setSelectedProgramId(programsData[0].id);
       }
     } catch (error: any) {
+      setPrograms([]);
+      setSelectedProgramId(null);
       console.error("Error fetching programs:", error);
       toast.error("Failed to load program data");
     }
@@ -4872,7 +4876,7 @@ const Dashboard = () => {
           setNavDropdownOpen(true);
         }}
         hasAnalysis={analyses.length > 0}
-        hasProgramming={programs.length > 0}
+        hasProgramming={programs.some((p) => !!p.is_current)}
       />
     </div>
   );
