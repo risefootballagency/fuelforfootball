@@ -4871,6 +4871,8 @@ const Dashboard = () => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
           setNavDropdownOpen(true);
         }}
+        hasAnalysis={analyses.length > 0}
+        hasProgramming={programs.length > 0}
       />
     </div>
   );
