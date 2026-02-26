@@ -113,12 +113,10 @@ export const PortalPaymentMethods = () => {
         return (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">Pay by debit or credit card via our secure Stripe checkout.</p>
+            <p className="text-xs text-muted-foreground">£1 per unit — adjust quantity at checkout to match your invoice amount.</p>
             <Button
               className="w-full bg-[hsl(270,60%,50%)] hover:bg-[hsl(270,60%,45%)] text-white"
-              onClick={() => {
-                // Use Stripe payment link
-                window.open("https://buy.stripe.com/28oaFk0hb4nI2YwbII", "_blank");
-              }}
+              onClick={() => window.open("https://buy.stripe.com/cNidR87Xjgdvcgc505bbG03", "_blank")}
             >
               <CreditCard className="h-4 w-4 mr-2" />
               Pay by Card
