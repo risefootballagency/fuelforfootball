@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PlayerProfileModal from "@/components/PlayerProfileModal";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
@@ -20,6 +20,7 @@ import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, 
 import { ClipNameEditor } from "@/components/ClipNameEditor";
 import { addDays, format, parseISO, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
 import { SEO } from "@/components/SEO";
+import { AnimatePresence, motion } from "framer-motion";
 import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
 import { PlaylistContent } from "@/components/PlaylistContent";
 import { CoachAvailability } from "@/components/CoachAvailability";
@@ -27,7 +28,10 @@ import { PlayerScoutingReports } from "@/components/PlayerScoutingReports";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { OfflineContentManager } from "@/components/OfflineContentManager";
 import { CacheManager } from "@/lib/cacheManager";
+import { VersionManager } from "@/lib/versionManager";
+import { insertStaffNotification } from "@/lib/staffNotifications";
 import { Hub } from "@/components/dashboard/Hub";
+import { MobileBottomNav } from "@/components/portal/MobileBottomNav";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList, ReferenceLine } from "recharts";
 import { Link } from "react-router-dom";
 
@@ -48,6 +52,7 @@ import { PlayerMatchClipper } from "@/components/portal/PlayerMatchClipper";
 import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparisonMatrix";
 import { RadarChart3D } from "@/components/portal/RadarChart3D";
 import { AllReportsSection } from "@/components/portal/AllReportsSection";
+import { PortalEmptyState } from "@/components/portal/PortalEmptyState";
 
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
@@ -147,6 +152,7 @@ const Dashboard = () => {
   const [selectedOppositionScheme, setSelectedOppositionScheme] = useState<string>('');
   const [hasNutritionPrograms, setHasNutritionPrograms] = useState(false);
   const [showAnalysisSub, setShowAnalysisSub] = useState(false);
+  const [navDropdownOpen, setNavDropdownOpen] = useState(false);
   
   // Performance Report Dialog state
   const [performanceReportDialogOpen, setPerformanceReportDialogOpen] = useState(false);
@@ -735,6 +741,13 @@ const Dashboard = () => {
     checkAuth();
     fetchDailyAphorism();
 
+    // Initialize version manager
+    VersionManager.initialize().then(info => {
+      if (info.hasUpdate) {
+        VersionManager.forceUpdate();
+      }
+    });
+
     // Setup online/offline listeners
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -746,6 +759,17 @@ const Dashboard = () => {
       window.removeEventListener('offline', handleOffline);
     };
   }, [navigate]);
+
+  // Track portal tab views for staff notifications
+  useEffect(() => {
+    if (!playerData?.name) return;
+    const tabLabel = activeTab === "analysis" ? `Analysis > ${activeAnalysisTab}` : activeTab;
+    insertStaffNotification(
+      `${playerData.name} viewed ${tabLabel}`,
+      `Portal tab: ${tabLabel}`,
+      "portal_view"
+    );
+  }, [activeTab, activeAnalysisTab, playerData?.name]);
 
   const checkAuth = async () => {
     try {
@@ -1892,17 +1916,17 @@ const Dashboard = () => {
         </div>
       )}
 
-      <main className="pb-0">
+      <main className="pb-16 md:pb-0">
         {/* Notification Permission - with padding */}
         <div className="container mx-auto max-w-6xl px-4 md:px-6 mb-0">
           <NotificationPermission />
         </div>
         {/* Navigation Menu - Full width, conditionally sticky */}
         <div className={`w-full ${!isSubheaderVisible ? 'sticky top-16 z-40' : ''}`}>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline" 
+            <DropdownMenu open={navDropdownOpen} onOpenChange={setNavDropdownOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline" 
                 className="w-full justify-center font-bebas uppercase text-xl px-6 py-6 bg-card hover:bg-card/80 border-t-2 border-gold border-x-0 border-b-2 !text-gold hover:!text-gold z-50 rounded-none"
                 >
                   <span>
@@ -1987,6 +2011,7 @@ const Dashboard = () => {
                             navigate("/services");
                           } else {
                             setActiveTab(item.tab);
+                            setNavDropdownOpen(false);
                           }
                         }}
                         className={`flex flex-col items-center justify-center gap-2 cursor-pointer rounded-lg transition-all py-6 sm:py-8 ${
@@ -2006,7 +2031,15 @@ const Dashboard = () => {
         </div>
 
         {/* Hub Section - Full Width, No Container */}
+        <AnimatePresence mode="wait">
         {activeTab === "hub" && (
+          <motion.div
+            key="hub"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
           <Hub 
             programs={programs} 
             analyses={analyses} 
@@ -2046,10 +2079,18 @@ const Dashboard = () => {
               }, 300);
             }}
           />
+          </motion.div>
         )}
 
         {/* Content Section with Padding - For Other Tabs */}
         {activeTab !== "hub" && (
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+        >
         <div className="container mx-auto max-w-6xl px-4 md:px-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             {/* Upload Progress Indicator */}
@@ -3968,9 +4009,7 @@ const Dashboard = () => {
                       )}
 
                       {invoices.length === 0 ? (
-                        <div className="py-8 text-center text-muted-foreground">
-                          No invoices available yet.
-                        </div>
+                        <PortalEmptyState icon="invoices" title="No invoices available yet" description="Your invoices will appear here once they've been generated." />
                       ) : (
                         <div className="space-y-4">
                           {/* Outstanding invoices first */}
@@ -4165,9 +4204,7 @@ const Dashboard = () => {
                         
                         <TabsContent value="match">
                           {!highlightsData.matchHighlights || highlightsData.matchHighlights.length === 0 ? (
-                            <div className="py-8 text-center text-muted-foreground">
-                              No match highlights available yet.
-                            </div>
+                            <PortalEmptyState icon="highlights" title="No match highlights available yet" description="Your highlights will appear here once they've been created." />
                           ) : (
                             <div className="grid gap-4 md:grid-cols-2">
                               {highlightsData.matchHighlights?.map((highlight: any, index: number) => (
@@ -4479,9 +4516,7 @@ const Dashboard = () => {
 
                     <TabsContent value="general" className="space-y-6 pl-6 pr-6">
                       {updates.length === 0 ? (
-                        <div className="py-8 text-center text-muted-foreground">
-                          No updates available yet.
-                        </div>
+                        <PortalEmptyState icon="updates" title="No updates available yet" description="Check back soon for the latest updates from your coaching team." />
                       ) : (
                         <div className="space-y-6">
                           {updates.map((update) => (
@@ -4546,7 +4581,9 @@ const Dashboard = () => {
             {/* Transfer Hub removed - Services link navigates directly */}
           </Tabs>
         </div>
+        </motion.div>
         )}
+        </AnimatePresence>
       </main>
 
       {/* Exercise Details Dialog */}
@@ -4802,7 +4839,12 @@ const Dashboard = () => {
           <Button 
             variant="outline"
             size="icon"
-            onClick={() => window.location.reload()}
+            onClick={async () => {
+              await CacheManager.clearAllCaches();
+              const url = new URL(window.location.href);
+              url.searchParams.set('_refresh', Date.now().toString());
+              window.location.href = url.toString();
+            }}
             className="text-gold hover:text-gold/80"
             title="Refresh app"
           >
@@ -4816,6 +4858,19 @@ const Dashboard = () => {
         open={performanceReportDialogOpen}
         onOpenChange={setPerformanceReportDialogOpen}
         analysisId={selectedReportAnalysisId}
+      />
+
+      {/* Mobile Bottom Nav */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onMoreClick={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setNavDropdownOpen(true);
+        }}
       />
     </div>
   );

@@ -20,23 +20,79 @@ import { checkAndFireConfetti } from "@/lib/confetti";
 // Helper: fetches next fixture for player's club and renders ParallaxHero with countdown
 const ParallaxHeroWithFixture = ({ playerData, marketingImages, imageFocalPoints }: { playerData: any; marketingImages: string[]; imageFocalPoints: string[] }) => {
   const [nextFixture, setNextFixture] = React.useState<{ home_team: string; away_team: string; match_date: string; venue?: string } | null>(null);
+  const [preMatchAnalysis, setPreMatchAnalysis] = React.useState<any>(null);
 
   React.useEffect(() => {
     const fetchNext = async () => {
       const club = playerData?.current_club || playerData?.club;
-      if (!club) return;
+      const playerId = playerData?.id;
+      if (!club && !playerId) return;
       const today = new Date().toISOString().split("T")[0];
-      const { data } = await sharedSupabase
-        .from("fixtures")
-        .select("match_date, home_team, away_team, venue")
-        .gte("match_date", today)
-        .or(`home_team.ilike.%${club}%,away_team.ilike.%${club}%`)
-        .order("match_date", { ascending: true })
-        .limit(1);
-      if (data && data.length > 0) setNextFixture(data[0]);
+
+      // Method 1: Check player_fixtures table first (most reliable)
+      if (playerId) {
+        try {
+          const { data: pfData } = await sharedSupabase
+            .from("player_fixtures" as any)
+            .select("fixture_id, fixtures:fixture_id(id, match_date, home_team, away_team, venue)")
+            .eq("player_id", playerId);
+
+          if (pfData && pfData.length > 0) {
+            const upcoming = (pfData as any[])
+              .filter((pf: any) => pf.fixtures && pf.fixtures.match_date >= today)
+              .sort((a: any, b: any) => a.fixtures.match_date.localeCompare(b.fixtures.match_date));
+
+            if (upcoming.length > 0) {
+              const fix = upcoming[0].fixtures;
+              setNextFixture({ home_team: fix.home_team, away_team: fix.away_team, match_date: fix.match_date, venue: fix.venue });
+
+              // Look up pre-match analysis for this fixture
+              const { data: analysisData } = await sharedSupabase
+                .from("analyses")
+                .select("id, title, home_team, away_team")
+                .eq("fixture_id", fix.id)
+                .eq("analysis_type", "pre-match")
+                .limit(1);
+
+              if (analysisData && analysisData.length > 0) {
+                setPreMatchAnalysis(analysisData[0]);
+              }
+              return;
+            }
+          }
+        } catch {
+          // Silently fall through to club name matching
+        }
+      }
+
+      // Method 2: Fallback to club name matching
+      if (club) {
+        const { data } = await sharedSupabase
+          .from("fixtures")
+          .select("id, match_date, home_team, away_team, venue")
+          .gte("match_date", today)
+          .or(`home_team.ilike.%${club}%,away_team.ilike.%${club}%`)
+          .order("match_date", { ascending: true })
+          .limit(1);
+        if (data && data.length > 0) {
+          setNextFixture(data[0]);
+
+          // Look up pre-match analysis for this fixture
+          const { data: analysisData } = await sharedSupabase
+            .from("analyses")
+            .select("id, title, home_team, away_team")
+            .eq("fixture_id", data[0].id)
+            .eq("analysis_type", "pre-match")
+            .limit(1);
+
+          if (analysisData && analysisData.length > 0) {
+            setPreMatchAnalysis(analysisData[0]);
+          }
+        }
+      }
     };
     fetchNext();
-  }, [playerData?.current_club, playerData?.club]);
+  }, [playerData?.current_club, playerData?.club, playerData?.id]);
 
   const imageUrls = React.useMemo(() => {
     const urls: string[] = [];
