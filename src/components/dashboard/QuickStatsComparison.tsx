@@ -38,6 +38,8 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
   const [chartData, setChartData] = React.useState<{ name: string; value: number }[] | null>(null);
   const [statLabel, setStatLabel] = React.useState("");
   const [benchmarkName, setBenchmarkName] = React.useState("");
+  const [benchmarkSeason, setBenchmarkSeason] = React.useState("");
+  const [gameCount, setGameCount] = React.useState(0);
   const [visible, setVisible] = React.useState(true);
 
   const benchmarksRef = React.useRef<any[] | null>(null);
@@ -82,6 +84,8 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
           benchmarkNameRef.current = benchmark.name;
           setStatLabel(stat.label);
           setBenchmarkName(benchmark.name);
+          setBenchmarkSeason(benchmark.season || "");
+          setGameCount(playerVals.length);
           setChartData([
             { name: surname(playerName), value: Math.round(playerAvg * 100) / 100 },
             { name: surname(benchmark.name), value: Math.round(benchmarkVal * 100) / 100 },
@@ -103,7 +107,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
         try {
           const { data } = await sharedSupabase
             .from("comparison_players" as any)
-            .select("name, position, metrics")
+            .select("name, position, metrics, season")
             .eq("position", playerPosition);
           benchmarks = data || [];
         } catch {
@@ -183,8 +187,8 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
                 transition={{ duration: 0.4 }}
               >
                 <p className="text-xs text-muted-foreground mb-3">
-                 <span className="font-semibold text-foreground">{statLabel}</span> — Last 5 games avg vs{" "}
-                  <span className="font-semibold text-accent">{benchmarkName}</span>
+                 <span className="font-semibold text-foreground">{statLabel}</span> — {gameCount < 5 ? `${gameCount} game${gameCount === 1 ? '' : 's'}` : 'Last 5 games'} avg vs{" "}
+                  <span className="font-semibold text-accent">{benchmarkName}{benchmarkSeason ? ` ${benchmarkSeason}` : ''}</span>
                 </p>
                 <div className="h-[120px]">
                   <ResponsiveContainer width="100%" height="100%">
