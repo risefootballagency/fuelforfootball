@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PlayerProfileModal from "@/components/PlayerProfileModal";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -925,14 +926,15 @@ const Dashboard = () => {
 
       setPlayerData(parsedPlayerData);
 
-      // Fetch portal settings for this player
+      // Fetch portal settings: shared DB for feature toggles, local DB for widget/sales data
       try {
-        const { data: ps } = await supabase
-          .from("player_portal_settings")
-          .select("*")
-          .eq("player_id", parsedPlayerData.id)
-          .maybeSingle();
-        if (ps) setPortalSettings(ps);
+        const [{ data: sharedPs }, { data: localPs }] = await Promise.all([
+          supabase.from("player_portal_settings").select("*").eq("player_id", parsedPlayerData.id).maybeSingle(),
+          localSupabase.from("player_portal_settings").select("*").eq("player_id", parsedPlayerData.id).maybeSingle(),
+        ]);
+        // Merge: shared has feature toggles/hero images, local has widget/sales columns
+        const merged = { ...(sharedPs || {}), ...(localPs || {}) };
+        if (sharedPs || localPs) setPortalSettings(merged);
       } catch (e) {
         console.error("Error fetching portal settings:", e);
       }
