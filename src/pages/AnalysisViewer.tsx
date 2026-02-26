@@ -548,7 +548,7 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the right side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase text-center leading-tight ml-[18vw] mr-[10vw] max-w-[25vw] overflow-hidden"
+            className="font-bebas text-white tracking-wide uppercase text-center leading-tight overflow-hidden"
             style={{
               fontSize: 'clamp(0.7rem, 3.5vw, 1.2rem)',
               textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
@@ -557,6 +557,9 @@ const AnalysisHeader = ({
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical' as const,
               wordBreak: 'break-word' as const,
+              marginLeft: '36%',
+              marginRight: '20%',
+              maxWidth: '50%',
             }}
           >
             {homeTeam}
@@ -574,7 +577,7 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the left side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase text-center leading-tight ml-[10vw] mr-[18vw] max-w-[25vw] overflow-hidden"
+            className="font-bebas text-white tracking-wide uppercase text-center leading-tight overflow-hidden"
             style={{
               fontSize: 'clamp(0.7rem, 3.5vw, 1.2rem)',
               textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
@@ -583,6 +586,9 @@ const AnalysisHeader = ({
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical' as const,
               wordBreak: 'break-word' as const,
+              marginLeft: '20%',
+              marginRight: '36%',
+              maxWidth: '50%',
             }}
           >
             {awayTeam}
