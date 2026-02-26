@@ -105,6 +105,10 @@ interface PortalSettings {
   upgrade_features: string[] | null;
   upgrade_pay_link_url: string | null;
   upgrade_offers: UpgradeOffer[] | null;
+  hero_images?: string[];
+  hero_focal_points?: string[];
+  show_aphorisms?: boolean;
+  show_quick_stats?: boolean;
 }
 
 interface HubProps {
@@ -230,16 +234,36 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     );
   };
   
-  // Fetch marketing gallery images for this player - simplified (no category filter, no name fallback)
+  // Fetch hero images - prefer portal settings hero_images, fallback to marketing_gallery
   React.useEffect(() => {
     const fetchMarketingImages = async () => {
+      // If portal settings have hero images, use those instead of marketing_gallery
+      if (portalSettings?.hero_images && portalSettings.hero_images.length > 0) {
+        setMarketingImages(portalSettings.hero_images);
+        setImageFocalPoints(portalSettings.hero_focal_points || portalSettings.hero_images.map(() => 'center center'));
+        
+        // Preload
+        Promise.all(
+          portalSettings.hero_images.slice(0, 4).map((url: string) => {
+            return new Promise((resolve) => {
+              const img = new Image();
+              img.onload = () => resolve(url);
+              img.onerror = () => resolve(url);
+              img.src = url;
+            });
+          })
+        ).then(() => setImagesPreloaded(true));
+        return;
+      }
+
       if (!playerData?.name) {
         setImagesPreloaded(true);
         return;
       }
       
-      // Try local DB first, then shared DB
+      // Fallback: Try local DB first, then shared DB
       let imageUrls: string[] = [];
+      let focalPoints: string[] = [];
       
       const { data: localImages } = await localSupabase
         .from('marketing_gallery')
@@ -250,8 +274,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
       
       if (localImages && localImages.length > 0) {
         imageUrls = localImages.map(img => img.file_url);
+        focalPoints = imageUrls.map(() => 'center center');
       } else {
-        // Fallback to shared DB
         const { data: sharedImages } = await sharedSupabase
           .from('marketing_gallery' as any)
           .select('file_url')
@@ -261,9 +285,9 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
         
         if (sharedImages && sharedImages.length > 0) {
           imageUrls = (sharedImages as any[]).map(img => img.file_url);
+          focalPoints = imageUrls.map(() => 'center center');
         }
       }
-      const focalPoints = imageUrls.map(() => 'center');
       
       if (imageUrls.length === 0) {
         setImagesPreloaded(true);
@@ -273,13 +297,9 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
       setMarketingImages(imageUrls);
       setImageFocalPoints(focalPoints);
       
-      // Priority load first 4 images
       const priorityCount = Math.min(4, imageUrls.length);
-      const priorityImages = imageUrls.slice(0, priorityCount);
-      const remainingImages = imageUrls.slice(priorityCount);
-      
       Promise.all(
-        priorityImages.map(url => {
+        imageUrls.slice(0, priorityCount).map(url => {
           return new Promise((resolve) => {
             const img = new Image();
             img.onload = () => resolve(url);
@@ -289,7 +309,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
         })
       ).then(() => {
         setImagesPreloaded(true);
-        remainingImages.forEach(url => {
+        imageUrls.slice(priorityCount).forEach(url => {
           const img = new Image();
           img.src = url;
         });
@@ -299,7 +319,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     };
     
     fetchMarketingImages();
-  }, [playerData?.name, playerData?.id]);
+  }, [playerData?.name, playerData?.id, portalSettings?.hero_images]);
   
   // Set hasAnimated to true after initial animation completes
   React.useEffect(() => {
