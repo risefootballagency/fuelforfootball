@@ -548,13 +548,15 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the right side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase text-center leading-tight ml-[18vw] mr-[10vw]"
+            className="font-bebas text-white tracking-wide uppercase text-center leading-tight ml-[18vw] mr-[10vw] max-w-[25vw] overflow-hidden"
             style={{
-              fontSize: 'clamp(0.6rem, 2.2vw, 1.4rem)',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
-              wordBreak: 'break-word',
+              fontSize: 'clamp(0.7rem, 3.5vw, 1.2rem)',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
               lineHeight: 1.1,
-              maxWidth: 'calc(50vw - 28vw)'
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical' as const,
+              wordBreak: 'break-word' as const,
             }}
           >
             {homeTeam}
@@ -572,13 +574,15 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the left side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase text-center leading-tight ml-[10vw] mr-[18vw]"
+            className="font-bebas text-white tracking-wide uppercase text-center leading-tight ml-[10vw] mr-[18vw] max-w-[25vw] overflow-hidden"
             style={{
-              fontSize: 'clamp(0.6rem, 2.2vw, 1.4rem)',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6)',
-              wordBreak: 'break-word',
+              fontSize: 'clamp(0.7rem, 3.5vw, 1.2rem)',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
               lineHeight: 1.1,
-              maxWidth: 'calc(50vw - 28vw)'
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical' as const,
+              wordBreak: 'break-word' as const,
             }}
           >
             {awayTeam}
@@ -793,48 +797,6 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
       </motion.div>
     </div>
   );
-};
-
-// Parse strengths_improvements text for colour markers [green], [amber], [red]
-const parseColourCodedItems = (text: string) => {
-  const green: string[] = [];
-  const amber: string[] = [];
-  const red: string[] = [];
-  let currentColour: 'green' | 'amber' | 'red' | null = null;
-
-  for (const line of text.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    const lower = trimmed.toLowerCase();
-    if (lower.includes('[green]') || lower.startsWith('green:') || lower.startsWith('strengths:')) {
-      currentColour = 'green';
-      const cleaned = trimmed.replace(/\[green\]/gi, '').replace(/^(green|strengths)\s*:?\s*/i, '').trim();
-      if (cleaned) green.push(cleaned);
-    } else if (lower.includes('[amber]') || lower.startsWith('amber:') || lower.startsWith('areas for consistency:')) {
-      currentColour = 'amber';
-      const cleaned = trimmed.replace(/\[amber\]/gi, '').replace(/^(amber|areas for consistency)\s*:?\s*/i, '').trim();
-      if (cleaned) amber.push(cleaned);
-    } else if (lower.includes('[red]') || lower.startsWith('red:') || lower.startsWith('areas for improvement:')) {
-      currentColour = 'red';
-      const cleaned = trimmed.replace(/\[red\]/gi, '').replace(/^(red|areas for improvement)\s*:?\s*/i, '').trim();
-      if (cleaned) red.push(cleaned);
-    } else {
-      const cleaned = trimmed.replace(/^[-•]\s*/, '');
-      if (currentColour === 'green') green.push(cleaned);
-      else if (currentColour === 'amber') amber.push(cleaned);
-      else if (currentColour === 'red') red.push(cleaned);
-      else green.push(cleaned); // default to green if no marker yet
-    }
-  }
-  return { green, amber, red };
-};
-
-// Helper to check if text has colour markers
-const hasColourMarkers = (text: string) => {
-  const lower = text.toLowerCase();
-  return lower.includes('[green]') || lower.includes('[amber]') || lower.includes('[red]') ||
-    lower.includes('green:') || lower.includes('amber:') || lower.includes('red:') ||
-    lower.includes('strengths:') || lower.includes('areas for consistency:') || lower.includes('areas for improvement:');
 };
 
 // Render video_urls array or singular video_url for a point
@@ -1517,6 +1479,11 @@ const AnalysisViewer = () => {
                     forceOpen={isSaving}
                   >
                     <div className="space-y-4 md:space-y-6">
+                      {point.audio_url && (
+                        <div className="flex justify-center">
+                          <AudioPlaybackButton audioUrl={point.audio_url} />
+                        </div>
+                      )}
                       {point.paragraph_1 && (
                         <TextReveal>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
@@ -1538,11 +1505,6 @@ const AnalysisViewer = () => {
                             ))}
                           </div>
                         </TextReveal>
-                      )}
-                      {point.audio_url && (
-                        <div className="flex justify-center">
-                          <AudioPlaybackButton audioUrl={point.audio_url} />
-                        </div>
                       )}
                       <PointVideos point={point} />
                       {point.paragraph_2 && (
@@ -1663,53 +1625,92 @@ const AnalysisViewer = () => {
             {/* Strengths & Improvements - colour-coded if markers present */}
             {analysis.strengths_improvements && (
               <ExpandableSection title="Strengths & Areas for Improvement" id={SECTION_IDS.improvements} transparentContent forceOpen={isSaving}>
-                {hasColourMarkers(analysis.strengths_improvements) ? (() => {
-                  const { green, amber, red } = parseColourCodedItems(analysis.strengths_improvements!);
-                  const categories = [
-                    { items: green, label: 'Strengths', color: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.4)' },
-                    { items: amber, label: 'Areas for Consistency', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.4)' },
-                    { items: red, label: 'Areas for Improvement', color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.4)' },
-                  ];
-                  return (
-                    <div className="space-y-3">
-                      {categories.filter(c => c.items.length > 0).map((cat) => (
-                        <TextReveal key={cat.label}>
-                          <div
-                            className="rounded-lg overflow-hidden"
-                            style={{ border: `2px solid ${cat.border}`, backgroundColor: cat.bg }}
-                          >
-                            <div className="px-4 py-2" style={{ backgroundColor: cat.border }}>
-                              <h4 className="font-bebas text-base md:text-lg tracking-wider uppercase text-white">
-                                {cat.label}
-                              </h4>
-                            </div>
-                            <div className="px-4 py-3 space-y-2">
-                              {cat.items.map((item, idx) => (
-                                <div key={idx} className="flex items-start gap-2">
-                                  <div
-                                    className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
-                                    style={{ backgroundColor: cat.color }}
-                                  />
-                                  <p className="text-sm md:text-base leading-relaxed" style={{ color: BRAND.bodyText }}>
-                                    {item}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
+                {(() => {
+                  // Parse and group items by color using pipe delimiter (RISE format)
+                  const items = analysis.strengths_improvements!.split('|').map((part: string) => {
+                    const trimmedPart = part.trim();
+                    const match = trimmedPart.match(/^(Green|Amber|Red):\s*(.*)$/i);
+                    const color = match ? match[1].toLowerCase() : 'green';
+                    const text = match ? match[2].trim() : trimmedPart;
+                    return { color, text };
+                  }).filter(item => item.text);
+
+                  const greenItems = items.filter(i => i.color === 'green');
+                  const amberItems = items.filter(i => i.color === 'amber');
+                  const redItems = items.filter(i => i.color === 'red');
+
+                  const CategoryCard = ({ 
+                    title, 
+                    items, 
+                    borderColor, 
+                    bgColor, 
+                    textColor,
+                    delay 
+                  }: { 
+                    title: string; 
+                    items: { color: string; text: string }[]; 
+                    borderColor: string; 
+                    bgColor: string;
+                    textColor: string;
+                    delay: number;
+                  }) => {
+                    if (items.length === 0) return null;
+                    return (
+                      <TextReveal delay={delay}>
+                        <div className={`rounded-2xl overflow-hidden border-2 ${borderColor} ${bgColor} shadow-xl`}>
+                          {/* Header */}
+                          <div className={`py-3 px-4 ${borderColor.replace('border-', 'bg-')} bg-opacity-100`}>
+                            <h3 className="font-bebas text-lg md:text-xl uppercase tracking-wider text-center text-white drop-shadow-md">
+                              {title}
+                            </h3>
                           </div>
-                        </TextReveal>
-                      ))}
+                          {/* Content */}
+                          <div className="p-4 md:p-5 space-y-3">
+                            {items.map((item, idx) => (
+                              <div key={idx} className="text-center">
+                                <p className={`text-sm md:text-base leading-relaxed ${textColor}`}>
+                                  {item.text}
+                                </p>
+                                {idx < items.length - 1 && (
+                                  <div className={`mt-3 h-px ${borderColor.replace('border-', 'bg-')} opacity-30`} />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </TextReveal>
+                    );
+                  };
+
+                  return (
+                    <div className="space-y-4">
+                      <CategoryCard 
+                        title="Strengths" 
+                        items={greenItems} 
+                        borderColor="border-green-500" 
+                        bgColor="bg-green-950/50"
+                        textColor="text-green-100"
+                        delay={0}
+                      />
+                      <CategoryCard 
+                        title="Areas for Consistency" 
+                        items={amberItems} 
+                        borderColor="border-amber-500" 
+                        bgColor="bg-amber-950/50"
+                        textColor="text-amber-100"
+                        delay={0.1}
+                      />
+                      <CategoryCard 
+                        title="Areas for Improvement" 
+                        items={redItems} 
+                        borderColor="border-red-500" 
+                        bgColor="bg-red-950/50"
+                        textColor="text-red-100"
+                        delay={0.2}
+                      />
                     </div>
                   );
-                })() : (
-                  <TextReveal>
-                    <ContentCard>
-                      <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
-                        {normalizeText(analysis.strengths_improvements)}
-                      </p>
-                    </ContentCard>
-                  </TextReveal>
-                )}
+                })()}
               </ExpandableSection>
             )}
 
@@ -1724,6 +1725,11 @@ const AnalysisViewer = () => {
                     forceOpen={isSaving}
                   >
                     <div className="space-y-4 md:space-y-6">
+                      {point.audio_url && (
+                        <div className="flex justify-center">
+                          <AudioPlaybackButton audioUrl={point.audio_url} />
+                        </div>
+                      )}
                       {point.paragraph_1 && (
                         <TextReveal>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
@@ -1745,11 +1751,6 @@ const AnalysisViewer = () => {
                             ))}
                           </div>
                         </TextReveal>
-                      )}
-                      {point.audio_url && (
-                        <div className="flex justify-center">
-                          <AudioPlaybackButton audioUrl={point.audio_url} />
-                        </div>
                       )}
                       <PointVideos point={point} />
                       {point.paragraph_2 && (
@@ -1867,6 +1868,11 @@ const AnalysisViewer = () => {
                     forceOpen={isSaving}
                   >
                     <div className="space-y-4 md:space-y-6">
+                      {point.audio_url && (
+                        <div className="flex justify-center">
+                          <AudioPlaybackButton audioUrl={point.audio_url} />
+                        </div>
+                      )}
                       {point.paragraph_1 && (
                         <TextReveal>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
@@ -1888,11 +1894,6 @@ const AnalysisViewer = () => {
                             ))}
                           </div>
                         </TextReveal>
-                      )}
-                      {point.audio_url && (
-                        <div className="flex justify-center">
-                          <AudioPlaybackButton audioUrl={point.audio_url} />
-                        </div>
                       )}
                       <PointVideos point={point} />
                       {point.paragraph_2 && (
