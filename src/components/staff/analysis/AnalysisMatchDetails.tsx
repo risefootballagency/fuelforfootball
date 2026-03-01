@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, X, Crop } from "lucide-react";
+import { sortPlayersByRepresentation, getStatusLabel } from "@/lib/playerSorting";
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ImageCropDialog } from "../ImageCropDialog";
 
 interface StrengthPoint {
@@ -39,6 +40,10 @@ interface MatchDetailsProps {
   selectedPerformanceReportId: string;
   setSelectedPerformanceReportId: (id: string) => void;
   defaultOpen?: boolean;
+  showPlayerLinking?: boolean;
+  taggedPlayerIds: string[];
+  setTaggedPlayerIds: (ids: string[]) => void;
+  defaultPlayerId?: string;
 }
 
 export const AnalysisMatchDetails = ({
@@ -55,6 +60,10 @@ export const AnalysisMatchDetails = ({
   selectedPerformanceReportId,
   setSelectedPerformanceReportId,
   defaultOpen = false,
+  showPlayerLinking = false,
+  taggedPlayerIds,
+  setTaggedPlayerIds,
+  defaultPlayerId,
 }: MatchDetailsProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
@@ -77,44 +86,49 @@ export const AnalysisMatchDetails = ({
       setCropDialogOpen(true);
     };
     reader.readAsDataURL(file);
-    
-    // Reset input so the same file can be selected again
     event.target.value = '';
   };
 
   const handleCropComplete = async (croppedBlob: Blob) => {
-    // Create a synthetic event with the cropped blob as a file
     const file = new File([croppedBlob], `cropped-${cropField}.png`, { type: 'image/png' });
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
-    
-    // Create a minimal synthetic event
     const syntheticEvent = {
       target: { files: dataTransfer.files }
     } as React.ChangeEvent<HTMLInputElement>;
-    
     await handleImageUpload(syntheticEvent, cropField);
   };
+
   const parseStrengthPoints = (): StrengthPoint[] => {
     if (formData.strength_points && Array.isArray(formData.strength_points)) {
       return formData.strength_points;
     }
-    // Default to 3 empty points
-    return [
-      { color: 'green', text: '' },
-      { color: 'amber', text: '' },
-      { color: 'red', text: '' }
-    ];
+    if (formData.strengths_improvements && typeof formData.strengths_improvements === 'string') {
+      const parts = formData.strengths_improvements.split('|').map((p: string) => p.trim()).filter(Boolean);
+      return parts.map((part: string) => {
+        const match = part.match(/^(Green|Amber|Red):\s*(.*)$/i);
+        if (match) {
+          return { color: match[1].toLowerCase() as 'green' | 'amber' | 'red', text: match[2].trim() };
+        }
+        return { color: 'green' as const, text: part };
+      });
+    }
+    return [];
   };
 
   const [strengthPoints, setStrengthPoints] = useState<StrengthPoint[]>(parseStrengthPoints);
+
+  useEffect(() => {
+    const parsed = parseStrengthPoints();
+    if (JSON.stringify(parsed) !== JSON.stringify(strengthPoints)) {
+      setStrengthPoints(parsed);
+    }
+  }, [formData.strengths_improvements, formData.strength_points]);
 
   const updateStrengthPoint = (index: number, field: 'color' | 'text', value: string) => {
     const updated = [...strengthPoints];
     updated[index] = { ...updated[index], [field]: value as any };
     setStrengthPoints(updated);
-    
-    // Convert to legacy format for saving
     const legacyFormat = updated.map(p => `${p.color.charAt(0).toUpperCase() + p.color.slice(1)}: ${p.text}`).join(' | ');
     setFormData({ ...formData, strengths_improvements: legacyFormat, strength_points: updated });
   };
@@ -149,6 +163,105 @@ export const AnalysisMatchDetails = ({
         <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-4 space-y-4">
+        {/* Link to Player/Performance Report - for post-match only */}
+        {showPlayerLinking && analysisType === "post-match" && (
+          <>
+            <div>
+              <Label>Link to Player</Label>
+              {defaultPlayerId ? (
+                <div className="rounded-md border px-3 py-2 text-sm">
+                  <span className="font-medium">{players.find((p: any) => p.id === defaultPlayerId)?.name || "Selected player"}</span>
+                </div>
+              ) : (
+                <Select value={selectedPlayerId} onValueChange={setSelectedPlayerId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a player..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No player link</SelectItem>
+                    {sortPlayersByRepresentation(players).map((player: any) => (
+                      <SelectItem key={player.id} value={player.id}>
+                        {player.name}
+                        {player.representation_status && player.representation_status !== 'other' && (
+                          <span className="text-xs text-muted-foreground ml-1">({getStatusLabel(player.representation_status)})</span>
+                        )}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+
+            {selectedPlayerId && selectedPlayerId !== "none" && performanceReports.length > 0 && (
+              <div>
+                <Label>Link to Performance Report (R90)</Label>
+                <Select value={selectedPerformanceReportId} onValueChange={setSelectedPerformanceReportId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a performance report..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No report link</SelectItem>
+                    {performanceReports.map((report) => (
+                      <SelectItem key={report.id} value={report.id}>
+                        {report.opponent} - {new Date(report.analysis_date).toLocaleDateString()}
+                        {report.r90_score ? ` (R90: ${report.r90_score})` : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Tag Players */}
+        <div>
+          <Label>Tag Players (visible on their portal)</Label>
+          <Select
+            value=""
+            onValueChange={(playerId) => {
+              if (!taggedPlayerIds.includes(playerId)) {
+                setTaggedPlayerIds([...taggedPlayerIds, playerId]);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select players to tag..." />
+            </SelectTrigger>
+            <SelectContent>
+              {sortPlayersByRepresentation(players)
+                .filter((p: any) => !taggedPlayerIds.includes(p.id))
+                .map((player: any) => (
+                  <SelectItem key={player.id} value={player.id}>
+                    {player.name}
+                    {player.representation_status && player.representation_status !== 'other' && (
+                      <span className="text-xs text-muted-foreground ml-1">({getStatusLabel(player.representation_status)})</span>
+                    )}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          {taggedPlayerIds.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {taggedPlayerIds.map(id => {
+                const player = players.find(p => p.id === id);
+                return (
+                  <span key={id} className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-primary/10 text-primary border border-primary/20">
+                    {player?.name || 'Unknown'}
+                    <button
+                      type="button"
+                      onClick={() => setTaggedPlayerIds(taggedPlayerIds.filter(pid => pid !== id))}
+                      className="hover:text-destructive"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* Title - shared for both types */}
         <div>
           <Label>Title</Label>
@@ -328,7 +441,7 @@ export const AnalysisMatchDetails = ({
               )}
             </div>
             
-            {/* Match Image with crop/position support - limited to 250px height */}
+            {/* Match Image with crop/position support */}
             <div>
               <Label className="flex items-center gap-2">
                 Match Image
@@ -434,16 +547,16 @@ export const AnalysisMatchDetails = ({
       </CollapsibleContent>
     </Collapsible>
     
-    {/* Image Crop Dialog - flexible for logos, 16:9 for match images */}
+    {/* Image Crop Dialog */}
     <ImageCropDialog
       open={cropDialogOpen}
       onOpenChange={setCropDialogOpen}
       imageSrc={cropImageSrc}
       onCropComplete={handleCropComplete}
-      aspectRatio={cropField === 'match_image_url' ? 16/9 : 1}
-      title={cropField === 'match_image_url' ? 'Crop Match Image (16:9, max 400px height)' : 'Adjust Logo Position (Square)'}
-      cropHeight={cropField === 'match_image_url' ? 400 : undefined}
+      aspectRatio={cropField === 'match_image_url' ? (analysisType === 'pre-match' ? 1 : 16/9) : undefined}
+      title={cropField === 'match_image_url' ? 'Crop Match Image' : 'Crop Team Logo'}
       showBackgroundRemoval={cropField !== 'match_image_url'}
+      cropHeight={cropField === 'match_image_url' && analysisType === 'post-match' ? 250 : undefined}
     />
     </>
   );
