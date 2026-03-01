@@ -187,6 +187,35 @@ export type Database = {
           },
         ]
       }
+      analysis_player_tags: {
+        Row: {
+          analysis_id: string
+          created_at: string
+          id: string
+          player_id: string
+        }
+        Insert: {
+          analysis_id: string
+          created_at?: string
+          id?: string
+          player_id: string
+        }
+        Update: {
+          analysis_id?: string
+          created_at?: string
+          id?: string
+          player_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_player_tags_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analysis_point_examples: {
         Row: {
           category: string

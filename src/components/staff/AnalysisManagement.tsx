@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import * as tus from 'tus-js-client';
 import { useNavigate } from "react-router-dom";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
@@ -8,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { logActivity } from "@/lib/activityLogger";
 import { Pencil, Trash2, Plus, X, Sparkles, Database, Copy, Settings, Eye, Users } from "lucide-react";
 import { createAnalysisSlug } from "@/lib/urlHelpers";
 import {
@@ -22,6 +24,7 @@ import { AnalysisSchemeSection } from "./analysis/AnalysisSchemeSection";
 import { AnalysisPointsSection } from "./analysis/AnalysisPointsSection";
 import { AnalysisOverviewSection } from "./analysis/AnalysisOverviewSection";
 import { AnalysisQuickLink } from "./analysis/AnalysisQuickLink";
+import { ActionReportsList } from "./analysis/ActionReportsList";
 
 type AnalysisType = "pre-match" | "post-match" | "concept";
 
@@ -93,13 +96,17 @@ interface AnalysisManagementProps {
   isAdmin: boolean;
   currentUserId?: string;
   isAnalystOnly?: boolean;
+  defaultPlayerId?: string;
 }
 
-export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = false }: AnalysisManagementProps) => {
+const MAX_VIDEO_UPLOAD_BYTES = 50 * 1024 * 1024 * 1024;
+
+export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = false, defaultPlayerId }: AnalysisManagementProps) => {
   const navigate = useNavigate();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState<'list' | 'pre-match' | 'post-match' | 'concept'>('list');
+  const [activeListTab, setActiveListTab] = useState<string>("pre-match");
   const [editingAnalysis, setEditingAnalysis] = useState<Analysis | null>(null);
   const [analysisType, setAnalysisType] = useState<AnalysisType>("pre-match");
   const [aiGenerating, setAiGenerating] = useState(false);
@@ -147,16 +154,17 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     content: ''
   });
   const [linkedPlayers, setLinkedPlayers] = useState<Record<string, any[]>>({});
+  const [concepts, setConcepts] = useState<any[]>([]);
+  const [taggedPlayerIds, setTaggedPlayerIds] = useState<string[]>([]);
 
   // Form states
-  const [formData, setFormData] = useState<Partial<Analysis>>({
+  const [formData, setFormData] = useState<Record<string, any>>({
     points: [],
     matchups: [],
     starting_xi: [],
   });
 
   // Formation templates with position coordinates (x, y as percentages)
-  // Matches the 10 formations from the coaching database
   const formationTemplates: Record<string, Array<{x: number, y: number, position: string}>> = {
     "4-3-3": [
       {x: 50, y: 90, position: "GK"},
@@ -226,14 +234,16 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
   };
   const [uploadingImage, setUploadingImage] = useState(false);
   const [players, setPlayers] = useState<any[]>([]);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string>("none");
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string>(defaultPlayerId || "none");
   const [performanceReports, setPerformanceReports] = useState<any[]>([]);
   const [selectedPerformanceReportId, setSelectedPerformanceReportId] = useState<string>("none");
+  const [performanceReportClips, setPerformanceReportClips] = useState<any[]>([]);
 
   useEffect(() => {
     fetchAnalyses();
     fetchPlayers();
     fetchLinkedPlayers();
+    fetchConcepts();
   }, []);
 
   useEffect(() => {
@@ -242,8 +252,24 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     } else {
       setPerformanceReports([]);
       setSelectedPerformanceReportId("none");
+      setPerformanceReportClips([]);
     }
   }, [selectedPlayerId]);
+
+  useEffect(() => {
+    if (defaultPlayerId) {
+      setSelectedPlayerId(defaultPlayerId);
+    }
+  }, [defaultPlayerId]);
+
+  // Fetch clips when a performance report is selected
+  useEffect(() => {
+    if (selectedPerformanceReportId && selectedPerformanceReportId !== "none") {
+      fetchPerformanceReportClips(selectedPerformanceReportId);
+    } else {
+      setPerformanceReportClips([]);
+    }
+  }, [selectedPerformanceReportId]);
 
   const fetchAnalyses = async () => {
     try {
@@ -275,7 +301,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     try {
       const { data, error } = await supabase
         .from("players")
-        .select("id, name")
+        .select("id, name, representation_status")
         .order("name");
 
       if (error) throw error;
@@ -300,6 +326,22 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     }
   };
 
+  const fetchPerformanceReportClips = async (reportId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("performance_report_actions")
+        .select("id, video_url, action_type, action_number, minute, action_score")
+        .eq("analysis_id", reportId)
+        .not("video_url", "is", null)
+        .order("action_number");
+
+      if (error) throw error;
+      setPerformanceReportClips(data || []);
+    } catch (error: any) {
+      console.error("Failed to fetch performance report clips:", error);
+    }
+  };
+
   const fetchLinkedPlayers = async () => {
     try {
       const { data, error } = await supabase
@@ -320,54 +362,115 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           playerName: item.players?.name || 'Unknown Player'
         });
       });
+
+      // Also fetch manually tagged players
+      const { data: tagData } = await supabase
+        .from("analysis_player_tags")
+        .select("analysis_id, player_id");
+
+      if (tagData && tagData.length > 0) {
+        const tagPlayerIds = [...new Set(tagData.map(t => t.player_id))];
+        const { data: tagPlayers } = await supabase
+          .from("players")
+          .select("id, name")
+          .in("id", tagPlayerIds);
+        const playerNameMap: Record<string, string> = {};
+        (tagPlayers || []).forEach(p => { playerNameMap[p.id] = p.name; });
+
+        tagData.forEach((item: any) => {
+          const analysisId = item.analysis_id;
+          if (!grouped[analysisId]) {
+            grouped[analysisId] = [];
+          }
+          const exists = grouped[analysisId].some(p => p.playerId === item.player_id);
+          if (!exists) {
+            grouped[analysisId].push({
+              playerId: item.player_id,
+              playerName: playerNameMap[item.player_id] || 'Unknown Player'
+            });
+          }
+        });
+      }
+
       setLinkedPlayers(grouped);
     } catch (error: any) {
       console.error("Failed to fetch linked players:", error);
     }
   };
 
+  const fetchConcepts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("coaching_analysis")
+        .select("*")
+        .eq("analysis_type", "concept")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setConcepts(data || []);
+    } catch (error: any) {
+      console.error("Failed to fetch concepts:", error);
+    }
+  };
+
   const handleOpenDialog = async (type: AnalysisType, analysis?: Analysis) => {
     setAnalysisType(type);
+    setActiveView(type);
+    
     if (analysis) {
       setEditingAnalysis(analysis);
-      setFormData(analysis);
+      // Assign stable _id to any points that don't have one
+      const pointsWithIds = (analysis.points || []).map((p: any) => ({
+        ...p,
+        _id: p._id || crypto.randomUUID(),
+      }));
+      setFormData({ ...analysis, points: pointsWithIds });
       
-      const { data } = await supabase
-        .from("player_analysis")
-        .select("player_id, id")
-        .eq("analysis_writer_id", analysis.id)
-        .maybeSingle();
-      
-      if (data) {
-        setSelectedPlayerId(data.player_id);
-        setSelectedPerformanceReportId(data.id);
+      try {
+        const { data } = await supabase
+          .from("player_analysis")
+          .select("player_id, id")
+          .eq("analysis_writer_id", analysis.id)
+          .maybeSingle();
+        
+        if (data) {
+          setSelectedPlayerId(data.player_id);
+          setSelectedPerformanceReportId(data.id);
+        }
+
+        // Load tagged players
+        const { data: tags } = await supabase
+          .from("analysis_player_tags")
+          .select("player_id")
+          .eq("analysis_id", analysis.id);
+        setTaggedPlayerIds((tags || []).map(t => t.player_id));
+      } catch (error) {
+        console.error("Error loading analysis details:", error);
       }
     } else {
       setEditingAnalysis(null);
       setFormData({ analysis_type: type, points: [], matchups: [], starting_xi: [] });
-      setSelectedPlayerId("none");
+      setSelectedPlayerId(defaultPlayerId || "none");
       setSelectedPerformanceReportId("none");
+      setTaggedPlayerIds(defaultPlayerId ? [defaultPlayerId] : []);
     }
-    
-    setActiveView(type);
   };
 
   const handleCloseDialog = () => {
     setActiveView('list');
     setEditingAnalysis(null);
     setFormData({ points: [], matchups: [], starting_xi: [] });
-    setSelectedPlayerId("none");
+    setSelectedPlayerId(defaultPlayerId || "none");
     setSelectedPerformanceReportId("none");
+    setTaggedPlayerIds(defaultPlayerId ? [defaultPlayerId] : []);
   };
 
   const handleSchemeChange = (scheme: string) => {
     const template = formationTemplates[scheme];
     const existingXI = formData.starting_xi || [];
     
-    // Preserve existing player data - map by index order
     const startingXI = template.map((pos, idx) => ({
       ...pos,
-      // Keep existing surname and number if available at this index
       surname: existingXI[idx]?.surname || "",
       number: existingXI[idx]?.number || "",
       id: idx
@@ -428,9 +531,15 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     }
   };
 
+  // TUS resumable video upload
   const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_VIDEO_UPLOAD_BYTES) {
+      toast.error("This file exceeds the 50GB upload limit");
+      return;
+    }
 
     setUploadingImage(true);
     try {
@@ -438,16 +547,38 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("analysis-videos")
-        .upload(filePath, file);
+      const { data: session } = await supabase.auth.getSession();
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const token = session.session?.access_token;
 
-      if (uploadError) throw uploadError;
+      if (!token) {
+        // Fallback to basic upload if no auth
+        const { error: uploadError } = await supabase.storage
+          .from("analysis-videos")
+          .upload(filePath, file);
+        if (uploadError) throw uploadError;
+      } else {
+        await new Promise<void>((resolve, reject) => {
+          const upload = new tus.Upload(file, {
+            endpoint: `https://${projectId}.storage.supabase.co/storage/v1/upload/resumable`,
+            retryDelays: [0, 3000, 5000, 10000, 20000],
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              authorization: `Bearer ${token}`,
+              'x-upsert': 'false'
+            },
+            uploadDataDuringCreation: false,
+            removeFingerprintOnSuccess: true,
+            metadata: { bucketName: 'analysis-videos', objectName: filePath, contentType: file.type || 'video/mp4' },
+            chunkSize: 6 * 1024 * 1024,
+            onError: (error) => reject(new Error(error.message)),
+            onSuccess: () => resolve(),
+          });
+          upload.start();
+        });
+      }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("analysis-videos").getPublicUrl(filePath);
-
+      const { data: { publicUrl } } = supabase.storage.from("analysis-videos").getPublicUrl(filePath);
       setFormData({ ...formData, video_url: publicUrl });
       toast.success("Video uploaded successfully");
     } catch (error: any) {
@@ -458,9 +589,15 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     }
   };
 
+  // TUS resumable video upload for points - supports multi-video (video_urls array)
   const handleVideoUploadForPoint = async (event: React.ChangeEvent<HTMLInputElement>, pointIndex: number) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_VIDEO_UPLOAD_BYTES) {
+      toast.error("This file exceeds the 50GB upload limit");
+      return;
+    }
 
     setUploadingImage(true);
     try {
@@ -468,18 +605,40 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("analysis-videos")
-        .upload(filePath, file);
+      const { data: session } = await supabase.auth.getSession();
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const token = session.session?.access_token;
 
-      if (uploadError) throw uploadError;
+      if (!token) {
+        const { error: uploadError } = await supabase.storage
+          .from("analysis-videos")
+          .upload(filePath, file);
+        if (uploadError) throw uploadError;
+      } else {
+        await new Promise<void>((resolve, reject) => {
+          const upload = new tus.Upload(file, {
+            endpoint: `https://${projectId}.storage.supabase.co/storage/v1/upload/resumable`,
+            retryDelays: [0, 3000, 5000, 10000, 20000],
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              authorization: `Bearer ${token}`,
+              'x-upsert': 'false'
+            },
+            uploadDataDuringCreation: false,
+            removeFingerprintOnSuccess: true,
+            metadata: { bucketName: 'analysis-videos', objectName: filePath, contentType: file.type || 'video/mp4' },
+            chunkSize: 6 * 1024 * 1024,
+            onError: (error) => reject(new Error(error.message)),
+            onSuccess: () => resolve(),
+          });
+          upload.start();
+        });
+      }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("analysis-videos").getPublicUrl(filePath);
-
+      const { data: { publicUrl } } = supabase.storage.from("analysis-videos").getPublicUrl(filePath);
       const updatedPoints = [...(formData.points || [])];
-      updatedPoints[pointIndex] = { ...updatedPoints[pointIndex], video_url: publicUrl };
+      const currentVideos = updatedPoints[pointIndex].video_urls || (updatedPoints[pointIndex].video_url ? [updatedPoints[pointIndex].video_url] : []);
+      updatedPoints[pointIndex] = { ...updatedPoints[pointIndex], video_urls: [...currentVideos, publicUrl], video_url: undefined };
       setFormData({ ...formData, points: updatedPoints });
       toast.success("Video uploaded successfully");
     } catch (error: any) {
@@ -492,32 +651,27 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
 
   const handleSave = async () => {
     try {
-      // Cast formData to any to handle extended fields not in the Analysis type
       const extendedFormData = formData as any;
-      
-      // Separate new fields that may not exist in shared database
       const { 
         kit_collar_color, 
         kit_number_color, 
         kit_stripe_style, 
         player_team,
+        strength_points,
         ...restFormData 
       } = extendedFormData;
       
-      // Build the data object - only include new fields if they have values
       const dataToSaveWithNewFields: Record<string, any> = {
         ...restFormData,
         analysis_type: analysisType,
         ...(currentUserId && isAnalystOnly ? { writer_user_id: currentUserId } : {}),
       };
       
-      // Only add new fields if they have actual values
       if (kit_collar_color !== undefined) dataToSaveWithNewFields.kit_collar_color = kit_collar_color;
       if (kit_number_color !== undefined) dataToSaveWithNewFields.kit_number_color = kit_number_color;
       if (kit_stripe_style !== undefined) dataToSaveWithNewFields.kit_stripe_style = kit_stripe_style;
       if (player_team !== undefined) dataToSaveWithNewFields.player_team = player_team;
       
-      // Fallback data without new fields - clean copy
       const dataToSaveWithoutNewFields = {
         ...restFormData,
         analysis_type: analysisType,
@@ -526,13 +680,11 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       let analysisId = editingAnalysis?.id;
 
       if (editingAnalysis) {
-        // Try with new fields first
         let { error } = await supabase
           .from("analyses")
           .update(dataToSaveWithNewFields)
           .eq("id", editingAnalysis.id);
 
-        // If error (columns don't exist in shared DB), retry without new fields
         if (error) {
           console.warn("Save with new fields failed, retrying without:", error.message);
           const fallbackResult = await supabase
@@ -546,14 +698,12 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           toast.success("Analysis updated successfully");
         }
       } else {
-        // Try with new fields first
         let { data, error } = await supabase
           .from("analyses")
           .insert([dataToSaveWithNewFields])
           .select()
           .single();
 
-        // If error, retry without new fields
         if (error) {
           console.warn("Insert with new fields failed, retrying without:", error.message);
           const fallbackResult = await supabase
@@ -583,9 +733,28 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         }
       }
 
-      // Keep dialog open, just refresh the data
+      // Save tagged players
+      if (analysisId) {
+        await supabase
+          .from("analysis_player_tags")
+          .delete()
+          .eq("analysis_id", analysisId);
+
+        if (taggedPlayerIds.length > 0) {
+          const tagsToInsert = taggedPlayerIds.map(playerId => ({
+            player_id: playerId,
+            analysis_id: analysisId,
+          }));
+          const { error: tagError } = await supabase
+            .from("analysis_player_tags")
+            .insert(tagsToInsert);
+          if (tagError) {
+            console.error("Failed to save player tags:", tagError);
+          }
+        }
+      }
+
       if (!editingAnalysis) {
-        // If this was a new analysis, set it as editing so subsequent saves update it
         const { data: newAnalysis } = await supabase
           .from("analyses")
           .select("*")
@@ -611,9 +780,25 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
 
       if (error) throw error;
       toast.success("Analysis deleted successfully");
+      logActivity({ action: 'deleted', entityType: 'analysis', entityId: id });
       fetchAnalyses();
     } catch (error: any) {
       toast.error("Failed to delete analysis");
+      console.error(error);
+    }
+  };
+
+  const handleDeleteConcept = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this concept?")) return;
+
+    try {
+      const { error } = await supabase.from("coaching_analysis").delete().eq("id", id);
+
+      if (error) throw error;
+      toast.success("Concept deleted successfully");
+      fetchConcepts();
+    } catch (error: any) {
+      toast.error("Failed to delete concept");
       console.error(error);
     }
   };
@@ -623,7 +808,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       ...formData,
       points: [
         ...(formData.points || []),
-        { title: "", paragraph_1: "", paragraph_2: "", images: [] },
+        { _id: crypto.randomUUID(), title: "", paragraph_1: "", paragraph_2: "", images: [] },
       ],
     });
   };
@@ -670,7 +855,6 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
 
   const fetchExamples = async (category: string, type: 'point' | 'overview' = 'point') => {
     try {
-      // Fetch from BOTH databases and merge results (shared DB may have constraints limiting categories)
       const [sharedResult, localResult] = await Promise.all([
         supabase
           .from('analysis_point_examples')
@@ -686,13 +870,11 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           .order('created_at', { ascending: false })
       ]);
 
-      // Combine results, removing duplicates by ID
       const sharedData = sharedResult.data || [];
       const localData = localResult.data || [];
       const seenIds = new Set(sharedData.map(e => e.id));
       const mergedData = [...sharedData, ...localData.filter(e => !seenIds.has(e.id))];
       
-      // Sort by created_at descending
       mergedData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       
       setExamples(mergedData);
@@ -709,14 +891,12 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
           : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
         
-        // Try shared DB first, fallback to local on constraint errors
         let { error } = await supabase
           .from('analysis_point_examples')
           .update(dataToUpdate)
           .eq('id', editingExample.id);
 
         if (error?.code === '23514') {
-          // Constraint violation - use local DB
           const localResult = await localSupabase
             .from('analysis_point_examples')
             .update(dataToUpdate)
@@ -731,13 +911,11 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           ? { content: exampleFormData.content, category: examplesCategory, example_type: examplesType }
           : { paragraph_1: exampleFormData.paragraph_1, category: examplesCategory, example_type: examplesType };
         
-        // Try shared DB first, fallback to local on constraint errors
         let { error } = await supabase
           .from('analysis_point_examples')
           .insert(dataToInsert);
 
         if (error?.code === '23514') {
-          // Constraint violation - use local DB
           const localResult = await localSupabase
             .from('analysis_point_examples')
             .insert(dataToInsert);
@@ -761,14 +939,12 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     if (!confirm('Delete this example?')) return;
 
     try {
-      // Try shared DB first, fallback to local
       let { error } = await supabase
         .from('analysis_point_examples')
         .delete()
         .eq('id', id);
 
       if (error) {
-        // Fallback to local DB
         const localResult = await localSupabase
           .from('analysis_point_examples')
           .delete()
@@ -785,6 +961,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     }
   };
 
+  // AI Restyle mode - requires existing content
   const generateWithAI = async (field: string, pointIndex?: number) => {
     setAiGenerating(true);
     try {
@@ -801,14 +978,19 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           .eq('example_type', 'point')
           .limit(3);
 
-        const exampleContext = styleExamples && styleExamples.length > 0
-          ? `\n\nExample writing style references for scheme first paragraph:\n${styleExamples.map((ex, i) => 
-              `Example ${i + 1}: ${ex.paragraph_1 || ''}`
-            ).join('\n\n')}`
+        const existingContent = formData.scheme_paragraph_1 || '';
+        const styleExamplesText = styleExamples && styleExamples.length > 0
+          ? styleExamples.map((ex, i) => `Style Example ${i + 1}: ${ex.paragraph_1 || ''}`).join('\n\n')
           : '';
 
-        context = `Analysis Type: ${analysisType}\nTeams: ${formData.home_team} vs ${formData.away_team}\nTitle: ${formData.scheme_title || 'Not specified'}${exampleContext}`;
-        prompt = `Write a detailed tactical analysis first paragraph for this match scheme. Match the writing style shown in the examples.`;
+        if (!existingContent.trim()) {
+          toast.error('Please write some content first - AI will restyle it, not create new content');
+          setAiGenerating(false);
+          return;
+        }
+
+        context = `STYLE EXAMPLES (copy the tone, vocabulary, and sentence structure from these):\n${styleExamplesText}\n\n---`;
+        prompt = `SOURCE CONTENT TO RESTYLE (keep ALL these points/facts, just improve the writing style):\n${existingContent}\n\nRewrite the source content using the writing style from the examples. Keep ALL the same tactical points and observations - only change HOW it's written, not WHAT it says.`;
         type = 'analysis-paragraph';
       } else if (field === 'scheme_paragraph_2') {
         const schemeCategory = 'scheme-p2';
@@ -819,23 +1001,27 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           .eq('example_type', 'point')
           .limit(3);
 
-        const exampleContext = styleExamples && styleExamples.length > 0
-          ? `\n\nExample writing style references for scheme second paragraph:\n${styleExamples.map((ex, i) => 
-              `Example ${i + 1}: ${ex.paragraph_1 || ''}`
-            ).join('\n\n')}`
+        const existingContent = formData.scheme_paragraph_2 || '';
+        const styleExamplesText = styleExamples && styleExamples.length > 0
+          ? styleExamples.map((ex, i) => `Style Example ${i + 1}: ${ex.paragraph_1 || ''}`).join('\n\n')
           : '';
 
-        context = `Analysis Type: ${analysisType}\nTeams: ${formData.home_team} vs ${formData.away_team}\nTitle: ${formData.scheme_title || 'Not specified'}\nFirst Paragraph: ${formData.scheme_paragraph_1 || 'Not written yet'}${exampleContext}`;
-        prompt = `Write a detailed tactical analysis second paragraph for this match scheme, building on the first paragraph. Match the writing style shown in the examples.`;
+        if (!existingContent.trim()) {
+          toast.error('Please write some content first - AI will restyle it, not create new content');
+          setAiGenerating(false);
+          return;
+        }
+
+        context = `STYLE EXAMPLES (copy the tone, vocabulary, and sentence structure from these):\n${styleExamplesText}\n\n---`;
+        prompt = `SOURCE CONTENT TO RESTYLE (keep ALL these points/facts, just improve the writing style):\n${existingContent}\n\nRewrite the source content using the writing style from the examples. Keep ALL the same tactical points and observations - only change HOW it's written, not WHAT it says.`;
         type = 'analysis-paragraph';
       } else if (field === 'point_title') {
         prompt = `Create a concise, professional title for a match analysis section.`;
         type = 'analysis-point-title';
-    } else if (field === 'point_paragraph_1') {
+      } else if (field === 'point_paragraph_1') {
         const point = formData.points?.[pointIndex!];
         const paragraphCategory = `${analysisType}-p1`;
         
-        // Fetch style examples for this specific paragraph type
         const { data: styleExamples } = await supabase
           .from('analysis_point_examples')
           .select('paragraph_1')
@@ -843,20 +1029,24 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           .eq('example_type', 'point')
           .limit(3);
 
-        const exampleContext = styleExamples && styleExamples.length > 0
-          ? `\n\nExample writing style references for first paragraph:\n${styleExamples.map((ex, i) => 
-              `Example ${i + 1}: ${ex.paragraph_1 || ''}`
-            ).join('\n\n')}`
+        const existingContent = point?.paragraph_1 || '';
+        const styleExamplesText = styleExamples && styleExamples.length > 0
+          ? styleExamples.map((ex, i) => `Style Example ${i + 1}: ${ex.paragraph_1 || ''}`).join('\n\n')
           : '';
 
-        context = `Section Title: ${point?.title || 'Not specified'}${exampleContext}`;
-        prompt = `Write a detailed analysis first paragraph for this section. Match the writing style shown in the examples.`;
+        if (!existingContent.trim()) {
+          toast.error('Please write some content first - AI will restyle it, not create new content');
+          setAiGenerating(false);
+          return;
+        }
+
+        context = `Section Title: ${point?.title || 'Not specified'}\n\nSTYLE EXAMPLES (copy the tone, vocabulary, and sentence structure from these):\n${styleExamplesText}\n\n---`;
+        prompt = `SOURCE CONTENT TO RESTYLE (keep ALL these points/facts, just improve the writing style):\n${existingContent}\n\nRewrite the source content using the writing style from the examples. Keep ALL the same tactical points and observations - only change HOW it's written, not WHAT it says.`;
         type = 'analysis-paragraph';
       } else if (field === 'point_paragraph_2') {
         const point = formData.points?.[pointIndex!];
         const paragraphCategory = `${analysisType}-p2`;
         
-        // Fetch style examples for this specific paragraph type
         const { data: styleExamples } = await supabase
           .from('analysis_point_examples')
           .select('paragraph_1')
@@ -864,14 +1054,19 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           .eq('example_type', 'point')
           .limit(3);
 
-        const exampleContext = styleExamples && styleExamples.length > 0
-          ? `\n\nExample writing style references for second paragraph:\n${styleExamples.map((ex, i) => 
-              `Example ${i + 1}: ${ex.paragraph_1 || ''}`
-            ).join('\n\n')}`
+        const existingContent = point?.paragraph_2 || '';
+        const styleExamplesText = styleExamples && styleExamples.length > 0
+          ? styleExamples.map((ex, i) => `Style Example ${i + 1}: ${ex.paragraph_1 || ''}`).join('\n\n')
           : '';
 
-        context = `Section Title: ${point?.title || 'Not specified'}\nFirst Paragraph: ${point?.paragraph_1 || 'Not written yet'}${exampleContext}`;
-        prompt = `Write a detailed analysis second paragraph for this section, building on the first paragraph context. Match the writing style shown in the examples.`;
+        if (!existingContent.trim()) {
+          toast.error('Please write some content first - AI will restyle it, not create new content');
+          setAiGenerating(false);
+          return;
+        }
+
+        context = `Section Title: ${point?.title || 'Not specified'}\nFirst Paragraph for context: ${point?.paragraph_1 || ''}\n\nSTYLE EXAMPLES (copy the tone, vocabulary, and sentence structure from these):\n${styleExamplesText}\n\n---`;
+        prompt = `SOURCE CONTENT TO RESTYLE (keep ALL these points/facts, just improve the writing style):\n${existingContent}\n\nRewrite the source content using the writing style from the examples. Keep ALL the same tactical points and observations - only change HOW it's written, not WHAT it says.`;
         type = 'analysis-paragraph';
       }
 
@@ -913,6 +1108,84 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     }
   };
 
+  // Generate overview from points content using AI restyle
+  const generateOverviewFromPoints = async () => {
+    const points = formData.points || [];
+    const existingKeyDetails = formData.key_details || '';
+    
+    if (points.length === 0 && !existingKeyDetails.trim()) {
+      toast.error("Please add some points or write key details before using AI");
+      return;
+    }
+
+    setAiGenerating(true);
+    try {
+      let sourceContent = '';
+      
+      if (existingKeyDetails.trim()) {
+        sourceContent += `EXISTING KEY DETAILS TO RESTYLE:\n${existingKeyDetails}\n\n`;
+      }
+      
+      if (points.length > 0) {
+        const pointsContent = points
+          .map((p: any, i: number) => `Point ${i + 1}: ${p.title || 'Untitled'}\n${p.paragraph_1 || ''}\n${p.paragraph_2 || ''}`)
+          .join('\n\n');
+        sourceContent += `TACTICAL POINTS TO INCLUDE:\n${pointsContent}`;
+      }
+
+      const { data: styleExamples } = await supabase
+        .from('analysis_point_examples')
+        .select('content')
+        .eq('category', analysisType)
+        .eq('example_type', 'overview')
+        .limit(3);
+
+      const styleExamplesText = styleExamples && styleExamples.length > 0
+        ? styleExamples.map((ex, i) => `Style Example ${i + 1}:\n${ex.content || ''}`).join('\n\n')
+        : '';
+
+      if (!styleExamplesText) {
+        toast.warning("No overview examples found. Add examples via the settings icon for better results.");
+      }
+
+      const { data, error } = await supabase.functions.invoke('ai-write', {
+        body: {
+          prompt: `SOURCE CONTENT (preserve ALL tactical observations and facts from this - do NOT add new analysis):\n${sourceContent}\n\nRewrite this as a single cohesive overview paragraph. Keep ALL the facts and observations but apply the writing style from the examples.`,
+          context: `Analysis Type: ${analysisType}\n\nSTYLE EXAMPLES (copy the EXACT tone, vocabulary, phrasing patterns, and sentence structure from these):\n${styleExamplesText || 'No examples provided - write in a professional football analysis style.'}`,
+          type: 'analysis-overview'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.error) {
+        if (data.error.includes('Rate limit')) {
+          toast.error('AI rate limit reached. Please wait a moment and try again.');
+        } else if (data.error.includes('credits')) {
+          toast.error('AI credits exhausted.');
+        } else {
+          throw new Error(data.error);
+        }
+        return;
+      }
+
+      setFormData({ ...formData, key_details: data.text });
+      toast.success('Overview generated!');
+    } catch (error: any) {
+      console.error('Error generating overview:', error);
+      toast.error(error.message || "Failed to generate overview");
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  const handleOpenOverviewSettings = (category: string) => {
+    setExamplesCategory(category);
+    setExamplesType('overview');
+    setExamplesDialogOpen(true);
+    fetchExamples(category, 'overview');
+  };
+
   const generateOverview = async () => {
     if (!overviewWriter.overviewInfo.trim()) {
       toast.error("Please provide information for the overview");
@@ -944,12 +1217,10 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
 
       if (error) throw error;
 
-      const overview = data.text;
-
       setGeneratedContent({
         open: true,
         type: 'overview',
-        content: overview,
+        content: data.text,
         category: overviewWriter.category
       });
       setOverviewWriter({ open: false, category: 'pre-match', overviewInfo: '' });
@@ -969,34 +1240,37 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
 
     setAiGenerating(true);
     try {
-      // Fetch examples from both scheme-p1 and scheme-p2 categories
       const { data: p1Examples } = await supabase
         .from('analysis_point_examples')
         .select('paragraph_1')
         .eq('category', 'scheme-p1')
         .eq('example_type', 'point')
-        .limit(2);
+        .limit(3);
 
       const { data: p2Examples } = await supabase
         .from('analysis_point_examples')
         .select('paragraph_1')
         .eq('category', 'scheme-p2')
         .eq('example_type', 'point')
-        .limit(2);
+        .limit(3);
 
-      let exampleContext = '';
-      if (p1Examples && p1Examples.length > 0) {
-        exampleContext += `\n\nFirst paragraph style examples:\n${p1Examples.map((ex, i) => `${i + 1}: ${ex.paragraph_1 || ''}`).join('\n')}`;
-      }
-      if (p2Examples && p2Examples.length > 0) {
-        exampleContext += `\n\nSecond paragraph style examples:\n${p2Examples.map((ex, i) => `${i + 1}: ${ex.paragraph_1 || ''}`).join('\n')}`;
-      }
+      const p1Context = p1Examples && p1Examples.length > 0
+        ? `\n\nExample writing style for FIRST paragraph:\n${p1Examples.map((ex, i) => 
+            `Example ${i + 1}: ${ex.paragraph_1 || ''}`
+          ).join('\n\n')}`
+        : '';
+
+      const p2Context = p2Examples && p2Examples.length > 0
+        ? `\n\nExample writing style for SECOND paragraph:\n${p2Examples.map((ex, i) => 
+            `Example ${i + 1}: ${ex.paragraph_1 || ''}`
+          ).join('\n\n')}`
+        : '';
 
       const { data, error } = await supabase.functions.invoke('ai-write', {
         body: {
-          prompt: `Write two tactical scheme analysis paragraphs based on this information: ${schemeWriter.schemeInfo}. Match the writing style, vocabulary level, and level of detail shown in the examples. Separate the two paragraphs with a double line break.`,
-          context: `Analysis Type: scheme${exampleContext}`,
-          type: 'analysis-paragraph'
+          prompt: `Write two tactical scheme paragraphs based on this information: ${schemeWriter.schemeInfo}. Return exactly two paragraphs separated by a blank line.${p1Context}${p2Context}`,
+          context: `Scheme analysis for football match`,
+          type: 'analysis-scheme'
         }
       });
 
@@ -1099,6 +1373,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       });
     } else if (generatedContent.type === 'point') {
       const newPoint = {
+        _id: crypto.randomUUID(),
         title: "",
         paragraph_1: generatedContent.paragraph1 || '',
         paragraph_2: generatedContent.paragraph2 || '',
@@ -1198,7 +1473,15 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
   }
 
   const renderAnalysisList = (type: AnalysisType) => {
-    return analyses.filter(a => a.analysis_type === type).map((analysis) => (
+    const filtered = analyses.filter(a => {
+      if (a.analysis_type !== type) return false;
+      if (defaultPlayerId) {
+        const linked = linkedPlayers[a.id];
+        return linked && linked.some(p => p.playerId === defaultPlayerId);
+      }
+      return true;
+    });
+    return filtered.map((analysis) => (
       <div 
         key={analysis.id}
         className="flex items-center justify-between p-3 bg-card border border-border/50 rounded-lg hover:border-accent/30 transition-colors"
@@ -1228,6 +1511,30 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           </Button>
           {isAdmin && (
             <Button variant="ghost" size="sm" onClick={() => handleDelete(analysis.id)}>
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+    ));
+  };
+
+  const renderConceptsList = () => {
+    return concepts.map((concept) => (
+      <div key={concept.id} className="flex items-center justify-between p-3 bg-card border border-border/50 rounded-lg hover:border-accent/30 transition-colors">
+        <div className="flex-1 min-w-0">
+          <p className="font-medium truncate">{concept.title || 'Untitled Concept'}</p>
+          <p className="text-xs text-muted-foreground">{new Date(concept.created_at).toLocaleDateString()}</p>
+          {concept.category && (
+            <span className="text-xs bg-muted px-2 py-0.5 rounded mt-1 inline-block">{concept.category}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/staff/coaching?tab=analysis&edit=${concept.id}`)}>
+            <Eye className="w-4 h-4" />
+          </Button>
+          {isAdmin && (
+            <Button variant="ghost" size="sm" onClick={() => handleDeleteConcept(concept.id)}>
               <Trash2 className="w-4 h-4" />
             </Button>
           )}
@@ -1302,6 +1609,10 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
               performanceReports={performanceReports}
               selectedPerformanceReportId={selectedPerformanceReportId}
               setSelectedPerformanceReportId={setSelectedPerformanceReportId}
+              showPlayerLinking={isPostMatch}
+              taggedPlayerIds={taggedPlayerIds}
+              setTaggedPlayerIds={setTaggedPlayerIds}
+              defaultPlayerId={defaultPlayerId}
             />
           )}
 
@@ -1355,6 +1666,8 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
             aiGenerating={aiGenerating}
             analysisType={activeView}
             hideAI={isAnalystOnly}
+            performanceReportClips={performanceReportClips}
+            analysisId={editingAnalysis?.id}
           />
 
           {/* Overview Section (Pre-Match and Post-Match - shown after points) */}
@@ -1375,6 +1688,9 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
               addMatchup={addMatchup}
               removeMatchup={removeMatchup}
               updateMatchup={updateMatchup}
+              generateOverviewWithAI={generateOverviewFromPoints}
+              aiGenerating={aiGenerating}
+              onOpenSettings={handleOpenOverviewSettings}
             />
           )}
         </div>
@@ -1404,13 +1720,13 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         )}
       </div>
 
-      <Tabs defaultValue="pre-match" className="space-y-4">
+      <Tabs value={activeListTab} onValueChange={setActiveListTab} className="space-y-4">
         <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
           <TabsList className="inline-flex w-max md:w-full md:grid md:grid-cols-4 gap-1 h-auto p-1">
             <TabsTrigger value="pre-match" className="text-xs md:text-sm px-3 md:px-4 py-2 whitespace-nowrap">Pre-Match</TabsTrigger>
             <TabsTrigger value="post-match" className="text-xs md:text-sm px-3 md:px-4 py-2 whitespace-nowrap">Post-Match</TabsTrigger>
             <TabsTrigger value="concepts" className="text-xs md:text-sm px-3 md:px-4 py-2 whitespace-nowrap">Concepts</TabsTrigger>
-            <TabsTrigger value="other" className="text-xs md:text-sm px-3 md:px-4 py-2 whitespace-nowrap">Other</TabsTrigger>
+            <TabsTrigger value="action-reports" className="text-xs md:text-sm px-3 md:px-4 py-2 whitespace-nowrap">Action Reports</TabsTrigger>
           </TabsList>
         </div>
 
@@ -1441,27 +1757,24 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
             <Plus className="w-4 h-4 mr-2" />
             New Concept
           </Button>
-          <div className="grid gap-2">{renderAnalysisList("concept")}</div>
+          <div className="grid gap-2">{renderConceptsList()}</div>
         </TabsContent>
 
-        <TabsContent value="other" className="space-y-4">
-          {!isAnalystOnly && (
-            <div className="flex gap-2 flex-wrap">
-              <Button 
-                onClick={() => setAiWriter({ ...aiWriter, open: true, category: 'other', paragraph1Info: '', paragraph2Info: '' })}
-                variant="outline"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                AI Point Writer
-              </Button>
-            </div>
-          )}
+        <TabsContent value="action-reports" className="space-y-4">
+          <ActionReportsList
+            onCreateReport={(playerId, playerName) => {
+              toast.info(`Create report for ${playerName}`);
+            }}
+            onEditReport={(playerId, playerName, analysisId) => {
+              toast.info(`Edit report for ${playerName}`);
+            }}
+          />
         </TabsContent>
       </Tabs>
 
       {/* Settings Dialog */}
       <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Analysis Settings</DialogTitle>
           </DialogHeader>
@@ -1469,23 +1782,23 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
             <p className="text-sm text-muted-foreground">
               Manage the example writing styles used by the AI to generate prose for each analysis type.
             </p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('pre-match-p1' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('pre-match-p1', 'point'); setSettingsDialogOpen(false); }}>
+            <div className="grid gap-2">
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('pre-match-p1'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('pre-match-p1', 'point'); setSettingsDialogOpen(false); }}>
                 Pre-Match Point First Paragraph
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('pre-match-p2' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('pre-match-p2', 'point'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('pre-match-p2'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('pre-match-p2', 'point'); setSettingsDialogOpen(false); }}>
                 Pre-Match Point Second Paragraph
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('post-match-p1' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('post-match-p1', 'point'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('post-match-p1'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('post-match-p1', 'point'); setSettingsDialogOpen(false); }}>
                 Post-Match Point First Paragraph
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('post-match-p2' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('post-match-p2', 'point'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('post-match-p2'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('post-match-p2', 'point'); setSettingsDialogOpen(false); }}>
                 Post-Match Point Second Paragraph
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('scheme-p1' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('scheme-p1', 'point'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('scheme-p1'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('scheme-p1', 'point'); setSettingsDialogOpen(false); }}>
                 Schemes First Paragraph
               </Button>
-              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('scheme-p2' as any); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('scheme-p2', 'point'); setSettingsDialogOpen(false); }}>
+              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('scheme-p2'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('scheme-p2', 'point'); setSettingsDialogOpen(false); }}>
                 Schemes Second Paragraph
               </Button>
               <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('pre-match'); setExamplesType('overview'); setExamplesDialogOpen(true); fetchExamples('pre-match', 'overview'); setSettingsDialogOpen(false); }}>
@@ -1493,9 +1806,6 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
               </Button>
               <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('post-match'); setExamplesType('overview'); setExamplesDialogOpen(true); fetchExamples('post-match', 'overview'); setSettingsDialogOpen(false); }}>
                 Post-Match Overview Examples
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('concept'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('concept', 'point'); setSettingsDialogOpen(false); }}>
-                Concept Examples
               </Button>
               <Button variant="outline" size="sm" onClick={() => { setExamplesCategory('other'); setExamplesType('point'); setExamplesDialogOpen(true); fetchExamples('other', 'point'); setSettingsDialogOpen(false); }}>
                 Other Examples
