@@ -1,91 +1,75 @@
 
 
-# Missing RISE Features in FFF Analysis Writer
+# RISE Football Sync — Missing Changes
 
-## Differences Found
+After comparing both codebases, here are the changes needed:
 
-After comparing both codebases line-by-line, here are all missing features:
+## 1. Login: Remove @ Requirement
+RISE changed the login input from `type="email"` to `type="text"` with placeholder "Enter your login" so players can log in with usernames or emails without needing an `@` symbol. FFF still uses `type="email"`.
 
-### 1. TUS Resumable Video Uploads (RISE lines 537-643)
-FFF uses basic `supabase.storage.upload()` for videos. RISE uses `tus-js-client` for resumable uploads with 6MB chunking, retry delays, and a 50GB file size limit. This is critical for large match video files.
+**Files:** `src/pages/Login.tsx`
+- Change `type="email"` → `type="text"`
+- Change placeholder to "Enter your login"
+- Also select `name` in the player query (RISE selects `id, email, name`)
+- Add staff notification on login (fire-and-forget `insertStaffNotification` for `portal_login`)
 
-### 2. AI Restyle Mode (RISE `generateWithAI` lines 920-1063)
-RISE's AI generation requires existing content first ("Please write some content first - AI will restyle it, not create new content"). It takes the user's draft and restyles it using stored examples. FFF's version generates content from scratch using prompts, which is a fundamentally different approach.
+## 2. Player Management: Remove @ Requirement
+Same change needed on `PlayerManagement.tsx`, `PlayerList.tsx`, and `AddPlayerDialog.tsx` — the email fields for player login credentials should use `type="text"` instead of `type="email"` so non-email logins are accepted. The label should stay "Email" but validation should not enforce `@`.
 
-### 3. Generate Overview From Points (`generateOverviewFromPoints`, RISE lines 1067-1141)
-RISE has a dedicated function that takes existing key_details and/or points content and restyles them into an overview paragraph using AI. FFF's AnalysisOverviewSection has no `generateOverviewWithAI` prop or `onOpenSettings` prop for managing overview examples.
+**Files:** `src/components/staff/PlayerManagement.tsx`, `src/components/staff/PlayerList.tsx`, `src/components/staff/AddPlayerDialog.tsx`
 
-### 4. Tagged Players (`taggedPlayerIds` / `analysis_player_tags` table)
-RISE supports tagging multiple players to an analysis (separate from the single player link via `analysis_writer_id`). The `AnalysisMatchDetails` component has `showPlayerLinking`, `taggedPlayerIds`, and `setTaggedPlayerIds` props. FFF has none of this.
+## 3. Edge Function Error Helper
+RISE created `src/lib/edgeFunctionHelper.ts` — a drop-in wrapper for `supabase.functions.invoke` that extracts actual error messages from non-2xx responses instead of showing generic "non-2xx status code" errors. FFF has no equivalent. This was then adopted across 16 staff components.
 
-### 5. `analysis_player_tags` Table + `fetchLinkedPlayers` Enhancement
-RISE's `fetchLinkedPlayers` also queries `analysis_player_tags` to merge tagged players with linked players. FFF only queries `player_analysis.analysis_writer_id`.
+**Files:** Create `src/lib/edgeFunctionHelper.ts`, then update all components that call `supabase.functions.invoke` to use `invokeEdgeFunction` instead.
 
-### 6. Performance Report Clips (`performanceReportClips`)
-RISE fetches `performance_report_actions` clips when a performance report is selected and passes them to `AnalysisPointsSection` via `performanceReportClips` prop. FFF has no equivalent.
+## 4. CoachingDataSection: Sync to RISE Version
+RISE's version has several improvements over FFF's:
+- Simplified inline report state (single `InlineReportState` object vs multiple state vars)
+- Uses `inline` prop + `onClose`/`onSuccess` on `CreatePerformanceReportDialog` instead of `open`/`onOpenChange`
+- Added Refresh button (desktop: beside tabs, mobile: separate row)
+- Active tab styling uses `bg-primary text-primary-foreground` instead of `bg-accent`
+- Desktop layout uses `justify-between` to position tabs and refresh on same row
 
-### 7. Action Reports Tab in Analysis List
-RISE's analysis list has 4 tabs: Pre-Match, Post-Match, Concepts, Action Reports. The Action Reports tab renders `<ActionReportsList>`. FFF has the same 4 tabs but with "Other" instead of "Action Reports" in the last position.
+**Files:** `src/components/staff/CoachingDataSection.tsx`
 
-### 8. Concepts from `coaching_analysis` Table
-RISE fetches concepts from `coaching_analysis` table (shared with coaching database) via `fetchConcepts` and renders them with `renderConceptsList`. FFF renders concepts from the `analyses` table with type "concept".
+## 5. `linked_video_analysis_ids` on `analyses` Table
+RISE added this column to the `analyses` table (in addition to `player_analysis` which FFF already has). This enables linking video analyses to pre/post-match analysis documents. FFF is missing this migration.
 
-### 9. `defaultPlayerId` Context Preservation
-RISE preserves the Athlete Centre's selected player context when closing dialogs (`defaultPlayerId || "none"`) and auto-tags the default player. FFF resets to "none" on close.
+**Database:** Add `linked_video_analysis_ids text[] DEFAULT '{}'` to `public.analyses`
 
-### 10. Stable Point IDs (`_id`)
-RISE assigns `_id: crypto.randomUUID()` to each point for stable drag-and-drop keys. FFF's points have no stable IDs.
+## 6. Analysis Points: Video Move-to-Point Feature
+RISE added an `ArrowRightLeft` button on each video in `AnalysisPointsSection` that lets you move a video clip from one point to another via a dropdown. FFF's version already has the `ArrowRightLeft` import and `onMoveToPoint` handler — need to verify it's fully wired. Also adds Up/Down arrow buttons next to point headers for easy reordering without drag.
 
-### 11. `logActivity` on Delete
-RISE calls `logActivity({ action: 'deleted', entityType: 'analysis', entityId: id })` when deleting analyses. FFF does not.
+**Files:** `src/components/staff/analysis/AnalysisPointsSection.tsx`
 
-### 12. AnalysisOverviewSection Missing Props
-FFF's `AnalysisOverviewSection` is missing: `generateOverviewWithAI`, `aiGenerating`, `onOpenSettings` props. RISE's version has AI generate button and settings gear icon next to Key Details.
+## 7. Video Analysis Clips in Analysis Points
+RISE's `AnalysisPointsSection` fetches clips from linked video analyses (`linked_video_analysis_ids`) and presents them in a dropdown "Add from Video Analysis clips..." per point. FFF needs this clip fetching logic added.
 
-### 13. AnalysisMatchDetails Missing Props
-FFF's `AnalysisMatchDetails` is missing: `showPlayerLinking`, `taggedPlayerIds`, `setTaggedPlayerIds`, `defaultPlayerId` props. RISE's version has the full player tagging UI for post-match analyses.
+**Files:** `src/components/staff/analysis/AnalysisPointsSection.tsx`
 
-### 14. AnalysisPointsSection Missing Features
-FFF's `AnalysisPointsSection` is missing: `performanceReportClips`, `analysisId` props, drag-and-drop reordering (DnD Kit), AudioRecorder, VideoTrimmerDialog, AnnotationEditor integration, clip insertion from performance reports, and multi-video support (`video_urls` array).
+## 8. Performance Report: Combobox + Frequency Sorting + Description Suggestions
+RISE replaced native `<datalist>` inputs with `Popover + Command` comboboxes for action type and description fields. Features:
+- Paginated fetch (bypasses 1000-row limit)
+- Frequency-sorted action types (most used first)
+- Canonical normalization via `toTitleCase`
+- Description suggestions grouped by action type with frequency sorting
+- `canonicalActionType` helper for consistent data storage
 
----
+**Files:** `src/components/staff/CreatePerformanceReportDialog.tsx`
 
-## Implementation Plan
+## 9. Fixture Stats → Match Statistics Button
+RISE added an `ArrowUpToLine` icon button next to each fixture stat label in `FixtureStatsEditor`, allowing one-click addition of fixture metrics to the Performance Report's match statistics section.
 
-### Batch 1 — Database: `analysis_player_tags` Table
-Create the `analysis_player_tags` table with `analysis_id` (UUID, FK to analyses) and `player_id` (UUID) columns, plus RLS policies.
+**Files:** `src/components/staff/FixtureStatsEditor.tsx`, `src/components/staff/CreatePerformanceReportDialog.tsx` (handler for `onAddToMatchStats`)
 
-### Batch 2 — AnalysisManagement.tsx Core Logic
-Port all missing state and functions from RISE:
-- Add `taggedPlayerIds`, `concepts`, `performanceReportClips`, `activeListTab` state
-- Add `fetchConcepts`, `fetchPerformanceReportClips` functions
-- Update `fetchLinkedPlayers` to also query `analysis_player_tags`
-- Update `handleOpenDialog` to load tagged players and assign stable `_id` to points
-- Update `handleCloseDialog` to preserve `defaultPlayerId` context
-- Update `handleSave` to save/delete `analysis_player_tags`
-- Update `addPoint` to include `_id: crypto.randomUUID()`
-- Add `generateOverviewFromPoints` and `handleOpenOverviewSettings`
-- Update `generateWithAI` to use restyle approach (require existing content)
-- Add `logActivity` call on delete
-- Update TUS resumable upload for `handleVideoUpload` and `handleVideoUploadForPoint`
-- Wire new props to `AnalysisMatchDetails`, `AnalysisOverviewSection`, `AnalysisPointsSection`
+## Implementation Order
 
-### Batch 3 — AnalysisMatchDetails: Player Tagging UI
-Add `showPlayerLinking`, `taggedPlayerIds`, `setTaggedPlayerIds`, `defaultPlayerId` props. Render the multi-player tagging UI (Select dropdown + tag badges with remove button) for post-match analyses.
-
-### Batch 4 — AnalysisOverviewSection: AI Generate + Settings
-Add `generateOverviewWithAI`, `aiGenerating`, `onOpenSettings` props. Render AI generate button and settings gear icon next to Key Details label.
-
-### Batch 5 — AnalysisPointsSection: Clips + Multi-Video
-Add `performanceReportClips` and `analysisId` props. Support `video_urls` array per point. Add clip insertion from linked performance report actions.
-
-### Batch 6 — Analysis List UI: Action Reports Tab
-Replace "Other" tab value with "action-reports" and render `<ActionReportsList>` inside it. Add `renderConceptsList` for concepts from `coaching_analysis` table.
-
-### Technical Notes
-- TUS uploads require the `tus-js-client` package (already installed as a transitive dep of Supabase, but may need explicit import)
-- All AI calls use existing `supabase.functions.invoke('ai-write', ...)` pattern
-- `logActivity` import from `@/lib/activityLogger` (check if exists in FFF)
-- `sortPlayersByRepresentation` import from `@/lib/playerSorting` (check if exists)
-- No new edge functions needed; existing `ai-write` handles all generation types
+1. Login + Player Management `type="text"` change (quick wins)
+2. Create `edgeFunctionHelper.ts` and adopt across components
+3. Database migration for `linked_video_analysis_ids` on `analyses`
+4. CoachingDataSection sync to RISE version
+5. AnalysisPointsSection: video move-to-point + VA clip integration
+6. Performance Report: combobox, frequency sorting, description suggestions
+7. FixtureStatsEditor: add-to-match-stats button
 
