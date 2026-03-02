@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Inbox, ArrowRight, FileText, Trophy, Video, BarChart3, Dumbbell, Eye, Bell } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { createAnalysisSlug } from "@/lib/urlHelpers";
 
 interface FeedItem {
   id: string;
@@ -59,6 +61,7 @@ const markAsRead = (id: string) => {
 };
 
 export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigateToForm, onOpenReport }: NewsFeedProps) => {
+  const navigate = useNavigate();
   const [items, setItems] = React.useState<FeedItem[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [readItems, setReadItems] = React.useState<Set<string>>(new Set());
@@ -107,6 +110,33 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
             timestamp: r.analysis_date,
             linkLabel: "Open Report",
             onClick: () => onOpenReport?.(r.id),
+          });
+        });
+
+        // Tagged analyses (pre-match, post-match, concepts)
+        const { data: tags } = await sharedSupabase
+          .from("analysis_player_tags")
+          .select("analysis_id, created_at, analyses(id, title, analysis_type, home_team, away_team)")
+          .eq("player_id", playerId)
+          .order("created_at", { ascending: false })
+          .limit(5);
+
+        tags?.forEach(t => {
+          const a = (t as any).analyses;
+          if (!a) return;
+          const typeLabel = a.analysis_type === "pre-match" ? "Pre-Match" : a.analysis_type === "post-match" ? "Post-Match" : a.analysis_type;
+          feed.push({
+            id: `analysis-${a.id}`,
+            type: "analysis",
+            title: `${typeLabel}: ${a.home_team || ""} vs ${a.away_team || ""}`,
+            subtitle: a.title || "New analysis available",
+            description: `You've been tagged in a ${typeLabel.toLowerCase()} analysis for ${a.home_team || ''} vs ${a.away_team || ''}.`,
+            timestamp: t.created_at,
+            linkLabel: "View Analysis",
+            onClick: () => {
+              const slug = createAnalysisSlug(a.home_team || '', a.away_team || '', a.id);
+              navigate(slug);
+            },
           });
         });
 
