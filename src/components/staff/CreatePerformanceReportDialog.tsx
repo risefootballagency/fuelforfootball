@@ -928,6 +928,15 @@ export const CreatePerformanceReportDialog = ({
     setActions(newActions);
   };
 
+  const moveAction = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= actions.length) return;
+    const newActions = [...actions];
+    [newActions[index], newActions[targetIndex]] = [newActions[targetIndex], newActions[index]];
+    newActions.forEach((action, i) => { action.action_number = i + 1; });
+    setActions(newActions);
+  };
+
   const updateAction = async (index: number, field: keyof PerformanceAction, value: string | RecordedStat | RecordedStat[] | null) => {
     const newActions = [...actions];
     newActions[index] = { ...newActions[index], [field]: value };
@@ -1472,6 +1481,15 @@ export const CreatePerformanceReportDialog = ({
                 )}
               </SelectContent>
             </Select>
+            <div className="mt-2">
+              <InlineFixtureCreator
+                playerId={playerId}
+                onFixtureCreated={(newFixtureId) => {
+                  fetchFixtures();
+                  setSelectedFixtureId(newFixtureId);
+                }}
+              />
+            </div>
           </div>
 
           {/* Key Stats */}
@@ -1928,6 +1946,18 @@ export const CreatePerformanceReportDialog = ({
                           setActions(updated);
                         }}
                       />
+                      {action.id ? (
+                        <ActionVideoUpload
+                          actionId={action.id}
+                          currentVideoUrl={action.video_url || null}
+                          onVideoUploaded={(videoUrl) => {
+                            updateAction(index, 'video_url', videoUrl);
+                          }}
+                          analysisId={analysisId}
+                        />
+                      ) : (
+                        <span className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground text-xs" title="Save report first to add clips">💾</span>
+                      )}
                       <Button
                         onClick={() => removeAction(index)}
                         size="icon"
@@ -2267,8 +2297,45 @@ export const CreatePerformanceReportDialog = ({
                             className="text-destructive h-8 w-8"
                             disabled={actions.length === 1}
                           >
-                            <Trash2 className="h-4 w-4" />
+                           <Trash2 className="h-4 w-4" />
                           </Button>
+                          <Button
+                            onClick={() => moveAction(index, 'up')}
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            disabled={index === 0}
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => moveAction(index, 'down')}
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            disabled={index === actions.length - 1}
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </Button>
+                          {action.id ? (
+                            <ActionVideoUpload
+                              actionId={action.id}
+                              currentVideoUrl={action.video_url || null}
+                              onVideoUploaded={(videoUrl) => {
+                                updateAction(index, 'video_url', videoUrl);
+                              }}
+                              analysisId={analysisId}
+                            />
+                          ) : (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground">
+                                  <span className="text-xs">💾</span>
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>Save report first to add video clips</TooltipContent>
+                            </Tooltip>
+                          )}
                         </div>
                       </td>
                     </tr>
