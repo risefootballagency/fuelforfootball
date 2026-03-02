@@ -24,8 +24,10 @@ import { formatScoreWithFrequency } from "@/lib/utils";
 import { ActionsByTypeDialog } from "./ActionsByTypeDialog";
 import { ActionVideoUpload } from "./ActionVideoUpload";
 import { ActionStatRecorder, RecordedStat } from "./ActionStatRecorder";
+import { UnifiedStatsEditor, UnifiedStat, mergeStatsForEditor, unifiedStatsToStrikerStats } from "./UnifiedStatsEditor";
 import { FixtureStatsEditor, UNIFIED_TO_FIXTURE_MAP, FIXTURE_TO_UNIFIED_MAP } from "./FixtureStatsEditor";
 import { InlineFixtureCreator } from "./InlineFixtureCreator";
+import { aggregateRecordedStats, STAT_TYPE_CONFIGS, StatTypeConfig } from "./ActionStatRecorder";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
 const formatMinuteForInput = (minute: number | null): string => {
@@ -149,7 +151,7 @@ export const CreatePerformanceReportDialog = ({
   
   const [actionSearchFilters, setActionSearchFilters] = useState<Record<number, string>>({});
   const [isByActionDialogOpen, setIsByActionDialogOpen] = useState(false);
-  const [previousScores, setPreviousScores] = useState<Record<number, Array<{score: string | number | null, title: string, description: string}>>>({});
+  const [unifiedStats, setUnifiedStats] = useState<UnifiedStat[]>([]);
   const [fixtureStats, setFixtureStats] = useState<Record<string, number>>({});
   const [previousFixtureStats, setPreviousFixtureStats] = useState<Record<string, number>>({});
   const [dragOverAction, setDragOverAction] = useState<number | null>(null);
