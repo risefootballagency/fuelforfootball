@@ -392,9 +392,13 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   const advancedStats = getAdvancedStats();
   const calculatedStats = getCalculatedStats();
 
-  // Get unique action types (split by comma)
+  // Split comma-separated action types into individual types for filtering
+  const splitActionType = (type: string): string[] =>
+    type.split(/[,\/]/).map(t => t.trim().toLowerCase()).filter(Boolean);
+
+  // Get unique action types
   const allActionTypes = Array.from(new Set(
-    actions.flatMap(a => a.action_type.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))
+    actions.flatMap(a => splitActionType(a.action_type))
   )).sort();
 
   // Rating colour buckets
@@ -419,7 +423,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   // Filtered actions
   const filteredActions = actions.filter(a => {
     if (filterTypes.length > 0) {
-      const actionTypes = a.action_type.split(',').map(t => t.trim().toLowerCase());
+      const actionTypes = splitActionType(a.action_type);
       if (!filterTypes.some(ft => actionTypes.includes(ft))) return false;
     }
     if (filterRating) {
