@@ -4663,6 +4663,33 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_notification_settings: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          event_type: string
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          event_type: string
+          id?: string
+          role: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          event_type?: string
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff_tasks: {
         Row: {
           assigned_to: string[] | null

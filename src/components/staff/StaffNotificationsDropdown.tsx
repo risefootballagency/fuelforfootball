@@ -47,7 +47,6 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   task_completed: { label: "Tasks Completed", icon: CheckSquare },
   goal_added: { label: "Goals Added", icon: Target },
   portal_login: { label: "Portal Logins", icon: LogIn },
-  portal_view: { label: "Portal Views", icon: BarChart3 },
   portal_performance_view: { label: "Performance Views", icon: BarChart3 },
   portal_analysis_view: { label: "Analysis Views", icon: Search },
   portal_transfer_submission: { label: "Transfer Submissions", icon: Send },
@@ -208,7 +207,6 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
       case "task_completed": return "Task Completed";
       case "goal_added": return "New Goal Added";
       case "portal_login": return "Player Portal Login";
-      case "portal_view": return "Portal View";
       case "portal_performance_view": return "Performance Report Viewed";
       case "portal_analysis_view": return "Analysis Viewed";
       case "portal_transfer_submission": return "Transfer Hub Submission";
@@ -253,8 +251,6 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
         return data?.title ? `${data.title}` : "A new goal was set";
       case "portal_login":
         return data?.player_name ? `${data.player_name} logged in` : "A player logged into their portal";
-      case "portal_view":
-        return data?.player_name ? `${data.player_name} viewed portal` : "Player viewed portal";
       case "portal_performance_view":
         return data?.player_name ? `${data.player_name} viewed their reports` : "Player viewed performance reports";
       case "portal_analysis_view":

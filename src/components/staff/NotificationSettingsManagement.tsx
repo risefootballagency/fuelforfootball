@@ -1,189 +1,202 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Bell, Users, Eye, FileText, Film, ClipboardList, Loader2, Save, Calendar, CheckSquare, Target, PartyPopper, LogIn, BarChart3, FileSearch, Send, Building2, Lightbulb, RefreshCw, Link } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { toast } from "sonner";
-import {
-  Bell, Mail, MessageSquare, Smartphone, Volume2, Save,
-  Users, FileText, Upload, TrendingUp, Eye, RefreshCw,
-} from "lucide-react";
 
-interface NotificationChannel {
+interface NotificationSetting {
   id: string;
-  label: string;
-  icon: any;
+  role: string;
+  event_type: string;
   enabled: boolean;
 }
 
-interface NotificationCategory {
-  id: string;
-  label: string;
-  description: string;
-  icon: any;
-  email: boolean;
-  push: boolean;
-  inApp: boolean;
-}
+const EVENT_TYPES = [
+  { id: "visitor", label: "Site Visitors", icon: Eye, description: "When someone visits the site", category: "Site & Content" },
+  { id: "form_submission", label: "Form Submissions", icon: FileText, description: "When a form is submitted", category: "Site & Content" },
+  { id: "clip_upload", label: "Clip Uploads", icon: Film, description: "When a new clip is uploaded", category: "Site & Content" },
+  { id: "playlist_change", label: "Playlist Changes", icon: ClipboardList, description: "When playlists are modified", category: "Site & Content" },
+  { id: "calendar_event", label: "Calendar Events", icon: Calendar, description: "When schedule items are added to their calendar", category: "Staff Actions" },
+  { id: "task_assigned", label: "Task Assignments", icon: CheckSquare, description: "When tasks are assigned to someone", category: "Staff Actions" },
+  { id: "task_completed", label: "Task Completions", icon: PartyPopper, description: "When a task is marked complete", category: "Staff Actions" },
+  { id: "goal_added", label: "Goals Added", icon: Target, description: "When new goals are set", category: "Staff Actions" },
+  { id: "portal_login", label: "Portal Logins", icon: LogIn, description: "When a player logs into their portal", category: "Portal Activity" },
+  { id: "portal_performance_view", label: "Performance Report Views", icon: BarChart3, description: "When a player views their performance reports", category: "Portal Activity" },
+  { id: "portal_analysis_view", label: "Analysis Views", icon: FileSearch, description: "When a player views analysis content", category: "Portal Activity" },
+  { id: "portal_transfer_submission", label: "Transfer Hub Submissions", icon: Send, description: "When a player submits in their transfer hub", category: "Portal Activity" },
+  { id: "portal_club_submission", label: "Club Submissions", icon: Building2, description: "When a player submits a club suggestion", category: "Portal Activity" },
+  { id: "post_idea_new", label: "New Post Ideas", icon: Lightbulb, description: "When a new post idea is created", category: "Marketing" },
+  { id: "post_idea_status", label: "Post Idea Status Changes", icon: RefreshCw, description: "When a post idea status changes", category: "Marketing" },
+  { id: "post_idea_canva", label: "Canva Link Added", icon: Link, description: "When a Canva link is added to a post idea", category: "Marketing" },
+  { id: "contract_signed", label: "Contract Signed", icon: FileText, description: "When a contract is signed by the other party", category: "Contracts" },
+  { id: "player_birthday", label: "Player Birthdays", icon: PartyPopper, description: "When a player has a birthday", category: "Player Milestones" },
+  { id: "player_turning_18", label: "Player Turning 18", icon: Users, description: "When a player turns 18 and becomes Pro-eligible", category: "Player Milestones" },
+];
+
+const ROLES = [
+  { id: "admin", label: "Admin", color: "bg-red-500" },
+  { id: "staff", label: "Staff", color: "bg-blue-500" },
+  { id: "marketeer", label: "Marketeer", color: "bg-green-500" },
+];
 
 export const NotificationSettingsManagement = () => {
-  const [categories, setCategories] = useState<NotificationCategory[]>([
-    { id: "new_analysis", label: "New Analysis Reports", description: "When a performance report is created", icon: FileText, email: true, push: true, inApp: true },
-    { id: "player_update", label: "Player Updates", description: "Status changes and profile updates", icon: Users, email: true, push: false, inApp: true },
-    { id: "form_submission", label: "Form Submissions", description: "New enquiries from the website", icon: Mail, email: true, push: true, inApp: true },
-    { id: "site_visitor", label: "Site Visitors", description: "Notable visitor activity", icon: Eye, email: false, push: false, inApp: true },
-    { id: "clip_upload", label: "Clip Uploads", description: "New video clips added by players", icon: Upload, email: false, push: true, inApp: true },
-    { id: "invoice_overdue", label: "Invoice Overdue", description: "When invoices pass their due date", icon: TrendingUp, email: true, push: false, inApp: true },
-    { id: "transfer_update", label: "Transfer Updates", description: "Club outreach status changes", icon: Users, email: true, push: true, inApp: true },
-  ]);
-
-  const [quietHoursEnabled, setQuietHoursEnabled] = useState(false);
-  const [quietStart, setQuietStart] = useState("22:00");
-  const [quietEnd, setQuietEnd] = useState("07:00");
-  const [digestFrequency, setDigestFrequency] = useState("instant");
+  const [settings, setSettings] = useState<NotificationSetting[]>([]);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [changes, setChanges] = useState<Map<string, boolean>>(new Map());
 
   useEffect(() => {
-    loadSettings();
+    fetchSettings();
   }, []);
 
-  const loadSettings = async () => {
-    const { data } = await supabase
-      .from("coaching_analysis")
-      .select("*")
-      .eq("analysis_type", "notification_settings")
-      .limit(1)
-      .maybeSingle();
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await (supabase as any)
+        .from("staff_notification_settings")
+        .select("*")
+        .order("role")
+        .order("event_type");
 
-    if (data) {
-      const meta = data.attachments as any || {};
-      if (meta.categories) setCategories(meta.categories);
-      if (meta.quietHoursEnabled !== undefined) setQuietHoursEnabled(meta.quietHoursEnabled);
-      if (meta.quietStart) setQuietStart(meta.quietStart);
-      if (meta.quietEnd) setQuietEnd(meta.quietEnd);
-      if (meta.digestFrequency) setDigestFrequency(meta.digestFrequency);
+      if (error) throw error;
+      setSettings(data || []);
+    } catch (error) {
+      console.error("Error fetching notification settings:", error);
+      toast.error("Failed to load notification settings");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSave = async () => {
+  const getSettingKey = (role: string, eventType: string) => `${role}-${eventType}`;
+
+  const isEnabled = (role: string, eventType: string) => {
+    const key = getSettingKey(role, eventType);
+    if (changes.has(key)) return changes.get(key)!;
+    const setting = settings.find(s => s.role === role && s.event_type === eventType);
+    return setting?.enabled ?? false;
+  };
+
+  const toggleSetting = (role: string, eventType: string) => {
+    const key = getSettingKey(role, eventType);
+    const currentValue = isEnabled(role, eventType);
+    const newChanges = new Map(changes);
+    newChanges.set(key, !currentValue);
+    setChanges(newChanges);
+  };
+
+  const saveChanges = async () => {
+    if (changes.size === 0) return;
     setSaving(true);
-    const meta = { categories, quietHoursEnabled, quietStart, quietEnd, digestFrequency };
+    try {
+      for (const [key, enabled] of changes.entries()) {
+        const [role, ...eventParts] = key.split("-");
+        const eventType = eventParts.join("-");
+        const existingSetting = settings.find(s => s.role === role && s.event_type === eventType);
 
-    const { data: existing } = await supabase
-      .from("coaching_analysis")
-      .select("id")
-      .eq("analysis_type", "notification_settings")
-      .limit(1)
-      .maybeSingle();
-
-    if (existing) {
-      await supabase.from("coaching_analysis").update({ attachments: meta as any }).eq("id", existing.id);
-    } else {
-      await supabase.from("coaching_analysis").insert({
-        title: "Notification Settings",
-        analysis_type: "notification_settings",
-        attachments: meta as any,
-      });
+        if (existingSetting) {
+          const { error } = await (supabase as any)
+            .from("staff_notification_settings")
+            .update({ enabled })
+            .eq("id", existingSetting.id);
+          if (error) throw error;
+        } else {
+          const { error } = await (supabase as any)
+            .from("staff_notification_settings")
+            .insert({ role, event_type: eventType, enabled });
+          if (error) throw error;
+        }
+      }
+      toast.success("Notification settings saved");
+      setChanges(new Map());
+      fetchSettings();
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      toast.error("Failed to save settings");
+    } finally {
+      setSaving(false);
     }
-    toast.success("Settings saved");
-    setSaving(false);
   };
 
-  const toggleChannel = (catId: string, channel: "email" | "push" | "inApp") => {
-    setCategories(prev => prev.map(c =>
-      c.id === catId ? { ...c, [channel]: !c[channel] } : c
-    ));
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Bell className="h-6 w-6 text-primary" />
-          <div>
-            <h2 className="text-xl font-semibold">Notification Settings</h2>
-            <p className="text-sm text-muted-foreground">Configure how and when you receive notifications</p>
-          </div>
-        </div>
-        <Button onClick={handleSave} disabled={saving} size="sm">
-          <Save className="w-4 h-4 mr-1" /> {saving ? "Saving..." : "Save"}
-        </Button>
-      </div>
-
-      {/* Delivery Preferences */}
+  if (loading) {
+    return (
       <Card>
-        <CardContent className="pt-4 space-y-4">
-          <h3 className="text-sm font-semibold">Delivery Preferences</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-xs">Email Digest Frequency</Label>
-              <Select value={digestFrequency} onValueChange={setDigestFrequency}>
-                <SelectTrigger className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="instant">Instant</SelectItem>
-                  <SelectItem value="hourly">Hourly Digest</SelectItem>
-                  <SelectItem value="daily">Daily Digest</SelectItem>
-                  <SelectItem value="weekly">Weekly Digest</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Quiet Hours</Label>
-                <Switch checked={quietHoursEnabled} onCheckedChange={setQuietHoursEnabled} />
-              </div>
-              {quietHoursEnabled && (
-                <div className="flex items-center gap-2">
-                  <Input type="time" value={quietStart} onChange={e => setQuietStart(e.target.value)} className="h-9 text-xs" />
-                  <span className="text-xs text-muted-foreground">to</span>
-                  <Input type="time" value={quietEnd} onChange={e => setQuietEnd(e.target.value)} className="h-9 text-xs" />
-                </div>
-              )}
-            </div>
-          </div>
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
+    );
+  }
 
-      {/* Category-specific settings */}
-      <div className="space-y-2">
-        <div className="grid grid-cols-[1fr,60px,60px,60px] gap-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          <span>Category</span>
-          <span className="text-center">Email</span>
-          <span className="text-center">Push</span>
-          <span className="text-center">In-App</span>
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-primary" />
+            <CardTitle>Notification Settings</CardTitle>
+          </div>
+          {changes.size > 0 && (
+            <Button onClick={saveChanges} disabled={saving} size="sm">
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Save className="h-4 w-4 mr-2" />
+              )}
+              Save Changes ({changes.size})
+            </Button>
+          )}
         </div>
-        {categories.map(cat => {
-          const Icon = cat.icon;
-          return (
-            <div key={cat.id} className="grid grid-cols-[1fr,60px,60px,60px] gap-2 items-center p-3 rounded-lg border border-border hover:bg-muted/20 transition-colors">
-              <div className="flex items-center gap-2 min-w-0">
-                <Icon className="w-4 h-4 text-primary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{cat.label}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{cat.description}</p>
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <Switch checked={cat.email} onCheckedChange={() => toggleChannel(cat.id, "email")} />
-              </div>
-              <div className="flex justify-center">
-                <Switch checked={cat.push} onCheckedChange={() => toggleChannel(cat.id, "push")} />
-              </div>
-              <div className="flex justify-center">
-                <Switch checked={cat.inApp} onCheckedChange={() => toggleChannel(cat.id, "inApp")} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+        <CardDescription>
+          Configure which notification types each role receives. Only you (head admin) can modify these settings.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-3 px-4 font-medium">Notification Type</th>
+                {ROLES.map(role => (
+                  <th key={role.id} className="text-center py-3 px-4">
+                    <Badge variant="outline" className={`${role.color} text-white border-0`}>
+                      {role.label}
+                    </Badge>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {EVENT_TYPES.map(eventType => {
+                const Icon = eventType.icon;
+                return (
+                  <tr key={eventType.id} className="border-b last:border-0 hover:bg-muted/50">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="font-medium text-sm">{eventType.label}</p>
+                          <p className="text-xs text-muted-foreground">{eventType.description}</p>
+                        </div>
+                      </div>
+                    </td>
+                    {ROLES.map(role => (
+                      <td key={role.id} className="text-center py-4 px-4">
+                        <Switch
+                          checked={isEnabled(role.id, eventType.id)}
+                          onCheckedChange={() => toggleSetting(role.id, eventType.id)}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
