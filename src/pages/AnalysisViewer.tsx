@@ -2,7 +2,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download } from "lucide-react";
+import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen } from "lucide-react";
+import { ConceptTagsDisplay } from "@/components/portal/ConceptTagsDisplay";
 import { AudioPlaybackButton } from "@/components/AudioPlaybackButton";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
@@ -1508,6 +1509,9 @@ const AnalysisViewer = () => {
                           </p>
                         </TextReveal>
                       )}
+                      {point.concept_tags?.length > 0 && (
+                        <ConceptTagsDisplay conceptTagIds={point.concept_tags} />
+                      )}
                     </div>
                   </ExpandableSection>
                 ))}
@@ -1754,6 +1758,9 @@ const AnalysisViewer = () => {
                           </p>
                         </TextReveal>
                       )}
+                      {point.concept_tags?.length > 0 && (
+                        <ConceptTagsDisplay conceptTagIds={point.concept_tags} />
+                      )}
                     </div>
                   </ExpandableSection>
                 ))}
@@ -1896,6 +1903,9 @@ const AnalysisViewer = () => {
                             {normalizeText(point.paragraph_2)}
                           </p>
                         </TextReveal>
+                      )}
+                      {point.concept_tags?.length > 0 && (
+                        <ConceptTagsDisplay conceptTagIds={point.concept_tags} />
                       )}
                     </div>
                   </ExpandableSection>
