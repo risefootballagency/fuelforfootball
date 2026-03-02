@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Plus, Trash2, EyeOff, AlertTriangle, LineChart, Sparkles, Search, Loader2, ChevronDown, ChevronUp, List, GripVertical, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, EyeOff, AlertTriangle, LineChart, Sparkles, Search, Loader2, ChevronDown, ChevronUp, List, GripVertical, ArrowLeft, Save, X, ArrowUp, ArrowDown, ChevronsUpDown, Check } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { toTitleCase } from "@/lib/titleCase";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -21,6 +24,16 @@ import { formatScoreWithFrequency } from "@/lib/utils";
 import { ActionsByTypeDialog } from "./ActionsByTypeDialog";
 import { ActionVideoUpload } from "./ActionVideoUpload";
 import { ActionStatRecorder, RecordedStat } from "./ActionStatRecorder";
+import { FixtureStatsEditor, UNIFIED_TO_FIXTURE_MAP, FIXTURE_TO_UNIFIED_MAP } from "./FixtureStatsEditor";
+import { InlineFixtureCreator } from "./InlineFixtureCreator";
+
+// Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
+const formatMinuteForInput = (minute: number | null): string => {
+  if (minute === null) return "";
+  const minPart = Math.floor(minute);
+  const secPart = Math.round((minute - minPart) * 100);
+  return `${minPart}.${secPart.toString().padStart(2, '0')}`;
+};
 
 interface CreatePerformanceReportDialogProps {
   open?: boolean;
@@ -119,7 +132,11 @@ export const CreatePerformanceReportDialog = ({
   const [isAddStatDialogOpen, setIsAddStatDialogOpen] = useState(false);
   const [hiddenStatKeys, setHiddenStatKeys] = useState<string[]>([]);
   const [actionTypes, setActionTypes] = useState<string[]>([]);
-  const [previousScores, setPreviousScores] = useState<Record<number, Array<{score: string | number | null, title: string, description: string}>>>({});
+  const [actionTypeFrequencyMap, setActionTypeFrequencyMap] = useState<Record<string, number>>({});
+  const [descriptionsByType, setDescriptionsByType] = useState<Record<string, string[]>>({});
+  const [descriptionPopoverOpen, setDescriptionPopoverOpen] = useState<Record<number, boolean>>({});
+  const [actionTypePopoverOpen, setActionTypePopoverOpen] = useState<Record<number, boolean>>({});
+  const [allR90Ratings, setAllR90Ratings] = useState<Array<{score: string | number | null, title: string, description: string}>>([]);
   const [expandedScores, setExpandedScores] = useState<Set<number>>(new Set());
   const [selectedScores, setSelectedScores] = useState<Record<number, Set<number>>>({}); // actionIndex -> Set of score indices
   const [isR90ViewerOpen, setIsR90ViewerOpen] = useState(false);
@@ -127,7 +144,14 @@ export const CreatePerformanceReportDialog = ({
   const [r90ViewerSearch, setR90ViewerSearch] = useState<string | undefined>(undefined);
   const [isFillingScores, setIsFillingScores] = useState(false);
   const [aiSearchAction, setAiSearchAction] = useState<{ type: string; context: string } | null>(null);
+  
+  const [actionSearchFilters, setActionSearchFilters] = useState<Record<number, string>>({});
   const [isByActionDialogOpen, setIsByActionDialogOpen] = useState(false);
+  const [previousScores, setPreviousScores] = useState<Record<number, Array<{score: string | number | null, title: string, description: string}>>>({});
+  const [fixtureStats, setFixtureStats] = useState<Record<string, number>>({});
+  const [previousFixtureStats, setPreviousFixtureStats] = useState<Record<string, number>>({});
+  const [dragOverAction, setDragOverAction] = useState<number | null>(null);
+  const [dropUploading, setDropUploading] = useState<number | null>(null);
 
   // Key stats
   const [r90Score, setR90Score] = useState("");
@@ -273,8 +297,6 @@ export const CreatePerformanceReportDialog = ({
   };
 
   // Drag-and-drop clip upload onto action rows
-  const [dragOverAction, setDragOverAction] = useState<number | null>(null);
-  const [dropUploading, setDropUploading] = useState<number | null>(null);
 
   const handleActionDrop = async (e: React.DragEvent, actionIndex: number) => {
     e.preventDefault();
@@ -306,12 +328,12 @@ export const CreatePerformanceReportDialog = ({
   useEffect(() => {
     if (open || inline) {
       fetchActionTypes();
+      fetchAllR90Ratings();
+      fetchPreviousFixtureStats();
       if (analysisId) {
-        // Edit mode
         setIsEditMode(true);
         fetchExistingData();
       } else {
-        // Create mode
         setIsEditMode(false);
         resetForm();
       }
@@ -393,17 +415,117 @@ export const CreatePerformanceReportDialog = ({
     });
   }, [actions, minutesPlayed]);
 
-  const fetchActionTypes = async () => {
-    const { data, error } = await supabase
-      .from("performance_report_actions")
-      .select("action_type")
-      .not("action_type", "is", null)
-      .order("action_type");
+  /** Canonical action type: trim, collapse spaces, title-case */
+  const canonicalActionType = (raw: string): string => {
+    if (!raw) return raw;
+    return toTitleCase(raw.trim().replace(/\s{2,}/g, ' '));
+  };
 
-    if (!error && data) {
-      const uniqueTypes = Array.from(new Set(data.map(item => item.action_type)));
-      setActionTypes(uniqueTypes);
+  /** Look up descriptions using canonical key so case/spacing variants still match */
+  const getDescriptionsForType = (actionType: string): string[] => {
+    const canon = canonicalActionType(actionType);
+    return descriptionsByType[canon] || [];
+  };
+
+  // Filter R90 ratings based on action-level search
+  const getFilteredScores = (index: number) => {
+    const filter = actionSearchFilters[index]?.toLowerCase().trim();
+    if (!filter) return [];
+    return allR90Ratings.filter(s => 
+      s.title?.toLowerCase().includes(filter) || 
+      s.description?.toLowerCase().includes(filter)
+    );
+  };
+
+  // Fetch all R90 ratings once for local filtering
+  const fetchAllR90Ratings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("r90_ratings")
+        .select("score, description, title")
+        .not("score", "is", null);
+      if (error) throw error;
+      if (data) {
+        setAllR90Ratings(data.map(item => ({
+          score: item.score,
+          title: item.title || "",
+          description: item.description || ""
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching R90 ratings:", error);
     }
+  };
+
+  // Fetch previous fixture stats from the player's most recent report
+  const fetchPreviousFixtureStats = async () => {
+    try {
+      const { data } = await supabase
+        .from("player_analysis")
+        .select("fixture_stats")
+        .eq("player_id", playerId)
+        .not("fixture_stats", "is", null)
+        .order("analysis_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data?.fixture_stats) {
+        setPreviousFixtureStats(data.fixture_stats as Record<string, number>);
+      }
+    } catch (err) {
+      console.error("Error fetching previous fixture stats:", err);
+    }
+  };
+
+  const fetchActionTypes = async () => {
+    // Paginated fetch to overcome 1000-row default limit
+    let allRows: { action_type: string | null; action_description: string | null }[] = [];
+    const PAGE = 1000;
+    let from = 0;
+    let keepGoing = true;
+    while (keepGoing) {
+      const { data, error } = await supabase
+        .from("performance_report_actions")
+        .select("action_type, action_description")
+        .not("action_type", "is", null)
+        .range(from, from + PAGE - 1);
+      if (error || !data) break;
+      allRows = allRows.concat(data);
+      if (data.length < PAGE) keepGoing = false;
+      from += PAGE;
+    }
+
+    // Build frequency map keyed by canonical action type
+    const freqMap: Record<string, number> = {};
+    const descMap: Record<string, Record<string, number>> = {};
+
+    allRows.forEach(item => {
+      const canon = canonicalActionType(item.action_type || '');
+      if (!canon) return;
+      freqMap[canon] = (freqMap[canon] || 0) + 1;
+
+      if (item.action_description && item.action_description.trim()) {
+        if (!descMap[canon]) descMap[canon] = {};
+        const desc = item.action_description.trim();
+        descMap[canon][desc] = (descMap[canon][desc] || 0) + 1;
+      }
+    });
+
+    // Sort types by frequency desc, then alphabetically
+    const sorted = Object.keys(freqMap).sort((a, b) => {
+      const diff = freqMap[b] - freqMap[a];
+      return diff !== 0 ? diff : a.localeCompare(b);
+    });
+    setActionTypes(sorted);
+    setActionTypeFrequencyMap(freqMap);
+
+    // Sort descriptions by frequency within each type
+    const sortedDescs: Record<string, string[]> = {};
+    Object.entries(descMap).forEach(([type, counts]) => {
+      sortedDescs[type] = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([desc]) => desc);
+    });
+    setDescriptionsByType(sortedDescs);
   };
 
   const fetchPlayerClub = async () => {
