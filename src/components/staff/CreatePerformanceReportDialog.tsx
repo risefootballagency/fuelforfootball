@@ -1224,17 +1224,19 @@ export const CreatePerformanceReportDialog = ({
       const rawScore = actions.reduce((sum, a) => sum + (parseFloat(a.action_score) || 0), 0);
       const calculatedR90 = (rawScore / parseInt(minutesPlayed)) * 90;
       
-      // Prepare striker stats JSONB - merge legacy and new stats
-      const hasStrikerStats = Object.values(strikerStats).some(v => v !== "");
-      const hasAdditionalStats = Object.values(additionalStats).some(v => v !== "");
-      
+      // Prepare striker stats JSONB - from unified stats editor
       let strikerStatsJson: Record<string, any> | null = null;
-      if (hasStrikerStats || hasAdditionalStats || originalStrikerStats) {
+      
+      // Include legacy striker stats if any have values
+      const hasLegacyStrikerStats = Object.values(strikerStats).some(v => v !== "");
+      const hasUnifiedStats = unifiedStats.length > 0;
+      
+      if (hasLegacyStrikerStats || hasUnifiedStats || originalStrikerStats) {
         // Start with original stats to preserve any fields not in the form
         strikerStatsJson = originalStrikerStats ? { ...originalStrikerStats } : {};
         
         // Add legacy striker stats
-        if (hasStrikerStats) {
+        if (hasLegacyStrikerStats) {
           Object.entries(strikerStats)
             .filter(([_, value]) => value !== "")
             .forEach(([key, value]) => {
@@ -1242,13 +1244,12 @@ export const CreatePerformanceReportDialog = ({
             });
         }
         
-        // Add new position-based additional stats
-        if (hasAdditionalStats) {
-          Object.entries(additionalStats)
-            .filter(([_, value]) => value !== "")
-            .forEach(([key, value]) => {
-              strikerStatsJson![key] = parseInt(value);
-            });
+        // Merge unified stats into striker_stats
+        if (hasUnifiedStats) {
+          const unifiedData = unifiedStatsToStrikerStats(unifiedStats);
+          Object.entries(unifiedData).forEach(([key, value]) => {
+            strikerStatsJson![key] = value;
+          });
         }
       }
 
@@ -1591,274 +1592,83 @@ export const CreatePerformanceReportDialog = ({
                 </div>
               </div>
 
-              {selectedStatKeys.length > 0 ? (
-                <>
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext items={selectedStatKeys} strategy={verticalListSortingStrategy}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {(() => {
-                        // Group stats into pairs (attempted/successful) and singles
-                        const processedKeys = new Set<string>();
-                        const statGroups: Array<{ id: string, keys: string[], isPair: boolean }> = [];
-                      
-                      selectedStatKeys.forEach(statKey => {
-                        if (processedKeys.has(statKey)) return;
-                        
-                        // Check if this is an attempted stat
-                        if (statKey.endsWith('_attempted') || statKey === 'shots_attempted' || statKey === 'one_v_one_attempts') {
-                          const baseKey = statKey.replace('_attempted', '').replace('_attempts', '');
-                          const successKeys = [
-                            baseKey,
-                            `${baseKey}_completed`,
-                            `${baseKey}_won`,
-                            baseKey === 'shots' ? 'shots_on_target' : null,
-                            baseKey === 'one_v_one' ? 'one_v_one_won' : null
-                          ].filter(Boolean) as string[];
-                          
-                          const matchingSuccessKey = successKeys.find(k => selectedStatKeys.includes(k));
-                          
-                            if (matchingSuccessKey) {
-                              statGroups.push({ id: statKey, keys: [matchingSuccessKey, statKey], isPair: true });
-                              processedKeys.add(statKey);
-                              processedKeys.add(matchingSuccessKey);
-                            } else {
-                              statGroups.push({ id: statKey, keys: [statKey], isPair: false });
-                              processedKeys.add(statKey);
-                            }
-                        } else {
-                          // Check if there's a matching attempted stat
-                          const attemptedKeys = [
-                            `${statKey}_attempted`,
-                            statKey === 'shots_on_target' ? 'shots_attempted' : null,
-                            statKey === 'one_v_one_won' ? 'one_v_one_attempts' : null
-                          ].filter(Boolean) as string[];
-                          
-                          const matchingAttemptedKey = attemptedKeys.find(k => selectedStatKeys.includes(k));
-                          
-                            if (matchingAttemptedKey && !processedKeys.has(matchingAttemptedKey)) {
-                              statGroups.push({ id: statKey, keys: [statKey, matchingAttemptedKey], isPair: true });
-                              processedKeys.add(statKey);
-                              processedKeys.add(matchingAttemptedKey);
-                            } else if (!processedKeys.has(statKey)) {
-                              statGroups.push({ id: statKey, keys: [statKey], isPair: false });
-                              processedKeys.add(statKey);
-                            }
+              {/* Unified Statistics Editor */}
+              <UnifiedStatsEditor
+                stats={unifiedStats}
+                onStatsChange={(newStats) => {
+                  setUnifiedStats(newStats);
+                  // Sync matching stats to fixture stats
+                  const updatedFixture = { ...fixtureStats };
+                  newStats.forEach(stat => {
+                    const fixtureKey = UNIFIED_TO_FIXTURE_MAP[stat.key];
+                    if (fixtureKey) {
+                      const val = stat.type === 'count' ? stat.count : stat.type === 'score' ? stat.score : undefined;
+                      if (val != null) {
+                        updatedFixture[fixtureKey] = val;
+                      }
+                    }
+                  });
+                  setFixtureStats(updatedFixture);
+                }}
+                minutesPlayed={parseInt(minutesPlayed) || 0}
+              />
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Per-90 Fixture Stats (synced to Player Data) */}
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full text-sm sm:text-base">
+                Fixture Stats (Optional)
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4">
+              <FixtureStatsEditor
+                fixtureStats={fixtureStats}
+                onStatsChange={(newFixtureStats) => {
+                  setFixtureStats(newFixtureStats);
+                  // Sync matching fixture stats to existing unified stats (don't auto-add new ones)
+                  setUnifiedStats(prev => {
+                    const updated = prev.map(stat => {
+                      const fixtureKey = UNIFIED_TO_FIXTURE_MAP[stat.key];
+                      if (fixtureKey && newFixtureStats[fixtureKey] != null) {
+                        if (stat.type === 'count') {
+                          return { ...stat, count: newFixtureStats[fixtureKey] };
+                        } else if (stat.type === 'score') {
+                          return { ...stat, score: newFixtureStats[fixtureKey] };
                         }
-                      });
-                      
-                      return statGroups.map((group, groupIndex) => {
-                        if (group.isPair) {
-                          const [successKey, attemptedKey] = group.keys;
-                          const successStat = allStats.find(s => s.stat_key === successKey);
-                          const attemptedStat = allStats.find(s => s.stat_key === attemptedKey);
-                          if (!successStat || !attemptedStat) return null;
-                          
-                          const successValue = parseFloat(additionalStats[successKey] || "0");
-                          const attemptedValue = parseFloat(additionalStats[attemptedKey] || "0");
-                          const percentage = attemptedValue > 0 ? ((successValue / attemptedValue) * 100).toFixed(1) : "0.0";
-                          
-                          const per90SuccessKey = `${successKey}_per90`;
-                          const per90AttemptedKey = `${attemptedKey}_per90`;
-                          const per90SuccessValue = additionalStats[per90SuccessKey];
-                          const per90AttemptedValue = additionalStats[per90AttemptedKey];
-                          
-                          // Fix stat names and create combined display name
-                          let baseName = successStat.stat_name
-                            .replace('Aerials Won', 'Aerial Duels')
-                            .replace(' Completed', '')
-                            .replace(' Won', '')
-                            .replace(' On Target', '');
-                          
-                          const displayName = `${baseName} (Successful/Attempted)`;
-                          
-                          return (
-                            <SortableStatItem key={group.id} id={group.id}>
-                              <div className="p-2 border rounded-lg bg-muted/20">
-                              <div className="flex items-center justify-between mb-1.5">
-                                <Label className="text-xs font-semibold">{displayName}</Label>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={async () => {
-                                    if (playerId) {
-                                      await supabase.from("player_hidden_stats").insert([
-                                        { player_id: playerId, stat_key: successKey },
-                                        { player_id: playerId, stat_key: attemptedKey }
-                                      ]);
-                                      setHiddenStatKeys(prev => [...prev, successKey, attemptedKey]);
-                                    }
-                                    setSelectedStatKeys(prev => prev.filter(k => k !== successKey && k !== attemptedKey));
-                                    const newStats = {...additionalStats};
-                                    delete newStats[successKey];
-                                    delete newStats[attemptedKey];
-                                    delete newStats[per90SuccessKey];
-                                    delete newStats[per90AttemptedKey];
-                                    setAdditionalStats(newStats);
-                                  }}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <EyeOff className="h-3 w-3" />
-                                </Button>
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 mb-1">
-                                <div>
-                                  <div className="text-[10px] text-muted-foreground mb-0.5">Successful</div>
-                                  <div className="flex gap-1">
-                                    <Input
-                                      type="number"
-                                      value={additionalStats[successKey] || ""}
-                                      onChange={(e) => {
-                                        const newStats = {...additionalStats};
-                                        newStats[successKey] = e.target.value;
-                                        setAdditionalStats(newStats);
-                                      }}
-                                      placeholder="0"
-                                      className="h-7 text-xs"
-                                    />
-                                    <Input
-                                      type="number"
-                                      value={per90SuccessValue || ""}
-                                      readOnly
-                                      className="h-7 text-xs bg-muted w-14"
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-[10px] text-muted-foreground mb-0.5">Attempted</div>
-                                  <div className="flex gap-1">
-                                    <Input
-                                      type="number"
-                                      value={additionalStats[attemptedKey] || ""}
-                                      onChange={(e) => {
-                                        const newStats = {...additionalStats};
-                                        newStats[attemptedKey] = e.target.value;
-                                        setAdditionalStats(newStats);
-                                      }}
-                                      placeholder="0"
-                                      className="h-7 text-xs"
-                                    />
-                                    <Input
-                                      type="number"
-                                      value={per90AttemptedValue || ""}
-                                      readOnly
-                                      className="h-7 text-xs bg-muted w-14"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="text-[10px] text-center text-muted-foreground">
-                                {percentage}% success
-                              </div>
-                              </div>
-                            </SortableStatItem>
-                          );
-                        } else {
-                          const statKey = group.keys[0];
-                          const stat = allStats.find(s => s.stat_key === statKey);
-                          if (!stat) return null;
-                          const per90Key = `${statKey}_per90`;
-                          const per90Value = additionalStats[per90Key];
-                          
-                          return (
-                            <SortableStatItem key={group.id} id={group.id}>
-                              <div className="p-2 border rounded-lg bg-muted/20">
-                              <div className="flex items-center justify-between mb-1.5">
-                                <Label className="text-xs">
-                                  {stat.stat_name}
-                                  {stat.description && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <span className="ml-1 text-muted-foreground cursor-help text-[10px]">ⓘ</span>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p className="text-xs">{stat.description}</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                </Label>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={async () => {
-                                    if (playerId) {
-                                      await supabase.from("player_hidden_stats").insert({
-                                        player_id: playerId,
-                                        stat_key: statKey
-                                      });
-                                      setHiddenStatKeys(prev => [...prev, statKey]);
-                                    }
-                                    setSelectedStatKeys(prev => prev.filter(k => k !== statKey));
-                                    const newStats = {...additionalStats};
-                                    delete newStats[statKey];
-                                    delete newStats[per90Key];
-                                    setAdditionalStats(newStats);
-                                  }}
-                                  className="h-6 w-6 p-0"
-                                >
-                                  <EyeOff className="h-3 w-3" />
-                                </Button>
-                              </div>
-                              <div className="flex gap-1">
-                                <Input
-                                  type="number"
-                                  step="1"
-                                  value={additionalStats[statKey] || ""}
-                                  onChange={(e) => setAdditionalStats({
-                                    ...additionalStats,
-                                    [statKey]: e.target.value
-                                  })}
-                                  placeholder="0"
-                                  className="flex-1 h-7 text-xs"
-                                />
-                                <Input
-                                  type="number"
-                                  value={per90Value || ""}
-                                  readOnly
-                                  className="w-14 h-7 text-xs bg-muted"
-                                />
-                              </div>
-                              </div>
-                            </SortableStatItem>
-                          );
-                        }
-                      });
-                      })()}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsAddStatDialogOpen(true)}
-                    className="w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Another Stat
-                  </Button>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    No statistics added yet.
-                  </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsAddStatDialogOpen(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Stat
-                  </Button>
-                </div>
-              )}
+                      }
+                      return stat;
+                    });
+                    return updated;
+                  });
+                }}
+                onAddToMatchStats={(fixtureKey, label, value) => {
+                  // Check if this fixture key maps to a unified stat key
+                  const mapping = FIXTURE_TO_UNIFIED_MAP[fixtureKey];
+                  const unifiedKey = mapping?.key || fixtureKey.replace('_per90', '').replace('_pct', '_pct');
+                  
+                  // Check if already in unified stats
+                  if (unifiedStats.some(s => s.key === unifiedKey)) {
+                    toast.info(`${label} is already in Match Statistics`);
+                    return;
+                  }
+                  
+                  const isPercentage = fixtureKey.endsWith('_pct');
+                  const newStat: UnifiedStat = {
+                    key: unifiedKey,
+                    displayName: label,
+                    type: isPercentage ? 'score' : (mapping?.type === 'score' ? 'score' : 'count'),
+                    ...(isPercentage || mapping?.type === 'score' ? { score: value } : { count: value }),
+                    isFromActions: false,
+                  };
+                  
+                  setUnifiedStats(prev => [...prev, newStat]);
+                  toast.success(`${label} added to Match Statistics`);
+                }}
+                actions={actions}
+                previousFixtureStats={previousFixtureStats}
+              />
             </CollapsibleContent>
           </Collapsible>
 
@@ -1896,58 +1706,17 @@ export const CreatePerformanceReportDialog = ({
                     <span className="font-semibold text-sm">Action #{action.action_number}</span>
                     <div className="flex gap-1">
                       <Button
-                        onClick={() => openAiSearch(index)}
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        title="AI Search for Rating"
-                      >
-                        <Search className="h-4 w-4 text-purple-600" />
-                      </Button>
-                      <Button
                         onClick={() => openSmartR90Viewer(index)}
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8"
-                        title="Smart Link to R90 Ratings"
+                        className="h-8 w-8 [&>svg]:hover:text-foreground"
+                        title="R90 Ratings Reference"
                       >
-                        <LineChart className="h-4 w-4 text-green-600" />
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          setR90ViewerCategory(undefined);
-                          setR90ViewerSearch(undefined);
-                          setAiSearchAction(null);
-                          setIsR90ViewerOpen(true);
-                        }}
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        title="View All R90 Ratings"
-                      >
-                        <LineChart className="h-4 w-4 text-indigo-600" />
-                      </Button>
-                      <Button
-                        onClick={() => fillSingleActionScore(index)}
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        title="Fill Score with AI"
-                        disabled={isFillingScores}
-                      >
-                        {isFillingScores ? (
-                          <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                        ) : (
-                          <Sparkles className="h-4 w-4 text-blue-600" />
-                        )}
+                        <Search className="h-4 w-4 text-primary" />
                       </Button>
                       <ActionStatRecorder
                         currentStat={action.recorded_stat || null}
-                        onStatRecorded={(stat) => {
-                          const updated = [...actions];
-                          updated[index] = { ...updated[index], recorded_stat: stat };
-                          setActions(updated);
-                        }}
+                        onStatRecorded={(stat) => updateAction(index, 'recorded_stat', stat)}
                       />
                       {action.id ? (
                         <ActionVideoUpload
@@ -1980,7 +1749,7 @@ export const CreatePerformanceReportDialog = ({
                         type="text"
                         value={action.minute}
                         onChange={(e) => updateAction(index, "minute", e.target.value)}
-                        placeholder="2.30"
+                        placeholder="45"
                         className="text-sm"
                       />
                     </div>
@@ -1999,13 +1768,56 @@ export const CreatePerformanceReportDialog = ({
                   
                   <div>
                     <Label className="text-xs">Action Type *</Label>
-                    <Input
-                      list="action-types-list"
-                      value={action.action_type}
-                      onChange={(e) => updateAction(index, "action_type", e.target.value)}
-                      placeholder="Select or type new"
-                      className="text-sm"
-                    />
+                    <div className="relative">
+                      <Input
+                        value={action.action_type}
+                        onChange={(e) => {
+                          updateAction(index, "action_type", e.target.value);
+                          setActionTypePopoverOpen(prev => ({ ...prev, [index]: true }));
+                        }}
+                        onFocus={() => setActionTypePopoverOpen(prev => ({ ...prev, [index]: true }))}
+                        onBlur={() => {
+                          setTimeout(() => setActionTypePopoverOpen(prev => ({ ...prev, [index]: false })), 200);
+                          if (action.action_type) updateAction(index, "action_type", canonicalActionType(action.action_type));
+                        }}
+                        placeholder="Type or select action type"
+                        className="text-sm h-9 pr-8"
+                      />
+                      {action.action_type && (
+                        <button
+                          type="button"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            updateAction(index, "action_type", "");
+                          }}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    {actionTypePopoverOpen[index] && (
+                      <div className="absolute z-50 mt-1 w-[calc(100%-2rem)] max-h-48 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
+                        {actionTypes
+                          .filter(type => !action.action_type || type.toLowerCase().includes(action.action_type.toLowerCase()))
+                          .slice(0, 15)
+                          .map((type) => (
+                            <button
+                              key={type}
+                              type="button"
+                              className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-accent flex justify-between items-center"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                updateAction(index, "action_type", type);
+                                setActionTypePopoverOpen(prev => ({ ...prev, [index]: false }));
+                              }}
+                            >
+                              <span>{type}</span>
+                              <span className="text-xs text-muted-foreground">{actionTypeFrequencyMap[type] || 0}</span>
+                            </button>
+                          ))}
+                      </div>
+                    )}
                   </div>
                   
                   <div>
@@ -2017,6 +1829,39 @@ export const CreatePerformanceReportDialog = ({
                       className="text-sm min-h-[60px]"
                       rows={2}
                     />
+                    {action.action_type && getDescriptionsForType(action.action_type).length > 0 && (
+                      <Popover open={descriptionPopoverOpen[index] || false} onOpenChange={(open) => setDescriptionPopoverOpen(prev => ({ ...prev, [index]: open }))}>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="sm" className="mt-1 h-6 text-[10px] text-muted-foreground w-full justify-between">
+                            <span>Previous descriptions</span>
+                            <ChevronDown className="h-3 w-3" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Filter descriptions..." />
+                            <CommandList>
+                              <CommandEmpty>No matching descriptions</CommandEmpty>
+                              <CommandGroup>
+                                {getDescriptionsForType(action.action_type).map((desc, di) => (
+                                  <CommandItem
+                                    key={di}
+                                    value={desc}
+                                    onSelect={() => {
+                                      updateAction(index, "action_description", desc);
+                                      setDescriptionPopoverOpen(prev => ({ ...prev, [index]: false }));
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    {desc}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   </div>
                   
                   <div>
@@ -2025,66 +1870,80 @@ export const CreatePerformanceReportDialog = ({
                       value={action.notes}
                       onChange={(e) => updateAction(index, "notes", e.target.value)}
                       placeholder="Optional notes"
-                      className="text-sm min-h-[60px]"
+                      className="text-sm text-accent min-h-[60px]"
                       rows={2}
                     />
-                    {previousScores[index] && previousScores[index].length > 0 && (
-                      <div className="text-[10px] mt-1 p-2 rounded bg-muted/50 font-medium" style={{ color: 'hsl(43, 49%, 61%)' }}>
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="font-semibold">R90 ratings for this action:</div>
-                          {previousScores[index].length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newExpanded = new Set(expandedScores);
-                                if (newExpanded.has(index)) {
-                                  newExpanded.delete(index);
-                                } else {
-                                  newExpanded.add(index);
-                                }
-                                setExpandedScores(newExpanded);
-                              }}
-                              className="text-primary hover:underline flex items-center gap-1"
-                            >
-                              {expandedScores.has(index) ? (
-                                <>Collapse <ChevronUp className="h-3 w-3" /></>
-                              ) : (
-                                <>See all ({previousScores[index].length}) <ChevronDown className="h-3 w-3" /></>
-                              )}
-                            </button>
-                          )}
-                        </div>
-                        <div className="space-y-1">
-                          {(expandedScores.has(index) ? previousScores[index] : previousScores[index].slice(0, 1)).map((item, scoreIdx) => {
-                            const actualIdx = expandedScores.has(index) ? scoreIdx : 0;
-                            const isSelected = selectedScores[index]?.has(actualIdx) ?? false;
-                            return (
-                              <div key={scoreIdx} className="flex items-start gap-2">
-                                <Checkbox
-                                  checked={isSelected}
-                                  onCheckedChange={(checked) => {
-                                    const newSelected = { ...selectedScores };
-                                    if (!newSelected[index]) {
-                                      newSelected[index] = new Set();
-                                    }
-                                    if (checked) {
-                                      newSelected[index].add(actualIdx);
-                                    } else {
-                                      newSelected[index].delete(actualIdx);
-                                    }
-                                    setSelectedScores(newSelected);
-                                  }}
-                                  className="mt-0.5"
-                                />
-                                <label className="font-mono flex-1 cursor-pointer">
-                                  {item.description} {typeof item.score === 'number' ? item.score.toFixed(4) : item.score}
-                                </label>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+                    {/* Suggested R90 Scores - search based */}
+                    <Collapsible defaultOpen={false}>
+                      <CollapsibleTrigger className="text-[9px] mt-1 p-1.5 rounded bg-muted/50 font-medium w-full text-left flex items-center justify-between cursor-pointer hover:bg-muted/70 transition-colors text-muted-foreground">
+                        <span>Suggested R90 Scores</span>
+                        <ChevronDown className="h-3 w-3" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="text-[10px] p-2 rounded bg-muted/50 mt-1 space-y-2">
+                        <Input
+                          value={actionSearchFilters[index] || ''}
+                          onChange={(e) => setActionSearchFilters(prev => ({ ...prev, [index]: e.target.value }))}
+                          placeholder="Search R90 scores by action name..."
+                          className="h-7 text-xs"
+                        />
+                        {actionSearchFilters[index]?.trim() ? (
+                          <div className="space-y-1 max-h-32 overflow-y-auto">
+                            {getFilteredScores(index).map((item, scoreIdx) => {
+                              const isSelected = selectedScores[index]?.has(scoreIdx) ?? false;
+                              return (
+                                <div key={scoreIdx} className="flex items-start gap-2">
+                                  <Checkbox
+                                    checked={isSelected}
+                                    onCheckedChange={(checked) => {
+                                      const newSelected = { ...selectedScores };
+                                      if (!newSelected[index]) {
+                                        newSelected[index] = new Set();
+                                      }
+                                      if (checked) {
+                                        newSelected[index].add(scoreIdx);
+                                      } else {
+                                        newSelected[index].delete(scoreIdx);
+                                      }
+                                      setSelectedScores(newSelected);
+                                    }}
+                                    className="mt-0.5"
+                                  />
+                                  <label className="font-mono flex-1 cursor-pointer text-muted-foreground">
+                                    {item.title} {typeof item.score === 'number' ? item.score.toFixed(4) : item.score}
+                                  </label>
+                                </div>
+                              );
+                            })}
+                            {getFilteredScores(index).length === 0 && (
+                              <p className="text-muted-foreground text-center py-1">No matching scores</p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-muted-foreground text-center py-1 text-[9px]">Type to search R90 scores</p>
+                        )}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </div>
+                  {/* Mobile save/insert between actions */}
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      onClick={() => insertActionAt(index + 1)}
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs flex-1"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Insert Action
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs flex-1"
+                      disabled={loading || deleting}
+                    >
+                      {loading ? "Saving..." : (analysisId ? "Update" : "Save")}
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -2240,50 +2099,13 @@ export const CreatePerformanceReportDialog = ({
                       <td className="p-2">
                         <div className="flex gap-1">
                           <Button
-                            onClick={() => openAiSearch(index)}
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            title="AI Search for Rating"
-                          >
-                            <Search className="h-4 w-4 text-purple-600" />
-                          </Button>
-                          <Button
                             onClick={() => openSmartR90Viewer(index)}
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8"
-                            title="Smart Link to R90 Ratings"
+                            className="h-8 w-8 [&>svg]:hover:text-foreground"
+                            title="R90 Ratings Reference"
                           >
-                            <LineChart className="h-4 w-4 text-green-600" />
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              setR90ViewerCategory(undefined);
-                              setR90ViewerSearch(undefined);
-                              setAiSearchAction(null);
-                              setIsR90ViewerOpen(true);
-                            }}
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            title="View All R90 Ratings"
-                          >
-                            <LineChart className="h-4 w-4 text-indigo-600" />
-                          </Button>
-                          <Button
-                            onClick={() => fillSingleActionScore(index)}
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            title="Fill Score with AI"
-                            disabled={isFillingScores}
-                          >
-                            {isFillingScores ? (
-                              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                            ) : (
-                              <Sparkles className="h-4 w-4 text-blue-600" />
-                            )}
+                            <Search className="h-4 w-4 text-primary" />
                           </Button>
                           <ActionStatRecorder
                             currentStat={action.recorded_stat || null}
@@ -2293,33 +2115,6 @@ export const CreatePerformanceReportDialog = ({
                               setActions(updated);
                             }}
                           />
-                          <Button
-                            onClick={() => removeAction(index)}
-                            size="icon"
-                            variant="ghost"
-                            className="text-destructive h-8 w-8"
-                            disabled={actions.length === 1}
-                          >
-                           <Trash2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            onClick={() => moveAction(index, 'up')}
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            disabled={index === 0}
-                          >
-                            <ArrowUp className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            onClick={() => moveAction(index, 'down')}
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            disabled={index === actions.length - 1}
-                          >
-                            <ArrowDown className="h-4 w-4" />
-                          </Button>
                           {action.id ? (
                             <ActionVideoUpload
                               actionId={action.id}
@@ -2339,39 +2134,53 @@ export const CreatePerformanceReportDialog = ({
                               <TooltipContent>Save report first to add video clips</TooltipContent>
                             </Tooltip>
                           )}
+                          <Button
+                            onClick={() => removeAction(index)}
+                            size="icon"
+                            variant="ghost"
+                            className="text-destructive h-8 w-8"
+                            disabled={actions.length === 1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => moveAction(index, 'up')}
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            disabled={index === 0}
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => moveAction(index, 'down')}
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            disabled={index === actions.length - 1}
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
-                    {previousScores[index] && previousScores[index].length > 0 && (
-                      <tr>
-                        <td colSpan={7} className="p-2 bg-muted/30">
-                          <div className="flex justify-between items-center mb-1">
-                            <Label className="text-xs text-muted-foreground">Suggested Scores from R90</Label>
-                            {previousScores[index].length > 1 && (
-                              <button
-                                onClick={() => {
-                                  const newExpanded = new Set(expandedScores);
-                                  if (expandedScores.has(index)) {
-                                    newExpanded.delete(index);
-                                  } else {
-                                    newExpanded.add(index);
-                                  }
-                                  setExpandedScores(newExpanded);
-                                }}
-                                className="text-primary hover:underline flex items-center gap-1"
-                              >
-                                {expandedScores.has(index) ? (
-                                  <>Collapse <ChevronUp className="h-3 w-3" /></>
-                                ) : (
-                                  <>See all ({previousScores[index].length}) <ChevronDown className="h-3 w-3" /></>
-                                )}
-                              </button>
-                            )}
-                          </div>
-                          <div className="space-y-1">
-                            {(expandedScores.has(index) ? previousScores[index] : previousScores[index].slice(0, 1)).map((item, scoreIdx) => {
-                              const actualIdx = expandedScores.has(index) ? scoreIdx : 0;
-                              const isSelected = selectedScores[index]?.has(actualIdx) ?? false;
+                    {/* Suggested R90 Scores - inline search */}
+                    <tr>
+                      <td colSpan={7} className="p-0">
+                        <div className="px-2 py-1.5 bg-muted/30 flex items-center gap-2">
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">Suggested R90 Scores</span>
+                          <Input
+                            value={actionSearchFilters[index] || ''}
+                            onChange={(e) => setActionSearchFilters(prev => ({ ...prev, [index]: e.target.value }))}
+                            placeholder="Search action..."
+                            className="h-6 text-[10px] flex-1 max-w-[200px] px-2"
+                          />
+                        </div>
+                        {actionSearchFilters[index]?.trim() && (
+                          <div className="p-2 bg-muted/20 space-y-1 max-h-40 overflow-y-auto">
+                            {getFilteredScores(index).map((item, scoreIdx) => {
+                              const isSelected = selectedScores[index]?.has(scoreIdx) ?? false;
+                              const filteredScores = getFilteredScores(index);
                               return (
                                 <div key={scoreIdx} className="flex items-start gap-2">
                                   <Checkbox
@@ -2382,19 +2191,19 @@ export const CreatePerformanceReportDialog = ({
                                         newSelected[index] = new Set();
                                       }
                                       if (checked) {
-                                        newSelected[index].add(actualIdx);
+                                        newSelected[index].add(scoreIdx);
                                       } else {
-                                        newSelected[index].delete(actualIdx);
+                                        newSelected[index].delete(scoreIdx);
                                       }
                                       setSelectedScores(newSelected);
                                       
                                       // Calculate sum of selected scores and update action
                                       const selectedIndices = checked 
-                                        ? [...Array.from(newSelected[index] || []), actualIdx]
-                                        : Array.from(newSelected[index] || []).filter(i => i !== actualIdx);
+                                        ? [...Array.from(newSelected[index] || []), scoreIdx]
+                                        : Array.from(newSelected[index] || []).filter(i => i !== scoreIdx);
                                       
                                       const totalScore = selectedIndices.reduce((sum, idx) => {
-                                        const score = previousScores[index][idx]?.score;
+                                        const score = filteredScores[idx]?.score;
                                         const numScore = typeof score === 'number' ? score : (typeof score === 'string' && !isNaN(parseFloat(score)) ? parseFloat(score) : 0);
                                         return sum + numScore;
                                       }, 0);
@@ -2403,16 +2212,19 @@ export const CreatePerformanceReportDialog = ({
                                     }}
                                     className="mt-0.5"
                                   />
-                                  <label className="font-mono flex-1 cursor-pointer">
-                                    {item.title} {formatScoreWithFrequency(item.score)}
+                                  <label className="font-mono flex-1 cursor-pointer text-muted-foreground">
+                                    {item.title} {typeof item.score === 'number' ? item.score.toFixed(4) : item.score}
                                   </label>
                                 </div>
                               );
                             })}
+                            {getFilteredScores(index).length === 0 && (
+                              <p className="text-muted-foreground text-center py-1 text-[10px]">No matching scores</p>
+                            )}
                           </div>
-                        </td>
-                      </tr>
-                    )}
+                        )}
+                      </td>
+                    </tr>
                     
                     {/* Insert Action Row (Desktop) */}
                     <tr className="border-t border-dashed hover:bg-accent/50 transition-colors">
@@ -2790,8 +2602,120 @@ export const CreatePerformanceReportDialog = ({
     </>
   );
 
+  // Handler for closing - works for both inline and dialog modes
+  const handleClose = () => {
+    if (inline && onClose) {
+      onClose();
+    } else if (inline && onBack) {
+      onBack();
+    } else if (onOpenChange) {
+      onOpenChange(false);
+    }
+  };
+
   if (inline) {
-    return <div className="w-full">{editorContent}</div>;
+    return (
+      <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+        {/* X close button in top right corner */}
+        <button 
+          onClick={handleClose}
+          className="fixed top-4 right-4 z-50 p-2 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+          aria-label="Close"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        
+        <div className="container max-w-6xl mx-auto pt-16 pb-6 px-4">
+          {/* Header with back button */}
+          <div className="flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur z-10 py-4 border-b mb-6">
+            <Button variant="ghost" onClick={handleClose} className="gap-2">
+              <ArrowLeft className="w-4 h-4" /> Back to Player
+            </Button>
+            <div className="flex gap-2 items-center">
+              {analysisId && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm" disabled={deleting} className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2 text-xs">
+                      {deleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Performance Report?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete the performance report and all associated actions. This cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              <Button onClick={handleSave} disabled={loading} size="sm">
+                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                {analysisId ? 'Update' : 'Create'} Report
+              </Button>
+            </div>
+          </div>
+
+          <h1 className="text-2xl font-bold mb-6">{analysisId ? 'Edit' : 'Create'} Performance Report - {playerName}</h1>
+          
+          {editorContent}
+        </div>
+
+        {/* R90 Ratings Viewer */}
+        <R90RatingsViewer
+          open={isR90ViewerOpen}
+          onOpenChange={(open) => {
+            setIsR90ViewerOpen(open);
+            if (!open) {
+              setAiSearchAction(null);
+              setR90ViewerCategory(undefined);
+              setR90ViewerSearch(undefined);
+            }
+          }}
+          initialCategory={r90ViewerCategory}
+          searchTerm={r90ViewerSearch}
+          prefilledSearch={aiSearchAction}
+        />
+
+        {/* Actions By Type Dialog */}
+        {analysisId && (
+          <ActionsByTypeDialog
+            open={isByActionDialogOpen}
+            onOpenChange={setIsByActionDialogOpen}
+            actions={actions.map(a => ({
+              id: a.id,
+              action_number: a.action_number,
+              minute: parseFloat(a.minute) || 0,
+              action_score: parseFloat(a.action_score) || 0,
+              action_type: a.action_type,
+              action_description: a.action_description,
+              notes: a.notes,
+            }))}
+            onActionsUpdated={refreshActions}
+            isAdmin={true}
+            analysisId={analysisId}
+          />
+        )}
+
+        {/* Add Stat Dialog */}
+        <Dialog open={isAddStatDialogOpen} onOpenChange={setIsAddStatDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[600px]">
+            <DialogHeader>
+              <DialogTitle>Add Statistic</DialogTitle>
+            </DialogHeader>
+            <ScrollArea className="h-[400px] pr-4">
+              <div className="space-y-2">
+                {/* Reuse same add stat content */}
+              </div>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
   }
 
   return (
