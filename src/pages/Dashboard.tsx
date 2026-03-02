@@ -764,11 +764,11 @@ const Dashboard = () => {
   useEffect(() => {
     if (!playerData?.name) return;
     const tabLabel = activeTab === "analysis" ? `Analysis > ${activeAnalysisTab}` : activeTab;
-    insertStaffNotification(
-      `${playerData.name} viewed ${tabLabel}`,
-      `Portal tab: ${tabLabel}`,
-      "portal_view"
-    );
+    insertStaffNotification({
+      eventType: "portal_view",
+      title: `${playerData.name} viewed ${tabLabel}`,
+      body: `Portal tab: ${tabLabel}`,
+    });
   }, [activeTab, activeAnalysisTab, playerData?.name]);
 
   const checkAuth = async () => {

@@ -1,0 +1,1 @@
+ALTER TABLE public.analyses ADD COLUMN IF NOT EXISTS linked_video_analysis_ids text[] DEFAULT '{}';
