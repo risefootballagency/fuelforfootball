@@ -112,7 +112,7 @@ const DEFAULT_LAYOUTS: WidgetLayout[] = [
 
 const DEFAULT_HEIGHT_PX = 200;
 
-export const StaffOverview = ({ isAdmin, userId }: { isAdmin: boolean; userId?: string }) => {
+export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boolean; userId?: string; isMarketeer?: boolean }) => {
   const [expandedWidget, setExpandedWidget] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [players, setPlayers] = useState<any[]>([]);
