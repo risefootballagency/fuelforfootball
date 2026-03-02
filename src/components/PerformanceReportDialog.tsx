@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade } from "@/lib/gradeCalculations";
-import { Download, X, ImageIcon, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award } from "lucide-react";
+import { Download, X, ImageIcon, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, Link2, MessageSquareText, Filter } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { ActionVideoPopup } from "@/components/ActionVideoPopup";
@@ -14,6 +14,7 @@ import { R90FlowChart } from "@/components/report/R90FlowChart";
 import { ActionHeatmap } from "@/components/report/ActionHeatmap";
 import { ChanceCreationFlow } from "@/components/report/ChanceCreationFlow";
 import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
+import { toTitleCase } from "@/lib/titleCase";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
 const formatMinute = (minute: number | null | undefined): string => {
@@ -66,11 +67,17 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
   const [showR90Flow, setShowR90Flow] = useState(false);
+  const [showR90Info, setShowR90Info] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showChanceCreation, setShowChanceCreation] = useState(false);
   const [showRankedPlayer, setShowRankedPlayer] = useState(false);
-  const [rankedMode, setRankedMode] = useState<"chronological" | "ranked">("chronological");
+  const [rankedMode, setRankedMode] = useState<"chronological" | "ranked" | "noted">("chronological");
   const [showClippedActions, setShowClippedActions] = useState(false);
+  const [showFilteredPlayer, setShowFilteredPlayer] = useState(false);
+  const [showActionFilters, setShowActionFilters] = useState(false);
+  const [filterTypes, setFilterTypes] = useState<string[]>([]);
+  const [filterRating, setFilterRating] = useState<string | null>(null);
+  const [filterHasNotes, setFilterHasNotes] = useState(false);
 
   // Pre-fetch data when analysisId changes (even before dialog opens)
   useEffect(() => {
@@ -96,10 +103,10 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
           .from("player_analysis")
           .select(`
             *,
-            players (name)
+            players!inner (name)
           `)
           .eq("id", id)
-          .maybeSingle(),
+          .single(),
         sharedSupabase
           .from("performance_report_actions")
           .select("*")
@@ -109,21 +116,17 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
 
       if (analysisResult.error) throw analysisResult.error;
 
-      if (analysisResult.data) {
-        setAnalysis({
-          id: analysisResult.data.id,
-          analysis_date: analysisResult.data.analysis_date,
-          opponent: analysisResult.data.opponent || "",
-          result: analysisResult.data.result || "",
-          r90_score: analysisResult.data.r90_score,
-          minutes_played: analysisResult.data.minutes_played,
-          player_name: analysisResult.data.players?.name || "Unknown Player",
-          striker_stats: analysisResult.data.striker_stats as StrikerStats | null,
-          performance_overview: analysisResult.data.performance_overview,
-        });
-      } else {
-        setAnalysis(null);
-      }
+      setAnalysis({
+        id: analysisResult.data.id,
+        analysis_date: analysisResult.data.analysis_date,
+        opponent: analysisResult.data.opponent || "",
+        result: analysisResult.data.result || "",
+        r90_score: analysisResult.data.r90_score,
+        minutes_played: analysisResult.data.minutes_played,
+        player_name: analysisResult.data.players?.name || "Unknown Player",
+        striker_stats: analysisResult.data.striker_stats as StrikerStats | null,
+        performance_overview: analysisResult.data.performance_overview,
+      });
 
       if (actionsResult.error) throw actionsResult.error;
       setActions(actionsResult.data || []);
@@ -389,6 +392,47 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   const advancedStats = getAdvancedStats();
   const calculatedStats = getCalculatedStats();
 
+  // Get unique action types (split by comma)
+  const allActionTypes = Array.from(new Set(
+    actions.flatMap(a => a.action_type.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))
+  )).sort();
+
+  // Rating colour buckets
+  const getRatingBucket = (score: number): string => {
+    if (score >= 0.15) return "dark-green";
+    if (score >= 0.05) return "green";
+    if (score > 0) return "lime";
+    if (score === 0) return "neutral";
+    if (score > -0.04) return "orange";
+    return "red";
+  };
+
+  const ratingBuckets = [
+    { key: "dark-green", className: "bg-green-700" },
+    { key: "green", className: "bg-green-500" },
+    { key: "lime", className: "bg-lime-400" },
+    { key: "neutral", className: "bg-muted" },
+    { key: "orange", className: "bg-orange-500" },
+    { key: "red", className: "bg-red-600" },
+  ];
+
+  // Filtered actions
+  const filteredActions = actions.filter(a => {
+    if (filterTypes.length > 0) {
+      const actionTypes = a.action_type.split(',').map(t => t.trim().toLowerCase());
+      if (!filterTypes.some(ft => actionTypes.includes(ft))) return false;
+    }
+    if (filterRating) {
+      if (getRatingBucket(a.action_score) !== filterRating) return false;
+    }
+    if (filterHasNotes) {
+      if (!a.notes) return false;
+    }
+    return true;
+  });
+
+  const hasActiveFilters = filterTypes.length > 0 || filterRating !== null || filterHasNotes;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] md:max-w-[95vw] w-full max-h-[95vh] overflow-y-auto overflow-x-hidden p-0">
@@ -398,6 +442,25 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
             <Button onClick={handleSaveAsWebp} variant="default" size="sm" className="px-2 md:px-3" disabled={savingImage || loading}>
               <ImageIcon className="h-4 w-4 md:mr-2" />
               <span className="hidden md:inline">{savingImage ? 'Saving...' : 'Save'}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-2 md:px-3"
+              onClick={() => {
+                if (analysis) {
+                  const playerName = analysis.player_name || 'player';
+                  const opponent = analysis.opponent || 'opponent';
+                  const slug = `${playerName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-vs-${opponent.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${analysisId}`;
+                  const url = `${window.location.origin}/performance-report/${slug}`;
+                  navigator.clipboard.writeText(url);
+                  toast.success("Report link copied to clipboard");
+                }
+              }}
+              disabled={!analysis}
+            >
+              <Link2 className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Share</span>
             </Button>
             <Button onClick={() => onOpenChange(false)} variant="outline" size="sm" className="px-2 md:px-3">
               <X className="h-4 w-4 md:mr-2" />
@@ -430,7 +493,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
           ) : !analysis ? (
             <div className="text-center py-8 text-muted-foreground">Performance report not found</div>
           ) : (
-            <div ref={contentRef} className="space-y-4 md:space-y-6 bg-background p-2 md:p-4 rounded-lg overflow-x-hidden">
+            <div ref={contentRef} className="space-y-2 md:space-y-3 bg-background p-2 md:p-4 rounded-lg overflow-x-hidden">
               {/* Player Info with Clipped Actions Button */}
               <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
@@ -518,6 +581,17 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                         <Award className="h-3.5 w-3.5 mr-1.5" />
                         Ranked Actions
                       </Button>
+                      {actions.some(a => a.video_url && a.notes) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => { setRankedMode("noted"); setShowRankedPlayer(true); }}
+                          className="text-xs"
+                        >
+                          <MessageSquareText className="h-3.5 w-3.5 mr-1.5" />
+                          Noted Actions
+                        </Button>
+                      )}
                     </>
                   )}
                 </div>
@@ -558,8 +632,17 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                     {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
                   </p>
                 </div>
-                <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4">
-                  <p className="text-[10px] md:text-sm mb-0.5 md:mb-1 opacity-90">R90</p>
+                <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4 relative">
+                  <div className="flex items-center justify-center gap-1 mb-0.5 md:mb-1">
+                    <p className="text-[10px] md:text-sm opacity-90">R90</p>
+                    <button
+                      onClick={() => setShowR90Info(true)}
+                      className="opacity-50 hover:opacity-100 transition-opacity"
+                      title="How is R90 calculated?"
+                    >
+                      <HelpCircle className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                    </button>
+                  </div>
                   <p className="text-lg md:text-3xl font-bold">
                     {analysis.r90_score !== null
                       ? analysis.r90_score.toFixed(2)
@@ -582,13 +665,17 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
               {/* Advanced Stats */}
               {advancedStats.length > 0 && (
                 <Card className="overflow-hidden">
-                  <CardHeader className="py-2 md:py-4">
+                  <CardHeader className="py-1.5 md:py-2">
                     <CardTitle className="text-sm md:text-lg">Match Statistics</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-2 md:p-6">
+                  <CardContent className="p-2 md:p-4">
                     <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
-                      {advancedStats.map((stat) => (
-                        <div key={stat.key} className="text-center p-1.5 md:p-3 bg-accent/10 rounded">
+                      {advancedStats.map((stat) => {
+                        const isGoals = stat.key === 'goals';
+                        const goalsValue = isGoals ? (stat.isPaired ? stat.successful : stat.value) : 0;
+                        const hasGoalBorder = isGoals && typeof goalsValue === 'number' && goalsValue >= 1;
+                        return (
+                        <div key={stat.key} className={`text-center p-1.5 md:p-3 bg-accent/10 rounded ${hasGoalBorder ? 'ring-2 ring-accent' : ''}`}>
                           <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5 capitalize truncate">{formatStatLabel(stat.key)}</p>
                           {stat.isPaired ? (
                             <>
@@ -604,7 +691,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                             </p>
                           )}
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -613,13 +701,13 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
               {/* Auto-Calculated Ratios */}
               {calculatedStats.length > 0 && (
                 <Card className="overflow-hidden border-primary/20">
-                  <CardHeader className="py-2 md:py-4 bg-primary/5">
+                  <CardHeader className="py-1.5 md:py-2 bg-primary/5">
                     <CardTitle className="text-sm md:text-lg flex items-center gap-2">
                       <Calculator className="h-4 w-4 text-primary" />
                       <span className="text-primary">Calculated Ratios</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-2 md:p-6">
+                  <CardContent className="p-2 md:p-4">
                     <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
                       {calculatedStats.map((stat) => (
                         <div key={stat.key} className="text-center p-1.5 md:p-3 bg-primary/5 rounded border border-primary/10">
@@ -644,10 +732,10 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
               {/* Performance Overview */}
               {analysis.performance_overview && (
                 <Card className="overflow-hidden">
-                  <CardHeader className="py-2 md:py-4">
+                  <CardHeader className="py-1.5 md:py-2">
                     <CardTitle className="text-sm md:text-lg">Overview</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-2 md:p-6">
+                  <CardContent className="p-2 md:p-4">
                     <p className="text-muted-foreground whitespace-pre-wrap text-center text-xs md:text-sm">{analysis.performance_overview}</p>
                   </CardContent>
                 </Card>
@@ -656,13 +744,102 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
               {/* Performance Actions */}
               {actions.length > 0 && (
                 <Card className="overflow-hidden">
-                  <CardHeader className="py-2 md:py-4">
-                    <CardTitle className="text-sm md:text-lg">Actions ({actions.length})</CardTitle>
+                  <CardHeader className="py-1.5 md:py-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm md:text-lg">
+                        Actions ({hasActiveFilters ? `${filteredActions.length}/${actions.length}` : actions.length})
+                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        {hasActiveFilters && (
+                          <button
+                            onClick={() => { setFilterTypes([]); setFilterRating(null); setFilterHasNotes(false); }}
+                            className="text-[10px] text-muted-foreground hover:text-foreground underline"
+                          >
+                            Clear filters
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setShowActionFilters(!showActionFilters)}
+                          className={`p-1.5 rounded transition-colors ${hasActiveFilters ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}
+                        >
+                          <Filter className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                    {showActionFilters && (
+                      <div className="mt-3 space-y-3 border-t pt-3">
+                        {/* Filter by action type */}
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">Action Type</p>
+                          <div className="flex flex-wrap gap-1">
+                            {allActionTypes.map(type => (
+                              <button
+                                key={type}
+                                onClick={() => setFilterTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])}
+                                className={`px-2 py-0.5 rounded text-[10px] transition-colors border ${
+                                  filterTypes.includes(type)
+                                    ? 'bg-primary text-primary-foreground border-primary'
+                                    : 'bg-muted/30 text-foreground/70 border-border hover:bg-muted/50'
+                                }`}
+                              >
+                                {toTitleCase(type)}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Filter by rating */}
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">Rating</p>
+                          <div className="flex flex-wrap gap-1">
+                            {ratingBuckets.map(bucket => (
+                              <button
+                                key={bucket.key}
+                                onClick={() => setFilterRating(prev => prev === bucket.key ? null : bucket.key)}
+                                className={`w-6 h-6 rounded-full transition-all border-2 ${bucket.className} ${
+                                  filterRating === bucket.key
+                                    ? 'border-foreground scale-110 ring-2 ring-foreground/20'
+                                    : 'border-transparent hover:scale-110'
+                                }`}
+                                title={bucket.key}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        {/* Filter by notes */}
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">Notes</p>
+                          <button
+                            onClick={() => setFilterHasNotes(!filterHasNotes)}
+                            className={`px-2 py-0.5 rounded text-[10px] transition-colors border ${
+                              filterHasNotes
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'bg-muted/30 text-foreground/70 border-border hover:bg-muted/50'
+                            }`}
+                          >
+                            With Notes
+                          </button>
+                        </div>
+                        {/* Watch filtered selection */}
+                        {hasActiveFilters && filteredActions.some(a => a.video_url) && (
+                          <div className="pt-2 border-t border-border/30">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs w-full"
+                              onClick={() => setShowFilteredPlayer(true)}
+                            >
+                              <Play className="h-3.5 w-3.5 mr-1.5" />
+                              Watch Selected ({filteredActions.filter(a => a.video_url).length})
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </CardHeader>
-                  <CardContent className="p-2 md:p-6">
+                  <CardContent className="p-2 md:p-4">
                     {/* Mobile: Compact card layout */}
                     <div className="block md:hidden space-y-2">
-                      {actions.map((action) => (
+                      {filteredActions.map((action) => (
                         <div key={action.id} className="p-2 bg-muted/30 rounded">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5 min-w-0">
@@ -684,10 +861,10 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                               </button>
                             )}
                           </div>
-                          <div className="font-medium text-xs mt-1 truncate">{action.action_type}</div>
+                          <div className="font-medium text-xs mt-1 truncate">{toTitleCase(action.action_type)}</div>
                           <div className="text-[10px] text-foreground/80 line-clamp-2">{action.action_description}</div>
                           {action.notes && (
-                            <div className="text-[9px] text-muted-foreground italic mt-1 pt-1 border-t border-border/50 truncate">
+                            <div className="text-[9px] text-accent italic mt-1 pt-1 border-t border-border/50 truncate">
                               {action.notes}
                             </div>
                           )}
@@ -710,13 +887,13 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                           </tr>
                         </thead>
                         <tbody>
-                          {actions.map((action) => (
+                          {filteredActions.map((action) => (
                             <tr key={action.id} className="border-b border-border/50">
                               <td className="py-2 px-2">{action.action_number}</td>
                               <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
-                              <td className="py-2 px-2">{action.action_type}</td>
+                              <td className="py-2 px-2">{toTitleCase(action.action_type)}</td>
                               <td className="py-2 px-2">{action.action_description}</td>
-                              <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>
+                              <td className="py-2 px-2 text-accent">{action.notes || "-"}</td>
                               <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>
                                 {action.action_score?.toFixed(5)}
                               </td>
@@ -776,6 +953,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
             action_description: a.action_description,
             video_url: a.video_url!,
             minute: a.minute,
+            notes: a.notes,
           }))}
       />
 
@@ -794,8 +972,117 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
             action_score: a.action_score,
             video_url: a.video_url!,
             minute: a.minute,
+            notes: a.notes,
           }))}
       />
+
+      {/* Filtered Video Player */}
+      <RankedActionsPlayer
+        open={showFilteredPlayer}
+        onOpenChange={setShowFilteredPlayer}
+        mode="chronological"
+        clips={filteredActions
+          .filter(a => a.video_url)
+          .map(a => ({
+            id: a.id,
+            action_number: a.action_number,
+            action_type: a.action_type,
+            action_description: a.action_description,
+            action_score: a.action_score,
+            video_url: a.video_url!,
+            minute: a.minute,
+            notes: a.notes,
+          }))}
+      />
+
+      {/* R90 Info Dialog */}
+      <Dialog open={showR90Info} onOpenChange={setShowR90Info}>
+        <DialogContent className="w-[95vw] max-w-[95vw] md:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <button
+            onClick={() => setShowR90Info(false)}
+            className="absolute right-3 top-3 z-10 rounded-full bg-muted p-1.5 hover:bg-muted/80 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold">How R90 Scores Work</h2>
+            <p className="text-sm text-muted-foreground">
+              R90 is a performance rating that allows us to rate actual impact on the game result, positively or negatively, by every contributable action made on and off the ball. Scores are normalised to a per-90-minute basis for fair comparison across different match durations.
+            </p>
+            
+            <div className="space-y-3">
+              <h3 className="font-semibold text-sm">Calculation</h3>
+              <div className="bg-accent/20 rounded-lg p-3 space-y-2 text-sm">
+                <p><strong>Raw Score</strong> = sum of all action scores in the match</p>
+                <p><strong>R90</strong> = (Raw Score / Minutes Played) × 90</p>
+              </div>
+              
+              <h3 className="font-semibold text-sm">Action Scoring</h3>
+              <p className="text-sm text-muted-foreground">
+                The action scoring model was built from over 1,000 matches input between 2017 and 2026, analysing how actions affected scoring or conceding across 18 pitch zones with further breakdowns by action type. Positive actions add to the score while negative actions subtract from it.
+              </p>
+              
+              <h3 className="font-semibold text-sm">Score Guide</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(43, 96%, 56%)' }} />
+                  <span>A* (2.20+)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 76%, 55%)' }} />
+                  <span>A+ (1.80–2.19)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 70%, 50%)' }} />
+                  <span>A (1.60–1.79)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 65%, 45%)' }} />
+                  <span>A- (1.40–1.59)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 70%, 40%)' }} />
+                  <span>B+ (1.20–1.39)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 76%, 36%)' }} />
+                  <span>B (1.00–1.19)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(60, 70%, 50%)' }} />
+                  <span>B- (0.80–0.99)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(40, 85%, 50%)' }} />
+                  <span>C+ (0.60–0.79)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(25, 75%, 45%)' }} />
+                  <span>C (0.40–0.59)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(0, 84%, 60%)' }} />
+                  <span>C- (0.20–0.39)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(0, 84%, 45%)' }} />
+                  <span>D (0.00–0.19)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(0, 84%, 30%)' }} />
+                  <span>U (below 0)</span>
+                </div>
+              </div>
+
+              <h3 className="font-semibold text-sm">Important Notes</h3>
+              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+                <li>Short appearances (under 20 minutes) can produce inflated or deflated scores</li>
+                <li>Goals win games. Always remember that while R90 is heavily influenced by chance-related actions, so is the real game. A bad performance is equalised by a goal scored and a good performance is generally not complete without creating a goal or stopping one at the other end.</li>
+              </ul>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };

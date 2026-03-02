@@ -151,6 +151,7 @@ export const CreatePerformanceReportDialog = ({
   
   const [actionSearchFilters, setActionSearchFilters] = useState<Record<number, string>>({});
   const [isByActionDialogOpen, setIsByActionDialogOpen] = useState(false);
+  const [previousScores, setPreviousScores] = useState<Record<number, Array<{score: string | number | null, title: string, description: string}>>>({});
   const [unifiedStats, setUnifiedStats] = useState<UnifiedStat[]>([]);
   const [fixtureStats, setFixtureStats] = useState<Record<string, number>>({});
   const [previousFixtureStats, setPreviousFixtureStats] = useState<Record<string, number>>({});
