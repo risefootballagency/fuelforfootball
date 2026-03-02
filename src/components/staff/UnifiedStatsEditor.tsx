@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -161,6 +161,7 @@ const SortableStatCard = ({ id, children }: { id: string; children: React.ReactN
 
 export const UnifiedStatsEditor = ({ stats, onStatsChange, minutesPlayed }: UnifiedStatsEditorProps) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingStatKey, setEditingStatKey] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -230,6 +231,27 @@ export const UnifiedStatsEditor = ({ stats, onStatsChange, minutesPlayed }: Unif
 
   const handleDeleteStat = (key: string) => { onStatsChange(stats.filter(s => s.key !== key)); };
 
+  const handleUpdateStatType = (key: string, newType: StatInputMode) => {
+    const updatedStats = stats.map(stat => {
+      if (stat.key === key) {
+        const updated: UnifiedStat = { ...stat, type: newType, successful: undefined, total: undefined, count: undefined, score: undefined, per90: undefined };
+        if (newType === 'count') {
+          if (stat.type === 'success_fail') updated.count = stat.total || 0;
+          else if (stat.type === 'score') updated.count = Math.round(stat.score || 0);
+        } else if (newType === 'success_fail') {
+          updated.successful = 0;
+          updated.total = stat.count || 0;
+        } else if (newType === 'score') {
+          updated.score = stat.count || 0;
+          if (shouldShowPer90(key) && minutesPlayed > 0) updated.per90 = ((updated.score / minutesPlayed) * 90).toFixed(3);
+        }
+        return updated;
+      }
+      return stat;
+    });
+    onStatsChange(updatedStats);
+  };
+
   const handleInlineEdit = (key: string, field: 'successful' | 'total' | 'count' | 'score', value: string) => {
     const updatedStats = stats.map(stat => {
       if (stat.key === key) {
@@ -257,7 +279,7 @@ export const UnifiedStatsEditor = ({ stats, onStatsChange, minutesPlayed }: Unif
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <Label className="text-sm font-semibold">Match Statistics</Label>
-        <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) resetNewStatForm(); }}>
+        <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) { resetNewStatForm(); setEditingStatKey(null); } }}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="h-7"><Plus className="h-3 w-3 mr-1" />Add Stat</Button>
           </DialogTrigger>
@@ -344,6 +366,16 @@ export const UnifiedStatsEditor = ({ stats, onStatsChange, minutesPlayed }: Unif
                       </button>
                       <div className="flex items-center gap-1 mb-2 pr-5 pl-4">
                         <Label className="text-xs font-semibold block truncate">{stat.displayName}</Label>
+                        <Select value={stat.type} onValueChange={(v) => handleUpdateStatType(stat.key, v as StatInputMode)}>
+                          <SelectTrigger className="h-5 w-5 p-0 border-0 opacity-0 group-hover:opacity-100 transition-opacity [&>svg]:h-3 [&>svg]:w-3">
+                            <span className="sr-only">Change type</span>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="success_fail">Success/Fail</SelectItem>
+                            <SelectItem value="count">Count</SelectItem>
+                            <SelectItem value="score">Score</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       {stat.type === 'success_fail' && (
                         <div>
