@@ -117,6 +117,8 @@ export const CreatePerformanceReportDialog = ({
   onBack,
   onClose,
 }: CreatePerformanceReportDialogProps) => {
+  // Store original striker_stats from database to preserve unmodified fields
+  const [originalStrikerStats, setOriginalStrikerStats] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -614,11 +616,18 @@ export const CreatePerformanceReportDialog = ({
     setSelectedFixtureId(fixtureId);
     const fixture = fixtures.find(f => f.id === fixtureId);
     if (fixture) {
-      // Intelligently determine opponent based on player's club
+      // Intelligently determine opponent based on player's club or "For" placeholder
       let opponentTeam = fixture.away_team; // Default to away team
       
-      if (playerClub) {
-        // Check if player's club matches home or away team
+      // First check for "For" placeholder (used to represent player's team)
+      const homeIsFor = fixture.home_team.toLowerCase() === "for" || fixture.home_team.toLowerCase().includes("for ");
+      const awayIsFor = fixture.away_team.toLowerCase() === "for" || fixture.away_team.toLowerCase().includes("for ");
+      
+      if (homeIsFor) {
+        opponentTeam = fixture.away_team;
+      } else if (awayIsFor) {
+        opponentTeam = fixture.home_team;
+      } else if (playerClub) {
         if (fixture.home_team === playerClub) {
           opponentTeam = fixture.away_team;
         } else if (fixture.away_team === playerClub) {
@@ -654,10 +663,13 @@ export const CreatePerformanceReportDialog = ({
       setResult(analysisData.result || "");
       setSelectedFixtureId(analysisData.fixture_id || "");
       setPerformanceOverview(analysisData.performance_overview || "");
+      setFixtureStats((analysisData.fixture_stats as Record<string, number>) || {});
 
       // Populate striker stats if they exist
       if (analysisData.striker_stats) {
         const stats = analysisData.striker_stats as any;
+        // Store original stats to preserve any fields not loaded into form
+        setOriginalStrikerStats(stats);
         
         // Populate legacy striker stats
         setStrikerStats({
@@ -732,7 +744,7 @@ export const CreatePerformanceReportDialog = ({
           actionsData.map((action) => ({
             id: action.id,
             action_number: action.action_number,
-            minute: action.minute !== null ? Number(action.minute).toFixed(2) : "",
+            minute: formatMinuteForInput(action.minute),
             action_score: action.action_score !== null ? action.action_score.toString() : "",
             action_type: action.action_type || "",
             action_description: action.action_description || "",
@@ -783,9 +795,11 @@ export const CreatePerformanceReportDialog = ({
     setR90Score("");
     setMinutesPlayed("");
     setOpponent("");
+    setFixtureStats({});
     setResult("");
     setSelectedFixtureId("");
     setPerformanceOverview("");
+    setOriginalStrikerStats(null);
     setShowStrikerStats(false);
     setAdditionalStats({});
     setSelectedStatKeys(availableStats.filter(s => !s.stat_key.endsWith('_per90') && !hiddenStatKeys.includes(s.stat_key)).map(s => s.stat_key)); // Reset to position-specific stats (excluding per90 and hidden)
@@ -837,7 +851,7 @@ export const CreatePerformanceReportDialog = ({
           actionsData.map((action) => ({
             id: action.id,
             action_number: action.action_number,
-            minute: action.minute !== null ? Number(action.minute).toFixed(2) : "",
+            minute: formatMinuteForInput(action.minute),
             action_score: action.action_score !== null ? action.action_score.toString() : "",
             action_type: action.action_type || "",
             action_description: action.action_description || "",
@@ -901,15 +915,14 @@ export const CreatePerformanceReportDialog = ({
     setActions(newActions);
   };
 
-  const updateAction = async (index: number, field: keyof PerformanceAction, value: string) => {
+  const updateAction = async (index: number, field: keyof PerformanceAction, value: string | RecordedStat | RecordedStat[] | null) => {
     const newActions = [...actions];
     newActions[index] = { ...newActions[index], [field]: value };
     setActions(newActions);
 
     // If action_type changed, fetch category scores and mapping
-    if (field === "action_type" && value) {
+    if (field === "action_type" && value && typeof value === 'string') {
       const trimmedValue = value.trim();
-      console.log(`Action type changed to: "${trimmedValue}" for action index ${index}`);
       
       // Fetch R90 category mapping for this action type
       try {
@@ -918,23 +931,13 @@ export const CreatePerformanceReportDialog = ({
           .select('r90_category, r90_subcategory, selected_rating_ids')
           .eq('action_type', trimmedValue);
         
-        // Prioritize most specific mapping (with selected ratings, then subcategory, then category-only)
         const mapping = mappings?.find(m => m.selected_rating_ids && m.selected_rating_ids.length > 0) || 
                        mappings?.find(m => m.r90_subcategory !== null) || 
                        mappings?.[0];
         
         if (mapping?.r90_category) {
-          const mappingPath = `${mapping.r90_category}${mapping.r90_subcategory ? ' > ' + mapping.r90_subcategory : ''}${mapping.selected_rating_ids?.length ? ` (${mapping.selected_rating_ids.length} ratings)` : ''}`;
-          console.log(`Found category mapping: ${trimmedValue} -> ${mappingPath}`);
-          
-          // Fetch all scores for this R90 category hierarchy
           await fetchCategoryScores(index, mapping.r90_category, mapping.r90_subcategory, mapping.selected_rating_ids || null);
-          
-          toast.success(`Suggested R90 category: ${mappingPath}`, {
-            description: 'Scores filtered by this category hierarchy'
-          });
         } else {
-          // No mapping found, try keyword-based detection
           const category = getR90CategoryFromAction(trimmedValue, '');
           if (category && category !== 'all') {
             await fetchCategoryScores(index, category);
@@ -1054,7 +1057,11 @@ export const CreatePerformanceReportDialog = ({
       if (analysisError) throw analysisError;
 
       toast.success("Performance report deleted successfully");
-      onOpenChange(false);
+      if (inline && onClose) {
+        onClose();
+      } else if (onOpenChange) {
+        onOpenChange(false);
+      }
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error("Error deleting performance report:", error);
@@ -1196,16 +1203,17 @@ export const CreatePerformanceReportDialog = ({
       const hasStrikerStats = Object.values(strikerStats).some(v => v !== "");
       const hasAdditionalStats = Object.values(additionalStats).some(v => v !== "");
       
-      let strikerStatsJson = null;
-      if (hasStrikerStats || hasAdditionalStats) {
-        strikerStatsJson = {};
+      let strikerStatsJson: Record<string, any> | null = null;
+      if (hasStrikerStats || hasAdditionalStats || originalStrikerStats) {
+        // Start with original stats to preserve any fields not in the form
+        strikerStatsJson = originalStrikerStats ? { ...originalStrikerStats } : {};
         
         // Add legacy striker stats
         if (hasStrikerStats) {
           Object.entries(strikerStats)
             .filter(([_, value]) => value !== "")
             .forEach(([key, value]) => {
-              strikerStatsJson[key] = parseFloat(value);
+              strikerStatsJson![key] = parseFloat(value);
             });
         }
         
@@ -1214,7 +1222,7 @@ export const CreatePerformanceReportDialog = ({
           Object.entries(additionalStats)
             .filter(([_, value]) => value !== "")
             .forEach(([key, value]) => {
-              strikerStatsJson[key] = parseInt(value);
+              strikerStatsJson![key] = parseInt(value);
             });
         }
       }
@@ -1223,21 +1231,39 @@ export const CreatePerformanceReportDialog = ({
 
       if (analysisId) {
         // Edit mode - update existing record
+        const parsedMinutes = parseInt(minutesPlayed);
         const { error: analysisError } = await supabase
           .from("player_analysis")
           .update({
             fixture_id: selectedFixtureId,
             analysis_date: fixture?.match_date,
             r90_score: calculatedR90,
-            minutes_played: parseInt(minutesPlayed),
+            minutes_played: !isNaN(parsedMinutes) ? parsedMinutes : null,
             opponent: opponent,
             result: result || null,
             striker_stats: strikerStatsJson,
+            fixture_stats: Object.keys(fixtureStats).length > 0 ? fixtureStats : null,
             performance_overview: performanceOverview || null,
           })
           .eq("id", analysisId);
 
         if (analysisError) throw analysisError;
+
+        // Fetch existing actions to preserve video_url before deleting
+        const { data: existingActions } = await supabase
+          .from("performance_report_actions")
+          .select("action_number, video_url")
+          .eq("analysis_id", analysisId);
+        
+        // Create a map of action_number to video_url
+        const existingVideoUrls = new Map<number, string | null>();
+        if (existingActions) {
+          existingActions.forEach(a => {
+            if (a.video_url) {
+              existingVideoUrls.set(a.action_number, a.video_url);
+            }
+          });
+        }
 
         // Delete existing actions
         const { error: deleteError } = await supabase
@@ -1262,6 +1288,7 @@ export const CreatePerformanceReportDialog = ({
         }
 
         // Insert new record
+        const parsedMinutesInsert = parseInt(minutesPlayed);
         const { data: analysisData, error: analysisError } = await supabase
           .from("player_analysis")
           .insert({
@@ -1269,10 +1296,11 @@ export const CreatePerformanceReportDialog = ({
             fixture_id: selectedFixtureId,
             analysis_date: fixture?.match_date,
             r90_score: calculatedR90,
-            minutes_played: parseInt(minutesPlayed),
+            minutes_played: !isNaN(parsedMinutesInsert) ? parsedMinutesInsert : null,
             opponent: opponent,
             result: result || null,
             striker_stats: strikerStatsJson,
+            fixture_stats: Object.keys(fixtureStats).length > 0 ? fixtureStats : null,
             performance_overview: performanceOverview || null,
           })
           .select()
@@ -1284,17 +1312,18 @@ export const CreatePerformanceReportDialog = ({
 
       // Insert performance actions
       const actionsToInsert = actions
-        .filter(a => a.action_number)
+        .filter(a => a.action_number && (a.minute || a.action_score || a.action_type || a.action_description || a.notes || a.video_url))
         .map(a => ({
           analysis_id: analysisIdToUse,
           action_number: a.action_number,
           minute: a.minute ? parseFloat(a.minute) : null,
           action_score: a.action_score ? parseFloat(a.action_score) : null,
-          action_type: a.action_type || null,
-          action_description: a.action_description || null,
-          notes: a.notes || null,
+          action_type: a.action_type ? canonicalActionType(a.action_type) : null,
+          action_description: a.action_description?.trim() || null,
+          notes: a.notes?.trim() || null,
+          // Preserve video_url: use the one from the action state only
           video_url: a.video_url || null,
-          recorded_stat: a.recorded_stat || null,
+          recorded_stat: (a.recorded_stat || null) as any,
         }));
 
       if (actionsToInsert.length > 0) {
