@@ -1,139 +1,331 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Video, Upload, X, Loader2, Film, Play } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { sharedSupabase as supabase } from '@/integrations/supabase/sharedClient';
 import { toast } from 'sonner';
-import { Upload, Video, X, ExternalLink } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+
+interface LinkedClip {
+  id: string;
+  label: string;
+  start: number;
+  end: number;
+  action_type: string;
+  action_description: string;
+  video_url: string;
+  video_title: string;
+}
 
 interface ActionVideoUploadProps {
-  actionIndex: number;
-  currentVideoUrl?: string;
-  onVideoUploaded: (url: string) => void;
-  onVideoRemoved: () => void;
+  actionId: string;
+  currentVideoUrl: string | null;
+  onVideoUploaded: (videoUrl: string | null) => void;
+  disabled?: boolean;
+  analysisId?: string;
 }
 
 export const ActionVideoUpload = ({
-  actionIndex,
+  actionId,
   currentVideoUrl,
   onVideoUploaded,
-  onVideoRemoved,
+  disabled = false,
+  analysisId,
 }: ActionVideoUploadProps) => {
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [status, setStatus] = useState('');
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [showClipPicker, setShowClipPicker] = useState(false);
+  const [linkedClips, setLinkedClips] = useState<LinkedClip[]>([]);
+  const [loadingClips, setLoadingClips] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchLinkedClips = async () => {
+    if (!analysisId) return;
+    setLoadingClips(true);
+    try {
+      const { data: report } = await supabase
+        .from("player_analysis")
+        .select("linked_video_analysis_ids")
+        .eq("id", analysisId)
+        .single();
+
+      const linkedIds = (report?.linked_video_analysis_ids || []) as string[];
+      if (linkedIds.length === 0) {
+        setLinkedClips([]);
+        setLoadingClips(false);
+        return;
+      }
+
+      const { data: analyses } = await supabase
+        .from("video_analyses")
+        .select("id, title, video_url, clips")
+        .in("id", linkedIds);
+
+      if (analyses) {
+        const allClips: LinkedClip[] = [];
+        for (const va of analyses) {
+          const clips = (va.clips as any as Array<any>) || [];
+          for (const clip of clips) {
+            allClips.push({
+              id: clip.id,
+              label: clip.label || clip.action_description || 'Clip',
+              start: clip.start,
+              end: clip.end,
+              action_type: clip.action_type || '',
+              action_description: clip.action_description || '',
+              video_url: va.video_url,
+              video_title: va.title,
+            });
+          }
+        }
+        setLinkedClips(allClips);
+      }
+    } catch (err) {
+      console.error('Error fetching linked clips:', err);
+    }
+    setLoadingClips(false);
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('video/')) {
       toast.error('Please select a video file');
       return;
     }
 
-    // Validate file size (max 100MB)
-    const maxSize = 100 * 1024 * 1024;
-    if (file.size > maxSize) {
-      toast.error('Video must be less than 100MB');
-      return;
-    }
-
     setUploading(true);
-    setUploadProgress(0);
-
+    setStatus('Uploading...');
+    
     try {
-      // Generate unique filename
-      const timestamp = Date.now();
-      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const fileName = `action-clips/${timestamp}_${sanitizedName}`;
-
-      // Upload to storage
+      const extension = file.name.split('.').pop() || 'mp4';
+      const fileName = `action-clips/${actionId}-${Date.now()}.${extension}`;
+      
       const { error: uploadError } = await supabase.storage
         .from('analysis-files')
         .upload(fileName, file, {
-          contentType: file.type,
-          upsert: false,
+          cacheControl: '3600',
+          upsert: true,
         });
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('analysis-files')
         .getPublicUrl(fileName);
 
-      setUploadProgress(100);
+      const { data: updateData, error: updateError } = await supabase
+        .from('performance_report_actions')
+        .update({ video_url: publicUrl })
+        .eq('id', actionId)
+        .select();
+
+      if (updateError) throw updateError;
+      
+      if (!updateData || updateData.length === 0) {
+        console.error('No action found with id:', actionId);
+        toast.error('Failed to save clip - action not found. Please save the report first.');
+        return;
+      }
+
       onVideoUploaded(publicUrl);
-      toast.success('Video uploaded successfully');
+      toast.success('Video clip uploaded');
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error(error.message || 'Failed to upload video');
+      console.error('Error uploading video:', error);
+      toast.error('Failed to upload video');
     } finally {
       setUploading(false);
-      setUploadProgress(0);
+      setStatus('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
   };
 
-  const handleRemove = () => {
-    onVideoRemoved();
-    toast.success('Video removed');
+  const handleSelectLinkedClip = async (clip: LinkedClip) => {
+    const clipUrl = `${clip.video_url}#t=${clip.start},${clip.end}`;
+    
+    try {
+      const { error } = await supabase
+        .from('performance_report_actions')
+        .update({ video_url: clipUrl })
+        .eq('id', actionId);
+
+      if (error) throw error;
+
+      onVideoUploaded(clipUrl);
+      toast.success('Clip attached from video analysis');
+      setShowClipPicker(false);
+    } catch (error: any) {
+      console.error('Error attaching clip:', error);
+      toast.error('Failed to attach clip');
+    }
+  };
+
+  const handleRemoveVideo = async () => {
+    setUploading(true);
+    try {
+      const { error } = await supabase
+        .from('performance_report_actions')
+        .update({ video_url: null })
+        .eq('id', actionId);
+
+      if (error) throw error;
+
+      onVideoUploaded(null);
+      toast.success('Video removed');
+    } catch (error: any) {
+      console.error('Error removing video:', error);
+      toast.error('Failed to remove video');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const fmtTime = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = Math.floor(s % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="space-y-2">
+    <>
+    <div className="flex items-center gap-2">
       <input
-        type="file"
         ref={fileInputRef}
+        type="file"
         accept="video/*"
         onChange={handleFileSelect}
         className="hidden"
+        disabled={disabled || uploading}
       />
-
+      
       {currentVideoUrl ? (
-        <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
-          <Video className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm truncate flex-1">Video attached</span>
-          <Button
+        <div className="flex items-center gap-1">
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0"
-            onClick={() => window.open(currentVideoUrl, '_blank')}
+            onClick={() => setPreviewOpen(true)}
+            className="text-xs text-primary flex items-center gap-1 hover:underline cursor-pointer"
           >
-            <ExternalLink className="h-3 w-3" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-            onClick={handleRemove}
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-      ) : uploading ? (
-        <div className="space-y-1">
-          <Progress value={uploadProgress} className="h-2" />
-          <p className="text-xs text-muted-foreground">Uploading video...</p>
+            <Video className="h-3 w-3" />
+            Clip
+          </button>
+          {!disabled && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+              onClick={handleRemoveVideo}
+              disabled={uploading}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          )}
         </div>
       ) : (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="w-full h-8 text-xs"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Upload className="h-3 w-3 mr-1" />
-          Add Video Clip
-        </Button>
+        <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              disabled={disabled || uploading}
+            >
+              {uploading ? (
+                <span className="flex items-center gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span className="text-[10px]">{status}</span>
+                </span>
+              ) : (
+                <>
+                  <Upload className="h-3 w-3 mr-1" />
+                  Clip
+                </>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-40 p-1" align="start">
+            <button
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs rounded hover:bg-accent transition-colors text-left"
+              onClick={() => {
+                setMenuOpen(false);
+                fileInputRef.current?.click();
+              }}
+            >
+              <Upload className="h-3 w-3" />
+              Upload
+            </button>
+            <button
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs rounded hover:bg-accent transition-colors text-left"
+              onClick={() => {
+                setMenuOpen(false);
+                fetchLinkedClips();
+                setShowClipPicker(true);
+              }}
+            >
+              <Film className="h-3 w-3" />
+              Clip
+            </button>
+          </PopoverContent>
+        </Popover>
       )}
     </div>
+
+    {/* Video Preview Dialog */}
+    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+      <DialogContent className="max-w-4xl w-full p-2">
+        <video
+          src={currentVideoUrl || ''}
+          controls
+          autoPlay
+          muted
+          className="w-full rounded-lg"
+        />
+      </DialogContent>
+    </Dialog>
+
+    {/* Linked Clips Picker Dialog */}
+    <Dialog open={showClipPicker} onOpenChange={setShowClipPicker}>
+      <DialogContent className="max-w-2xl w-full">
+        <DialogHeader>
+          <DialogTitle>Select from Linked Clips</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+          {loadingClips ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : linkedClips.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Film className="h-10 w-10 mx-auto mb-3 opacity-30" />
+              <p className="text-sm">No linked clips available.</p>
+              <p className="text-xs mt-1">Link clips from Video Analysis first using "Link Clips" on the export dialog.</p>
+            </div>
+          ) : (
+            linkedClips.map(clip => (
+              <button
+                key={clip.id}
+                onClick={() => handleSelectLinkedClip(clip)}
+                className="w-full flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/30 transition-colors text-left"
+              >
+                <Play className="h-4 w-4 text-primary shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate">{clip.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {fmtTime(clip.start)} → {fmtTime(clip.end)}
+                    {clip.action_type && <span className="ml-2 capitalize">{clip.action_type}</span>}
+                    <span className="ml-2 opacity-60">from {clip.video_title}</span>
+                  </p>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
