@@ -4,11 +4,14 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { METRIC_CATEGORIES } from "./ComparisonPlayerData";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
-import { Sparkles, Plus, Loader2 } from "lucide-react";
+import { Sparkles, Plus, Loader2, ArrowUpToLine } from "lucide-react";
 
+// Mapping from fixture stat keys to match statistics (unified stats) keys
 export const FIXTURE_TO_UNIFIED_MAP: Record<string, { key: string; type: 'count' | 'score' }> = {
   goals_per90: { key: 'goals', type: 'count' },
   assists_per90: { key: 'assists', type: 'count' },
@@ -32,6 +35,7 @@ export const FIXTURE_TO_UNIFIED_MAP: Record<string, { key: string; type: 'count'
   xa_per90: { key: 'xa', type: 'score' },
 };
 
+// Reverse mapping: unified stat key → fixture stat key
 export const UNIFIED_TO_FIXTURE_MAP: Record<string, string> = Object.fromEntries(
   Object.entries(FIXTURE_TO_UNIFIED_MAP).map(([fKey, { key }]) => [key, fKey])
 );
@@ -56,9 +60,10 @@ interface FixtureStatsEditorProps {
   onStatsChange: (stats: Record<string, number>) => void;
   actions?: PerformanceActionForAI[];
   previousFixtureStats?: Record<string, number>;
+  onAddToMatchStats?: (fixtureKey: string, label: string, value: number) => void;
 }
 
-export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previousFixtureStats }: FixtureStatsEditorProps) => {
+export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previousFixtureStats, onAddToMatchStats }: FixtureStatsEditorProps) => {
   const [activeCategory, setActiveCategory] = useState("Shooting");
   const [aiSuggestions, setAiSuggestions] = useState<Record<string, AISuggestion>>({});
   const [aiLoading, setAiLoading] = useState(false);
@@ -95,7 +100,7 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
         cat.metrics.map(m => ({ key: m.key, label: m.label }))
       );
 
-      const { data, error } = await supabase.functions.invoke('suggest-fixture-stats', {
+      const { data, error } = await invokeEdgeFunction('suggest-fixture-stats', {
         body: {
           actions: actions.map(a => ({
             action_number: a.action_number,
@@ -154,7 +159,23 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
                 const suggestion = aiSuggestions[m.key];
                 return (
                   <div key={m.key}>
-                    <Label className="text-xs text-muted-foreground">{m.label}</Label>
+                    <div className="flex items-center gap-1">
+                      <Label className="text-xs text-muted-foreground">{m.label}</Label>
+                      {onAddToMatchStats && fixtureStats[m.key] != null && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={() => onAddToMatchStats(m.key, m.label, fixtureStats[m.key])}
+                              className="p-0.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-primary"
+                            >
+                              <ArrowUpToLine className="w-3 h-3" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">Add to Match Statistics</TooltipContent>
+                        </Tooltip>
+                      )}
+                    </div>
                     <Input type="number" step="0.01" value={fixtureStats[m.key] ?? ''} onChange={(e) => handleChange(m.key, e.target.value)} className="h-8 text-sm" placeholder="-" />
                     {suggestion && (
                       <Popover>
