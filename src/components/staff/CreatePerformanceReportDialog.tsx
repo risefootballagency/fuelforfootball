@@ -573,11 +573,14 @@ export const CreatePerformanceReportDialog = ({
         
         if (!statsError && stats) {
           setAvailableStats(stats);
-          // Auto-select position-specific stats (excluding per90 stats and hidden stats)
-          const nonPer90Keys = stats
-            .filter(s => !s.stat_key.endsWith('_per90') && !hiddenKeys.includes(s.stat_key))
-            .map(s => s.stat_key);
-          setSelectedStatKeys(nonPer90Keys);
+          // Only auto-select position stats in CREATE mode, not edit mode
+          // In edit mode, selectedStatKeys will be set by fetchExistingData
+          if (!analysisId) {
+            const nonPer90Keys = stats
+              .filter(s => !s.stat_key.endsWith('_per90') && !hiddenKeys.includes(s.stat_key))
+              .map(s => s.stat_key);
+            setSelectedStatKeys(nonPer90Keys);
+          }
         }
       }
     } catch (error: any) {
@@ -605,6 +608,16 @@ export const CreatePerformanceReportDialog = ({
 
         if (fError) throw fError;
         setFixtures(fixturesData || []);
+      } else {
+        // No linked fixtures - fetch all recent fixtures for scouted players
+        const { data: allFixtures, error: allError } = await supabase
+          .from("fixtures")
+          .select("*")
+          .order("match_date", { ascending: false })
+          .limit(100);
+
+        if (allError) throw allError;
+        setFixtures(allFixtures || []);
       }
     } catch (error: any) {
       console.error("Error fetching fixtures:", error);
@@ -1264,6 +1277,9 @@ export const CreatePerformanceReportDialog = ({
             }
           });
         }
+        
+        // Store the map for use when inserting
+        (window as any).__preservedVideoUrls = existingVideoUrls;
 
         // Delete existing actions
         const { error: deleteError } = await supabase
@@ -1311,6 +1327,9 @@ export const CreatePerformanceReportDialog = ({
       }
 
       // Insert performance actions
+      // Retrieve preserved video URLs if in edit mode
+      const preservedVideoUrls = (window as any).__preservedVideoUrls as Map<number, string | null> | undefined;
+      
       const actionsToInsert = actions
         .filter(a => a.action_number && (a.minute || a.action_score || a.action_type || a.action_description || a.notes || a.video_url))
         .map(a => ({
@@ -1321,20 +1340,76 @@ export const CreatePerformanceReportDialog = ({
           action_type: a.action_type ? canonicalActionType(a.action_type) : null,
           action_description: a.action_description?.trim() || null,
           notes: a.notes?.trim() || null,
-          // Preserve video_url: use the one from the action state only
-          video_url: a.video_url || null,
+          // Preserve video_url: use the one from the action state, or fall back to preserved from DB
+          video_url: a.video_url || preservedVideoUrls?.get(a.action_number) || null,
           recorded_stat: (a.recorded_stat || null) as any,
         }));
+      
+      // Clean up the temporary storage
+      delete (window as any).__preservedVideoUrls;
 
       if (actionsToInsert.length > 0) {
-        const { error: actionsError } = await supabase
+        const { data: insertedActions, error: actionsError } = await supabase
           .from("performance_report_actions")
-          .insert(actionsToInsert);
+          .insert(actionsToInsert)
+          .select('id, action_number');
 
         if (actionsError) throw actionsError;
+        
+        // Update local actions with real database IDs so video uploads work immediately
+        if (insertedActions) {
+          const idMap = new Map(insertedActions.map(a => [a.action_number, a.id]));
+          setActions(prevActions => 
+            prevActions.map(action => ({
+              ...action,
+              id: idMap.get(action.action_number) || action.id
+            }))
+          );
+        }
       }
 
       toast.success(`Performance report ${analysisId ? 'updated' : 'created'} successfully`);
+      // Refresh action type + description cache so newly entered types/descriptions are available
+      fetchActionTypes();
+
+      // Check for performance improvements and notify staff (non-blocking)
+      try {
+        const { data: recentReports } = await supabase
+          .from("player_analysis")
+          .select("r90_score, fixture_stats, opponent, analysis_date")
+          .eq("player_id", playerId)
+          .order("analysis_date", { ascending: false })
+          .limit(3);
+
+        if (recentReports && recentReports.length >= 2) {
+          const current = recentReports[0];
+          const previous = recentReports[1];
+          const improvements: string[] = [];
+
+          if (current.r90_score && previous.r90_score && current.r90_score > previous.r90_score) {
+            const pctChange = ((current.r90_score - previous.r90_score) / Math.abs(previous.r90_score || 1) * 100).toFixed(0);
+            improvements.push(`R90: ${previous.r90_score.toFixed(2)} → ${current.r90_score.toFixed(2)} (+${pctChange}%)`);
+          }
+
+          if (improvements.length > 0) {
+            await supabase.from('staff_notification_events').insert({
+              event_type: 'performance_improvement',
+              title: `📈 ${playerName} Performance Improvement`,
+              body: `${playerName} showed improvement vs ${opponent}:\n${improvements.join('\n')}`,
+              event_data: {
+                player_id: playerId,
+                player_name: playerName,
+                opponent,
+                improvements,
+                r90_score: calculatedR90,
+                analysis_id: analysisIdToUse,
+              },
+            }).throwOnError();
+          }
+        }
+      } catch (notifErr) {
+        console.warn("Non-blocking: performance notification failed:", notifErr);
+      }
       
       // Only close dialog and call onSuccess in create mode
       // In edit mode, keep dialog open for continued editing
@@ -1376,12 +1451,25 @@ export const CreatePerformanceReportDialog = ({
                 <SelectValue placeholder="Choose a fixture" />
               </SelectTrigger>
               <SelectContent>
-                {fixtures.map((fixture) => (
-                  <SelectItem key={fixture.id} value={fixture.id}>
-                    {new Date(fixture.match_date).toLocaleDateString('en-GB')} - {fixture.home_team} vs {fixture.away_team}
-                    {fixture.competition && ` (${fixture.competition})`}
-                  </SelectItem>
-                ))}
+                {fixtures.length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground text-center">
+                    No fixtures found. Add fixtures in the Fixtures tab.
+                  </div>
+                ) : (
+                  fixtures.map((fixture) => {
+                    const homeIsFor = fixture.home_team.toLowerCase() === "for" || fixture.home_team.toLowerCase().startsWith("for ");
+                    const awayIsFor = fixture.away_team.toLowerCase() === "for" || fixture.away_team.toLowerCase().startsWith("for ");
+                    const hasForPlaceholder = homeIsFor || awayIsFor;
+                    const displayOpponent = homeIsFor ? fixture.away_team : awayIsFor ? fixture.home_team : null;
+                    
+                    return (
+                      <SelectItem key={fixture.id} value={fixture.id}>
+                        {new Date(fixture.match_date).toLocaleDateString('en-GB')} - {hasForPlaceholder ? `vs ${displayOpponent}` : `${fixture.home_team} vs ${fixture.away_team}`}
+                        {fixture.competition && ` (${fixture.competition})`}
+                      </SelectItem>
+                    );
+                  })
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -2014,15 +2102,58 @@ export const CreatePerformanceReportDialog = ({
                         />
                       </td>
                       <td className="p-2">
-                        <Input
-                          list="action-types-list"
-                          value={action.action_type}
-                          onChange={(e) => updateAction(index, "action_type", e.target.value)}
-                          placeholder="Select or type"
-                          className="w-40 text-sm"
-                        />
+                        <div className="relative">
+                          <Input
+                            value={action.action_type}
+                            onChange={(e) => {
+                              updateAction(index, "action_type", e.target.value);
+                              setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: true }));
+                            }}
+                            onFocus={() => setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: true }))}
+                            onBlur={() => {
+                              setTimeout(() => setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: false })), 200);
+                              if (action.action_type) updateAction(index, "action_type", canonicalActionType(action.action_type));
+                            }}
+                            placeholder="Type or select"
+                            className="w-40 text-sm h-9 pr-7"
+                          />
+                          {action.action_type && (
+                            <button
+                              type="button"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                updateAction(index, "action_type", "");
+                              }}
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          )}
+                          {actionTypePopoverOpen[1000 + index] && (
+                            <div className="absolute z-50 mt-1 w-64 max-h-48 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
+                              {actionTypes
+                                .filter(type => !action.action_type || type.toLowerCase().includes(action.action_type.toLowerCase()))
+                                .slice(0, 15)
+                                .map((type) => (
+                                  <button
+                                    key={type}
+                                    type="button"
+                                    className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-accent flex justify-between items-center"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      updateAction(index, "action_type", type);
+                                      setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: false }));
+                                    }}
+                                  >
+                                    <span>{type}</span>
+                                    <span className="text-xs text-muted-foreground">{actionTypeFrequencyMap[type] || 0}</span>
+                                  </button>
+                                ))}
+                            </div>
+                          )}
+                        </div>
                       </td>
-                      <td className="p-2">
+                      <td className="p-2 relative">
                         <Textarea
                           value={action.action_description}
                           onChange={(e) => updateAction(index, "action_description", e.target.value)}
@@ -2030,6 +2161,39 @@ export const CreatePerformanceReportDialog = ({
                           className="min-w-[180px] min-h-[40px] text-sm"
                           rows={1}
                         />
+                        {action.action_type && getDescriptionsForType(action.action_type).length > 0 && (
+                          <Popover open={descriptionPopoverOpen[1000 + index] || false} onOpenChange={(open) => setDescriptionPopoverOpen(prev => ({ ...prev, [1000 + index]: open }))}>
+                            <PopoverTrigger asChild>
+                              <Button variant="ghost" size="sm" className="mt-0.5 h-5 text-[9px] text-muted-foreground w-full justify-between px-1">
+                                <span>Suggestions</span>
+                                <ChevronDown className="h-3 w-3" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 p-0" align="start">
+                              <Command>
+                                <CommandInput placeholder="Filter descriptions..." />
+                                <CommandList>
+                                  <CommandEmpty>No matching descriptions</CommandEmpty>
+                                  <CommandGroup>
+                                    {getDescriptionsForType(action.action_type).map((desc, di) => (
+                                      <CommandItem
+                                        key={di}
+                                        value={desc}
+                                        onSelect={() => {
+                                          updateAction(index, "action_description", desc);
+                                          setDescriptionPopoverOpen(prev => ({ ...prev, [1000 + index]: false }));
+                                        }}
+                                        className="text-xs"
+                                      >
+                                        {desc}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        )}
                       </td>
                       <td className="p-2">
                         <Textarea
