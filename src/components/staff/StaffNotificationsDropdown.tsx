@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, Check, CheckCheck, ChevronDown, ChevronRight, Users, FileText, Film, ListMusic, Calendar, CheckSquare, Target, LogIn, BarChart3, Search, Send, Building2 } from "lucide-react";
+import { Bell, Check, CheckCheck, ChevronDown, ChevronRight, Users, FileText, Film, ListMusic, Calendar, CheckSquare, Target, LogIn, BarChart3, Search, Send, Building2, TrendingUp, PenLine, GitCompare, Cake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,7 +36,7 @@ interface CategoryGroup {
   unreadCount: number;
 }
 
-// Category configuration
+// Category configuration - synced with RISE
 const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }> = {
   visitor: { label: "Site Visitors", icon: Users },
   form_submission: { label: "Form Submissions", icon: FileText },
@@ -47,11 +47,15 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   task_completed: { label: "Tasks Completed", icon: CheckSquare },
   goal_added: { label: "Goals Added", icon: Target },
   portal_login: { label: "Portal Logins", icon: LogIn },
+  portal_view: { label: "Portal Views", icon: BarChart3 },
   portal_performance_view: { label: "Performance Views", icon: BarChart3 },
   portal_analysis_view: { label: "Analysis Views", icon: Search },
   portal_transfer_submission: { label: "Transfer Submissions", icon: Send },
   portal_club_submission: { label: "Club Suggestions", icon: Building2 },
-  comparison_request: { label: "Comparison Requests", icon: Users },
+  performance_improvement: { label: "Performance Improvements", icon: TrendingUp },
+  contract_signed: { label: "Contracts Signed", icon: PenLine },
+  comparison_request: { label: "Comparison Requests", icon: GitCompare },
+  player_birthday: { label: "Player Birthdays", icon: Cake },
 };
 
 export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdownProps) => {
@@ -62,7 +66,6 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
 
   const fetchNotifications = async () => {
     try {
-      // Fetch last 7 days of notifications
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -84,7 +87,6 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
   useEffect(() => {
     fetchNotifications();
 
-    // Subscribe to new notifications
     const channel = supabase
       .channel("staff_notifications_dropdown")
       .on(
@@ -133,7 +135,6 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
       }
     });
 
-    // Sort by unread count (most unread first), then by total count
     return Array.from(groups.values()).sort((a, b) => {
       if (b.unreadCount !== a.unreadCount) return b.unreadCount - a.unreadCount;
       return b.notifications.length - a.notifications.length;
@@ -207,11 +208,15 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
       case "task_completed": return "Task Completed";
       case "goal_added": return "New Goal Added";
       case "portal_login": return "Player Portal Login";
+      case "portal_view": return "Portal View";
       case "portal_performance_view": return "Performance Report Viewed";
       case "portal_analysis_view": return "Analysis Viewed";
       case "portal_transfer_submission": return "Transfer Hub Submission";
       case "portal_club_submission": return "Club Suggestion Submitted";
+      case "performance_improvement": return "Performance Improvement";
+      case "contract_signed": return "Contract Signed";
       case "comparison_request": return "Comparison Player Request";
+      case "player_birthday": return "Player Birthday";
       default: return "Notification";
     }
   };
@@ -248,6 +253,8 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
         return data?.title ? `${data.title}` : "A new goal was set";
       case "portal_login":
         return data?.player_name ? `${data.player_name} logged in` : "A player logged into their portal";
+      case "portal_view":
+        return data?.player_name ? `${data.player_name} viewed portal` : "Player viewed portal";
       case "portal_performance_view":
         return data?.player_name ? `${data.player_name} viewed their reports` : "Player viewed performance reports";
       case "portal_analysis_view":
@@ -256,8 +263,17 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
         return data?.player_name ? `${data.player_name} made a submission` : "New transfer hub submission";
       case "portal_club_submission":
         return data?.player_name ? `${data.player_name} suggested a club` : "New club suggestion submitted";
+      case "performance_improvement": {
+        const improvements = data?.improvements || [];
+        const playerName = data?.player_name || "Player";
+        return improvements.length > 0 ? `${playerName}: ${improvements[0]}` : `${playerName} showed improvement`;
+      }
+      case "contract_signed":
+        return data?.player_name ? `${data.player_name} signed a contract` : "New contract signed";
       case "comparison_request":
         return data?.player_name ? `${data.player_name} requested: ${data.requested_name || 'a player'}` : "New comparison player request";
+      case "player_birthday":
+        return data?.player_name ? `${data.player_name}'s birthday today` : "Player birthday today";
       default:
         return notification.body || "";
     }
