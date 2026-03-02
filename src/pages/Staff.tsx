@@ -153,6 +153,7 @@ const Staff = () => {
     try { return JSON.parse(localStorage.getItem('staff_open_tabs') || '[]'); } catch { return []; }
   });
   const [tabOverflowOpen, setTabOverflowOpen] = useState(false);
+  const [newTabPickerOpen, setNewTabPickerOpen] = useState(false);
   const [draggingTabId, setDraggingTabId] = useState<string | null>(null);
   const [dragOverTabId, setDragOverTabId] = useState<string | null>(null);
   const dragStartXRef = useRef<number>(0);
@@ -865,16 +866,14 @@ const Staff = () => {
               </Dialog>
             )}
 
-            {/* Add tab button */}
-            {expandedSection && (
-              <button
-                onClick={addSectionAsTab}
-                className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
-                title="Add current section as tab"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            )}
+            {/* Add tab button - opens section picker */}
+            <button
+              onClick={() => setNewTabPickerOpen(true)}
+              className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+              title="Open new section"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {/* Centre: Logo */}
@@ -971,6 +970,28 @@ const Staff = () => {
 
       {/* Keyboard Shortcuts Dialog */}
       <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+
+      {/* New Tab Picker Dialog */}
+      <Dialog open={newTabPickerOpen} onOpenChange={setNewTabPickerOpen}>
+        <DialogContent className="sm:max-w-4xl max-h-[85vh] p-0 overflow-hidden">
+          <DialogHeader className="sr-only"><DialogTitle>Open Section</DialogTitle></DialogHeader>
+          <SectionGridPicker
+            categories={categories}
+            onSelect={(sectionId, categoryId) => {
+              handleSectionToggle(sectionId);
+              setExpandedCategory(categoryId);
+              if (!openTabs.some(t => t.id === sectionId)) {
+                const section = categories.flatMap(c => c.sections).find(s => s.id === sectionId && !(s as any).isGroupLabel);
+                if (section) {
+                  const iconName = Object.entries(ICON_MAP).find(([, v]) => v === section.icon)?.[0] || 'FileText';
+                  setOpenTabs(prev => [...prev.slice(0, MAX_STORED_TABS - 1), { id: section.id, title: section.title, icon: iconName }]);
+                }
+              }
+              setNewTabPickerOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Sidebar Collapse Toggle */}
       <button
