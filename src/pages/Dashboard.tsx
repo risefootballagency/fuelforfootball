@@ -2228,7 +2228,7 @@ const Dashboard = () => {
                                       setSelectedReportAnalysisId(analysis.id);
                                       setPerformanceReportDialogOpen(true);
                                     }}
-                                    className={`${getR90Color(analysis.r90_score)} text-white px-3 py-1.5 rounded text-sm font-bold hover:opacity-80 transition-opacity cursor-pointer`}
+                                    className={`${getR90Color(analysis.r90_score)} text-white px-3 py-1.5 rounded text-sm font-bold hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer`}
                                   >
                                     R90: {analysis.r90_score.toFixed(2)}
                                   </button>
