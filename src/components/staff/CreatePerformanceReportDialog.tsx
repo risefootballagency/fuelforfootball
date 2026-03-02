@@ -716,31 +716,151 @@ export const CreatePerformanceReportDialog = ({
         });
         
         // Populate additional stats (any keys not in legacy striker stats)
+        // Only truly legacy stats that are NOT in the performance_statistics table
+        // xG_adj, xA_adj, etc. are now in performance_statistics and should load via additionalStats
         const legacyKeys = new Set([
-          'xGChain', 'xGChain_per90', 'xG_adj', 'xG_adj_per90', 'xA_adj', 'xA_adj_per90',
-          'movement_in_behind_xC', 'movement_in_behind_xC_per90', 'movement_down_side_xC', 
-          'movement_down_side_xC_per90', 'triple_threat_xC', 'triple_threat_xC_per90',
-          'movement_to_feet_xC', 'movement_to_feet_xC_per90', 'crossing_movement_xC',
-          'crossing_movement_xC_per90', 'interceptions', 'interceptions_per90',
-          'regains_adj', 'regains_adj_per90', 'turnovers_adj', 'turnovers_adj_per90',
+          'xGChain', 'xGChain_per90',
+          'movement_in_behind_xC', 'movement_in_behind_xC_per90', 
+          'movement_down_side_xC', 'movement_down_side_xC_per90', 
+          'triple_threat_xC', 'triple_threat_xC_per90',
+          'movement_to_feet_xC', 'movement_to_feet_xC_per90', 
+          'crossing_movement_xC', 'crossing_movement_xC_per90',
+          'interceptions', 'interceptions_per90',
+          'regains_adj', 'regains_adj_per90', 
+          'turnovers_adj', 'turnovers_adj_per90',
           'progressive_passes_adj', 'progressive_passes_adj_per90'
         ]);
         
         const newStats: Record<string, string> = {};
-        const statsKeys: string[] = [];
+        // Use stats_order if available for proper ordering
+        const savedStatsOrder = stats.stats_order as string[] | undefined;
+        let statsKeys: string[] = [];
+        
         Object.entries(stats).forEach(([key, value]) => {
-          if (!legacyKeys.has(key) && value != null) {
+          if (!legacyKeys.has(key) && key !== 'stats_order' && value != null) {
             newStats[key] = value.toString();
             // Only add non-per90 keys to selectedStatKeys (per90 will be auto-calculated)
-            if (!key.endsWith('_per90')) {
+            if (!key.endsWith('_per90') && !savedStatsOrder) {
               statsKeys.push(key);
             }
           }
         });
         
+        // Use saved order if available
+        if (savedStatsOrder && savedStatsOrder.length > 0) {
+          statsKeys = savedStatsOrder;
+        }
+        
         if (Object.keys(newStats).length > 0) {
           setAdditionalStats(newStats);
           setSelectedStatKeys(statsKeys);
+        }
+        
+        // Load unified stats from saved striker_stats
+        const minutes = analysisData.minutes_played || 0;
+        const loadedUnifiedStats: UnifiedStat[] = [];
+        
+        // Helper to find config by key (case-insensitive with fallbacks)
+        const findStatConfigLocal = (key: string): StatTypeConfig | undefined => {
+          let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
+          if (config) return config;
+          const keyLower = key.toLowerCase();
+          config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
+          if (config) return config;
+          const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => 
+            c.key.toLowerCase().replace(/[^a-z0-9]/g, '_') === normalizedKey
+          );
+          return config;
+        };
+        
+        // Look for paired stats (successful/total) and single stats
+        const processedKeys = new Set<string>();
+        const pairedStats = new Map<string, { successful?: number; total?: number }>();
+        
+        Object.keys(stats).forEach(key => {
+          if (key === 'stats_order' || legacyKeys.has(key)) return;
+          if (key.endsWith('_successful')) {
+            const baseKey = key.replace('_successful', '');
+            if (!pairedStats.has(baseKey)) pairedStats.set(baseKey, {});
+            pairedStats.get(baseKey)!.successful = stats[key];
+          } else if (key.endsWith('_total')) {
+            const baseKey = key.replace('_total', '');
+            if (!pairedStats.has(baseKey)) pairedStats.set(baseKey, {});
+            pairedStats.get(baseKey)!.total = stats[key];
+          }
+        });
+        
+        // Add paired stats as success_fail type
+        pairedStats.forEach((values, baseKey) => {
+          processedKeys.add(baseKey);
+          processedKeys.add(`${baseKey}_successful`);
+          processedKeys.add(`${baseKey}_total`);
+          
+          const config = findStatConfigLocal(baseKey);
+          const displayName = config?.name || baseKey
+            .split('_')
+            .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+          
+          loadedUnifiedStats.push({
+            key: config?.key || baseKey,
+            displayName,
+            type: 'success_fail',
+            successful: values.successful ?? 0,
+            total: values.total ?? 0,
+            isFromActions: false,
+          });
+        });
+        
+        // Add remaining single stats
+        Object.keys(stats).forEach(key => {
+          if (processedKeys.has(key) || legacyKeys.has(key) || key === 'stats_order') return;
+          if (key.endsWith('_per90') || key.endsWith('_successful') || key.endsWith('_total')) return;
+          
+          const value = stats[key];
+          if (typeof value !== 'number') return;
+          
+          const config = findStatConfigLocal(key);
+          const displayName = config?.name || key
+            .split('_')
+            .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ');
+          
+          const keyLower = key.toLowerCase();
+          let statType: 'score' | 'count' = 'count';
+          
+          if (config) {
+            statType = config.mode === 'score' ? 'score' : 'count';
+          } else {
+            const isScoreType = ['xg', 'xa', 'xc', 'xgchain', 'ratio'].some(p => keyLower.includes(p));
+            statType = isScoreType ? 'score' : 'count';
+          }
+          
+          const statKey = config?.key || key;
+          
+          if (statType === 'score') {
+            loadedUnifiedStats.push({
+              key: statKey,
+              displayName,
+              type: 'score',
+              score: value,
+              per90: minutes > 0 ? ((value / minutes) * 90).toFixed(3) : undefined,
+              isFromActions: false,
+            });
+          } else {
+            loadedUnifiedStats.push({
+              key: statKey,
+              displayName,
+              type: 'count',
+              count: value,
+              isFromActions: false,
+            });
+          }
+        });
+        
+        if (loadedUnifiedStats.length > 0) {
+          setUnifiedStats(loadedUnifiedStats);
         }
         
         setShowStrikerStats(true);
