@@ -760,16 +760,27 @@ const Dashboard = () => {
     };
   }, [navigate]);
 
-  // Track portal tab views for staff notifications
+  // Track portal tab views for staff notifications (split by type like RISE)
   useEffect(() => {
-    if (!playerData?.name) return;
-    const tabLabel = activeTab === "analysis" ? `Analysis > ${activeAnalysisTab}` : activeTab;
+    if (!playerData?.name || !playerData?.id) return;
+
+    const isAnalysisTab = activeTab === "analysis";
+    const eventType = isAnalysisTab ? "portal_analysis_view" : "portal_performance_view";
+    const subTab = isAnalysisTab ? activeAnalysisTab : activeTab;
+    const tabLabel = isAnalysisTab ? `Analysis > ${activeAnalysisTab}` : activeTab;
+
     insertStaffNotification({
-      eventType: "portal_view",
+      eventType,
       title: `${playerData.name} viewed ${tabLabel}`,
       body: `Portal tab: ${tabLabel}`,
+      eventData: {
+        player_id: playerData.id,
+        player_name: playerData.name,
+        sub_tab: subTab,
+      },
+      dedupeKey: playerData.id,
     });
-  }, [activeTab, activeAnalysisTab, playerData?.name]);
+  }, [activeTab, activeAnalysisTab, playerData?.name, playerData?.id]);
 
   const checkAuth = async () => {
     try {

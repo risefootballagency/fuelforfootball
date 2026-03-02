@@ -187,6 +187,16 @@ export const GoalsTasksManagement = () => {
 
         if (error) throw error;
         toast.success("Goal added!");
+
+        // Fire staff notification for new goal
+        import("@/lib/staffNotifications").then(({ insertStaffNotification }) => {
+          insertStaffNotification({
+            eventType: "goal_added",
+            title: "New Goal Added",
+            body: goalData.title,
+            eventData: { goal_title: goalData.title },
+          });
+        });
       }
 
       setGoalForm({
@@ -230,10 +240,11 @@ export const GoalsTasksManagement = () => {
     if (!newTaskTitle.trim()) return;
 
     try {
+      const taskTitle = newTaskTitle;
       const { error } = await supabase
         .from("staff_tasks")
         .insert({
-          title: newTaskTitle,
+          title: taskTitle,
           display_order: tasks.length,
           assigned_to: newTaskAssignees,
         });
@@ -243,6 +254,16 @@ export const GoalsTasksManagement = () => {
       setNewTaskAssignees([]);
       toast.success("Task added!");
       fetchTasks();
+
+      // Fire staff notification for task assignment
+      import("@/lib/staffNotifications").then(({ insertStaffNotification }) => {
+        insertStaffNotification({
+          eventType: "task_assigned",
+          title: "New Task Assigned",
+          body: taskTitle,
+          eventData: { task_title: taskTitle },
+        });
+      });
     } catch (error: any) {
       console.error("Error adding task:", error);
       toast.error("Failed to add task");
@@ -251,13 +272,26 @@ export const GoalsTasksManagement = () => {
 
   const handleToggleTask = async (task: Task) => {
     try {
+      const nowCompleted = !task.completed;
       const { error } = await supabase
         .from("staff_tasks")
-        .update({ completed: !task.completed })
+        .update({ completed: nowCompleted })
         .eq("id", task.id);
 
       if (error) throw error;
       fetchTasks();
+
+      // Fire staff notification when task is marked complete
+      if (nowCompleted) {
+        import("@/lib/staffNotifications").then(({ insertStaffNotification }) => {
+          insertStaffNotification({
+            eventType: "task_completed",
+            title: "Task Completed",
+            body: task.title,
+            eventData: { task_title: task.title },
+          });
+        });
+      }
     } catch (error: any) {
       console.error("Error toggling task:", error);
       toast.error("Failed to update task");
