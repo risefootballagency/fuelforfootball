@@ -23,14 +23,15 @@ import { ActionVideoUpload } from "./ActionVideoUpload";
 import { ActionStatRecorder, RecordedStat } from "./ActionStatRecorder";
 
 interface CreatePerformanceReportDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   playerId: string;
   playerName: string;
   onSuccess?: () => void;
   analysisId?: string; // For edit mode
   inline?: boolean; // When true, renders as full-page editor instead of dialog
   onBack?: () => void; // Called when back button clicked in inline mode
+  onClose?: () => void; // Called when closing in inline mode
 }
 
 interface Fixture {
@@ -93,7 +94,7 @@ const SortableStatItem = ({ id, children }: SortableStatItemProps) => {
 };
 
 export const CreatePerformanceReportDialog = ({
-  open,
+  open = true,
   onOpenChange,
   playerId,
   playerName,
@@ -101,6 +102,7 @@ export const CreatePerformanceReportDialog = ({
   analysisId,
   inline = false,
   onBack,
+  onClose,
 }: CreatePerformanceReportDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);

@@ -79,7 +79,7 @@ export const AddPlayerDialog = ({
                     <Label htmlFor="email" className="text-sm">Email</Label>
                     <Input
                       id="email"
-                      type="email"
+                      type="text"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="h-10 sm:h-11"

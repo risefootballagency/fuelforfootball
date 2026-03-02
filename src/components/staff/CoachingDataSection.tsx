@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { ActionReportsList } from "@/components/staff/analysis/ActionReportsList";
 import { AnalysisDataTab } from "@/components/portal/AnalysisDataTab";
 import { AnalysisComparisons } from "@/components/portal/AnalysisComparisons";
 import { CreatePerformanceReportDialog } from "@/components/staff/CreatePerformanceReportDialog";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { ClipboardList, BarChart3, Database } from "lucide-react";
+import { ClipboardList, BarChart3, Database, RefreshCw } from "lucide-react";
 import { sortPlayersByRepresentation } from "@/lib/playerSorting";
+import { toast } from "sonner";
 
 interface PlayerAnalysis {
   id: string;
@@ -20,17 +22,18 @@ interface PlayerAnalysis {
   fixture_stats?: any;
 }
 
+interface InlineReportState {
+  playerId: string;
+  playerName: string;
+  analysisId?: string;
+}
+
 export const CoachingDataSection = () => {
   const [activeTab, setActiveTab] = useState("reports");
   const [selectedPlayer, setSelectedPlayer] = useState<string>("all");
   const [players, setPlayers] = useState<{ id: string; name: string; position: string; image_url: string | null; representation_status?: string | null }[]>([]);
   const [analyses, setAnalyses] = useState<PlayerAnalysis[]>([]);
-
-  // Inline report editing state (matches RISE)
-  const [inlineEditPlayerId, setInlineEditPlayerId] = useState("");
-  const [inlineEditPlayerName, setInlineEditPlayerName] = useState("");
-  const [inlineEditAnalysisId, setInlineEditAnalysisId] = useState<string | undefined>(undefined);
-  const [showInlineEditor, setShowInlineEditor] = useState(false);
+  const [inlineReport, setInlineReport] = useState<InlineReportState | null>(null);
   const [reportsKey, setReportsKey] = useState(0);
 
   useEffect(() => {
@@ -60,19 +63,14 @@ export const CoachingDataSection = () => {
     setAnalyses(data || []);
   };
 
-  const handleCreateReport = (playerId: string, playerName: string) => {
-    setInlineEditPlayerId(playerId);
-    setInlineEditPlayerName(playerName);
-    setInlineEditAnalysisId(undefined);
-    setShowInlineEditor(true);
-  };
-
-  const handleEditReport = (playerId: string, playerName: string, analysisId: string) => {
-    setInlineEditPlayerId(playerId);
-    setInlineEditPlayerName(playerName);
-    setInlineEditAnalysisId(analysisId);
-    setShowInlineEditor(true);
-  };
+  const handleRefresh = useCallback(async () => {
+    await fetchPlayers();
+    if (selectedPlayer && selectedPlayer !== "all") {
+      await fetchPlayerAnalyses(selectedPlayer);
+    }
+    setReportsKey(k => k + 1);
+    toast.success("Data refreshed");
+  }, [selectedPlayer]);
 
   const currentPlayer = players.find(p => p.id === selectedPlayer);
 
@@ -82,29 +80,24 @@ export const CoachingDataSection = () => {
     { value: "comparisons", label: "Comparisons", icon: BarChart3 },
   ];
 
-  // Inline editing mode (matches RISE behaviour)
-  if (showInlineEditor) {
+  // If inline report is open, show it instead of tabs
+  if (inlineReport) {
     return (
-      <div className="space-y-2">
-        <CreatePerformanceReportDialog
-          open={true}
-          onOpenChange={(open) => {
-            if (!open) {
-              setShowInlineEditor(false);
-              setReportsKey(k => k + 1);
-            }
-          }}
-          playerId={inlineEditPlayerId}
-          playerName={inlineEditPlayerName}
-          analysisId={inlineEditAnalysisId}
-        />
-      </div>
+      <CreatePerformanceReportDialog
+        inline
+        playerId={inlineReport.playerId}
+        playerName={inlineReport.playerName}
+        analysisId={inlineReport.analysisId}
+        onClose={() => setInlineReport(null)}
+        onSuccess={() => setInlineReport(null)}
+      />
     );
   }
 
   return (
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* Mobile dropdown */}
         <div className="md:hidden mb-4">
           <Select value={activeTab} onValueChange={setActiveTab}>
             <SelectTrigger className="w-full">
@@ -123,24 +116,43 @@ export const CoachingDataSection = () => {
           </Select>
         </div>
 
-        <TabsList className="hidden md:flex w-full justify-start h-auto p-0 bg-transparent rounded-none gap-1 mb-4">
-          {tabItems.map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground rounded px-3 py-2 text-sm"
-            >
-              <tab.icon className="h-4 w-4 mr-1.5" />
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        {/* Desktop tabs */}
+        <div className="hidden md:flex w-full justify-between items-center mb-4">
+          <TabsList className="flex justify-start h-auto p-0 bg-transparent rounded-none gap-1">
+            {tabItems.map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded px-3 py-2 text-sm"
+              >
+                <tab.icon className="h-4 w-4 mr-1.5" />
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <Button onClick={handleRefresh} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
+
+        {/* Mobile refresh button */}
+        <div className="md:hidden flex justify-end mb-2">
+          <Button onClick={handleRefresh} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
 
         <TabsContent value="reports" className="mt-0">
           <ActionReportsList
             key={reportsKey}
-            onCreateReport={handleCreateReport}
-            onEditReport={handleEditReport}
+            onCreateReport={(playerId, playerName) => {
+              setInlineReport({ playerId, playerName });
+            }}
+            onEditReport={(playerId, playerName, analysisId) => {
+              setInlineReport({ playerId, playerName, analysisId });
+            }}
           />
         </TabsContent>
 
