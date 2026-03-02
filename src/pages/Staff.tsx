@@ -103,6 +103,8 @@ import { KeyboardShortcutsDialog } from "@/components/staff/KeyboardShortcutsDia
 import { SalesDeck } from "@/components/staff/marketing/SalesDeck";
 import { VideoDownloaderSection } from "@/components/staff/VideoDownloaderSection";
 import { VideoCompressor } from "@/components/staff/VideoCompressor";
+import { MobileScrollButtons } from "@/components/staff/MobileScrollButtons";
+import { SectionGridPicker } from "@/components/staff/SectionGridPicker";
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
@@ -1138,7 +1140,7 @@ const Staff = () => {
             })()}
             <Card className="animate-in fade-in slide-in-from-top-4 duration-300">
               <CardContent className="pt-6">
-                {expandedSection === 'overview' && <StaffOverview isAdmin={isAdmin} userId={user?.id} />}
+                {expandedSection === 'overview' && <StaffOverview isAdmin={isAdmin} userId={user?.id} isMarketeer={isMarketeer} />}
                 {expandedSection === 'schedule' && (
                   <div className="space-y-6">
                     <div className="mb-6">
@@ -1290,6 +1292,7 @@ const Staff = () => {
           </div>
         </div>
       </div>
+      <MobileScrollButtons />
     </div>
   );
 };

@@ -36,6 +36,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
 import { Link } from "react-router-dom";
 
 import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade } from "@/lib/gradeCalculations";
+import { useFormGradeConfigs, METRIC_KEY_MAP } from "@/hooks/useFormGradeConfigs";
 import { downloadVideo } from "@/lib/videoDownload";
 import { PlayerPositionalGuides } from "@/components/PlayerPositionalGuides";
 import { ProtectedContracts } from "@/components/player/ProtectedContracts";
@@ -53,6 +54,7 @@ import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparison
 import { RadarChart3D } from "@/components/portal/RadarChart3D";
 import { AllReportsSection } from "@/components/portal/AllReportsSection";
 import { PortalEmptyState } from "@/components/portal/PortalEmptyState";
+import { SectionDivider } from "@/components/portal/SectionDivider";
 
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
@@ -148,6 +150,7 @@ const Dashboard = () => {
   const [isSubheaderVisible, setIsSubheaderVisible] = useState(true);
   const [selectedFormMetric, setSelectedFormMetric] = useState<string>("r90");
   const [schemes, setSchemes] = useState<any[]>([]);
+  const [selectedSchemePosition, setSelectedSchemePosition] = useState<string>('');
   const [selectedTeamScheme, setSelectedTeamScheme] = useState<string>('');
   const [selectedOppositionScheme, setSelectedOppositionScheme] = useState<string>('');
   const [hasNutritionPrograms, setHasNutritionPrograms] = useState(false);
@@ -167,6 +170,9 @@ const Dashboard = () => {
   const [testHistoryOpen, setTestHistoryOpen] = useState(false);
   const [selectedHistoryMonth, setSelectedHistoryMonth] = useState<string>(format(new Date(), 'yyyy-MM'));
   const [savingTestResult, setSavingTestResult] = useState(false);
+
+  // Initialize form grade configs from database
+  const { getGradeBoundaries: getDynamicGradeBoundaries, getGradeForScore, hasThresholds } = useFormGradeConfigs();
 
   const checkNutritionPrograms = async (playerId: string) => {
     try {
@@ -2772,8 +2778,17 @@ const Dashboard = () => {
                           ? Math.ceil(Math.max(...chartData.map(d => d.score)) * 1.1) // 10% padding
                           : 4;
 
-                        // Function to get grade boundaries for reference lines
+                        // Function to get grade boundaries for reference lines - uses dynamic database configs
                         const getGradeBoundaries = () => {
+                          // Get the database metric key for this selected metric
+                          const metricKey = METRIC_KEY_MAP[selectedFormMetric];
+                          
+                          // Try to get dynamic boundaries from database first
+                          if (metricKey && hasThresholds(metricKey)) {
+                            return getDynamicGradeBoundaries(metricKey);
+                          }
+                          
+                          // Fallback to hardcoded values for core metrics that may not be in DB yet
                           switch(selectedFormMetric) {
                             case "r90":
                               return [
@@ -4198,12 +4213,15 @@ const Dashboard = () => {
               <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-0">
                 <CardContent className="container mx-auto px-4 pt-2">
                   <Tabs defaultValue="best" className="w-full" key="highlights-tabs">
-                    <TabsList className="grid w-full grid-cols-2 gap-2 mb-2 bg-muted h-auto p-2">
+                    <TabsList className="grid w-full grid-cols-3 gap-2 mb-2 bg-muted h-auto p-2">
                       <TabsTrigger value="match" className="font-bebas uppercase">
                         Match Highlights
                       </TabsTrigger>
                       <TabsTrigger value="best" className="font-bebas uppercase">
                         Best Clips
+                      </TabsTrigger>
+                      <TabsTrigger value="clipper" className="font-bebas uppercase">
+                        Match Clipper
                       </TabsTrigger>
                     </TabsList>
                         
@@ -4482,6 +4500,23 @@ const Dashboard = () => {
                               </div>
                             </TabsContent>
                           </Tabs>
+                  </TabsContent>
+
+                  <TabsContent value="clipper">
+                    <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
+                      <CardHeader marble>
+                        <div className="container mx-auto px-4">
+                          <CardTitle className="font-heading tracking-tight">Match Clipper</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="container mx-auto px-4">
+                        {playerData?.id && playerData?.email ? (
+                          <PlayerMatchClipper playerId={playerData.id} playerEmail={playerData.email} />
+                        ) : (
+                          <PortalEmptyState icon="highlights" title="Match Clipper" description="Match video clips will appear here once analyses with videos are available." />
+                        )}
+                      </CardContent>
+                    </Card>
                   </TabsContent>
                   </Tabs>
                 </CardContent>
