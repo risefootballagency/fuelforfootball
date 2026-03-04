@@ -15,8 +15,8 @@ export const ProgressSummary = ({ playerId }: ProgressSummaryProps) => {
   useEffect(() => {
     const fetch = async () => {
       const { data: scores } = await sharedSupabase
-        .from("performance_statistics" as any)
-        .select("r90_score, analysis_date")
+        .from("player_analysis")
+        .select("r90_score, analysis_date, visibility_status, placeholder_raw_score, placeholder_minutes")
         .eq("player_id", playerId)
         .not("r90_score", "is", null)
         .order("analysis_date", { ascending: true })
@@ -24,10 +24,13 @@ export const ProgressSummary = ({ playerId }: ProgressSummaryProps) => {
 
       if (!scores || scores.length < 3) return;
 
-      const mapped = (scores as any[]).map((s) => ({
-        score: s.r90_score,
-        date: s.analysis_date,
-      }));
+      const mapped = (scores as any[]).map((s) => {
+        let score = s.r90_score;
+        if (s.visibility_status === "hidden" && s.placeholder_raw_score != null && s.placeholder_minutes) {
+          score = (s.placeholder_raw_score / s.placeholder_minutes) * 90;
+        }
+        return { score, date: s.analysis_date };
+      });
 
       setData(mapped);
 

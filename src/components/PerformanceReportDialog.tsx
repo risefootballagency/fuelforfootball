@@ -455,25 +455,30 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
               <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             </div>
-            <h3 className="text-lg font-semibold">This report is locked</h3>
-            <p className="text-sm text-muted-foreground max-w-xs mx-auto">Your performance report for this match is being finalised. Only summary data is currently available.</p>
-            <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto pt-4">
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground">R90</p>
-                <p className="text-xl font-bold">
-                  {analysis.placeholder_raw_score != null && analysis.placeholder_minutes
-                    ? ((analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90).toFixed(2)
-                    : analysis.r90_score?.toFixed(2) || "—"}
-                </p>
+            {analysis.placeholder_raw_score != null && analysis.placeholder_minutes ? (
+              <div className="grid grid-cols-3 gap-4 max-w-md mx-auto p-4 bg-accent/20 rounded-lg">
+                <div className="text-center p-2">
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
+                  <p className="text-base md:text-2xl font-bold">{analysis.placeholder_raw_score.toFixed(3)}</p>
+                </div>
+                <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4">
+                  <p className="text-[10px] md:text-sm opacity-90 mb-0.5 md:mb-1">R90</p>
+                  <p className="text-lg md:text-3xl font-bold">{((analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90).toFixed(2)}</p>
+                </div>
+                <div className="text-center p-2">
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
+                  <p className="text-base md:text-2xl font-bold">{analysis.placeholder_minutes}</p>
+                </div>
               </div>
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground">Raw Score</p>
-                <p className="text-xl font-bold">{analysis.placeholder_raw_score?.toFixed(2) ?? "—"}</p>
+            ) : analysis.r90_score != null ? (
+              <div className="space-y-2">
+                <p className="text-3xl font-bold">{analysis.r90_score.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">R90 Score</p>
               </div>
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground">Minutes</p>
-                <p className="text-xl font-bold">{analysis.placeholder_minutes ?? analysis.minutes_played ?? "—"}</p>
-              </div>
+            ) : null}
+            <div className="bg-muted/50 rounded-lg p-4 max-w-sm mx-auto">
+              <p className="text-sm font-medium">This report is locked</p>
+              <p className="text-xs text-muted-foreground mt-1">Contact us to unlock the full performance breakdown.</p>
             </div>
           </div>
         ) : (
