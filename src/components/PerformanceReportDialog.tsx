@@ -973,6 +973,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
             </div>
           )}
         </div>
+          </div>
+        )}
       </DialogContent>
 
       {/* Video Popup for single action */}
