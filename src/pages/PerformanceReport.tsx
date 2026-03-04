@@ -52,6 +52,9 @@ interface AnalysisDetails {
   player_name: string;
   striker_stats?: StrikerStats | null;
   performance_overview?: string | null;
+  visibility_status?: string;
+  placeholder_raw_score?: number | null;
+  placeholder_minutes?: number | null;
 }
 
 const PerformanceReport = () => {
@@ -113,6 +116,9 @@ const PerformanceReport = () => {
         player_name: analysisData.players?.name || "Unknown Player",
         striker_stats: analysisData.striker_stats as StrikerStats | null,
         performance_overview: analysisData.performance_overview,
+        visibility_status: (analysisData as any).visibility_status || "live",
+        placeholder_raw_score: (analysisData as any).placeholder_raw_score,
+        placeholder_minutes: (analysisData as any).placeholder_minutes,
       });
 
       const { data: actionsData, error: actionsError } = await supabase
@@ -335,7 +341,7 @@ const PerformanceReport = () => {
     );
   }
 
-  return (
+    return (
     <div className="min-h-screen bg-background">
       <SEO
         title={`${analysis.player_name} vs ${analysis.opponent} - Performance Report | Fuel For Football`}
@@ -343,7 +349,45 @@ const PerformanceReport = () => {
       />
       {!isAuthenticated && <div className="print:hidden"><Header /></div>}
       
+      {analysis.visibility_status === "hidden" ? (
+        <main className="container mx-auto px-3 md:px-4 py-8">
+          <div className="text-center py-12 space-y-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
+              <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            </div>
+            <h3 className="text-lg font-semibold">This report is locked</h3>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto">Your performance report for this match is being finalised.</p>
+            <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto pt-4">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">R90</p>
+                <p className="text-xl font-bold">
+                  {analysis.placeholder_raw_score != null && analysis.placeholder_minutes
+                    ? ((analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90).toFixed(2)
+                    : analysis.r90_score?.toFixed(2) || "—"}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">Raw Score</p>
+                <p className="text-xl font-bold">{analysis.placeholder_raw_score?.toFixed(2) ?? "—"}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">Minutes</p>
+                <p className="text-xl font-bold">{analysis.placeholder_minutes ?? analysis.minutes_played ?? "—"}</p>
+              </div>
+            </div>
+          </div>
+        </main>
+      ) : (
       <main className="container mx-auto px-3 md:px-4 py-4 md:py-8">
+        <div className="relative">
+          {!isAuthenticated && analysis.visibility_status === "draft" && (
+            <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
+              <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
+                <h3 className="text-lg font-semibold mb-2">Report In Progress</h3>
+                <p className="text-sm text-muted-foreground">This performance report is still being prepared. Check back soon.</p>
+              </div>
+            </div>
+          )}
         <div className="space-y-2 md:space-y-3">
           {/* Header with buttons */}
           <div className="flex items-center justify-between gap-2 print:hidden">
