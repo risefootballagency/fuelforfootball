@@ -771,7 +771,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                                 animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none'
                               }}
                             >
-                              {value}
+                              {typeof value === 'number' ? value.toFixed(2) : value}
                             </text>
                           );
                         }}
@@ -917,14 +917,18 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                             </Button>
                           );
                         })()}
-                        {analysis.r90_score != null && (
-                          <div 
-                            className="px-3 py-1 rounded text-white text-sm font-bold border-2 border-transparent hover:border-accent transition-colors duration-200"
-                            style={{ backgroundColor: getR90Color(analysis.r90_score) }}
-                          >
-                            R90: {analysis.r90_score}
-                          </div>
-                        )}
+                        {(() => {
+                          const effectiveR90 = getEffectiveR90(analysis);
+                          if (effectiveR90 == null) return null;
+                          return (
+                            <div 
+                              className="px-3 py-1 rounded text-white text-sm font-bold border-2 border-transparent hover:border-accent transition-colors duration-200"
+                              style={{ backgroundColor: getR90Color(effectiveR90) }}
+                            >
+                              R90: {effectiveR90.toFixed(2)}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </button>
