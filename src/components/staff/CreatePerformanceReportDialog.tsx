@@ -2401,16 +2401,6 @@ export const CreatePerformanceReportDialog = ({
               <option key={type} value={type} />
             ))}
           </datalist>
-              </Button>
-            </div>
-          </div>
-
-          {/* Datalist for action types */}
-          <datalist id="action-types-list">
-            {actionTypes.map((type) => (
-              <option key={type} value={type} />
-            ))}
-          </datalist>
 
           {/* Save and Delete Buttons */}
           <div className="flex flex-col sm:flex-row justify-between gap-2">
