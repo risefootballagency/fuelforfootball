@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Trash2, Check, Edit, ChevronUp, ChevronDown, ArrowUp, ArrowDown, Database, Sparkles, Calendar } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -339,7 +340,7 @@ export const ProgrammingManagement = ({ isOpen, onClose, playerId, playerName, i
       if (sharedError) console.error('Error loading shared templates:', sharedError);
       
       // Also fetch from local database for templates saved locally
-      const { supabase: localClient } = await import('@/integrations/supabase/client');
+      const localClient = localSupabase;
       const { data: localData, error: localError } = await localClient
         .from('coaching_programmes')
         .select('*')

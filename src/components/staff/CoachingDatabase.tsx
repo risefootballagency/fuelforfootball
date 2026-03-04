@@ -440,7 +440,7 @@ export const CoachingDatabase = ({ isAdmin }: { isAdmin: boolean }) => {
 
       // For coaching_programmes, also fetch from local database and merge
       if (activeTab === 'coaching_programmes') {
-        const { supabase: localClient } = await import('@/integrations/supabase/client');
+        const localClient = localSupabase;
         
         let localQuery: any = localClient
           .from('coaching_programmes')
