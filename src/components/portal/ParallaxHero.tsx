@@ -59,12 +59,12 @@ export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName
     if (!nextFixture) return null;
     const target = new Date(nextFixture.match_date);
     const diff = target.getTime() - now.getTime();
-    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, passed: true };
+    if (diff <= 0) return null; // Match started or passed, don't show countdown
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    return { days, hours, minutes, seconds, passed: false };
+    return { days, hours, minutes, seconds };
   }, [nextFixture, now]);
 
   if (images.length === 0) return null;
@@ -114,7 +114,7 @@ export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName
           )}
         </div>
 
-        {countdown && !countdown.passed && nextFixture && (
+        {countdown && nextFixture && (
           <div className="mt-2">
             <p className="text-[10px] text-white/60 mb-1">
               {nextFixture.home_team} vs {nextFixture.away_team}
@@ -132,9 +132,6 @@ export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName
               ))}
             </div>
           </div>
-        )}
-        {countdown?.passed && nextFixture && (
-          <p className="text-accent font-bold text-sm mt-2">Match day!</p>
         )}
       </div>
     </div>
