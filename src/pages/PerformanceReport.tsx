@@ -724,7 +724,6 @@ const PerformanceReport = () => {
           )}
         </div>
         </div>
-        </div>
       </main>
       )}
 
