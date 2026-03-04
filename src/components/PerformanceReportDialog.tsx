@@ -49,6 +49,9 @@ interface AnalysisDetails {
   player_name: string;
   striker_stats?: StrikerStats | null;
   performance_overview?: string | null;
+  visibility_status?: string;
+  placeholder_raw_score?: number | null;
+  placeholder_minutes?: number | null;
 }
 
 interface PerformanceReportDialogProps {
@@ -126,6 +129,9 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
         player_name: analysisResult.data.players?.name || "Unknown Player",
         striker_stats: analysisResult.data.striker_stats as StrikerStats | null,
         performance_overview: analysisResult.data.performance_overview,
+        visibility_status: (analysisResult.data as any).visibility_status || "live",
+        placeholder_raw_score: (analysisResult.data as any).placeholder_raw_score,
+        placeholder_minutes: (analysisResult.data as any).placeholder_minutes,
       });
 
       if (actionsResult.error) throw actionsResult.error;
@@ -440,6 +446,46 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] md:max-w-[95vw] w-full max-h-[95vh] overflow-y-auto overflow-x-hidden p-0">
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">Loading performance report...</div>
+        ) : !analysis ? (
+          <div className="text-center py-8 text-muted-foreground">Performance report not found</div>
+        ) : analysis.visibility_status === "hidden" ? (
+          <div className="text-center py-12 space-y-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
+              <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            </div>
+            <h3 className="text-lg font-semibold">This report is locked</h3>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto">Your performance report for this match is being finalised. Only summary data is currently available.</p>
+            <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto pt-4">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">R90</p>
+                <p className="text-xl font-bold">
+                  {analysis.placeholder_raw_score != null && analysis.placeholder_minutes
+                    ? ((analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90).toFixed(2)
+                    : analysis.r90_score?.toFixed(2) || "—"}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">Raw Score</p>
+                <p className="text-xl font-bold">{analysis.placeholder_raw_score?.toFixed(2) ?? "—"}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">Minutes</p>
+                <p className="text-xl font-bold">{analysis.placeholder_minutes ?? analysis.minutes_played ?? "—"}</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="relative">
+            {analysis.visibility_status === "draft" && (
+              <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
+                <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
+                  <h3 className="text-lg font-semibold mb-2">Report In Progress</h3>
+                  <p className="text-sm text-muted-foreground">This performance report is still being prepared. Check back soon.</p>
+                </div>
+              </div>
+            )}
         <div className="sticky top-0 z-10 bg-background border-b p-2 md:p-4 flex items-center justify-between gap-2">
           <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">Performance Report</h2>
           <div className="flex gap-1 md:gap-2 flex-shrink-0">
@@ -927,6 +973,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
             </div>
           )}
         </div>
+          </div>
+        )}
       </DialogContent>
 
       {/* Video Popup for single action */}

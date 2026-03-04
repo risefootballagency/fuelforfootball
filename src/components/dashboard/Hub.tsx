@@ -135,6 +135,9 @@ interface PlayerAnalysis {
   analysis_writer_id?: string | null;
   analysis_writer_data?: any;
   tagged_analyses?: any[];
+  visibility_status?: string;
+  placeholder_raw_score?: number | null;
+  placeholder_minutes?: number | null;
 }
 
 interface UpgradeOffer {
@@ -453,13 +456,20 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   };
 
   // Prepare R90 chart data
+  const getEffectiveR90 = (a: PlayerAnalysis): number | null => {
+    if (a.visibility_status === "hidden" && a.placeholder_raw_score != null && a.placeholder_minutes) {
+      return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
+    }
+    return a.r90_score;
+  };
+
   const chartData = analyses
-    .filter(a => a.r90_score != null)
+    .filter(a => getEffectiveR90(a) != null)
     .sort((a, b) => new Date(a.analysis_date).getTime() - new Date(b.analysis_date).getTime())
     .slice(-5)
     .map(a => ({
       opponent: a.opponent || "Unknown",
-      score: a.r90_score,
+      score: getEffectiveR90(a)!,
       result: a.result || "",
       displayLabel: `${a.opponent || "Unknown"}${a.result ? ` (${a.result})` : ""}`,
       analysisId: a.id,

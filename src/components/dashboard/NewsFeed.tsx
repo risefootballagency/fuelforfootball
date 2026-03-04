@@ -94,13 +94,15 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
         // Performance reports
         const { data: reports } = await sharedSupabase
           .from("player_analysis")
-          .select("id, analysis_date, opponent, r90_score, performance_overview, minutes_played")
+          .select("id, analysis_date, opponent, r90_score, performance_overview, minutes_played, visibility_status")
           .eq("player_id", playerId)
           .not("r90_score", "is", null)
           .order("analysis_date", { ascending: false })
-          .limit(5);
+          .limit(5) as any;
 
-        reports?.forEach(r => {
+        const liveReports = (reports || []).filter((r: any) => !r.visibility_status || r.visibility_status === "live");
+
+        liveReports?.forEach((r: any) => {
           feed.push({
             id: `report-${r.id}`,
             type: "report",

@@ -1,58 +1,58 @@
 
+Goal: restore RISE-equivalent staff notifications so site visitors, portal logins, and performance report views actually appear.
 
-## Plan: Add Live/Hidden/Draft Visibility Status to Performance Reports
+What I found (root cause):
+1) `staff_notification_events` is empty (`0` rows) in this project.
+2) `site_visits` is actively receiving data (thousands of rows), so tracking exists.
+3) `staff_notification_events` RLS currently has only a SELECT policy; no INSERT policy (and no UPDATE read-status policy), so portal-side client inserts are blocked.
+4) The DB trigger package that exists in RISE (auto-writing notification events from `site_visits`, `form_submissions`, `playlists`, `players`) is missing here.
+5) Realtime publication currently does not include `staff_notification_events`, so bell dropdown live updates won’t fire even when rows exist.
+6) Notification settings UI diverged from RISE and is not backed by `staff_notification_settings` like RISE.
 
-### What's Missing
+Concise implementation plan:
+1) Sync backend notification schema/policies from RISE
+- Add `staff_notification_settings` table + role/event settings policies + updated_at trigger.
+- Ensure `staff_notification_events` matches RISE shape (`title`, `body`, `read_by`) and add missing UPDATE policy for read status.
+- Keep staff/admin read policies aligned with current role model.
 
-This project has zero support for the `visibility_status` system that RISE uses on performance reports. In RISE, every performance report has a status — **Draft** (blurred preview for player), **Hidden** (locked, only shows R90 placeholder), or **Live** (fully visible). This project treats everything as live.
+2) Port RISE notification trigger pipeline
+- Add RISE trigger functions and triggers:
+  - `log_site_visit_notification` on `site_visits` INSERT
+  - `log_form_submission_notification` on `form_submissions` INSERT
+  - `log_playlist_change_notification` on `playlists` INSERT/UPDATE/DELETE
+  - `log_clip_upload_notification` on `players` UPDATE (highlights diff)
+- This removes dependence on staff browser subscriptions for these event sources and matches RISE behavior.
 
-The shared database already has `visibility_status`, `placeholder_raw_score`, and `placeholder_minutes` columns on `player_analysis` (confirmed by RISE's working code using `as any` casts). No DB migration needed.
+3) Fix portal-origin notification writes (logins + performance views)
+- Ensure `portal_login`, `portal_performance_view`, `portal_analysis_view` events can be persisted in this project’s backend path.
+- Align `Dashboard.tsx` tracking logic back to RISE behavior (only analysis context generates performance/analysis view events; no broad non-analysis misclassification).
+- Keep event payload parity (`player_id`, `player_name`, `sub_tab`, dedupe behavior).
 
-### Changes Required
+4) Realtime parity for dropdown UX
+- Add `staff_notification_events` to realtime publication (as in RISE migration) so dropdown updates instantly on new events.
 
-**1. Create `src/components/staff/VisibilityStatusButton.tsx`** (new file)
-- Port directly from RISE: a popover button with Draft/Hidden/Live options
-- Hidden mode shows placeholder Raw Score + Minutes inputs
-- Color-coded badges (yellow=draft, red=hidden, green=live)
+5) UI parity cleanup
+- Replace current `NotificationSettingsManagement.tsx` with RISE role/event matrix behavior backed by `staff_notification_settings`.
+- Remove legacy/non-RISE event drift (e.g., outdated IDs that don’t map to actual emitted event types).
 
-**2. Update `src/components/staff/CreatePerformanceReportDialog.tsx`**
-- Import `VisibilityStatusButton` and `VisibilityStatus` type
-- Add state: `visibilityStatus` (default "draft"), `placeholderRawScore`, `placeholderMinutes`
-- Load these from existing data in `fetchExistingData` (via `as any` cast)
-- Include in save payload (both create and update paths)
-- Render `VisibilityStatusButton` next to the Save button in both mobile and desktop action bars
+Technical details (exact files/touchpoints):
+- DB migrations (new migration in this project):
+  - create/update policies for `public.staff_notification_events`
+  - create `public.staff_notification_settings`
+  - create 4 notification trigger functions + 4 triggers
+  - `ALTER PUBLICATION supabase_realtime ADD TABLE public.staff_notification_events`
+- Frontend:
+  - `src/pages/Dashboard.tsx` (restore RISE event emission conditions for portal view events)
+  - `src/components/staff/NotificationSettingsManagement.tsx` (RISE settings table-driven version)
+  - optional cleanup in `src/components/staff/StaffNotificationsDropdown.tsx` for event label parity (`portal_view` legacy handling)
 
-**3. Update `src/components/staff/analysis/ActionReportsList.tsx`**
-- Add `visibility_status`, `placeholder_raw_score`, `placeholder_minutes` to query select
-- Add `visibility_status` to `ActionReport` interface
-- Show draft/hidden badge next to player name (yellow/red pill like RISE)
-- Add `getEffectiveR90` function: if hidden + placeholder values exist, calculate R90 from placeholders instead
+Validation checklist after implementation:
+1) Visit public pages → new `visitor` events appear in bell list.
+2) Player login via `/login` → `portal_login` appears.
+3) Player opens portal analysis/performance tabs → `portal_performance_view` / `portal_analysis_view` appear.
+4) New form submission / playlist change / clip update → corresponding events appear without needing staff page open.
+5) Mark-as-read works (UPDATE policy verified).
+6) Realtime bell updates without manual refresh.
 
-**4. Update `src/components/PerformanceReportDialog.tsx`**
-- Add `visibility_status`, `placeholder_raw_score`, `placeholder_minutes` to `AnalysisDetails` interface
-- Load from query result via `as any` cast (default "live")
-- When `visibility_status === "hidden"`: show locked view with placeholder R90/Raw Score/Minutes grid, "This report is locked" message
-- When `visibility_status === "draft"` and in portal view: overlay blur with "Report In Progress" message
-- When `visibility_status === "live"`: show full report (current behavior)
-
-**5. Update `src/pages/PerformanceReport.tsx`** (standalone page)
-- Same visibility logic as the dialog: hidden shows lock screen, draft shows blur overlay for non-staff
-
-**6. Update `src/components/dashboard/Hub.tsx`**
-- Add `visibility_status`, `placeholder_raw_score`, `placeholder_minutes` to `PlayerAnalysis` interface
-- Add `getEffectiveR90` function for R90 chart to use placeholder values when hidden
-
-**7. Update `src/components/dashboard/NewsFeed.tsx`**
-- Filter news feed to only show `live` reports (exclude draft/hidden from player inbox)
-
-### Files
-- **New**: `src/components/staff/VisibilityStatusButton.tsx`
-- **Edit**: `src/components/staff/CreatePerformanceReportDialog.tsx`
-- **Edit**: `src/components/staff/analysis/ActionReportsList.tsx`
-- **Edit**: `src/components/PerformanceReportDialog.tsx`
-- **Edit**: `src/pages/PerformanceReport.tsx`
-- **Edit**: `src/components/dashboard/Hub.tsx`
-- **Edit**: `src/components/dashboard/NewsFeed.tsx`
-
-No database migration required — the shared DB already has the columns.
-
+Expected outcome:
+Notification pipeline will match RISE’s working model and stop relying on currently broken paths (missing trigger migrations + blocked inserts), which is why you currently see “literally nothing.”
