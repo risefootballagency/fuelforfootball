@@ -11,20 +11,38 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
   const [nextFixture, setNextFixture] = useState<{ match_date: string; home_team: string; away_team: string; venue?: string } | null>(null);
   const [now, setNow] = useState(new Date());
 
-  useEffect(() => {
-    const fetchNext = async () => {
-      const today = new Date().toISOString().split("T")[0];
-      const { data } = await sharedSupabase
-        .from("fixtures")
-        .select("match_date, home_team, away_team, venue")
-        .gte("match_date", today)
-        .order("match_date", { ascending: true })
-        .limit(1);
+  const fetchNext = async () => {
+    const now = new Date();
+    const today = now.toISOString().split("T")[0];
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
-      if (data && data.length > 0) {
-        setNextFixture(data[0]);
+    // First try today's fixture (only if before ~kick-off, i.e. morning)
+    // Then fall back to tomorrow+
+    const { data } = await sharedSupabase
+      .from("fixtures")
+      .select("match_date, home_team, away_team, venue")
+      .gte("match_date", today)
+      .order("match_date", { ascending: true })
+      .limit(2);
+
+    if (data && data.length > 0) {
+      const firstMatch = data[0];
+      const matchDate = new Date(firstMatch.match_date);
+      const diffMs = matchDate.getTime() - now.getTime();
+      // If the first fixture is today and countdown has passed, use the next one
+      if (diffMs <= 0 && data.length > 1) {
+        setNextFixture(data[1]);
+      } else if (diffMs <= 0) {
+        setNextFixture(null); // no upcoming fixtures
+      } else {
+        setNextFixture(firstMatch);
       }
-    };
+    }
+  };
+
+  useEffect(() => {
     fetchNext();
   }, []);
 
@@ -37,13 +55,17 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
     if (!nextFixture) return null;
     const target = new Date(nextFixture.match_date);
     const diff = target.getTime() - now.getTime();
-    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, passed: true };
+    if (diff <= 0) {
+      // Countdown expired — re-fetch to get the next fixture
+      fetchNext();
+      return null;
+    }
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    return { days, hours, minutes, seconds, passed: false };
+    return { days, hours, minutes, seconds };
   }, [nextFixture, now]);
 
   if (!nextFixture || !countdown) return null;
@@ -70,22 +92,18 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
             {nextFixture.venue && <span className="ml-1">· {nextFixture.venue}</span>}
           </p>
 
-          {countdown.passed ? (
-            <p className="text-primary font-bold text-lg">Match day!</p>
-          ) : (
-            <div className="flex justify-center gap-3">
-              {units.map(unit => (
-                <div key={unit.label} className="flex flex-col items-center">
-                  <div className="bg-black border border-primary/30 rounded-lg px-3 py-2 md:px-4 md:py-3 min-w-[52px]">
-                    <span className="text-2xl md:text-3xl font-bold text-primary tabular-nums">
-                      {String(unit.value).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <span className="text-[9px] md:text-[10px] text-muted-foreground mt-1 font-medium">{unit.label}</span>
+          <div className="flex justify-center gap-3">
+            {units.map(unit => (
+              <div key={unit.label} className="flex flex-col items-center">
+                <div className="bg-black border border-primary/30 rounded-lg px-3 py-2 md:px-4 md:py-3 min-w-[52px]">
+                  <span className="text-2xl md:text-3xl font-bold text-primary tabular-nums">
+                    {String(unit.value).padStart(2, "0")}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
+                <span className="text-[9px] md:text-[10px] text-muted-foreground mt-1 font-medium">{unit.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
