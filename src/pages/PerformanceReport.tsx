@@ -723,7 +723,10 @@ const PerformanceReport = () => {
             </Card>
           )}
         </div>
+        </div>
+        </div>
       </main>
+      )}
 
       {!isAuthenticated && <div className="print:hidden"><Footer /></div>}
 
