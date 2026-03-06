@@ -59,3 +59,27 @@ verify_jwt = false
 
 [functions.suggest-fixture-stats]
 verify_jwt = false
+
+[functions.trim-video-clip]
+verify_jwt = false
+
+[functions.generate-shell-suggestions]
+verify_jwt = false
+
+[functions.process-video-frames]
+verify_jwt = false
+
+[functions.fill-action-scores]
+verify_jwt = false
+
+[functions.find-r90-rating]
+verify_jwt = false
+
+[functions.split-r90-ratings]
+verify_jwt = false
+
+[functions.translate-report-content]
+verify_jwt = false
+
+[functions.ai-session-suggest]
+verify_jwt = false
