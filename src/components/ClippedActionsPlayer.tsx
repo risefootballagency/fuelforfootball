@@ -27,6 +27,9 @@ export const ClippedActionsPlayer = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [swipeY, setSwipeY] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+  const touchStartY = useRef(0);
 
   const currentClip = clips[currentIndex];
 
@@ -39,11 +42,7 @@ export const ClippedActionsPlayer = ({
 
   const handleVideoEnded = () => {
     if (currentIndex < clips.length - 1) {
-      const next = currentIndex + 1;
-      setCurrentIndex(next);
-      setTimeout(() => {
-        videoRef.current?.play().catch(() => {});
-      }, 100);
+      setCurrentIndex(prev => prev + 1);
     } else {
       setIsPlaying(false);
     }
@@ -68,29 +67,47 @@ export const ClippedActionsPlayer = ({
     }
   };
 
-  useEffect(() => {
-    if (videoRef.current && isPlaying) {
-      videoRef.current.play().catch(() => setIsPlaying(false));
-    }
-  }, [currentIndex]);
+  const nextClip = clips[currentIndex + 1] ?? null;
 
   if (!currentClip) return null;
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    setSwiping(true);
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!swiping) return;
+    const delta = e.touches[0].clientY - touchStartY.current;
+    setSwipeY(Math.max(0, delta));
+  };
+  const handleTouchEnd = () => {
+    if (swipeY > 120) {
+      onOpenChange(false);
+    }
+    setSwipeY(0);
+    setSwiping(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed inset-0 !left-0 !top-0 !translate-x-0 !translate-y-0 w-screen h-screen max-w-none max-h-none p-0 bg-black border-0 rounded-none flex flex-col overflow-hidden z-[200] data-[state=open]:!animate-none data-[state=closed]:!animate-none data-[state=open]:!slide-in-from-left-0 data-[state=open]:!slide-in-from-top-0">
+      <DialogContent
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined, opacity: swipeY > 0 ? Math.max(0.3, 1 - swipeY / 300) : 1, transition: swiping ? 'none' : 'transform 0.3s ease, opacity 0.3s ease' }}
+        className="fixed inset-0 !left-0 !top-0 !translate-x-0 !translate-y-0 w-screen h-screen max-w-none max-h-none p-0 bg-black border-0 rounded-none flex flex-col overflow-hidden z-[200] data-[state=open]:!animate-none data-[state=closed]:!animate-none data-[state=open]:!slide-in-from-left-0 data-[state=open]:!slide-in-from-top-0">
         <DialogTitle className="sr-only">Full Match Video</DialogTitle>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2 bg-black/80 border-b border-border/30 shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 bg-black/80 border-b border-border/30 shrink-0">
           <div className="flex items-center gap-3">
             <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs font-bold">
               {currentIndex + 1}/{clips.length}
             </span>
             <span className="text-white text-sm font-semibold">{currentClip.action_type}</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} className="text-white/60 hover:text-white">
-            <X className="h-4 w-4" />
+          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="text-white hover:text-white hover:bg-white/20 h-10 w-10 min-w-[40px]">
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
@@ -98,19 +115,32 @@ export const ClippedActionsPlayer = ({
         <div className="flex-1 relative flex items-center justify-center bg-black min-h-0">
           <video
             ref={videoRef}
+            key={currentClip.video_url}
             src={currentClip.video_url}
             className="w-full h-full object-contain"
-            autoPlay
+            preload="auto"
+            crossOrigin="anonymous"
             muted
             playsInline
+            onCanPlay={(e) => { if (isPlaying) e.currentTarget.play().catch(() => {}); }}
             onEnded={handleVideoEnded}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           />
+          {nextClip && (
+            <video
+              key={`prefetch-${nextClip.video_url}`}
+              src={nextClip.video_url}
+              preload="auto"
+              crossOrigin="anonymous"
+              muted
+              style={{ display: 'none' }}
+            />
+          )}
           <div className="absolute bottom-4 left-4 right-4 bg-black/70 text-white text-xs px-3 py-2 rounded max-w-[80%]">
-            <p className="line-clamp-2">{currentClip.action_description}</p>
+            <p>{currentClip.action_description}</p>
             {currentClip.notes && (
-              <p className="text-accent text-[10px] italic mt-0.5 line-clamp-1">{currentClip.notes}</p>
+              <p className="text-[10px] text-accent italic mt-1">📝 {currentClip.notes}</p>
             )}
           </div>
         </div>

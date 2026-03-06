@@ -1,18 +1,19 @@
-import { useMemo } from 'react';
-import Landing from './Landing';
-import Clubs from './Clubs';
-import Scouts from './Scouts';
-import Agents from './Agents';
-import Coaches from './Coaches';
-import Media from './Media';
-import Business from './Business';
-import Dashboard from './Dashboard';
-import PlayersIntro from './PlayersIntro';
+import { useMemo, lazy, Suspense } from 'react';
 import { getSubdomainInfo } from '@/lib/subdomainUtils';
 
+// Lazy-load all subdomain pages to match App.tsx code splitting
+const Landing = lazy(() => import('./Landing'));
+const Dashboard = lazy(() => import('./Dashboard'));
+const Scouts = lazy(() => import('./Scouts'));
+const PlayersIntro = lazy(() => import('./PlayersIntro'));
+const Clubs = lazy(() => import('./Clubs'));
+const Agents = lazy(() => import('./Agents'));
+const Coaches = lazy(() => import('./Coaches'));
+const Media = lazy(() => import('./Media'));
+const Business = lazy(() => import('./Business'));
+
 // Map subdomains to their page components
-// Players subdomain should show the intro page first
-const subdomainComponents: Record<string, React.ComponentType> = {
+const subdomainComponents: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   'portal': Dashboard,
   'scouts': Scouts,
   'players': PlayersIntro,
@@ -29,11 +30,19 @@ const Home = () => {
   // If we have a role subdomain with a matching component, render it
   if (subdomainInfo.type === 'role' && subdomainInfo.subdomain && subdomainComponents[subdomainInfo.subdomain]) {
     const PageComponent = subdomainComponents[subdomainInfo.subdomain];
-    return <PageComponent />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <PageComponent />
+      </Suspense>
+    );
   }
   
   // Default to Landing page
-  return <Landing />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <Landing />
+    </Suspense>
+  );
 };
 
 export default Home;

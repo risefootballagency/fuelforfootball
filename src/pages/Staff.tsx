@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { ExportProgressFloat } from "@/components/staff/ExportProgressFloat";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1314,6 +1315,7 @@ const Staff = () => {
         </div>
       </div>
       <MobileScrollButtons />
+      <ExportProgressFloat />
     </div>
   );
 };
