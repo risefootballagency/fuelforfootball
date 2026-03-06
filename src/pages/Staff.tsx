@@ -893,6 +893,7 @@ const Staff = () => {
 
           {/* Right: Notifications + Logout */}
           <div className="flex items-center gap-2 ml-auto">
+            <StaffMusicPlayer />
             <StaffNotificationsDropdown userId={user?.id || ''} />
             <Button onClick={handleLogout} variant="ghost" size="sm" className="text-xs hidden md:flex">
               Logout
