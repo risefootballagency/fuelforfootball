@@ -1,11 +1,61 @@
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 /**
- * Client-side clip extraction using canvas + MediaRecorder.
- * Produces a small webm file containing only the specified segment.
- * Uploads to analysis-videos/clips/{clipId}.webm and returns the public URL.
+ * Trim a clip from a source video and upload it.
+ *
+ * Strategy:
+ *  1. Try server-side FFmpeg stream-copy (instant, lossless).
+ *  2. Fall back to client-side canvas capture if the server call fails.
  */
 export async function trimAndUploadClip(
+  sourceUrl: string,
+  clipId: string,
+  start: number,
+  end: number,
+  onProgress?: (msg: string) => void
+): Promise<string> {
+  // ── 1. Check size & attempt server-side trim (preferred) ──
+  try {
+    let skipServer = false;
+    try {
+      const head = await fetch(sourceUrl.split("#")[0], { method: "HEAD" });
+      const size = parseInt(head.headers.get("content-length") || "0", 10);
+      if (size > 200 * 1024 * 1024) {
+        console.log(`Source ${(size / 1048576).toFixed(0)}MB exceeds server limit, using client encoder`);
+        skipServer = true;
+      }
+    } catch {
+      // HEAD failed, try server anyway
+    }
+
+    if (!skipServer) {
+      onProgress?.("Trimming on server...");
+      const { data, error } = await invokeEdgeFunction<{ url: string }>(
+        "trim-video-clip",
+        { body: { sourceUrl, start, end, clipId } }
+      );
+
+      if (!error && data?.url) {
+        onProgress?.("Done");
+        return data.url;
+      }
+
+      console.log("Server trim unavailable, using client encoder:", error?.message);
+    }
+  } catch (err) {
+    console.log("Server trim unavailable, using client encoder:", err);
+  }
+
+  // ── 2. Client-side canvas fallback ──
+  return clientSideTrim(sourceUrl, clipId, start, end, onProgress);
+}
+
+/**
+ * Original canvas + MediaRecorder approach.
+ * Plays the segment in real-time and re-encodes it as WebM.
+ */
+async function clientSideTrim(
   sourceUrl: string,
   clipId: string,
   start: number,
@@ -16,7 +66,6 @@ export async function trimAndUploadClip(
 
   onProgress?.("Loading video...");
 
-  // Create offscreen video
   const video = document.createElement("video");
   video.crossOrigin = "anonymous";
   video.muted = false;
@@ -26,20 +75,33 @@ export async function trimAndUploadClip(
   await new Promise<void>((resolve, reject) => {
     video.onloadedmetadata = () => resolve();
     video.onerror = () => reject(new Error("Failed to load source video"));
-    // Timeout after 30s
     setTimeout(() => reject(new Error("Video load timeout")), 30000);
   });
 
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas context unavailable");
+  // Prefer direct captureStream on the video element (no canvas quality loss)
+  const useDirectCapture = typeof (video as any).captureStream === "function";
 
-  // Set up MediaRecorder on canvas stream
-  const stream = canvas.captureStream(30);
+  let stream: MediaStream;
 
-  // Try to capture audio
+  if (useDirectCapture) {
+    stream = (video as any).captureStream(0);
+  } else {
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext("2d")!;
+    stream = canvas.captureStream(60);
+
+    const pumpCanvas = () => {
+      if (!video.paused && !video.ended) {
+        ctx.drawImage(video, 0, 0);
+      }
+    };
+    const canvasInterval = setInterval(pumpCanvas, 1000 / 60);
+    (video as any)._canvasInterval = canvasInterval;
+  }
+
+  // Capture audio
   try {
     const audioCtx = new AudioContext();
     const source = audioCtx.createMediaElementSource(video);
@@ -51,10 +113,21 @@ export async function trimAndUploadClip(
     // No audio or already captured
   }
 
-  const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-    ? "video/webm;codecs=vp9"
-    : "video/webm";
-  const recorder = new MediaRecorder(stream, { mimeType });
+  // Codec selection: prefer VP9+Opus for best quality
+  const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+    ? "video/webm;codecs=vp9,opus"
+    : MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+      ? "video/webm;codecs=vp9"
+      : "video/webm";
+
+  // Scale bitrate based on resolution for quality preservation
+  const pixels = (video.videoWidth || 1280) * (video.videoHeight || 720);
+  const targetBitrate = Math.max(25_000_000, Math.round((pixels / (1920 * 1080)) * 40_000_000));
+
+  const recorder = new MediaRecorder(stream, {
+    mimeType,
+    videoBitsPerSecond: targetBitrate,
+  });
   const chunks: Blob[] = [];
 
   recorder.ondataavailable = (e) => {
@@ -79,31 +152,39 @@ export async function trimAndUploadClip(
   recorder.start();
   video.play();
 
-  // Draw frames to canvas until end time
+  // Wait until end time
   await new Promise<void>((resolve) => {
-    const drawFrame = () => {
+    const checkEnd = () => {
       if (video.currentTime >= end || video.paused || video.ended) {
         video.pause();
         recorder.stop();
         resolve();
         return;
       }
-      ctx.drawImage(video, 0, 0);
-      requestAnimationFrame(drawFrame);
+      if ("requestVideoFrameCallback" in video) {
+        (video as any).requestVideoFrameCallback(checkEnd);
+      } else {
+        requestAnimationFrame(checkEnd);
+      }
     };
-    requestAnimationFrame(drawFrame);
+
+    if ("requestVideoFrameCallback" in video) {
+      (video as any).requestVideoFrameCallback(checkEnd);
+    } else {
+      requestAnimationFrame(checkEnd);
+    }
   });
 
   const blob = await recordingDone;
 
   // Clean up
+  if ((video as any)._canvasInterval) clearInterval((video as any)._canvasInterval);
   video.pause();
   video.removeAttribute("src");
   video.load();
 
   onProgress?.("Uploading clip...");
 
-  // Upload to clips/ prefix
   const clipPath = `clips/${clipId}.webm`;
   const { error: uploadError } = await supabase.storage
     .from("analysis-videos")
