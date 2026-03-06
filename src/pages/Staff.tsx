@@ -106,6 +106,7 @@ import { VideoDownloaderSection } from "@/components/staff/VideoDownloaderSectio
 import { VideoCompressor } from "@/components/staff/VideoCompressor";
 import { MobileScrollButtons } from "@/components/staff/MobileScrollButtons";
 import { SectionGridPicker } from "@/components/staff/SectionGridPicker";
+import { StaffMusicPlayer } from "@/components/staff/StaffMusicPlayer";
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
