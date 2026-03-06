@@ -2,9 +2,9 @@ import { useEffect, useState, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
 import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade } from "@/lib/gradeCalculations";
-import { Download, X, ImageIcon, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, Link2, MessageSquareText, Filter } from "lucide-react";
+import { Download, X, ImageIcon, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, Link2, MessageSquareText, Filter, Lock, MapPin, Grid3X3 } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { ActionVideoPopup } from "@/components/ActionVideoPopup";
@@ -14,7 +14,11 @@ import { R90FlowChart } from "@/components/report/R90FlowChart";
 import { ActionHeatmap } from "@/components/report/ActionHeatmap";
 import { ChanceCreationFlow } from "@/components/report/ChanceCreationFlow";
 import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
+import { PitchHeatmap } from "@/components/report/PitchHeatmap";
+import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toTitleCase } from "@/lib/titleCase";
+import { sortActionsByMinute } from "@/lib/actionSorting";
+import { t, normalizePortalLanguage } from "@/lib/portalTranslations";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
 const formatMinute = (minute: number | null | undefined): string => {
@@ -33,6 +37,8 @@ interface PerformanceAction {
   action_description: string;
   notes: string | null;
   video_url?: string | null;
+  zone?: number | null;
+  zone_details?: any | null;
 }
 
 interface StrikerStats {
@@ -58,9 +64,10 @@ interface PerformanceReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   analysisId: string | null;
+  isPortalView?: boolean;
 }
 
-export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: PerformanceReportDialogProps) => {
+export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPortalView = false }: PerformanceReportDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisDetails | null>(null);
   const [actions, setActions] = useState<PerformanceAction[]>([]);
@@ -72,6 +79,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   const [showR90Flow, setShowR90Flow] = useState(false);
   const [showR90Info, setShowR90Info] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showPitchHeatmap, setShowPitchHeatmap] = useState(false);
+  const [showZonePerformance, setShowZonePerformance] = useState(false);
   const [showChanceCreation, setShowChanceCreation] = useState(false);
   const [showRankedPlayer, setShowRankedPlayer] = useState(false);
   const [rankedMode, setRankedMode] = useState<"chronological" | "ranked" | "noted">("chronological");
@@ -81,6 +90,9 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   const [filterTypes, setFilterTypes] = useState<string[]>([]);
   const [filterRating, setFilterRating] = useState<string | null>(null);
   const [filterHasNotes, setFilterHasNotes] = useState(false);
+
+  const portalLanguage = isPortalView ? (localStorage.getItem("portal_language_hint") || "en") : "en";
+  const portalLocale = normalizePortalLanguage(portalLanguage) === "fr" ? "fr-FR" : "en-GB";
 
   // Pre-fetch data when analysisId changes (even before dialog opens)
   useEffect(() => {
@@ -98,11 +110,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
 
   const fetchPerformanceData = async (id: string) => {
     if (!id) return;
-
+    
     setLoading(true);
     try {
+      // Fetch both in parallel for faster loading
       const [analysisResult, actionsResult] = await Promise.all([
-        sharedSupabase
+        supabase
           .from("player_analysis")
           .select(`
             *,
@@ -110,7 +123,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
           `)
           .eq("id", id)
           .single(),
-        sharedSupabase
+        supabase
           .from("performance_report_actions")
           .select("*")
           .eq("analysis_id", id)
@@ -135,8 +148,9 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
       });
 
       if (actionsResult.error) throw actionsResult.error;
-      setActions(actionsResult.data || []);
-
+      setActions(sortActionsByMinute((actionsResult.data || []) as any));
+      
+      // Mark this ID as prefetched
       setPrefetchedId(id);
     } catch (error: any) {
       console.error("Error fetching performance data:", error);
@@ -172,38 +186,52 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
     }, 0);
   };
 
+  const handleSaveAsPDF = () => {
+    window.print();
+  };
+
   const handleSaveAsWebp = async () => {
     if (!contentRef.current || !analysis) return;
-
+    
     setSavingImage(true);
     try {
+      // Temporarily add background for capture
       const originalBg = contentRef.current.style.backgroundColor;
       contentRef.current.style.backgroundColor = '#000000';
-
+      
       const canvas = await html2canvas(contentRef.current, {
         backgroundColor: '#000000',
         useCORS: true,
         logging: false,
         scale: 2,
       } as any);
-
+      
+      // Restore original background
       contentRef.current.style.backgroundColor = originalBg;
-
+      
       const fileName = `${analysis.player_name}-vs-${analysis.opponent}-performance-report`;
+      
+      // Check if on mobile (touch device or small screen)
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
-
+      
       if (isMobile) {
+        // On mobile, convert to PNG dataURL and open in new tab for long-press save
+        // Using dataURL instead of blob for better mobile compatibility
         const dataUrl = canvas.toDataURL('image/png', 0.95);
+        
         if (!dataUrl || dataUrl === 'data:,') {
           toast.error('Failed to create image');
           return;
         }
+        
+        // Open image in new tab - user can long-press to save
         const newTab = window.open();
         if (newTab) {
           newTab.document.write(`<html><head><title>${fileName}</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;}</style></head><body><img src="${dataUrl}" style="max-width:100%;height:auto;" /></body></html>`);
           newTab.document.close();
           toast.success('Image opened - long-press to save');
         } else {
+          // If popup blocked, try download
           const link = document.createElement('a');
           link.href = dataUrl;
           link.download = `${fileName}.png`;
@@ -213,6 +241,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
           toast.success('Image saved');
         }
       } else {
+        // On desktop, use WebP with direct download
         const dataUrl = canvas.toDataURL('image/webp', 0.9);
         const link = document.createElement('a');
         link.download = `${fileName}.webp`;
@@ -232,11 +261,16 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
 
   // Format stat key to readable label using config lookup
   const formatStatLabel = (key: string): string => {
+    // Try exact match first
     let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
     if (config) return config.name;
+    
+    // Try lowercase match
     const keyLower = key.toLowerCase();
     config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
     if (config) return config.name;
+    
+    // Fallback to formatted key
     return key
       .replace(/_/g, ' ')
       .replace(/([A-Z])/g, ' $1')
@@ -247,11 +281,11 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   // Get advanced stats from striker_stats, excluding internal fields
   const getAdvancedStats = () => {
     if (!analysis?.striker_stats) return [];
-
+    
     const excludeKeys = ['selected_stats', 'stats_order'];
-    const stats: {
-      key: string;
-      value: number | string;
+    const stats: { 
+      key: string; 
+      value: number | string; 
       per90Value?: number | string;
       isPaired?: boolean;
       successful?: number;
@@ -259,41 +293,56 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
       percentage?: string;
     }[] = [];
     const processedKeys = new Set<string>();
-
+    
+    // Get ordered stats if available
     const statsOrder = analysis.striker_stats.stats_order as string[] | undefined;
     const selectedStats = analysis.striker_stats.selected_stats as string[] | undefined;
+    
+    // Use stats_order if available, otherwise use selected_stats, otherwise use all keys
+    // Filter out internal keys from whatever source we use
     const rawKeysToShow = statsOrder || selectedStats || Object.keys(analysis.striker_stats);
     const keysToShow = rawKeysToShow.filter(key => !excludeKeys.includes(key));
-
+    
     for (const key of keysToShow) {
       if (key.includes('_per90')) continue;
       if (processedKeys.has(key)) continue;
-
+      if (key.includes('_per90')) continue;
+      if (processedKeys.has(key)) continue;
+      
       const value = analysis.striker_stats[key];
+      // Skip stats that haven't been filled in
       if (value === null || value === undefined) continue;
       if (typeof value === 'string' && value.trim() === '') continue;
       if (typeof value === 'number' && isNaN(value)) continue;
-
+      
+      // Check for paired stat patterns:
+      // Pattern 1: dribbles + dribbles_attempted
+      // Pattern 2: aerial_duels_won + aerial_duels_attempted
+      // Pattern 3: long_passes_completed + long_passes_attempted
       let attemptedKey = `${key}_attempted`;
       let baseKey = key;
-
+      
+      // Handle _won suffix (e.g., aerial_duels_won -> aerial_duels_attempted)
       if (key.endsWith('_won')) {
         baseKey = key.replace('_won', '');
         attemptedKey = `${baseKey}_attempted`;
-      } else if (key.endsWith('_completed')) {
+      }
+      // Handle _completed suffix (e.g., long_passes_completed -> long_passes_attempted)
+      else if (key.endsWith('_completed')) {
         baseKey = key.replace('_completed', '');
         attemptedKey = `${baseKey}_attempted`;
       }
-
+      
       if (analysis.striker_stats[attemptedKey] != null && !key.endsWith('_attempted')) {
         const attempted = Number(analysis.striker_stats[attemptedKey]);
         const successful = Number(value);
+        // Show paired stats even if attempted is 0 (display as 0/0)
         if (!isNaN(attempted) && !isNaN(successful)) {
           processedKeys.add(attemptedKey);
           const per90Key = `${key}_per90`;
           const per90Value = analysis.striker_stats[per90Key];
           stats.push({
-            key: baseKey !== key ? baseKey : key,
+            key: baseKey !== key ? baseKey : key, // Use cleaner base key for display
             value: successful,
             per90Value: per90Value !== null && per90Value !== undefined ? per90Value as number | string : undefined,
             isPaired: true,
@@ -304,107 +353,149 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
           continue;
         }
       }
-
+      
+      // Skip _attempted keys (they're shown with their pair)
       if (key.endsWith('_attempted')) {
         processedKeys.add(key);
         continue;
       }
-
+      
       if (typeof value !== 'number' && typeof value !== 'string') continue;
-
+      
+      // Only show per90 for rate-based stats (xG, xA, xC, xGChain types), not count-based stats
       const keyLower = key.toLowerCase();
       const rateBasedPrefixes = ['xg', 'xa', 'xc', 'xgchain'];
       const isRateBased = rateBasedPrefixes.some(prefix => keyLower.includes(prefix));
+      
       const per90Key = `${key}_per90`;
       const per90Value = isRateBased ? analysis.striker_stats[per90Key] : undefined;
-
-      stats.push({
-        key,
+      
+      stats.push({ 
+        key, 
         value,
         per90Value: per90Value !== null && per90Value !== undefined ? per90Value as number | string : undefined
       });
     }
-
+    
     return stats;
   };
 
   // Calculate derived stats from the base stats
   const getCalculatedStats = () => {
     if (!analysis?.striker_stats) return [];
-
+    
     const strikerStats = analysis.striker_stats;
     const calculated: { key: string; displayName: string; value: number; description: string }[] = [];
-
+    
+    // Helper to get a numeric value from striker_stats
     const getVal = (key: string): number | null => {
       const val = strikerStats[key];
       if (val === null || val === undefined) return null;
       return typeof val === 'number' ? val : null;
     };
-
+    
     const getSuccessVal = (baseKey: string): number | null => {
       return getVal(`${baseKey}_successful`) ?? getVal(baseKey);
     };
-
+    
     const getTotalVal = (baseKey: string): number | null => {
       return getVal(`${baseKey}_total`) ?? getVal(`${baseKey}_attempted`);
     };
-
+    
+    // Recovery to Turnover Ratio
     const recoveries = getVal('recoveries');
     const turnovers = getVal('turnovers');
     if (recoveries !== null && turnovers !== null) {
       const ratio = turnovers === 0 ? (recoveries > 0 ? recoveries : 0) : recoveries / turnovers;
-      calculated.push({ key: 'recovery_turnover_ratio', displayName: 'Recovery/Turnover', value: ratio, description: 'Recoveries ÷ Turnovers' });
+      calculated.push({
+        key: 'recovery_turnover_ratio',
+        displayName: 'Recovery/Turnover',
+        value: ratio,
+        description: 'Recoveries ÷ Turnovers'
+      });
     }
-
+    
+    // PP to Turnovers Ratio
     const ppSuccess = getSuccessVal('progressive_passes');
     if (ppSuccess !== null && turnovers !== null) {
       const ratio = turnovers === 0 ? (ppSuccess > 0 ? ppSuccess : 0) : ppSuccess / turnovers;
-      calculated.push({ key: 'pp_turnovers_ratio', displayName: 'PP/Turnovers', value: ratio, description: 'Progressive Passes ÷ Turnovers' });
+      calculated.push({
+        key: 'pp_turnovers_ratio',
+        displayName: 'PP/Turnovers',
+        value: ratio,
+        description: 'Progressive Passes ÷ Turnovers'
+      });
     }
-
+    
+    // Aerial Duel Win %
     const aerialSuccess = getSuccessVal('aerial_duels');
     const aerialTotal = getTotalVal('aerial_duels');
     if (aerialSuccess !== null && aerialTotal !== null && aerialTotal > 0) {
-      calculated.push({ key: 'aerial_duel_win_pct', displayName: 'Aerial Duel Win %', value: (aerialSuccess / aerialTotal) * 100, description: 'Aerial Duels Won ÷ Total' });
+      calculated.push({
+        key: 'aerial_duel_win_pct',
+        displayName: 'Aerial Duel Win %',
+        value: (aerialSuccess / aerialTotal) * 100,
+        description: 'Aerial Duels Won ÷ Total'
+      });
     }
-
+    
+    // Pass Completion %
     const passSuccess = getSuccessVal('passes');
     const passTotal = getTotalVal('passes');
     if (passSuccess !== null && passTotal !== null && passTotal > 0) {
-      calculated.push({ key: 'pass_completion', displayName: 'Pass Completion %', value: (passSuccess / passTotal) * 100, description: 'Passes Completed ÷ Total' });
+      calculated.push({
+        key: 'pass_completion',
+        displayName: 'Pass Completion %',
+        value: (passSuccess / passTotal) * 100,
+        description: 'Passes Completed ÷ Total'
+      });
     }
-
+    
+    // Dribble Success %
     const dribbleSuccess = getSuccessVal('dribbles');
     const dribbleTotal = getTotalVal('dribbles');
     if (dribbleSuccess !== null && dribbleTotal !== null && dribbleTotal > 0) {
-      calculated.push({ key: 'dribble_success_pct', displayName: 'Dribble Success %', value: (dribbleSuccess / dribbleTotal) * 100, description: 'Dribbles Completed ÷ Total' });
+      calculated.push({
+        key: 'dribble_success_pct',
+        displayName: 'Dribble Success %',
+        value: (dribbleSuccess / dribbleTotal) * 100,
+        description: 'Dribbles Completed ÷ Total'
+      });
     }
-
+    
+    // Tackle Success %
     const tackleSuccess = getSuccessVal('tackles');
     const tackleTotal = getTotalVal('tackles');
     if (tackleSuccess !== null && tackleTotal !== null && tackleTotal > 0) {
-      calculated.push({ key: 'tackle_success_pct', displayName: 'Tackle Success %', value: (tackleSuccess / tackleTotal) * 100, description: 'Tackles Won ÷ Total' });
+      calculated.push({
+        key: 'tackle_success_pct',
+        displayName: 'Tackle Success %',
+        value: (tackleSuccess / tackleTotal) * 100,
+        description: 'Tackles Won ÷ Total'
+      });
     }
-
+    
+    // xG per Shot
     const xg = getVal('xg');
     const shotsTotal = getTotalVal('shots') ?? getVal('shots');
     if (xg !== null && shotsTotal !== null && shotsTotal > 0) {
-      calculated.push({ key: 'xg_per_shot', displayName: 'xG per Shot', value: xg / shotsTotal, description: 'xG ÷ Total Shots' });
+      calculated.push({
+        key: 'xg_per_shot',
+        displayName: 'xG per Shot',
+        value: xg / shotsTotal,
+        description: 'xG ÷ Total Shots'
+      });
     }
-
+    
     return calculated;
   };
 
   const advancedStats = getAdvancedStats();
   const calculatedStats = getCalculatedStats();
 
-  // Split comma-separated action types into individual types for filtering
-  const splitActionType = (type: string): string[] =>
-    type.split(/[,\/]/).map(t => t.trim().toLowerCase()).filter(Boolean);
-
-  // Get unique action types
+  // Get unique action types (split by comma)
   const allActionTypes = Array.from(new Set(
-    actions.flatMap(a => splitActionType(a.action_type))
+    actions.flatMap(a => (a.action_type || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean))
   )).sort();
 
   // Rating colour buckets
@@ -429,7 +520,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   // Filtered actions
   const filteredActions = actions.filter(a => {
     if (filterTypes.length > 0) {
-      const actionTypes = splitActionType(a.action_type);
+      const actionTypes = (a.action_type || '').split(',').map(t => t.trim().toLowerCase());
       if (!filterTypes.some(ft => actionTypes.includes(ft))) return false;
     }
     if (filterRating) {
@@ -446,51 +537,6 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] md:max-w-[95vw] w-full max-h-[95vh] overflow-y-auto overflow-x-hidden p-0">
-        {loading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading performance report...</div>
-        ) : !analysis ? (
-          <div className="text-center py-8 text-muted-foreground">Performance report not found</div>
-        ) : analysis.visibility_status === "hidden" ? (
-          <div className="text-center py-12 space-y-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
-              <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-            </div>
-            {analysis.placeholder_raw_score != null && analysis.placeholder_minutes ? (
-              <div className="grid grid-cols-3 gap-4 max-w-md mx-auto p-4 bg-accent/20 rounded-lg">
-                <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
-                  <p className="text-base md:text-2xl font-bold">{analysis.placeholder_raw_score.toFixed(3)}</p>
-                </div>
-                <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4">
-                  <p className="text-[10px] md:text-sm opacity-90 mb-0.5 md:mb-1">R90</p>
-                  <p className="text-lg md:text-3xl font-bold">{((analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90).toFixed(2)}</p>
-                </div>
-                <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
-                  <p className="text-base md:text-2xl font-bold">{analysis.placeholder_minutes}</p>
-                </div>
-              </div>
-            ) : analysis.r90_score != null ? (
-              <div className="space-y-2">
-                <p className="text-3xl font-bold">{analysis.r90_score.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">R90 Score</p>
-              </div>
-            ) : null}
-            <div className="bg-muted/50 rounded-lg p-4 max-w-sm mx-auto">
-              <p className="text-sm font-medium">This report is locked</p>
-              <p className="text-xs text-muted-foreground mt-1">Contact us to unlock the full performance breakdown.</p>
-            </div>
-          </div>
-        ) : (
-          <div className="relative">
-            {analysis.visibility_status === "draft" && (
-              <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
-                <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
-                  <h3 className="text-lg font-semibold mb-2">Report In Progress</h3>
-                  <p className="text-sm text-muted-foreground">This performance report is still being prepared. Check back soon.</p>
-                </div>
-              </div>
-            )}
         <div className="sticky top-0 z-10 bg-background border-b p-2 md:p-4 flex items-center justify-between gap-2">
           <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">Performance Report</h2>
           <div className="flex gap-1 md:gap-2 flex-shrink-0">
@@ -547,7 +593,44 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
             </div>
           ) : !analysis ? (
             <div className="text-center py-8 text-muted-foreground">Performance report not found</div>
+          ) : (analysis.visibility_status || "").toLowerCase() === "hidden" ? (
+            <div className="text-center py-12 space-y-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
+                <Lock className="w-8 h-8 text-muted-foreground" />
+              </div>
+              {analysis.placeholder_raw_score != null && (analysis.placeholder_minutes ?? 0) > 0 ? (
+                <div className="grid grid-cols-3 gap-4 max-w-md mx-auto p-4 bg-accent/20 rounded-lg">
+                  <div className="text-center p-2">
+                    <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
+                    <p className="text-base md:text-2xl font-bold">{analysis.placeholder_raw_score.toFixed(3)}</p>
+                  </div>
+                  <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4">
+                    <p className="text-[10px] md:text-sm opacity-90 mb-0.5 md:mb-1">R90</p>
+                    <p className="text-lg md:text-3xl font-bold">{((analysis.placeholder_raw_score / analysis.placeholder_minutes!) * 90).toFixed(2)}</p>
+                  </div>
+                  <div className="text-center p-2">
+                    <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
+                    <p className="text-base md:text-2xl font-bold">{analysis.placeholder_minutes}</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Placeholder stats are not set yet.</p>
+              )}
+              <div className="bg-muted/50 rounded-lg p-4 max-w-sm mx-auto">
+                <p className="text-sm font-medium">This report is locked</p>
+                <p className="text-xs text-muted-foreground mt-1">Contact us to unlock the full performance breakdown.</p>
+              </div>
+            </div>
           ) : (
+            <div className="relative">
+              {isPortalView && analysis.visibility_status === "draft" && (
+                <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
+                  <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
+                    <p className="font-semibold text-sm">Report In Progress</p>
+                    <p className="text-xs text-muted-foreground mt-1">This report is still being prepared. Check back soon.</p>
+                  </div>
+                </div>
+              )}
             <div ref={contentRef} className="space-y-2 md:space-y-3 bg-background p-2 md:p-4 rounded-lg overflow-x-hidden">
               {/* Player Info with Clipped Actions Button */}
               <div className="flex flex-col gap-3">
@@ -557,8 +640,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                     <p className="font-bold text-sm md:text-base truncate">{analysis.player_name}</p>
                   </div>
                   <div>
-                    <p className="text-xs md:text-sm text-muted-foreground">Date</p>
-                    <p className="font-bold text-sm md:text-base">{new Date(analysis.analysis_date).toLocaleDateString('en-GB')}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{t(portalLanguage, "date")}</p>
+                    <p className="font-bold text-sm md:text-base">{new Date(analysis.analysis_date).toLocaleDateString(portalLocale)}</p>
                   </div>
                   <div>
                     <p className="text-xs md:text-sm text-muted-foreground">Opponent</p>
@@ -569,13 +652,13 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                     <p className="font-bold text-sm md:text-base">{analysis.result || "N/A"}</p>
                   </div>
                 </div>
-
+                
                 {/* Clipped Actions Button */}
                 {actions.filter(a => a.video_url).length > 0 && (
                   <Button
                     variant="default"
                     size="sm"
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold flex items-center gap-2"
+                    className="bg-risegold hover:bg-risegold/90 text-black font-semibold flex items-center gap-2"
                     onClick={() => setShowClippedActions(true)}
                   >
                     <Play className="h-4 w-4" />
@@ -590,7 +673,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                   <Button
                     variant={showR90Flow ? "default" : "outline"}
                     size="sm"
-                    onClick={() => { setShowR90Flow(!showR90Flow); setShowHeatmap(false); }}
+                    onClick={() => { setShowR90Flow(!showR90Flow); setShowHeatmap(false); setShowPitchHeatmap(false); setShowChanceCreation(false); }}
                     className="text-xs"
                   >
                     <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
@@ -599,17 +682,40 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                   <Button
                     variant={showHeatmap ? "default" : "outline"}
                     size="sm"
-                    onClick={() => { setShowHeatmap(!showHeatmap); setShowR90Flow(false); setShowChanceCreation(false); }}
+                    onClick={() => { setShowHeatmap(!showHeatmap); setShowR90Flow(false); setShowPitchHeatmap(false); setShowChanceCreation(false); }}
                     className="text-xs"
                   >
                     <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
                     Period Grade Map
                   </Button>
+                  {actions.some(a => a.zone || (a.zone_details && a.zone_details.length > 0)) && (
+                    <>
+                      <Button
+                        variant={showPitchHeatmap ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => { setShowPitchHeatmap(!showPitchHeatmap); setShowZonePerformance(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); }}
+                        className="text-xs"
+                      >
+                        <MapPin className="h-3.5 w-3.5 mr-1.5" />
+                        Pitch Heatmap
+                      </Button>
+                      <Button
+                        variant={showZonePerformance ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => { setShowZonePerformance(!showZonePerformance); setShowPitchHeatmap(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); }}
+                        className="text-xs"
+                      >
+                        <Grid3X3 className="h-3.5 w-3.5 mr-1.5" />
+                        Zone Performance
+                      </Button>
+                    </>
+                  )}
+                  {/* Chance Creation Flow - only show if xC data exists */}
                   {analysis.striker_stats && ['crossing_movement_xC', 'movement_in_behind_xC', 'movement_down_side_xC', 'triple_threat_xC', 'movement_to_feet_xC'].some(k => (analysis.striker_stats as any)?.[k] > 0) && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => { setShowChanceCreation(!showChanceCreation); setShowR90Flow(false); setShowHeatmap(false); }}
+                      onClick={() => { setShowChanceCreation(!showChanceCreation); setShowR90Flow(false); setShowHeatmap(false); setShowPitchHeatmap(false); }}
                       className="text-xs"
                     >
                       <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
@@ -667,6 +773,24 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                   <CardContent className="p-3 md:p-6">
                     <ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} />
                   </CardContent>
+              </Card>
+              )}
+
+              {/* Pitch Heatmap */}
+              {showPitchHeatmap && (
+                <Card className="overflow-hidden">
+                  <CardContent className="p-3 md:p-6">
+                    <PitchHeatmap actions={actions} />
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Zone Performance */}
+              {showZonePerformance && (
+                <Card className="overflow-hidden">
+                  <CardContent className="p-3 md:p-6">
+                    <ZonePerformance actions={actions} />
+                  </CardContent>
                 </Card>
               )}
 
@@ -680,7 +804,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
               )}
 
               {/* Key Stats */}
-              <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
+              <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
                 <div className="text-center p-2">
                   <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
                   <p className="text-base md:text-2xl font-bold">
@@ -699,17 +823,13 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                     </button>
                   </div>
                   <p className="text-lg md:text-3xl font-bold">
-                    {analysis.r90_score !== null
+                    {analysis.r90_score !== null 
                       ? analysis.r90_score.toFixed(2)
                       : analysis.minutes_played && actions.length > 0
                         ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2)
                         : "N/A"
                     }
                   </p>
-                </div>
-                <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">xG Chain</p>
-                  <p className="text-base md:text-2xl font-bold">{actions.length > 0 ? calculateXGChain().toFixed(2) : "N/A"}</p>
                 </div>
                 <div className="text-center p-2">
                   <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
@@ -730,7 +850,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                         const goalsValue = isGoals ? (stat.isPaired ? stat.successful : stat.value) : 0;
                         const hasGoalBorder = isGoals && typeof goalsValue === 'number' && goalsValue >= 1;
                         return (
-                        <div key={stat.key} className={`text-center p-1.5 md:p-3 bg-accent/10 rounded ${hasGoalBorder ? 'ring-2 ring-accent' : ''}`}>
+                        <div key={stat.key} className={`text-center p-1.5 md:p-3 bg-accent/10 rounded ${hasGoalBorder ? 'ring-2 ring-gold' : ''}`}>
                           <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5 capitalize truncate">{formatStatLabel(stat.key)}</p>
                           {stat.isPaired ? (
                             <>
@@ -880,7 +1000,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                             <Button
                               variant="default"
                               size="sm"
-                              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs w-full"
+                              className="bg-gold hover:bg-gold/90 text-black font-semibold text-xs w-full"
                               onClick={() => setShowFilteredPlayer(true)}
                             >
                               <Play className="h-3.5 w-3.5 mr-1.5" />
@@ -910,16 +1030,16 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                                   setSelectedVideoUrl(action.video_url!);
                                   setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
                                 }}
-                                className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0"
+                                className="text-risegold hover:text-risegold/80 p-0.5 flex-shrink-0"
                               >
                                 <Video className="h-3.5 w-3.5" />
                               </button>
                             )}
                           </div>
                           <div className="font-medium text-xs mt-1 truncate">{toTitleCase(action.action_type)}</div>
-                          <div className="text-[10px] text-foreground/80 line-clamp-2">{action.action_description}</div>
+                          <div className="text-[10px] text-foreground/80">{action.action_description}</div>
                           {action.notes && (
-                            <div className="text-[9px] text-accent italic mt-1 pt-1 border-t border-border/50 truncate">
+                            <div className="text-[9px] text-muted-foreground italic mt-1 pt-1 border-t border-border/50 break-words">
                               {action.notes}
                             </div>
                           )}
@@ -948,7 +1068,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                               <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
                               <td className="py-2 px-2">{toTitleCase(action.action_type)}</td>
                               <td className="py-2 px-2">{action.action_description}</td>
-                              <td className="py-2 px-2 text-accent">{action.notes || "-"}</td>
+                              <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>
                               <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>
                                 {action.action_score?.toFixed(5)}
                               </td>
@@ -959,7 +1079,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                                       setSelectedVideoUrl(action.video_url!);
                                       setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
                                     }}
-                                    className="text-accent hover:text-accent/80 p-1"
+                                    className="text-risegold hover:text-risegold/80 p-1"
                                   >
                                     <Video className="h-4 w-4" />
                                   </button>
@@ -976,10 +1096,9 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
                 </Card>
               )}
             </div>
+            </div>
           )}
         </div>
-          </div>
-        )}
       </DialogContent>
 
       {/* Video Popup for single action */}
@@ -1052,7 +1171,6 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId }: Perf
           }))}
       />
 
-      {/* R90 Info Dialog */}
       <Dialog open={showR90Info} onOpenChange={setShowR90Info}>
         <DialogContent className="w-[95vw] max-w-[95vw] md:max-w-2xl max-h-[85vh] overflow-y-auto">
           <button

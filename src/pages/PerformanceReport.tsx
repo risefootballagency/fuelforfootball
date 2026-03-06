@@ -1,24 +1,27 @@
 import { useEffect, useState, useRef } from "react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { getR90Grade } from "@/lib/gradeCalculations";
-import { Download, X, Video, Play, TrendingUp, BarChart3, Film, Award, HelpCircle, Calculator, MessageSquareText, Filter } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade } from "@/lib/gradeCalculations";
+import { Download, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, MessageSquareText, Filter, X, ImageIcon, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
 import { SEO } from "@/components/SEO";
 import { ActionVideoPopup } from "@/components/ActionVideoPopup";
 import { ClippedActionsPlayer } from "@/components/ClippedActionsPlayer";
-import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
+import { STAT_TYPE_CONFIGS, StatTypeConfig } from "@/components/staff/ActionStatRecorder";
 import { R90FlowChart } from "@/components/report/R90FlowChart";
 import { ActionHeatmap } from "@/components/report/ActionHeatmap";
+import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ChanceCreationFlow } from "@/components/report/ChanceCreationFlow";
-import { STAT_TYPE_CONFIGS, StatTypeConfig } from "@/components/staff/ActionStatRecorder";
+import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
 import { toTitleCase } from "@/lib/titleCase";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { sortActionsByMinute } from "@/lib/actionSorting";
 
 const formatMinute = (minute: number | null | undefined): string => {
   if (minute === null || minute === undefined) return "-";
@@ -36,6 +39,8 @@ interface PerformanceAction {
   action_description: string;
   notes: string | null;
   video_url?: string | null;
+  zone?: number | null;
+  zone_details?: any[] | null;
 }
 
 interface StrikerStats {
@@ -63,13 +68,18 @@ const PerformanceReport = () => {
   const [analysis, setAnalysis] = useState<AnalysisDetails | null>(null);
   const [actions, setActions] = useState<PerformanceAction[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [savingImage, setSavingImage] = useState(false);
+
+  // Video/player states
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
-  const [selectedVideoTitle, setSelectedVideoTitle] = useState("");
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
   const [showR90Flow, setShowR90Flow] = useState(false);
   const [showR90Info, setShowR90Info] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showChanceCreation, setShowChanceCreation] = useState(false);
   const [showRankedPlayer, setShowRankedPlayer] = useState(false);
+  const [showPitchHeatmap, setShowPitchHeatmap] = useState(false);
   const [rankedMode, setRankedMode] = useState<"chronological" | "ranked" | "noted">("chronological");
   const [showClippedActions, setShowClippedActions] = useState(false);
   const [showFilteredPlayer, setShowFilteredPlayer] = useState(false);
@@ -98,37 +108,38 @@ const PerformanceReport = () => {
 
   const fetchPerformanceData = async () => {
     try {
-      const { data: analysisData, error: analysisError } = await supabase
-        .from("player_analysis")
-        .select(`*, players!inner (name)`)
-        .eq("id", analysisId)
-        .single();
+      const [analysisResult, actionsResult] = await Promise.all([
+        supabase
+          .from("player_analysis")
+          .select(`*, players!inner (name)`)
+          .eq("id", analysisId)
+          .single(),
+        supabase
+          .from("performance_report_actions")
+          .select("*")
+          .eq("analysis_id", analysisId)
+          .order("action_number", { ascending: true })
+      ]);
 
-      if (analysisError) throw analysisError;
+      if (analysisResult.error) throw analysisResult.error;
 
       setAnalysis({
-        id: analysisData.id,
-        analysis_date: analysisData.analysis_date,
-        opponent: analysisData.opponent || "",
-        result: analysisData.result || "",
-        r90_score: analysisData.r90_score,
-        minutes_played: analysisData.minutes_played,
-        player_name: analysisData.players?.name || "Unknown Player",
-        striker_stats: analysisData.striker_stats as StrikerStats | null,
-        performance_overview: analysisData.performance_overview,
-        visibility_status: (analysisData as any).visibility_status || "live",
-        placeholder_raw_score: (analysisData as any).placeholder_raw_score,
-        placeholder_minutes: (analysisData as any).placeholder_minutes,
+        id: analysisResult.data.id,
+        analysis_date: analysisResult.data.analysis_date,
+        opponent: analysisResult.data.opponent || "",
+        result: analysisResult.data.result || "",
+        r90_score: analysisResult.data.r90_score,
+        minutes_played: analysisResult.data.minutes_played,
+        player_name: analysisResult.data.players?.name || "Unknown Player",
+        striker_stats: analysisResult.data.striker_stats as StrikerStats | null,
+        performance_overview: analysisResult.data.performance_overview,
+        visibility_status: (analysisResult.data as any).visibility_status || "live",
+        placeholder_raw_score: (analysisResult.data as any).placeholder_raw_score,
+        placeholder_minutes: (analysisResult.data as any).placeholder_minutes,
       });
 
-      const { data: actionsData, error: actionsError } = await supabase
-        .from("performance_report_actions")
-        .select("*")
-        .eq("analysis_id", analysisId)
-        .order("action_number", { ascending: true });
-
-      if (actionsError) throw actionsError;
-      setActions(actionsData || []);
+      if (actionsResult.error) throw actionsResult.error;
+      setActions(sortActionsByMinute((actionsResult.data || []) as any));
     } catch (error: any) {
       console.error("Error fetching performance data:", error);
       toast.error("Failed to load performance report");
@@ -163,32 +174,77 @@ const PerformanceReport = () => {
     }, 0);
   };
 
+  const handleSaveAsWebp = async () => {
+    if (!contentRef.current || !analysis) return;
+    setSavingImage(true);
+    try {
+      const { default: html2canvas } = await import('html2canvas');
+      const originalBg = contentRef.current.style.backgroundColor;
+      contentRef.current.style.backgroundColor = '#000000';
+      const canvas = await html2canvas(contentRef.current, {
+        backgroundColor: '#000000',
+        useCORS: true,
+        logging: false,
+        scale: 2,
+      } as any);
+      contentRef.current.style.backgroundColor = originalBg;
+      const fileName = `${analysis.player_name}-vs-${analysis.opponent}-performance-report`;
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+      if (isMobile) {
+        const dataUrl = canvas.toDataURL('image/png', 0.95);
+        const newTab = window.open();
+        if (newTab) {
+          newTab.document.write(`<html><head><title>${fileName}</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;}</style></head><body><img src="${dataUrl}" style="max-width:100%;height:auto;" /></body></html>`);
+          newTab.document.close();
+          toast.success('Image opened - long-press to save');
+        } else {
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = `${fileName}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.success('Image saved');
+        }
+      } else {
+        const dataUrl = canvas.toDataURL('image/webp', 0.9);
+        const link = document.createElement('a');
+        link.download = `${fileName}.webp`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Image saved successfully');
+      }
+    } catch (error) {
+      console.error('Error saving image:', error);
+      toast.error('Failed to save image');
+    } finally {
+      setSavingImage(false);
+    }
+  };
+
+  // Format stat key to readable label using config lookup
   const formatStatLabel = (key: string): string => {
     let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
     if (config) return config.name;
     const keyLower = key.toLowerCase();
     config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
     if (config) return config.name;
-    return key
-      .replace(/_/g, ' ')
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .trim();
+    return key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
   };
 
+  // Get advanced stats from striker_stats, excluding internal fields
   const getAdvancedStats = () => {
     if (!analysis?.striker_stats) return [];
     const excludeKeys = ['selected_stats', 'stats_order'];
-    const stats: {
-      key: string; value: number | string; per90Value?: number | string;
-      isPaired?: boolean; successful?: number; attempted?: number; percentage?: string;
-    }[] = [];
+    const stats: { key: string; value: number | string; per90Value?: number | string; isPaired?: boolean; successful?: number; attempted?: number; percentage?: string; }[] = [];
     const processedKeys = new Set<string>();
     const statsOrder = analysis.striker_stats.stats_order as string[] | undefined;
     const selectedStats = analysis.striker_stats.selected_stats as string[] | undefined;
     const rawKeysToShow = statsOrder || selectedStats || Object.keys(analysis.striker_stats);
     const keysToShow = rawKeysToShow.filter(key => !excludeKeys.includes(key));
-
+    
     for (const key of keysToShow) {
       if (key.includes('_per90')) continue;
       if (processedKeys.has(key)) continue;
@@ -210,7 +266,8 @@ const PerformanceReport = () => {
           const per90Key = `${key}_per90`;
           const per90Value = analysis.striker_stats[per90Key];
           stats.push({
-            key: baseKey !== key ? baseKey : key, value: successful,
+            key: baseKey !== key ? baseKey : key,
+            value: successful,
             per90Value: per90Value !== null && per90Value !== undefined ? per90Value as number | string : undefined,
             isPaired: true, successful, attempted,
             percentage: attempted > 0 ? ((successful / attempted) * 100).toFixed(1) : '0'
@@ -218,7 +275,7 @@ const PerformanceReport = () => {
           continue;
         }
       }
-      if (key.endsWith('_attempted')) { processedKeys.add(key); continue; }
+      if (key.endsWith('_attempted') || key.endsWith('_successful')) { processedKeys.add(key); continue; }
       if (typeof value !== 'number' && typeof value !== 'string') continue;
 
       const keyLower = key.toLowerCase();
@@ -231,6 +288,7 @@ const PerformanceReport = () => {
     return stats;
   };
 
+  // Calculate derived stats from the base stats
   const getCalculatedStats = () => {
     if (!analysis?.striker_stats) return [];
     const strikerStats = analysis.striker_stats;
@@ -278,11 +336,12 @@ const PerformanceReport = () => {
     return calculated;
   };
 
-  const splitActionType = (type: string): string[] =>
-    type.split(/[,\/]/).map(t => t.trim().toLowerCase()).filter(Boolean);
+  const advancedStats = getAdvancedStats();
+  const calculatedStats = getCalculatedStats();
 
+  // Get unique action types (split by comma)
   const allActionTypes = Array.from(new Set(
-    actions.flatMap(a => splitActionType(a.action_type))
+    actions.flatMap(a => a.action_type.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))
   )).sort();
 
   const getRatingBucket = (score: number): string => {
@@ -305,7 +364,7 @@ const PerformanceReport = () => {
 
   const filteredActions = actions.filter(a => {
     if (filterTypes.length > 0) {
-      const actionTypes = splitActionType(a.action_type);
+      const actionTypes = a.action_type.split(',').map(t => t.trim().toLowerCase());
       if (!filterTypes.some(ft => actionTypes.includes(ft))) return false;
     }
     if (filterRating) { if (getRatingBucket(a.action_score) !== filterRating) return false; }
@@ -314,16 +373,12 @@ const PerformanceReport = () => {
   });
 
   const hasActiveFilters = filterTypes.length > 0 || filterRating !== null || filterHasNotes;
-  const advancedStats = getAdvancedStats();
-  const calculatedStats = getCalculatedStats();
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         {!isAuthenticated && <Header />}
-        <main className="container mx-auto px-4 py-8">
-          <div className="text-center">Loading...</div>
-        </main>
+        <main className="container mx-auto px-4 py-8"><LoadingSpinner size="md" /></main>
         {!isAuthenticated && <Footer />}
       </div>
     );
@@ -341,21 +396,30 @@ const PerformanceReport = () => {
     );
   }
 
-    return (
+  return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={`${analysis.player_name} vs ${analysis.opponent} - Performance Report | Fuel For Football`}
-        description={`Detailed performance analysis for ${analysis.player_name} against ${analysis.opponent}.`}
+        title={`${analysis.player_name} vs ${analysis.opponent} - Performance Report | RISE Football`}
+        description={`Detailed performance analysis for ${analysis.player_name} against ${analysis.opponent}. R90 Score: ${analysis.r90_score?.toFixed(2) || 'N/A'}.`}
       />
       {!isAuthenticated && <div className="print:hidden"><Header /></div>}
-      
-      {analysis.visibility_status === "hidden" ? (
-        <main className="container mx-auto px-3 md:px-4 py-8">
-          <div className="text-center py-12 space-y-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
-              <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-            </div>
-            {analysis.placeholder_raw_score != null && analysis.placeholder_minutes ? (
+
+      <main className="container mx-auto px-3 md:px-4 py-4 md:py-8">
+        {/* Sticky header bar */}
+        <div className="sticky top-0 z-10 bg-background border-b mb-4 py-2 flex items-center justify-between gap-2 print:hidden">
+          <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">Performance Report</h2>
+          <div className="flex gap-1 md:gap-2 flex-shrink-0">
+            <Button onClick={handleSaveAsWebp} variant="default" size="sm" className="px-2 md:px-3" disabled={savingImage || loading}>
+              <ImageIcon className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">{savingImage ? 'Saving...' : 'Save'}</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Visibility: Hidden - show placeholder stats */}
+        {(analysis.visibility_status || "").toLowerCase() === "hidden" ? (
+          <div className="text-center py-16 space-y-6">
+            {analysis.placeholder_raw_score != null && (analysis.placeholder_minutes ?? 0) > 0 ? (
               <div className="grid grid-cols-3 gap-4 max-w-md mx-auto p-4 bg-accent/20 rounded-lg">
                 <div className="text-center p-2">
                   <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
@@ -363,52 +427,32 @@ const PerformanceReport = () => {
                 </div>
                 <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4">
                   <p className="text-[10px] md:text-sm opacity-90 mb-0.5 md:mb-1">R90</p>
-                  <p className="text-lg md:text-3xl font-bold">{((analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90).toFixed(2)}</p>
+                  <p className="text-lg md:text-3xl font-bold">{((analysis.placeholder_raw_score / analysis.placeholder_minutes!) * 90).toFixed(2)}</p>
                 </div>
                 <div className="text-center p-2">
                   <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
                   <p className="text-base md:text-2xl font-bold">{analysis.placeholder_minutes}</p>
                 </div>
               </div>
-            ) : analysis.r90_score != null ? (
-              <div className="space-y-2">
-                <p className="text-3xl font-bold">{analysis.r90_score.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">R90 Score</p>
-              </div>
-            ) : null}
-            <div className="bg-muted/50 rounded-lg p-4 max-w-sm mx-auto">
+            ) : (
+              <p className="text-sm text-muted-foreground">Placeholder stats are not set yet.</p>
+            )}
+            <div className="bg-muted/50 rounded-lg p-6 max-w-sm mx-auto">
               <p className="text-sm font-medium">This report is locked</p>
               <p className="text-xs text-muted-foreground mt-1">Contact us to unlock the full performance breakdown.</p>
             </div>
           </div>
-        </main>
-      ) : (
-      <main className="container mx-auto px-3 md:px-4 py-4 md:py-8">
+        ) : (
         <div className="relative">
-          {!isAuthenticated && analysis.visibility_status === "draft" && (
-            <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
-              <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
-                <h3 className="text-lg font-semibold mb-2">Report In Progress</h3>
-                <p className="text-sm text-muted-foreground">This performance report is still being prepared. Check back soon.</p>
-              </div>
-            </div>
-          )}
-        <div className="space-y-2 md:space-y-3">
-          {/* Header with buttons */}
-          <div className="flex items-center justify-between gap-2 print:hidden">
-            <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">Performance Report</h2>
-            <div className="flex gap-1 md:gap-2 flex-shrink-0">
-              <Button onClick={() => window.print()} variant="default" size="sm" className="px-2 md:px-3">
-                <Download className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">Save as PDF</span>
-              </Button>
-              <Button onClick={() => window.history.back()} variant="outline" size="sm" className="px-2 md:px-3">
-                <X className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">Close</span>
-              </Button>
+        {!isAuthenticated && analysis.visibility_status === "draft" && (
+          <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
+            <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
+              <p className="font-semibold text-sm">Report In Progress</p>
+              <p className="text-xs text-muted-foreground mt-1">This report is still being prepared. Check back soon.</p>
             </div>
           </div>
-
+        )}
+        <div ref={contentRef} className="space-y-2 md:space-y-3 bg-background p-2 md:p-4 rounded-lg overflow-x-hidden">
           {/* Player Info */}
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
@@ -435,24 +479,29 @@ const PerformanceReport = () => {
               <Button
                 variant="default"
                 size="sm"
-                className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold flex items-center gap-2 w-fit"
+                className="bg-risegold hover:bg-risegold/90 text-black font-semibold flex items-center gap-2 w-fit"
                 onClick={() => setShowClippedActions(true)}
               >
                 <Play className="h-4 w-4" />
-                {actions.filter(a => a.video_url).length}
+                {actions.filter(a => a.video_url).length} Clips
               </Button>
             )}
           </div>
 
           {/* Graphics Buttons Row */}
           {actions.length > 0 && (
-            <div className="flex flex-wrap gap-2 print:hidden">
+            <div className="flex flex-wrap gap-2">
               <Button variant={showR90Flow ? "default" : "outline"} size="sm" onClick={() => { setShowR90Flow(!showR90Flow); setShowHeatmap(false); }} className="text-xs">
                 <TrendingUp className="h-3.5 w-3.5 mr-1.5" />R90 Flow
               </Button>
-              <Button variant={showHeatmap ? "default" : "outline"} size="sm" onClick={() => { setShowHeatmap(!showHeatmap); setShowR90Flow(false); setShowChanceCreation(false); }} className="text-xs">
+              <Button variant={showHeatmap ? "default" : "outline"} size="sm" onClick={() => { setShowHeatmap(!showHeatmap); setShowR90Flow(false); setShowChanceCreation(false); setShowPitchHeatmap(false); }} className="text-xs">
                 <BarChart3 className="h-3.5 w-3.5 mr-1.5" />Period Grade Map
               </Button>
+              {actions.some(a => a.zone || (a.zone_details && a.zone_details.length > 0)) && (
+                <Button variant={showPitchHeatmap ? "default" : "outline"} size="sm" onClick={() => { setShowPitchHeatmap(!showPitchHeatmap); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); }} className="text-xs">
+                  <MapPin className="h-3.5 w-3.5 mr-1.5" />Pitch Heatmap
+                </Button>
+              )}
               {analysis.striker_stats && ['crossing_movement_xC', 'movement_in_behind_xC', 'movement_down_side_xC', 'triple_threat_xC', 'movement_to_feet_xC'].some(k => (analysis.striker_stats as any)?.[k] > 0) && (
                 <Button variant="outline" size="sm" onClick={() => { setShowChanceCreation(!showChanceCreation); setShowR90Flow(false); setShowHeatmap(false); }} className="text-xs">
                   <TrendingUp className="h-3.5 w-3.5 mr-1.5" />Chance Creation Flow
@@ -480,15 +529,24 @@ const PerformanceReport = () => {
           {showR90Flow && analysis.minutes_played && (
             <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} /></CardContent></Card>
           )}
+
+          {/* Action Heatmap */}
           {showHeatmap && analysis.minutes_played && (
             <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} /></CardContent></Card>
           )}
+
+          {/* Pitch Heatmap */}
+          {showPitchHeatmap && (
+            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><PitchHeatmap actions={actions} /></CardContent></Card>
+          )}
+
+          {/* Chance Creation Flow */}
           {showChanceCreation && analysis.striker_stats && (
             <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} /></CardContent></Card>
           )}
 
           {/* Key Stats */}
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
+          <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
             <div className="text-center p-2">
               <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
               <p className="text-base md:text-2xl font-bold">
@@ -498,7 +556,7 @@ const PerformanceReport = () => {
             <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4 relative">
               <div className="flex items-center justify-center gap-1 mb-0.5 md:mb-1">
                 <p className="text-[10px] md:text-sm opacity-90">R90</p>
-                <button onClick={() => setShowR90Info(true)} className="opacity-50 hover:opacity-100 transition-opacity print:hidden" title="How is R90 calculated?">
+                <button onClick={() => setShowR90Info(true)} className="opacity-50 hover:opacity-100 transition-opacity" title="How is R90 calculated?">
                   <HelpCircle className="w-3 h-3 md:w-3.5 md:h-3.5" />
                 </button>
               </div>
@@ -507,12 +565,9 @@ const PerformanceReport = () => {
                   ? analysis.r90_score.toFixed(2)
                   : analysis.minutes_played && actions.length > 0
                     ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2)
-                    : "N/A"}
+                    : "N/A"
+                }
               </p>
-            </div>
-            <div className="text-center p-2">
-              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">xG Chain</p>
-              <p className="text-base md:text-2xl font-bold">{actions.length > 0 ? calculateXGChain().toFixed(2) : "N/A"}</p>
             </div>
             <div className="text-center p-2">
               <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
@@ -533,7 +588,7 @@ const PerformanceReport = () => {
                     const goalsValue = isGoals ? (stat.isPaired ? stat.successful : stat.value) : 0;
                     const hasGoalBorder = isGoals && typeof goalsValue === 'number' && goalsValue >= 1;
                     return (
-                      <div key={stat.key} className={`text-center p-1.5 md:p-3 bg-accent/10 rounded ${hasGoalBorder ? 'ring-2 ring-accent' : ''}`}>
+                      <div key={stat.key} className={`text-center p-1.5 md:p-3 bg-accent/10 rounded ${hasGoalBorder ? 'ring-2 ring-gold' : ''}`}>
                         <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5 capitalize truncate">{formatStatLabel(stat.key)}</p>
                         {stat.isPaired ? (
                           <>
@@ -601,22 +656,17 @@ const PerformanceReport = () => {
                   <CardTitle className="text-sm md:text-lg">
                     Actions ({hasActiveFilters ? `${filteredActions.length}/${actions.length}` : actions.length})
                   </CardTitle>
-                  <div className="flex items-center gap-2 print:hidden">
+                  <div className="flex items-center gap-2">
                     {hasActiveFilters && (
-                      <button onClick={() => { setFilterTypes([]); setFilterRating(null); setFilterHasNotes(false); }} className="text-[10px] text-muted-foreground hover:text-foreground underline">
-                        Clear filters
-                      </button>
+                      <button onClick={() => { setFilterTypes([]); setFilterRating(null); setFilterHasNotes(false); }} className="text-[10px] text-muted-foreground hover:text-foreground underline">Clear filters</button>
                     )}
-                    <button
-                      onClick={() => setShowActionFilters(!showActionFilters)}
-                      className={`p-1.5 rounded transition-colors ${hasActiveFilters ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}
-                    >
+                    <button onClick={() => setShowActionFilters(!showActionFilters)} className={`p-1.5 rounded transition-colors ${hasActiveFilters ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
                       <Filter className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
                 {showActionFilters && (
-                  <div className="mt-3 space-y-3 border-t pt-3 print:hidden">
+                  <div className="mt-3 space-y-3 border-t pt-3">
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">Action Type</p>
                       <div className="flex flex-wrap gap-1">
@@ -647,7 +697,7 @@ const PerformanceReport = () => {
                     </div>
                     {hasActiveFilters && filteredActions.some(a => a.video_url) && (
                       <div className="pt-2 border-t border-border/30">
-                        <Button variant="default" size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs w-full" onClick={() => setShowFilteredPlayer(true)}>
+                        <Button variant="default" size="sm" className="bg-gold hover:bg-gold/90 text-black font-semibold text-xs w-full" onClick={() => setShowFilteredPlayer(true)}>
                           <Play className="h-3.5 w-3.5 mr-1.5" />Watch Selected ({filteredActions.filter(a => a.video_url).length})
                         </Button>
                       </div>
@@ -664,13 +714,10 @@ const PerformanceReport = () => {
                         <div className="flex items-center gap-1.5 min-w-0">
                           <span className="font-semibold text-xs">#{action.action_number}</span>
                           <span className="text-[10px] text-muted-foreground">{formatMinute(action.minute)}'</span>
-                          <span className={`text-xs font-bold ${getActionScoreColor(action.action_score)}`}>
-                            {action.action_score?.toFixed(3)}
-                          </span>
+                          <span className={`text-xs font-bold ${getActionScoreColor(action.action_score)}`}>{action.action_score?.toFixed(3)}</span>
                         </div>
                         {action.video_url && (
-                          <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }}
-                            className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0">
+                          <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }} className="text-risegold hover:text-risegold/80 p-0.5 flex-shrink-0">
                             <Video className="h-3.5 w-3.5" />
                           </button>
                         )}
@@ -678,9 +725,7 @@ const PerformanceReport = () => {
                       <div className="font-medium text-xs mt-1 truncate">{toTitleCase(action.action_type)}</div>
                       <div className="text-[10px] text-foreground/80 line-clamp-2">{action.action_description}</div>
                       {action.notes && (
-                        <div className="text-[9px] text-accent italic mt-1 pt-1 border-t border-border/50">
-                          {action.notes}
-                        </div>
+                        <div className="text-[9px] text-muted-foreground italic mt-1 pt-1 border-t border-border/50 truncate">{action.notes}</div>
                       )}
                     </div>
                   ))}
@@ -707,14 +752,11 @@ const PerformanceReport = () => {
                           <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
                           <td className="py-2 px-2">{toTitleCase(action.action_type)}</td>
                           <td className="py-2 px-2">{action.action_description}</td>
-                          <td className="py-2 px-2 text-accent">{action.notes || "-"}</td>
-                          <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>
-                            {action.action_score?.toFixed(5)}
-                          </td>
+                          <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>
+                          <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>{action.action_score?.toFixed(5)}</td>
                           <td className="py-2 px-2 text-center">
                             {action.video_url ? (
-                              <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }}
-                                className="text-accent hover:text-accent/80 p-1">
+                              <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }} className="text-risegold hover:text-risegold/80 p-1">
                                 <Video className="h-4 w-4" />
                               </button>
                             ) : <span className="text-muted-foreground">-</span>}
@@ -729,8 +771,8 @@ const PerformanceReport = () => {
           )}
         </div>
         </div>
+        )}
       </main>
-      )}
 
       {!isAuthenticated && <div className="print:hidden"><Footer /></div>}
 
@@ -748,11 +790,7 @@ const PerformanceReport = () => {
       <ClippedActionsPlayer
         open={showClippedActions}
         onOpenChange={setShowClippedActions}
-        clips={actions.filter(a => a.video_url).map(a => ({
-          id: a.id, action_number: a.action_number, action_type: a.action_type,
-          action_description: a.action_description, video_url: a.video_url!,
-          minute: a.minute, notes: a.notes,
-        }))}
+        clips={actions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
       />
 
       {/* Ranked/Full Match Video Player */}
@@ -760,11 +798,7 @@ const PerformanceReport = () => {
         open={showRankedPlayer}
         onOpenChange={setShowRankedPlayer}
         mode={rankedMode}
-        clips={actions.filter(a => a.video_url).map(a => ({
-          id: a.id, action_number: a.action_number, action_type: a.action_type,
-          action_description: a.action_description, action_score: a.action_score,
-          video_url: a.video_url!, minute: a.minute, notes: a.notes,
-        }))}
+        clips={actions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, action_score: a.action_score, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
       />
 
       {/* Filtered Video Player */}
@@ -772,11 +806,7 @@ const PerformanceReport = () => {
         open={showFilteredPlayer}
         onOpenChange={setShowFilteredPlayer}
         mode="chronological"
-        clips={filteredActions.filter(a => a.video_url).map(a => ({
-          id: a.id, action_number: a.action_number, action_type: a.action_type,
-          action_description: a.action_description, action_score: a.action_score,
-          video_url: a.video_url!, minute: a.minute, notes: a.notes,
-        }))}
+        clips={filteredActions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, action_score: a.action_score, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
       />
 
       {/* R90 Info Dialog */}
@@ -794,28 +824,23 @@ const PerformanceReport = () => {
               <h3 className="font-semibold text-sm">Calculation</h3>
               <div className="bg-accent/20 rounded-lg p-3 space-y-2 text-sm">
                 <p><strong>Raw Score</strong> = sum of all action scores in the match</p>
-                <p><strong>R90</strong> = (Raw Score / Minutes Played) × 90</p>
+                <p><strong>R90</strong> = (Raw Score / Minutes Played) x 90</p>
               </div>
               <h3 className="font-semibold text-sm">Score Guide</h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(43, 96%, 56%)' }} /><span>A* (2.20+)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 76%, 55%)' }} /><span>A+ (1.80–2.19)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 70%, 50%)' }} /><span>A (1.60–1.79)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 65%, 45%)' }} /><span>A- (1.40–1.59)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 70%, 40%)' }} /><span>B+ (1.20–1.39)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 76%, 36%)' }} /><span>B (1.00–1.19)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(60, 70%, 50%)' }} /><span>B- (0.80–0.99)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(40, 85%, 50%)' }} /><span>C+ (0.60–0.79)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(25, 75%, 45%)' }} /><span>C (0.40–0.59)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(0, 84%, 60%)' }} /><span>C- (0.20–0.39)</span></div>
-                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(0, 84%, 45%)' }} /><span>D (0.00–0.19)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 76%, 55%)' }} /><span>A+ (1.80-2.19)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 70%, 50%)' }} /><span>A (1.60-1.79)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 65%, 45%)' }} /><span>A- (1.40-1.59)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 70%, 40%)' }} /><span>B+ (1.20-1.39)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(142, 76%, 36%)' }} /><span>B (1.00-1.19)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(60, 70%, 50%)' }} /><span>B- (0.80-0.99)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(40, 85%, 50%)' }} /><span>C+ (0.60-0.79)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(25, 75%, 45%)' }} /><span>C (0.40-0.59)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(0, 84%, 60%)' }} /><span>C- (0.20-0.39)</span></div>
+                <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(0, 84%, 45%)' }} /><span>D (0.00-0.19)</span></div>
                 <div className="flex items-center gap-2"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'hsl(0, 84%, 30%)' }} /><span>U (below 0)</span></div>
               </div>
-              <h3 className="font-semibold text-sm">Important Notes</h3>
-              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-                <li>Short appearances (under 20 minutes) can produce inflated or deflated scores</li>
-                <li>Goals win games. Always remember that while R90 is heavily influenced by chance-related actions, so is the real game.</li>
-              </ul>
             </div>
           </div>
         </DialogContent>
