@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { playSuccess } from "@/lib/soundEffects";
+import { supabase } from "@/integrations/supabase/client";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,8 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
+import { Plus, Trash2, EyeOff, AlertTriangle, Search, Loader2, ChevronDown, ChevronUp, List, GripVertical, ArrowLeft, Save, X, ArrowUp, ArrowDown, ChevronsUpDown, Check } from "lucide-react";
 import { VisibilityStatusButton, VisibilityStatus } from "./VisibilityStatusButton";
-import { Plus, Trash2, EyeOff, AlertTriangle, LineChart, Sparkles, Search, Loader2, ChevronDown, ChevronUp, List, GripVertical, ArrowLeft, Save, X, ArrowUp, ArrowDown, ChevronsUpDown, Check } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { toTitleCase } from "@/lib/titleCase";
@@ -24,11 +26,15 @@ import { R90RatingsViewer } from "./R90RatingsViewer";
 import { formatScoreWithFrequency } from "@/lib/utils";
 import { ActionsByTypeDialog } from "./ActionsByTypeDialog";
 import { ActionVideoUpload } from "./ActionVideoUpload";
-import { ActionStatRecorder, RecordedStat } from "./ActionStatRecorder";
+import { ActionStatRecorder, aggregateRecordedStats, RecordedStat, STAT_TYPE_CONFIGS, StatTypeConfig } from "./ActionStatRecorder";
 import { UnifiedStatsEditor, UnifiedStat, mergeStatsForEditor, unifiedStatsToStrikerStats } from "./UnifiedStatsEditor";
 import { FixtureStatsEditor, UNIFIED_TO_FIXTURE_MAP, FIXTURE_TO_UNIFIED_MAP } from "./FixtureStatsEditor";
 import { InlineFixtureCreator } from "./InlineFixtureCreator";
-import { aggregateRecordedStats, STAT_TYPE_CONFIGS, StatTypeConfig } from "./ActionStatRecorder";
+import { logActivity } from "@/lib/activityLogger";
+import { ReportLanguageSelector } from "./ReportLanguageSelector";
+import { parseMinuteToSeconds } from "@/lib/actionSorting";
+import { ZonePitchSelector, type ZonePoint } from "@/components/report/ZonePitchSelector";
+import { fetchPlayerActionFrequencies, canonicalActionType } from "@/lib/playerActionFrequency";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
 const formatMinuteForInput = (minute: number | null): string => {
@@ -38,6 +44,46 @@ const formatMinuteForInput = (minute: number | null): string => {
   return `${minPart}.${secPart.toString().padStart(2, '0')}`;
 };
 
+// Sort actions chronologically by game time; actions without a minute keep their current position
+const sortActionsChronologically = (actions: PerformanceAction[]): PerformanceAction[] => {
+  // Separate actions with and without minutes
+  const withMinute: { action: PerformanceAction; originalIndex: number; seconds: number }[] = [];
+  const withoutMinute: { action: PerformanceAction; originalIndex: number }[] = [];
+  
+  actions.forEach((action, i) => {
+    const secs = parseMinuteToSeconds(action.minute);
+    if (secs === Infinity) {
+      withoutMinute.push({ action, originalIndex: i });
+    } else {
+      withMinute.push({ action, originalIndex: i, seconds: secs });
+    }
+  });
+  
+  // Sort only the actions that have minutes
+  withMinute.sort((a, b) => a.seconds - b.seconds);
+  
+  // Rebuild: place sorted actions with minutes in their slots, keep empty-minute actions in place
+  const result: PerformanceAction[] = new Array(actions.length);
+  
+  // First, place actions without minutes in their original positions
+  withoutMinute.forEach(({ action, originalIndex }) => {
+    result[originalIndex] = action;
+  });
+  
+  // Then fill remaining slots with sorted actions that have minutes
+  let sortedIdx = 0;
+  for (let i = 0; i < result.length; i++) {
+    if (!result[i] && sortedIdx < withMinute.length) {
+      result[i] = withMinute[sortedIdx].action;
+      sortedIdx++;
+    }
+  }
+  
+  // Renumber
+  result.forEach((action, i) => { action.action_number = i + 1; });
+  return result;
+};
+
 interface CreatePerformanceReportDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -45,9 +91,8 @@ interface CreatePerformanceReportDialogProps {
   playerName: string;
   onSuccess?: () => void;
   analysisId?: string; // For edit mode
-  inline?: boolean; // When true, renders as full-page editor instead of dialog
-  onBack?: () => void; // Called when back button clicked in inline mode
-  onClose?: () => void; // Called when closing in inline mode
+  inline?: boolean; // When true, renders without Dialog wrapper
+  onClose?: () => void; // Required for inline mode
 }
 
 interface Fixture {
@@ -68,8 +113,10 @@ interface PerformanceAction {
   action_type: string;
   action_description: string;
   notes: string;
-  video_url?: string;
+  video_url?: string | null;
   recorded_stat?: RecordedStat | RecordedStat[] | null;
+  zone?: number | null;
+  zone_details?: ZonePoint[] | null;
 }
 
 interface SortableStatItemProps {
@@ -117,11 +164,8 @@ export const CreatePerformanceReportDialog = ({
   onSuccess,
   analysisId,
   inline = false,
-  onBack,
   onClose,
 }: CreatePerformanceReportDialogProps) => {
-  // Store original striker_stats from database to preserve unmodified fields
-  const [originalStrikerStats, setOriginalStrikerStats] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -147,20 +191,19 @@ export const CreatePerformanceReportDialog = ({
   const [isR90ViewerOpen, setIsR90ViewerOpen] = useState(false);
   const [r90ViewerCategory, setR90ViewerCategory] = useState<string | undefined>(undefined);
   const [r90ViewerSearch, setR90ViewerSearch] = useState<string | undefined>(undefined);
-  const [isFillingScores, setIsFillingScores] = useState(false);
-  const [aiSearchAction, setAiSearchAction] = useState<{ type: string; context: string } | null>(null);
   
   const [actionSearchFilters, setActionSearchFilters] = useState<Record<number, string>>({});
   const [isByActionDialogOpen, setIsByActionDialogOpen] = useState(false);
-  const [previousScores, setPreviousScores] = useState<Record<number, Array<{score: string | number | null, title: string, description: string}>>>({});
   const [unifiedStats, setUnifiedStats] = useState<UnifiedStat[]>([]);
   const [fixtureStats, setFixtureStats] = useState<Record<string, number>>({});
   const [previousFixtureStats, setPreviousFixtureStats] = useState<Record<string, number>>({});
   const [dragOverAction, setDragOverAction] = useState<number | null>(null);
   const [dropUploading, setDropUploading] = useState<number | null>(null);
+  const [reportLanguage, setReportLanguage] = useState("en");
   const [visibilityStatus, setVisibilityStatus] = useState<VisibilityStatus>("draft");
   const [placeholderRawScore, setPlaceholderRawScore] = useState("");
   const [placeholderMinutes, setPlaceholderMinutes] = useState("");
+  const initialVisibilityRef = useRef<VisibilityStatus | null>(null);
 
   // Key stats
   const [r90Score, setR90Score] = useState("");
@@ -239,17 +282,51 @@ export const CreatePerformanceReportDialog = ({
     setIsR90ViewerOpen(true);
   };
 
-  const openAiSearch = (actionIndex: number) => {
+  const openR90Viewer = (actionIndex: number) => {
     const action = actions[actionIndex];
-    setAiSearchAction({
-      type: action.action_type || '',
-      context: action.action_description || ''
-    });
+    const category = getR90CategoryFromAction(action.action_type || '', action.action_description || '');
+    setR90ViewerCategory(category);
+    setR90ViewerSearch(action.action_type || '');
     setIsR90ViewerOpen(true);
+  };
+
+  // Filter R90 ratings based on action-level search - requires search term
+  const getFilteredScores = (index: number) => {
+    const filter = actionSearchFilters[index]?.toLowerCase().trim();
+    if (!filter) return []; // Don't show anything until user types a search
+    return allR90Ratings.filter(s => 
+      s.title?.toLowerCase().includes(filter) || 
+      s.description?.toLowerCase().includes(filter)
+    );
+  };
+  
+  // Fetch all R90 ratings once for local filtering
+  const fetchAllR90Ratings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("r90_ratings")
+        .select("score, description, title")
+        .not("score", "is", null);
+      
+      if (error) throw error;
+      
+      if (data) {
+        setAllR90Ratings(data.map(item => ({
+          score: item.score,
+          title: item.title || "",
+          description: item.description || ""
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching R90 ratings:", error);
+    }
   };
 
   // Dynamic stats based on position
   const [additionalStats, setAdditionalStats] = useState<Record<string, string>>({});
+  
+  // Store original striker_stats from database to preserve unmodified fields
+  const [originalStrikerStats, setOriginalStrikerStats] = useState<Record<string, any> | null>(null);
   
   // Striker stats (keeping for backwards compatibility)
   const [strikerStats, setStrikerStats] = useState({
@@ -281,7 +358,7 @@ export const CreatePerformanceReportDialog = ({
 
   // Performance actions
   const [actions, setActions] = useState<PerformanceAction[]>([
-    { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "", video_url: "", recorded_stat: null }
+    { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "" }
   ]);
 
   // Drag and drop sensors
@@ -305,8 +382,7 @@ export const CreatePerformanceReportDialog = ({
     }
   };
 
-  // Drag-and-drop clip upload onto action rows
-
+  // Handle video file drop onto an action row
   const handleActionDrop = async (e: React.DragEvent, actionIndex: number) => {
     e.preventDefault();
     setDragOverAction(null);
@@ -334,22 +410,46 @@ export const CreatePerformanceReportDialog = ({
     }
   };
 
+  // Fetch previous fixture stats from the player's most recent report
+  const fetchPreviousFixtureStats = async () => {
+    try {
+      const { data } = await supabase
+        .from("player_analysis")
+        .select("fixture_stats")
+        .eq("player_id", playerId)
+        .not("fixture_stats", "is", null)
+        .order("analysis_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (data?.fixture_stats) {
+        setPreviousFixtureStats(data.fixture_stats as Record<string, number>);
+      }
+    } catch (err) {
+      console.error("Error fetching previous fixture stats:", err);
+    }
+  };
+
   useEffect(() => {
-    if (open || inline) {
+    // In inline mode, always load; in dialog mode, only when open
+    if ((inline || open) && playerId) {
+      console.log('CreatePerformanceReportDialog opened for player:', playerId);
       fetchActionTypes();
-      fetchAllR90Ratings();
+      fetchAllR90Ratings(); // Fetch all R90 ratings once for local filtering
       fetchPreviousFixtureStats();
       if (analysisId) {
+        // Edit mode
         setIsEditMode(true);
         fetchExistingData();
       } else {
+        // Create mode
         setIsEditMode(false);
         resetForm();
       }
       fetchFixtures();
       fetchPlayerClub();
     }
-  }, [open, inline, analysisId]);
+  }, [inline, open, analysisId, playerId]);
 
   // Auto-calculate per90 statistics
   useEffect(() => {
@@ -378,21 +478,35 @@ export const CreatePerformanceReportDialog = ({
       progressive_passes_adj_per90: calculatePer90(prev.progressive_passes_adj),
     }));
 
-    // Auto-calculate per90 for additional stats
-    const updatedStats: Record<string, string> = { ...additionalStats };
-    Object.keys(additionalStats).forEach(key => {
-      if (!key.endsWith('_per90')) {
-        const per90Key = `${key}_per90`;
-        updatedStats[per90Key] = calculatePer90(additionalStats[key]);
-      }
+    // Auto-calculate per90 ONLY for rate-based stats (xG, xA, xC, xGChain types)
+    // Do NOT calculate per90 for count-based stats (dribbles, passes, shots, touches, etc.)
+    const rateBasedStatPrefixes = ['xg', 'xa', 'xc', 'xgchain'];
+    setAdditionalStats(prev => {
+      const updatedStats: Record<string, string> = { ...prev };
+      let changed = false;
+      Object.keys(prev).forEach(key => {
+        if (!key.endsWith('_per90')) {
+          const keyLower = key.toLowerCase();
+          const isRateBasedStat = rateBasedStatPrefixes.some(prefix => keyLower.includes(prefix));
+          if (isRateBasedStat) {
+            const per90Key = `${key}_per90`;
+            const newVal = calculatePer90(prev[key]);
+            if (updatedStats[per90Key] !== newVal) {
+              updatedStats[per90Key] = newVal;
+              changed = true;
+            }
+          }
+        }
+      });
+      return changed ? updatedStats : prev;
     });
-    setAdditionalStats(updatedStats);
   }, [minutesPlayed, strikerStats.xGChain, strikerStats.xG_adj, strikerStats.xA_adj, 
       strikerStats.movement_in_behind_xC, strikerStats.movement_down_side_xC, 
       strikerStats.triple_threat_xC, strikerStats.movement_to_feet_xC, 
       strikerStats.crossing_movement_xC, strikerStats.interceptions, 
       strikerStats.regains_adj, strikerStats.turnovers_adj, strikerStats.progressive_passes_adj,
-      ...Object.values(additionalStats)]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      JSON.stringify(additionalStats)]);
 
   // Auto-calculate xGChain and xGChain_per90 directly from actions
   useEffect(() => {
@@ -424,11 +538,63 @@ export const CreatePerformanceReportDialog = ({
     });
   }, [actions, minutesPlayed]);
 
-  /** Canonical action type: trim, collapse spaces, title-case */
-  const canonicalActionType = (raw: string): string => {
-    if (!raw) return raw;
-    return toTitleCase(raw.trim().replace(/\s{2,}/g, ' '));
-  };
+  // Sync unified stats when actions change (from recorded stats)
+  useEffect(() => {
+    const actionRecordedStats = aggregateRecordedStats(actions);
+    const minutes = parseInt(minutesPlayed) || 0;
+    
+    // Merge action-recorded stats with existing manual stats
+    // Preserve manual stats that don't have a corresponding action-recorded stat
+    setUnifiedStats(prevStats => {
+      const actionStatKeys = new Set<string>();
+      const newStats: UnifiedStat[] = [];
+      
+      // Add action-recorded stats
+      Object.entries(actionRecordedStats).forEach(([statType, stat]) => {
+        // Try to find matching config for proper key
+        const config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => 
+          c.name.toLowerCase() === statType.toLowerCase() ||
+          c.key === statType.toLowerCase().replace(/\s+/g, '_')
+        );
+        
+        const key = config?.key || statType.toLowerCase().replace(/\s+/g, '_');
+        const displayName = config?.name || statType;
+        
+        actionStatKeys.add(key);
+        
+        const unified: UnifiedStat = {
+          key,
+          displayName,
+          type: stat.type,
+          isFromActions: true,
+        };
+
+        if (stat.type === 'success_fail') {
+          unified.successful = stat.successful;
+          unified.total = stat.total;
+        } else if (stat.type === 'count') {
+          unified.count = stat.count;
+        } else if (stat.type === 'score') {
+          unified.score = stat.totalScore;
+          const keyLower = key.toLowerCase();
+          if (['xg', 'xa', 'xc', 'xgchain', 'npxg'].some(p => keyLower.includes(p)) && minutes > 0) {
+            unified.per90 = ((stat.totalScore / minutes) * 90).toFixed(3);
+          }
+        }
+
+        newStats.push(unified);
+      });
+      
+      // Keep manual stats that aren't from actions
+      prevStats.forEach(stat => {
+        if (!stat.isFromActions && !actionStatKeys.has(stat.key)) {
+          newStats.push(stat);
+        }
+      });
+      
+      return newStats;
+    });
+  }, [actions, minutesPlayed]);
 
   /** Look up descriptions using canonical key so case/spacing variants still match */
   const getDescriptionsForType = (actionType: string): string[] => {
@@ -436,105 +602,11 @@ export const CreatePerformanceReportDialog = ({
     return descriptionsByType[canon] || [];
   };
 
-  // Filter R90 ratings based on action-level search
-  const getFilteredScores = (index: number) => {
-    const filter = actionSearchFilters[index]?.toLowerCase().trim();
-    if (!filter) return [];
-    return allR90Ratings.filter(s => 
-      s.title?.toLowerCase().includes(filter) || 
-      s.description?.toLowerCase().includes(filter)
-    );
-  };
-
-  // Fetch all R90 ratings once for local filtering
-  const fetchAllR90Ratings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("r90_ratings")
-        .select("score, description, title")
-        .not("score", "is", null);
-      if (error) throw error;
-      if (data) {
-        setAllR90Ratings(data.map(item => ({
-          score: item.score,
-          title: item.title || "",
-          description: item.description || ""
-        })));
-      }
-    } catch (error) {
-      console.error("Error fetching R90 ratings:", error);
-    }
-  };
-
-  // Fetch previous fixture stats from the player's most recent report
-  const fetchPreviousFixtureStats = async () => {
-    try {
-      const { data } = await supabase
-        .from("player_analysis")
-        .select("fixture_stats")
-        .eq("player_id", playerId)
-        .not("fixture_stats", "is", null)
-        .order("analysis_date", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (data?.fixture_stats) {
-        setPreviousFixtureStats(data.fixture_stats as Record<string, number>);
-      }
-    } catch (err) {
-      console.error("Error fetching previous fixture stats:", err);
-    }
-  };
-
   const fetchActionTypes = async () => {
-    // Paginated fetch to overcome 1000-row default limit
-    let allRows: { action_type: string | null; action_description: string | null }[] = [];
-    const PAGE = 1000;
-    let from = 0;
-    let keepGoing = true;
-    while (keepGoing) {
-      const { data, error } = await supabase
-        .from("performance_report_actions")
-        .select("action_type, action_description")
-        .not("action_type", "is", null)
-        .range(from, from + PAGE - 1);
-      if (error || !data) break;
-      allRows = allRows.concat(data);
-      if (data.length < PAGE) keepGoing = false;
-      from += PAGE;
-    }
-
-    // Build frequency map keyed by canonical action type
-    const freqMap: Record<string, number> = {};
-    const descMap: Record<string, Record<string, number>> = {};
-
-    allRows.forEach(item => {
-      const canon = canonicalActionType(item.action_type || '');
-      if (!canon) return;
-      freqMap[canon] = (freqMap[canon] || 0) + 1;
-
-      if (item.action_description && item.action_description.trim()) {
-        if (!descMap[canon]) descMap[canon] = {};
-        const desc = item.action_description.trim();
-        descMap[canon][desc] = (descMap[canon][desc] || 0) + 1;
-      }
-    });
-
-    // Sort types by frequency desc, then alphabetically
-    const sorted = Object.keys(freqMap).sort((a, b) => {
-      const diff = freqMap[b] - freqMap[a];
-      return diff !== 0 ? diff : a.localeCompare(b);
-    });
-    setActionTypes(sorted);
-    setActionTypeFrequencyMap(freqMap);
-
-    // Sort descriptions by frequency within each type
-    const sortedDescs: Record<string, string[]> = {};
-    Object.entries(descMap).forEach(([type, counts]) => {
-      sortedDescs[type] = Object.entries(counts)
-        .sort((a, b) => b[1] - a[1])
-        .map(([desc]) => desc);
-    });
-    setDescriptionsByType(sortedDescs);
+    const result = await fetchPlayerActionFrequencies(playerId);
+    setActionTypes(result.sortedTypes);
+    setActionTypeFrequencyMap(result.frequencyMap);
+    setDescriptionsByType(result.descriptionsByType);
   };
 
   const fetchPlayerClub = async () => {
@@ -596,11 +668,14 @@ export const CreatePerformanceReportDialog = ({
   };
 
   const fetchFixtures = async () => {
+    console.log('fetchFixtures called for playerId:', playerId);
     try {
       const { data: playerFixtures, error: pfError } = await supabase
         .from("player_fixtures")
         .select("fixture_id")
         .eq("player_id", playerId);
+
+      console.log('player_fixtures result:', playerFixtures, 'error:', pfError);
 
       if (pfError) throw pfError;
 
@@ -613,15 +688,20 @@ export const CreatePerformanceReportDialog = ({
           .in("id", fixtureIds)
           .order("match_date", { ascending: false });
 
+        console.log('fixtures data:', fixturesData, 'error:', fError);
+
         if (fError) throw fError;
         setFixtures(fixturesData || []);
       } else {
         // No linked fixtures - fetch all recent fixtures for scouted players
+        console.log('No linked fixtures, fetching all fixtures');
         const { data: allFixtures, error: allError } = await supabase
           .from("fixtures")
           .select("*")
           .order("match_date", { ascending: false })
           .limit(100);
+
+        console.log('all fixtures:', allFixtures?.length, 'error:', allError);
 
         if (allError) throw allError;
         setFixtures(allFixtures || []);
@@ -648,6 +728,7 @@ export const CreatePerformanceReportDialog = ({
       } else if (awayIsFor) {
         opponentTeam = fixture.home_team;
       } else if (playerClub) {
+        // Check if player's club matches home or away team
         if (fixture.home_team === playerClub) {
           opponentTeam = fixture.away_team;
         } else if (fixture.away_team === playerClub) {
@@ -679,14 +760,57 @@ export const CreatePerformanceReportDialog = ({
       // Populate form
       setR90Score(analysisData.r90_score?.toString() || "");
       setMinutesPlayed(analysisData.minutes_played?.toString() || "");
-      setOpponent(analysisData.opponent || "");
-      setResult(analysisData.result || "");
       setSelectedFixtureId(analysisData.fixture_id || "");
       setPerformanceOverview(analysisData.performance_overview || "");
-      setVisibilityStatus(((analysisData as any).visibility_status as VisibilityStatus) || "draft");
+      setVisibilityStatus((analysisData as any).visibility_status || "draft");
+      initialVisibilityRef.current = (analysisData as any).visibility_status || "draft";
       setPlaceholderRawScore((analysisData as any).placeholder_raw_score?.toString() || "");
       setPlaceholderMinutes((analysisData as any).placeholder_minutes?.toString() || "");
       setFixtureStats((analysisData.fixture_stats as Record<string, number>) || {});
+      
+      // Re-derive opponent from fixture data to reflect any changes to fixture
+      // (fixture team names may have been edited since report was saved)
+      if (analysisData.fixture_id) {
+        // Fetch the fixture directly to get latest data
+        const { data: fixtureData } = await supabase
+          .from("fixtures")
+          .select("*")
+          .eq("id", analysisData.fixture_id)
+          .single();
+        
+        if (fixtureData) {
+          // Intelligently determine opponent based on player's club or "For" placeholder
+          let opponentTeam = fixtureData.away_team;
+          const homeIsFor = fixtureData.home_team.toLowerCase() === "for" || fixtureData.home_team.toLowerCase().includes("for ");
+          const awayIsFor = fixtureData.away_team.toLowerCase() === "for" || fixtureData.away_team.toLowerCase().includes("for ");
+          
+          if (homeIsFor) {
+            opponentTeam = fixtureData.away_team;
+          } else if (awayIsFor) {
+            opponentTeam = fixtureData.home_team;
+          } else if (playerClub) {
+            if (fixtureData.home_team === playerClub) {
+              opponentTeam = fixtureData.away_team;
+            } else if (fixtureData.away_team === playerClub) {
+              opponentTeam = fixtureData.home_team;
+            }
+          }
+          setOpponent(opponentTeam);
+          if (fixtureData.home_score !== null && fixtureData.away_score !== null) {
+            setResult(`${fixtureData.home_score}-${fixtureData.away_score}`);
+          } else {
+            setResult(analysisData.result || "");
+          }
+        } else {
+          // Fixture not found, use stored values
+          setOpponent(analysisData.opponent || "");
+          setResult(analysisData.result || "");
+        }
+      } else {
+        // No fixture_id, use stored values
+        setOpponent(analysisData.opponent || "");
+        setResult(analysisData.result || "");
+      }
 
       // Populate striker stats if they exist
       if (analysisData.striker_stats) {
@@ -768,12 +892,17 @@ export const CreatePerformanceReportDialog = ({
         const loadedUnifiedStats: UnifiedStat[] = [];
         
         // Helper to find config by key (case-insensitive with fallbacks)
-        const findStatConfigLocal = (key: string): StatTypeConfig | undefined => {
+        const findStatConfig = (key: string): StatTypeConfig | undefined => {
+          // Try exact match first
           let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
           if (config) return config;
+          
+          // Try lowercase match
           const keyLower = key.toLowerCase();
           config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
           if (config) return config;
+          
+          // Try normalized key (replace special chars, lowercase)
           const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '_');
           config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => 
             c.key.toLowerCase().replace(/[^a-z0-9]/g, '_') === normalizedKey
@@ -804,7 +933,7 @@ export const CreatePerformanceReportDialog = ({
           processedKeys.add(`${baseKey}_successful`);
           processedKeys.add(`${baseKey}_total`);
           
-          const config = findStatConfigLocal(baseKey);
+          const config = findStatConfig(baseKey);
           const displayName = config?.name || baseKey
             .split('_')
             .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -828,22 +957,26 @@ export const CreatePerformanceReportDialog = ({
           const value = stats[key];
           if (typeof value !== 'number') return;
           
-          const config = findStatConfigLocal(key);
+          // Find the config for this stat
+          const config = findStatConfig(key);
           const displayName = config?.name || key
             .split('_')
             .map(w => w.charAt(0).toUpperCase() + w.slice(1))
             .join(' ');
           
+          // Determine type from config or patterns
           const keyLower = key.toLowerCase();
           let statType: 'score' | 'count' = 'count';
           
           if (config) {
-            statType = config.mode === 'score' ? 'score' : 'count';
+            statType = config.mode === 'score' ? 'score' : (config.mode === 'count' ? 'count' : 'count');
           } else {
+            // Fallback pattern matching for unlisted stats
             const isScoreType = ['xg', 'xa', 'xc', 'xgchain', 'ratio'].some(p => keyLower.includes(p));
             statType = isScoreType ? 'score' : 'count';
           }
           
+          // Use the config key if available to ensure consistency
           const statKey = config?.key || key;
           
           if (statType === 'score') {
@@ -883,8 +1016,7 @@ export const CreatePerformanceReportDialog = ({
       if (actionsError) throw actionsError;
 
       if (actionsData && actionsData.length > 0) {
-        setActions(
-          actionsData.map((action) => ({
+        const mappedActions = actionsData.map((action) => ({
             id: action.id,
             action_number: action.action_number,
             minute: formatMinuteForInput(action.minute),
@@ -892,39 +1024,14 @@ export const CreatePerformanceReportDialog = ({
             action_type: action.action_type || "",
             action_description: action.action_description || "",
             notes: action.notes || "",
-            video_url: action.video_url || "",
-            recorded_stat: (action as any).recorded_stat || null,
-          }))
-        );
+            video_url: action.video_url || null,
+            recorded_stat: action.recorded_stat as unknown as RecordedStat | null,
+            zone: action.zone || null,
+            zone_details: (action as any).zone_details || null,
+          }));
+        setActions(sortActionsChronologically(mappedActions));
         
-        // Fetch category scores for each action based on mapping
-        actionsData.forEach(async (action, index) => {
-          if (action.action_type) {
-            try {
-              const { data: mappings } = await supabase
-                .from('action_r90_category_mappings')
-                .select('r90_category, r90_subcategory, selected_rating_ids')
-                .eq('action_type', action.action_type);
-              
-              // Prioritize most specific mapping (with selected ratings, then subcategory, then category-only)
-              const mapping = mappings?.find(m => m.selected_rating_ids && m.selected_rating_ids.length > 0) || 
-                             mappings?.find(m => m.r90_subcategory !== null) || 
-                             mappings?.[0];
-              
-              if (mapping?.r90_category) {
-                await fetchCategoryScores(index, mapping.r90_category, mapping.r90_subcategory, mapping.selected_rating_ids || null);
-              } else {
-                // Fallback to keyword-based detection
-                const category = getR90CategoryFromAction(action.action_type, action.action_description || '');
-                if (category && category !== 'all') {
-                  await fetchCategoryScores(index, category);
-                }
-              }
-            } catch (error) {
-              console.error('Error fetching scores for action:', error);
-            }
-          }
-        });
+        // R90 scores are now fetched once and filtered locally - no per-action fetching needed
       }
     } catch (error: any) {
       console.error("Error fetching existing data:", error);
@@ -942,9 +1049,9 @@ export const CreatePerformanceReportDialog = ({
     setResult("");
     setSelectedFixtureId("");
     setPerformanceOverview("");
-    setOriginalStrikerStats(null);
     setShowStrikerStats(false);
     setAdditionalStats({});
+    setOriginalStrikerStats(null);
     setSelectedStatKeys(availableStats.filter(s => !s.stat_key.endsWith('_per90') && !hiddenStatKeys.includes(s.stat_key)).map(s => s.stat_key)); // Reset to position-specific stats (excluding per90 and hidden)
     setStrikerStats({
       xGChain: "",
@@ -973,7 +1080,7 @@ export const CreatePerformanceReportDialog = ({
       progressive_passes_adj_per90: "",
     });
     setActions([
-      { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "", video_url: "" }
+      { action_number: 1, minute: "", action_score: "", action_type: "", action_description: "", notes: "" }
     ]);
   };
 
@@ -990,8 +1097,7 @@ export const CreatePerformanceReportDialog = ({
       if (error) throw error;
 
       if (actionsData && actionsData.length > 0) {
-        setActions(
-          actionsData.map((action) => ({
+        const mappedActions = actionsData.map((action) => ({
             id: action.id,
             action_number: action.action_number,
             minute: formatMinuteForInput(action.minute),
@@ -999,9 +1105,12 @@ export const CreatePerformanceReportDialog = ({
             action_type: action.action_type || "",
             action_description: action.action_description || "",
             notes: action.notes || "",
-            video_url: action.video_url || "",
-          }))
-        );
+            video_url: action.video_url || null,
+            recorded_stat: action.recorded_stat as unknown as RecordedStat | null,
+            zone: action.zone || null,
+            zone_details: (action as any).zone_details || null,
+          }));
+        setActions(sortActionsChronologically(mappedActions));
       }
     } catch (error: any) {
       console.error("Error refreshing actions:", error);
@@ -1018,8 +1127,7 @@ export const CreatePerformanceReportDialog = ({
         action_score: "",
         action_type: "",
         action_description: "",
-        notes: "",
-        video_url: ""
+        notes: ""
       }
     ]);
   };
@@ -1031,8 +1139,7 @@ export const CreatePerformanceReportDialog = ({
       action_score: "",
       action_type: "",
       action_description: "",
-      notes: "",
-      video_url: ""
+      notes: ""
     };
     
     const newActions = [
@@ -1067,39 +1174,22 @@ export const CreatePerformanceReportDialog = ({
     setActions(newActions);
   };
 
-  const updateAction = async (index: number, field: keyof PerformanceAction, value: string | RecordedStat | RecordedStat[] | null) => {
-    const newActions = [...actions];
-    newActions[index] = { ...newActions[index], [field]: value };
-    setActions(newActions);
-
-    // If action_type changed, fetch category scores and mapping
-    if (field === "action_type" && value && typeof value === 'string') {
-      const trimmedValue = value.trim();
-      
-      // Fetch R90 category mapping for this action type
-      try {
-        const { data: mappings } = await supabase
-          .from('action_r90_category_mappings')
-          .select('r90_category, r90_subcategory, selected_rating_ids')
-          .eq('action_type', trimmedValue);
-        
-        const mapping = mappings?.find(m => m.selected_rating_ids && m.selected_rating_ids.length > 0) || 
-                       mappings?.find(m => m.r90_subcategory !== null) || 
-                       mappings?.[0];
-        
-        if (mapping?.r90_category) {
-          await fetchCategoryScores(index, mapping.r90_category, mapping.r90_subcategory, mapping.selected_rating_ids || null);
-        } else {
-          const category = getR90CategoryFromAction(trimmedValue, '');
-          if (category && category !== 'all') {
-            await fetchCategoryScores(index, category);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching category mapping:', error);
-      }
-    }
+  const updateAction = (
+    index: number,
+    field: keyof PerformanceAction,
+    value: string | number | null | RecordedStat | RecordedStat[] | ZonePoint[]
+  ) => {
+    setActions((prevActions) => {
+      const newActions = [...prevActions];
+      newActions[index] = { ...newActions[index], [field]: value } as PerformanceAction;
+      return newActions;
+    });
   };
+
+  // Sort actions on minute blur instead of every keystroke
+  const handleMinuteBlur = useCallback(() => {
+    setActions((prev) => sortActionsChronologically(prev));
+  }, []);
 
   // Extract keywords from description for better matching
   const getKeywords = (text: string) => {
@@ -1110,82 +1200,7 @@ export const CreatePerformanceReportDialog = ({
       .filter(word => word.length > 3 && !commonWords.includes(word));
   };
 
-  const fetchCategoryScores = async (actionIndex: number, category: string, subcategory: string | null = null, selectedRatingIds: string[] | null = null) => {
-    try {
-      // If specific rating IDs are selected, fetch only those
-      if (selectedRatingIds && selectedRatingIds.length > 0) {
-        const { data: r90Data, error: r90Error } = await supabase
-          .from("r90_ratings")
-          .select("score, description, title, category, subcategory")
-          .in("id", selectedRatingIds)
-          .not("score", "is", null);
-
-        if (r90Error) {
-          console.error("Error fetching R90 scores:", r90Error);
-          throw r90Error;
-        }
-
-        if (r90Data && r90Data.length > 0) {
-          const scores = r90Data.map(item => ({
-            score: item.score,
-            title: item.title || "",
-            description: item.description || ""
-          }));
-          
-          setPreviousScores(prev => ({
-            ...prev,
-            [actionIndex]: scores
-          }));
-        } else {
-          setPreviousScores(prev => ({
-            ...prev,
-            [actionIndex]: []
-          }));
-        }
-        return;
-      }
-
-      // Otherwise, build query based on mapping specificity
-      let query = supabase
-        .from("r90_ratings")
-        .select("score, description, title, category, subcategory")
-        .eq("category", category)
-        .not("score", "is", null);
-
-      // If subcategory is specified in mapping, filter by it
-      if (subcategory) {
-        query = query.eq("subcategory", subcategory);
-      }
-
-      const { data: r90Data, error: r90Error } = await query;
-
-      if (r90Error) {
-        console.error("Error fetching R90 scores:", r90Error);
-        throw r90Error;
-      }
-
-      if (r90Data && r90Data.length > 0) {
-        // Map R90 ratings to the format expected by the UI
-        const scores = r90Data.map(item => ({
-          score: item.score,
-          title: item.title || "",
-          description: item.description || ""
-        }));
-        
-        setPreviousScores(prev => ({
-          ...prev,
-          [actionIndex]: scores
-        }));
-      } else {
-        setPreviousScores(prev => ({
-          ...prev,
-          [actionIndex]: []
-        }));
-      }
-    } catch (error: any) {
-      console.error("Error fetching category scores:", error);
-    }
-  };
+  // fetchCategoryScores is no longer used - we fetch all R90 ratings once and filter locally
 
   const handleDelete = async () => {
     if (!analysisId) return;
@@ -1209,11 +1224,7 @@ export const CreatePerformanceReportDialog = ({
       if (analysisError) throw analysisError;
 
       toast.success("Performance report deleted successfully");
-      if (inline && onClose) {
-        onClose();
-      } else if (onOpenChange) {
-        onOpenChange(false);
-      }
+      onOpenChange(false);
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error("Error deleting performance report:", error);
@@ -1223,109 +1234,9 @@ export const CreatePerformanceReportDialog = ({
     }
   };
 
-  const fillSingleActionScore = async (index: number) => {
-    const action = actions[index];
-    
-    if (!action.action_type || !action.action_description) {
-      toast.error("Action needs type and description to fill score");
-      return;
-    }
+  // AI score filling function removed - users should use R90 Ratings Viewer for manual lookup
 
-    setIsFillingScores(true);
-    try {
-      // Call the fill-action-scores edge function with single action
-      const { data, error } = await supabase.functions.invoke('fill-action-scores', {
-        body: { actions: [{ ...action, index: 0 }] }
-      });
-
-      if (error) {
-        console.error('Edge function error:', error);
-        throw error;
-      }
-
-      if (!data?.scores || data.scores.length === 0) {
-        throw new Error("No score returned from function");
-      }
-
-      const score = data.scores[0]?.score || 0;
-      
-      // Update the action with the filled score
-      const updatedActions = [...actions];
-      updatedActions[index] = {
-        ...updatedActions[index],
-        action_score: score.toString()
-      };
-      setActions(updatedActions);
-      
-      toast.success(`Score filled: ${score.toFixed(5)}`);
-      
-    } catch (error: any) {
-      console.error('Error filling score:', error);
-      toast.error("Failed to fill score");
-    } finally {
-      setIsFillingScores(false);
-    }
-  };
-
-  const handleFillEmptyScores = async () => {
-    // Get actions that have empty scores
-    const actionsToFill = actions
-      .map((action, index) => ({ ...action, index }))
-      .filter(action => !action.action_score || action.action_score === "");
-
-    if (actionsToFill.length === 0) {
-      toast.info("All actions already have scores");
-      return;
-    }
-
-    if (!actionsToFill.every(a => a.action_type && a.action_description)) {
-      toast.error("Please fill in action type and description for all actions before auto-filling scores");
-      return;
-    }
-
-    setIsFillingScores(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('fill-action-scores', {
-        body: {
-          actions: actionsToFill.map(a => ({
-            action_type: a.action_type,
-            action_description: a.action_description
-          }))
-        }
-      });
-
-      if (error) {
-        console.error('Error filling scores:', error);
-        toast.error("Failed to fill scores: " + error.message);
-        return;
-      }
-
-      if (!data?.scores || !Array.isArray(data.scores)) {
-        toast.error("Invalid response from AI service");
-        return;
-      }
-
-      // Update actions with AI-generated scores
-      const updatedActions = [...actions];
-      actionsToFill.forEach((action, i) => {
-        const score = data.scores[i]?.score || 0;
-        updatedActions[action.index] = {
-          ...updatedActions[action.index],
-          action_score: score.toString()
-        };
-      });
-
-      setActions(updatedActions);
-      toast.success(`Successfully filled ${actionsToFill.length} empty score${actionsToFill.length > 1 ? 's' : ''}`);
-      
-    } catch (error: any) {
-      console.error('Error in handleFillEmptyScores:', error);
-      toast.error("Failed to auto-fill scores");
-    } finally {
-      setIsFillingScores(false);
-    }
-  };
+  // Bulk AI score filling function removed - users should use R90 Ratings Viewer for manual lookup
 
   const handleSave = async () => {
     // Validation
@@ -1335,10 +1246,6 @@ export const CreatePerformanceReportDialog = ({
     }
     if (!minutesPlayed) {
       toast.error("Please fill in Minutes Played");
-      return;
-    }
-    if (actions.length === 0 || !actions[0].minute) {
-      toast.error("Please add at least one performance action");
       return;
     }
 
@@ -1420,9 +1327,6 @@ export const CreatePerformanceReportDialog = ({
             }
           });
         }
-        
-        // Store the map for use when inserting
-        (window as any).__preservedVideoUrls = existingVideoUrls;
 
         // Delete existing actions
         const { error: deleteError } = await supabase
@@ -1431,6 +1335,9 @@ export const CreatePerformanceReportDialog = ({
           .eq("analysis_id", analysisId);
 
         if (deleteError) throw deleteError;
+        
+        // Store the map for use when inserting
+        (window as any).__preservedVideoUrls = existingVideoUrls;
       } else {
         // Create mode - check for existing analysis by fixture_id
         const { data: existingAnalysis } = await supabase
@@ -1489,6 +1396,8 @@ export const CreatePerformanceReportDialog = ({
           // Preserve video_url: use the one from the action state, or fall back to preserved from DB
           video_url: a.video_url || preservedVideoUrls?.get(a.action_number) || null,
           recorded_stat: (a.recorded_stat || null) as any,
+          zone: a.zone_details?.length ? a.zone_details[0].zone : (a.zone || null),
+          zone_details: (a.zone_details?.length ? a.zone_details : null) as any,
         }));
       
       // Clean up the temporary storage
@@ -1515,8 +1424,35 @@ export const CreatePerformanceReportDialog = ({
       }
 
       toast.success(`Performance report ${analysisId ? 'updated' : 'created'} successfully`);
+
+      // Prompt highlight compilation when report transitions to Live
+      const wentLive = visibilityStatus === "live" && initialVisibilityRef.current !== "live";
+      if (wentLive && analysisId) {
+        playSuccess();
+        setTimeout(() => {
+          toast("Report is now live! Consider compiling highlights for this player.", {
+            duration: 8000,
+            action: {
+              label: "Open Highlights",
+              onClick: () => {
+                // Navigate to highlight compiler section
+                const event = new CustomEvent("navigate-highlight-compiler", { detail: { playerId } });
+                window.dispatchEvent(event);
+              },
+            },
+          });
+        }, 600);
+        initialVisibilityRef.current = "live";
+      }
+
       // Refresh action type + description cache so newly entered types/descriptions are available
       fetchActionTypes();
+      logActivity({
+        action: analysisId ? 'updated' : 'created',
+        entityType: 'performance_report',
+        entityId: analysisIdToUse || null,
+        entityName: `${playerName} vs ${opponent}`,
+      });
 
       // Check for performance improvements and notify staff (non-blocking)
       try {
@@ -1536,6 +1472,18 @@ export const CreatePerformanceReportDialog = ({
             const pctChange = ((current.r90_score - previous.r90_score) / Math.abs(previous.r90_score || 1) * 100).toFixed(0);
             improvements.push(`R90: ${previous.r90_score.toFixed(2)} → ${current.r90_score.toFixed(2)} (+${pctChange}%)`);
           }
+
+          try {
+            const currentFS = (current.fixture_stats as Record<string, number>) || {};
+            const previousFS = (previous.fixture_stats as Record<string, number>) || {};
+            const keyStats = ['goals_per90', 'assists_per90', 'npxg_per90', 'xa_per90', 'successful_dribbles_per90', 'progressive_carries_per90', 'tackles_won_per90'];
+            for (const key of keyStats) {
+              if (currentFS[key] != null && previousFS[key] != null && currentFS[key] > previousFS[key]) {
+                const label = key.replace(/_per90$/, '').replace(/_/g, ' ');
+                improvements.push(`${label}: ${previousFS[key]} → ${currentFS[key]}`);
+              }
+            }
+          } catch { /* fixture_stats parsing issue - ignore */ }
 
           if (improvements.length > 0) {
             await supabase.from('staff_notification_events').insert({
@@ -1571,24 +1519,57 @@ export const CreatePerformanceReportDialog = ({
     }
   };
 
-  const editorContent = (
-    <>
-      <div className={inline ? "flex items-center gap-3 mb-4" : ""}>
-        {inline && onBack && (
-          <Button variant="ghost" size="sm" onClick={onBack} className="h-8 px-2">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Button>
-        )}
-        <h2 className="text-lg sm:text-xl font-semibold">{analysisId ? 'Edit' : 'Create'} Performance Report - {playerName}</h2>
-      </div>
+  // Handler for closing - works for both inline and dialog modes
+  const handleClose = () => {
+    if (inline && onClose) {
+      onClose();
+    } else if (onOpenChange) {
+      onOpenChange(false);
+    }
+  };
 
-        {loadingData ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center">Loading...</div>
-          </div>
-        ) : (
-          <div className="space-y-4 sm:space-y-6 pb-20">
+  const getTranslatableFields = useCallback(() => {
+    const fields: Record<string, string> = {};
+    if (opponent) fields.opponent = opponent;
+    if (performanceOverview) fields.performanceOverview = performanceOverview;
+    actions.forEach((action, i) => {
+      if (action.action_type) fields[`action_${i}_type`] = action.action_type;
+      if (action.action_description) fields[`action_${i}_description`] = action.action_description;
+      if (action.notes) fields[`action_${i}_notes`] = action.notes;
+    });
+    return fields;
+  }, [opponent, performanceOverview, actions]);
+
+  const handleTranslated = useCallback((translations: Record<string, string>) => {
+    if (translations.opponent) setOpponent(translations.opponent);
+    if (translations.performanceOverview) setPerformanceOverview(translations.performanceOverview);
+    const updatedActions = [...actions];
+    actions.forEach((_, i) => {
+      if (translations[`action_${i}_type`]) updatedActions[i] = { ...updatedActions[i], action_type: translations[`action_${i}_type`] };
+      if (translations[`action_${i}_description`]) updatedActions[i] = { ...updatedActions[i], action_description: translations[`action_${i}_description`] };
+      if (translations[`action_${i}_notes`]) updatedActions[i] = { ...updatedActions[i], notes: translations[`action_${i}_notes`] };
+    });
+    setActions(updatedActions);
+  }, [actions]);
+
+  const languageSelector = (
+    <ReportLanguageSelector
+      selectedLanguage={reportLanguage}
+      onLanguageChange={setReportLanguage}
+      getTranslatableFields={getTranslatableFields}
+      onTranslated={handleTranslated}
+    />
+  );
+
+  // The main content (used in both inline and dialog modes)
+  const mainContent = (
+    <>
+      {loadingData ? (
+        <div className="flex items-center justify-center py-8">
+          <LoadingSpinner size="md" />
+        </div>
+      ) : (
+        <div className="space-y-4 sm:space-y-6 pb-20">
           {/* Fixture Selection */}
           <div>
             <Label htmlFor="fixture">Select Fixture *</Label>
@@ -1599,7 +1580,7 @@ export const CreatePerformanceReportDialog = ({
               <SelectContent>
                 {fixtures.length === 0 ? (
                   <div className="p-2 text-sm text-muted-foreground text-center">
-                    No fixtures found. Add fixtures in the Fixtures tab.
+                    No fixtures found. Create one below or add fixtures in the Fixtures tab.
                   </div>
                 ) : (
                   fixtures.map((fixture) => {
@@ -1805,14 +1786,13 @@ export const CreatePerformanceReportDialog = ({
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Performance Overview */}
           <div>
             <Label htmlFor="performance-overview">Performance Overview (Optional)</Label>
             <Textarea
               id="performance-overview"
               value={performanceOverview}
               onChange={(e) => setPerformanceOverview(e.target.value)}
-              placeholder="Briefly summarize what improved, what to continue working on, key focus areas, etc."
+              placeholder="Briefly summarise what improved, what to continue working on, key focus areas, etc."
               rows={4}
               className="mt-2"
             />
@@ -1823,7 +1803,8 @@ export const CreatePerformanceReportDialog = ({
             <div className="mb-4">
               <Label className="text-base sm:text-lg font-semibold">Performance Actions *</Label>
             </div>
-
+            
+            {/* Action Stats Summary removed - now integrated into Additional Statistics section */}
             {/* Mobile Card View */}
             <div className="space-y-4 sm:hidden">
               {actions.map((action, index) => (
@@ -1839,14 +1820,22 @@ export const CreatePerformanceReportDialog = ({
                     <span className="font-semibold text-sm">Action #{action.action_number}</span>
                     <div className="flex gap-1">
                       <Button
-                        onClick={() => openSmartR90Viewer(index)}
+                        onClick={() => openR90Viewer(index)}
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 [&>svg]:hover:text-foreground"
+                        className="h-8 w-8 [&>svg]:hover:text-black"
                         title="R90 Ratings Reference"
                       >
-                        <Search className="h-4 w-4 text-primary" />
+                        <Search className="h-4 w-4 text-primary hover:text-black" />
                       </Button>
+                      {/* Record Stat button - mobile */}
+                      {/* Zone selector - mobile */}
+                      <ZonePitchSelector
+                        value={action.zone_details || (action.zone ? [{ zone: action.zone }] : [])}
+                        onChange={(zd) => { updateAction(index, 'zone_details', zd as any); updateAction(index, 'zone', (zd.length ? zd[0].zone : null) as any); }}
+                        actionType={action.action_type}
+                        compact
+                      />
                       <ActionStatRecorder
                         currentStat={action.recorded_stat || null}
                         onStatRecorded={(stat) => updateAction(index, 'recorded_stat', stat)}
@@ -1882,6 +1871,7 @@ export const CreatePerformanceReportDialog = ({
                         type="text"
                         value={action.minute}
                         onChange={(e) => updateAction(index, "minute", e.target.value)}
+                        onBlur={handleMinuteBlur}
                         placeholder="45"
                         className="text-sm"
                       />
@@ -1955,46 +1945,47 @@ export const CreatePerformanceReportDialog = ({
                   
                   <div>
                     <Label className="text-xs">Description *</Label>
-                    <Textarea
-                      value={action.action_description}
-                      onChange={(e) => updateAction(index, "action_description", e.target.value)}
-                      placeholder="Describe the action"
-                      className="text-sm min-h-[60px]"
-                      rows={2}
-                    />
-                    {action.action_type && getDescriptionsForType(action.action_type).length > 0 && (
-                      <Popover open={descriptionPopoverOpen[index] || false} onOpenChange={(open) => setDescriptionPopoverOpen(prev => ({ ...prev, [index]: open }))}>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost" size="sm" className="mt-1 h-6 text-[10px] text-muted-foreground w-full justify-between">
-                            <span>Previous descriptions</span>
-                            <ChevronDown className="h-3 w-3" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                          <Command>
-                            <CommandInput placeholder="Filter descriptions..." />
-                            <CommandList>
-                              <CommandEmpty>No matching descriptions</CommandEmpty>
-                              <CommandGroup>
-                                {getDescriptionsForType(action.action_type).map((desc, di) => (
-                                  <CommandItem
-                                    key={di}
-                                    value={desc}
-                                    onSelect={() => {
-                                      updateAction(index, "action_description", desc);
-                                      setDescriptionPopoverOpen(prev => ({ ...prev, [index]: false }));
-                                    }}
-                                    className="text-xs"
-                                  >
-                                    {desc}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    )}
+                    <div className="relative">
+                      <Textarea
+                        value={action.action_description}
+                        onChange={(e) => {
+                          updateAction(index, "action_description", e.target.value);
+                          setDescriptionPopoverOpen(prev => ({ ...prev, [index]: true }));
+                        }}
+                        onFocus={() => {
+                          if (action.action_type && getDescriptionsForType(action.action_type).length > 0) {
+                            setDescriptionPopoverOpen(prev => ({ ...prev, [index]: true }));
+                          }
+                        }}
+                        onBlur={() => {
+                          setTimeout(() => setDescriptionPopoverOpen(prev => ({ ...prev, [index]: false })), 200);
+                        }}
+                        placeholder="Describe the action"
+                        className="text-sm min-h-[60px]"
+                        rows={2}
+                      />
+                      {descriptionPopoverOpen[index] && action.action_type && getDescriptionsForType(action.action_type).length > 0 && (
+                        <div className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
+                          {getDescriptionsForType(action.action_type)
+                            .filter(desc => !action.action_description || desc.toLowerCase().includes(action.action_description.toLowerCase()))
+                            .slice(0, 12)
+                            .map((desc, di) => (
+                              <button
+                                key={di}
+                                type="button"
+                                className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  updateAction(index, "action_description", desc);
+                                  setDescriptionPopoverOpen(prev => ({ ...prev, [index]: false }));
+                                }}
+                              >
+                                {desc}
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   
                   <div>
@@ -2003,7 +1994,7 @@ export const CreatePerformanceReportDialog = ({
                       value={action.notes}
                       onChange={(e) => updateAction(index, "notes", e.target.value)}
                       placeholder="Optional notes"
-                      className="text-sm text-accent min-h-[60px]"
+                      className="text-sm min-h-[60px]"
                       rows={2}
                     />
                     {/* Suggested R90 Scores - search based */}
@@ -2013,6 +2004,7 @@ export const CreatePerformanceReportDialog = ({
                         <ChevronDown className="h-3 w-3" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="text-[10px] p-2 rounded bg-muted/50 mt-1 space-y-2">
+                        {/* Search input for R90 scores */}
                         <Input
                           value={actionSearchFilters[index] || ''}
                           onChange={(e) => setActionSearchFilters(prev => ({ ...prev, [index]: e.target.value }))}
@@ -2082,306 +2074,313 @@ export const CreatePerformanceReportDialog = ({
               ))}
             </div>
 
-            {/* Desktop Table View */}
-            <div className="hidden sm:block overflow-x-auto border rounded-lg">
-              <table className="w-full">
-                <thead className="bg-accent">
-                  <tr>
-                    <th className="text-left p-2 text-sm font-semibold">#</th>
-                    <th className="text-left p-2 text-sm font-semibold">Minute</th>
-                    <th className="text-left p-2 text-sm font-semibold">Score</th>
-                    <th className="text-left p-2 text-sm font-semibold">Type</th>
-                    <th className="text-left p-2 text-sm font-semibold">Description</th>
-                    <th className="text-left p-2 text-sm font-semibold">Notes</th>
-                    <th className="w-20"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {actions.map((action, index) => (
-                    <React.Fragment key={index}>
-                      <tr
-                        className={`border-t transition-colors ${dragOverAction === index ? 'ring-2 ring-primary bg-primary/5' : ''}`}
-                        onDragOver={(e) => { e.preventDefault(); setDragOverAction(index); }}
-                        onDragEnter={(e) => { e.preventDefault(); setDragOverAction(index); }}
-                        onDragLeave={() => setDragOverAction(null)}
-                        onDrop={(e) => handleActionDrop(e, index)}
-                      >
-                        <td className="p-2 text-sm">{action.action_number}</td>
-                      <td className="p-2">
+            {/* Desktop Two-Line View */}
+            <div className="hidden sm:block space-y-1">
+              {actions.map((action, index) => (
+                <React.Fragment key={index}>
+                  <div
+                    className={`border rounded-lg p-2 space-y-2 transition-all duration-500 ${dragOverAction === index ? 'ring-2 ring-primary bg-primary/5' : 'bg-background'} animate-in fade-in slide-in-from-bottom-2`}
+                    style={{ animationDelay: `${index * 30}ms` }}
+                    onDragOver={(e) => { e.preventDefault(); setDragOverAction(index); }}
+                    onDragEnter={(e) => { e.preventDefault(); setDragOverAction(index); }}
+                    onDragLeave={() => setDragOverAction(null)}
+                    onDrop={(e) => handleActionDrop(e, index)}
+                  >
+                    {/* Line 1: #, Minute, Type, Description, Notes */}
+                    <div className="flex items-start gap-2 rounded-md border bg-card/50 p-2">
+                      <span className="text-sm font-medium text-muted-foreground pt-2 shrink-0 w-6 text-center">{action.action_number}</span>
+
+                      <Input
+                        type="text"
+                        value={action.minute}
+                        onChange={(e) => updateAction(index, "minute", e.target.value)}
+                        onBlur={handleMinuteBlur}
+                        placeholder="Min"
+                        className="w-16 h-9 text-sm shrink-0"
+                      />
+
+                      <div className="relative shrink-0">
                         <Input
-                          type="text"
-                          value={action.minute}
-                          onChange={(e) => updateAction(index, "minute", e.target.value)}
-                          placeholder="2.30"
-                          className="w-20 text-sm"
+                          value={action.action_type}
+                          onChange={(e) => {
+                            updateAction(index, "action_type", e.target.value);
+                            setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: true }));
+                          }}
+                          onFocus={() => setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: true }))}
+                          onBlur={() => {
+                            setTimeout(() => setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: false })), 200);
+                            if (action.action_type) updateAction(index, "action_type", canonicalActionType(action.action_type));
+                          }}
+                          placeholder="Type"
+                          className="w-36 text-sm h-9 pr-7"
                         />
-                      </td>
-                      <td className="p-2">
+                        {action.action_type && (
+                          <button
+                            type="button"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              updateAction(index, "action_type", "");
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
+                        {actionTypePopoverOpen[1000 + index] && (
+                          <div className="absolute z-50 mt-1 w-64 max-h-48 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
+                            {actionTypes
+                              .filter(type => !action.action_type || type.toLowerCase().includes(action.action_type.toLowerCase()))
+                              .slice(0, 15)
+                              .map((type) => (
+                                <button
+                                  key={type}
+                                  type="button"
+                                  className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-accent flex justify-between items-center"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    updateAction(index, "action_type", type);
+                                    setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: false }));
+                                  }}
+                                >
+                                  <span>{type}</span>
+                                  <span className="text-xs text-muted-foreground">{actionTypeFrequencyMap[type] || 0}</span>
+                                </button>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="relative flex-1 min-w-0">
+                        <Textarea
+                          value={action.action_description}
+                          onChange={(e) => {
+                            updateAction(index, "action_description", e.target.value);
+                            setDescriptionPopoverOpen(prev => ({ ...prev, [1000 + index]: true }));
+                          }}
+                          onFocus={() => {
+                            if (action.action_type && getDescriptionsForType(action.action_type).length > 0) {
+                              setDescriptionPopoverOpen(prev => ({ ...prev, [1000 + index]: true }));
+                            }
+                          }}
+                          onBlur={() => {
+                            setTimeout(() => setDescriptionPopoverOpen(prev => ({ ...prev, [1000 + index]: false })), 200);
+                          }}
+                          placeholder="Description"
+                          className="min-h-[36px] text-sm"
+                          rows={1}
+                        />
+                        {descriptionPopoverOpen[1000 + index] && action.action_type && getDescriptionsForType(action.action_type).length > 0 && (
+                          <div className="absolute z-50 mt-1 w-72 max-h-48 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
+                            {getDescriptionsForType(action.action_type)
+                              .filter(desc => !action.action_description || desc.toLowerCase().includes(action.action_description.toLowerCase()))
+                              .slice(0, 12)
+                              .map((desc, di) => (
+                                <button
+                                  key={di}
+                                  type="button"
+                                  className="w-full text-left px-2 py-1.5 text-xs rounded hover:bg-accent"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    updateAction(index, "action_description", desc);
+                                    setDescriptionPopoverOpen(prev => ({ ...prev, [1000 + index]: false }));
+                                  }}
+                                >
+                                  {desc}
+                                </button>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <Textarea
+                        value={action.notes}
+                        onChange={(e) => updateAction(index, "notes", e.target.value)}
+                        placeholder="Notes"
+                        className="min-w-[120px] max-w-[200px] min-h-[36px] text-sm shrink-0"
+                        rows={1}
+                      />
+                    </div>
+
+                    {/* Line 2: Zone, Search R90, R90 Reference, Score | Clip | Delete, Reorder */}
+                     <div className="flex items-center gap-2 rounded-md border bg-card/50 p-2">
+                      {/* Zone selector - own bordered box */}
+                      <div className="flex items-center rounded-md border border-[hsl(43,49%,61%)]/30 bg-background px-2 py-1 shrink-0">
+                        <div className="w-6 flex justify-center">
+                          <ZonePitchSelector
+                            value={action.zone_details || (action.zone ? [{ zone: action.zone }] : [])}
+                            onChange={(zd) => { updateAction(index, 'zone_details', zd as any); updateAction(index, 'zone', (zd.length ? zd[0].zone : null) as any); }}
+                            actionType={action.action_type}
+                          />
+                        </div>
+                      </div>
+
+                      {/* R90 search + reference + score */}
+                      <div className="flex items-center gap-2 rounded-md border border-border/50 bg-background px-2 py-1">
+                        <Input
+                          value={actionSearchFilters[index] || ''}
+                          onChange={(e) => setActionSearchFilters(prev => ({ ...prev, [index]: e.target.value }))}
+                          placeholder="Search R90..."
+                          className="h-7 text-xs w-32 px-2"
+                        />
+                        <Button
+                          onClick={() => openR90Viewer(index)}
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs shrink-0 [&>svg]:hover:text-black"
+                          title="R90 Ratings Reference"
+                        >
+                          <Search className="h-3.5 w-3.5 text-primary mr-1" />
+                          R90
+                        </Button>
                         <Input
                           type="number"
                           step="0.00001"
                           value={action.action_score}
                           onChange={(e) => updateAction(index, "action_score", e.target.value)}
-                          placeholder="0.15"
-                          className="w-24 text-sm"
+                          placeholder="Score"
+                          className="w-24 h-7 text-sm"
                         />
-                      </td>
-                      <td className="p-2">
-                        <div className="relative">
-                          <Input
-                            value={action.action_type}
-                            onChange={(e) => {
-                              updateAction(index, "action_type", e.target.value);
-                              setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: true }));
+                      </div>
+
+                      <div className="mx-4 shrink-0 rounded-md border bg-background px-3 py-1">
+                        {action.id ? (
+                          <ActionVideoUpload
+                            actionId={action.id}
+                            currentVideoUrl={action.video_url || null}
+                            onVideoUploaded={(videoUrl) => {
+                              updateAction(index, 'video_url', videoUrl);
                             }}
-                            onFocus={() => setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: true }))}
-                            onBlur={() => {
-                              setTimeout(() => setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: false })), 200);
-                              if (action.action_type) updateAction(index, "action_type", canonicalActionType(action.action_type));
-                            }}
-                            placeholder="Type or select"
-                            className="w-40 text-sm h-9 pr-7"
+                            analysisId={analysisId}
                           />
-                          {action.action_type && (
-                            <button
-                              type="button"
-                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                updateAction(index, "action_type", "");
-                              }}
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          )}
-                          {actionTypePopoverOpen[1000 + index] && (
-                            <div className="absolute z-50 mt-1 w-64 max-h-48 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
-                              {actionTypes
-                                .filter(type => !action.action_type || type.toLowerCase().includes(action.action_type.toLowerCase()))
-                                .slice(0, 15)
-                                .map((type) => (
-                                  <button
-                                    key={type}
-                                    type="button"
-                                    className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-accent flex justify-between items-center"
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      updateAction(index, "action_type", type);
-                                      setActionTypePopoverOpen(prev => ({ ...prev, [1000 + index]: false }));
-                                    }}
-                                  >
-                                    <span>{type}</span>
-                                    <span className="text-xs text-muted-foreground">{actionTypeFrequencyMap[type] || 0}</span>
-                                  </button>
-                                ))}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-2 relative">
-                        <Textarea
-                          value={action.action_description}
-                          onChange={(e) => updateAction(index, "action_description", e.target.value)}
-                          placeholder="Describe"
-                          className="min-w-[180px] min-h-[40px] text-sm"
-                          rows={1}
-                        />
-                        {action.action_type && getDescriptionsForType(action.action_type).length > 0 && (
-                          <Popover open={descriptionPopoverOpen[1000 + index] || false} onOpenChange={(open) => setDescriptionPopoverOpen(prev => ({ ...prev, [1000 + index]: open }))}>
-                            <PopoverTrigger asChild>
-                              <Button variant="ghost" size="sm" className="mt-0.5 h-5 text-[9px] text-muted-foreground w-full justify-between px-1">
-                                <span>Suggestions</span>
-                                <ChevronDown className="h-3 w-3" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-72 p-0" align="start">
-                              <Command>
-                                <CommandInput placeholder="Filter descriptions..." />
-                                <CommandList>
-                                  <CommandEmpty>No matching descriptions</CommandEmpty>
-                                  <CommandGroup>
-                                    {getDescriptionsForType(action.action_type).map((desc, di) => (
-                                      <CommandItem
-                                        key={di}
-                                        value={desc}
-                                        onSelect={() => {
-                                          updateAction(index, "action_description", desc);
-                                          setDescriptionPopoverOpen(prev => ({ ...prev, [1000 + index]: false }));
-                                        }}
-                                        className="text-xs"
-                                      >
-                                        {desc}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
+                        ) : (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground shrink-0">
+                                <span className="text-xs">💾</span>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>Save report first to add video clips</TooltipContent>
+                          </Tooltip>
                         )}
-                      </td>
-                      <td className="p-2">
-                        <Textarea
-                          value={action.notes}
-                          onChange={(e) => updateAction(index, "notes", e.target.value)}
-                          placeholder="Notes"
-                          className="min-w-[140px] min-h-[40px] text-sm"
-                          rows={1}
-                        />
-                      </td>
-                      <td className="p-2">
-                        <div className="flex gap-1">
-                          <Button
-                            onClick={() => openSmartR90Viewer(index)}
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 [&>svg]:hover:text-foreground"
-                            title="R90 Ratings Reference"
-                          >
-                            <Search className="h-4 w-4 text-primary" />
-                          </Button>
-                          <ActionStatRecorder
-                            currentStat={action.recorded_stat || null}
-                            onStatRecorded={(stat) => {
-                              const updated = [...actions];
-                              updated[index] = { ...updated[index], recorded_stat: stat };
-                              setActions(updated);
-                            }}
-                          />
-                          {action.id ? (
-                            <ActionVideoUpload
-                              actionId={action.id}
-                              currentVideoUrl={action.video_url || null}
-                              onVideoUploaded={(videoUrl) => {
-                                updateAction(index, 'video_url', videoUrl);
-                              }}
-                              analysisId={analysisId}
-                            />
-                          ) : (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground">
-                                  <span className="text-xs">💾</span>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>Save report first to add video clips</TooltipContent>
-                            </Tooltip>
-                          )}
-                          <Button
-                            onClick={() => removeAction(index)}
-                            size="icon"
-                            variant="ghost"
-                            className="text-destructive h-8 w-8"
-                            disabled={actions.length === 1}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            onClick={() => moveAction(index, 'up')}
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            disabled={index === 0}
-                          >
-                            <ArrowUp className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            onClick={() => moveAction(index, 'down')}
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8"
-                            disabled={index === actions.length - 1}
-                          >
-                            <ArrowDown className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                    {/* Suggested R90 Scores - inline search */}
-                    <tr>
-                      <td colSpan={7} className="p-0">
-                        <div className="px-2 py-1.5 bg-muted/30 flex items-center gap-2">
-                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">Suggested R90 Scores</span>
-                          <Input
-                            value={actionSearchFilters[index] || ''}
-                            onChange={(e) => setActionSearchFilters(prev => ({ ...prev, [index]: e.target.value }))}
-                            placeholder="Search action..."
-                            className="h-6 text-[10px] flex-1 max-w-[200px] px-2"
-                          />
-                        </div>
-                        {actionSearchFilters[index]?.trim() && (
-                          <div className="p-2 bg-muted/20 space-y-1 max-h-40 overflow-y-auto">
-                            {getFilteredScores(index).map((item, scoreIdx) => {
-                              const isSelected = selectedScores[index]?.has(scoreIdx) ?? false;
-                              const filteredScores = getFilteredScores(index);
-                              return (
-                                <div key={scoreIdx} className="flex items-start gap-2">
-                                  <Checkbox
-                                    checked={isSelected}
-                                    onCheckedChange={(checked) => {
-                                      const newSelected = { ...selectedScores };
-                                      if (!newSelected[index]) {
-                                        newSelected[index] = new Set();
-                                      }
-                                      if (checked) {
-                                        newSelected[index].add(scoreIdx);
-                                      } else {
-                                        newSelected[index].delete(scoreIdx);
-                                      }
-                                      setSelectedScores(newSelected);
-                                      
-                                      // Calculate sum of selected scores and update action
-                                      const selectedIndices = checked 
-                                        ? [...Array.from(newSelected[index] || []), scoreIdx]
-                                        : Array.from(newSelected[index] || []).filter(i => i !== scoreIdx);
-                                      
-                                      const totalScore = selectedIndices.reduce((sum, idx) => {
-                                        const score = filteredScores[idx]?.score;
-                                        const numScore = typeof score === 'number' ? score : (typeof score === 'string' && !isNaN(parseFloat(score)) ? parseFloat(score) : 0);
-                                        return sum + numScore;
-                                      }, 0);
-                                      
-                                      updateAction(index, "action_score", totalScore.toString());
-                                    }}
-                                    className="mt-0.5"
-                                  />
-                                  <label className="font-mono flex-1 cursor-pointer text-muted-foreground">
-                                    {item.title} {typeof item.score === 'number' ? item.score.toFixed(4) : item.score}
-                                  </label>
-                                </div>
-                              );
-                            })}
-                            {getFilteredScores(index).length === 0 && (
-                              <p className="text-muted-foreground text-center py-1 text-[10px]">No matching scores</p>
-                            )}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                    
-                    {/* Insert Action Row (Desktop) */}
-                    <tr className="border-t border-dashed hover:bg-accent/50 transition-colors">
-                      <td colSpan={7} className="p-1 text-center">
+                      </div>
+
+                      <div className="flex-1" />
+
+                      <div className="flex items-center gap-0.5 shrink-0 rounded-md border bg-background px-1 py-1">
                         <Button
-                          onClick={() => insertActionAt(index + 1)}
-                          size="sm"
+                          onClick={() => removeAction(index)}
+                          size="icon"
                           variant="ghost"
-                          className="h-7 text-xs w-full"
+                          className="text-destructive h-7 w-7"
+                          disabled={actions.length === 1}
                         >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Insert Action Here
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
-                      </td>
-                    </tr>
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
+                        <Button
+                          onClick={() => moveAction(index, 'up')}
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7"
+                          disabled={index === 0}
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          onClick={() => moveAction(index, 'down')}
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7"
+                          disabled={index === actions.length - 1}
+                        >
+                          <ArrowDown className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Suggested R90 Scores */}
+                  {actionSearchFilters[index]?.trim() && (
+                    <div className="ml-8 p-2 bg-muted/20 space-y-1 max-h-40 overflow-y-auto rounded border">
+                      {getFilteredScores(index).map((item, scoreIdx) => {
+                        const isSelected = selectedScores[index]?.has(scoreIdx) ?? false;
+                        const filteredScores = getFilteredScores(index);
+                        return (
+                          <div key={scoreIdx} className="flex items-start gap-2">
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={(checked) => {
+                                const newSelected = { ...selectedScores };
+                                if (!newSelected[index]) {
+                                  newSelected[index] = new Set();
+                                }
+                                if (checked) {
+                                  newSelected[index].add(scoreIdx);
+                                } else {
+                                  newSelected[index].delete(scoreIdx);
+                                }
+                                setSelectedScores(newSelected);
+                                
+                                const selectedIndices = checked 
+                                  ? [...Array.from(newSelected[index] || []), scoreIdx]
+                                  : Array.from(newSelected[index] || []).filter(i => i !== scoreIdx);
+                                
+                                const totalScore = selectedIndices.reduce((sum, idx) => {
+                                  const score = filteredScores[idx]?.score;
+                                  const numScore = typeof score === 'number' ? score : (typeof score === 'string' && !isNaN(parseFloat(score)) ? parseFloat(score) : 0);
+                                  return sum + numScore;
+                                }, 0);
+                                
+                                updateAction(index, "action_score", totalScore.toString());
+                              }}
+                              className="mt-0.5"
+                            />
+                            <label className="font-mono flex-1 cursor-pointer text-xs text-muted-foreground">
+                              {item.title} {formatScoreWithFrequency(item.score)}
+                            </label>
+                          </div>
+                        );
+                      })}
+                      {getFilteredScores(index).length === 0 && (
+                        <p className="text-muted-foreground text-center py-1 text-xs">No matching scores</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Insert Action Row */}
+                  <div className="flex gap-2 justify-center py-0.5">
+                    <Button
+                      onClick={() => insertActionAt(index + 1)}
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 text-xs flex-1"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add New Action
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      size="sm"
+                      variant="outline"
+                      className="h-6 text-xs flex-1"
+                      disabled={loading || deleting}
+                    >
+                      {loading ? "Saving..." : "Update Report"}
+                    </Button>
+                  </div>
+                </React.Fragment>
+              ))}
             </div>
             
-            <div className="mt-4">
-              <Button onClick={addAction} size="sm" variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
+          </div>
+
+          {/* Datalist removed - replaced with Popover+Command combobox */}
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-3">
+            {/* Top row: Add Action + Update Report */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={addAction} size="sm" variant="outline" className="w-full sm:w-auto">
+                <Plus className="h-4 w-4 mr-2" />
                 Add Action
               </Button>
               <VisibilityStatusButton
@@ -2392,18 +2391,28 @@ export const CreatePerformanceReportDialog = ({
                 onPlaceholderRawScoreChange={setPlaceholderRawScore}
                 onPlaceholderMinutesChange={setPlaceholderMinutes}
               />
+              <Button onClick={handleSave} disabled={loading || deleting} className="w-full sm:w-auto">
+                {loading ? (analysisId ? "Updating..." : "Creating...") : (analysisId ? "Update Report" : "Create Report")}
+              </Button>
+              {analysisId && (
+                <Button
+                  variant="outline"
+                  onClick={() => setIsByActionDialogOpen(true)}
+                  disabled={loading || deleting}
+                  className="w-full sm:w-auto"
+                >
+                  <List className="h-4 w-4 mr-2" />
+                  By Action
+                </Button>
+              )}
             </div>
-          </div>
-
-          {/* Datalist for action types */}
-          <datalist id="action-types-list">
-            {actionTypes.map((type) => (
-              <option key={type} value={type} />
-            ))}
-          </datalist>
-
-          {/* Save and Delete Buttons */}
-          <div className="flex flex-col sm:flex-row justify-between gap-2">
+            
+            {/* Cancel button */}
+            <Button variant="outline" onClick={handleClose} disabled={loading || deleting} className="w-full sm:w-auto">
+              Cancel
+            </Button>
+            
+            {/* Delete Report at bottom */}
             {analysisId && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -2431,54 +2440,27 @@ export const CreatePerformanceReportDialog = ({
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            <div className="flex flex-col sm:flex-row gap-2 sm:ml-auto">
-              <Button variant="outline" onClick={() => inline && onBack ? onBack() : onOpenChange(false)} disabled={loading || deleting || isFillingScores} className="w-full sm:w-auto">
-                {inline ? 'Back' : 'Cancel'}
-              </Button>
-              <Button 
-                variant="secondary" 
-                onClick={handleFillEmptyScores} 
-                disabled={loading || deleting || isFillingScores || actions.length === 0}
-                className="w-full sm:w-auto"
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                {isFillingScores ? "Filling Scores..." : "Fill Empty Scores"}
-              </Button>
-              {analysisId && (
-                <Button
-                  variant="outline"
-                  onClick={() => setIsByActionDialogOpen(true)}
-                  disabled={loading || deleting || isFillingScores}
-                  className="w-full sm:w-auto"
-                >
-                  <List className="h-4 w-4 mr-2" />
-                  By Action
-                </Button>
-              )}
-              <Button onClick={handleSave} disabled={loading || deleting || isFillingScores} className="w-full sm:w-auto">
-                {loading ? (analysisId ? "Updating..." : "Creating...") : (analysisId ? "Update Report" : "Create Report")}
-              </Button>
-            </div>
           </div>
         </div>
         )}
+      </>
+    );
 
-
-
+  // Additional dialogs that need to be rendered regardless of mode
+  const additionalDialogs = (
+    <>
       {/* R90 Ratings Viewer */}
       <R90RatingsViewer
         open={isR90ViewerOpen}
         onOpenChange={(open) => {
           setIsR90ViewerOpen(open);
           if (!open) {
-            setAiSearchAction(null);
             setR90ViewerCategory(undefined);
             setR90ViewerSearch(undefined);
           }
         }}
         initialCategory={r90ViewerCategory}
         searchTerm={r90ViewerSearch}
-        prefilledSearch={aiSearchAction}
       />
 
       {/* Actions By Type Dialog */}
@@ -2512,7 +2494,7 @@ export const CreatePerformanceReportDialog = ({
               {(() => {
                 // Build grouped list of available stats so linked metrics (e.g. dribbles attempted/completed)
                 // are added together instead of as separate items.
-                const availableStats = allStats.filter(
+                const availableStatsFiltered = allStats.filter(
                   (stat) => !selectedStatKeys.includes(stat.stat_key)
                 );
 
@@ -2525,9 +2507,9 @@ export const CreatePerformanceReportDialog = ({
                 }> = [];
 
                 const findStatByKey = (key: string) =>
-                  availableStats.find((s) => s.stat_key === key);
+                  availableStatsFiltered.find((s) => s.stat_key === key);
 
-                availableStats.forEach((stat) => {
+                availableStatsFiltered.forEach((stat) => {
                   const key = stat.stat_key;
                   if (processedKeys.has(key)) return;
 
@@ -2555,7 +2537,7 @@ export const CreatePerformanceReportDialog = ({
                     ].filter(Boolean) as string[];
 
                     const foundSuccessKey = candidateSuccessKeys.find((k) =>
-                      availableStats.some((s) => s.stat_key === k)
+                      availableStatsFiltered.some((s) => s.stat_key === k)
                     );
 
                     if (foundSuccessKey) {
@@ -2571,7 +2553,7 @@ export const CreatePerformanceReportDialog = ({
                     ].filter(Boolean) as string[];
 
                     const foundAttemptedKey = candidateAttemptedKeys.find((k) =>
-                      availableStats.some((s) => s.stat_key === k)
+                      availableStatsFiltered.some((s) => s.stat_key === k)
                     );
 
                     if (foundAttemptedKey) {
@@ -2603,8 +2585,8 @@ export const CreatePerformanceReportDialog = ({
 
                 return statGroups.map((group) => {
                   if (group.isPair && group.secondary) {
-                    const successKey = group.primary.stat_key;
-                    const attemptedKey = group.secondary.stat_key;
+                    const successKeyVal = group.primary.stat_key;
+                    const attemptedKeyVal = group.secondary.stat_key;
 
                     // Clean up the base name for display, matching the main grid.
                     let baseName = group.primary.stat_name
@@ -2614,20 +2596,20 @@ export const CreatePerformanceReportDialog = ({
                       .replace(" On Target", "");
 
                     const displayName = `${baseName} (Successful/Attempted)`;
-                    const isHidden = [successKey, attemptedKey].some((k) =>
+                    const isHidden = [successKeyVal, attemptedKeyVal].some((k) =>
                       hiddenStatKeys.includes(k)
                     );
 
                     const addPair = async () => {
                       setSelectedStatKeys((prev) => [
                         ...prev,
-                        successKey,
-                        attemptedKey,
+                        successKeyVal,
+                        attemptedKeyVal,
                       ]);
 
                       if (playerId) {
                         // If re-adding hidden stats, unhide both.
-                        for (const k of [successKey, attemptedKey]) {
+                        for (const k of [successKeyVal, attemptedKeyVal]) {
                           if (hiddenStatKeys.includes(k)) {
                             await supabase
                               .from("player_hidden_stats")
@@ -2637,7 +2619,7 @@ export const CreatePerformanceReportDialog = ({
                           }
                         }
                         setHiddenStatKeys((prev) =>
-                          prev.filter((k) => k !== successKey && k !== attemptedKey)
+                          prev.filter((k) => k !== successKeyVal && k !== attemptedKeyVal)
                         );
                       }
 
@@ -2646,7 +2628,7 @@ export const CreatePerformanceReportDialog = ({
 
                     return (
                       <div
-                        key={`${successKey}-${attemptedKey}`}
+                        key={`${successKeyVal}-${attemptedKeyVal}`}
                         className="flex items-start justify-between p-3 border rounded-lg hover:bg-accent cursor-pointer"
                         onClick={addPair}
                       >
@@ -2743,17 +2725,7 @@ export const CreatePerformanceReportDialog = ({
     </>
   );
 
-  // Handler for closing - works for both inline and dialog modes
-  const handleClose = () => {
-    if (inline && onClose) {
-      onClose();
-    } else if (inline && onBack) {
-      onBack();
-    } else if (onOpenChange) {
-      onOpenChange(false);
-    }
-  };
-
+  // Inline mode: render with a header and full-page layout
   if (inline) {
     return (
       <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
@@ -2773,6 +2745,7 @@ export const CreatePerformanceReportDialog = ({
               <ArrowLeft className="w-4 h-4" /> Back to Player
             </Button>
             <div className="flex gap-2 items-center">
+              {languageSelector}
               {analysisId && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -2811,67 +2784,27 @@ export const CreatePerformanceReportDialog = ({
 
           <h1 className="text-2xl font-bold mb-6">{analysisId ? 'Edit' : 'Create'} Performance Report - {playerName}</h1>
           
-          {editorContent}
+          {mainContent}
         </div>
-
-        {/* R90 Ratings Viewer */}
-        <R90RatingsViewer
-          open={isR90ViewerOpen}
-          onOpenChange={(open) => {
-            setIsR90ViewerOpen(open);
-            if (!open) {
-              setAiSearchAction(null);
-              setR90ViewerCategory(undefined);
-              setR90ViewerSearch(undefined);
-            }
-          }}
-          initialCategory={r90ViewerCategory}
-          searchTerm={r90ViewerSearch}
-          prefilledSearch={aiSearchAction}
-        />
-
-        {/* Actions By Type Dialog */}
-        {analysisId && (
-          <ActionsByTypeDialog
-            open={isByActionDialogOpen}
-            onOpenChange={setIsByActionDialogOpen}
-            actions={actions.map(a => ({
-              id: a.id,
-              action_number: a.action_number,
-              minute: parseFloat(a.minute) || 0,
-              action_score: parseFloat(a.action_score) || 0,
-              action_type: a.action_type,
-              action_description: a.action_description,
-              notes: a.notes,
-            }))}
-            onActionsUpdated={refreshActions}
-            isAdmin={true}
-            analysisId={analysisId}
-          />
-        )}
-
-        {/* Add Stat Dialog */}
-        <Dialog open={isAddStatDialogOpen} onOpenChange={setIsAddStatDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[600px]">
-            <DialogHeader>
-              <DialogTitle>Add Statistic</DialogTitle>
-            </DialogHeader>
-            <ScrollArea className="h-[400px] pr-4">
-              <div className="space-y-2">
-                {/* Reuse same add stat content */}
-              </div>
-            </ScrollArea>
-          </DialogContent>
-        </Dialog>
+        {additionalDialogs}
       </div>
     );
   }
 
+  // Dialog mode: render with Dialog wrapper
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl lg:max-w-6xl max-h-[90vh] overflow-y-auto">
-        {editorContent}
+        <DialogHeader>
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="text-lg sm:text-xl">{analysisId ? 'Edit' : 'Create'} Performance Report - {playerName}</DialogTitle>
+            {languageSelector}
+          </div>
+        </DialogHeader>
+
+        {mainContent}
       </DialogContent>
+      {additionalDialogs}
     </Dialog>
   );
 };
