@@ -52,8 +52,10 @@ interface PortalSettings {
   show_video_reports: boolean;
   show_data_tab: boolean;
   show_performance_reports: boolean;
+  show_music_player: boolean;
   hero_images: string[];
   hero_focal_points: string[];
+  music_tracks: { url: string; name: string }[];
 }
 
 interface ServiceProduct {
@@ -95,7 +97,9 @@ const DEFAULT_SETTINGS: Omit<PortalSettings, 'player_id'> = {
   show_cognisance: true, show_injury_log: true, show_aphorisms: true, show_quick_stats: true,
   show_news_feed: true, show_r90_chart: true, show_match_clipper: true, show_positional_guides: true,
   show_video_reports: true, show_data_tab: true, show_performance_reports: true,
+  show_music_player: false,
   hero_images: [], hero_focal_points: [],
+  music_tracks: [],
 };
 
 type FeatureItem = { key: string; label: string; description: string };
@@ -264,6 +268,8 @@ export const PortalManagementAdmin = () => {
         show_video_reports: d.show_video_reports ?? true,
         show_data_tab: d.show_data_tab ?? true,
         show_performance_reports: d.show_performance_reports ?? true,
+        show_music_player: d.show_music_player ?? false,
+        music_tracks: (d.music_tracks as any[] || []) as { url: string; name: string }[],
       } as PortalSettings);
 
       // Parse widget data from LOCAL db

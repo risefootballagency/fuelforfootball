@@ -55,6 +55,8 @@ import { RadarChart3D } from "@/components/portal/RadarChart3D";
 import { AllReportsSection } from "@/components/portal/AllReportsSection";
 import { PortalEmptyState } from "@/components/portal/PortalEmptyState";
 import { SectionDivider } from "@/components/portal/SectionDivider";
+import { PortalMusicPlayer } from "@/components/portal/PortalMusicPlayer";
+import { PortalMusicControls } from "@/components/portal/PortalMusicControls";
 
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
@@ -1913,6 +1915,8 @@ const Dashboard = () => {
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
+            {/* Music controls */}
+            <PortalMusicControls />
             <Button
               variant="outline"
               size="sm"
@@ -4913,6 +4917,12 @@ const Dashboard = () => {
         }}
         hasAnalysis={analyses.length > 0}
         hasProgramming={programs.some((p) => !!p.is_current)}
+      />
+
+      {/* Portal Music Player */}
+      <PortalMusicPlayer
+        tracks={(portalSettings?.music_tracks as any[] || []).map((t: any) => ({ url: t.url || '', name: t.name || 'Track' }))}
+        enabled={portalSettings?.show_music_player === true}
       />
     </div>
   );

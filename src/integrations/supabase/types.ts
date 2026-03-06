@@ -2592,7 +2592,9 @@ export type Database = {
           current_packages: Json | null
           hub_widget_type: string
           id: string
+          music_tracks: Json | null
           player_id: string
+          show_music_player: boolean
           updated_at: string
           upgrade_currency: string | null
           upgrade_features: string[] | null
@@ -2612,7 +2614,9 @@ export type Database = {
           current_packages?: Json | null
           hub_widget_type?: string
           id?: string
+          music_tracks?: Json | null
           player_id: string
+          show_music_player?: boolean
           updated_at?: string
           upgrade_currency?: string | null
           upgrade_features?: string[] | null
@@ -2632,7 +2636,9 @@ export type Database = {
           current_packages?: Json | null
           hub_widget_type?: string
           id?: string
+          music_tracks?: Json | null
           player_id?: string
+          show_music_player?: boolean
           updated_at?: string
           upgrade_currency?: string | null
           upgrade_features?: string[] | null
