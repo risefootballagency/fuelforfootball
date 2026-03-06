@@ -12,6 +12,7 @@ interface ActionHeatmapProps {
   minutesPlayed: number;
 }
 
+// R90 rating colour scale
 const getR90Color = (r90: number) => {
   if (r90 >= 2.5) return "hsl(43, 49%, 61%)";
   if (r90 >= 1.8) return "hsl(142, 72%, 29%)";
@@ -25,7 +26,9 @@ const getR90Color = (r90: number) => {
   return "hsl(0, 93%, 12%)";
 };
 
+
 export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) => {
+  // Group actions into fixed 15-minute periods, only showing periods the player was active in
   const blocks = useMemo(() => {
     const periods = [
       { start: 0, end: 15, label: "0-15'" },
@@ -36,25 +39,32 @@ export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) =>
       { start: 75, end: 90, label: "75-90+'" },
     ];
 
+    // Determine the player's active range using action minutes
+    // For subs, minutesPlayed is a duration (e.g. 26) but actions have absolute minutes (e.g. 64-90)
     const actionMinutes = actions.map(a => Math.floor(a.minute));
     const firstActionMinute = actionMinutes.length > 0 ? Math.min(...actionMinutes) : 0;
     const lastActionMinute = actionMinutes.length > 0 ? Math.max(...actionMinutes) : 0;
 
+    // Infer the absolute end minute from actions or minutesPlayed
     const endMinute = lastActionMinute > minutesPlayed ? Math.max(lastActionMinute + 1, minutesPlayed) : minutesPlayed;
+    // Infer start minute: if actions are beyond minutesPlayed, player is a sub
     const startMinute = endMinute > minutesPlayed ? Math.max(0, endMinute - minutesPlayed) : 0;
 
     const result: { range: string; actions: PerformanceAction[]; totalScore: number; count: number; r90: number }[] = [];
 
     for (const period of periods) {
+      // Skip periods entirely outside the player's active range
       if (period.end <= startMinute && minutesPlayed > 0) continue;
       if (period.start >= endMinute && minutesPlayed > 0) continue;
 
+      // For the last period (75-90+), include all actions >= 75
       const blockActions = period.start === 75
         ? actions.filter(a => Math.floor(a.minute) >= 75)
         : actions.filter(a => Math.floor(a.minute) >= period.start && Math.floor(a.minute) < period.end);
 
       const totalScore = blockActions.reduce((sum, a) => sum + a.action_score, 0);
 
+      // Calculate actual minutes played in this period
       const effectiveStart = Math.max(period.start, startMinute);
       const effectiveEnd = period.start === 75 ? Math.max(endMinute, 90) : Math.min(period.end, endMinute);
       const periodMinutes = Math.max(effectiveEnd - effectiveStart, 0);
