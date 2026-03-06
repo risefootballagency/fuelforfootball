@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, SkipForward, SkipBack } from "lucide-react";
@@ -57,6 +57,7 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode }: RankedA
   };
 
   const handleVideoEnd = () => {
+    // In noted mode, don't auto-advance
     if (mode === "noted") return;
     if (currentIndex < sortedClips.length - 1) {
       const next = currentIndex + 1;
@@ -121,17 +122,29 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode }: RankedA
           </Button>
         </div>
 
-        {/* Video */}
+        {/* Video - fills remaining space */}
         <div className="flex-1 relative flex items-center justify-center bg-black min-h-0">
           <video
             ref={videoRef}
             key={current.video_url}
             src={current.video_url}
-            autoPlay={isPlaying}
+            preload="auto"
+            crossOrigin="anonymous"
             controls
             className="w-full h-full object-contain"
+            onCanPlay={(e) => { if (isPlaying) e.currentTarget.play().catch(() => {}); }}
             onEnded={handleVideoEnd}
           />
+          {sortedClips[currentIndex + 1] && (
+            <video
+              key={`prefetch-${sortedClips[currentIndex + 1].video_url}`}
+              src={sortedClips[currentIndex + 1].video_url}
+              preload="auto"
+              crossOrigin="anonymous"
+              muted
+              style={{ display: 'none' }}
+            />
+          )}
         </div>
 
         {/* Info bar */}
@@ -147,7 +160,7 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode }: RankedA
               </div>
               <p className="text-white/60 text-xs truncate mt-0.5">{current.action_type}: {current.action_description}</p>
               {current.notes && (
-                <p className="text-accent text-[11px] italic mt-1">📝 {current.notes}</p>
+                <p className="text-risegold text-[10px] italic mt-1 line-clamp-2">📝 {current.notes}</p>
               )}
             </div>
             <div className="flex gap-1">

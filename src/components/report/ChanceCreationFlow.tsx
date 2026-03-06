@@ -32,6 +32,7 @@ export const ChanceCreationFlow = ({ strikerStats }: ChanceCreationFlowProps) =>
   const tripleXC = strikerStats?.triple_threat_xC ?? null;
   const toFeetXC = strikerStats?.movement_to_feet_xC ?? null;
 
+  // Only show if at least one xC value exists
   const hasAnyData = [crossingXC, inBehindXC, downSideXC, tripleXC, toFeetXC].some(v => v != null && v > 0);
   if (!hasAnyData) return null;
 
@@ -62,7 +63,9 @@ export const ChanceCreationFlow = ({ strikerStats }: ChanceCreationFlowProps) =>
         {/* Goal */}
         <rect x={(pitchW - goalW) / 2} y="2" width={goalW} height="10" fill="none" stroke="white" strokeWidth="2" />
 
-        {/* Crossing Movement */}
+        {/* ===== ZONES ===== */}
+
+        {/* 1. Crossing Movement - Central top inside penalty area */}
         {crossingXC != null && (
           <g>
             <rect x="100" y="14" width={pitchW - 200} height="45" rx="4"
@@ -72,37 +75,42 @@ export const ChanceCreationFlow = ({ strikerStats }: ChanceCreationFlowProps) =>
           </g>
         )}
 
-        {/* In Behind */}
+        {/* 2. In Behind - Central high, with arrow towards goal */}
         {inBehindXC != null && (
           <g>
             <rect x="110" y="70" width={pitchW - 220} height="55" rx="4"
               fill={getXCColor(inBehindXC)} opacity="0.85" />
             <text x={pitchW / 2} y="88" textAnchor="middle" fontSize="9" fontWeight="bold" fill={getTextColor(inBehindXC)}>In Behind</text>
             <text x={pitchW / 2} y="112" textAnchor="middle" fontSize="16" fontWeight="bold" fill={getTextColor(inBehindXC)}>{inBehindXC.toFixed(2)}</text>
+            {/* Arrow towards goal */}
             <line x1={pitchW / 2} y1="70" x2={pitchW / 2} y2="55" stroke="white" strokeWidth="2" markerEnd="url(#arrowhead)" />
           </g>
         )}
 
-        {/* Down The Side */}
+        {/* 3. Down The Side - Wide zones either side */}
         {downSideXC != null && (
           <g>
+            {/* Left wide zone */}
             <rect x="14" y="60" width="75" height="70" rx="4"
               fill={getXCColor(downSideXC)} opacity="0.85" />
             <text x="52" y="90" textAnchor="middle" fontSize="8" fontWeight="bold" fill={getTextColor(downSideXC)}>Down</text>
             <text x="52" y="100" textAnchor="middle" fontSize="8" fontWeight="bold" fill={getTextColor(downSideXC)}>The Side</text>
             <text x="52" y="120" textAnchor="middle" fontSize="14" fontWeight="bold" fill={getTextColor(downSideXC)}>{(downSideXC / 2).toFixed(2)}</text>
+            {/* Diagonal arrow towards goal */}
             <line x1="52" y1="60" x2="90" y2="25" stroke="white" strokeWidth="1.5" markerEnd="url(#arrowhead)" />
 
+            {/* Right wide zone */}
             <rect x={pitchW - 89} y="60" width="75" height="70" rx="4"
               fill={getXCColor(downSideXC)} opacity="0.85" />
             <text x={pitchW - 52} y="90" textAnchor="middle" fontSize="8" fontWeight="bold" fill={getTextColor(downSideXC)}>Down</text>
             <text x={pitchW - 52} y="100" textAnchor="middle" fontSize="8" fontWeight="bold" fill={getTextColor(downSideXC)}>The Side</text>
             <text x={pitchW - 52} y="120" textAnchor="middle" fontSize="14" fontWeight="bold" fill={getTextColor(downSideXC)}>{(downSideXC / 2).toFixed(2)}</text>
+            {/* Diagonal arrow towards goal */}
             <line x1={pitchW - 52} y1="60" x2={pitchW - 90} y2="25" stroke="white" strokeWidth="1.5" markerEnd="url(#arrowhead)" />
           </g>
         )}
 
-        {/* Triple Threat */}
+        {/* 4. Triple Threat - Central zone below penalty area */}
         {tripleXC != null && (
           <g>
             <rect x="80" y="145" width={pitchW - 160} height="65" rx="4"
@@ -112,7 +120,7 @@ export const ChanceCreationFlow = ({ strikerStats }: ChanceCreationFlowProps) =>
           </g>
         )}
 
-        {/* To Feet */}
+        {/* 5. To Feet - Full width zone beneath */}
         {toFeetXC != null && (
           <g>
             <rect x="20" y="225" width={pitchW - 40} height="65" rx="4"
@@ -122,6 +130,7 @@ export const ChanceCreationFlow = ({ strikerStats }: ChanceCreationFlowProps) =>
           </g>
         )}
 
+        {/* Arrow marker definition */}
         <defs>
           <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
             <polygon points="0 0, 8 3, 0 6" fill="white" />
@@ -129,6 +138,7 @@ export const ChanceCreationFlow = ({ strikerStats }: ChanceCreationFlowProps) =>
         </defs>
       </svg>
 
+      {/* Total xC */}
       <div className="text-center text-xs text-muted-foreground">
         Total xC: {[crossingXC, inBehindXC, downSideXC, tripleXC, toFeetXC]
           .filter(v => v != null)
