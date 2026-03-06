@@ -6,9 +6,9 @@ import { ActionReportsList } from "@/components/staff/analysis/ActionReportsList
 import { AnalysisDataTab } from "@/components/portal/AnalysisDataTab";
 import { AnalysisComparisons } from "@/components/portal/AnalysisComparisons";
 import { CreatePerformanceReportDialog } from "@/components/staff/CreatePerformanceReportDialog";
-import { supabase } from "@/integrations/supabase/client";
-import { ClipboardList, BarChart3, Database, User, RefreshCw } from "lucide-react";
-import { sortPlayersByRepresentation, getStatusLabel } from "@/lib/playerSorting";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { ClipboardList, BarChart3, Database, RefreshCw } from "lucide-react";
+import { sortPlayersByRepresentation } from "@/lib/playerSorting";
 import { toast } from "sonner";
 import { AiShellSuggestions } from "@/components/staff/AiShellSuggestions";
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { playSuccess } from "@/lib/soundEffects";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,7 +92,8 @@ interface CreatePerformanceReportDialogProps {
   onSuccess?: () => void;
   analysisId?: string; // For edit mode
   inline?: boolean; // When true, renders without Dialog wrapper
-  onClose?: () => void; // Required for inline mode
+  onBack?: () => void; // Optional back callback for inline mode
+  onClose?: () => void; // Optional close callback for inline mode
 }
 
 interface Fixture {
@@ -164,6 +165,7 @@ export const CreatePerformanceReportDialog = ({
   onSuccess,
   analysisId,
   inline = false,
+  onBack,
   onClose,
 }: CreatePerformanceReportDialogProps) => {
   const [loading, setLoading] = useState(false);
@@ -1523,6 +1525,8 @@ export const CreatePerformanceReportDialog = ({
   const handleClose = () => {
     if (inline && onClose) {
       onClose();
+    } else if (inline && onBack) {
+      onBack();
     } else if (onOpenChange) {
       onOpenChange(false);
     }
