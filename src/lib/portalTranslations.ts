@@ -1,0 +1,396 @@
+/**
+ * Portal UI label translations.
+ * Keys are English defaults; values are translations per language code.
+ */
+
+type TranslationKey = string;
+
+// New keys that all languages need - English defaults
+const extendedKeys: Record<string, string> = {
+  coach_availability: "Coach Availability",
+  availability: "Availability",
+  monday: "Monday", tuesday: "Tuesday", wednesday: "Wednesday",
+  thursday: "Thursday", friday: "Friday", saturday: "Saturday", sunday: "Sunday",
+  mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun",
+  today: "Today",
+  week_start_date: "Week Start Date", week_start: "Week Start",
+  select_position: "Select Position", no_schemes_for_position: "No tactical schemes available for this position yet.",
+  select_position_prompt: "Select a position to view tactical schemes.",
+  team_scheme: "Team Scheme", opposition_scheme: "Opposition Scheme", select_scheme: "Select scheme",
+  goalkeeper: "Goalkeeper", centre_back: "Centre Back", full_back: "Full Back",
+  midfielder: "Midfielder", winger: "Winger", striker: "Striker",
+  days: "days", hours: "hours", mins: "mins", secs: "secs",
+  next_fixture: "Next Fixture", pre_match: "Pre-Match", view_pre_match_analysis: "View Pre-Match Analysis",
+  no_upcoming_fixtures: "No upcoming fixtures", match_day: "Match Day",
+  r90_score: "R90 Score", minutes_played: "Minutes Played", result: "Result", opponent: "Opponent",
+  date: "Date", at: "at",
+  no_data_available: "No data available", no_comparisons: "No comparisons available",
+  score_history: "Score History", latest_reports: "Latest Reports", view_all: "View All",
+  refresh: "Refresh", close: "Close",
+  aphorism_of_the_day: "Thought of the Day",
+  recent_notifications: "Recent Notifications", no_recent_notifications: "No recent notifications",
+  new_performance_report: "New Performance Report", training_program: "Training Program", new_concept: "New Concept", new_update: "New Update",
+  just_now: "Just now", one_hour_ago: "1 hour ago", hours_ago: "hours ago", one_day_ago: "1 day ago", days_ago: "days ago",
+  offline_notice: "You're offline. Some content may not be available.",
+  open_report: "Open Report", performance_report: "Performance Report", match: "Match",
+  match_performance_rated_at_r90: "Match performance rated at R90",
+  minutes_played_suffix: "minutes played.",
+  select_opposition_scheme: "Select opposition scheme",
+};
+
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    hub: "Hub", analysis: "Analysis", programming: "Programming",
+    key_documents: "Key Documents", updates: "Updates", highlights: "Highlights",
+    transfer_hub: "Transfer Hub", nutrition: "Nutrition", view_profile: "View Profile",
+    more: "More", back: "Back", performance: "Performance", form: "Form",
+    video_reports: "Video Reports", data: "Data", comparisons: "Comparisons",
+    scouting: "Scouting", positional: "Positional", schemes: "Schemes",
+    concepts: "Concepts", cognisance: "Cognisance", other: "Other",
+    performance_analysis: "Performance Analysis", uploading_clip: "Uploading clip...",
+    no_performance_reports: "No performance reports yet",
+    reports_will_appear: "Your reports will appear here after each match.",
+    next_match: "Next Match", overview: "Overview", current_programme: "Current Programme",
+    schedule: "Schedule", sessions: "Sessions", exercises: "Exercises",
+    download: "Download", view: "View", delete: "Delete", upload_clip: "Upload Clip",
+    your_clips: "Your Clips", no_clips_yet: "No clips yet",
+    clips_appear_here: "Your clips will appear here.",
+    match_highlights: "Match Highlights", best_clips: "Best Clips",
+    no_highlights: "No highlights yet", loading: "Loading...",
+    log_out: "Log Out", settings: "Settings", notifications: "Notifications",
+    injury_log: "Injury Log", match_clipper: "Match Clipper",
+    quick_stats: "Quick Stats", r90_chart: "R90 Chart",
+  },
+  es: {
+    hub: "Inicio", analysis: "Análisis", programming: "Programación",
+    key_documents: "Documentos Clave", updates: "Novedades", highlights: "Destacados",
+    transfer_hub: "Centro de Fichajes", nutrition: "Nutrición", view_profile: "Ver Perfil",
+    more: "Más", back: "Volver", performance: "Rendimiento", form: "Estado de Forma",
+    video_reports: "Informes de Vídeo", data: "Datos", comparisons: "Comparaciones",
+    scouting: "Scouting", positional: "Posicional", schemes: "Esquemas",
+    concepts: "Conceptos", cognisance: "Conocimiento", other: "Otros",
+    performance_analysis: "Análisis de Rendimiento", uploading_clip: "Subiendo clip...",
+    no_performance_reports: "Aún no hay informes de rendimiento",
+    reports_will_appear: "Tus informes aparecerán aquí después de cada partido.",
+    next_match: "Próximo Partido", overview: "Resumen", current_programme: "Programa Actual",
+    schedule: "Calendario", sessions: "Sesiones", exercises: "Ejercicios",
+    download: "Descargar", view: "Ver", delete: "Eliminar", upload_clip: "Subir Clip",
+    your_clips: "Tus Clips", no_clips_yet: "Aún no hay clips",
+    clips_appear_here: "Tus clips aparecerán aquí.",
+    match_highlights: "Momentos del Partido", best_clips: "Mejores Clips",
+    no_highlights: "Aún no hay destacados", loading: "Cargando...",
+    log_out: "Cerrar Sesión", settings: "Ajustes", notifications: "Notificaciones",
+    injury_log: "Registro de Lesiones", match_clipper: "Recortador de Partidos",
+    quick_stats: "Estadísticas Rápidas", r90_chart: "Gráfico R90",
+  },
+  pt: {
+    hub: "Início", analysis: "Análise", programming: "Programação",
+    key_documents: "Documentos Chave", updates: "Atualizações", highlights: "Destaques",
+    transfer_hub: "Centro de Transferências", nutrition: "Nutrição", view_profile: "Ver Perfil",
+    more: "Mais", back: "Voltar", performance: "Desempenho", form: "Forma",
+    video_reports: "Relatórios de Vídeo", data: "Dados", comparisons: "Comparações",
+    scouting: "Scouting", positional: "Posicional", schemes: "Esquemas",
+    concepts: "Conceitos", cognisance: "Conhecimento", other: "Outros",
+    performance_analysis: "Análise de Desempenho", uploading_clip: "Enviando clip...",
+    no_performance_reports: "Ainda sem relatórios de desempenho",
+    reports_will_appear: "Os seus relatórios aparecerão aqui após cada jogo.",
+    next_match: "Próximo Jogo", overview: "Visão Geral", current_programme: "Programa Atual",
+    schedule: "Calendário", sessions: "Sessões", exercises: "Exercícios",
+    download: "Descarregar", view: "Ver", delete: "Eliminar", upload_clip: "Enviar Clip",
+    your_clips: "Os Seus Clips", no_clips_yet: "Ainda sem clips",
+    clips_appear_here: "Os seus clips aparecerão aqui.",
+    match_highlights: "Momentos do Jogo", best_clips: "Melhores Clips",
+    no_highlights: "Ainda sem destaques", loading: "A carregar...",
+    log_out: "Sair", settings: "Definições", notifications: "Notificações",
+    injury_log: "Registo de Lesões", match_clipper: "Recortador de Jogos",
+    quick_stats: "Estatísticas Rápidas", r90_chart: "Gráfico R90",
+  },
+  fr: {
+    hub: "Accueil", analysis: "Analyse", programming: "Programmation",
+    key_documents: "Documents Clés", updates: "Mises à Jour", highlights: "Temps Forts",
+    transfer_hub: "Centre de Transferts", nutrition: "Nutrition", view_profile: "Voir le Profil",
+    more: "Plus", back: "Retour", performance: "Performance", form: "Forme",
+    video_reports: "Rapports Vidéo", data: "Données", comparisons: "Comparaisons",
+    scouting: "Scouting", positional: "Positionnel", schemes: "Schémas",
+    concepts: "Concepts", cognisance: "Connaissance", other: "Autre",
+    performance_analysis: "Analyse de Performance", uploading_clip: "Envoi du clip...",
+    no_performance_reports: "Pas encore de rapports de performance",
+    reports_will_appear: "Vos rapports apparaîtront ici après chaque match.",
+    next_match: "Prochain Match", overview: "Aperçu", current_programme: "Programme Actuel",
+    schedule: "Calendrier", sessions: "Séances", exercises: "Exercices",
+    download: "Télécharger", view: "Voir", delete: "Supprimer", upload_clip: "Envoyer un Clip",
+    your_clips: "Vos Clips", no_clips_yet: "Pas encore de clips",
+    clips_appear_here: "Vos clips apparaîtront ici.",
+    match_highlights: "Temps Forts du Match", best_clips: "Meilleurs Clips",
+    no_highlights: "Pas encore de temps forts", loading: "Chargement...",
+    log_out: "Déconnexion", settings: "Paramètres", notifications: "Notifications",
+    injury_log: "Journal des Blessures", match_clipper: "Découpeur de Match",
+    quick_stats: "Statistiques Rapides", r90_chart: "Graphique R90",
+  },
+  de: {
+    hub: "Übersicht", analysis: "Analyse", programming: "Programmierung",
+    key_documents: "Wichtige Dokumente", updates: "Aktualisierungen", highlights: "Highlights",
+    transfer_hub: "Transfer-Zentrum", nutrition: "Ernährung", view_profile: "Profil ansehen",
+    more: "Mehr", back: "Zurück", performance: "Leistung", form: "Form",
+    video_reports: "Video-Berichte", data: "Daten", comparisons: "Vergleiche",
+    scouting: "Scouting", positional: "Positionell", schemes: "Spielsysteme",
+    concepts: "Konzepte", cognisance: "Spielverständnis", other: "Sonstiges",
+    performance_analysis: "Leistungsanalyse", uploading_clip: "Clip wird hochgeladen...",
+    no_performance_reports: "Noch keine Leistungsberichte",
+    reports_will_appear: "Ihre Berichte erscheinen hier nach jedem Spiel.",
+    next_match: "Nächstes Spiel", overview: "Überblick", current_programme: "Aktuelles Programm",
+    schedule: "Zeitplan", sessions: "Einheiten", exercises: "Übungen",
+    download: "Herunterladen", view: "Ansehen", delete: "Löschen", upload_clip: "Clip hochladen",
+    your_clips: "Ihre Clips", no_clips_yet: "Noch keine Clips",
+    clips_appear_here: "Ihre Clips erscheinen hier.",
+    match_highlights: "Spielhöhepunkte", best_clips: "Beste Clips",
+    no_highlights: "Noch keine Highlights", loading: "Laden...",
+    log_out: "Abmelden", settings: "Einstellungen", notifications: "Benachrichtigungen",
+    injury_log: "Verletzungsprotokoll", match_clipper: "Match-Clipper",
+    quick_stats: "Schnellstatistiken", r90_chart: "R90-Diagramm",
+  },
+  it: {
+    hub: "Home", analysis: "Analisi", programming: "Programmazione",
+    key_documents: "Documenti Chiave", updates: "Aggiornamenti", highlights: "Momenti Salienti",
+    transfer_hub: "Centro Trasferimenti", nutrition: "Nutrizione", view_profile: "Vedi Profilo",
+    more: "Altro", back: "Indietro", performance: "Prestazioni", form: "Forma",
+    video_reports: "Report Video", data: "Dati", comparisons: "Confronti",
+    scouting: "Scouting", positional: "Posizionale", schemes: "Schemi",
+    concepts: "Concetti", cognisance: "Conoscenza", other: "Altro",
+    performance_analysis: "Analisi delle Prestazioni", uploading_clip: "Caricamento clip...",
+    no_performance_reports: "Ancora nessun report di prestazioni",
+    reports_will_appear: "I tuoi report appariranno qui dopo ogni partita.",
+    next_match: "Prossima Partita", overview: "Panoramica", current_programme: "Programma Attuale",
+    schedule: "Calendario", sessions: "Sessioni", exercises: "Esercizi",
+    download: "Scarica", view: "Visualizza", delete: "Elimina", upload_clip: "Carica Clip",
+    your_clips: "I Tuoi Clip", no_clips_yet: "Ancora nessun clip",
+    clips_appear_here: "I tuoi clip appariranno qui.",
+    match_highlights: "Momenti della Partita", best_clips: "Migliori Clip",
+    no_highlights: "Ancora nessun momento saliente", loading: "Caricamento...",
+    log_out: "Esci", settings: "Impostazioni", notifications: "Notifiche",
+    injury_log: "Registro Infortuni", match_clipper: "Ritaglio Partita",
+    quick_stats: "Statistiche Rapide", r90_chart: "Grafico R90",
+  },
+  pl: {
+    hub: "Główna", analysis: "Analiza", programming: "Programowanie",
+    key_documents: "Kluczowe Dokumenty", updates: "Aktualności", highlights: "Najważniejsze Momenty",
+    transfer_hub: "Centrum Transferowe", nutrition: "Żywienie", view_profile: "Zobacz Profil",
+    more: "Więcej", back: "Wstecz", performance: "Wydajność", form: "Forma",
+    video_reports: "Raporty Wideo", data: "Dane", comparisons: "Porównania",
+    scouting: "Scouting", positional: "Pozycyjne", schemes: "Schematy",
+    concepts: "Koncepcje", cognisance: "Świadomość", other: "Inne",
+    performance_analysis: "Analiza Wydajności", uploading_clip: "Przesyłanie klipu...",
+    no_performance_reports: "Brak raportów wydajności",
+    reports_will_appear: "Twoje raporty pojawią się tutaj po każdym meczu.",
+    next_match: "Następny Mecz", overview: "Przegląd", current_programme: "Aktualny Program",
+    schedule: "Harmonogram", sessions: "Sesje", exercises: "Ćwiczenia",
+    download: "Pobierz", view: "Zobacz", delete: "Usuń", upload_clip: "Prześlij Klip",
+    your_clips: "Twoje Klipy", no_clips_yet: "Brak klipów",
+    clips_appear_here: "Twoje klipy pojawią się tutaj.",
+    match_highlights: "Momenty Meczowe", best_clips: "Najlepsze Klipy",
+    no_highlights: "Brak najważniejszych momentów", loading: "Ładowanie...",
+    log_out: "Wyloguj się", settings: "Ustawienia", notifications: "Powiadomienia",
+    injury_log: "Dziennik Kontuzji", match_clipper: "Przycinanie Meczów",
+    quick_stats: "Szybkie Statystyki", r90_chart: "Wykres R90",
+  },
+  cs: {
+    hub: "Hlavní", analysis: "Analýza", programming: "Programování",
+    key_documents: "Klíčové Dokumenty", updates: "Aktualizace", highlights: "Nejlepší Momenty",
+    transfer_hub: "Přestupové Centrum", nutrition: "Výživa", view_profile: "Zobrazit Profil",
+    more: "Více", back: "Zpět", performance: "Výkon", form: "Forma",
+    video_reports: "Video Reporty", data: "Data", comparisons: "Srovnání",
+    scouting: "Scouting", positional: "Poziční", schemes: "Schémata",
+    concepts: "Koncepty", cognisance: "Uvědomění", other: "Ostatní",
+    performance_analysis: "Analýza Výkonu", uploading_clip: "Nahrávání klipu...",
+    no_performance_reports: "Zatím žádné výkonnostní reporty",
+    reports_will_appear: "Vaše reporty se zde zobrazí po každém zápase.",
+    next_match: "Další Zápas", overview: "Přehled", current_programme: "Aktuální Program",
+    schedule: "Rozvrh", sessions: "Tréninky", exercises: "Cvičení",
+    download: "Stáhnout", view: "Zobrazit", delete: "Smazat", upload_clip: "Nahrát Klip",
+    your_clips: "Vaše Klipy", no_clips_yet: "Zatím žádné klipy",
+    clips_appear_here: "Vaše klipy se zde zobrazí.",
+    match_highlights: "Zápasové Momenty", best_clips: "Nejlepší Klipy",
+    no_highlights: "Zatím žádné momenty", loading: "Načítání...",
+    log_out: "Odhlásit se", settings: "Nastavení", notifications: "Oznámení",
+    injury_log: "Záznam Zranění", match_clipper: "Střihač Zápasů",
+    quick_stats: "Rychlé Statistiky", r90_chart: "Graf R90",
+  },
+  ru: {
+    hub: "Главная", analysis: "Анализ", programming: "Программирование",
+    key_documents: "Ключевые Документы", updates: "Обновления", highlights: "Лучшие Моменты",
+    transfer_hub: "Трансферный Центр", nutrition: "Питание", view_profile: "Просмотр Профиля",
+    more: "Ещё", back: "Назад", performance: "Производительность", form: "Форма",
+    video_reports: "Видеоотчёты", data: "Данные", comparisons: "Сравнения",
+    scouting: "Скаутинг", positional: "Позиционные", schemes: "Схемы",
+    concepts: "Концепции", cognisance: "Осведомлённость", other: "Прочее",
+    performance_analysis: "Анализ Производительности", uploading_clip: "Загрузка клипа...",
+    no_performance_reports: "Пока нет отчётов о производительности",
+    reports_will_appear: "Ваши отчёты появятся здесь после каждого матча.",
+    next_match: "Следующий Матч", overview: "Обзор", current_programme: "Текущая Программа",
+    schedule: "Расписание", sessions: "Тренировки", exercises: "Упражнения",
+    download: "Скачать", view: "Просмотр", delete: "Удалить", upload_clip: "Загрузить Клип",
+    your_clips: "Ваши Клипы", no_clips_yet: "Пока нет клипов",
+    clips_appear_here: "Ваши клипы появятся здесь.",
+    match_highlights: "Моменты Матча", best_clips: "Лучшие Клипы",
+    no_highlights: "Пока нет лучших моментов", loading: "Загрузка...",
+    log_out: "Выход", settings: "Настройки", notifications: "Уведомления",
+    injury_log: "Журнал Травм", match_clipper: "Нарезка Матчей",
+    quick_stats: "Быстрая Статистика", r90_chart: "График R90",
+  },
+  tr: {
+    hub: "Ana Sayfa", analysis: "Analiz", programming: "Programlama",
+    key_documents: "Önemli Belgeler", updates: "Güncellemeler", highlights: "Öne Çıkanlar",
+    transfer_hub: "Transfer Merkezi", nutrition: "Beslenme", view_profile: "Profili Görüntüle",
+    more: "Daha Fazla", back: "Geri", performance: "Performans", form: "Form",
+    video_reports: "Video Raporları", data: "Veriler", comparisons: "Karşılaştırmalar",
+    scouting: "Scouting", positional: "Pozisyonel", schemes: "Şemalar",
+    concepts: "Kavramlar", cognisance: "Farkındalık", other: "Diğer",
+    performance_analysis: "Performans Analizi", uploading_clip: "Klip yükleniyor...",
+    no_performance_reports: "Henüz performans raporu yok",
+    reports_will_appear: "Raporlarınız her maçtan sonra burada görünecek.",
+    next_match: "Sonraki Maç", overview: "Genel Bakış", current_programme: "Mevcut Program",
+    schedule: "Takvim", sessions: "Antrenmanlar", exercises: "Egzersizler",
+    download: "İndir", view: "Görüntüle", delete: "Sil", upload_clip: "Klip Yükle",
+    your_clips: "Kliplerin", no_clips_yet: "Henüz klip yok",
+    clips_appear_here: "Kliplerin burada görünecek.",
+    match_highlights: "Maç Anları", best_clips: "En İyi Klipler",
+    no_highlights: "Henüz öne çıkan yok", loading: "Yükleniyor...",
+    log_out: "Çıkış Yap", settings: "Ayarlar", notifications: "Bildirimler",
+    injury_log: "Sakatlık Kaydı", match_clipper: "Maç Kesici",
+    quick_stats: "Hızlı İstatistikler", r90_chart: "R90 Grafiği",
+  },
+};
+
+/**
+ * Get a translated label for the portal.
+ * Falls back to English if the language or key is missing.
+ */
+export function normalizePortalLanguage(lang: string | null | undefined): string {
+  const raw = (lang || "en").trim().toLowerCase();
+
+  const aliases: Record<string, string> = {
+    "français": "fr", "francais": "fr", "french": "fr",
+    "english": "en",
+    "español": "es", "spanish": "es",
+    "português": "pt", "portugues": "pt",
+    "german": "de", "deutsch": "de",
+    "italiano": "it",
+    "polski": "pl",
+    "čeština": "cs", "cestina": "cs",
+    "русский": "ru",
+    "türkçe": "tr", "turkce": "tr",
+  };
+
+  return aliases[raw] ?? raw;
+}
+
+export function t(lang: string | null | undefined, key: string): string {
+  const code = normalizePortalLanguage(lang);
+  return translations[code]?.[key] ?? extendedKeys[key] ?? translations.en?.[key] ?? key;
+}
+
+// French extended translations
+const frExtended: Record<string, string> = {
+  coach_availability: "Disponibilité du Coach", availability: "Disponibilité",
+  monday: "Lundi", tuesday: "Mardi", wednesday: "Mercredi",
+  thursday: "Jeudi", friday: "Vendredi", saturday: "Samedi", sunday: "Dimanche",
+  mon: "Lun", tue: "Mar", wed: "Mer", thu: "Jeu", fri: "Ven", sat: "Sam", sun: "Dim",
+  today: "Aujourd'hui",
+  week_start_date: "Date de Début", week_start: "Début",
+  select_position: "Choisir une Position",
+  no_schemes_for_position: "Pas encore de schémas tactiques pour cette position.",
+  select_position_prompt: "Choisissez une position pour voir les schémas tactiques.",
+  team_scheme: "Schéma d'Équipe", opposition_scheme: "Schéma Adverse",
+  select_scheme: "Choisir un schéma", select_opposition_scheme: "Choisir un schéma adverse",
+  goalkeeper: "Gardien", centre_back: "Défenseur Central", full_back: "Latéral",
+  midfielder: "Milieu de terrain", winger: "Ailier", striker: "Attaquant",
+  days: "jours", hours: "heures", mins: "min", secs: "sec",
+  next_fixture: "Prochain Match", pre_match: "Pré-Match", view_pre_match_analysis: "Voir l'analyse pré-match",
+  no_upcoming_fixtures: "Pas de matchs à venir", match_day: "Jour de Match",
+  r90_score: "Score R90", minutes_played: "Minutes Jouées", result: "Résultat", opponent: "Adversaire",
+  date: "Date", at: "à",
+  no_data_available: "Aucune donnée disponible", no_comparisons: "Aucune comparaison disponible",
+  score_history: "Historique des Scores", latest_reports: "Derniers Rapports", view_all: "Voir Tout",
+  refresh: "Actualiser", close: "Fermer",
+  aphorism_of_the_day: "Pensée du Jour",
+  recent_notifications: "Notifications Récentes", no_recent_notifications: "Aucune notification récente",
+  new_performance_report: "Nouveau rapport de performance", training_program: "Programme d'entraînement", new_concept: "Nouveau concept", new_update: "Nouvelle mise à jour",
+  just_now: "À l'instant", one_hour_ago: "Il y a 1 heure", hours_ago: "heures", one_day_ago: "Il y a 1 jour", days_ago: "jours",
+  offline_notice: "Vous êtes hors ligne. Certains contenus peuvent ne pas être disponibles.",
+  open_report: "Ouvrir le rapport", performance_report: "Rapport de performance", match: "Match",
+  match_performance_rated_at_r90: "Performance du match notée à R90",
+  minutes_played_suffix: "minutes jouées.",
+};
+Object.entries(frExtended).forEach(([key, val]) => {
+  if (translations.fr) translations.fr[key] = val;
+});
+
+// Spanish extended
+const esExtended: Record<string, string> = {
+  coach_availability: "Disponibilidad del Entrenador", availability: "Disponibilidad",
+  monday: "Lunes", tuesday: "Martes", wednesday: "Miércoles",
+  thursday: "Jueves", friday: "Viernes", saturday: "Sábado", sunday: "Domingo",
+  mon: "Lun", tue: "Mar", wed: "Mié", thu: "Jue", fri: "Vie", sat: "Sáb", sun: "Dom",
+  days: "días", hours: "horas", mins: "min", secs: "seg",
+  goalkeeper: "Portero", centre_back: "Central", full_back: "Lateral",
+  midfielder: "Centrocampista", winger: "Extremo", striker: "Delantero",
+  aphorism_of_the_day: "Pensamiento del Día",
+  refresh: "Actualizar", close: "Cerrar",
+  week_start_date: "Fecha de Inicio", week_start: "Inicio",
+};
+Object.entries(esExtended).forEach(([key, val]) => {
+  if (translations.es) translations.es[key] = val;
+});
+
+// Portuguese extended
+const ptExtended: Record<string, string> = {
+  coach_availability: "Disponibilidade do Treinador", availability: "Disponibilidade",
+  monday: "Segunda", tuesday: "Terça", wednesday: "Quarta",
+  thursday: "Quinta", friday: "Sexta", saturday: "Sábado", sunday: "Domingo",
+  mon: "Seg", tue: "Ter", wed: "Qua", thu: "Qui", fri: "Sex", sat: "Sáb", sun: "Dom",
+  days: "dias", hours: "horas", mins: "min", secs: "seg",
+  goalkeeper: "Guarda-Redes", centre_back: "Defesa Central", full_back: "Lateral",
+  midfielder: "Médio", winger: "Extremo", striker: "Avançado",
+  aphorism_of_the_day: "Pensamento do Dia",
+  refresh: "Atualizar", close: "Fechar",
+  week_start_date: "Data de Início", week_start: "Início",
+};
+Object.entries(ptExtended).forEach(([key, val]) => {
+  if (translations.pt) translations.pt[key] = val;
+});
+
+// German extended
+const deExtended: Record<string, string> = {
+  coach_availability: "Trainer-Verfügbarkeit", availability: "Verfügbarkeit",
+  monday: "Montag", tuesday: "Dienstag", wednesday: "Mittwoch",
+  thursday: "Donnerstag", friday: "Freitag", saturday: "Samstag", sunday: "Sonntag",
+  mon: "Mo", tue: "Di", wed: "Mi", thu: "Do", fri: "Fr", sat: "Sa", sun: "So",
+  days: "Tage", hours: "Stunden", mins: "Min", secs: "Sek",
+  goalkeeper: "Torwart", centre_back: "Innenverteidiger", full_back: "Außenverteidiger",
+  midfielder: "Mittelfeldspieler", winger: "Flügelspieler", striker: "Stürmer",
+  aphorism_of_the_day: "Gedanke des Tages",
+  refresh: "Aktualisieren", close: "Schließen",
+  week_start_date: "Wochenbeginn", week_start: "Wochenbeginn",
+};
+Object.entries(deExtended).forEach(([key, val]) => {
+  if (translations.de) translations.de[key] = val;
+});
+
+// Italian extended
+const itExtended: Record<string, string> = {
+  coach_availability: "Disponibilità Allenatore", availability: "Disponibilità",
+  monday: "Lunedì", tuesday: "Martedì", wednesday: "Mercoledì",
+  thursday: "Giovedì", friday: "Venerdì", saturday: "Sabato", sunday: "Domenica",
+  mon: "Lun", tue: "Mar", wed: "Mer", thu: "Gio", fri: "Ven", sat: "Sab", sun: "Dom",
+  days: "giorni", hours: "ore", mins: "min", secs: "sec",
+  goalkeeper: "Portiere", centre_back: "Difensore Centrale", full_back: "Terzino",
+  midfielder: "Centrocampista", winger: "Ala", striker: "Attaccante",
+  aphorism_of_the_day: "Pensiero del Giorno",
+  refresh: "Aggiorna", close: "Chiudi",
+  week_start_date: "Data Inizio", week_start: "Inizio",
+};
+Object.entries(itExtended).forEach(([key, val]) => {
+  if (translations.it) translations.it[key] = val;
+});
+
+export type { TranslationKey };
