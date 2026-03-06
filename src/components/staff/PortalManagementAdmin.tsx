@@ -268,6 +268,8 @@ export const PortalManagementAdmin = () => {
         show_video_reports: d.show_video_reports ?? true,
         show_data_tab: d.show_data_tab ?? true,
         show_performance_reports: d.show_performance_reports ?? true,
+        show_music_player: d.show_music_player ?? false,
+        music_tracks: (d.music_tracks as any[] || []) as { url: string; name: string }[],
       } as PortalSettings);
 
       // Parse widget data from LOCAL db
