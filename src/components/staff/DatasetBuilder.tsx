@@ -68,7 +68,7 @@ export const DatasetBuilder = () => {
   }, []);
 
   const fetchFrames = useCallback(async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("dataset_frames")
       .select("*")
       .order("created_at", { ascending: false });
@@ -125,7 +125,7 @@ export const DatasetBuilder = () => {
         .from("dataset-images")
         .getPublicUrl(filePath);
 
-      const { error: insertError } = await supabase
+      const { error: insertError } = await (supabase as any)
         .from("dataset_frames")
         .insert({
           action_id: selectedClip.id,
@@ -149,7 +149,7 @@ export const DatasetBuilder = () => {
   };
 
   const handleDeleteFrame = async (frameId: string) => {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("dataset_frames")
       .delete()
       .eq("id", frameId);
@@ -215,7 +215,7 @@ export const DatasetBuilder = () => {
 
       if (markExported) {
         const ids = framesToExport.map((f) => f.id);
-        await supabase
+        await (supabase as any)
           .from("dataset_frames")
           .update({ exported: true })
           .in("id", ids);
