@@ -17,6 +17,7 @@ import { STAT_TYPE_CONFIGS, StatTypeConfig } from "@/components/staff/ActionStat
 import { R90FlowChart } from "@/components/report/R90FlowChart";
 import { ActionHeatmap } from "@/components/report/ActionHeatmap";
 import { PitchHeatmap } from "@/components/report/PitchHeatmap";
+import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { ChanceCreationFlow } from "@/components/report/ChanceCreationFlow";
 import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
 import { toTitleCase } from "@/lib/titleCase";
