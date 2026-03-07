@@ -4,7 +4,7 @@
  * Runs clip-to-report exports outside the component tree so they survive
  * section navigation. Components subscribe to progress updates via callbacks.
  */
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { trimAndUploadClip } from "@/lib/clientClipExtractor";
 import { toast } from "sonner";
 

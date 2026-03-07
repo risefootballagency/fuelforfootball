@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { toTitleCase } from "@/lib/titleCase";
 
 /**
