@@ -391,7 +391,7 @@ const Scouts = () => {
                     <BarChart3 className="h-6 w-6 text-accent" />
                   </div>
                   
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-accent transition-colors">
                     Advanced Analytics
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
