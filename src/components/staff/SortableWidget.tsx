@@ -4,7 +4,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GripVertical, Maximize2, Minimize2 } from "lucide-react";
-import grassTexture from "@/assets/grass-smoky-3.png";
 import { cn } from "@/lib/utils";
 
 export interface WidgetLayout {
@@ -144,26 +143,10 @@ export const SortableWidget = ({
     return (
       <div className="fixed inset-0 z-50 bg-background p-4 pt-20 overflow-auto">
         <Card className="h-full flex flex-col border-border/50 bg-card/50 backdrop-blur-sm relative overflow-hidden">
-          <div
-            className="absolute inset-0 opacity-40 pointer-events-none z-0"
-            style={{
-              backgroundImage: `url(${grassTexture})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-primary/20 px-3 py-2 relative z-10 overflow-hidden">
-            <div
-              className="absolute inset-0 opacity-60 pointer-events-none z-0"
-              style={{
-                backgroundImage: `url(${grassTexture})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            />
-            <div className="flex items-center gap-2 relative z-10">
-              <div className="p-1.5 rounded bg-primary/10 border border-primary/20">
-                <Icon className="w-3.5 h-3.5 text-primary" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-accent/20 px-3 py-2 bg-[hsl(140,30%,12%)]">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded bg-accent/10 border border-accent/20">
+                <Icon className="w-3.5 h-3.5 text-accent" />
               </div>
               <CardTitle className="text-xs font-semibold tracking-tight uppercase text-title-text drop-shadow-sm">
                 {title}
@@ -176,7 +159,7 @@ export const SortableWidget = ({
                 e.stopPropagation();
                 onToggleExpand();
               }}
-              className="h-10 w-10 p-0 bg-primary hover:bg-primary/90 shadow-lg relative z-10"
+              className="h-10 w-10 p-0 bg-accent hover:bg-accent/90 shadow-lg"
             >
               <Minimize2 className="h-5 w-5" />
             </Button>
@@ -202,35 +185,19 @@ export const SortableWidget = ({
         (isResizingWidth || isResizingHeight) && "z-40"
       )}
     >
-      <Card className="h-full flex flex-col border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/30 hover:shadow-lg relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-40 pointer-events-none z-0"
-          style={{
-            backgroundImage: `url(${grassTexture})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-primary/20 px-3 py-2 relative z-10 overflow-hidden">
-          <div
-            className="absolute inset-0 opacity-60 pointer-events-none z-0"
-            style={{
-              backgroundImage: `url(${grassTexture})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-          <div className="flex items-center gap-2 relative z-10">
+      <Card className="h-full flex flex-col border-border/50 bg-card/50 backdrop-blur-sm hover:border-accent/30 hover:shadow-lg relative overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-accent/20 px-3 py-2 bg-[hsl(140,30%,12%)]">
+          <div className="flex items-center gap-2">
             {/* Drag handle */}
             <div
               {...attributes}
               {...listeners}
-              className="p-1 rounded cursor-grab hover:bg-primary/10 active:cursor-grabbing"
+              className="p-1 rounded cursor-grab hover:bg-accent/10 active:cursor-grabbing"
             >
               <GripVertical className="w-3.5 h-3.5 text-title-text/70" />
             </div>
-            <div className="p-1.5 rounded bg-primary/10 border border-primary/20">
-              <Icon className="w-3.5 h-3.5 text-primary" />
+            <div className="p-1.5 rounded bg-accent/10 border border-accent/20">
+              <Icon className="w-3.5 h-3.5 text-accent" />
             </div>
             <CardTitle className="text-xs font-semibold tracking-tight uppercase text-title-text drop-shadow-sm">
               {title}
@@ -243,7 +210,7 @@ export const SortableWidget = ({
               e.stopPropagation();
               onToggleExpand();
             }}
-            className="h-6 w-6 p-0 hover:bg-primary/10 relative z-20"
+            className="h-6 w-6 p-0 hover:bg-accent/10 relative z-20"
           >
             <Maximize2 className="h-3 w-3 text-title-text/70" />
           </Button>
