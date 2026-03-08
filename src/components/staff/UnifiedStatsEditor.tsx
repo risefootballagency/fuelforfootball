@@ -467,6 +467,7 @@ export const UnifiedStatsEditor = ({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {stats.length === 0 ? (
