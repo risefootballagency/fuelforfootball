@@ -84,8 +84,8 @@ export const LightConeBackground = () => {
             
             {/* Gradient for future cone (top) */}
             <linearGradient id="futureConeGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.08" />
+              <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.08" />
             </linearGradient>
             
             {/* Glow filter */}
