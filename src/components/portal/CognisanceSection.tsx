@@ -898,11 +898,11 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
           <CardHeader className="pb-2">
             <CardTitle className="font-bebas text-gold flex items-center gap-2">
               <Brain className="w-5 h-5" />
-              {selectedGame === "schemes" && "Tactical Schemes"}
-              {selectedGame === "concepts" && "Concepts"}
-              {selectedGame === "pre-match" && "Pre-Match Analysis"}
-              {selectedGame === "positional-guides" && "Positional Guides"}
-              {selectedGame === "ai-quiz" && "AI Quiz"}
+              {selectedGame === "schemes" && t(lang, "tactical_schemes")}
+              {selectedGame === "concepts" && t(lang, "concepts_label")}
+              {selectedGame === "pre-match" && t(lang, "pre_match_analysis")}
+              {selectedGame === "positional-guides" && t(lang, "positional_guides")}
+              {selectedGame === "ai-quiz" && t(lang, "ai_quiz")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
