@@ -119,7 +119,7 @@ const ServiceSection = ({
   reverse?: boolean;
   hasTitleBackground?: boolean;
 }) => (
-  <section id={id} className="md:pt-16 md:pb-10 bg-card/30 py-2 md:py-0 snap-start">
+  <section id={id} className="md:pt-16 md:pb-10 bg-card/30 py-2 md:py-0 snap-start snap-always snap-always">
     <div className="container mx-auto">
       {hasTitleBackground ? (
         <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-3 md:mb-16">
@@ -294,7 +294,7 @@ const Players = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background snap-y snap-proximity md:snap-none">
+    <div className="min-h-screen bg-background mandatornap-proximity md:snap-none">
       <SEO 
         title="Players - Football Performance Services | Fuel For Football"
         description="Fuel For Football is Football's leading performance consultancy. We work with Premier League and Football League players, offering strength, speed, power development, psychological performance sessions and game analysis."
