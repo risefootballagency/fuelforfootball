@@ -222,7 +222,7 @@ const Scouts = () => {
                                     onClick={() => setExpandedDomain(domain)}
                                     className={`absolute ${position} ${rounded} flex items-center gap-3 transition-all hover:scale-105 border-2 z-10 ${
                                       isActive 
-                                        ? 'border-primary bg-primary/20 shadow-lg shadow-primary/20 h-16 px-4 w-auto' 
+                                        ? 'border-accent bg-accent/20 shadow-lg shadow-accent/20 h-16 px-4 w-auto' 
                                         : `${domainConf.borderColor} ${domainConf.bgColor} hover:shadow-lg h-16 w-16 justify-center`
                                     }`}
                                     title={domain}
