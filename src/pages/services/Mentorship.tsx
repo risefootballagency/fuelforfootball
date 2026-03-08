@@ -184,9 +184,9 @@ const Mentorship = () => {
                 <div className="flex items-center justify-between">
                   <p className="text-xl font-semibold text-accent">{programme.price}</p>
                   <LocalizedLink to={programme.link}>
-                    <Button variant="outline" className="font-bebas tracking-wider border-accent text-accent hover:bg-accent hover:text-black">
-                      LEARN MORE
-                    </Button>
+                     <Button variant="outline" className="font-bebas tracking-wider border-accent text-accent hover:bg-accent hover:text-black">
+                       {t("mentorship.learn_more", "LEARN MORE")}
+                     </Button>
                   </LocalizedLink>
                 </div>
               </div>

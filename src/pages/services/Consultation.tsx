@@ -169,7 +169,7 @@ const Consultation = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>WHO IT'S FOR</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("consultation.section_who", "WHO IT'S FOR")}</ServiceSectionTitle>
           
           <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <div className="text-center p-6 md:p-8 bg-black/40 border border-white/10 rounded-lg">
