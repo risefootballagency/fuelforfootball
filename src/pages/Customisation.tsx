@@ -599,7 +599,7 @@ const Customisation = () => {
                 </div>
 
                 {totalItems === 0 ? (
-                  <p className="text-muted-foreground">No services selected yet.</p>
+                  <p className="text-muted-foreground">{t("custom.no_services", "No services selected yet.")}</p>
                 ) : (
                   <>
                     {/* Monthly subscription badge */}
