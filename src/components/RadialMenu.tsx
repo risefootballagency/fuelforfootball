@@ -1021,16 +1021,16 @@ export const RadialMenu = () => {
 
       </div>
 
-      {/* Quadrant cards - Desktop only, extending from the SAME segment toward screen edge */}
+      {/* Quadrant cards - Desktop only, positioned along segment mid-angle */}
       {!isMobile && hoveredItem !== null && menuItems[hoveredItem]?.quadrantCard && (() => {
         const card = menuItems[hoveredItem].quadrantCard!;
         const CardComponent = card.component;
         
-        // Use the EXACT same angle calculation as the dividers
         const numItems = menuItems.length;
         const segAngle = 360 / numItems;
         const startAngle = hoveredItem * segAngle;
         const endAngle = (hoveredItem + 1) * segAngle;
+        const midAngle = (startAngle + endAngle) / 2;
         
         // Generate wedge clip-path
         const generateWedgeClipPath = (start: number, end: number): string => {
@@ -1049,28 +1049,31 @@ export const RadialMenu = () => {
         
         const clipPath = generateWedgeClipPath(startAngle, endAngle);
         
-        // Calculate viewport and menu geometry
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-        const cx = vw / 2;
-        const cy = vh / 2;
         const menuRadius = circleSize / 2;
-
-        const edgePadding = 24;
-
-        // Adaptive content size to prevent clipping/overflow
-        const maxWidth = Math.min(Math.max(vw * 0.3, 280), 420);
-        const maxHeight = Math.min(Math.max(vh * 0.3, 210), 300);
-
-        // Debug logging removed for production
-
-        // Convert viewport edge positions to overlay coordinates
         const overlaySize = Math.max(vw, vh);
         const overlayOffsetX = (overlaySize - vw) / 2;
         const overlayOffsetY = (overlaySize - vh) / 2;
-
-        // Mask out the center circle area
         const menuRadiusPercent = (menuRadius / overlaySize) * 100;
+
+        // Card size
+        const cardW = 280;
+        const cardH = 180;
+
+        // Position card along mid-angle, between menu edge and viewport edge
+        const midRad = (midAngle * Math.PI) / 180;
+        const dirX = Math.cos(midRad);
+        const dirY = Math.sin(midRad);
+
+        // Place card center at ~70% of the way from menu edge to viewport edge
+        const distFromCenter = menuRadius + (Math.min(vw, vh) / 2 - menuRadius) * 0.65;
+        const cardCenterX = vw / 2 + dirX * distFromCenter;
+        const cardCenterY = vh / 2 + dirY * distFromCenter;
+
+        // Convert to overlay coordinates
+        const cardLeft = cardCenterX - cardW / 2 + overlayOffsetX;
+        const cardTop = cardCenterY - cardH / 2 + overlayOffsetY;
         
         return (
           <div 
@@ -1094,19 +1097,12 @@ export const RadialMenu = () => {
             <div 
               className="absolute"
               style={{
-                width: maxWidth,
-                minHeight: maxHeight,
-                display: 'flex',
-                alignItems: 'stretch',
-                ...(card.position === 'top-right' || card.position === 'bottom-right'
-                  ? { right: edgePadding + overlayOffsetX }
-                  : { left: edgePadding + overlayOffsetX }),
-                ...(card.position === 'top-right' || card.position === 'top-left'
-                  ? { top: edgePadding + overlayOffsetY }
-                  : { bottom: edgePadding + overlayOffsetY }),
+                width: cardW,
+                left: cardLeft,
+                top: cardTop,
               }}
             >
-              <CardComponent maxWidth={maxWidth} maxHeight={maxHeight} />
+              <CardComponent maxWidth={cardW} maxHeight={cardH} />
             </div>
           </div>
         );
