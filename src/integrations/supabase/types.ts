@@ -2857,6 +2857,7 @@ export type Database = {
           image_url: string | null
           league: string | null
           links: Json | null
+          market_value: string | null
           name: string
           nationality: string
           next_program_notes: string | null
@@ -2887,6 +2888,7 @@ export type Database = {
           image_url?: string | null
           league?: string | null
           links?: Json | null
+          market_value?: string | null
           name: string
           nationality: string
           next_program_notes?: string | null
@@ -2917,6 +2919,7 @@ export type Database = {
           image_url?: string | null
           league?: string | null
           links?: Json | null
+          market_value?: string | null
           name?: string
           nationality?: string
           next_program_notes?: string | null
