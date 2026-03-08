@@ -87,12 +87,12 @@ const Login = () => {
       
       if (player) {
         try {
-          localStorage.setItem("player_email", email);
-          sessionStorage.setItem("player_email", email);
+          localStorage.setItem("player_email", normalizedLogin);
+          sessionStorage.setItem("player_email", normalizedLogin);
           localStorage.setItem("player_login_timestamp", Date.now().toString());
           
           if (rememberMe) {
-            localStorage.setItem("player_saved_email", email);
+            localStorage.setItem("player_saved_email", normalizedLogin);
             localStorage.setItem("player_remember_me", "true");
           } else {
             localStorage.removeItem("player_saved_email");
