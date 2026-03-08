@@ -919,11 +919,11 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Opposition Formation</Label>
+                  <Label className="text-xs">{t(lang, "opposition_formation")}</Label>
                   <Select value={selectedOppositionSchemeFilter} onValueChange={setSelectedOppositionSchemeFilter}>
-                    <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t(lang, "all")} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="all">{t(lang, "all")}</SelectItem>
                       {availableOppositionSchemes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
