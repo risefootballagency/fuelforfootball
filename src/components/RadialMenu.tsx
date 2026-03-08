@@ -838,7 +838,7 @@ export const RadialMenu = () => {
                         style={{
                           width: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
                           height: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
-                          color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(var(--mint))',
+                          color: hovered ? 'hsl(45, 100%, 50%)' : 'rgba(255,255,255,0.85)',
                         }}
                       >
                         <item.Icon className="w-full h-full" />
