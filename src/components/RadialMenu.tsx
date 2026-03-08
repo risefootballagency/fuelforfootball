@@ -714,7 +714,7 @@ export const RadialMenu = () => {
       {/* Quadrant cards - Desktop only, positioned along segment mid-angle */}
       {!isMobile && hoveredItem !== null && menuItems[hoveredItem]?.quadrantCard && (() => {
         const card = menuItems[hoveredItem].quadrantCard!;
-        const hoveredIcon = menuItems[hoveredItem].Icon;
+        const HoveredIcon = menuItems[hoveredItem].Icon;
         
         const numItems = menuItems.length;
         const segAngle = 360 / numItems;
