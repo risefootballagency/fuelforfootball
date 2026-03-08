@@ -37,7 +37,13 @@ const About = () => {
   const { data: galleryImages = [] } = useMarketingGalleryImages(20);
   const { data: landingImages = [] } = useLandingFolderImages(20);
 
-  // Update active section on scroll
+  const sectionLabels: Record<SectionId, string> = {
+    philosophy: t("about.nav_philosophy", "Philosophy"),
+    pioneers: t("about.nav_pioneers", "Pioneers"),
+    talent: t("about.nav_talent", "Talent"),
+    future: t("about.nav_future", "Future"),
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200;
@@ -76,7 +82,7 @@ const About = () => {
       <Header />
       
       <main className="pt-20 md:pt-24 touch-pan-y overflow-x-hidden">
-        {/* Hero Section - Full bleed with dramatic imagery */}
+        {/* Hero Section */}
         <section className="relative h-[70vh] md:h-[85vh] flex items-end overflow-hidden">
           {galleryImages[0] && (
             <motion.div 
@@ -101,7 +107,7 @@ const About = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-5xl md:text-8xl font-bebas uppercase tracking-wider text-white mb-4"
             >
-              Change The Game.
+              {t("about.hero_title", "Change The Game.")}
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
@@ -109,18 +115,17 @@ const About = () => {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="text-lg md:text-2xl text-white/80 max-w-2xl"
             >
-              Football's leading performance consultancy. Revolutionising how players are developed, scouted, and prepared for the elite level.
+              {t("about.hero_subtitle", "Football's leading performance consultancy. Revolutionising how players are developed, scouted, and prepared for the elite level.")}
             </motion.p>
           </div>
 
-          {/* Scroll indicator */}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5 }}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 flex flex-col items-center gap-2"
           >
-            <span className="text-xs uppercase tracking-widest">Scroll</span>
+            <span className="text-xs uppercase tracking-widest">{t("about.scroll", "Scroll")}</span>
             <ChevronDown className="w-5 h-5 animate-bounce" />
           </motion.div>
         </section>
@@ -140,7 +145,7 @@ const About = () => {
                       : "text-muted-foreground border-transparent hover:text-foreground"
                   )}
                 >
-                  {section.label}
+                  {sectionLabels[section.id]}
                 </button>
               ))}
             </div>
@@ -153,7 +158,6 @@ const About = () => {
           id="philosophy"
           className="py-6 md:py-10"
         >
-          {/* Statement - Using brand content */}
           <div className="container mx-auto px-4 mb-8 md:mb-12">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-6 leading-tight text-title">
@@ -168,21 +172,20 @@ const About = () => {
             </div>
           </div>
 
-          {/* Philosophy Image Grid - Card style matching Services/Customisation */}
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-card border border-border/50 group">
                 {galleryImages[1] && (
                   <img 
                     src={galleryImages[1].file_url}
-                    alt="Performance consultancy"
+                    alt={t("about.tailored_training", "Tailored Training")}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-4 md:p-6">
                   <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-title mb-2">
-                    Tailored Training
+                    {t("about.tailored_training", "Tailored Training")}
                   </h3>
                   <p className="text-xs md:text-sm text-foreground/80 max-w-md">
                     {BRAND_CONTENT.quotes.individual}
@@ -193,14 +196,14 @@ const About = () => {
                 {galleryImages[2] && (
                   <img 
                     src={galleryImages[2].file_url}
-                    alt="Attention to detail"
+                    alt={t("about.attention_detail", "Attention to Detail")}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-4 md:p-6">
                   <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-title mb-2">
-                    Attention to Detail
+                    {t("about.attention_detail", "Attention to Detail")}
                   </h3>
                   <p className="text-xs md:text-sm text-foreground/80 max-w-md">
                     {BRAND_CONTENT.quotes.attention}
@@ -210,11 +213,10 @@ const About = () => {
             </div>
           </div>
 
-          {/* Services Overview */}
           <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="bg-card border border-border/50 rounded-lg p-6 md:p-8">
               <h3 className="text-xl md:text-2xl font-bebas uppercase tracking-wider text-title mb-4">
-                Our Services
+                {t("about.our_services", "Our Services")}
               </h3>
               <p className="text-sm md:text-base text-muted-foreground mb-4">
                 {BRAND_CONTENT.servicesOverview}
@@ -225,23 +227,21 @@ const About = () => {
             </div>
           </div>
 
-          {/* Quote */}
           <div className="container mx-auto px-4 py-6 md:py-10">
             <blockquote className="max-w-3xl mx-auto text-center bg-primary/10 border border-accent/20 rounded-lg p-6 md:p-8">
               <p className="text-xl md:text-3xl font-bebas uppercase tracking-wider italic mb-4 text-title">
-                "In the beginning, I looked around but could not find the support I was dreaming of. So we decided to build it ourselves."
+                {t("about.founder_quote", '"In the beginning, I looked around but could not find the support I was dreaming of. So we decided to build it ourselves."')}
               </p>
               <cite className="text-sm text-accent not-italic font-medium">
-                Jolon Levene, Founder
+                {t("about.founder_name", "Jolon Levene, Founder")}
               </cite>
             </blockquote>
           </div>
         </section>
 
-        {/* Grass Divider */}
         <GrassBackground variant="divider" backgroundIndex={0} />
 
-        {/* Pioneers Section - The Problem We Solve */}
+        {/* Pioneers Section */}
         <section 
           ref={(el) => (sectionRefs.current.pioneers = el)}
           id="pioneers"
@@ -250,18 +250,17 @@ const About = () => {
           <SmokyBackground backgroundIndex={3} className="opacity-30" />
           <div className="container mx-auto px-4 mb-6 md:mb-8 relative z-10">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4 text-title">
-              Why We Exist.
+              {t("about.why_we_exist", "Why We Exist.")}
             </h2>
             <p className="text-base text-muted-foreground max-w-3xl">
               {BRAND_CONTENT.problemStatement}
             </p>
           </div>
 
-          {/* The Challenge - Card style matching Customisation/Services */}
           <div className="container mx-auto px-4 mb-6 md:mb-8 relative z-10">
             <div className="bg-card border border-border/50 rounded-lg p-4 md:p-6">
               <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-accent mb-3">
-                The Challenge
+                {t("about.the_challenge", "The Challenge")}
               </h3>
               <p className="text-sm md:text-base text-muted-foreground">
                 {BRAND_CONTENT.clubChallenge}
@@ -269,11 +268,10 @@ const About = () => {
             </div>
           </div>
 
-          {/* The Solution */}
           <div className="container mx-auto px-4 mb-6 md:mb-8 relative z-10">
             <div className="bg-primary/10 border border-accent/30 rounded-lg p-4 md:p-6">
               <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-accent mb-3">
-                Our Solution
+                {t("about.our_solution", "Our Solution")}
               </h3>
               <p className="text-sm md:text-base text-foreground">
                 {BRAND_CONTENT.solution}
@@ -281,65 +279,61 @@ const About = () => {
             </div>
           </div>
 
-          {/* Timeline Cards - Cleaner card style */}
           <div className="container mx-auto px-4 relative z-10">
             <div className="grid md:grid-cols-3 gap-4 md:gap-6">
-              {/* How it started */}
               <div className="bg-card border border-border/50 rounded-lg overflow-hidden group">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   {galleryImages[3] && (
                     <img 
                       src={galleryImages[3].file_url}
-                      alt="Origins"
+                      alt={t("about.origins", "Origins")}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   )}
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider mb-2 text-title">
-                    How it started.
+                    {t("about.how_it_started", "How it started.")}
                   </h3>
                   <p className="text-xs md:text-sm text-muted-foreground">
-                    We started as players. We became coaches. We developed performance teams around Premier League talents.
+                    {t("about.how_it_started_desc", "We started as players. We became coaches. We developed performance teams around Premier League talents.")}
                   </p>
                 </div>
               </div>
 
-              {/* From 2015 */}
               <div className="bg-card border border-border/50 rounded-lg overflow-hidden group">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   {galleryImages[4] && (
                     <img 
                       src={galleryImages[4].file_url}
-                      alt="Since 2015"
+                      alt={t("about.since_2015", "Since 2015")}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   )}
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider mb-2 text-title">
-                    From 2015.
+                    {t("about.from_2015", "From 2015.")}
                   </h3>
                   <p className="text-xs md:text-sm text-muted-foreground">
-                    We pioneered the integrated approach, combining elite performance coaching with advanced tactical education.
+                    {t("about.from_2015_desc", "We pioneered the integrated approach, combining elite performance coaching with advanced tactical education.")}
                   </p>
                 </div>
               </div>
 
-              {/* Today */}
               <div className="bg-card border border-border/50 rounded-lg overflow-hidden group">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   {galleryImages[5] && (
                     <img 
                       src={galleryImages[5].file_url}
-                      alt="Present day"
+                      alt={t("about.present_day", "Present day")}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   )}
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg md:text-xl font-bebas uppercase tracking-wider mb-2 text-title">
-                    Today.
+                    {t("about.today", "Today.")}
                   </h3>
                   <p className="text-xs md:text-sm text-muted-foreground">
                     {BRAND_CONTENT.clientRoster}
@@ -354,25 +348,24 @@ const About = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               <div className="text-center">
                 <div className="text-4xl md:text-6xl font-bebas text-primary">74</div>
-                <p className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground">Professionals Developed</p>
+                <p className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground">{t("about.stat_pros", "Professionals Developed")}</p>
               </div>
               <div className="text-center">
                 <div className="text-4xl md:text-6xl font-bebas text-primary">18</div>
-                <p className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground">Big 5 League Players</p>
+                <p className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground">{t("about.stat_big5", "Big 5 League Players")}</p>
               </div>
               <div className="text-center">
                 <div className="text-4xl md:text-6xl font-bebas text-primary">10</div>
-                <p className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground">National Team Players</p>
+                <p className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground">{t("about.stat_national", "National Team Players")}</p>
               </div>
               <div className="text-center">
                 <div className="text-4xl md:text-6xl font-bebas text-primary">£100M+</div>
-                <p className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground">Transfer Value Generated</p>
+                <p className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground">{t("about.stat_transfer", "Transfer Value Generated")}</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Grass Divider */}
         <GrassBackground variant="divider" backgroundIndex={4} />
 
         {/* Talent Section */}
@@ -383,49 +376,46 @@ const About = () => {
         >
           <div className="container mx-auto px-4 mb-12">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-4">
-              The Level of Talent We Develop.
+              {t("about.talent_title", "The Level of Talent We Develop.")}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl">
-              From academy prospects to international stars. Our track record speaks for itself in developing world-class footballers.
+              {t("about.talent_subtitle", "From academy prospects to international stars. Our track record speaks for itself in developing world-class footballers.")}
             </p>
           </div>
 
-          {/* Talent Grid - Asymmetric */}
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-3 gap-4 md:gap-6">
-              {/* Large feature */}
               <div className="md:col-span-2 md:row-span-2 relative aspect-[16/10] md:aspect-auto overflow-hidden rounded-lg group">
                 {galleryImages[6] && (
                   <img 
                     src={galleryImages[6].file_url}
-                    alt="Elite development"
+                    alt={t("about.elite_dev", "Elite development")}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6 md:p-10">
                   <h3 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-white mb-2">
-                    Elite Development
+                    {t("about.elite_dev", "Elite Development")}
                   </h3>
                   <p className="text-sm md:text-base text-white/70 max-w-lg">
-                    We have worked with some of the most talented players in the game. Our performance systems prepare players for the highest level.
+                    {t("about.elite_dev_desc", "We have worked with some of the most talented players in the game. Our performance systems prepare players for the highest level.")}
                   </p>
                 </div>
               </div>
 
-              {/* Smaller cards */}
               <div className="relative aspect-[4/3] overflow-hidden rounded-lg group">
                 {galleryImages[7] && (
                   <img 
                     src={galleryImages[7].file_url}
-                    alt="Global network"
+                    alt={t("about.global_network", "Global network")}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 p-4 md:p-6">
                   <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-white">
-                    Global Network
+                    {t("about.global_network", "Global Network")}
                   </h4>
                 </div>
               </div>
@@ -434,25 +424,25 @@ const About = () => {
                 {galleryImages[8] && (
                   <img 
                     src={galleryImages[8].file_url}
-                    alt="Player development"
+                    alt={t("about.player_dev", "Player development")}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 p-4 md:p-6">
                   <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-white">
-                    Player Development
+                    {t("about.player_dev", "Player Development")}
                   </h4>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Players Who Took Action - Using Landing Folder Images */}
+          {/* Fuelling The Best Marquee */}
           <div className="mt-16 md:mt-24">
             <div className="container mx-auto px-4 mb-6">
               <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider">
-                Fuelling The Best.
+                {t("about.fuelling_best", "Fuelling The Best.")}
               </h3>
             </div>
             <div className="overflow-hidden">
@@ -465,7 +455,7 @@ const About = () => {
                     {img && (
                       <img 
                         src={img.file_url}
-                        alt="Elite player"
+                        alt={t("about.elite_player", "Elite player")}
                         className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
                       />
                     )}
@@ -486,20 +476,20 @@ const About = () => {
             <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
               <div>
                 <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider mb-6">
-                  Where We Are Going.
+                  {t("about.future_title", "Where We Are Going.")}
                 </h2>
                 <p className="text-lg text-muted-foreground mb-6">
-                  Our players are inspired by greatness. And we are always developing new methods. We believe in permanent progress. That is why we are working with the future Ballon d'Or winner.
+                  {t("about.future_p1", "Our players are inspired by greatness. And we are always developing new methods. We believe in permanent progress. That is why we are working with the future Ballon d'Or winner.")}
                 </p>
                 <p className="text-sm text-muted-foreground mb-8">
-                  Every day you hesitate is another day your competition gets ahead. The players who made it did not wait for the perfect moment.
+                  {t("about.future_p2", "Every day you hesitate is another day your competition gets ahead. The players who made it did not wait for the perfect moment.")}
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <WhatsAppPulse position="inline" message="Start your journey" showDelay={0} />
                   <Button asChild variant="outline" className="font-bebas uppercase tracking-wider">
                     <Link to="/contact" className="flex items-center gap-2">
-                      Contact Us <ArrowRight className="w-4 h-4" />
+                      {t("about.contact_us", "Contact Us")} <ArrowRight className="w-4 h-4" />
                     </Link>
                   </Button>
                 </div>
@@ -509,15 +499,15 @@ const About = () => {
                 {galleryImages[0] && (
                   <img 
                     src={galleryImages[0].file_url}
-                    alt="The future"
+                    alt={t("about.the_future", "The future")}
                     className="w-full h-full object-cover"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
-                  <span className="text-xs uppercase tracking-widest text-white/70">The Future</span>
+                  <span className="text-xs uppercase tracking-widest text-white/70">{t("about.the_future", "The Future")}</span>
                   <h3 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-white">
-                    Working with tomorrow's legends, today.
+                    {t("about.future_legends", "Working with tomorrow's legends, today.")}
                   </h3>
                 </div>
               </div>
@@ -525,16 +515,11 @@ const About = () => {
           </div>
         </section>
 
-        {/* Propaganda Banner */}
         <PropagandaBanner />
-
-        {/* Final FOMO Section */}
         <EliteMessaging variant="fomo" className="bg-background" />
       </main>
 
-      {/* Floating WhatsApp CTA */}
       <WhatsAppPulse showDelay={6000} />
-
       <Footer />
     </div>
   );

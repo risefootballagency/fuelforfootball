@@ -434,3 +434,6 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     </div>
   );
 };
+
+export default AnalysisDataTab;
+
