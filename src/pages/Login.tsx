@@ -167,17 +167,20 @@ const Login = () => {
             Your dedicated space for performance analysis and development.
           </p>
           
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          <form onSubmit={handleEmailLogin} className="space-y-4" autoComplete="on">
             <Input
-              id="email"
-              name="email"
+              id="login"
+              name="username"
               type="text"
               placeholder="Enter your login"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
-              autoComplete="email"
+              autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               className="bg-card border-border text-foreground h-12"
             />
             <Button 

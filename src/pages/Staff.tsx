@@ -484,7 +484,7 @@ const Staff = () => {
               <form onSubmit={handleLogin} className="space-y-4" autoComplete="on">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="staff@example.com" required autoFocus autoComplete="email" />
+                  <Input id="email" name="username" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="staff@example.com" required autoFocus autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
