@@ -748,7 +748,6 @@ export const RadialMenu = () => {
         const menuRadiusPercent = (menuRadius / overlaySize) * 100;
 
         // Card size adapts to wedge angle - wider wedges get bigger cards
-        const wedgeAngleRad = (segAngle * Math.PI) / 180;
         const cardW = Math.min(280, Math.max(200, segAngle * 4));
         const cardH = Math.min(160, Math.max(100, segAngle * 2.5));
 
