@@ -744,7 +744,7 @@ export const RadialMenu = () => {
         const vh = window.innerHeight;
         const cx = vw / 2;
         const cy = vh / 2;
-        const menuRadius = circleSize / 2;
+        const menuRadius = circleSize / 2.2;
         const edgePadding = 24;
 
         const placement = calculateContentPlacement(
