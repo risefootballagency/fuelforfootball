@@ -8,6 +8,7 @@ import { LocalizedLink } from "@/components/LocalizedLink";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 import { 
   ChevronRight,
@@ -52,7 +53,7 @@ const CATEGORIES = [
   { id: "Psychological Services", label: "Mental" },
   { id: "Coaching Services", label: "Coaching" },
   { id: "Data Services", label: "Data & Stats" },
-];
+] as const;
 
 // Calculate discount percentage based on number of unique services
 const getDiscountPercent = (itemCount: number): number => {
@@ -65,6 +66,7 @@ const getDiscountPercent = (itemCount: number): number => {
 };
 
 const Customisation = () => {
+  const { t } = useLanguage();
   const { addItem } = useCart();
   const [services, setServices] = useState<ServiceOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -194,8 +196,8 @@ const Customisation = () => {
       imageUrl: activeImage,
     });
     
-    toast.success('Package added to basket', {
-      description: `£${totalPrice.toFixed(2)}/mo`,
+    toast.success(t("custom.toast_added", "Package added to basket"), {
+      description: `£${totalPrice.toFixed(2)}/${t("custom.mo", "mo")}`,
     });
   };
 
@@ -229,13 +231,13 @@ const Customisation = () => {
         <aside className="w-80 lg:w-96 border-r border-border bg-background flex flex-col h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] sticky top-16 md:top-20">
           {/* Header */}
           <div className="p-6 border-b border-border">
-            <h1 className="font-bebas text-2xl uppercase tracking-wider">Build Your Package</h1>
+            <h1 className="font-bebas text-2xl uppercase tracking-wider">{t("custom.title", "Build Your Package")}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Select monthly services to create your programme
+              {t("custom.subtitle", "Select monthly services to create your programme")}
             </p>
             <div className="mt-3 inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-medium">
               <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-              Monthly Subscription
+              {t("custom.monthly_sub", "Monthly Subscription")}
             </div>
           </div>
 
@@ -245,7 +247,7 @@ const Customisation = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search services..."
+                placeholder={t("custom.search", "Search services...")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -314,23 +316,23 @@ const Customisation = () => {
             {/* Monthly Subscription Label */}
             <div className="text-center mb-3 pb-3 border-b border-border/50">
               <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                Monthly Subscription Package
+                {t("custom.monthly_package_label", "Monthly Subscription Package")}
               </span>
             </div>
 
             {/* Pricing */}
             <div className="space-y-1 mb-4">
               <div className="flex justify-between items-baseline">
-                <span className="text-muted-foreground text-sm">Monthly Total</span>
+                <span className="text-muted-foreground text-sm">{t("custom.monthly_total", "Monthly Total")}</span>
                 <span className="font-bebas text-2xl text-primary">£{totalPrice.toFixed(2)}<span className="text-sm text-muted-foreground font-sans">/mo</span></span>
               </div>
               {selectedServices.size > 0 && (
                 <>
                   <p className="text-xs text-muted-foreground text-right">
-                    {totalItems} {totalItems === 1 ? 'service' : 'services'} selected
+                    {totalItems} {totalItems === 1 ? t("custom.service", "service") : t("custom.services", "services")} {t("custom.selected", "selected")}
                   </p>
                   <p className="text-[10px] text-primary/70 text-right mt-1">
-                    Billed monthly - cancel anytime
+                    {t("custom.billed_monthly", "Billed monthly - cancel anytime")}
                   </p>
                 </>
               )}
@@ -344,7 +346,7 @@ const Customisation = () => {
               size="lg"
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Add Monthly Package
+              {t("custom.add_package", "Add Monthly Package")}
             </Button>
 
             {/* Back Link */}
@@ -353,7 +355,7 @@ const Customisation = () => {
               className="flex items-center gap-2 mt-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors justify-center"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Services</span>
+              <span>{t("custom.back_services", "Back to Services")}</span>
             </LocalizedLink>
           </div>
         </aside>
@@ -484,10 +486,10 @@ const Customisation = () => {
                 >
                   <div className="text-center max-w-md">
                     <h3 className="font-bebas text-3xl uppercase tracking-wider mb-4 text-muted-foreground">
-                      Select a Category
+                      {t("custom.select_category", "Select a Category")}
                     </h3>
                     <p className="text-muted-foreground">
-                      Choose from our range of performance services to build your custom package
+                      {t("custom.select_desc", "Choose from our range of performance services to build your custom package")}
                     </p>
                   </div>
                 </motion.div>
@@ -520,7 +522,7 @@ const Customisation = () => {
                     <div className="text-center">
                       <img src={fffLogo} alt="FFF" className="w-20 h-20 mx-auto opacity-20" />
                       <p className="text-muted-foreground mt-4 font-bebas uppercase tracking-wider text-sm">
-                        Hover over services to preview
+                        {t("custom.hover_preview", "Hover over services to preview")}
                       </p>
                     </div>
                   </motion.div>
@@ -532,9 +534,9 @@ const Customisation = () => {
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/90 to-transparent p-6">
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Your Package</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">{t("custom.your_package", "Your Package")}</p>
                       <p className="font-bebas text-2xl uppercase tracking-wider">
-                        {selectedServices.size} {selectedServices.size === 1 ? 'Service' : 'Services'}
+                        {selectedServices.size} {selectedServices.size === 1 ? t("custom.service", "Service") : t("custom.services", "Services")}
                       </p>
                     </div>
                     <div className="text-right">
@@ -590,21 +592,21 @@ const Customisation = () => {
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-bebas text-2xl uppercase tracking-wider">Summary</h2>
+                  <h2 className="font-bebas text-2xl uppercase tracking-wider">{t("custom.summary", "Summary")}</h2>
                   <button onClick={() => setShowSummary(false)}>
                     <X className="w-6 h-6" />
                   </button>
                 </div>
 
                 {totalItems === 0 ? (
-                  <p className="text-muted-foreground">No services selected yet.</p>
+                  <p className="text-muted-foreground">{t("custom.no_services", "No services selected yet.")}</p>
                 ) : (
                   <>
                     {/* Monthly subscription badge */}
                     <div className="text-center mb-4 pb-4 border-b border-border/50">
                       <span className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-medium">
                         <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                        Monthly Subscription Package
+                        {t("custom.monthly_package_label", "Monthly Subscription Package")}
                       </span>
                     </div>
 
@@ -625,11 +627,11 @@ const Customisation = () => {
 
                     <div className="border-t border-border pt-4 space-y-2">
                       <div className="flex justify-between font-bebas text-xl uppercase">
-                        <span>Monthly Total</span>
-                        <span className="text-primary">£{totalPrice.toFixed(2)}/mo</span>
+                        <span>{t("custom.monthly_total", "Monthly Total")}</span>
+                        <span className="text-primary">£{totalPrice.toFixed(2)}/{t("custom.mo", "mo")}</span>
                       </div>
                       <p className="text-[10px] text-muted-foreground text-center">
-                        Billed monthly - cancel anytime
+                        {t("custom.billed_monthly", "Billed monthly - cancel anytime")}
                       </p>
                     </div>
 
@@ -642,7 +644,7 @@ const Customisation = () => {
                       size="lg"
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      Add Monthly Package
+                      {t("custom.add_package", "Add Monthly Package")}
                     </Button>
                   </>
                 )}

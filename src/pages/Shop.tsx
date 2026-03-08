@@ -7,6 +7,7 @@ import { ServiceDetailPanel } from "@/components/ServiceDetailPanel";
 import { AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ShopProduct {
   id: string;
@@ -23,20 +24,21 @@ interface ShopProduct {
   product_type: string;
 }
 
-// Sidebar categories format
-const sidebarCategories = [
-  { label: "All Products", value: "All" },
-  { label: "E-Books", value: "E-Books" },
-  { label: "Templates", value: "Templates" },
-  { label: "Training Plans", value: "Training Plans" },
-  { label: "Guides", value: "Guides" },
-];
-
 const Shop = () => {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedProduct, setSelectedProduct] = useState<ShopProduct | null>(null);
   const [products, setProducts] = useState<ShopProduct[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Sidebar categories format
+  const sidebarCategories = [
+    { label: t("shop.cat_all", "All Products"), value: "All" },
+    { label: t("shop.cat_ebooks", "E-Books"), value: "E-Books" },
+    { label: t("shop.cat_templates", "Templates"), value: "Templates" },
+    { label: t("shop.cat_plans", "Training Plans"), value: "Training Plans" },
+    { label: t("shop.cat_guides", "Guides"), value: "Guides" },
+  ];
 
   useEffect(() => {
     fetchProducts();
@@ -95,14 +97,13 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Use ShopHeader instead of regular Header */}
       <ShopHeader type="shop" />
 
       {/* Hero Section */}
       <section className="pt-24 md:pt-28 pb-8 bg-gradient-to-b from-primary/20 to-background border-b-4 border-primary">
         <div className="container mx-auto px-4">
           <h1 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider text-center text-foreground italic">
-            Shop
+            {t("shop.title", "Shop")}
           </h1>
         </div>
       </section>
@@ -206,10 +207,10 @@ const Shop = () => {
                   {filteredProducts.length === 0 && (
                     <div className="text-center py-16">
                       <p className="text-xl font-bebas uppercase tracking-wider text-muted-foreground">
-                        No products found
+                        {t("shop.no_products", "No products found")}
                       </p>
                       <p className="text-sm text-muted-foreground mt-2">
-                        Try adjusting your filters or check back later
+                        {t("shop.no_products_desc", "Try adjusting your filters or check back later")}
                       </p>
                     </div>
                   )}
