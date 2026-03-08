@@ -127,9 +127,7 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
+        <LoadingSpinner size="lg" className="py-12" />
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
