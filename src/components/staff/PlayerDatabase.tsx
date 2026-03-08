@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { sharedSupabase as supabase } from '@/integrations/supabase/sharedClient';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { StaffSearchInput } from './StaffSearchInput';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
