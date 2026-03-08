@@ -182,7 +182,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
               
               {/* Title */}
               <div className="absolute top-4 left-0 right-0 text-center">
-                <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-[0.3em] text-primary">
+                <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-[0.3em] text-accent">
                   Select Language
                 </h3>
                 <p className="text-xs text-white/50 font-bebas tracking-wider mt-1 hidden md:block">
