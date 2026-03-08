@@ -131,7 +131,7 @@ export const ZonePitchSelector = ({ value, onChange, actionType, compact = false
           )}
         </Button>
       </PopoverTrigger>
-      <Popover{`w-[340px] p-3 ${popoverClassName || ''}`}me="w-[340px] p-3" align="center" side="left">
+      <PopoverContent className={`w-[340px] p-3 ${popoverClassName || ''}`} align="center" side="left">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold">
