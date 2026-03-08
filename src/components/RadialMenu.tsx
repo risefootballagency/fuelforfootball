@@ -760,6 +760,8 @@ export const RadialMenu = () => {
 
         const overlaySize = Math.max(vw, vh);
         const menuRadiusPercent = (menuRadius / overlaySize) * 100;
+        const cardWidth = Math.min(240, placement.width);
+        const cardHeight = Math.min(140, placement.height);
         
         return (
           <div 
@@ -786,8 +788,8 @@ export const RadialMenu = () => {
                 left: `calc(50% + ${placement.x}px)`,
                 top: `calc(50% + ${placement.y}px)`,
                 transform: 'translate(-50%, -50%)',
-                width: `${placement.width}px`,
-                maxHeight: `${placement.height}px`,
+                width: `${cardWidth}px`,
+                height: `${cardHeight}px`,
               }}
             >
               <SimpleQuadrantCard
@@ -796,8 +798,8 @@ export const RadialMenu = () => {
                 description={card.description}
                 stat={card.stat}
                 position={card.position}
-                maxWidth={placement.width}
-                maxHeight={placement.height}
+                maxWidth={cardWidth}
+                maxHeight={cardHeight}
               />
             </div>
           </div>

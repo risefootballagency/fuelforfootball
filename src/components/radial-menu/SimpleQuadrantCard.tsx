@@ -25,8 +25,10 @@ export const SimpleQuadrantCard = ({
 
   return (
     <div
-      className="animate-[fade-in_0.3s_ease-out_forwards] w-full h-full px-3 py-2 flex flex-col justify-center"
+      className="animate-[fade-in_0.3s_ease-out_forwards] w-full h-full px-3 py-2 flex flex-col justify-center overflow-hidden"
       style={{
+        width: "100%",
+        height: "100%",
         maxWidth: maxWidth ?? undefined,
         maxHeight: maxHeight ?? undefined,
       }}
@@ -41,7 +43,7 @@ export const SimpleQuadrantCard = ({
           <div className="text-3xl font-bebas text-accent leading-none">{stat}</div>
         )}
 
-        <p className="text-white/80 text-[11px] leading-snug break-words max-w-[220px]">
+        <p className="text-white/80 text-[11px] leading-snug break-words line-clamp-4 max-w-full">
           {description}
         </p>
       </div>
