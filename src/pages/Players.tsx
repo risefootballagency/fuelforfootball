@@ -460,8 +460,8 @@ const Players = () => {
         {/* Conditioning Section */}
         <ServiceSection
           id="conditioning"
-          title="Conditioning"
-          description="Building your capacity to cover every blade of grass. Top conditioning is essential, often deciding the victor in the latter stages of games. A well-conditioned player maintains pace, power, and precision when others fade. Our services ensure peak performance from start to finish, by extending capacity and workload tolerance. We tailor training to your individual needs, position and energy systems, building an engine that outperforms opponents."
+          title={t("players.conditioning_title", "Conditioning")}
+          description={t("players.conditioning_desc", "Building your capacity to cover every blade of grass. Top conditioning is essential, often deciding the victor in the latter stages of games. A well-conditioned player maintains pace, power, and precision when others fade. Our services ensure peak performance from start to finish, by extending capacity and workload tolerance. We tailor training to your individual needs, position and energy systems, building an engine that outperforms opponents.")}
           hasTitleBackground
           products={conditioningProducts}
           dailyFuelArticle={{
