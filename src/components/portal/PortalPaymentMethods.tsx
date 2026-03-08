@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Copy, Check, ExternalLink, X, Building2, CreditCard, Globe, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 type PaymentMethod = "revolut" | "paypal" | "card" | "bank" | "international" | null;
 
