@@ -283,7 +283,7 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
         const parts: string[] = [];
         if (opponent) parts.push(`vs ${opponent}`);
         if (r90Previous != null && r90Current != null) {
-          parts.push(`R90: ${Number(r90_previous).toFixed(2)} → ${Number(r90Current).toFixed(2)}`);
+          parts.push(`R90: ${Number(r90Previous).toFixed(2)} → ${Number(r90Current).toFixed(2)}`);
         }
         if (improvements.length > 1) parts.push(`+${improvements.length - (r90Current ? 1 : 0)} more`);
         return `${playerName} ${parts.join(' · ')}`;
