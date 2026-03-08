@@ -196,8 +196,8 @@ const Customisation = () => {
       imageUrl: activeImage,
     });
     
-    toast.success('Package added to basket', {
-      description: `£${totalPrice.toFixed(2)}/mo`,
+    toast.success(t("custom.toast_added", "Package added to basket"), {
+      description: `£${totalPrice.toFixed(2)}/${t("custom.mo", "mo")}`,
     });
   };
 
