@@ -211,8 +211,14 @@ export const AthleteCentre = () => {
     if (!error && data) {
       setPlayers(data);
       if (data.length > 0) {
-        const firstRepresented = data.find(p => p.representation_status === 'represented');
-        setSelectedPlayer(firstRepresented?.id || data[0].id);
+        const savedPlayerId = localStorage.getItem('athleteCentre_lastPlayer');
+        const savedPlayer = savedPlayerId ? data.find(p => p.id === savedPlayerId) : null;
+        if (savedPlayer) {
+          setSelectedPlayer(savedPlayer.id);
+        } else {
+          const firstRepresented = data.find(p => p.representation_status === 'represented');
+          setSelectedPlayer(firstRepresented?.id || data[0].id);
+        }
       }
     }
     setLoading(false);
