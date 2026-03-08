@@ -642,27 +642,27 @@ const Scouts = () => {
           </div>
         </section>
 
-        {/* Hero Section - Scout With RISE */}
+        {/* Hero Section - Scout With Fuel For Football */}
         <section className="relative min-h-[45vh] flex items-center justify-center overflow-hidden py-10 md:py-16">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/10 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-accent/10 to-background" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
           
           <div className="relative container mx-auto px-4 text-center z-10 space-y-4 animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-semibold">{t('scouts.elite_badge')}</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-2">
+              <Sparkles className="h-4 w-4 text-accent" />
+              <span className="text-sm font-semibold">{t('scouts.elite_badge', 'Elite Scouting Network')}</span>
             </div>
             
             <h2 className="text-5xl md:text-7xl font-bebas uppercase tracking-wider mb-3 leading-none">
-              <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                {t('scouts.scout_with')}
+              <span className="bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
+                {t('scouts.scout_with', 'Scout With')}
               </span>
               <br />
-              <span className="text-primary">RISE</span>
+              <span className="text-accent">FUEL FOR FOOTBALL</span>
             </h2>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light leading-relaxed">
-              {t('scouts.scout_with_desc')}
+              {t('scouts.scout_with_desc', 'Join a scouting network that values your expertise. We provide the tools, the database, and the connections — you provide the talent.')}
             </p>
             
             <div className="flex gap-4 justify-center flex-wrap pt-2">
@@ -672,7 +672,7 @@ const Scouts = () => {
                 onClick={handleWhatsApp}
               >
                 <MessageCircle className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                {t('scouts.whatsapp')}
+                {t('scouts.whatsapp', 'WhatsApp Us')}
               </Button>
               <Button 
                 size="lg" 
@@ -682,7 +682,7 @@ const Scouts = () => {
               >
                 <a href="mailto:info@fuelforfootball.com">
                   <Mail className="mr-2 h-5 w-5" />
-                  {t('scouts.email_us')}
+                  {t('scouts.email_us', 'Email Us')}
                 </a>
               </Button>
             </div>
@@ -691,25 +691,25 @@ const Scouts = () => {
 
         {/* CTA Section */}
         <section className="py-10 md:py-16 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/10 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-accent/10 to-background" />
           
           <div className="container mx-auto px-4 text-center relative z-10">
             <div className="max-w-4xl mx-auto space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold">{t('scouts.join_badge')}</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                <Sparkles className="h-4 w-4 text-accent" />
+                <span className="text-sm font-semibold">{t('scouts.join_badge', 'Get Started')}</span>
               </div>
               
               <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider leading-none">
-                {t('scouts.ready_to')}
+                {t('scouts.ready_to', 'Ready To')}
                 <br />
-                <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                  {t('scouts.join_team')}
+                <span className="bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
+                  {t('scouts.join_team', 'Join The Team?')}
                 </span>
               </h2>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
-                {t('scouts.join_desc')}
+                {t('scouts.join_desc', 'Whether you are an experienced scout or passionate about discovering talent, we want to hear from you. Get in touch today.')}
               </p>
               
               <div className="flex gap-4 justify-center flex-wrap pt-2">
@@ -719,7 +719,7 @@ const Scouts = () => {
                   onClick={handleWhatsApp}
                 >
                   <MessageCircle className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                  {t('scouts.whatsapp_us')}
+                  {t('scouts.whatsapp_us', 'WhatsApp Us')}
                 </Button>
                 <Button 
                   size="lg" 
@@ -729,7 +729,7 @@ const Scouts = () => {
                 >
                   <a href="mailto:info@fuelforfootball.com">
                     <Mail className="mr-2 h-5 w-5" />
-                    {t('scouts.email_contact')}
+                    {t('scouts.email_contact', 'Email Us')}
                   </a>
                 </Button>
               </div>
