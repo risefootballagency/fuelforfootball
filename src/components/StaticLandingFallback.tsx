@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LanguageMapSelector } from "@/components/LanguageMapSelector";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { HoverText } from "@/components/HoverText";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RepresentationDialog } from "@/components/RepresentationDialog";
@@ -79,21 +80,22 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
           className="h-10 md:h-12 object-contain"
         />
         
-        {/* Staff, Scout & Portal links - top right */}
+        {/* Staff, Scout, Portal & Language - top right */}
         <div className="absolute right-4 flex items-center gap-2 text-[10px] md:text-xs">
-          <Link to="/staff" className="text-[hsl(var(--mint)/0.55)] hover:text-[hsl(var(--mint)/0.85)] transition-colors uppercase tracking-wider font-bebas">
+          <Link to="/staff" className="text-[hsl(var(--mint)/0.55)] hover:text-accent transition-colors uppercase tracking-wider font-bebas">
             {t("header.staff", "Staff")}
           </Link>
-          <button onClick={() => navigateToRole("/scouts")} className="text-[hsl(var(--mint)/0.55)] hover:text-[hsl(var(--mint)/0.85)] transition-colors uppercase tracking-wider font-bebas">
+          <button onClick={() => navigateToRole("/scouts")} className="text-[hsl(var(--mint)/0.55)] hover:text-accent transition-colors uppercase tracking-wider font-bebas">
             {t("landing.nav_scouts", "Scout")}
           </button>
-          <Link to="/portal" className="text-[hsl(var(--mint)/0.55)] hover:text-[hsl(var(--mint)/0.85)] transition-colors uppercase tracking-wider font-bebas">
+          <Link to="/portal" className="text-[hsl(var(--mint)/0.55)] hover:text-accent transition-colors uppercase tracking-wider font-bebas">
             {t("header.portal", "Portal")}
           </Link>
+          <LanguageSelector />
         </div>
       </div>
 
-      {/* Center Section - Static Player Image - positioned to not overlap nav */}
+      {/* Center Section - Static Player Image */}
       <div className="absolute top-0 left-0 right-0 bottom-[200px] md:bottom-[180px] flex items-center justify-center z-10 pointer-events-none">
         <img 
           src="/assets/player-base.png" 
@@ -111,7 +113,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
               <div key={link.to} className="flex items-center">
                 <button
                   onClick={() => navigateToRole(link.to)}
-                  className="px-4 py-2 text-xl font-bebas uppercase tracking-[0.2em] text-white/70 hover:text-primary transition-colors duration-300"
+                  className="px-4 py-2 text-xl font-bebas uppercase tracking-[0.2em] text-white/70 hover:text-accent transition-colors duration-300"
                 >
                   <HoverText text={t(link.labelKey, link.fallback)} />
                 </button>
@@ -124,7 +126,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
             <Button
               onClick={() => navigateToRole("/players/daily-fuel")}
               variant="outline"
-              className="font-bebas uppercase tracking-wider border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground"
+              className="font-bebas uppercase tracking-wider border-accent/50 text-accent hover:bg-accent hover:text-accent-foreground"
               style={{ borderRadius: '20px' }}
             >
               {t("landing.daily_fuel", "Daily Fuel")}
@@ -150,7 +152,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
               onClick={() => navigateToRole("/players/daily-fuel")}
               variant="outline"
               size="sm"
-              className="font-bebas uppercase tracking-wider border-primary/50 text-primary hover:bg-primary/10 text-xs px-3 h-7"
+              className="font-bebas uppercase tracking-wider border-accent/50 text-accent hover:bg-accent/10 text-xs px-3 h-7"
             >
               {t("landing.daily_fuel", "Daily Fuel")}
             </Button>
@@ -169,7 +171,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
                 <div key={link.to} className="flex items-center">
                   <button
                     onClick={() => navigateToRole(link.to)}
-                    className="px-2 py-0.5 text-[15px] font-bebas uppercase tracking-[0.1em] text-white/70 hover:text-primary transition-colors duration-300"
+                    className="px-2 py-0.5 text-[15px] font-bebas uppercase tracking-[0.1em] text-white/70 hover:text-accent transition-colors duration-300"
                   >
                     {t(link.labelKey, link.fallback)}
                   </button>
@@ -185,7 +187,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
                 <div key={link.to} className="flex items-center">
                   <button
                     onClick={() => navigateToRole(link.to)}
-                    className="px-2 py-0.5 text-[15px] font-bebas uppercase tracking-[0.1em] text-white/70 hover:text-primary transition-colors duration-300"
+                    className="px-2 py-0.5 text-[15px] font-bebas uppercase tracking-[0.1em] text-white/70 hover:text-accent transition-colors duration-300"
                   >
                     {t(link.labelKey, link.fallback)}
                   </button>
@@ -195,7 +197,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
             </div>
           </div>
 
-          {/* Language Selector centered - single instance */}
+          {/* Language Selector centered */}
           <div className="flex justify-center w-full">
             <LanguageMapSelector />
           </div>

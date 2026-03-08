@@ -147,10 +147,10 @@ export const Player3DEffect = ({ className = "", imagePrefix = "player" }: Playe
       
       varying vec2 vUv;
       
-      const vec3 fffGold = vec3(1.0, 0.722, 0.0);
+      const vec3 fffGold = vec3(0.92, 0.78, 0.45);
       const vec3 revealGrey = vec3(0.75, 0.75, 0.78);
       const vec3 revealWhite = vec3(1.0, 1.0, 1.0);
-      const vec3 brightGold = vec3(1.0, 0.9, 0.4);
+      const vec3 brightGold = vec3(1.0, 0.9, 0.5);
       const vec3 warmLight = vec3(1.0, 0.95, 0.85);
       
       // ============= SIMPLEX NOISE IMPLEMENTATION =============
