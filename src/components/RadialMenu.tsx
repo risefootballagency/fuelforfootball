@@ -187,6 +187,10 @@ export const RadialMenu = () => {
         fallback: "SHOP", 
         Icon: Package, 
         angle: 120,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(120),
+          component: ShopQuadrantCard,
+        },
       },
       { 
         to: "/daily-fuel",
@@ -205,6 +209,10 @@ export const RadialMenu = () => {
         fallback: "PORTAL", 
         Icon: Users, 
         angle: 240,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(240),
+          component: PortalQuadrantCard,
+        },
       },
       { 
         to: "/contact", 
