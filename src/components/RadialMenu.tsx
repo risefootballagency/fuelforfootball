@@ -705,9 +705,9 @@ export const RadialMenu = () => {
           aria-label="Close menu"
         >
           <div className="relative w-12 h-12 flex items-center justify-center">
-            <div className="absolute inset-0 bg-primary/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out" />
-            <div className="absolute inset-0 bg-primary/10 rounded-full scale-0 group-hover:scale-150 transition-transform duration-700 ease-out" />
-            <X className="h-8 w-8 text-white relative z-10 transition-all duration-300 group-hover:text-primary group-hover:rotate-90" />
+            <div className="absolute inset-0 bg-accent/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out" />
+            <div className="absolute inset-0 bg-accent/10 rounded-full scale-0 group-hover:scale-150 transition-transform duration-700 ease-out" />
+            <X className="h-8 w-8 text-white relative z-10 transition-all duration-300 group-hover:text-accent group-hover:rotate-90" />
           </div>
         </button>
       </DrawerClose>
