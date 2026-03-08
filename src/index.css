@@ -330,6 +330,17 @@ All colors MUST be HSL.
     }
   }
 
+  /* PWA safe area top offset for fixed headers */
+  @media all and (display-mode: standalone) {
+    .pwa-safe-top {
+      top: env(safe-area-inset-top, 0px) !important;
+    }
+
+    .pwa-content-offset {
+      padding-top: calc(5rem + env(safe-area-inset-top, 0px)) !important;
+    }
+  }
+
   /* Display headings - Athletic feel with tight tracking */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Agrandir Tight', 'Bebas Neue', sans-serif;
