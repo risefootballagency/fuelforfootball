@@ -547,7 +547,7 @@ const Players = () => {
                     }}
                   />
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Performance Efficiency Report
+                    {t("players.efficiency_report", "Performance Efficiency Report")}
                     <ExternalLink className="w-4 h-4 md:w-5 md:h-5" />
                   </span>
                 </Button>
