@@ -219,7 +219,7 @@ export const PortalPaymentMethods = () => {
 
       {!selected && (
         <p className="text-center text-sm text-muted-foreground">
-          Select a payment method above to continue.
+          {t(lang, "select_payment_method")}
         </p>
       )}
     </div>
