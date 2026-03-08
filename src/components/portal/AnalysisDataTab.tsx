@@ -66,6 +66,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
   const [activeStatCategory, setActiveStatCategory] = useState("Shooting");
   const [editingCell, setEditingCell] = useState<{ analysisId: string; metricKey: string } | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [seasonZoneActions, setSeasonZoneActions] = useState<Array<{ action_number: number; action_score: number; zone?: number | null; zone_details?: { zone: number; sub?: number }[] | null }>>([]);
+  const [seasonZoneLoading, setSeasonZoneLoading] = useState(false);
 
   const toggleMatch = (id: string) => {
     setSelectedIds(prev => {
