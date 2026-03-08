@@ -1019,6 +1019,21 @@ const trExtended: Record<string, string> = {
   your_progress: "İlerlemeniz", vs_3_months_ago: "vs 3 ay önce",
   team_formation: "Takım Dizilişi", opposition_formation: "Rakip Dizilişi",
   all_concepts: "Tüm Kavramlar", select_concept: "Kavram Seç", select_analysis: "Analiz Seç",
+  tactical_schemes: "Taktik Şemalar", concepts_label: "Kavramlar", pre_match_analysis: "Maç Öncesi Analizi",
+  positional_guides: "Pozisyon Rehberleri", ai_quiz: "AI Yarışması",
+  instant_payment: "Anında ödeme", quick_secure: "Hızlı ve güvenli", debit_or_credit: "Banka veya Kredi Kartı",
+  uk_domestic: "UK transferi", iban_swift: "IBAN ve SWIFT", bank_transfer: "Banka Havalesi", international: "Uluslararası",
+  card_label: "Kart",
+  select_payment_method: "Devam etmek için yukarıdan bir ödeme yöntemi seçin.",
+  copied: "Kopyalandı", account_name: "Hesap Sahibi", sort_code: "Sıralama Kodu", account_number: "Hesap Numarası",
+  payment_reference_note: "Lütfen adınızı ve fatura numaranızı ödeme referansı olarak kullanın.",
+  welcome_intro: "Bu, gelişiminizle ilgili her şey için kişisel merkeziniz.",
+  welcome_waiting: "Sizi bekleyen içerikler var!",
+  welcome_view_performance: "Performans Raporlarını Gör", welcome_view_analysis: "Analizi Gör",
+  welcome_cta: "Anladım, hadi başlayalım!",
+  welcome_perf_reports: "Performans Raporları", welcome_analysis: "Analiz", welcome_form: "Form ve Karşılaştırmalar",
+  welcome_clips: "Klipler ve Öne Çıkanlar", welcome_programmes: "Programlar",
+  next_track: "Sonraki parça", unknown_track: "Bilinmeyen Parça",
 };
 Object.entries(trExtended).forEach(([key, val]) => {
   if (translations.tr) translations.tr[key] = val;
