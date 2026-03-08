@@ -731,6 +731,21 @@ const itExtended: Record<string, string> = {
   your_progress: "I Tuoi Progressi", vs_3_months_ago: "vs 3 mesi fa",
   team_formation: "Formazione di Squadra", opposition_formation: "Formazione Avversaria",
   all_concepts: "Tutti i Concetti", select_concept: "Seleziona Concetto", select_analysis: "Seleziona Analisi",
+  tactical_schemes: "Schemi Tattici", concepts_label: "Concetti", pre_match_analysis: "Analisi Pre-Partita",
+  positional_guides: "Guide Posizionali", ai_quiz: "Quiz IA",
+  instant_payment: "Pagamento istantaneo", quick_secure: "Rapido e sicuro", debit_or_credit: "Debito o Credito",
+  uk_domestic: "Bonifico UK", iban_swift: "IBAN e SWIFT", bank_transfer: "Bonifico Bancario", international: "Internazionale",
+  card_label: "Carta",
+  select_payment_method: "Seleziona un metodo di pagamento sopra per continuare.",
+  copied: "Copiato", account_name: "Intestatario", sort_code: "Codice Filiale", account_number: "Numero di Conto",
+  payment_reference_note: "Utilizza il tuo nome e il numero di fattura come riferimento di pagamento.",
+  welcome_intro: "Questo è il tuo hub personale per tutto ciò che riguarda il tuo sviluppo.",
+  welcome_waiting: "Hai già contenuti in attesa!",
+  welcome_view_performance: "Vedi Report Prestazioni", welcome_view_analysis: "Vedi Analisi",
+  welcome_cta: "Capito, andiamo!",
+  welcome_perf_reports: "Report Prestazioni", welcome_analysis: "Analisi", welcome_form: "Forma e Confronti",
+  welcome_clips: "Clip e Momenti Salienti", welcome_programmes: "Programmi",
+  next_track: "Traccia successiva", unknown_track: "Traccia Sconosciuta",
 };
 Object.entries(itExtended).forEach(([key, val]) => {
   if (translations.it) translations.it[key] = val;
