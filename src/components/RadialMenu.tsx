@@ -802,7 +802,7 @@ export const RadialMenu = () => {
               }}
             >
               <SimpleQuadrantCard
-                icon={<hoveredIcon className="w-4 h-4" />}
+                icon={<HoveredIcon className="w-4 h-4" />}
                 title={card.title}
                 description={card.description}
                 stat={card.stat}
