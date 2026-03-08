@@ -17,13 +17,16 @@ const Login = () => {
     const checkAuth = async () => {
       const playerEmail = localStorage.getItem("player_email") || sessionStorage.getItem("player_email");
       if (playerEmail) {
-        const { data } = await supabase
+        const normalizedPlayerEmail = playerEmail.toLowerCase().trim();
+        const { data, error } = await supabase
           .from("players")
           .select("id")
-          .eq("email", playerEmail)
+          .ilike("email", normalizedPlayerEmail)
           .maybeSingle();
-          
-        if (data) {
+
+        if (error) {
+          console.error("Player session check failed:", error);
+        } else if (data) {
           navigate("/portal");
           return;
         } else {
@@ -34,13 +37,16 @@ const Login = () => {
 
       const scoutEmail = localStorage.getItem("scout_email") || sessionStorage.getItem("scout_email");
       if (scoutEmail) {
-        const { data } = await supabase
+        const normalizedScoutEmail = scoutEmail.toLowerCase().trim();
+        const { data, error } = await supabase
           .from("scouts")
           .select("id")
-          .eq("email", scoutEmail)
+          .ilike("email", normalizedScoutEmail)
           .maybeSingle();
-          
-        if (data) {
+
+        if (error) {
+          console.error("Scout session check failed:", error);
+        } else if (data) {
           navigate("/potential");
           return;
         } else {
@@ -54,15 +60,13 @@ const Login = () => {
 
     const savedPlayerEmail = localStorage.getItem("player_saved_email");
     const savedScoutEmail = localStorage.getItem("scout_saved_email");
-    const savedEmail = savedPlayerEmail || savedScoutEmail;
-    
-    if (savedEmail) setEmail(savedEmail);
-    
-    const savedPlayerRemember = localStorage.getItem("player_remember_me");
-    const savedScoutRemember = localStorage.getItem("scout_remember_me");
-    
-    if (savedPlayerRemember === "false" || savedScoutRemember === "false") {
-      setRememberMe(false);
+
+    if (savedPlayerEmail) {
+      setEmail(savedPlayerEmail);
+      setRememberMe(localStorage.getItem("player_remember_me") !== "false");
+    } else if (savedScoutEmail) {
+      setEmail(savedScoutEmail);
+      setRememberMe(localStorage.getItem("scout_remember_me") !== "false");
     }
   }, [navigate]);
 
