@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { sharedSupabase as supabase } from '@/integrations/supabase/sharedClient';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { StaffSearchInput } from './StaffSearchInput';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -624,10 +625,11 @@ export const PlayerDatabase = () => {
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search by name, club, position..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
-      </div>
+      <StaffSearchInput
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search by name, club, position..."
+      />
 
       {/* Active filter indicators */}
       {hasActiveFilters && (

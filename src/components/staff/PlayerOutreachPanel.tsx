@@ -8,6 +8,7 @@ import { calculateAge, calculatePreciseAge, getEligibleDate } from '@/lib/ageUti
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { StaffSearchInput } from './StaffSearchInput';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -222,7 +223,7 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
           <Button size="sm" variant="outline" onClick={() => { setEditingItem(null); setFormData(emptyForm); setDialogOpen(true); }}><Plus className="w-3.5 h-3.5 mr-1" /> Add</Button>
         </div>
       </div>
-      <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search name, club, nationality..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 h-9" /></div>
+      <StaffSearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Search name, club, nationality..." className="h-9" />
       {['notMessaged', 'noResponse', 'responded'].map(section => {
         const items = section === 'notMessaged' ? data.filter(d => !d.messaged) : section === 'noResponse' ? data.filter(d => d.messaged && !d.response_received) : data.filter(d => d.response_received);
         const sorted = sortAndFilter(items);
