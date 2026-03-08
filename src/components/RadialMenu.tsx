@@ -317,7 +317,7 @@ export const RadialMenu = () => {
       { 
         to: "/contact", 
         labelKey: "header.work_with_us", 
-        fallback: "SCOUT FOR RISE", 
+        fallback: "SCOUT FOR US", 
         Icon: Handshake, 
         angle: 270,
         quadrantCard: {

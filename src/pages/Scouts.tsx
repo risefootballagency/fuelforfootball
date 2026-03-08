@@ -127,16 +127,16 @@ const Scouts = () => {
 
         {/* Scouting Criteria by Position Section */}
         <section className="relative min-h-screen flex flex-col">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background" />
           
           <div className="flex-1 flex flex-col relative z-10">
             <div className="text-center py-8 px-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                <Target className="h-4 w-4 text-primary" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                <Target className="h-4 w-4 text-accent" />
                 <span className="text-sm font-semibold">{t('scouts.criteria_badge')}</span>
               </div>
               
-              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
                 {t('scouts.what_we_look')}
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
@@ -152,8 +152,8 @@ const Scouts = () => {
                   onClick={() => scrollToSlide(index)}
                   className={`transition-all duration-300 rounded-full ${
                     selectedSlide === index
-                      ? 'w-12 h-3 bg-primary shadow-lg shadow-primary/50'
-                      : 'w-3 h-3 bg-muted hover:bg-muted-foreground/50'
+                       ? 'w-12 h-3 bg-accent shadow-lg shadow-accent/50'
+                       : 'w-3 h-3 bg-muted hover:bg-muted-foreground/50'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
@@ -176,7 +176,7 @@ const Scouts = () => {
                             onClick={() => setSelectedPosition(position)}
                             className={`py-4 px-2 font-bebas uppercase tracking-wider text-sm md:text-base transition-all border-r border-border last:border-r-0 ${
                               selectedPosition === position
-                                ? "bg-primary/10 text-primary"
+                                ? "bg-accent/10 text-accent"
                                 : "hover:bg-muted/50"
                             }`}
                           >
@@ -222,7 +222,7 @@ const Scouts = () => {
                                     onClick={() => setExpandedDomain(domain)}
                                     className={`absolute ${position} ${rounded} flex items-center gap-3 transition-all hover:scale-105 border-2 z-10 ${
                                       isActive 
-                                        ? 'border-primary bg-primary/20 shadow-lg shadow-primary/20 h-16 px-4 w-auto' 
+                                        ? 'border-accent bg-accent/20 shadow-lg shadow-accent/20 h-16 px-4 w-auto' 
                                         : `${domainConf.borderColor} ${domainConf.bgColor} hover:shadow-lg h-16 w-16 justify-center`
                                     }`}
                                     title={domain}
@@ -274,12 +274,12 @@ const Scouts = () => {
                     <div className="w-full max-w-6xl mx-auto">
                       <div className="border-2 border-border rounded-2xl overflow-hidden bg-card p-6 md:p-8 animate-fade-in">
                       <div className="text-center mb-8">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                          <Target className="h-4 w-4 text-primary" />
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                          <Target className="h-4 w-4 text-accent" />
                           <span className="text-sm font-semibold">Tactical Understanding</span>
                         </div>
                         
-                        <h3 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                        <h3 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
                           Tactical Schemes
                         </h3>
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -288,8 +288,8 @@ const Scouts = () => {
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-6">
-                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-primary/20">
-                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-primary mb-3">
+                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-accent/20">
+                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-accent mb-3">
                             Team Schemes
                           </h4>
                           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
@@ -297,15 +297,15 @@ const Scouts = () => {
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {["4-3-3", "4-4-2", "3-5-2", "4-2-3-1"].map(formation => (
-                              <Badge key={formation} variant="secondary" className="bg-primary/20 border-primary/30">
+                              <Badge key={formation} variant="secondary" className="bg-accent/20 border-accent/30">
                                 {formation}
                               </Badge>
                             ))}
                           </div>
                         </Card>
 
-                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-primary/20">
-                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-primary mb-3">
+                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-accent/20">
+                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-accent mb-3">
                             Opposition Analysis
                           </h4>
                           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
@@ -313,15 +313,15 @@ const Scouts = () => {
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {["High Press", "Low Block", "Counter Attack", "Possession"].map(style => (
-                              <Badge key={style} variant="secondary" className="bg-primary/20 border-primary/30">
+                              <Badge key={style} variant="secondary" className="bg-accent/20 border-accent/30">
                                 {style}
                               </Badge>
                             ))}
                           </div>
                         </Card>
 
-                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-primary/20">
-                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-primary mb-3">
+                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-accent/20">
+                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-accent mb-3">
                             Position-Specific Roles
                           </h4>
                           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -329,8 +329,8 @@ const Scouts = () => {
                           </p>
                         </Card>
 
-                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-primary/20">
-                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-primary mb-3">
+                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-accent/20">
+                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-accent mb-3">
                             Game Phases
                           </h4>
                           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -352,12 +352,12 @@ const Scouts = () => {
           
           <div className="container mx-auto relative z-10">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                <Database className="h-4 w-4 text-primary" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                <Database className="h-4 w-4 text-accent" />
                 <span className="text-sm font-semibold">{t('scouts.tech_badge')}</span>
               </div>
               
-              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
                 {t('scouts.database_title')}
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
@@ -366,15 +366,15 @@ const Scouts = () => {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary/30 bg-gradient-to-br from-card via-card/95 to-primary/5 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-accent/30 bg-gradient-to-br from-card via-card/95 to-accent/5 transition-all duration-500 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative p-6 text-center">
-                  <div className="h-12 w-12 mx-auto bg-primary/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Users className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 mx-auto bg-accent/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <Users className="h-6 w-6 text-accent" />
                   </div>
                   
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-accent transition-colors">
                     Player Profiles
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -383,15 +383,15 @@ const Scouts = () => {
                 </div>
               </Card>
 
-              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary/30 bg-gradient-to-br from-card via-card/95 to-primary/5 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-accent/30 bg-gradient-to-br from-card via-card/95 to-accent/5 transition-all duration-500 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative p-6 text-center">
-                  <div className="h-12 w-12 mx-auto bg-primary/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <BarChart3 className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 mx-auto bg-accent/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <BarChart3 className="h-6 w-6 text-accent" />
                   </div>
                   
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-accent transition-colors">
                     Advanced Analytics
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -400,15 +400,15 @@ const Scouts = () => {
                 </div>
               </Card>
 
-              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary/30 bg-gradient-to-br from-card via-card/95 to-primary/5 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-accent/30 bg-gradient-to-br from-card via-card/95 to-accent/5 transition-all duration-500 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative p-6 text-center">
-                  <div className="h-12 w-12 mx-auto bg-primary/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Award className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 mx-auto bg-accent/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <Award className="h-6 w-6 text-accent" />
                   </div>
                   
-                  <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-accent transition-colors">
                     Scouting Reports
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -422,19 +422,19 @@ const Scouts = () => {
 
         {/* European Coverage Section */}
         <section className="py-10 md:py-16 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/10 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-accent/10 to-background" />
           
           <div className="container mx-auto relative z-10">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                <Globe className="h-4 w-4 text-primary" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                <Globe className="h-4 w-4 text-accent" />
                 <span className="text-sm font-semibold">Eyes Across All Of Europe</span>
               </div>
               
               <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 leading-none">
                 SCOUTING ACROSS
                 <br />
-                <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
                   ALL OF EUROPE
                 </span>
               </h2>
@@ -454,8 +454,8 @@ const Scouts = () => {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary/30 bg-gradient-to-br from-card via-card/95 to-primary/5 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-accent/30 bg-gradient-to-br from-card via-card/95 to-accent/5 transition-all duration-500 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative p-6">
                   <div className="h-10 w-10 bg-accent/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -471,8 +471,8 @@ const Scouts = () => {
                 </div>
               </Card>
 
-              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary/30 bg-gradient-to-br from-card via-card/95 to-primary/5 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-accent/30 bg-gradient-to-br from-card via-card/95 to-accent/5 transition-all duration-500 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative p-6">
                   <div className="h-10 w-10 bg-accent/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -488,8 +488,8 @@ const Scouts = () => {
                 </div>
               </Card>
 
-              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary/30 bg-gradient-to-br from-card via-card/95 to-primary/5 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-accent/30 bg-gradient-to-br from-card via-card/95 to-accent/5 transition-all duration-500 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative p-6">
                   <div className="h-10 w-10 bg-accent/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -510,16 +510,16 @@ const Scouts = () => {
 
         {/* Incentive Structure Section */}
         <section className="py-10 md:py-16 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-primary/5" />
+          <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-background to-accent/5" />
           
           <div className="container mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                <Award className="h-4 w-4 text-primary" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                <Award className="h-4 w-4 text-accent" />
                 <span className="text-sm font-semibold">{t('scouts.benefits_badge')}</span>
               </div>
               
-              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
                 {t('scouts.incentive_title')}
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
@@ -528,8 +528,8 @@ const Scouts = () => {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <Card className="group relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/10 via-card to-primary/5 hover:border-primary/40 transition-all duration-500 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
+              <Card className="group relative overflow-hidden border-2 border-accent/20 bg-gradient-to-br from-accent/10 via-card to-accent/5 hover:border-accent/40 transition-all duration-500 hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-1">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                 
                 <div className="relative p-6">
                   <div className="flex items-center gap-3 mb-4">
@@ -546,20 +546,20 @@ const Scouts = () => {
                   
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2 group/item">
-                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                        <span className="text-primary text-xs">✓</span>
+                      <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                        <span className="text-accent text-xs">✓</span>
                       </div>
                       <span className="text-sm text-foreground">Commission on initial signing fees</span>
                     </li>
                     <li className="flex items-start gap-2 group/item">
-                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                        <span className="text-primary text-xs">✓</span>
+                      <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                        <span className="text-accent text-xs">✓</span>
                       </div>
                       <span className="text-sm text-foreground">Percentage of future transfers</span>
                     </li>
                     <li className="flex items-start gap-2 group/item">
-                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                        <span className="text-primary text-xs">✓</span>
+                      <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                        <span className="text-accent text-xs">✓</span>
                       </div>
                       <span className="text-sm text-foreground">Ongoing representation earnings</span>
                     </li>
@@ -567,8 +567,8 @@ const Scouts = () => {
                 </div>
               </Card>
 
-              <Card className="group relative overflow-hidden border-2 border-primary/20 hover:border-primary/40 transition-all duration-500 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
+              <Card className="group relative overflow-hidden border-2 border-accent/20 hover:border-accent/40 transition-all duration-500 hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-1">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700" />
                 
                 <div className="relative p-6">
                   <div className="flex items-center gap-3 mb-4">
@@ -585,20 +585,20 @@ const Scouts = () => {
                   
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2 group/item">
-                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                        <span className="text-primary text-xs">✓</span>
+                      <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                        <span className="text-accent text-xs">✓</span>
                       </div>
                       <span className="text-sm text-foreground">Regular training sessions</span>
                     </li>
                     <li className="flex items-start gap-2 group/item">
-                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                        <span className="text-primary text-xs">✓</span>
+                      <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                        <span className="text-accent text-xs">✓</span>
                       </div>
                       <span className="text-sm text-foreground">Access to our database and tools</span>
                     </li>
                     <li className="flex items-start gap-2 group/item">
-                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                        <span className="text-primary text-xs">✓</span>
+                      <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                        <span className="text-accent text-xs">✓</span>
                       </div>
                       <span className="text-sm text-foreground">Industry networking opportunities</span>
                     </li>
@@ -607,13 +607,13 @@ const Scouts = () => {
               </Card>
             </div>
 
-            <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-card via-primary/5 to-card">
+            <Card className="relative overflow-hidden border-2 border-accent/20 bg-gradient-to-br from-card via-accent to-card">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
               
               <div className="relative p-6">
                 <div className="text-center mb-6">
                   <h3 className="text-3xl font-bebas uppercase tracking-wider mb-2">How It Works</h3>
-                  <div className="h-1 w-24 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
+                  <div className="h-1 w-24 bg-gradient-to-r from-transparent via-praccento-transparent mx-auto" />
                 </div>
                 
                 <div className="grid md:grid-cols-4 gap-6">
@@ -625,14 +625,14 @@ const Scouts = () => {
                   ].map((step, idx) => (
                     <div key={idx} className="relative text-center group">
                       <div className="relative mb-4">
-                        <div className="text-5xl font-bebas text-primary/20 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 group-hover:scale-110 transition-transform">
+                        <div className="text-5xl font-bebas text-accent/20 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 group-hover:scale-110 transition-transform">
                           {step.num}
                         </div>
-                        <div className="relative text-4xl font-bebas text-primary pt-2 group-hover:scale-110 transition-transform">
+                        <div className="relative text-4xl font-bebas text-accent pt-2 group-hover:scale-110 transition-transform">
                           {step.num}
                         </div>
                       </div>
-                      <h4 className="font-bold text-base mb-2 group-hover:text-primary transition-colors">{step.title}</h4>
+                      <h4 className="font-bold text-base mb-2 group-hover:text-accent transition-colors">{step.title}</h4>
                       <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
                     </div>
                   ))}
