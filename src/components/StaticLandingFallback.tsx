@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LanguageMapSelector } from "@/components/LanguageMapSelector";
-import { LanguageSelector } from "@/components/LanguageSelector";
 import { HoverText } from "@/components/HoverText";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RepresentationDialog } from "@/components/RepresentationDialog";
@@ -91,7 +90,6 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
           <Link to="/portal" className="text-[hsl(var(--mint)/0.55)] hover:text-accent transition-colors uppercase tracking-wider font-bebas">
             {t("header.portal", "Portal")}
           </Link>
-          <LanguageSelector />
         </div>
       </div>
 
@@ -140,6 +138,9 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
             </Button>
           </div>
 
+          <div className="flex justify-center">
+            <LanguageMapSelector />
+          </div>
           <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-bebas">
             {t("landing.select_role_enter", "Select Your Role To Enter Site")}
           </p>
