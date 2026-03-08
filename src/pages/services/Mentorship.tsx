@@ -14,10 +14,10 @@ const Mentorship = () => {
   const { t } = useLanguage();
 
   const pillars = [
-    { icon: "https://static.wixstatic.com/media/c4f4b1_fa44f917083b4628bdadc5a271e841f8~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Receiving%20(1).png", label: "SUPPORT" },
-    { icon: "https://static.wixstatic.com/media/c4f4b1_0f23f93ab7f54ed4a8bd8fa19a26271f~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Passing.png", label: "GOALS" },
-    { icon: "https://static.wixstatic.com/media/c4f4b1_2669a5c5489d46eb8d08d0c4a00a2c23~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Dribbling.png", label: "WISDOM" },
-    { icon: "https://static.wixstatic.com/media/c4f4b1_6424db6835ec4e968f7d1b5c317cc4fa~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Finishing.png", label: "RESILIENCE" },
+    { icon: "https://static.wixstatic.com/media/c4f4b1_fa44f917083b4628bdadc5a271e841f8~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Receiving%20(1).png", label: t("mentorship.pillar_support", "SUPPORT") },
+    { icon: "https://static.wixstatic.com/media/c4f4b1_0f23f93ab7f54ed4a8bd8fa19a26271f~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Passing.png", label: t("mentorship.pillar_goals", "GOALS") },
+    { icon: "https://static.wixstatic.com/media/c4f4b1_2669a5c5489d46eb8d08d0c4a00a2c23~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Dribbling.png", label: t("mentorship.pillar_wisdom", "WISDOM") },
+    { icon: "https://static.wixstatic.com/media/c4f4b1_6424db6835ec4e968f7d1b5c317cc4fa~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Finishing.png", label: t("mentorship.pillar_resilience", "RESILIENCE") },
   ];
 
   const mentorshipPillars = [
@@ -83,8 +83,8 @@ const Mentorship = () => {
 
   return (
     <ServicePageLayout
-      category="MENTORSHIP"
-      title="GUIDANCE FOR SUCCESS"
+      category={t("mentorship.category", "MENTORSHIP")}
+      title={t("mentorship.hero_title", "GUIDANCE FOR SUCCESS")}
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
       statsPageKey="mentorship"
@@ -104,7 +104,7 @@ const Mentorship = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>THE FOUR PILLARS</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("mentorship.section_pillars", "THE FOUR PILLARS")}</ServiceSectionTitle>
           
           <div className="max-w-6xl mx-auto mt-4 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {mentorshipPillars.map((pillar, index) => (
@@ -129,7 +129,7 @@ const Mentorship = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>WHY MENTORSHIP MATTERS</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("mentorship.section_why", "WHY MENTORSHIP MATTERS")}</ServiceSectionTitle>
           
           <div className="max-w-6xl mx-auto mt-4 grid md:grid-cols-2 gap-12 items-center">
             <ServiceContentBlock
@@ -159,7 +159,7 @@ const Mentorship = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>OUR PROGRAMMES</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("mentorship.section_programmes", "OUR PROGRAMMES")}</ServiceSectionTitle>
           
           <p className="text-white/80 text-center max-w-4xl mx-auto mb-10 leading-relaxed text-sm md:text-base">
             {t("services_mentorship.our_programmes_desc", "Choose the mentorship programme that best fits your current stage and goals.")}
@@ -184,9 +184,9 @@ const Mentorship = () => {
                 <div className="flex items-center justify-between">
                   <p className="text-xl font-semibold text-accent">{programme.price}</p>
                   <LocalizedLink to={programme.link}>
-                    <Button variant="outline" className="font-bebas tracking-wider border-accent text-accent hover:bg-accent hover:text-black">
-                      LEARN MORE
-                    </Button>
+                     <Button variant="outline" className="font-bebas tracking-wider border-accent text-accent hover:bg-accent hover:text-black">
+                       {t("mentorship.learn_more", "LEARN MORE")}
+                     </Button>
                   </LocalizedLink>
                 </div>
               </div>

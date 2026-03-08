@@ -14,10 +14,10 @@ const Consultation = () => {
   const { t } = useLanguage();
 
   const pillars = [
-    { icon: "https://static.wixstatic.com/media/c4f4b1_fa44f917083b4628bdadc5a271e841f8~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Receiving%20(1).png", label: "PLAYER REVIEW" },
-    { icon: "https://static.wixstatic.com/media/c4f4b1_0f23f93ab7f54ed4a8bd8fa19a26271f~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Passing.png", label: "CAREER STRATEGY" },
-    { icon: "https://static.wixstatic.com/media/c4f4b1_2669a5c5489d46eb8d08d0c4a00a2c23~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Dribbling.png", label: "PERFORMANCE ANALYSIS" },
-    { icon: "https://static.wixstatic.com/media/c4f4b1_6424db6835ec4e968f7d1b5c317cc4fa~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Finishing.png", label: "DEVELOPMENT PLAN" },
+    { icon: "https://static.wixstatic.com/media/c4f4b1_fa44f917083b4628bdadc5a271e841f8~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Receiving%20(1).png", label: t("consultation.pillar_review", "PLAYER REVIEW") },
+    { icon: "https://static.wixstatic.com/media/c4f4b1_0f23f93ab7f54ed4a8bd8fa19a26271f~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Passing.png", label: t("consultation.pillar_strategy", "CAREER STRATEGY") },
+    { icon: "https://static.wixstatic.com/media/c4f4b1_2669a5c5489d46eb8d08d0c4a00a2c23~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Dribbling.png", label: t("consultation.pillar_analysis", "PERFORMANCE ANALYSIS") },
+    { icon: "https://static.wixstatic.com/media/c4f4b1_6424db6835ec4e968f7d1b5c317cc4fa~mv2.png/v1/fill/w_90,h_90,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Finishing.png", label: t("consultation.pillar_plan", "DEVELOPMENT PLAN") },
   ];
 
   const consultationServices = [
@@ -72,8 +72,8 @@ const Consultation = () => {
 
   return (
     <ServicePageLayout
-      category="CONSULTATION"
-      title="KNOW THYSELF"
+      category={t("consultation.category", "CONSULTATION")}
+      title={t("consultation.hero_title", "KNOW THYSELF")}
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
       statsPageKey="consultation"
@@ -93,7 +93,7 @@ const Consultation = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>WHAT WE OFFER</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("consultation.section_offer", "WHAT WE OFFER")}</ServiceSectionTitle>
           
           <div className="max-w-6xl mx-auto mt-4">
             <ServiceContentBlock
@@ -112,7 +112,7 @@ const Consultation = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>OUR SERVICES</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("consultation.section_services", "OUR SERVICES")}</ServiceSectionTitle>
           
           <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {consultationServices.map((service, index) => (
@@ -138,7 +138,7 @@ const Consultation = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>HOW IT WORKS</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("consultation.section_how", "HOW IT WORKS")}</ServiceSectionTitle>
           
           <p className="text-white/80 text-center max-w-4xl mx-auto mb-10 leading-relaxed text-sm md:text-base">
             {t("services_consultation.how_it_works_desc", "Our consultation process is designed to be straightforward and effective.")}
@@ -169,7 +169,7 @@ const Consultation = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>WHO IT'S FOR</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("consultation.section_who", "WHO IT'S FOR")}</ServiceSectionTitle>
           
           <div className="max-w-6xl mx-auto mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <div className="text-center p-6 md:p-8 bg-black/40 border border-white/10 rounded-lg">
