@@ -13,7 +13,7 @@ import smudgedMarbleBg from "@/assets/black-marble-smudged.png";
 import europeMap from "@/assets/europe-outline.gif";
 import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Star } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
+import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard, PortalQuadrantCard, ShopQuadrantCard, ScoutingQuadrantCard, ClubSupportQuadrantCard, PackagesQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
 
 export type QuadrantPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -169,6 +169,10 @@ export const RadialMenu = () => {
         fallback: "HOME", 
         Icon: Home, 
         angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: PerformanceQuadrantCard,
+        },
       },
       { 
         to: "/services", 
@@ -187,6 +191,10 @@ export const RadialMenu = () => {
         fallback: "SHOP", 
         Icon: Package, 
         angle: 120,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(120),
+          component: ShopQuadrantCard,
+        },
       },
       { 
         to: "/daily-fuel",
@@ -205,6 +213,10 @@ export const RadialMenu = () => {
         fallback: "PORTAL", 
         Icon: Users, 
         angle: 240,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(240),
+          component: PortalQuadrantCard,
+        },
       },
       { 
         to: "/contact", 
@@ -219,7 +231,17 @@ export const RadialMenu = () => {
       },
     ],
     clubs: [
-      { to: "/clubs", labelKey: "header.club_direction", fallback: "CLUB SUPPORT", Icon: Target, angle: 0 },
+      { 
+        to: "/clubs", 
+        labelKey: "header.club_direction", 
+        fallback: "CLUB SUPPORT", 
+        Icon: Target, 
+        angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: ClubSupportQuadrantCard,
+        },
+      },
       { 
         to: "/players", 
         labelKey: "header.services", 
@@ -301,8 +323,28 @@ export const RadialMenu = () => {
       },
     ],
     scouts: [
-      { to: "/scouts", labelKey: "header.what_we_look_for", fallback: "WHAT WE SEEK", Icon: Search, angle: 0 },
-      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 90 },
+      { 
+        to: "/scouts", 
+        labelKey: "header.what_we_look_for", 
+        fallback: "WHAT WE SEEK", 
+        Icon: Search, 
+        angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: ScoutingQuadrantCard,
+        },
+      },
+      { 
+        to: "/login", 
+        labelKey: "header.portal", 
+        fallback: "PORTAL", 
+        Icon: Users, 
+        angle: 90,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(90),
+          component: PortalQuadrantCard,
+        },
+      },
       { 
         to: "/daily-fuel",
         labelKey: "header.insights", 
@@ -327,7 +369,17 @@ export const RadialMenu = () => {
       },
     ],
     coaches: [
-      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 0 },
+      { 
+        to: "/login", 
+        labelKey: "header.portal", 
+        fallback: "PORTAL", 
+        Icon: Users, 
+        angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: PortalQuadrantCard,
+        },
+      },
       { 
         to: "/players", 
         labelKey: "header.services", 
@@ -409,7 +461,17 @@ export const RadialMenu = () => {
       },
     ],
     business: [
-      { to: "/business", labelKey: "header.packages", fallback: "PACKAGES", Icon: Package, angle: 0 },
+      { 
+        to: "/business", 
+        labelKey: "header.packages", 
+        fallback: "PACKAGES", 
+        Icon: Package, 
+        angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: PackagesQuadrantCard,
+        },
+      },
       { 
         to: "/players", 
         labelKey: "header.services", 
@@ -838,7 +900,7 @@ export const RadialMenu = () => {
                         style={{
                           width: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
                           height: `${isMobile ? centerSize * 0.28 : centerSize * 0.2}px`,
-                          color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(var(--mint))',
+                          color: hovered ? 'hsl(45, 100%, 50%)' : 'rgba(255,255,255,0.85)',
                         }}
                       >
                         <item.Icon className="w-full h-full" />
@@ -851,7 +913,7 @@ export const RadialMenu = () => {
                         fontSize: `${isMobile ? centerSize * 0.12 : centerSize * 0.0875}px`,
                         maxWidth: isMobile ? `${centerSize * 0.5}px` : 'none',
                         whiteSpace: isMobile ? 'normal' : 'nowrap',
-                        color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(var(--mint))',
+                        color: hovered ? 'hsl(45, 100%, 50%)' : 'rgba(255,255,255,0.85)',
                       }}
                     >
                       {t(item.labelKey, item.fallback)}
