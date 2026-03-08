@@ -42,9 +42,38 @@ export function calculateWedgeArea(centerX: number, centerY: number, startAngleD
 
 export function calculateContentPlacement(centerX: number, centerY: number, startAngleDeg: number, endAngleDeg: number, menuRadius: number, screenWidth: number, screenHeight: number, edgePadding: number = 24) {
   const bounds: ScreenBounds = { left: edgePadding, right: screenWidth - edgePadding, top: edgePadding, bottom: screenHeight - edgePadding };
-  const wedgeArea = calculateWedgeArea(centerX, centerY, startAngleDeg, endAngleDeg, menuRadius + 40, bounds);
-  const midAngle = (startAngleDeg + endAngleDeg) / 2; const normalizedAngle = ((midAngle % 360) + 360) % 360;
+  const midAngle = (startAngleDeg + endAngleDeg) / 2;
+  const normalizedAngle = ((midAngle % 360) + 360) % 360;
+  const midRad = (midAngle * Math.PI) / 180;
+
+  const midScreenPoint = findRayScreenIntersection(centerX, centerY, midAngle, bounds);
+  const distToScreen = Math.hypot(midScreenPoint.x - centerX, midScreenPoint.y - centerY);
+
+  // Keep content centered in the extension zone (65% from menu edge to viewport edge)
+  const placementDistance = menuRadius + (distToScreen - menuRadius) * 0.65;
+  const targetX = centerX + Math.cos(midRad) * placementDistance;
+  const targetY = centerY + Math.sin(midRad) * placementDistance;
+
+  const segmentSizeDeg = Math.abs(endAngleDeg - startAngleDeg);
+  const wedgeHalfAngleRad = ((segmentSizeDeg * Math.PI) / 180) / 2;
+  const wedgeWidthAtTarget = 2 * placementDistance * Math.sin(wedgeHalfAngleRad);
+
+  const maxWidthByBounds = Math.min(targetX - bounds.left, bounds.right - targetX) * 2;
+  const maxHeightByBounds = Math.min(targetY - bounds.top, bounds.bottom - targetY) * 2;
+
+  const width = Math.max(120, Math.min(240, wedgeWidthAtTarget * 0.82, maxWidthByBounds));
+  const height = Math.max(90, Math.min(140, maxHeightByBounds));
+
+  const clampedX = Math.max(bounds.left + width / 2, Math.min(bounds.right - width / 2, targetX));
+  const clampedY = Math.max(bounds.top + height / 2, Math.min(bounds.bottom - height / 2, targetY));
+
   const textAlign: 'left' | 'right' | 'center' = normalizedAngle > 90 && normalizedAngle < 270 ? 'left' : 'right';
-  const halfWidth = wedgeArea.availableWidth / 2; const halfHeight = wedgeArea.availableHeight / 2;
-  return { x: Math.max(bounds.left + halfWidth, Math.min(bounds.right - halfWidth, wedgeArea.centroid.x)) - centerX, y: Math.max(bounds.top + halfHeight, Math.min(bounds.bottom - halfHeight, wedgeArea.centroid.y)) - centerY, width: wedgeArea.availableWidth, height: wedgeArea.availableHeight, textAlign };
+
+  return {
+    x: clampedX - centerX,
+    y: clampedY - centerY,
+    width,
+    height,
+    textAlign,
+  };
 }
