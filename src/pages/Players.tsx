@@ -442,8 +442,8 @@ const Players = () => {
         {/* Strength, Power & Speed Section */}
         <ServiceSection
           id="sps"
-          title="Strength, Power & Speed"
-          description="Strength, power, and speed are vital in modern football. Our mission is to develop players physically with the best training for their individual needs. Our tailored sessions push you to new limits, expanding your capacity for training, in turn reducing injury risk, and maximising on-pitch impact. Through our individualised programming, we provide close 1:1 support with each session, whether delivered in-person or performed from afar, to make fast adjustments and retain good form."
+          title={t("players.sps_title", "Strength, Power & Speed")}
+          description={t("players.sps_desc", "Strength, power, and speed are vital in modern football. Our mission is to develop players physically with the best training for their individual needs. Our tailored sessions push you to new limits, expanding your capacity for training, in turn reducing injury risk, and maximising on-pitch impact. Through our individualised programming, we provide close 1:1 support with each session, whether delivered in-person or performed from afar, to make fast adjustments and retain good form.")}
           hasTitleBackground
           products={spsProducts}
           dailyFuelArticle={{
