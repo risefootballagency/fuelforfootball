@@ -23,35 +23,18 @@ import { GrassBackground, SmokyBackground, GRASS_BACKGROUNDS } from "@/component
 import { HoverText } from "@/components/HoverText";
 
 // New slide content based on marketing messaging
-const HERO_SLIDE_CONTENT = [
-  {
-    title: "BY YOUR SIDE THROUGHOUT YOUR CAREER",
-    subtitle: "Our performance team stays with you, providing unwavering support even through transfers and relocations. No matter where your career takes you, we ensure you have the same dedicated team behind you, committed to your success."
-  },
-  {
-    title: "LONG-TERM SOLUTIONS",
-    subtitle: "Our work centres around career goals and where our clients aim to reach. Through our expertise, we transform strengths into specialities and eliminate weaknesses, such that it is possible to level up to compete in the highest echelons of the game."
-  },
-  {
-    title: "INDIVIDUALISED TRAINING",
-    subtitle: "Considering the varying physiology of each professional player, in order for real progression and elite performance to be achieved, this attention to detail is a must-have. Fuel For Football provides this much-needed service."
-  },
-  {
-    title: "24/7 SUPPORT EVERY DAY ALL YEAR",
-    subtitle: "At the highest level, every action matters. We support our players 24/7, because the day is not done when leaving the training ground. Our team is always available to provide guidance, helping our players gain every possible advantage."
-  },
-  {
-    title: "STRONGER FASTER FITTER",
-    subtitle: "Our strong client base includes players from the English Premier League and many across Europe's top divisions, who have rocketed into prominence through our extensive training, analysis and recovery protocol."
-  },
-  {
-    title: "WORKING HARD TO BETTER THE BEST",
-    subtitle: "8 National Team Players. 18 'Big 5' League Players. 74 Professional Players. Our strong client base has rocketed into prominence through our extensive training, analysis and recovery protocol."
-  }
+const HERO_SLIDE_KEYS = [
+  { titleKey: "players.hero_slide1_title", subtitleKey: "players.hero_slide1_subtitle", titleFallback: "BY YOUR SIDE THROUGHOUT YOUR CAREER", subtitleFallback: "Our performance team stays with you, providing unwavering support even through transfers and relocations. No matter where your career takes you, we ensure you have the same dedicated team behind you, committed to your success." },
+  { titleKey: "players.hero_slide2_title", subtitleKey: "players.hero_slide2_subtitle", titleFallback: "LONG-TERM SOLUTIONS", subtitleFallback: "Our work centres around career goals and where our clients aim to reach. Through our expertise, we transform strengths into specialities and eliminate weaknesses, such that it is possible to level up to compete in the highest echelons of the game." },
+  { titleKey: "players.hero_slide3_title", subtitleKey: "players.hero_slide3_subtitle", titleFallback: "INDIVIDUALISED TRAINING", subtitleFallback: "Considering the varying physiology of each professional player, in order for real progression and elite performance to be achieved, this attention to detail is a must-have. Fuel For Football provides this much-needed service." },
+  { titleKey: "players.hero_slide4_title", subtitleKey: "players.hero_slide4_subtitle", titleFallback: "24/7 SUPPORT EVERY DAY ALL YEAR", subtitleFallback: "At the highest level, every action matters. We support our players 24/7, because the day is not done when leaving the training ground. Our team is always available to provide guidance, helping our players gain every possible advantage." },
+  { titleKey: "players.hero_slide5_title", subtitleKey: "players.hero_slide5_subtitle", titleFallback: "STRONGER FASTER FITTER", subtitleFallback: "Our strong client base includes players from the English Premier League and many across Europe's top divisions, who have rocketed into prominence through our extensive training, analysis and recovery protocol." },
+  { titleKey: "players.hero_slide6_title", subtitleKey: "players.hero_slide6_subtitle", titleFallback: "WORKING HARD TO BETTER THE BEST", subtitleFallback: "8 National Team Players. 18 'Big 5' League Players. 74 Professional Players. Our strong client base has rocketed into prominence through our extensive training, analysis and recovery protocol." },
 ];
 
 // Dynamic Hero Slider that fetches images from landing folder
 const DynamicHeroSlider = () => {
+  const { t } = useLanguage();
   const [slides, setSlides] = useState<{ image: string; title: string; subtitle?: string }[]>([]);
 
   useEffect(() => {
@@ -64,29 +47,30 @@ const DynamicHeroSlider = () => {
         .limit(6);
 
       if (data && data.length > 0) {
-        // Map images to slide content, cycling through content if needed
-        const dynamicSlides = data.map((item, index) => ({
-          image: item.file_url,
-          title: HERO_SLIDE_CONTENT[index % HERO_SLIDE_CONTENT.length].title,
-          subtitle: HERO_SLIDE_CONTENT[index % HERO_SLIDE_CONTENT.length].subtitle
-        }));
+        const dynamicSlides = data.map((item, index) => {
+          const keys = HERO_SLIDE_KEYS[index % HERO_SLIDE_KEYS.length];
+          return {
+            image: item.file_url,
+            title: t(keys.titleKey, keys.titleFallback),
+            subtitle: t(keys.subtitleKey, keys.subtitleFallback),
+          };
+        });
         setSlides(dynamicSlides);
       } else {
-        // Fallback slides with placeholder images
-        setSlides(HERO_SLIDE_CONTENT.slice(0, 3).map((content, index) => ({
+        setSlides(HERO_SLIDE_KEYS.slice(0, 3).map((keys, index) => ({
           image: index === 0 
             ? "https://static.wixstatic.com/media/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg"
             : index === 1
               ? "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg"
               : "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg",
-          title: content.title,
-          subtitle: content.subtitle
+          title: t(keys.titleKey, keys.titleFallback),
+          subtitle: t(keys.subtitleKey, keys.subtitleFallback),
         })));
       }
     };
 
     fetchLandingImages();
-  }, []);
+  }, [t]);
 
   if (slides.length === 0) return null;
 
@@ -265,29 +249,29 @@ const Players = () => {
   const fourCorners = [
     {
       icon: Target,
-      title: "Tactical",
-      description: "Sharpen your decision-making and see the game in a different light. Read several passes ahead of play to consistently gain the advantage over your matchups.",
+      title: t("players.corner_tactical", "Tactical"),
+      description: t("players.corner_tactical_desc", "Sharpen your decision-making and see the game in a different light. Read several passes ahead of play to consistently gain the advantage over your matchups."),
       link: "/analysis",
       image: "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg"
     },
     {
       icon: Brain,
-      title: "Psychological",
-      description: "Develop mental skills in consistency, commitment, confidence, resilience, and focus. Outwill opponents to overcome skill differences and dominate on the pitch.",
+      title: t("players.corner_psychological", "Psychological"),
+      description: t("players.corner_psychological_desc", "Develop mental skills in consistency, commitment, confidence, resilience, and focus. Outwill opponents to overcome skill differences and dominate on the pitch."),
       link: "/mental",
       image: "https://static.wixstatic.com/media/c4f4b1_aed8df24614a45b29533fede6bae55c7~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/gran.jpg"
     },
     {
       icon: Lightbulb,
-      title: "Technical",
-      description: "Master your touch, be more unpredictable and finish at will. Consistently deal with difficult balls into you and find ways to open up into what you do best.",
+      title: t("players.corner_technical", "Technical"),
+      description: t("players.corner_technical_desc", "Master your touch, be more unpredictable and finish at will. Consistently deal with difficult balls into you and find ways to open up into what you do best."),
       link: "/technical",
       image: "https://static.wixstatic.com/media/c4f4b1_c627e66f4e68449590b6f4f745b91472~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/got.jpg"
     },
     {
       icon: Dumbbell,
-      title: "Physical",
-      description: "Become stronger, faster and more powerful to dominate on the pitch. Condition and develop a capacity for training to progress more quickly and reduce injuries.",
+      title: t("players.corner_physical", "Physical"),
+      description: t("players.corner_physical_desc", "Become stronger, faster and more powerful to dominate on the pitch. Condition and develop a capacity for training to progress more quickly and reduce injuries."),
       link: "/strength-power-speed",
       image: "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg/v1/fill/w_285,h_173,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Copy%20of%20We%20play%20out%20from%20the%20back%20to%20advance%20into%20the%20opposition%20half_%20We%20then%20play%20throug.jpg"
     }
@@ -325,10 +309,10 @@ const Players = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-accent/5 pointer-events-none" />
           <div className="container mx-auto relative z-10">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-white mb-2 md:mb-4">
-              How We Fuel
+              {t("players.how_we_fuel", "How We Fuel")}
             </h2>
             <p className="text-center text-accent font-bebas uppercase tracking-wider text-lg md:text-2xl mb-4 md:mb-8">
-              Football's Leading Performance Consultancy
+              {t("players.leading_consultancy", "Football's Leading Performance Consultancy")}
             </p>
             <p className="text-center text-muted-foreground text-sm md:text-base max-w-4xl mx-auto mb-8 md:mb-16">
               {BRAND_CONTENT.overview} {BRAND_CONTENT.valueProposition}
@@ -388,10 +372,10 @@ const Players = () => {
           <div className="container mx-auto text-center">
             <div className="max-w-3xl mx-auto px-4">
               <h2 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-foreground mb-3">
-                While You're Reading This, They're Training
+                {t("players.while_reading", "While You're Reading This, They're Training")}
               </h2>
               <p className="text-muted-foreground text-sm md:text-base">
-                Every moment you hesitate is a moment your competition gets ahead.
+                {t("players.while_reading_desc", "Every moment you hesitate is a moment your competition gets ahead.")}
               </p>
             </div>
           </div>
@@ -406,8 +390,8 @@ const Players = () => {
       {/* Tactical Analysis Section */}
         <ServiceSection
           id="tactical"
-          title="Tactical Analysis"
-          description="Unlock new layers to your game and rise above the competition with our analysis. Transform your decision-making and positional awareness with insights into how you can be more effective. Develop strategies by studying the opponent and individual matchups through our pre-match analysis, to gain a competitive edge. Our post-match analysis provides detailed evaluations of your performance, highlighting strengths and areas for improvement with long-term development in mind."
+          title={t("players.tactical_title", "Tactical Analysis")}
+          description={t("players.tactical_desc", "Unlock new layers to your game and rise above the competition with our analysis. Transform your decision-making and positional awareness with insights into how you can be more effective. Develop strategies by studying the opponent and individual matchups through our pre-match analysis, to gain a competitive edge. Our post-match analysis provides detailed evaluations of your performance, highlighting strengths and areas for improvement with long-term development in mind.")}
           hasTitleBackground
           products={tacticalProducts}
           dailyFuelArticle={{
@@ -423,8 +407,8 @@ const Players = () => {
         {/* Psychological Performance Section */}
         <ServiceSection
           id="psychological"
-          title="Psychological Performance"
-          description="Football is not solely about skill; the fine margins are decided by will. Our psychological services fortify your mind, empowering you to tackle challenges, manage pressure, and perform consistently at the highest level. Whether battling performance anxiety or simply boosting mental resilience, our tailored 1:1 training provides the mental edge. We test your mental skills and develop individualised sessions to enhance consistency, confidence, resilience, and focus."
+          title={t("players.psychological_title", "Psychological Performance")}
+          description={t("players.psychological_desc", "Football is not solely about skill; the fine margins are decided by will. Our psychological services fortify your mind, empowering you to tackle challenges, manage pressure, and perform consistently at the highest level. Whether battling performance anxiety or simply boosting mental resilience, our tailored 1:1 training provides the mental edge. We test your mental skills and develop individualised sessions to enhance consistency, confidence, resilience, and focus.")}
           hasTitleBackground
           products={psychologicalProducts}
           dailyFuelArticle={{
@@ -441,8 +425,8 @@ const Players = () => {
         {/* Technical Section */}
         <ServiceSection
           id="technical"
-          title="Technical"
-          description="Control the ball. Control the game. Technical aspects are the cornerstone of a player's ability to perform in matches. Ball mastery can mean the difference between a missed opportunity and a spectacular goal. Our tailored technical training services hone your ball manipulation, enabling precise passes, dribbling at speed, escaping pressure and accurate execution. Our evidence-based approaches refine your technical abilities through structured training and programming."
+          title={t("players.technical_title", "Technical")}
+          description={t("players.technical_desc", "Control the ball. Control the game. Technical aspects are the cornerstone of a player's ability to perform in matches. Ball mastery can mean the difference between a missed opportunity and a spectacular goal. Our tailored technical training services hone your ball manipulation, enabling precise passes, dribbling at speed, escaping pressure and accurate execution. Our evidence-based approaches refine your technical abilities through structured training and programming.")}
           hasTitleBackground
           products={technicalProducts}
           dailyFuelArticle={{
@@ -458,8 +442,8 @@ const Players = () => {
         {/* Strength, Power & Speed Section */}
         <ServiceSection
           id="sps"
-          title="Strength, Power & Speed"
-          description="Strength, power, and speed are vital in modern football. Our mission is to develop players physically with the best training for their individual needs. Our tailored sessions push you to new limits, expanding your capacity for training, in turn reducing injury risk, and maximising on-pitch impact. Through our individualised programming, we provide close 1:1 support with each session, whether delivered in-person or performed from afar, to make fast adjustments and retain good form."
+          title={t("players.sps_title", "Strength, Power & Speed")}
+          description={t("players.sps_desc", "Strength, power, and speed are vital in modern football. Our mission is to develop players physically with the best training for their individual needs. Our tailored sessions push you to new limits, expanding your capacity for training, in turn reducing injury risk, and maximising on-pitch impact. Through our individualised programming, we provide close 1:1 support with each session, whether delivered in-person or performed from afar, to make fast adjustments and retain good form.")}
           hasTitleBackground
           products={spsProducts}
           dailyFuelArticle={{
@@ -476,8 +460,8 @@ const Players = () => {
         {/* Conditioning Section */}
         <ServiceSection
           id="conditioning"
-          title="Conditioning"
-          description="Building your capacity to cover every blade of grass. Top conditioning is essential, often deciding the victor in the latter stages of games. A well-conditioned player maintains pace, power, and precision when others fade. Our services ensure peak performance from start to finish, by extending capacity and workload tolerance. We tailor training to your individual needs, position and energy systems, building an engine that outperforms opponents."
+          title={t("players.conditioning_title", "Conditioning")}
+          description={t("players.conditioning_desc", "Building your capacity to cover every blade of grass. Top conditioning is essential, often deciding the victor in the latter stages of games. A well-conditioned player maintains pace, power, and precision when others fade. Our services ensure peak performance from start to finish, by extending capacity and workload tolerance. We tailor training to your individual needs, position and energy systems, building an engine that outperforms opponents.")}
           hasTitleBackground
           products={conditioningProducts}
           dailyFuelArticle={{
@@ -493,8 +477,8 @@ const Players = () => {
         {/* Nutrition Section */}
         <ServiceSection
           id="nutrition"
-          title="Nutrition"
-          description="To unlock your full potential on the pitch, nutrition is key. Our bespoke services ensure you get the most out of every training session and match. Whether optimising match day preparation, changing body composition, or improving health, our plans help you achieve your goals. Our expertise removes the guesswork through tried and trusted strategies. Personalised programs ensure optimal nutrition for peak performance and long-term development, with daily 1:1 support from our team nutritionist."
+          title={t("players.nutrition_title", "Nutrition")}
+          description={t("players.nutrition_desc", "To unlock your full potential on the pitch, nutrition is key. Our bespoke services ensure you get the most out of every training session and match. Whether optimising match day preparation, changing body composition, or improving health, our plans help you achieve your goals. Our expertise removes the guesswork through tried and trusted strategies. Personalised programs ensure optimal nutrition for peak performance and long-term development, with daily 1:1 support from our team nutritionist.")}
           hasTitleBackground
           products={nutritionProducts}
           dailyFuelArticle={{
@@ -511,8 +495,8 @@ const Players = () => {
         {/* Data-Driven Section */}
         <ServiceSection
           id="data"
-          title="Data-Driven"
-          description="We comprehensively analyse the performance statistics clubs use to evaluate and recruit players. Through this, we highlight your strengths in transfer reports that increase club interest and maximise on the value of the contracts you negotiate. Our efficiency reports also enhance on-pitch performance with a greater focus on how you are viewed by scouts. The reports are a data-backed evaluation of your performance compared to your team, league, and impact on games."
+          title={t("players.data_title", "Data-Driven")}
+          description={t("players.data_desc", "We comprehensively analyse the performance statistics clubs use to evaluate and recruit players. Through this, we highlight your strengths in transfer reports that increase club interest and maximise on the value of the contracts you negotiate. Our efficiency reports also enhance on-pitch performance with a greater focus on how you are viewed by scouts. The reports are a data-backed evaluation of your performance compared to your team, league, and impact on games.")}
           hasTitleBackground
           products={dataProducts}
           dailyFuelArticle={{
@@ -529,10 +513,10 @@ const Players = () => {
         <section className="py-8 md:py-12 bg-primary/5">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-4">
-              Not Sure What Will Make The Greatest Impact?
+              {t("players.cta_title", "Not Sure What Will Make The Greatest Impact?")}
             </h2>
             <p className="text-center text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto mb-8">
-              Consider a <strong>Consultation</strong>, which runs like any good doctor's appointment. We discuss your game and get into the intricacies of your situation, to be able to provide a strong understanding of what to do and a comprehensive plan of action. Equally, our <strong>Player Efficiency Report</strong> can give a direct view on how you can improve in line with what clubs scout and make recruitment decisions based on.
+              {t("players.cta_desc", "Consider a Consultation, which runs like any good doctor's appointment. We discuss your game and get into the intricacies of your situation, to be able to provide a strong understanding of what to do and a comprehensive plan of action. Equally, our Player Efficiency Report can give a direct view on how you can improve in line with what clubs scout and make recruitment decisions based on.")}
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 max-w-2xl mx-auto">
@@ -547,7 +531,7 @@ const Players = () => {
                     }}
                   />
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Book a Consultation
+                    {t("players.book_consultation", "Book a Consultation")}
                     <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
                   </span>
                 </Button>
@@ -563,7 +547,7 @@ const Players = () => {
                     }}
                   />
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Performance Efficiency Report
+                    {t("players.efficiency_report", "Performance Efficiency Report")}
                     <ExternalLink className="w-4 h-4 md:w-5 md:h-5" />
                   </span>
                 </Button>
