@@ -91,7 +91,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
             {t("header.portal", "Portal")}
           </Link>
         </div>
-        </div>
+      </div>
       </div>
 
       {/* Center Section - Static Player Image */}
