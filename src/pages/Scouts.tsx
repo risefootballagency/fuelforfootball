@@ -279,7 +279,7 @@ const Scouts = () => {
                           <span className="text-sm font-semibold">Tactical Understanding</span>
                         </div>
                         
-                        <h3 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                        <h3 className="text-4xl md:text-5xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
                           Tactical Schemes
                         </h3>
                         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
