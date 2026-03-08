@@ -568,13 +568,13 @@ export const RadialMenu = () => {
 
   // Role selection menu items
   const roleMenuItems: MenuItem[] = [
-    { to: "/players", labelKey: "roles.players", fallback: "PLAYER", Icon: Users, angle: 0 },
-    { to: "/clubs", labelKey: "roles.clubs", fallback: "CLUB", Icon: Trophy, angle: 51.4 },
-    { to: "/scouts", labelKey: "roles.scouts", fallback: "SCOUT", Icon: Search, angle: 102.8 },
-    { to: "/agents", labelKey: "roles.agents", fallback: "AGENT", Icon: Briefcase, angle: 154.3 },
-    { to: "/coaches", labelKey: "roles.coaches", fallback: "COACH", Icon: Target, angle: 205.7 },
-    { to: "/media", labelKey: "roles.media", fallback: "MEDIA", Icon: Newspaper, angle: 257.1 },
-    { to: "/business", labelKey: "roles.business", fallback: "BUSINESS", Icon: Package, angle: 308.5 },
+    { to: "/players", labelKey: "roles.players", fallback: "PLAYER", Icon: Users, angle: 0, quadrantCard: { position: getQuadrantPositionForAngle(0), component: PerformanceQuadrantCard } },
+    { to: "/clubs", labelKey: "roles.clubs", fallback: "CLUB", Icon: Trophy, angle: 51.4, quadrantCard: { position: getQuadrantPositionForAngle(51.4), component: ClubSupportQuadrantCard } },
+    { to: "/scouts", labelKey: "roles.scouts", fallback: "SCOUT", Icon: Search, angle: 102.8, quadrantCard: { position: getQuadrantPositionForAngle(102.8), component: ScoutingQuadrantCard } },
+    { to: "/agents", labelKey: "roles.agents", fallback: "AGENT", Icon: Briefcase, angle: 154.3, quadrantCard: { position: getQuadrantPositionForAngle(154.3), component: ContactQuadrantCard } },
+    { to: "/coaches", labelKey: "roles.coaches", fallback: "COACH", Icon: Target, angle: 205.7, quadrantCard: { position: getQuadrantPositionForAngle(205.7), component: PerformanceQuadrantCard } },
+    { to: "/media", labelKey: "roles.media", fallback: "MEDIA", Icon: Newspaper, angle: 257.1, quadrantCard: { position: getQuadrantPositionForAngle(257.1), component: InsightsQuadrantCard } },
+    { to: "/business", labelKey: "roles.business", fallback: "BUSINESS", Icon: Package, angle: 308.5, quadrantCard: { position: getQuadrantPositionForAngle(308.5), component: PackagesQuadrantCard } },
   ];
 
   // Select menu based on current role or selection mode
@@ -705,9 +705,9 @@ export const RadialMenu = () => {
           aria-label="Close menu"
         >
           <div className="relative w-12 h-12 flex items-center justify-center">
-            <div className="absolute inset-0 bg-primary/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out" />
-            <div className="absolute inset-0 bg-primary/10 rounded-full scale-0 group-hover:scale-150 transition-transform duration-700 ease-out" />
-            <X className="h-8 w-8 text-white relative z-10 transition-all duration-300 group-hover:text-primary group-hover:rotate-90" />
+            <div className="absolute inset-0 bg-accent/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out" />
+            <div className="absolute inset-0 bg-accent/10 rounded-full scale-0 group-hover:scale-150 transition-transform duration-700 ease-out" />
+            <X className="h-8 w-8 text-white relative z-10 transition-all duration-300 group-hover:text-accent group-hover:rotate-90" />
           </div>
         </button>
       </DrawerClose>
@@ -762,7 +762,7 @@ export const RadialMenu = () => {
                   A ${circleSize / 2.2} ${circleSize / 2.2} 0 0 1 ${circleSize / 2 + (circleSize / 2.2) * Math.cos(((endAngle) * Math.PI) / 180)} ${circleSize / 2 + (circleSize / 2.2) * Math.sin(((endAngle) * Math.PI) / 180)}
                   Z
                 `}
-                fill={hovered ? "hsl(120, 40%, 12%)" : "rgba(128,128,128,0.1)"}
+                fill={hovered ? "hsl(var(--accent) / 0.2)" : "hsl(var(--foreground) / 0.08)"}
                 className="transition-colors duration-200 cursor-pointer"
                 style={{ pointerEvents: 'auto' }}
                 onMouseEnter={() => setHoveredItem(index)}
@@ -860,7 +860,7 @@ export const RadialMenu = () => {
                     {item.subItems!.map((subItem, subIndex) => (
                       <button
                         key={subItem.to}
-                        className="pointer-events-auto px-3 py-1 bg-black/60 hover:bg-primary text-white hover:text-black font-bebas tracking-wider text-xs md:text-sm transition-all duration-200 rounded animate-[fade-in_0.2s_ease-out_both] whitespace-nowrap"
+                        className="pointer-events-auto px-3 py-1 bg-black/60 hover:bg-accent text-white hover:text-black font-bebas tracking-wider text-xs md:text-sm transition-all duration-200 rounded animate-[fade-in_0.2s_ease-out_both] whitespace-nowrap"
                         style={{ animationDelay: `${subIndex * 0.05}s` }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -876,7 +876,7 @@ export const RadialMenu = () => {
                       </button>
                     ))}
                     <button
-                      className="pointer-events-auto mt-1 text-xs text-white/60 hover:text-primary font-bebas tracking-wider transition-colors"
+                      className="pointer-events-auto mt-1 text-xs text-white/60 hover:text-accent font-bebas tracking-wider transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedCategory(null);
@@ -1057,11 +1057,10 @@ export const RadialMenu = () => {
         const menuRadius = circleSize / 2;
 
         const edgePadding = 24;
-        const menuPadding = 32;
 
-        // Base content size (fixed)
-        const maxWidth = 320;
-        const maxHeight = 220;
+        // Adaptive content size to prevent clipping/overflow
+        const maxWidth = Math.min(Math.max(vw * 0.3, 280), 420);
+        const maxHeight = Math.min(Math.max(vh * 0.3, 210), 300);
 
         // Debug logging removed for production
 
@@ -1096,8 +1095,9 @@ export const RadialMenu = () => {
               className="absolute"
               style={{
                 width: maxWidth,
-                height: maxHeight,
-                overflow: 'hidden',
+                minHeight: maxHeight,
+                display: 'flex',
+                alignItems: 'stretch',
                 ...(card.position === 'top-right' || card.position === 'bottom-right'
                   ? { right: edgePadding + overlayOffsetX }
                   : { left: edgePadding + overlayOffsetX }),
