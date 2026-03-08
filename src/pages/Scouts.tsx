@@ -448,7 +448,7 @@ const Scouts = () => {
               <div className="relative bg-card rounded-2xl border-2 border-border overflow-hidden">
                 <ScoutingNetworkMap />
               </div>
-              <p className="text-center text-sm text-primary mt-4 font-bebas uppercase tracking-wider">
+              <p className="text-center text-sm text-accent mt-4 font-bebas uppercase tracking-wider">
                 Be part of something bigger. Join the network.
               </p>
             </div>
