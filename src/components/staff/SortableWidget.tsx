@@ -210,7 +210,7 @@ export const SortableWidget = ({
               e.stopPropagation();
               onToggleExpand();
             }}
-            className="h-6 w-6 p-0 hover:bg-primary/10 relative z-20"
+            className="h-6 w-6 p-0 hover:bg-accent/10 relative z-20"
           >
             <Maximize2 className="h-3 w-3 text-title-text/70" />
           </Button>
