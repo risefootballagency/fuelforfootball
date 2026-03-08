@@ -147,7 +147,7 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
               />
               <StatCard
                 title="Total Expenses"
-                value={`£${paymentSummary.expenses.toLocaleString()}`}
+                value={paymentSummary.expenses > 0 ? `£${paymentSummary.expenses.toLocaleString()}` : '—'}
                 icon={TrendingDown}
                 color="text-destructive"
               />
