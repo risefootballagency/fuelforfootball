@@ -297,7 +297,7 @@ const Scouts = () => {
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {["4-3-3", "4-4-2", "3-5-2", "4-2-3-1"].map(formation => (
-                              <Badge key={formation} variant="secondary" className="bg-primary/20 border-primary/30">
+                              <Badge key={formation} variant="secondary" className="bg-accent/20 border-accent/30">
                                 {formation}
                               </Badge>
                             ))}
