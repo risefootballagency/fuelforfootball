@@ -105,7 +105,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
       {/* Bottom Section - Navigation */}
       <div className="absolute bottom-0 left-0 right-0 z-20 pb-8 md:pb-12">
         {/* Desktop Navigation */}
-        <div className="hidden md:flex flex-col items-center gap-6">
+        <div className="hidden md:flex flex-col items-center gap-4">
           <div className="flex items-center justify-center gap-1">
               {navLinks.map((link, index) => (
               <div key={link.to} className="flex items-center">
@@ -119,6 +119,10 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
               </div>
             ))}
           </div>
+
+          <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-bebas">
+            {t("landing.select_role_enter", "Select Your Role To Enter Site")}
+          </p>
 
           <div className="flex items-center gap-4">
             <Button
@@ -141,31 +145,10 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
           <div className="flex justify-center">
             <LanguageMapSelector />
           </div>
-          <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-bebas">
-            {t("landing.select_role_enter", "Select Your Role To Enter Site")}
-          </p>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden flex flex-col items-center gap-4 px-4">
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => navigateToRole("/players/daily-fuel")}
-              variant="outline"
-              size="sm"
-              className="font-bebas uppercase tracking-wider border-accent/50 text-accent hover:bg-accent/10 text-xs px-3 h-7"
-            >
-              {t("landing.daily_fuel", "Daily Fuel")}
-            </Button>
-            <Button
-              onClick={() => navigateToRole("/players/services")}
-              size="sm"
-              className="btn-shine font-bebas uppercase tracking-wider text-xs px-3 h-7"
-            >
-              {t("landing.services", "Services")}
-            </Button>
-          </div>
-
+        <div className="md:hidden flex flex-col items-center gap-3 px-4">
           <div className="flex items-center justify-center">
             <div className="flex items-center gap-1">
               {mobileNavLinks.slice(0, 3).map((link, index) => (
@@ -198,13 +181,32 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
             </div>
           </div>
 
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bebas text-center">
+            {t("landing.select_role_enter", "Select Your Role To Enter Site")}
+          </p>
+
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => navigateToRole("/players/daily-fuel")}
+              variant="outline"
+              size="sm"
+              className="font-bebas uppercase tracking-wider border-accent/50 text-accent hover:bg-accent/10 text-xs px-3 h-7"
+            >
+              {t("landing.daily_fuel", "Daily Fuel")}
+            </Button>
+            <Button
+              onClick={() => navigateToRole("/players/services")}
+              size="sm"
+              className="btn-shine font-bebas uppercase tracking-wider text-xs px-3 h-7"
+            >
+              {t("landing.services", "Services")}
+            </Button>
+          </div>
+
           {/* Language Selector centered */}
           <div className="flex justify-center w-full">
             <LanguageMapSelector />
           </div>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bebas mt-2 text-center">
-            {t("landing.select_role_enter", "Select Your Role To Enter Site")}
-          </p>
         </div>
       </div>
 
