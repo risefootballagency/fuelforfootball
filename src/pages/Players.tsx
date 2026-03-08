@@ -390,8 +390,8 @@ const Players = () => {
       {/* Tactical Analysis Section */}
         <ServiceSection
           id="tactical"
-          title="Tactical Analysis"
-          description="Unlock new layers to your game and rise above the competition with our analysis. Transform your decision-making and positional awareness with insights into how you can be more effective. Develop strategies by studying the opponent and individual matchups through our pre-match analysis, to gain a competitive edge. Our post-match analysis provides detailed evaluations of your performance, highlighting strengths and areas for improvement with long-term development in mind."
+          title={t("players.tactical_title", "Tactical Analysis")}
+          description={t("players.tactical_desc", "Unlock new layers to your game and rise above the competition with our analysis. Transform your decision-making and positional awareness with insights into how you can be more effective. Develop strategies by studying the opponent and individual matchups through our pre-match analysis, to gain a competitive edge. Our post-match analysis provides detailed evaluations of your performance, highlighting strengths and areas for improvement with long-term development in mind.")}
           hasTitleBackground
           products={tacticalProducts}
           dailyFuelArticle={{
