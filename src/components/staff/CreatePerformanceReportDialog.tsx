@@ -1057,6 +1057,8 @@ export const CreatePerformanceReportDialog = ({
       toast.error("Failed to load performance report data");
     } finally {
       setLoadingData(false);
+      initialLoadDoneRef.current = true;
+      skipNextActionSyncRef.current = true;
     }
   };
 
