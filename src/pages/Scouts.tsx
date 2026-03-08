@@ -274,8 +274,8 @@ const Scouts = () => {
                     <div className="w-full max-w-6xl mx-auto">
                       <div className="border-2 border-border rounded-2xl overflow-hidden bg-card p-6 md:p-8 animate-fade-in">
                       <div className="text-center mb-8">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                          <Target className="h-4 w-4 text-primary" />
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                          <Target className="h-4 w-4 text-accent" />
                           <span className="text-sm font-semibold">Tactical Understanding</span>
                         </div>
                         
