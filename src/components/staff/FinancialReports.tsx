@@ -140,7 +140,7 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
             {/* Key Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
-                title="Total Revenue"
+                title="Received (Paid Invoices)"
                 value={`£${paymentSummary.income.toLocaleString()}`}
                 icon={TrendingUp}
                 color="text-green-500"
