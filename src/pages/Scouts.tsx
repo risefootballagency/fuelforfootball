@@ -519,7 +519,7 @@ const Scouts = () => {
                 <span className="text-sm font-semibold">{t('scouts.benefits_badge')}</span>
               </div>
               
-              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+              <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
                 {t('scouts.incentive_title')}
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-light">
