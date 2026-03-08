@@ -131,8 +131,8 @@ const Scouts = () => {
           
           <div className="flex-1 flex flex-col relative z-10">
             <div className="text-center py-8 px-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                <Target className="h-4 w-4 text-primary" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                <Target className="h-4 w-4 text-accent" />
                 <span className="text-sm font-semibold">{t('scouts.criteria_badge')}</span>
               </div>
               
