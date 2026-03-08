@@ -352,8 +352,8 @@ const Scouts = () => {
           
           <div className="container mx-auto relative z-10">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/20 mb-3">
-                <Database className="h-4 w-4 text-primary" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/20 mb-3">
+                <Database className="h-4 w-4 text-accent" />
                 <span className="text-sm font-semibold">{t('scouts.tech_badge')}</span>
               </div>
               
