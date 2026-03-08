@@ -9,6 +9,8 @@ import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { Brain, Shuffle, ChevronLeft, ChevronRight, RotateCcw, Target, Lightbulb, BookOpen, Eye, Zap, Map, Clock, Star, CheckCircle2, TrendingUp, BarChart3, Filter, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface CognisanceSectionProps {
   playerId: string;
