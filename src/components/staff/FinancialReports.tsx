@@ -39,33 +39,39 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
       // Fetch invoices
       const { data: invoices } = await supabase
         .from('invoices')
-        .select('amount, status, due_date');
+        .select('amount, amount_paid, status, due_date');
 
-      if (invoices) {
-        const today = new Date();
+      const today = new Date();
+      if (invoices && invoices.length > 0) {
         const summary: InvoiceSummary = {
           total: invoices.reduce((sum, inv) => sum + Number(inv.amount), 0),
-          paid: invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + Number(inv.amount), 0),
-          pending: invoices.filter(inv => inv.status === 'pending').reduce((sum, inv) => sum + Number(inv.amount), 0),
-          overdue: invoices.filter(inv => inv.status === 'pending' && new Date(inv.due_date) < today).reduce((sum, inv) => sum + Number(inv.amount), 0)
+          paid: invoices.reduce((sum, inv) => sum + Number(inv.amount_paid || 0), 0),
+          pending: invoices.filter(inv => inv.status !== 'paid').reduce((sum, inv) => sum + (Number(inv.amount) - Number(inv.amount_paid || 0)), 0),
+          overdue: invoices.filter(inv => inv.status === 'pending' && new Date(inv.due_date) < today).reduce((sum, inv) => sum + (Number(inv.amount) - Number(inv.amount_paid || 0)), 0)
         };
         setInvoiceSummary(summary);
       }
 
-      // Fetch payments
+      // Income = paid invoices + any incoming payments
+      // Expenses = expenses table totals
       const { data: payments } = await supabase
         .from('payments')
         .select('amount, type');
 
-      if (payments) {
-        const income = payments.filter(p => p.type === 'in').reduce((sum, p) => sum + Number(p.amount), 0);
-        const expenses = payments.filter(p => p.type === 'out').reduce((sum, p) => sum + Number(p.amount), 0);
-        setPaymentSummary({
-          income,
-          expenses,
-          net: income - expenses
-        });
-      }
+      const { data: expensesData } = await (supabase.from('expenses' as any).select('amount') as any);
+
+      const paymentIncome = (payments || []).filter(p => p.type === 'in').reduce((sum, p) => sum + Number(p.amount), 0);
+      const invoiceIncome = (invoices || []).reduce((sum, inv) => sum + Number(inv.amount_paid || 0), 0);
+      const totalIncome = paymentIncome + invoiceIncome;
+
+      const paymentExpenses = (payments || []).filter(p => p.type === 'out').reduce((sum, p) => sum + Number(p.amount), 0);
+      const totalExpenses = paymentExpenses + ((expensesData as any[]) || []).reduce((sum: number, e: any) => sum + Number(e.amount), 0);
+
+      setPaymentSummary({
+        income: totalIncome,
+        expenses: totalExpenses,
+        net: totalIncome - totalExpenses
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {

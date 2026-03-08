@@ -27,6 +27,7 @@ import { ProductivityInsightsWidget } from "./widgets/ProductivityInsightsWidget
 import { QuickLinksWidget } from "./widgets/QuickLinksWidget";
 import { DocsWidget } from "./widgets/DocsWidget";
 import { SheetsWidget } from "./widgets/SheetsWidget";
+import { FinancialOverviewWidget } from "./widgets/FinancialOverviewWidget";
 
 interface Goal {
   id: string;
