@@ -28,6 +28,7 @@ import { AnalysisManagement } from "@/components/staff/AnalysisManagement";
 import { VideoAnalysis } from "@/components/staff/coaching/VideoAnalysis";
 import { AnnotationProjects } from "@/components/staff/annotations/AnnotationProjects";
 import { HighlightCompiler } from "@/components/staff/HighlightCompiler";
+import { AiShellSuggestions } from "@/components/staff/AiShellSuggestions";
 
 interface Player {
   id: string;
