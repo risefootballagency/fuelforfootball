@@ -52,6 +52,7 @@ interface Props {
 }
 
 export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) => {
+  const lang = usePortalLanguage();
   const [comparisonPlayers, setComparisonPlayers] = useState<ComparisonPlayer[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [formWindow, setFormWindow] = useState<number>(5);
