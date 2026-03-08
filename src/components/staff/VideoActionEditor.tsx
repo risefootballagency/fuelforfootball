@@ -219,7 +219,7 @@ export const VideoActionEditor = ({
         {/* Compact editing fields */}
         <div className="bg-card border-t border-border/30 px-3 md:px-4 py-2 md:py-2.5 shrink-0">
           <div className="space-y-1.5 md:space-y-2 max-w-5xl mx-auto">
-            {/* Row 1: Action #, Minute, Type, Score */}
+            {/* Row 1: Action #, Minute, Type, Score — stacks better on mobile */}
             <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
               <span className="text-xs md:text-sm font-bold text-primary shrink-0">
                 #{current.action_number}
@@ -312,7 +312,7 @@ export const VideoActionEditor = ({
               </div>
             </div>
 
-            {/* Row 2: Description + Notes */}
+            {/* Row 2: Description + Notes — stack on mobile */}
             <div className="flex flex-col md:flex-row items-start gap-1.5 md:gap-3">
               <div className="relative w-full md:flex-1">
                 <Input
