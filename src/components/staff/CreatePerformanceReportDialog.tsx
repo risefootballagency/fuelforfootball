@@ -452,7 +452,7 @@ export const CreatePerformanceReportDialog = ({
         // Create mode
         setIsEditMode(false);
         resetForm();
-        fetchPreviousReportStats();
+        fetchPreviousFixtureStats();
       }
       fetchFixtures();
       fetchPlayerClub();
