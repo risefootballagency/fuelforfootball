@@ -250,7 +250,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                   <button
                     type="button"
                     onClick={handleConfirm}
-                    className="w-full px-6 py-3 bg-primary text-black font-bebas uppercase tracking-wider text-lg rounded hover:bg-primary/90 transition-colors"
+                    className="w-full px-6 py-3 bg-accent text-black font-bebas uppercase tracking-wider text-lg rounded hover:bg-accent/90 transition-colors"
                   >
                     {pendingLangData.enterText} - {pendingLangData.nativeName}
                   </button>
