@@ -432,6 +432,9 @@ export const CreatePerformanceReportDialog = ({
     }
   };
 
+  const initialLoadDoneRef = useRef(false);
+  const skipNextActionSyncRef = useRef(false);
+
   useEffect(() => {
     // In inline mode, always load; in dialog mode, only when open
     if ((inline || open) && playerId) {
@@ -440,13 +443,16 @@ export const CreatePerformanceReportDialog = ({
       fetchAllR90Ratings(); // Fetch all R90 ratings once for local filtering
       fetchPreviousFixtureStats();
       if (analysisId) {
-        // Edit mode
+        // Edit mode - reset guards before fetching
+        initialLoadDoneRef.current = false;
+        skipNextActionSyncRef.current = false;
         setIsEditMode(true);
         fetchExistingData();
       } else {
         // Create mode
         setIsEditMode(false);
         resetForm();
+        fetchPreviousFixtureStats();
       }
       fetchFixtures();
       fetchPlayerClub();
@@ -542,6 +548,16 @@ export const CreatePerformanceReportDialog = ({
 
   // Sync unified stats when actions change (from recorded stats)
   useEffect(() => {
+    // Guard: skip during initial edit-mode load to prevent overwriting saved stats
+    if (isEditMode && !initialLoadDoneRef.current) return;
+    // Guard: skip while data is actively loading
+    if (loadingData) return;
+    // Skip the first sync after edit-mode load completes (actions were just populated from DB)
+    if (skipNextActionSyncRef.current) {
+      skipNextActionSyncRef.current = false;
+      return;
+    }
+
     const actionRecordedStats = aggregateRecordedStats(actions);
     const minutes = parseInt(minutesPlayed) || 0;
     
@@ -747,7 +763,8 @@ export const CreatePerformanceReportDialog = ({
 
   const fetchExistingData = async () => {
     if (!analysisId) return;
-    
+    initialLoadDoneRef.current = false;
+    skipNextActionSyncRef.current = false;
     setLoadingData(true);
     try {
       // Fetch analysis data
@@ -1040,6 +1057,8 @@ export const CreatePerformanceReportDialog = ({
       toast.error("Failed to load performance report data");
     } finally {
       setLoadingData(false);
+      initialLoadDoneRef.current = true;
+      skipNextActionSyncRef.current = true;
     }
   };
 

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pause, Play, SkipForward, Music } from "lucide-react";
+import { Pause, Play, SkipForward, Music, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 
 interface MusicTrack {
   url: string;
@@ -23,6 +23,7 @@ export const StaffMusicPlayer = () => {
   const hudTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const volume = useRef(0.3);
   const failedUrls = useRef<Set<string>>(new Set());
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Fetch all player tracks
   useEffect(() => {
@@ -34,13 +35,14 @@ export const StaffMusicPlayer = () => {
 
       if (!data) return;
 
+      // Also fetch player names
       const playerIds = data.map(d => d.player_id);
       const { data: players } = await supabase
-        .from("players" as any)
+        .from("players")
         .select("id, name")
         .in("id", playerIds);
 
-      const nameMap = new Map((players as any[])?.map((p: any) => [p.id, p.name]) || []);
+      const nameMap = new Map(players?.map(p => [p.id, p.name]) || []);
 
       const allTracks: MusicTrack[] = [];
       for (const row of data) {
@@ -70,17 +72,19 @@ export const StaffMusicPlayer = () => {
     hudTimer.current = setTimeout(() => setShowHUD(false), 5000);
   }, []);
 
-  const ensureAudio = useCallback(() => {
+  const playTrack = useCallback((index: number) => {
+    if (validTracks.length === 0) return;
     if (!audioRef.current) {
       audioRef.current = new Audio();
       audioRef.current.preload = "auto";
+      audioRef.current.addEventListener("ended", () => {
+        window.dispatchEvent(new Event("staff-music-ended"));
+      });
+      audioRef.current.addEventListener("error", () => {
+        window.dispatchEvent(new Event("staff-music-error"));
+      });
     }
-    return audioRef.current;
-  }, []);
-
-  const playTrack = useCallback((index: number) => {
-    if (validTracks.length === 0) return;
-    const audio = ensureAudio();
+    const audio = audioRef.current;
     const track = validTracks[index % validTracks.length];
     if (!track) return;
     audio.src = track.url;
@@ -99,7 +103,7 @@ export const StaffMusicPlayer = () => {
         if (validTracks.length > 1) playTrack((index + 1) % validTracks.length);
       }
     });
-  }, [validTracks, flashHUD, ensureAudio]);
+  }, [validTracks, flashHUD]);
 
   const handleSkip = useCallback(() => {
     if (validTracks.length === 0) return;
@@ -107,37 +111,57 @@ export const StaffMusicPlayer = () => {
   }, [currentIndex, validTracks.length, playTrack]);
 
   const handlePlayPause = useCallback(() => {
-    const audio = ensureAudio();
-    if (isPlaying) {
-      audio.pause();
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
       setIsPlaying(false);
     } else if (currentTrack) {
-      audio.volume = volume.current;
-      if (!audio.src || audio.src !== currentTrack.url) {
-        audio.src = currentTrack.url;
-        audio.load();
+      if (!audioRef.current) {
+        playTrack(currentIndex);
+        return;
       }
-      audio.play().then(() => {
+      audioRef.current.volume = volume.current;
+      if (!audioRef.current.src || audioRef.current.src !== currentTrack.url) {
+        audioRef.current.src = currentTrack.url;
+        audioRef.current.load();
+      }
+      audioRef.current.play().then(() => {
         setIsPlaying(true);
         flashHUD();
       }).catch(() => {});
     } else if (validTracks.length > 0) {
       playTrack(0);
     }
-  }, [isPlaying, currentTrack, flashHUD, validTracks.length, playTrack, ensureAudio]);
+  }, [isPlaying, currentTrack, currentIndex, flashHUD, validTracks.length, playTrack]);
 
-  const handleEnded = useCallback(() => {
-    if (validTracks.length > 1) handleSkip();
-    else if (validTracks.length === 1) playTrack(0);
-  }, [validTracks.length, handleSkip, playTrack]);
-
-  const handleError = useCallback(() => {
-    if (currentTrack) {
-      failedUrls.current.add(currentTrack.url);
-      if (validTracks.length > 1) handleSkip();
-      else setIsPlaying(false);
-    }
-  }, [currentTrack, validTracks.length, handleSkip]);
+  // Handle ended/error via custom events (since Audio is created programmatically)
+  useEffect(() => {
+    const onEnded = () => {
+      if (validTracks.length > 1) {
+        const next = (currentIndex + 1) % validTracks.length;
+        playTrack(next);
+      } else if (validTracks.length === 1) {
+        playTrack(0);
+      }
+    };
+    const onError = () => {
+      const track = validTracks[currentIndex % validTracks.length];
+      if (track) {
+        failedUrls.current.add(track.url);
+        if (validTracks.length > 1) {
+          const next = (currentIndex + 1) % validTracks.length;
+          playTrack(next);
+        } else {
+          setIsPlaying(false);
+        }
+      }
+    };
+    window.addEventListener("staff-music-ended", onEnded);
+    window.addEventListener("staff-music-error", onError);
+    return () => {
+      window.removeEventListener("staff-music-ended", onEnded);
+      window.removeEventListener("staff-music-error", onError);
+    };
+  }, [currentIndex, validTracks, playTrack]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -154,13 +178,6 @@ export const StaffMusicPlayer = () => {
 
   return (
     <>
-      <audio
-        ref={audioRef}
-        onEnded={handleEnded}
-        onError={handleError}
-        preload="auto"
-        style={{ display: "none" }}
-      />
 
       {/* Header controls */}
       <div className="flex items-center gap-0.5">
@@ -215,7 +232,7 @@ export const StaffMusicPlayer = () => {
                 >
                   <div className="absolute top-0 left-0 right-0 h-[2px]"
                     style={{
-                      background: "linear-gradient(90deg, transparent 5%, hsl(200 100% 50%) 30%, hsl(var(--accent)) 70%, transparent 95%)",
+                      background: "linear-gradient(90deg, transparent 5%, hsl(200 100% 50%) 30%, hsl(43 49% 61%) 70%, transparent 95%)",
                     }}
                   />
                   <div className="flex items-center gap-2 mb-1.5">
@@ -223,7 +240,8 @@ export const StaffMusicPlayer = () => {
                       {[0, 1, 2, 3, 4].map((i) => (
                         <motion.div
                           key={i}
-                          className="w-[2px] rounded-sm bg-accent"
+                          className="w-[2px] rounded-sm"
+                          style={{ backgroundColor: "hsl(43 49% 61%)" }}
                           animate={
                             isPlaying
                               ? { height: ["3px", `${6 + i * 3}px`, "3px"] }
@@ -237,7 +255,10 @@ export const StaffMusicPlayer = () => {
                         />
                       ))}
                     </div>
-                    <span className="text-[10px] font-bebas tracking-[0.3em] uppercase text-accent">
+                    <span
+                      className="text-[10px] font-bebas tracking-[0.3em] uppercase"
+                      style={{ color: "hsl(43 49% 61%)" }}
+                    >
                       Now Playing
                     </span>
                   </div>
@@ -250,14 +271,15 @@ export const StaffMusicPlayer = () => {
                     </p>
                   )}
                   <motion.div
-                    className="h-[1px] mt-2 rounded-full bg-accent/30"
+                    className="h-[1px] mt-2 rounded-full"
+                    style={{ backgroundColor: "hsl(43 49% 61% / 0.3)" }}
                     initial={{ scaleX: 0, originX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ duration: 4.5, ease: "linear" }}
                   />
                   <div className="absolute bottom-0 left-0 right-0 h-[1px]"
                     style={{
-                      background: "linear-gradient(90deg, transparent 5%, hsl(var(--accent) / 0.4) 50%, transparent 95%)",
+                      background: "linear-gradient(90deg, transparent 5%, hsl(43 49% 61% / 0.4) 50%, transparent 95%)",
                     }}
                   />
                 </div>
@@ -265,7 +287,7 @@ export const StaffMusicPlayer = () => {
               <div
                 className="absolute top-0 left-0 w-[3px] h-full"
                 style={{
-                  background: "linear-gradient(180deg, hsl(200 100% 50%), hsl(var(--accent)))",
+                  background: "linear-gradient(180deg, hsl(200 100% 50%), hsl(43 49% 61%))",
                   clipPath: "polygon(0 5%, 100% 0%, 100% 100%, 0 95%)",
                 }}
               />
@@ -274,5 +296,22 @@ export const StaffMusicPlayer = () => {
         )}
       </AnimatePresence>
     </>
+  );
+};
+
+/**
+ * Small settings button for the footer — opens the music settings popover.
+ */
+export const StaffMusicSettingsButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-9 w-9 shrink-0 hidden md:flex"
+      onClick={onClick}
+      title="Music settings"
+    >
+      <Music className="h-4 w-4 text-muted-foreground" />
+    </Button>
   );
 };

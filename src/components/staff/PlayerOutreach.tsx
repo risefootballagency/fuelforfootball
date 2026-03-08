@@ -7,12 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Edit, Users, Save } from "lucide-react";
+import { Plus, Edit, Users, Save, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TransfermarktScraper } from "./TransfermarktScraper";
 
 interface YouthOutreach {
   id: string;
@@ -39,6 +40,7 @@ interface ProOutreach {
 
 export const PlayerOutreach = ({ isAdmin }: { isAdmin: boolean }) => {
   const [activeTab, setActiveTab] = useState("youth");
+  const [scraperVisible, setScraperVisible] = useState(false);
   const [youthData, setYouthData] = useState<YouthOutreach[]>([]);
   const [proData, setProData] = useState<ProOutreach[]>([]);
   const [loading, setLoading] = useState(true);
@@ -588,6 +590,19 @@ export const PlayerOutreach = ({ isAdmin }: { isAdmin: boolean }) => {
           <Users className="h-5 w-5 sm:h-6 sm:w-6" />
           Player Outreach
         </h2>
+        <div className="flex items-center gap-2">
+          {!scraperVisible && (
+            <Button variant="outline" size="sm" onClick={() => setScraperVisible(true)} className="shrink-0">
+              <Search className="h-4 w-4 mr-2" />
+              Transfermarkt Scraper
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <TransfermarktScraper visible={scraperVisible} onClose={() => setScraperVisible(false)} />
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         {canEdit && (
           <div className="flex gap-2 w-full sm:w-auto">
             {hasUnsavedChanges && (
