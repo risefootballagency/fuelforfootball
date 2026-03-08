@@ -214,7 +214,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
             </div>
 
             {/* Mobile-only language list */}
-            <div className="md:hidden flex-1 overflow-y-auto border-t border-primary/20">
+            <div className="md:hidden flex-1 overflow-y-auto border-t border-accent/20">
               <div className="grid grid-cols-2 gap-1 p-3">
                 {languageRegions.map((region) => {
                   const isPending = pendingLanguage === region.code;
