@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LanguageMapSelector } from "@/components/LanguageMapSelector";
-import { LanguageSelector } from "@/components/LanguageSelector";
+import { HoverText } from "@/components/HoverText";
 import { HoverText } from "@/components/HoverText";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { RepresentationDialog } from "@/components/RepresentationDialog";
