@@ -300,7 +300,8 @@ const Players = () => {
         description="Fuel For Football is Football's leading performance consultancy. We work with Premier League and Football League players, offering strength, speed, power development, psychological performance sessions and game analysis."
         url="/players"
       />
-   <main className="pt-20 md:pt-28">
+      <Header />
+      <main className="pt-20 md:pt-28">
         {/* Video Hero Banner - Full width at top */}
         <VideoHeroBanner 
           videoSrc="/videos/players-hero.mp4"
