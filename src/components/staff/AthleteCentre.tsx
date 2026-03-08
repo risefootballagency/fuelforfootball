@@ -86,7 +86,7 @@ const MATCH_FLOW_SECTIONS = [
 ];
 
 const MatchFlowTab = ({ selectedPlayer, currentPlayer }: { selectedPlayer: string | null; currentPlayer: Player | null }) => {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ fixtures: true });
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [inlineReport, setInlineReport] = useState<InlineReportState | null>(null);
 
   const toggleSection = (id: string) => {
