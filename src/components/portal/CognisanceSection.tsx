@@ -933,11 +933,11 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
 
             {selectedGame === "concepts" && (
               <div className="space-y-1">
-                <Label className="text-xs">Select Concept</Label>
+                <Label className="text-xs">{t(lang, "select_concept")}</Label>
                 <Select value={selectedConceptFilter} onValueChange={setSelectedConceptFilter}>
-                  <SelectTrigger><SelectValue placeholder="All concepts" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t(lang, "all_concepts")} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Concepts</SelectItem>
+                    <SelectItem value="all">{t(lang, "all_concepts")}</SelectItem>
                     {concepts.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
                   </SelectContent>
                 </Select>
