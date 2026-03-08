@@ -590,6 +590,19 @@ export const PlayerOutreach = ({ isAdmin }: { isAdmin: boolean }) => {
           <Users className="h-5 w-5 sm:h-6 sm:w-6" />
           Player Outreach
         </h2>
+        <div className="flex items-center gap-2">
+          {!scraperVisible && (
+            <Button variant="outline" size="sm" onClick={() => setScraperVisible(true)} className="shrink-0">
+              <Search className="h-4 w-4 mr-2" />
+              Transfermarkt Scraper
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <TransfermarktScraper visible={scraperVisible} onClose={() => setScraperVisible(false)} />
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         {canEdit && (
           <div className="flex gap-2 w-full sm:w-auto">
             {hasUnsavedChanges && (
