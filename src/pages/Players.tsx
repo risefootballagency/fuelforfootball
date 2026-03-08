@@ -138,7 +138,7 @@ const ServiceSection = ({
           </Link>
         </div>
       ) : (
-        <Link to={learnMoreLink} className="block mb-12 md:mb-16 hover:opacity-80 transition-opacity">
+        <Link to={learnMoreLink} className="block mb-3 md:mb-16 hover:opacity-80 transition-opacity">
           <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground">
             <HoverText text={title} />
           </h2>
