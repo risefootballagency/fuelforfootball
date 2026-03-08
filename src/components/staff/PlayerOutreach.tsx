@@ -40,6 +40,7 @@ interface ProOutreach {
 
 export const PlayerOutreach = ({ isAdmin }: { isAdmin: boolean }) => {
   const [activeTab, setActiveTab] = useState("youth");
+  const [scraperVisible, setScraperVisible] = useState(false);
   const [youthData, setYouthData] = useState<YouthOutreach[]>([]);
   const [proData, setProData] = useState<ProOutreach[]>([]);
   const [loading, setLoading] = useState(true);
