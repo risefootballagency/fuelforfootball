@@ -407,8 +407,8 @@ const Players = () => {
         {/* Psychological Performance Section */}
         <ServiceSection
           id="psychological"
-          title="Psychological Performance"
-          description="Football is not solely about skill; the fine margins are decided by will. Our psychological services fortify your mind, empowering you to tackle challenges, manage pressure, and perform consistently at the highest level. Whether battling performance anxiety or simply boosting mental resilience, our tailored 1:1 training provides the mental edge. We test your mental skills and develop individualised sessions to enhance consistency, confidence, resilience, and focus."
+          title={t("players.psychological_title", "Psychological Performance")}
+          description={t("players.psychological_desc", "Football is not solely about skill; the fine margins are decided by will. Our psychological services fortify your mind, empowering you to tackle challenges, manage pressure, and perform consistently at the highest level. Whether battling performance anxiety or simply boosting mental resilience, our tailored 1:1 training provides the mental edge. We test your mental skills and develop individualised sessions to enhance consistency, confidence, resilience, and focus.")}
           hasTitleBackground
           products={psychologicalProducts}
           dailyFuelArticle={{
