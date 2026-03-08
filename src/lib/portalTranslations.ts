@@ -803,6 +803,21 @@ const plExtended: Record<string, string> = {
   your_progress: "Twój Postęp", vs_3_months_ago: "vs 3 miesiące temu",
   team_formation: "Formacja Drużyny", opposition_formation: "Formacja Rywala",
   all_concepts: "Wszystkie Koncepcje", select_concept: "Wybierz Koncepcję", select_analysis: "Wybierz Analizę",
+  tactical_schemes: "Schematy Taktyczne", concepts_label: "Koncepcje", pre_match_analysis: "Analiza Przedmeczowa",
+  positional_guides: "Przewodniki Pozycyjne", ai_quiz: "Quiz AI",
+  instant_payment: "Płatność natychmiastowa", quick_secure: "Szybko i bezpiecznie", debit_or_credit: "Karta debetowa lub kredytowa",
+  uk_domestic: "Przelew UK", iban_swift: "IBAN i SWIFT", bank_transfer: "Przelew Bankowy", international: "Międzynarodowy",
+  card_label: "Karta",
+  select_payment_method: "Wybierz powyżej metodę płatności, aby kontynuować.",
+  copied: "Skopiowano", account_name: "Nazwa Konta", sort_code: "Kod Sortowania", account_number: "Numer Konta",
+  payment_reference_note: "Prosimy użyć swojego nazwiska i numeru faktury jako referencji płatności.",
+  welcome_intro: "To Twoje osobiste centrum wszystkiego, co dotyczy Twojego rozwoju.",
+  welcome_waiting: "Masz już czekające treści!",
+  welcome_view_performance: "Zobacz Raporty Wydajności", welcome_view_analysis: "Zobacz Analizę",
+  welcome_cta: "Rozumiem, zaczynamy!",
+  welcome_perf_reports: "Raporty Wydajności", welcome_analysis: "Analiza", welcome_form: "Forma i Porównania",
+  welcome_clips: "Klipy i Najlepsze Momenty", welcome_programmes: "Programy",
+  next_track: "Następny utwór", unknown_track: "Nieznany Utwór",
 };
 Object.entries(plExtended).forEach(([key, val]) => {
   if (translations.pl) translations.pl[key] = val;
