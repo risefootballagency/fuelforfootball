@@ -176,7 +176,7 @@ const Scouts = () => {
                             onClick={() => setSelectedPosition(position)}
                             className={`py-4 px-2 font-bebas uppercase tracking-wider text-sm md:text-base transition-all border-r border-border last:border-r-0 ${
                               selectedPosition === position
-                                ? "bg-primary/10 text-primary"
+                                ? "bg-accent/10 text-accent"
                                 : "hover:bg-muted/50"
                             }`}
                           >
