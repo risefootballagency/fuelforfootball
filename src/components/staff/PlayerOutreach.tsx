@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TransfermarktScraper } from "./TransfermarktScraper";
 
 interface YouthOutreach {
   id: string;
