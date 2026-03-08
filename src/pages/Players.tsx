@@ -495,8 +495,8 @@ const Players = () => {
         {/* Data-Driven Section */}
         <ServiceSection
           id="data"
-          title="Data-Driven"
-          description="We comprehensively analyse the performance statistics clubs use to evaluate and recruit players. Through this, we highlight your strengths in transfer reports that increase club interest and maximise on the value of the contracts you negotiate. Our efficiency reports also enhance on-pitch performance with a greater focus on how you are viewed by scouts. The reports are a data-backed evaluation of your performance compared to your team, league, and impact on games."
+          title={t("players.data_title", "Data-Driven")}
+          description={t("players.data_desc", "We comprehensively analyse the performance statistics clubs use to evaluate and recruit players. Through this, we highlight your strengths in transfer reports that increase club interest and maximise on the value of the contracts you negotiate. Our efficiency reports also enhance on-pitch performance with a greater focus on how you are viewed by scouts. The reports are a data-backed evaluation of your performance compared to your team, league, and impact on games.")}
           hasTitleBackground
           products={dataProducts}
           dailyFuelArticle={{
