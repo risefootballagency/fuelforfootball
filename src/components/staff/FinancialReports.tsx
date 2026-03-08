@@ -196,17 +196,23 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Money In</span>
-                    <span className="font-medium text-green-500">+£{paymentSummary.income.toLocaleString()}</span>
+                    <span className="text-muted-foreground">Money In (Paid Invoices)</span>
+                    <span className="font-medium text-green-500">
+                      {paymentSummary.income > 0 ? `+£${paymentSummary.income.toLocaleString()}` : '£0'}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Money Out</span>
-                    <span className="font-medium text-destructive">-£{paymentSummary.expenses.toLocaleString()}</span>
+                    <span className="text-muted-foreground">Money Out (Expenses)</span>
+                    <span className="font-medium text-destructive">
+                      {paymentSummary.expenses > 0 ? `-£${paymentSummary.expenses.toLocaleString()}` : '£0'}
+                    </span>
                   </div>
                   <div className="pt-2 border-t flex justify-between items-center">
                     <span className="font-medium">Net Cash Flow</span>
                     <span className={`font-bold ${paymentSummary.net >= 0 ? 'text-green-500' : 'text-destructive'}`}>
-                      {paymentSummary.net >= 0 ? '+' : ''}£{paymentSummary.net.toLocaleString()}
+                      {paymentSummary.income > 0 || paymentSummary.expenses > 0
+                        ? `${paymentSummary.net >= 0 ? '+' : ''}£${paymentSummary.net.toLocaleString()}`
+                        : '£0'}
                     </span>
                   </div>
                 </CardContent>
