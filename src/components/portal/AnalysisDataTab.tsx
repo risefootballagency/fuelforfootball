@@ -129,7 +129,59 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
       .map(sd => ({ metric: sd.label, value: seasonAverages[sd.key] }));
   }, [seasonAverages]);
 
-  const handleStartEdit = (analysisId: string, metricKey: string, currentValue: number | null) => {
+  const last40AnalysisIds = useMemo(() => {
+    return [...analyses]
+      .sort((a, b) => b.analysis_date.localeCompare(a.analysis_date))
+      .slice(0, 40)
+      .map(a => a.id);
+  }, [analyses]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSeasonZoneActions = async () => {
+      if (last40AnalysisIds.length === 0) {
+        if (isMounted) setSeasonZoneActions([]);
+        return;
+      }
+
+      setSeasonZoneLoading(true);
+
+      const { data, error } = await sharedSupabase
+        .from("performance_report_actions")
+        .select("action_score, zone, zone_details")
+        .in("analysis_id", last40AnalysisIds);
+
+      if (!isMounted) return;
+
+      if (error) {
+        console.error("Error fetching season zone data:", error);
+        setSeasonZoneActions([]);
+        setSeasonZoneLoading(false);
+        return;
+      }
+
+      const parsedActions = (data || [])
+        .filter((a: any) => typeof a?.action_score === "number")
+        .filter((a: any) => a?.zone != null || (Array.isArray(a?.zone_details) && a.zone_details.length > 0))
+        .map((a: any, index: number) => ({
+          action_number: index + 1,
+          action_score: Number(a.action_score),
+          zone: a.zone ?? null,
+          zone_details: Array.isArray(a.zone_details) ? a.zone_details : null,
+        }));
+
+      setSeasonZoneActions(parsedActions);
+      setSeasonZoneLoading(false);
+    };
+
+    void fetchSeasonZoneActions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [last40AnalysisIds]);
+
     setEditingCell({ analysisId, metricKey });
     setEditValue(currentValue != null ? String(currentValue) : "");
   };
