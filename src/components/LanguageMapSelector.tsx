@@ -96,7 +96,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
       <button 
         type="button"
         onClick={() => handleOpenChange(true)}
-        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-primary transition-all duration-300 focus:outline-none cursor-pointer"
+        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-accentransition-all duration-300 focus:outline-none cursor-pointer"
       >
         <img src={getFlagUrl(selectedLanguage.flagCode)} alt={selectedLanguage.name} className="w-[24px] h-auto rounded-sm" />
       </button>
@@ -112,7 +112,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
           
           {/* Content */}
           <div 
-            className="relative bg-black/95 border border-primary/30 max-w-4xl w-full mx-4 overflow-hidden rounded-lg z-[9999] flex flex-col"
+            className="relative bg-black/95 border border-paaccent max-w-4xl w-full mx-4 overflow-hidden rounded-lg z-[9999] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -157,7 +157,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                   >
                     {/* Pulse animation for pending selection */}
                     {isPending && (
-                      <span className="absolute inset-0 -m-2 rounded-full bg-primary/30 animate-ping" />
+                      <span className="absolute inset-0 -m-2 rounded-full bg-praccent0 animate-ping" />
                     )}
                     
                     {/* Marker dot */}
@@ -167,10 +167,10 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                         w-8 h-8 md:w-12 md:h-12 rounded-full
                         transition-all duration-300 cursor-pointer
                         ${isPending 
-                          ? 'bg-primary text-black scale-110 shadow-lg shadow-primary/50' 
+                          ? 'bg-accent text-black scale-110 shadow-lg shadow-accent/50' 
                           : isHovered 
-                            ? 'bg-primary/80 text-black scale-105' 
-                            : 'bg-black/80 border-2 border-primary/50 text-white hover:bg-primary/20'
+                            ? 'bg-accent/80 text-black scale-105' 
+                            : 'bg-black/80 border-2 border-accent/50 text-white hover:bg-accent/20'
                         }
                       `}
                     >
@@ -182,7 +182,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
               
               {/* Title */}
               <div className="absolute top-4 left-0 right-0 text-center">
-                <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-[0.3em] text-primary">
+                <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-[0.3em] text-accent">
                   Select Language
                 </h3>
                 <p className="text-xs text-white/50 font-bebas tracking-wider mt-1 hidden md:block">
@@ -197,7 +197,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                     <button
                       type="button"
                       onClick={handleConfirm}
-                      className="px-6 py-2 bg-primary text-black font-bebas uppercase tracking-wider text-lg rounded hover:bg-primary/90 transition-colors"
+                      className="px-6 py-2 bg-accent text-black font-bebas uppercase tracking-wider text-lg rounded hover:bg-accent/90 transition-colors"
                     >
                       {pendingLangData.enterText}
                     </button>
@@ -214,7 +214,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
             </div>
 
             {/* Mobile-only language list */}
-            <div className="md:hidden flex-1 overflow-y-auto border-t border-primary/20">
+            <div className="md:hidden flex-1 overflow-y-auto border-t border-accent/20">
               <div className="grid grid-cols-2 gap-1 p-3">
                 {languageRegions.map((region) => {
                   const isPending = pendingLanguage === region.code;
@@ -226,7 +226,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                       className={`
                         flex items-center gap-2 px-3 py-2 rounded transition-all
                         ${isPending 
-                          ? 'bg-primary text-black' 
+                          ? 'bg-accent text-black' 
                           : 'bg-white/5 text-white/80 hover:bg-white/10'
                         }
                       `}
@@ -250,7 +250,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                   <button
                     type="button"
                     onClick={handleConfirm}
-                    className="w-full px-6 py-3 bg-primary text-black font-bebas uppercase tracking-wider text-lg rounded hover:bg-primary/90 transition-colors"
+                    className="w-full px-6 py-3 bg-accent text-black font-bebas uppercase tracking-wider text-lg rounded hover:bg-accent/90 transition-colors"
                   >
                     {pendingLangData.enterText} - {pendingLangData.nativeName}
                   </button>
