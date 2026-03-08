@@ -65,6 +65,42 @@ const extendedKeys: Record<string, string> = {
   // CognisanceSection
   team_formation: "Team Formation", opposition_formation: "Opposition Formation",
   all_concepts: "All Concepts", select_concept: "Select Concept", select_analysis: "Select Analysis",
+  tactical_schemes: "Tactical Schemes", concepts_label: "Concepts", pre_match_analysis: "Pre-Match Analysis",
+  positional_guides: "Positional Guides", ai_quiz: "AI Quiz",
+  // PortalPaymentMethods
+  instant_payment: "Instant payment", quick_secure: "Quick & secure", debit_or_credit: "Debit or Credit",
+  uk_domestic: "UK domestic", iban_swift: "IBAN & SWIFT", bank_transfer: "Bank Transfer", international: "International",
+  card_label: "Card",
+  pay_instantly_revolut: "Pay instantly via Revolut — fast, free, and secure.",
+  pay_with_revolut: "Pay with Revolut", pay_securely_paypal: "Pay securely via PayPal — no account required.",
+  pay_with_paypal: "Pay with PayPal", pay_by_card_desc: "Pay by debit or credit card via our secure Stripe checkout.",
+  card_unit_note: "£1 per unit — adjust quantity at checkout to match your invoice amount.",
+  pay_by_card: "Pay by Card",
+  uk_bank_transfer_to: "UK bank transfer to Fuel For Football Limited.",
+  international_transfer_to: "International transfer to Fuel For Football Limited.",
+  account_name: "Account Name", sort_code: "Sort Code", account_number: "Account Number",
+  payment_reference_note: "Please use your name and invoice number as the payment reference.",
+  select_payment_method: "Select a payment method above to continue.",
+  copied: "Copied",
+  // PortalWelcomeModal
+  welcome_intro: "This is your personal hub for everything related to your development. Here's a quick overview of what you can access:",
+  welcome_waiting: "You already have content waiting for you!",
+  welcome_view_performance: "View Performance Reports",
+  welcome_view_analysis: "View Analysis",
+  welcome_cta: "Got it, let's go",
+  welcome_perf_reports: "Performance Reports",
+  welcome_perf_reports_desc: "Match-by-match breakdown of your actions, R90 scores, and coaching feedback. Each report highlights what you did well and where to improve.",
+  welcome_analysis: "Analysis",
+  welcome_analysis_desc: "Pre-match and post-match tactical analysis prepared by your coaching team. Review team shape, key matchups, and tactical points.",
+  welcome_form: "Form & Comparisons",
+  welcome_form_desc: "Track your form over time with R90 trend graphs. See how your metrics compare across different matches and periods.",
+  welcome_clips: "Clips & Highlights",
+  welcome_clips_desc: "Watch your match clips and highlight reels. Upload your own clips or view ones selected by the coaching team.",
+  welcome_programmes: "Programmes",
+  welcome_programmes_desc: "Access your training programmes, gym sessions, nutrition plans, and weekly schedules all in one place.",
+  // PortalMusicControls
+  next_track: "Next track",
+  unknown_track: "Unknown Track",
 };
 
 const translations: Record<string, Record<string, string>> = {
