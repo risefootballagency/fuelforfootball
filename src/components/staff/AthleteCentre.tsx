@@ -115,6 +115,15 @@ const MatchFlowTab = ({ selectedPlayer, currentPlayer }: { selectedPlayer: strin
         Work through each stage of match preparation and review without switching tabs.
       </p>
 
+      <AiShellSuggestions
+        section="athlete_centre"
+        playerId={selectedPlayer}
+        playerName={currentPlayer?.name}
+        onAccept={(shell) => {
+          setOpenSections(prev => ({ ...prev, reports: true }));
+        }}
+      />
+
       {MATCH_FLOW_SECTIONS.map((section, idx) => (
         <Collapsible
           key={section.id}
