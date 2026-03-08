@@ -119,13 +119,13 @@ const ServiceSection = ({
   reverse?: boolean;
   hasTitleBackground?: boolean;
 }) => (
-  <section id={id} className="md:pt-16 md:pb-10 bg-card/30 py-4 md:py-0">
+  <section id={id} className="md:pt-16 md:pb-10 bg-card/30 py-2 md:py-0 snap-start">
     <div className="container mx-auto">
       {hasTitleBackground ? (
-        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-12 md:mb-16">
+        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-3 md:mb-16">
           <Link 
             to={learnMoreLink}
-            className="block w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8 overflow-hidden border-y-4 border-accent cursor-pointer hover:opacity-90 transition-opacity"
+            className="block w-screen relative left-1/2 -translate-x-1/2 py-3 md:py-8 overflow-hidden border-y-4 border-accent cursor-pointer hover:opacity-90 transition-opacity"
             style={{
               backgroundImage: `url('/grass-bg-smoky.png')`,
               backgroundSize: 'cover',
