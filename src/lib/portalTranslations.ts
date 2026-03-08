@@ -947,6 +947,21 @@ const ruExtended: Record<string, string> = {
   your_progress: "Ваш Прогресс", vs_3_months_ago: "vs 3 месяца назад",
   team_formation: "Расстановка Команды", opposition_formation: "Расстановка Соперника",
   all_concepts: "Все Концепции", select_concept: "Выбрать Концепцию", select_analysis: "Выбрать Анализ",
+  tactical_schemes: "Тактические Схемы", concepts_label: "Концепции", pre_match_analysis: "Предматчевый Анализ",
+  positional_guides: "Позиционные Руководства", ai_quiz: "AI Викторина",
+  instant_payment: "Мгновенный платёж", quick_secure: "Быстро и безопасно", debit_or_credit: "Дебетовая или кредитная",
+  uk_domestic: "Перевод UK", iban_swift: "IBAN и SWIFT", bank_transfer: "Банковский Перевод", international: "Международный",
+  card_label: "Карта",
+  select_payment_method: "Выберите способ оплаты выше для продолжения.",
+  copied: "Скопировано", account_name: "Владелец Счёта", sort_code: "Код Сортировки", account_number: "Номер Счёта",
+  payment_reference_note: "Используйте своё имя и номер счёта как ссылку на платёж.",
+  welcome_intro: "Это ваш личный центр для всего, что связано с вашим развитием.",
+  welcome_waiting: "Вас уже ждёт контент!",
+  welcome_view_performance: "Смотреть Отчёты", welcome_view_analysis: "Смотреть Анализ",
+  welcome_cta: "Понятно, поехали!",
+  welcome_perf_reports: "Отчёты о Производительности", welcome_analysis: "Анализ", welcome_form: "Форма и Сравнения",
+  welcome_clips: "Клипы и Лучшие Моменты", welcome_programmes: "Программы",
+  next_track: "Следующий трек", unknown_track: "Неизвестный Трек",
 };
 Object.entries(ruExtended).forEach(([key, val]) => {
   if (translations.ru) translations.ru[key] = val;
