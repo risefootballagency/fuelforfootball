@@ -105,7 +105,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
       {/* Bottom Section - Navigation */}
       <div className="absolute bottom-0 left-0 right-0 z-20 pb-8 md:pb-12">
         {/* Desktop Navigation */}
-        <div className="hidden md:flex flex-col items-center gap-6">
+        <div className="hidden md:flex flex-col items-center gap-4">
           <div className="flex items-center justify-center gap-1">
               {navLinks.map((link, index) => (
               <div key={link.to} className="flex items-center">
@@ -119,6 +119,10 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
               </div>
             ))}
           </div>
+
+          <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-bebas">
+            {t("landing.select_role_enter", "Select Your Role To Enter Site")}
+          </p>
 
           <div className="flex items-center gap-4">
             <Button
@@ -141,9 +145,6 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
           <div className="flex justify-center">
             <LanguageMapSelector />
           </div>
-          <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-bebas">
-            {t("landing.select_role_enter", "Select Your Role To Enter Site")}
-          </p>
         </div>
 
         {/* Mobile Navigation */}
