@@ -90,7 +90,7 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
           <Link to="/portal" className="text-[hsl(var(--mint)/0.55)] hover:text-accent transition-colors uppercase tracking-wider font-bebas">
             {t("header.portal", "Portal")}
           </Link>
-          <LanguageSelector />
+        </div>
         </div>
       </div>
 
