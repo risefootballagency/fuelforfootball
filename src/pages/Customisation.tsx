@@ -644,7 +644,7 @@ const Customisation = () => {
                       size="lg"
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      Add Monthly Package
+                      {t("custom.add_package", "Add Monthly Package")}
                     </Button>
                   </>
                 )}
