@@ -763,7 +763,8 @@ export const CreatePerformanceReportDialog = ({
 
   const fetchExistingData = async () => {
     if (!analysisId) return;
-    
+    initialLoadDoneRef.current = false;
+    skipNextActionSyncRef.current = false;
     setLoadingData(true);
     try {
       // Fetch analysis data
