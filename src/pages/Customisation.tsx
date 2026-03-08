@@ -592,7 +592,7 @@ const Customisation = () => {
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-bebas text-2xl uppercase tracking-wider">Summary</h2>
+                  <h2 className="font-bebas text-2xl uppercase tracking-wider">{t("custom.summary", "Summary")}</h2>
                   <button onClick={() => setShowSummary(false)}>
                     <X className="w-6 h-6" />
                   </button>
