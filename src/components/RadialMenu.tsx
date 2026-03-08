@@ -1057,11 +1057,10 @@ export const RadialMenu = () => {
         const menuRadius = circleSize / 2;
 
         const edgePadding = 24;
-        const menuPadding = 32;
 
-        // Base content size (fixed)
-        const maxWidth = 320;
-        const maxHeight = 220;
+        // Adaptive content size to prevent clipping/overflow
+        const maxWidth = Math.min(Math.max(vw * 0.3, 280), 420);
+        const maxHeight = Math.min(Math.max(vh * 0.3, 210), 300);
 
         // Debug logging removed for production
 
