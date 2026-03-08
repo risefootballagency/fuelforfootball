@@ -534,9 +534,9 @@ const Customisation = () => {
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/90 to-transparent p-6">
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Your Package</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">{t("custom.your_package", "Your Package")}</p>
                       <p className="font-bebas text-2xl uppercase tracking-wider">
-                        {selectedServices.size} {selectedServices.size === 1 ? 'Service' : 'Services'}
+                        {selectedServices.size} {selectedServices.size === 1 ? t("custom.service", "Service") : t("custom.services", "Services")}
                       </p>
                     </div>
                     <div className="text-right">
