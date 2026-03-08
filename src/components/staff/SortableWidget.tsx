@@ -186,18 +186,18 @@ export const SortableWidget = ({
       )}
     >
       <Card className="h-full flex flex-col border-border/50 bg-card/50 backdrop-blur-sm hover:border-accent/30 hover:shadow-lg relative overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-accent/20 px-3 py-2 bg-[hsl(140,30%,12%)]">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-fff-gold/20 px-3 py-2 bg-primary">
           <div className="flex items-center gap-2">
             {/* Drag handle */}
             <div
               {...attributes}
               {...listeners}
-              className="p-1 rounded cursor-grab hover:bg-accent/10 active:cursor-grabbing"
+              className="p-1 rounded cursor-grab hover:bg-fff-gold/10 active:cursor-grabbing"
             >
               <GripVertical className="w-3.5 h-3.5 text-title-text/70" />
             </div>
-            <div className="p-1.5 rounded bg-accent/10 border border-accent/20">
-              <Icon className="w-3.5 h-3.5 text-accent" />
+            <div className="p-1.5 rounded bg-fff-gold/10 border border-fff-gold/20">
+              <Icon className="w-3.5 h-3.5 text-fff-gold" />
             </div>
             <CardTitle className="text-xs font-semibold tracking-tight uppercase text-title-text drop-shadow-sm">
               {title}
