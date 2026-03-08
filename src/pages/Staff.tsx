@@ -864,21 +864,16 @@ const Staff = () => {
                 >
                   <TabIcon className="w-3 h-3 shrink-0" />
                   <span className="truncate max-w-[80px]">{tab.title}</span>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        className="opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 p-0.5 rounded-full hover:bg-background/30"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <X className="w-2.5 h-2.5" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-2" side="bottom">
-                      <Button size="sm" variant="destructive" onClick={() => removeTab(tab.id)}>
-                        Remove tab
-                      </Button>
-                    </PopoverContent>
-                  </Popover>
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 p-0.5 rounded-full hover:bg-background/30"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeTab(tab.id);
+                    }}
+                    aria-label={`Close ${tab.title} tab`}
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </button>
                 </div>
               );
             })}
