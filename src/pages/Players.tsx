@@ -145,7 +145,7 @@ const ServiceSection = ({
         </Link>
       )}
       
-      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-stretch ${reverse ? 'lg:flex-row-reverse' : ''}`}>
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-12 items-stretch ${reverse ? 'lg:flex-row-reverse' : ''}`}>
         {/* Products Carousel */}
         <div className={`h-full ${reverse ? 'lg:order-2' : ''}`}>
           <ServiceCarousel products={products} />
