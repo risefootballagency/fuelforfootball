@@ -294,7 +294,10 @@ const Players = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background       description="Fuel For Football is Football's leading performance consultancy. We work with Premier League and Football League players, offering strength, speed, power development, psychological performance sessions and game analysis."
+    <div className="min-h-screen bg-background">
+      <SEO 
+        title="Players - Football Performance Services | Fuel For Football"
+        description="Fuel For Football is Football's leading performance consultancy. We work with Premier League and Football League players, offering strength, speed, power development, psychological performance sessions and game analysis."
         url="/players"
       />
       <Header />
