@@ -477,8 +477,8 @@ const Players = () => {
         {/* Nutrition Section */}
         <ServiceSection
           id="nutrition"
-          title="Nutrition"
-          description="To unlock your full potential on the pitch, nutrition is key. Our bespoke services ensure you get the most out of every training session and match. Whether optimising match day preparation, changing body composition, or improving health, our plans help you achieve your goals. Our expertise removes the guesswork through tried and trusted strategies. Personalised programs ensure optimal nutrition for peak performance and long-term development, with daily 1:1 support from our team nutritionist."
+          title={t("players.nutrition_title", "Nutrition")}
+          description={t("players.nutrition_desc", "To unlock your full potential on the pitch, nutrition is key. Our bespoke services ensure you get the most out of every training session and match. Whether optimising match day preparation, changing body composition, or improving health, our plans help you achieve your goals. Our expertise removes the guesswork through tried and trusted strategies. Personalised programs ensure optimal nutrition for peak performance and long-term development, with daily 1:1 support from our team nutritionist.")}
           hasTitleBackground
           products={nutritionProducts}
           dailyFuelArticle={{
