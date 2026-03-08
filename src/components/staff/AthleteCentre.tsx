@@ -28,6 +28,7 @@ import { AnalysisManagement } from "@/components/staff/AnalysisManagement";
 import { VideoAnalysis } from "@/components/staff/coaching/VideoAnalysis";
 import { AnnotationProjects } from "@/components/staff/annotations/AnnotationProjects";
 import { HighlightCompiler } from "@/components/staff/HighlightCompiler";
+import { AiShellSuggestions } from "@/components/staff/AiShellSuggestions";
 
 interface Player {
   id: string;
@@ -86,7 +87,7 @@ const MATCH_FLOW_SECTIONS = [
 ];
 
 const MatchFlowTab = ({ selectedPlayer, currentPlayer }: { selectedPlayer: string | null; currentPlayer: Player | null }) => {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ fixtures: true });
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [inlineReport, setInlineReport] = useState<InlineReportState | null>(null);
 
   const toggleSection = (id: string) => {
@@ -113,6 +114,15 @@ const MatchFlowTab = ({ selectedPlayer, currentPlayer }: { selectedPlayer: strin
       <p className="text-sm text-muted-foreground mb-4">
         Work through each stage of match preparation and review without switching tabs.
       </p>
+
+      <AiShellSuggestions
+        section="athlete_centre"
+        playerId={selectedPlayer}
+        playerName={currentPlayer?.name}
+        onAccept={(shell) => {
+          setOpenSections(prev => ({ ...prev, reports: true }));
+        }}
+      />
 
       {MATCH_FLOW_SECTIONS.map((section, idx) => (
         <Collapsible
@@ -211,8 +221,14 @@ export const AthleteCentre = () => {
     if (!error && data) {
       setPlayers(data);
       if (data.length > 0) {
-        const firstRepresented = data.find(p => p.representation_status === 'represented');
-        setSelectedPlayer(firstRepresented?.id || data[0].id);
+        const savedPlayerId = localStorage.getItem('athleteCentre_lastPlayer');
+        const savedPlayer = savedPlayerId ? data.find(p => p.id === savedPlayerId) : null;
+        if (savedPlayer) {
+          setSelectedPlayer(savedPlayer.id);
+        } else {
+          const firstRepresented = data.find(p => p.representation_status === 'represented');
+          setSelectedPlayer(firstRepresented?.id || data[0].id);
+        }
       }
     }
     setLoading(false);
@@ -294,7 +310,7 @@ export const AthleteCentre = () => {
       {/* Player Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1">
-          <Select value={selectedPlayer || ""} onValueChange={setSelectedPlayer}>
+          <Select value={selectedPlayer || ""} onValueChange={(val) => { setSelectedPlayer(val); localStorage.setItem('athleteCentre_lastPlayer', val); }}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a player..." />
             </SelectTrigger>

@@ -1748,6 +1748,15 @@ export const CreatePerformanceReportDialog = ({
                   setFixtureStats(updatedFixture);
                 }}
                 minutesPlayed={parseInt(minutesPlayed) || 0}
+                actions={actions.map((a, i) => ({
+                  action_number: i + 1,
+                  minute: a.minute || '',
+                  action_score: a.action_score || '',
+                  action_type: a.action_type || '',
+                  action_description: a.action_description || '',
+                  notes: a.notes || '',
+                  zone: a.zone || null,
+                }))}
               />
             </CollapsibleContent>
           </Collapsible>

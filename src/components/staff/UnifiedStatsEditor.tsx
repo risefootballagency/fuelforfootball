@@ -5,7 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Plus, EyeOff, Calculator, GripVertical } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Plus, EyeOff, Calculator, GripVertical, Sparkles, Loader2 } from 'lucide-react';
+import { invokeEdgeFunction } from '@/lib/edgeFunctionHelper';
+import { toast } from 'sonner';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -29,10 +32,21 @@ export interface UnifiedStat {
   isCalculated?: boolean;
 }
 
+interface PerformanceActionForAI {
+  action_number: number;
+  minute: string;
+  action_score: string;
+  action_type: string;
+  action_description: string;
+  notes: string;
+  zone?: number | null;
+}
+
 interface UnifiedStatsEditorProps {
   stats: UnifiedStat[];
   onStatsChange: (stats: UnifiedStat[]) => void;
   minutesPlayed: number;
+  actions?: PerformanceActionForAI[];
 }
 
 const PER90_STAT_KEYS = ['xg', 'xa', 'xg_chain', 'xgchain', 'xc', 'npxg', 'xgot', 'xg_per_shot', 'r90', 'ratio'];
@@ -159,9 +173,98 @@ const SortableStatCard = ({ id, children }: { id: string; children: React.ReactN
   );
 };
 
-export const UnifiedStatsEditor = ({ stats, onStatsChange, minutesPlayed }: UnifiedStatsEditorProps) => {
+export const UnifiedStatsEditor = ({
+  stats,
+  onStatsChange,
+  minutesPlayed,
+  actions,
+}: UnifiedStatsEditorProps) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingStatKey, setEditingStatKey] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const handleSuggestWithAI = async () => {
+    if (!actions || actions.length === 0) {
+      toast.error('No performance actions to analyse');
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const { data, error } = await invokeEdgeFunction('suggest-match-stats', {
+        body: {
+          actions: actions.map(a => ({
+            action_number: a.action_number,
+            minute: a.minute,
+            action_score: a.action_score,
+            action_type: a.action_type,
+            action_description: a.action_description,
+            notes: a.notes,
+            zone: a.zone || null,
+          })),
+          statDefinitions: STAT_TYPE_CONFIGS.map(c => ({ key: c.key, name: c.name, mode: c.mode })),
+          existingStats: stats.map(s => ({ key: s.key, type: s.type, successful: s.successful, total: s.total, count: s.count, score: s.score })),
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) { toast.error(data.error); return; }
+
+      const suggestions = data?.suggestions || [];
+      if (suggestions.length === 0) {
+        toast.info('No stat suggestions found from the actions');
+        return;
+      }
+
+      const updatedStats = [...stats];
+      let addedCount = 0;
+      let updatedCount = 0;
+
+      for (const suggestion of suggestions) {
+        const config = STAT_TYPE_CONFIGS.find(c => c.key === suggestion.stat_key);
+        const displayName = config?.name || suggestion.stat_key;
+        const existingIdx = updatedStats.findIndex(s => s.key === suggestion.stat_key);
+
+        const newStat: UnifiedStat = {
+          key: suggestion.stat_key,
+          displayName,
+          type: suggestion.stat_type,
+          isFromActions: false,
+        };
+
+        if (suggestion.stat_type === 'success_fail') {
+          newStat.successful = suggestion.successful ?? 0;
+          newStat.total = suggestion.total ?? 0;
+        } else if (suggestion.stat_type === 'count') {
+          newStat.count = suggestion.count ?? 0;
+        } else if (suggestion.stat_type === 'score') {
+          newStat.score = suggestion.score ?? 0;
+          if (shouldShowPer90(suggestion.stat_key) && minutesPlayed > 0) {
+            newStat.per90 = ((newStat.score / minutesPlayed) * 90).toFixed(3);
+          }
+        }
+
+        if (existingIdx >= 0) {
+          updatedStats[existingIdx] = { ...updatedStats[existingIdx], ...newStat };
+          updatedCount++;
+        } else {
+          updatedStats.push(newStat);
+          addedCount++;
+        }
+      }
+
+      onStatsChange(updatedStats);
+      const parts = [];
+      if (addedCount) parts.push(`${addedCount} added`);
+      if (updatedCount) parts.push(`${updatedCount} updated`);
+      toast.success(`AI suggested stats: ${parts.join(', ')}`);
+    } catch (err: any) {
+      console.error('AI match stats error:', err);
+      toast.error('Failed to get AI suggestions');
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -279,6 +382,23 @@ export const UnifiedStatsEditor = ({ stats, onStatsChange, minutesPlayed }: Unif
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <Label className="text-sm font-semibold">Match Statistics</Label>
+        <div className="flex items-center gap-2">
+          {actions && actions.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSuggestWithAI}
+              disabled={aiLoading}
+              className="h-7 gap-1.5"
+            >
+              {aiLoading ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Sparkles className="w-3 h-3" />
+              )}
+              {aiLoading ? 'Analysing...' : 'Suggest with AI'}
+            </Button>
+          )}
         <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) { resetNewStatForm(); setEditingStatKey(null); } }}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm" className="h-7"><Plus className="h-3 w-3 mr-1" />Add Stat</Button>
@@ -347,6 +467,7 @@ export const UnifiedStatsEditor = ({ stats, onStatsChange, minutesPlayed }: Unif
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {stats.length === 0 ? (
