@@ -75,10 +75,12 @@ const Login = () => {
     setLoading(true);
 
     try {
+      const normalizedLogin = email.toLowerCase().trim();
+
       const { data: player, error: playerError } = await supabase
         .from("players")
         .select("id, email, name")
-        .eq("email", email)
+        .ilike("email", normalizedLogin)
         .maybeSingle();
 
       if (playerError) throw playerError;
