@@ -15,6 +15,7 @@ interface ZonePitchSelectorProps {
   onChange: (zones: ZonePoint[]) => void;
   actionType?: string; // to detect pass actions
   compact?: boolean;
+  popoverClassName?: string;
 }
 
 // Major zone layout: 3 columns x 6 rows, bottom-left is zone 1
