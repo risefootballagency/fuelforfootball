@@ -26,27 +26,25 @@ export const SimpleQuadrantCard = ({
 
   return (
     <div
-      className="animate-[fade-in_0.3s_ease-out_forwards] w-full h-full"
+      className="animate-[fade-in_0.3s_ease-out_forwards] w-full h-full px-3 py-2 flex flex-col justify-center"
       style={{
         maxWidth: maxWidth ?? undefined,
-        minHeight: maxHeight ?? undefined,
+        maxHeight: maxHeight ?? undefined,
       }}
     >
-      <div className="w-full h-full rounded-xl border border-accent/35 bg-background/70 backdrop-blur-sm px-4 py-3 flex flex-col justify-center">
-        <div className={`flex flex-col gap-2 ${alignment}`}>
-          <div className="inline-flex items-center gap-2 bg-accent px-3 py-1 rounded-sm">
-            <div className="text-black">{icon}</div>
-            <span className="text-xs font-bebas uppercase tracking-wider text-black">{title}</span>
-          </div>
-
-          {stat && (
-            <div className="text-4xl font-bebas text-accent leading-none">{stat}</div>
-          )}
-
-          <p className="text-white/85 text-xs md:text-sm leading-snug break-words">
-            {description}
-          </p>
+      <div className={`flex flex-col gap-1.5 ${alignment}`}>
+        <div className="inline-flex items-center gap-1.5 bg-accent/90 px-2.5 py-0.5 rounded-sm">
+          <div className="text-black">{icon}</div>
+          <span className="text-[11px] font-bebas uppercase tracking-wider text-black">{title}</span>
         </div>
+
+        {stat && (
+          <div className="text-3xl font-bebas text-accent leading-none">{stat}</div>
+        )}
+
+        <p className="text-white/80 text-[11px] leading-snug break-words max-w-[220px]">
+          {description}
+        </p>
       </div>
     </div>
   );
