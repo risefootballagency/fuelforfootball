@@ -220,12 +220,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         
         const data = allData;
 
-        if (error) {
-          console.error('Error fetching translations:', error);
-          // Still mark as loaded to prevent infinite loading
-          setTranslationsLoaded(true);
-          return;
-        }
 
         const column = languageColumns[language];
         console.log('[Translation] Using column:', column, 'for language:', language);
