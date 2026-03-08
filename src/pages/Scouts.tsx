@@ -422,7 +422,7 @@ const Scouts = () => {
 
         {/* European Coverage Section */}
         <section className="py-10 md:py-16 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/10 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-accent/10 to-background" />
           
           <div className="container mx-auto relative z-10">
             <div className="text-center mb-8">
