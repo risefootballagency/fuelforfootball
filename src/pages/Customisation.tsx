@@ -66,6 +66,7 @@ const getDiscountPercent = (itemCount: number): number => {
 };
 
 const Customisation = () => {
+  const { t } = useLanguage();
   const { addItem } = useCart();
   const [services, setServices] = useState<ServiceOption[]>([]);
   const [loading, setLoading] = useState(true);
