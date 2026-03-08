@@ -14,6 +14,7 @@ import europeMap from "@/assets/europe-outline.gif";
 import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Star } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { SimpleQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
+import { calculateContentPlacement } from "@/lib/wedgeGeometry";
 
 export type QuadrantPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
