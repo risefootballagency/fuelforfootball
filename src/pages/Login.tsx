@@ -120,7 +120,7 @@ const Login = () => {
       const { data: scout, error: scoutError } = await supabase
         .from("scouts")
         .select("id, email")
-        .eq("email", email)
+        .ilike("email", normalizedLogin)
         .maybeSingle();
 
       if (scoutError) throw scoutError;
