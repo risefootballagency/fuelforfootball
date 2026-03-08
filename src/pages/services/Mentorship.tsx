@@ -83,8 +83,8 @@ const Mentorship = () => {
 
   return (
     <ServicePageLayout
-      category="MENTORSHIP"
-      title="GUIDANCE FOR SUCCESS"
+      category={t("mentorship.category", "MENTORSHIP")}
+      title={t("mentorship.hero_title", "GUIDANCE FOR SUCCESS")}
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
       statsPageKey="mentorship"
