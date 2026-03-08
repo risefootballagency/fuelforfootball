@@ -355,7 +355,7 @@ const Customisation = () => {
               className="flex items-center gap-2 mt-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors justify-center"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Services</span>
+              <span>{t("custom.back_services", "Back to Services")}</span>
             </LocalizedLink>
           </div>
         </aside>
