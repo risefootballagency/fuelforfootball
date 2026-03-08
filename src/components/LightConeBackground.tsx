@@ -215,7 +215,7 @@ export const LightConeBackground = () => {
             cx="50" 
             cy="50" 
             r="2"
-            fill="hsl(var(--primary))"
+            fill="hsl(var(--accent))"
             opacity="0.9"
             filter="url(#coneGlow)"
           />
