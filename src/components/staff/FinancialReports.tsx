@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendingUp, TrendingDown, DollarSign, FileText, Download, Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 
 interface InvoiceSummary {
