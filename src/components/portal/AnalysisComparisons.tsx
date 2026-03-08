@@ -185,20 +185,20 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
 
       {/* Searchable player picker */}
       <div>
-        <p className="text-sm font-medium mb-2">Compare with ({playerPosition}):</p>
+        <p className="text-sm font-medium mb-2">{t(lang, "compare_with")} ({playerPosition}):</p>
         <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" className="w-full sm:w-[300px] justify-between">
-              {selectedPlayerIds.length > 0 ? `${selectedPlayerIds.length} selected` : "Add comparison players..."}
+              {selectedPlayerIds.length > 0 ? `${selectedPlayerIds.length} ${t(lang, "selected")}` : t(lang, "add_comparison_players")}
               <ChevronsUpDown className="h-4 w-4 opacity-50 ml-2" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[300px] p-0" align="start">
             <Command>
-              <CommandInput placeholder="Search players..." value={pickerSearch} onValueChange={setPickerSearch} />
+              <CommandInput placeholder={t(lang, "search_players")} value={pickerSearch} onValueChange={setPickerSearch} />
               <CommandList>
                 {filteredPlayers.length === 0 && !hasNoMatch && (
-                  <CommandEmpty>No players for this position.</CommandEmpty>
+                  <CommandEmpty>{t(lang, "no_players_for_position")}</CommandEmpty>
                 )}
                 <CommandGroup>
                   {filteredPlayers.map(cp => (
