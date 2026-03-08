@@ -140,9 +140,9 @@ export const LightConeBackground = () => {
           {/* Forms a diamond/rhombus shape in isometric view */}
           <polygon 
             points="50,42 75,50 50,58 25,50"
-            fill="hsl(var(--primary))"
+            fill="hsl(var(--accent))"
             opacity="0.25"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.3"
           />
           
