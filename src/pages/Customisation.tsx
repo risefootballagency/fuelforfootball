@@ -316,7 +316,7 @@ const Customisation = () => {
             {/* Monthly Subscription Label */}
             <div className="text-center mb-3 pb-3 border-b border-border/50">
               <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                Monthly Subscription Package
+                {t("custom.monthly_package_label", "Monthly Subscription Package")}
               </span>
             </div>
 
