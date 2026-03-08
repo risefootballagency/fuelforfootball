@@ -222,8 +222,24 @@ const Staff = () => {
   }, [expandedSection, openTabs]);
 
   const removeTab = useCallback((tabId: string) => {
-    setOpenTabs(prev => prev.filter(t => t.id !== tabId));
-  }, []);
+    setOpenTabs(prev => {
+      const updated = prev.filter(t => t.id !== tabId);
+      // If removing the active tab, switch to the last remaining tab or overview
+      if (expandedSection === tabId) {
+        if (updated.length > 0) {
+          const nextSection = updated[updated.length - 1].id;
+          setExpandedSection(nextSection);
+          setSearchParams({ section: nextSection });
+          localStorage.setItem('staff_active_tab', nextSection);
+        } else {
+          setExpandedSection('overview');
+          setSearchParams({ section: 'overview' });
+          localStorage.setItem('staff_active_tab', 'overview');
+        }
+      }
+      return updated;
+    });
+  }, [expandedSection]);
 
   // Tab drag handlers (native HTML5 drag)
   const handleTabDragStart = (e: React.DragEvent, tabId: string) => {
