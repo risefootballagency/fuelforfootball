@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Bell, Check, CheckCheck, ChevronDown, ChevronRight, Users, FileText, Film, ListMusic, Calendar, CheckSquare, Target, LogIn, BarChart3, Search, Send, Building2, TrendingUp, PenLine, GitCompare, Cake } from "lucide-react";
+import { Bell, Check, CheckCheck, ChevronDown, ChevronRight, Users, FileText, Film, ListMusic, Calendar, CheckSquare, Target, LogIn, BarChart3, Search, Send, Building2, TrendingUp, PenLine, GitCompare, Cake, ExternalLink } from "lucide-react";
+import { ImprovementReportDialog } from "./ImprovementReportDialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,7 +37,6 @@ interface CategoryGroup {
   unreadCount: number;
 }
 
-// Category configuration - synced with RISE
 const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }> = {
   visitor: { label: "Site Visitors", icon: Users },
   form_submission: { label: "Form Submissions", icon: FileText },
@@ -55,6 +55,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   contract_signed: { label: "Contracts Signed", icon: PenLine },
   comparison_request: { label: "Comparison Requests", icon: GitCompare },
   player_birthday: { label: "Player Birthdays", icon: Cake },
+  player_turning_18: { label: "Player Birthdays", icon: Cake },
 };
 
 export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdownProps) => {
@@ -62,6 +63,7 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [improvementReport, setImprovementReport] = useState<any>(null);
 
   const fetchNotifications = async () => {
     try {
@@ -110,11 +112,17 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
     (n) => !n.read_by?.includes(userId)
   ).length;
 
+  // Map event types that should be merged into another category
+  const MERGE_MAP: Record<string, string> = {
+    player_turning_18: 'player_birthday',
+  };
+
   const groupNotificationsByCategory = (): CategoryGroup[] => {
     const groups: Map<string, CategoryGroup> = new Map();
 
     notifications.forEach((notification) => {
-      const eventType = notification.event_type;
+      const rawType = notification.event_type;
+      const eventType = MERGE_MAP[rawType] || rawType;
       const config = CATEGORY_CONFIG[eventType] || { label: "Other", icon: Bell };
 
       if (!groups.has(eventType)) {
@@ -161,8 +169,13 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
   };
 
   const markCategoryAsRead = async (category: string) => {
+    const mergedTypes = Object.entries(MERGE_MAP)
+      .filter(([, target]) => target === category)
+      .map(([source]) => source);
+    const allTypes = [category, ...mergedTypes];
+
     const categoryNotifications = notifications.filter(
-      (n) => n.event_type === category && !n.read_by?.includes(userId)
+      (n) => allTypes.includes(n.event_type) && !n.read_by?.includes(userId)
     );
 
     for (const notification of categoryNotifications) {
@@ -213,8 +226,10 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
       case "portal_club_submission": return "Club Suggestion Submitted";
       case "performance_improvement": return "Performance Improvement";
       case "contract_signed": return "Contract Signed";
-      case "comparison_request": return "Comparison Player Request";
-      case "player_birthday": return "Player Birthday";
+      case "comparison_request": return "Comparison Requested";
+      case "player_birthday":
+        return notification.event_data?.age ? `Player Turning ${notification.event_data.age}` : "Player Birthday";
+      case "player_turning_18": return "Player Turning 18";
       default: return "Notification";
     }
   };
@@ -262,14 +277,27 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
       case "performance_improvement": {
         const improvements = data?.improvements || [];
         const playerName = data?.player_name || "Player";
-        return improvements.length > 0 ? `${playerName}: ${improvements[0]}` : `${playerName} showed improvement`;
+        const opponent = data?.opponent || "";
+        const r90Current = data?.r90_current;
+        const r90Previous = data?.r90_previous;
+        const parts: string[] = [];
+        if (opponent) parts.push(`vs ${opponent}`);
+        if (r90Previous != null && r90Current != null) {
+          parts.push(`R90: ${Number(r90Previous).toFixed(2)} → ${Number(r90Current).toFixed(2)}`);
+        }
+        if (improvements.length > 1) parts.push(`+${improvements.length - (r90Current ? 1 : 0)} more`);
+        return `${playerName} ${parts.join(' · ')}`;
       }
       case "contract_signed":
         return data?.player_name ? `${data.player_name} signed a contract` : "New contract signed";
       case "comparison_request":
-        return data?.player_name ? `${data.player_name} requested: ${data.requested_name || 'a player'}` : "New comparison player request";
+        return data?.player_name ? `Comparison requested for ${data.player_name}` : "New comparison request";
       case "player_birthday":
-        return data?.player_name ? `${data.player_name}'s birthday today` : "Player birthday today";
+        return data?.player_name
+          ? `${data.player_name} turns ${data.age || '?'} today`
+          : "Player birthday today";
+      case "player_turning_18":
+        return data?.player_name ? `${data.player_name} turns 18 today` : "Player turning 18 today";
       default:
         return notification.body || "";
     }
@@ -278,6 +306,7 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
   const categoryGroups = groupNotificationsByCategory();
 
   return (
+    <>
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
@@ -378,6 +407,9 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
 
                         {group.notifications.slice(0, 10).map((notification) => {
                           const isRead = notification.read_by?.includes(userId);
+                          const isImprovement = notification.event_type === 'performance_improvement';
+                          const improvementData = isImprovement ? notification.event_data : null;
+
                           return (
                             <div
                               key={notification.id}
@@ -390,9 +422,41 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
                                 <p className={`text-sm ${!isRead ? "font-medium" : ""}`}>
                                   {getNotificationTitle(notification)}
                                 </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                  {getNotificationBody(notification)}
-                                </p>
+
+                                {/* Rich improvement report card */}
+                                {isImprovement && improvementData?.improvements?.length > 0 ? (
+                                  <div className="mt-1.5 space-y-1.5">
+                                    <p className="text-xs text-muted-foreground">
+                                      {improvementData.player_name} vs {improvementData.opponent}
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-1">
+                                      {(improvementData.improvements as string[]).map((imp: string, i: number) => (
+                                        <div key={i} className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded px-2 py-1">
+                                          <TrendingUp className="h-3 w-3 text-emerald-500 flex-shrink-0" />
+                                          <span className="text-[10px] text-emerald-400 truncate">{imp}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 text-[10px] text-emerald-400 hover:text-emerald-300 px-2 mt-1"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setImprovementReport(improvementData);
+                                        setOpen(false);
+                                      }}
+                                    >
+                                      <ExternalLink className="h-3 w-3 mr-1" />
+                                      View Report
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    {getNotificationBody(notification)}
+                                  </p>
+                                )}
+
                                 <p className="text-xs text-muted-foreground/70 mt-0.5">
                                   {format(new Date(notification.created_at), "MMM d, h:mm a")}
                                 </p>
@@ -419,5 +483,12 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
         </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <ImprovementReportDialog
+      open={!!improvementReport}
+      onOpenChange={(o) => { if (!o) setImprovementReport(null); }}
+      data={improvementReport}
+    />
+    </>
   );
 };

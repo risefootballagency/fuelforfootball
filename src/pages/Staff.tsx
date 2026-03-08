@@ -793,7 +793,7 @@ const Staff = () => {
       />
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border pwa-safe-top">
         <div className="flex items-center h-16 px-4">
           {/* Left: Tabs */}
           <div className="flex items-center gap-1.5 flex-1 min-w-0">

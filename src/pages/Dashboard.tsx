@@ -1764,7 +1764,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header with Logo */}
-      <header className="sticky top-0 bg-[url('/grass-smoky-3.png')] bg-cover bg-center border-b border-border z-50">
+      <header className="sticky top-0 bg-[url('/grass-smoky-3.png')] bg-cover bg-center border-b border-border z-50 pwa-safe-top">
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex items-center justify-center h-16">
