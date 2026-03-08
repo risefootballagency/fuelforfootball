@@ -167,10 +167,10 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                         w-8 h-8 md:w-12 md:h-12 rounded-full
                         transition-all duration-300 cursor-pointer
                         ${isPending 
-                          ? 'bg-primary text-black scale-110 shadow-lg shadow-primary/50' 
+                          ? 'bg-accent text-black scale-110 shadow-lg shadow-accent/50' 
                           : isHovered 
-                            ? 'bg-primary/80 text-black scale-105' 
-                            : 'bg-black/80 border-2 border-primary/50 text-white hover:bg-primary/20'
+                            ? 'bg-accent/80 text-black scale-105' 
+                            : 'bg-black/80 border-2 border-accent/50 text-white hover:bg-accent/20'
                         }
                       `}
                     >
