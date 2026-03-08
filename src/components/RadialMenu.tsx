@@ -860,7 +860,7 @@ export const RadialMenu = () => {
                     {item.subItems!.map((subItem, subIndex) => (
                       <button
                         key={subItem.to}
-                        className="pointer-events-auto px-3 py-1 bg-black/60 hover:bg-primary text-white hover:text-black font-bebas tracking-wider text-xs md:text-sm transition-all duration-200 rounded animate-[fade-in_0.2s_ease-out_both] whitespace-nowrap"
+                        className="pointer-events-auto px-3 py-1 bg-black/60 hover:bg-accent text-white hover:text-black font-bebas tracking-wider text-xs md:text-sm transition-all duration-200 rounded animate-[fade-in_0.2s_ease-out_both] whitespace-nowrap"
                         style={{ animationDelay: `${subIndex * 0.05}s` }}
                         onClick={(e) => {
                           e.stopPropagation();
