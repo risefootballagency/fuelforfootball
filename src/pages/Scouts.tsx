@@ -152,7 +152,7 @@ const Scouts = () => {
                   onClick={() => scrollToSlide(index)}
                   className={`transition-all duration-300 rounded-full ${
                     selectedSlide === index
-                      ? 'w-12 h-3 bg-primary shadow-lg shadow-primary/50'
+                       ? 'w-12 h-3 bg-accent shadow-lg shadow-accent/50'
                        : 'w-3 h-3 bg-muted hover:bg-muted-foreground/50'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
