@@ -606,7 +606,7 @@ const Customisation = () => {
                     <div className="text-center mb-4 pb-4 border-b border-border/50">
                       <span className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-medium">
                         <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                        Monthly Subscription Package
+                        {t("custom.monthly_package_label", "Monthly Subscription Package")}
                       </span>
                     </div>
 
