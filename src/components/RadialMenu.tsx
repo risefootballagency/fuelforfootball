@@ -457,7 +457,17 @@ export const RadialMenu = () => {
       },
     ],
     business: [
-      { to: "/business", labelKey: "header.packages", fallback: "PACKAGES", Icon: Package, angle: 0 },
+      { 
+        to: "/business", 
+        labelKey: "header.packages", 
+        fallback: "PACKAGES", 
+        Icon: Package, 
+        angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: PackagesQuadrantCard,
+        },
+      },
       { 
         to: "/players", 
         labelKey: "header.services", 
