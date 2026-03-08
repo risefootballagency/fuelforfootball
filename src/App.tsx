@@ -80,7 +80,7 @@ import { SocialSidebar } from "./components/SocialSidebar";
 // Loading fallback component
 const PageLoader = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="animate-pulse text-primary font-bebas text-2xl tracking-wider">Loading...</div>
+    <div className="animate-pulse text-accent font-bebas text-2xl tracking-wider">Loading...</div>
   </div>
 );
 
