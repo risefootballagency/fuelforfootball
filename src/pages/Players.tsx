@@ -294,7 +294,7 @@ const Players = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background snap-y snap-mandatory md:snap-none">
+    <div className="min-h-screen bg-background md:overflow-visible overflow-y-auto h-[100svh] snap-y snap-mandatory md:snap-none md:h-auto">
       <SEO 
         title="Players - Football Performance Services | Fuel For Football"
         description="Fuel For Football is Football's leading performance consultancy. We work with Premier League and Football League players, offering strength, speed, power development, psychological performance sessions and game analysis."
