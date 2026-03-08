@@ -172,12 +172,12 @@ export const LightConeBackground = () => {
           <line 
             x1="50" y1="50" 
             x2="10" y2="66"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.4"
             opacity="0.9"
             filter="url(#coneGlow)"
           />
-          <text x="6" y="70" fill="hsl(var(--primary))" fontSize="3" opacity="0.9" fontFamily="monospace" fontWeight="bold">x</text>
+          <text x="6" y="70" fill="hsl(var(--accent))" fontSize="3" opacity="0.9" fontFamily="monospace" fontWeight="bold">x</text>
           
           {/* Y-axis - goes up from origin (vertical) */}
           <line 
