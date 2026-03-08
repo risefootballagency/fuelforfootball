@@ -124,6 +124,7 @@ const defaultProgress: CardProgress = {
 };
 
 export function CognisanceSection({ playerId, playerPosition, playerName }: CognisanceSectionProps) {
+  const lang = usePortalLanguage();
   const [selectedGame, setSelectedGame] = useState<GameType>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSessionResults, setShowSessionResults] = useState(false);
