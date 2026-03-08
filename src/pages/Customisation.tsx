@@ -627,11 +627,11 @@ const Customisation = () => {
 
                     <div className="border-t border-border pt-4 space-y-2">
                       <div className="flex justify-between font-bebas text-xl uppercase">
-                        <span>Monthly Total</span>
-                        <span className="text-primary">£{totalPrice.toFixed(2)}/mo</span>
+                        <span>{t("custom.monthly_total", "Monthly Total")}</span>
+                        <span className="text-primary">£{totalPrice.toFixed(2)}/{t("custom.mo", "mo")}</span>
                       </div>
                       <p className="text-[10px] text-muted-foreground text-center">
-                        Billed monthly - cancel anytime
+                        {t("custom.billed_monthly", "Billed monthly - cancel anytime")}
                       </p>
                     </div>
 
