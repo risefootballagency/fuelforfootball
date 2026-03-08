@@ -32,10 +32,21 @@ export interface UnifiedStat {
   isCalculated?: boolean;
 }
 
+interface PerformanceActionForAI {
+  action_number: number;
+  minute: string;
+  action_score: string;
+  action_type: string;
+  action_description: string;
+  notes: string;
+  zone?: number | null;
+}
+
 interface UnifiedStatsEditorProps {
   stats: UnifiedStat[];
   onStatsChange: (stats: UnifiedStat[]) => void;
   minutesPlayed: number;
+  actions?: PerformanceActionForAI[];
 }
 
 const PER90_STAT_KEYS = ['xg', 'xa', 'xg_chain', 'xgchain', 'xc', 'npxg', 'xgot', 'xg_per_shot', 'r90', 'ratio'];
