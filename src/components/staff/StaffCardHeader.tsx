@@ -21,7 +21,7 @@ export const StaffCardHeader = ({
 }: StaffCardHeaderProps) => {
   if (title) {
     return (
-      <CardHeader className={cn("bg-[hsl(140,30%,12%)]", className)}>
+      <CardHeader className={cn("bg-primary", className)}>
         <div className="flex items-center justify-between">
           <CardTitle className={cn("flex items-center gap-2", titleClassName)}>
             {icon}
@@ -34,7 +34,7 @@ export const StaffCardHeader = ({
   }
 
   return (
-    <CardHeader className={cn("bg-[hsl(140,30%,12%)]", className)}>
+    <CardHeader className={cn("bg-primary", className)}>
       {children}
     </CardHeader>
   );
