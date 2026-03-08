@@ -111,14 +111,14 @@ export const LightConeBackground = () => {
           <line 
             x1="50" y1="50" 
             x2="0" y2="0"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.3"
             opacity="0.7"
           />
           <line 
             x1="50" y1="50" 
             x2="100" y2="0"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.3"
             opacity="0.7"
           />
@@ -129,7 +129,7 @@ export const LightConeBackground = () => {
             rx="50" 
             ry="3"
             fill="none"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.25"
             opacity="0.5"
           />
