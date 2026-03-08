@@ -443,11 +443,12 @@ const Staff = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const normalizedEmail = email.toLowerCase().trim();
+      const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
       if (error) { toast.error(error.message); setLoading(false); return; }
       if (data.user) {
         if (rememberMe) {
-          localStorage.setItem("staff_saved_email", email);
+          localStorage.setItem("staff_saved_email", normalizedEmail);
           localStorage.setItem("staff_remember_me", "true");
         } else {
           localStorage.removeItem("staff_saved_email");
@@ -483,7 +484,7 @@ const Staff = () => {
               <form onSubmit={handleLogin} className="space-y-4" autoComplete="on">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="staff@example.com" required autoFocus autoComplete="email" />
+                  <Input id="email" name="username" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="staff@example.com" required autoFocus autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>

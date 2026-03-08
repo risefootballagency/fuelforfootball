@@ -17,13 +17,16 @@ const Login = () => {
     const checkAuth = async () => {
       const playerEmail = localStorage.getItem("player_email") || sessionStorage.getItem("player_email");
       if (playerEmail) {
-        const { data } = await supabase
+        const normalizedPlayerEmail = playerEmail.toLowerCase().trim();
+        const { data, error } = await supabase
           .from("players")
           .select("id")
-          .eq("email", playerEmail)
+          .ilike("email", normalizedPlayerEmail)
           .maybeSingle();
-          
-        if (data) {
+
+        if (error) {
+          console.error("Player session check failed:", error);
+        } else if (data) {
           navigate("/portal");
           return;
         } else {
@@ -34,13 +37,16 @@ const Login = () => {
 
       const scoutEmail = localStorage.getItem("scout_email") || sessionStorage.getItem("scout_email");
       if (scoutEmail) {
-        const { data } = await supabase
+        const normalizedScoutEmail = scoutEmail.toLowerCase().trim();
+        const { data, error } = await supabase
           .from("scouts")
           .select("id")
-          .eq("email", scoutEmail)
+          .ilike("email", normalizedScoutEmail)
           .maybeSingle();
-          
-        if (data) {
+
+        if (error) {
+          console.error("Scout session check failed:", error);
+        } else if (data) {
           navigate("/potential");
           return;
         } else {
@@ -54,15 +60,13 @@ const Login = () => {
 
     const savedPlayerEmail = localStorage.getItem("player_saved_email");
     const savedScoutEmail = localStorage.getItem("scout_saved_email");
-    const savedEmail = savedPlayerEmail || savedScoutEmail;
-    
-    if (savedEmail) setEmail(savedEmail);
-    
-    const savedPlayerRemember = localStorage.getItem("player_remember_me");
-    const savedScoutRemember = localStorage.getItem("scout_remember_me");
-    
-    if (savedPlayerRemember === "false" || savedScoutRemember === "false") {
-      setRememberMe(false);
+
+    if (savedPlayerEmail) {
+      setEmail(savedPlayerEmail);
+      setRememberMe(localStorage.getItem("player_remember_me") !== "false");
+    } else if (savedScoutEmail) {
+      setEmail(savedScoutEmail);
+      setRememberMe(localStorage.getItem("scout_remember_me") !== "false");
     }
   }, [navigate]);
 
@@ -71,22 +75,24 @@ const Login = () => {
     setLoading(true);
 
     try {
+      const normalizedLogin = email.toLowerCase().trim();
+
       const { data: player, error: playerError } = await supabase
         .from("players")
         .select("id, email, name")
-        .eq("email", email)
+        .ilike("email", normalizedLogin)
         .maybeSingle();
 
       if (playerError) throw playerError;
       
       if (player) {
         try {
-          localStorage.setItem("player_email", email);
-          sessionStorage.setItem("player_email", email);
+          localStorage.setItem("player_email", normalizedLogin);
+          sessionStorage.setItem("player_email", normalizedLogin);
           localStorage.setItem("player_login_timestamp", Date.now().toString());
           
           if (rememberMe) {
-            localStorage.setItem("player_saved_email", email);
+            localStorage.setItem("player_saved_email", normalizedLogin);
             localStorage.setItem("player_remember_me", "true");
           } else {
             localStorage.removeItem("player_saved_email");
@@ -114,19 +120,19 @@ const Login = () => {
       const { data: scout, error: scoutError } = await supabase
         .from("scouts")
         .select("id, email")
-        .eq("email", email)
+        .ilike("email", normalizedLogin)
         .maybeSingle();
 
       if (scoutError) throw scoutError;
       
       if (scout) {
         try {
-          localStorage.setItem("scout_email", email);
-          sessionStorage.setItem("scout_email", email);
+          localStorage.setItem("scout_email", normalizedLogin);
+          sessionStorage.setItem("scout_email", normalizedLogin);
           localStorage.setItem("scout_login_timestamp", Date.now().toString());
           
           if (rememberMe) {
-            localStorage.setItem("scout_saved_email", email);
+            localStorage.setItem("scout_saved_email", normalizedLogin);
             localStorage.setItem("scout_remember_me", "true");
           } else {
             localStorage.removeItem("scout_saved_email");
@@ -161,17 +167,20 @@ const Login = () => {
             Your dedicated space for performance analysis and development.
           </p>
           
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          <form onSubmit={handleEmailLogin} className="space-y-4" autoComplete="on">
             <Input
-              id="email"
-              name="email"
+              id="login"
+              name="username"
               type="text"
               placeholder="Enter your login"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
-              autoComplete="email"
+              autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               className="bg-card border-border text-foreground h-12"
             />
             <Button 
