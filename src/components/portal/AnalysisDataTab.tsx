@@ -10,6 +10,8 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 import { User, Calendar, MapPin, Trophy, Pencil, Check, X } from "lucide-react";
 import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+import { PitchHeatmap } from "@/components/report/PitchHeatmap";
+import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toast } from "sonner";
 
 interface Analysis {
