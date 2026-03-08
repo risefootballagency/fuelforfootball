@@ -302,7 +302,7 @@ const Players = () => {
       />
       <Header />
       
-      <main className="pt-20 md:pt-28">
+      <main className="pt-20 md:pt-28 md:snap-none snap-y snap-mandatory overflow-y-auto">
         {/* Video Hero Banner - Full width at top */}
         <VideoHeroBanner 
           videoSrc="/videos/players-hero.mp4"
