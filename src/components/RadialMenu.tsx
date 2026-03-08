@@ -160,418 +160,111 @@ export const RadialMenu = () => {
   // Role-specific menu configurations
   const roleMenus: Record<string, MenuItem[]> = {
     players: [
-      { 
-        to: "/players",
-        labelKey: "header.home", 
-        fallback: "HOME", 
-        Icon: Home, 
-        angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/services", 
-        labelKey: "header.services", 
-        fallback: "SERVICES", 
-        Icon: TrendingUp, 
-        angle: 60,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(60),
-          component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/shop", 
-        labelKey: "header.shop", 
-        fallback: "SHOP", 
-        Icon: Package, 
-        angle: 120,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(120),
-          component: ShopQuadrantCard,
-        },
-      },
-      { 
-        to: "/daily-fuel",
-        labelKey: "header.insights", 
-        fallback: "INSIGHTS", 
-        Icon: BookOpen, 
-        angle: 180,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
-          component: InsightsQuadrantCard,
-        },
-      },
-      { 
-        to: "/login", 
-        labelKey: "header.portal", 
-        fallback: "PORTAL", 
-        Icon: Users, 
-        angle: 240,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(240),
-          component: PortalQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.contact", 
-        fallback: "CONTACT", 
-        Icon: MessageCircle, 
-        angle: 300,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(300),
-          component: ContactQuadrantCard,
-        },
-      },
+      { to: "/players", labelKey: "header.home", fallback: "HOME", Icon: Home, angle: 0,
+        quadrantCard: { position: getQuadrantPositionForAngle(0), title: "Home", description: "Overview of Fuel For Football's player development services, results, and how we work." } },
+      { to: "/services", labelKey: "header.services", fallback: "SERVICES", Icon: TrendingUp, angle: 60,
+        quadrantCard: { position: getQuadrantPositionForAngle(60), title: "Services", description: "Explore our full range: analysis, training programmes, mentorship, nutrition, and more." } },
+      { to: "/shop", labelKey: "header.shop", fallback: "SHOP", Icon: Package, angle: 120,
+        quadrantCard: { position: getQuadrantPositionForAngle(120), title: "Shop", description: "Browse performance resources, training tools, and products built for serious players." } },
+      { to: "/daily-fuel", labelKey: "header.insights", fallback: "INSIGHTS", Icon: BookOpen, angle: 180,
+        quadrantCard: { position: getQuadrantPositionForAngle(180), title: "Daily Fuel", description: "Read tactical insights, match breakdowns, and exclusive football intelligence daily." } },
+      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 240,
+        quadrantCard: { position: getQuadrantPositionForAngle(240), title: "Player Portal", description: "Log in to access your reports, programmes, performance tracking, and updates." } },
+      { to: "/contact", labelKey: "header.contact", fallback: "CONTACT", Icon: MessageCircle, angle: 300,
+        quadrantCard: { position: getQuadrantPositionForAngle(300), title: "Contact", description: "Get in touch via WhatsApp or email to discuss your development plan." } },
     ],
     clubs: [
-      { 
-        to: "/clubs", 
-        labelKey: "header.club_direction", 
-        fallback: "CLUB SUPPORT", 
-        Icon: Target, 
-        angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: ClubSupportQuadrantCard,
-        },
-      },
-      { 
-        to: "/players", 
-        labelKey: "header.services", 
-        fallback: "SERVICES", 
-        Icon: TrendingUp, 
-        angle: 90,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(90),
-          component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/daily-fuel",
-        labelKey: "header.insights", 
-        fallback: "INSIGHTS", 
-        Icon: BookOpen, 
-        angle: 180,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
-          component: InsightsQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.arrange_meeting", 
-        fallback: "ARRANGE MEETING", 
-        Icon: Calendar, 
-        angle: 270,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(270),
-          component: ContactQuadrantCard,
-        },
-      },
+      { to: "/clubs", labelKey: "header.club_direction", fallback: "CLUB SUPPORT", Icon: Target, angle: 0,
+        quadrantCard: { position: getQuadrantPositionForAngle(0), title: "Club Support", description: "Tailored academy and first-team solutions for player and staff development." } },
+      { to: "/players", labelKey: "header.services", fallback: "SERVICES", Icon: TrendingUp, angle: 90,
+        quadrantCard: { position: getQuadrantPositionForAngle(90), title: "Services", description: "See the individual services we deliver to players within your organisation." } },
+      { to: "/daily-fuel", labelKey: "header.insights", fallback: "INSIGHTS", Icon: BookOpen, angle: 180,
+        quadrantCard: { position: getQuadrantPositionForAngle(180), title: "Daily Fuel", description: "Football intelligence articles, tactical breakdowns, and industry insights." } },
+      { to: "/contact", labelKey: "header.arrange_meeting", fallback: "ARRANGE MEETING", Icon: Calendar, angle: 270,
+        quadrantCard: { position: getQuadrantPositionForAngle(270), title: "Arrange Meeting", description: "Schedule a call to discuss how we can support your club's goals." } },
     ],
     agents: [
-      { 
-        to: "/contact", 
-        labelKey: "header.collaboration", 
-        fallback: "COLLABORATION", 
-        Icon: Handshake, 
-        angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: ContactQuadrantCard,
-        },
-      },
-      { 
-        to: "/daily-fuel",
-        labelKey: "header.insights", 
-        fallback: "INSIGHTS", 
-        Icon: BookOpen, 
-        angle: 90,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(90),
-          component: InsightsQuadrantCard,
-        },
-      },
-      { 
-        to: "/players", 
-        labelKey: "header.services", 
-        fallback: "SERVICES", 
-        Icon: TrendingUp, 
-        angle: 180,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
-          component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.arrange_meeting", 
-        fallback: "ARRANGE MEETING", 
-        Icon: Calendar, 
-        angle: 270,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(270),
-          component: ContactQuadrantCard,
-        },
-      },
+      { to: "/contact", labelKey: "header.collaboration", fallback: "COLLABORATION", Icon: Handshake, angle: 0,
+        quadrantCard: { position: getQuadrantPositionForAngle(0), title: "Collaboration", description: "Partner with us to enhance development pathways for your represented players." } },
+      { to: "/daily-fuel", labelKey: "header.insights", fallback: "INSIGHTS", Icon: BookOpen, angle: 90,
+        quadrantCard: { position: getQuadrantPositionForAngle(90), title: "Daily Fuel", description: "Stay informed with tactical content, match analysis, and industry updates." } },
+      { to: "/players", labelKey: "header.services", fallback: "SERVICES", Icon: TrendingUp, angle: 180,
+        quadrantCard: { position: getQuadrantPositionForAngle(180), title: "Services", description: "Review the full service offering available to players you manage." } },
+      { to: "/contact", labelKey: "header.arrange_meeting", fallback: "ARRANGE MEETING", Icon: Calendar, angle: 270,
+        quadrantCard: { position: getQuadrantPositionForAngle(270), title: "Arrange Meeting", description: "Book a meeting to discuss player needs and collaboration opportunities." } },
     ],
     scouts: [
-      { 
-        to: "/scouts", 
-        labelKey: "header.what_we_look_for", 
-        fallback: "WHAT WE SEEK", 
-        Icon: Search, 
-        angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: ScoutingQuadrantCard,
-        },
-      },
-      { 
-        to: "/login", 
-        labelKey: "header.portal", 
-        fallback: "PORTAL", 
-        Icon: Users, 
-        angle: 90,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(90),
-          component: PortalQuadrantCard,
-        },
-      },
-      { 
-        to: "/daily-fuel",
-        labelKey: "header.insights", 
-        fallback: "INSIGHTS", 
-        Icon: BookOpen, 
-        angle: 180,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
-          component: InsightsQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.work_with_us", 
-        fallback: "SCOUT FOR US", 
-        Icon: Handshake, 
-        angle: 270,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(270),
-          component: ContactQuadrantCard,
-        },
-      },
+      { to: "/scouts", labelKey: "header.what_we_look_for", fallback: "WHAT WE SEEK", Icon: Search, angle: 0,
+        quadrantCard: { position: getQuadrantPositionForAngle(0), title: "Scouting Criteria", description: "Discover the physical, mental, technical, and tactical criteria we assess." } },
+      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 90,
+        quadrantCard: { position: getQuadrantPositionForAngle(90), title: "Scout Portal", description: "Access your dashboard to submit reports, review players, and track scouting activity." } },
+      { to: "/daily-fuel", labelKey: "header.insights", fallback: "INSIGHTS", Icon: BookOpen, angle: 180,
+        quadrantCard: { position: getQuadrantPositionForAngle(180), title: "Daily Fuel", description: "Read scouting-relevant articles, player analysis trends, and tactical content." } },
+      { to: "/contact", labelKey: "header.work_with_us", fallback: "SCOUT FOR US", Icon: Handshake, angle: 270,
+        quadrantCard: { position: getQuadrantPositionForAngle(270), title: "Scout For Us", description: "Apply to join our scouting network and contribute to player identification." } },
     ],
     coaches: [
-      { 
-        to: "/login", 
-        labelKey: "header.portal", 
-        fallback: "PORTAL", 
-        Icon: Users, 
-        angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: PortalQuadrantCard,
-        },
-      },
-      { 
-        to: "/players", 
-        labelKey: "header.services", 
-        fallback: "SERVICES", 
-        Icon: TrendingUp, 
-        angle: 90,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(90),
-          component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/daily-fuel",
-        labelKey: "header.insights", 
-        fallback: "INSIGHTS", 
-        Icon: BookOpen, 
-        angle: 180,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
-          component: InsightsQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.arrange_meeting", 
-        fallback: "ARRANGE MEETING", 
-        Icon: Calendar, 
-        angle: 270,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(270),
-          component: ContactQuadrantCard,
-        },
-      },
+      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 0,
+        quadrantCard: { position: getQuadrantPositionForAngle(0), title: "Coach Portal", description: "Access drills, session plans, programmes, and player management tools." } },
+      { to: "/players", labelKey: "header.services", fallback: "SERVICES", Icon: TrendingUp, angle: 90,
+        quadrantCard: { position: getQuadrantPositionForAngle(90), title: "Services", description: "See the performance services available to players you coach or develop." } },
+      { to: "/daily-fuel", labelKey: "header.insights", fallback: "INSIGHTS", Icon: BookOpen, angle: 180,
+        quadrantCard: { position: getQuadrantPositionForAngle(180), title: "Daily Fuel", description: "Coaching insights, tactical analysis, and professional development content." } },
+      { to: "/contact", labelKey: "header.arrange_meeting", fallback: "ARRANGE MEETING", Icon: Calendar, angle: 270,
+        quadrantCard: { position: getQuadrantPositionForAngle(270), title: "Arrange Meeting", description: "Get in touch to discuss coaching support and partnership opportunities." } },
     ],
     media: [
-      { 
-        to: "/daily-fuel",
-        labelKey: "header.press_release", 
-        fallback: "PRESS", 
-        Icon: Newspaper, 
-        angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: InsightsQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.collaboration", 
-        fallback: "COLLABORATION", 
-        Icon: Heart, 
-        angle: 90,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(90),
-          component: ContactQuadrantCard,
-        },
-      },
-      { 
-        to: "/players", 
-        labelKey: "header.services", 
-        fallback: "SERVICES", 
-        Icon: TrendingUp, 
-        angle: 180,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
-          component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.arrange_meeting", 
-        fallback: "ARRANGE MEETING", 
-        Icon: Calendar, 
-        angle: 270,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(270),
-          component: ContactQuadrantCard,
-        },
-      },
+      { to: "/daily-fuel", labelKey: "header.press_release", fallback: "PRESS", Icon: Newspaper, angle: 0,
+        quadrantCard: { position: getQuadrantPositionForAngle(0), title: "Press", description: "Access press releases, articles, and publishable football intelligence content." } },
+      { to: "/contact", labelKey: "header.collaboration", fallback: "COLLABORATION", Icon: Heart, angle: 90,
+        quadrantCard: { position: getQuadrantPositionForAngle(90), title: "Collaboration", description: "Explore media partnerships, content licensing, and joint production opportunities." } },
+      { to: "/players", labelKey: "header.services", fallback: "SERVICES", Icon: TrendingUp, angle: 180,
+        quadrantCard: { position: getQuadrantPositionForAngle(180), title: "Services", description: "Understand the services we provide so you can accurately cover our work." } },
+      { to: "/contact", labelKey: "header.arrange_meeting", fallback: "ARRANGE MEETING", Icon: Calendar, angle: 270,
+        quadrantCard: { position: getQuadrantPositionForAngle(270), title: "Arrange Meeting", description: "Schedule an interview or press briefing with the Fuel For Football team." } },
     ],
     business: [
-      { 
-        to: "/business", 
-        labelKey: "header.packages", 
-        fallback: "PACKAGES", 
-        Icon: Package, 
-        angle: 0,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(0),
-          component: PackagesQuadrantCard,
-        },
-      },
-      { 
-        to: "/players", 
-        labelKey: "header.services", 
-        fallback: "SERVICES", 
-        Icon: TrendingUp, 
-        angle: 90,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(90),
-          component: PerformanceQuadrantCard,
-        },
-      },
-      { 
-        to: "/daily-fuel",
-        labelKey: "header.insights", 
-        fallback: "INSIGHTS", 
-        Icon: BookOpen, 
-        angle: 180,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(180),
-          component: InsightsQuadrantCard,
-        },
-      },
-      { 
-        to: "/contact", 
-        labelKey: "header.connect", 
-        fallback: "CONNECT", 
-        Icon: MessageCircle, 
-        angle: 270,
-        quadrantCard: {
-          position: getQuadrantPositionForAngle(270),
-          component: ContactQuadrantCard,
-        },
-      },
+      { to: "/business", labelKey: "header.packages", fallback: "PACKAGES", Icon: Package, angle: 0,
+        quadrantCard: { position: getQuadrantPositionForAngle(0), title: "Packages", description: "Flexible business packages aligned to your club or organisation goals." } },
+      { to: "/players", labelKey: "header.services", fallback: "SERVICES", Icon: TrendingUp, angle: 90,
+        quadrantCard: { position: getQuadrantPositionForAngle(90), title: "Services", description: "See the individual services included within our business packages." } },
+      { to: "/daily-fuel", labelKey: "header.insights", fallback: "INSIGHTS", Icon: BookOpen, angle: 180,
+        quadrantCard: { position: getQuadrantPositionForAngle(180), title: "Daily Fuel", description: "Industry insights, performance trends, and football intelligence for decision-makers." } },
+      { to: "/contact", labelKey: "header.connect", fallback: "CONNECT", Icon: MessageCircle, angle: 270,
+        quadrantCard: { position: getQuadrantPositionForAngle(270), title: "Connect", description: "Reach out to discuss how we can support your business objectives." } },
     ],
   };
-  // Default menu for main site with quadrant cards
+
+  // Default menu for main site
   const defaultMenu: MenuItem[] = [
-    { 
-      to: "/players",
-      labelKey: "header.players", 
-      fallback: "PLAYERS", 
-      Icon: Users, 
-      angle: 0,
-      quadrantCard: {
-        position: 'bottom-right',
-        component: ContactQuadrantCard
-      }
-    },
-    { 
-      to: "/about",
-      labelKey: "header.about", 
-      fallback: "ABOUT", 
-      Icon: Star, 
-      angle: 72,
-      quadrantCard: {
-        position: 'bottom-right',
-        component: PerformanceQuadrantCard
-      }
-    },
-    { 
-      to: "/shop", 
-      labelKey: "header.shop", 
-      fallback: "SHOP", 
-      Icon: TrendingUp,
-      angle: 144,
-      quadrantCard: {
-        position: 'top-right',
-        component: PerformanceQuadrantCard
-      }
-    },
-    { 
-      to: "/daily-fuel", 
-      labelKey: "header.daily_fuel", 
-      fallback: "DAILY FUEL",
-      Icon: BookOpen, 
-      angle: 216,
-      quadrantCard: {
-        position: 'top-left',
-        component: InsightsQuadrantCard
-      }
-    },
-    { 
-      to: "/contact", 
-      labelKey: "header.contact", 
-      fallback: "CONTACT", 
-      Icon: MessageCircle, 
-      angle: 288,
-      quadrantCard: {
-        position: 'bottom-left',
-        component: ContactQuadrantCard
-      }
-    },
+    { to: "/players", labelKey: "header.players", fallback: "PLAYERS", Icon: Users, angle: 0,
+      quadrantCard: { position: 'bottom-right', title: "Players", description: "Discover our holistic player development services across six performance domains." } },
+    { to: "/about", labelKey: "header.about", fallback: "ABOUT", Icon: Star, angle: 72,
+      quadrantCard: { position: 'bottom-right', title: "About", description: "Learn about Fuel For Football's mission, team, and track record with 100+ pros." } },
+    { to: "/shop", labelKey: "header.shop", fallback: "SHOP", Icon: TrendingUp, angle: 144,
+      quadrantCard: { position: 'top-right', title: "Shop", description: "Browse performance resources, training tools, and products for serious players." } },
+    { to: "/daily-fuel", labelKey: "header.daily_fuel", fallback: "DAILY FUEL", Icon: BookOpen, angle: 216,
+      quadrantCard: { position: 'top-left', title: "Daily Fuel", description: "Tactical insights, match breakdowns, and exclusive football intelligence updated daily." } },
+    { to: "/contact", labelKey: "header.contact", fallback: "CONTACT", Icon: MessageCircle, angle: 288,
+      quadrantCard: { position: 'bottom-left', title: "Contact", description: "Get in touch via WhatsApp or email to start your journey immediately." } },
   ];
 
   // Role selection menu items
   const roleMenuItems: MenuItem[] = [
-    { to: "/players", labelKey: "roles.players", fallback: "PLAYER", Icon: Users, angle: 0, quadrantCard: { position: getQuadrantPositionForAngle(0), component: PerformanceQuadrantCard } },
-    { to: "/clubs", labelKey: "roles.clubs", fallback: "CLUB", Icon: Trophy, angle: 51.4, quadrantCard: { position: getQuadrantPositionForAngle(51.4), component: ClubSupportQuadrantCard } },
-    { to: "/scouts", labelKey: "roles.scouts", fallback: "SCOUT", Icon: Search, angle: 102.8, quadrantCard: { position: getQuadrantPositionForAngle(102.8), component: ScoutingQuadrantCard } },
-    { to: "/agents", labelKey: "roles.agents", fallback: "AGENT", Icon: Briefcase, angle: 154.3, quadrantCard: { position: getQuadrantPositionForAngle(154.3), component: ContactQuadrantCard } },
-    { to: "/coaches", labelKey: "roles.coaches", fallback: "COACH", Icon: Target, angle: 205.7, quadrantCard: { position: getQuadrantPositionForAngle(205.7), component: PerformanceQuadrantCard } },
-    { to: "/media", labelKey: "roles.media", fallback: "MEDIA", Icon: Newspaper, angle: 257.1, quadrantCard: { position: getQuadrantPositionForAngle(257.1), component: InsightsQuadrantCard } },
-    { to: "/business", labelKey: "roles.business", fallback: "BUSINESS", Icon: Package, angle: 308.5, quadrantCard: { position: getQuadrantPositionForAngle(308.5), component: PackagesQuadrantCard } },
+    { to: "/players", labelKey: "roles.players", fallback: "PLAYER", Icon: Users, angle: 0,
+      quadrantCard: { position: getQuadrantPositionForAngle(0), title: "Player", description: "Individual development: analysis, training, mentorship, nutrition, and performance tracking." } },
+    { to: "/clubs", labelKey: "roles.clubs", fallback: "CLUB", Icon: Trophy, angle: 51.4,
+      quadrantCard: { position: getQuadrantPositionForAngle(51.4), title: "Club", description: "Academy and first-team support with tailored performance solutions." } },
+    { to: "/scouts", labelKey: "roles.scouts", fallback: "SCOUT", Icon: Search, angle: 102.8,
+      quadrantCard: { position: getQuadrantPositionForAngle(102.8), title: "Scout", description: "Join our scouting network and apply criteria across physical, mental, technical areas." } },
+    { to: "/agents", labelKey: "roles.agents", fallback: "AGENT", Icon: Briefcase, angle: 154.3,
+      quadrantCard: { position: getQuadrantPositionForAngle(154.3), title: "Agent", description: "Partner with us to enhance development pathways for your represented players." } },
+    { to: "/coaches", labelKey: "roles.coaches", fallback: "COACH", Icon: Target, angle: 205.7,
+      quadrantCard: { position: getQuadrantPositionForAngle(205.7), title: "Coach", description: "Access drills, session plans, and professional development tools." } },
+    { to: "/media", labelKey: "roles.media", fallback: "MEDIA", Icon: Newspaper, angle: 257.1,
+      quadrantCard: { position: getQuadrantPositionForAngle(257.1), title: "Media", description: "Press content, collaboration opportunities, and publishable football intelligence." } },
+    { to: "/business", labelKey: "roles.business", fallback: "BUSINESS", Icon: Package, angle: 308.5,
+      quadrantCard: { position: getQuadrantPositionForAngle(308.5), title: "Business", description: "Flexible packages aligned to your organisation's performance goals." } },
   ];
 
   // Select menu based on current role or selection mode
