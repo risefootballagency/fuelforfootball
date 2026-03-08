@@ -127,7 +127,7 @@ const Scouts = () => {
 
         {/* Scouting Criteria by Position Section */}
         <section className="relative min-h-screen flex flex-col">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-accent/5 to-background" />
           
           <div className="flex-1 flex flex-col relative z-10">
             <div className="text-center py-8 px-4">
