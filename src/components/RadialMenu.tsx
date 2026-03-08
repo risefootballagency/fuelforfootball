@@ -762,7 +762,7 @@ export const RadialMenu = () => {
                   A ${circleSize / 2.2} ${circleSize / 2.2} 0 0 1 ${circleSize / 2 + (circleSize / 2.2) * Math.cos(((endAngle) * Math.PI) / 180)} ${circleSize / 2 + (circleSize / 2.2) * Math.sin(((endAngle) * Math.PI) / 180)}
                   Z
                 `}
-                fill={hovered ? "hsl(120, 40%, 12%)" : "rgba(128,128,128,0.1)"}
+                fill={hovered ? "hsl(var(--accent) / 0.2)" : "hsl(var(--foreground) / 0.08)"}
                 className="transition-colors duration-200 cursor-pointer"
                 style={{ pointerEvents: 'auto' }}
                 onMouseEnter={() => setHoveredItem(index)}
