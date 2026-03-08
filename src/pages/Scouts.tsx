@@ -434,7 +434,7 @@ const Scouts = () => {
               <h2 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider mb-3 leading-none">
                 SCOUTING ACROSS
                 <br />
-                <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
                   ALL OF EUROPE
                 </span>
               </h2>
