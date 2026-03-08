@@ -36,6 +36,35 @@ const extendedKeys: Record<string, string> = {
   match_performance_rated_at_r90: "Match performance rated at R90",
   minutes_played_suffix: "minutes played.",
   select_opposition_scheme: "Select opposition scheme",
+  // AllReportsSection
+  all_reports: "All Reports", search_reports: "Search reports...", newest: "Newest", oldest: "Oldest",
+  all: "All", no_reports_match_filters: "No reports match your filters.", no_reports_available: "No reports available yet.",
+  actions: "actions", loading_all_reports: "Loading all reports...",
+  pre_match_label: "Pre-Match", post_match_label: "Post-Match", concept_label: "Concept", action_report_label: "Action Report",
+  // InjuryLog
+  log_injury: "Log Injury", body_area: "Body area...", describe_injury: "Describe the injury or niggle...",
+  minor: "Minor", moderate: "Moderate", severe: "Severe", cancel: "Cancel", save: "Save",
+  active: "Active", recovered: "Recovered", marked_as_recovered: "Marked as recovered",
+  injury_logged: "Injury logged", no_injuries_logged: "No injuries logged. Stay healthy!",
+  // GoalTracking
+  select_metric: "Select metric...", target_value: "Target value", add_goal: "Add Goal",
+  goal_saved: "Goal saved", goal_removed: "Goal removed", target_achieved: "Target achieved!",
+  no_goals_set: "No goals set yet. Add a target above to start tracking your progress.",
+  per_game: "/ Game",
+  // AnalysisComparisons
+  compare_with: "Compare with", add_comparison_players: "Add comparison players...",
+  search_players: "Search players...", no_players_for_position: "No players for this position.",
+  selected: "selected", last_n: "Last",
+  request_player: "Request player to be added",
+  // MobileBottomNav
+  more_label: "MORE",
+  // NextFixtureCountdown
+  days_label: "DAYS", hrs_label: "HRS", min_label: "MIN", sec_label: "SEC",
+  // ProgressSummary
+  your_progress: "Your Progress", vs_3_months_ago: "vs 3 months ago",
+  // CognisanceSection
+  team_formation: "Team Formation", opposition_formation: "Opposition Formation",
+  all_concepts: "All Concepts", select_concept: "Select Concept", select_analysis: "Select Analysis",
 };
 
 const translations: Record<string, Record<string, string>> = {
