@@ -21,8 +21,8 @@ export const LightConeBackground = () => {
         <defs>
           {/* Gradient for past cone (bottom) */}
           <linearGradient id="pastConeGradientAlways" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.08" />
           </linearGradient>
         </defs>
         
@@ -36,14 +36,14 @@ export const LightConeBackground = () => {
         <line 
           x1="50" y1="65" 
           x2="0" y2="100"
-          stroke="hsl(var(--primary))"
+          stroke="hsl(var(--accent))"
           strokeWidth="0.3"
           opacity="0.5"
         />
         <line 
           x1="50" y1="65" 
           x2="100" y2="100"
-          stroke="hsl(var(--primary))"
+          stroke="hsl(var(--accent))"
           strokeWidth="0.3"
           opacity="0.5"
         />
@@ -54,7 +54,7 @@ export const LightConeBackground = () => {
           rx="50" 
           ry="3"
           fill="none"
-          stroke="hsl(var(--primary))"
+          stroke="hsl(var(--accent))"
           strokeWidth="0.25"
           opacity="0.4"
         />
@@ -84,8 +84,8 @@ export const LightConeBackground = () => {
             
             {/* Gradient for future cone (top) */}
             <linearGradient id="futureConeGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.08" />
+              <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.08" />
             </linearGradient>
             
             {/* Glow filter */}
@@ -111,14 +111,14 @@ export const LightConeBackground = () => {
           <line 
             x1="50" y1="50" 
             x2="0" y2="0"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.3"
             opacity="0.7"
           />
           <line 
             x1="50" y1="50" 
             x2="100" y2="0"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.3"
             opacity="0.7"
           />
@@ -129,7 +129,7 @@ export const LightConeBackground = () => {
             rx="50" 
             ry="3"
             fill="none"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.25"
             opacity="0.5"
           />
@@ -140,9 +140,9 @@ export const LightConeBackground = () => {
           {/* Forms a diamond/rhombus shape in isometric view */}
           <polygon 
             points="50,42 75,50 50,58 25,50"
-            fill="hsl(var(--primary))"
+            fill="hsl(var(--accent))"
             opacity="0.25"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.3"
           />
           
@@ -172,12 +172,12 @@ export const LightConeBackground = () => {
           <line 
             x1="50" y1="50" 
             x2="10" y2="66"
-            stroke="hsl(var(--primary))"
+            stroke="hsl(var(--accent))"
             strokeWidth="0.4"
             opacity="0.9"
             filter="url(#coneGlow)"
           />
-          <text x="6" y="70" fill="hsl(var(--primary))" fontSize="3" opacity="0.9" fontFamily="monospace" fontWeight="bold">x</text>
+          <text x="6" y="70" fill="hsl(var(--accent))" fontSize="3" opacity="0.9" fontFamily="monospace" fontWeight="bold">x</text>
           
           {/* Y-axis - goes up from origin (vertical) */}
           <line 
@@ -215,7 +215,7 @@ export const LightConeBackground = () => {
             cx="50" 
             cy="50" 
             r="2"
-            fill="hsl(var(--primary))"
+            fill="hsl(var(--accent))"
             opacity="0.9"
             filter="url(#coneGlow)"
           />

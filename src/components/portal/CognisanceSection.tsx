@@ -9,6 +9,8 @@ import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { Brain, Shuffle, ChevronLeft, ChevronRight, RotateCcw, Target, Lightbulb, BookOpen, Eye, Zap, Map, Clock, Star, CheckCircle2, TrendingUp, BarChart3, Filter, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface CognisanceSectionProps {
   playerId: string;
@@ -122,6 +124,7 @@ const defaultProgress: CardProgress = {
 };
 
 export function CognisanceSection({ playerId, playerPosition, playerName }: CognisanceSectionProps) {
+  const lang = usePortalLanguage();
   const [selectedGame, setSelectedGame] = useState<GameType>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSessionResults, setShowSessionResults] = useState(false);
@@ -898,32 +901,32 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
           <CardHeader className="pb-2">
             <CardTitle className="font-bebas text-gold flex items-center gap-2">
               <Brain className="w-5 h-5" />
-              {selectedGame === "schemes" && "Tactical Schemes"}
-              {selectedGame === "concepts" && "Concepts"}
-              {selectedGame === "pre-match" && "Pre-Match Analysis"}
-              {selectedGame === "positional-guides" && "Positional Guides"}
-              {selectedGame === "ai-quiz" && "AI Quiz"}
+              {selectedGame === "schemes" && t(lang, "tactical_schemes")}
+              {selectedGame === "concepts" && t(lang, "concepts_label")}
+              {selectedGame === "pre-match" && t(lang, "pre_match_analysis")}
+              {selectedGame === "positional-guides" && t(lang, "positional_guides")}
+              {selectedGame === "ai-quiz" && t(lang, "ai_quiz")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {selectedGame === "schemes" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Team Formation</Label>
+                  <Label className="text-xs">{t(lang, "team_formation")}</Label>
                   <Select value={selectedTeamSchemeFilter} onValueChange={setSelectedTeamSchemeFilter}>
-                    <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t(lang, "all")} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="all">{t(lang, "all")}</SelectItem>
                       {availableTeamSchemes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Opposition Formation</Label>
+                  <Label className="text-xs">{t(lang, "opposition_formation")}</Label>
                   <Select value={selectedOppositionSchemeFilter} onValueChange={setSelectedOppositionSchemeFilter}>
-                    <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t(lang, "all")} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="all">{t(lang, "all")}</SelectItem>
                       {availableOppositionSchemes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
@@ -933,11 +936,11 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
 
             {selectedGame === "concepts" && (
               <div className="space-y-1">
-                <Label className="text-xs">Select Concept</Label>
+                <Label className="text-xs">{t(lang, "select_concept")}</Label>
                 <Select value={selectedConceptFilter} onValueChange={setSelectedConceptFilter}>
-                  <SelectTrigger><SelectValue placeholder="All concepts" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t(lang, "all_concepts")} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Concepts</SelectItem>
+                    <SelectItem value="all">{t(lang, "all_concepts")}</SelectItem>
                     {concepts.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -946,11 +949,11 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
 
             {selectedGame === "pre-match" && (
               <div className="space-y-1">
-                <Label className="text-xs">Select Analysis</Label>
+                <Label className="text-xs">{t(lang, "select_analysis")}</Label>
                 <Select value={selectedPreMatchFilter} onValueChange={setSelectedPreMatchFilter}>
-                  <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t(lang, "all")} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="all">{t(lang, "all")}</SelectItem>
                     {preMatchAnalyses.map(a => <SelectItem key={a.id} value={a.id}>{a.title}</SelectItem>)}
                   </SelectContent>
                 </Select>

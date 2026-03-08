@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Copy, Check, ExternalLink, X, Building2, CreditCard, Globe, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 type PaymentMethod = "revolut" | "paypal" | "card" | "bank" | "international" | null;
 
@@ -47,6 +49,7 @@ const METHODS = [
 
 export const PortalPaymentMethods = () => {
   const [selected, setSelected] = useState<PaymentMethod>(null);
+  const lang = usePortalLanguage();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const copy = async (text: string, field: string) => {
@@ -219,7 +222,7 @@ export const PortalPaymentMethods = () => {
 
       {!selected && (
         <p className="text-center text-sm text-muted-foreground">
-          Select a payment method above to continue.
+          {t(lang, "select_payment_method")}
         </p>
       )}
     </div>
