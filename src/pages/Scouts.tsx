@@ -591,8 +591,8 @@ const Scouts = () => {
                       <span className="text-sm text-foreground">Regular training sessions</span>
                     </li>
                     <li className="flex items-start gap-2 group/item">
-                      <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
-                        <span className="text-primary text-xs">✓</span>
+                      <div className="h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover/item:scale-110 transition-transform">
+                        <span className="text-accent text-xs">✓</span>
                       </div>
                       <span className="text-sm text-foreground">Access to our database and tools</span>
                     </li>
