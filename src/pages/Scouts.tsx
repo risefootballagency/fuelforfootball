@@ -313,7 +313,7 @@ const Scouts = () => {
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {["High Press", "Low Block", "Counter Attack", "Possession"].map(style => (
-                              <Badge key={style} variant="secondary" className="bg-primary/20 border-primary/30">
+                              <Badge key={style} variant="secondary" className="bg-accent/20 border-accent/30">
                                 {style}
                               </Badge>
                             ))}
