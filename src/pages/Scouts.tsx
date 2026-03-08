@@ -510,7 +510,7 @@ const Scouts = () => {
 
         {/* Incentive Structure Section */}
         <section className="py-10 md:py-16 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-primary/5" />
+          <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-background to-accent/5" />
           
           <div className="container mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-8">
