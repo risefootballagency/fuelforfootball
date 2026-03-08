@@ -13,14 +13,9 @@ import smudgedMarbleBg from "@/assets/black-marble-smudged.png";
 import europeMap from "@/assets/europe-outline.gif";
 import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Star } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { PerformanceQuadrantCard, InsightsQuadrantCard, ContactQuadrantCard, PortalQuadrantCard, ShopQuadrantCard, ScoutingQuadrantCard, ClubSupportQuadrantCard, PackagesQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
+import { SimpleQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
 
 export type QuadrantPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-
-interface QuadrantCardProps {
-  maxWidth?: number;
-  maxHeight?: number;
-}
 
 interface SubMenuItem {
   to: string;
@@ -38,7 +33,9 @@ interface MenuItem {
   subItems?: SubMenuItem[];
   quadrantCard?: {
     position: QuadrantPosition;
-    component: React.ComponentType<QuadrantCardProps>;
+    title: string;
+    description: string;
+    stat?: string;
   };
 }
 
