@@ -16,6 +16,8 @@ import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparison
 import { ScatterComparisonChart } from "@/components/portal/ScatterComparisonChart";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 const RadarChart3D = lazy(() => import("@/components/portal/RadarChart3D").then(m => ({ default: m.RadarChart3D })));
 
