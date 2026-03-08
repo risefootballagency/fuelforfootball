@@ -53,7 +53,7 @@ const CATEGORIES = [
   { id: "Psychological Services", label: "Mental" },
   { id: "Coaching Services", label: "Coaching" },
   { id: "Data Services", label: "Data & Stats" },
-];
+] as const;
 
 // Calculate discount percentage based on number of unique services
 const getDiscountPercent = (itemCount: number): number => {
