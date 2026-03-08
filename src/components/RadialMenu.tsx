@@ -876,7 +876,7 @@ export const RadialMenu = () => {
                       </button>
                     ))}
                     <button
-                      className="pointer-events-auto mt-1 text-xs text-white/60 hover:text-primary font-bebas tracking-wider transition-colors"
+                      className="pointer-events-auto mt-1 text-xs text-white/60 hover:text-accent font-bebas tracking-wider transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         setExpandedCategory(null);
