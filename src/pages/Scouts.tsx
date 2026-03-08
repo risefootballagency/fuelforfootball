@@ -632,7 +632,7 @@ const Scouts = () => {
                           {step.num}
                         </div>
                       </div>
-                      <h4 className="font-bold text-base mb-2 group-hover:text-primary transition-colors">{step.title}</h4>
+                      <h4 className="font-bold text-base mb-2 group-hover:text-accent transition-colors">{step.title}</h4>
                       <p className="text-xs text-muted-foreground leading-relaxed">{step.desc}</p>
                     </div>
                   ))}
