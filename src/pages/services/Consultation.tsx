@@ -72,8 +72,8 @@ const Consultation = () => {
 
   return (
     <ServicePageLayout
-      category="CONSULTATION"
-      title="KNOW THYSELF"
+      category={t("consultation.category", "CONSULTATION")}
+      title={t("consultation.hero_title", "KNOW THYSELF")}
       heroVideo="/videos/players-hero.mp4"
       heroVideoWithBorders
       statsPageKey="consultation"
