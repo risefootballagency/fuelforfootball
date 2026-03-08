@@ -300,7 +300,7 @@ export const AthleteCentre = () => {
       {/* Player Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1">
-          <Select value={selectedPlayer || ""} onValueChange={setSelectedPlayer}>
+          <Select value={selectedPlayer || ""} onValueChange={(val) => { setSelectedPlayer(val); localStorage.setItem('athleteCentre_lastPlayer', val); }}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a player..." />
             </SelectTrigger>
