@@ -20,27 +20,34 @@ export const SimpleQuadrantCard = ({
   maxWidth,
   maxHeight,
 }: SimpleQuadrantCardProps) => {
+  const alignment = position.includes('right')
+    ? 'items-end text-right'
+    : 'items-start text-left';
+
   return (
     <div
-      className="animate-[fade-in_0.3s_ease-out_forwards] text-center"
+      className="animate-[fade-in_0.3s_ease-out_forwards] w-full h-full"
       style={{
         maxWidth: maxWidth ?? undefined,
-        maxHeight: maxHeight ?? undefined,
+        minHeight: maxHeight ?? undefined,
       }}
     >
-      {/* Label with icon */}
-      <div className="inline-flex items-center gap-2 bg-accent px-4 py-1 mb-3">
-        <div className="text-black">{icon}</div>
-        <span className="text-sm font-bebas uppercase tracking-wider text-black">{title}</span>
+      <div className="w-full h-full rounded-xl border border-accent/35 bg-background/70 backdrop-blur-sm px-4 py-3 flex flex-col justify-center">
+        <div className={`flex flex-col gap-2 ${alignment}`}>
+          <div className="inline-flex items-center gap-2 bg-accent px-3 py-1 rounded-sm">
+            <div className="text-black">{icon}</div>
+            <span className="text-xs font-bebas uppercase tracking-wider text-black">{title}</span>
+          </div>
+
+          {stat && (
+            <div className="text-4xl font-bebas text-accent leading-none">{stat}</div>
+          )}
+
+          <p className="text-white/85 text-xs md:text-sm leading-snug break-words">
+            {description}
+          </p>
+        </div>
       </div>
-      
-      {/* Stat if provided */}
-      {stat && (
-        <div className="text-5xl font-bebas text-accent leading-none mb-2">{stat}</div>
-      )}
-      
-      {/* Description */}
-      <p className="text-white/80 text-sm leading-relaxed">{description}</p>
     </div>
   );
 };
@@ -53,7 +60,7 @@ export const PerformanceQuadrantCard = (props: QuadrantCardProps) => (
     icon={<TrendingUp className="w-4 h-4" />}
     title="Performance"
     stat="R90"
-    description="Our proprietary analysis system tracks every action to maximise player potential."
+    description="Track actions, decisions, and progression with role-specific performance analysis."
     position="top-right"
     {...props}
   />
@@ -63,7 +70,7 @@ export const InsightsQuadrantCard = (props: QuadrantCardProps) => (
   <SimpleQuadrantCard
     icon={<BookOpen className="w-4 h-4" />}
     title="Insights"
-    description="Expert tactical analysis and exclusive content from inside the game."
+    description="Get tactical insights, match breakdowns, and exclusive football intelligence."
     position="top-left"
     {...props}
   />
@@ -73,7 +80,7 @@ export const ContactQuadrantCard = (props: QuadrantCardProps) => (
   <SimpleQuadrantCard
     icon={<MessageCircle className="w-4 h-4" />}
     title="Get In Touch"
-    description="Ready to elevate your career? Connect with our team today."
+    description="Speak with the team to plan your next step and start immediately."
     position="bottom-right"
     {...props}
   />
@@ -83,7 +90,7 @@ export const PortalQuadrantCard = (props: QuadrantCardProps) => (
   <SimpleQuadrantCard
     icon={<Users className="w-4 h-4" />}
     title="Player Portal"
-    description="Access your personalised dashboard with performance data, programmes, and analysis."
+    description="Open your dashboard for reports, programmes, updates, and performance tracking."
     position="bottom-left"
     {...props}
   />
@@ -93,7 +100,7 @@ export const ShopQuadrantCard = (props: QuadrantCardProps) => (
   <SimpleQuadrantCard
     icon={<Package className="w-4 h-4" />}
     title="Shop"
-    description="Browse our collection of training resources, e-books, and performance packages."
+    description="Explore resources, tools, and performance products built for serious players."
     position="top-left"
     {...props}
   />
@@ -103,7 +110,7 @@ export const ScoutingQuadrantCard = (props: QuadrantCardProps) => (
   <SimpleQuadrantCard
     icon={<Search className="w-4 h-4" />}
     title="Scouting"
-    description="Position-specific criteria across physical, mental, technical, and tactical domains."
+    description="Apply position criteria across physical, mental, technical, and tactical areas."
     position="top-right"
     {...props}
   />
@@ -113,7 +120,7 @@ export const ClubSupportQuadrantCard = (props: QuadrantCardProps) => (
   <SimpleQuadrantCard
     icon={<Shield className="w-4 h-4" />}
     title="Club Services"
-    description="Comprehensive player development solutions tailored for academy and first-team programmes."
+    description="Support academy and first-team development with tailored performance solutions."
     position="top-right"
     {...props}
   />
@@ -123,7 +130,7 @@ export const PackagesQuadrantCard = (props: QuadrantCardProps) => (
   <SimpleQuadrantCard
     icon={<Trophy className="w-4 h-4" />}
     title="Packages"
-    description="Flexible business packages designed to support your organisation's football goals."
+    description="Choose flexible business packages aligned to your club or organisation goals."
     position="top-right"
     {...props}
   />

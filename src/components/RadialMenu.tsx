@@ -1095,8 +1095,9 @@ export const RadialMenu = () => {
               className="absolute"
               style={{
                 width: maxWidth,
-                height: maxHeight,
-                overflow: 'hidden',
+                minHeight: maxHeight,
+                display: 'flex',
+                alignItems: 'stretch',
                 ...(card.position === 'top-right' || card.position === 'bottom-right'
                   ? { right: edgePadding + overlayOffsetX }
                   : { left: edgePadding + overlayOffsetX }),
