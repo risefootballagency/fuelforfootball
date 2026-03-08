@@ -119,7 +119,7 @@ const ServiceSection = ({
   reverse?: boolean;
   hasTitleBackground?: boolean;
 }) => (
-  <section id={id} className="md:pt-16 md:pb-10 bg-card/30 py-2 md:py-0 snap-start">
+  <section id={id} className="md:pt-16 md:pb-10 bg-card/30 py-2 md:py-0 snap-start snap-always">
     <div className="container mx-auto">
       {hasTitleBackground ? (
         <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-3 md:mb-16">
