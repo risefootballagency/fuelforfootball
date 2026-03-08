@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Target, Plus, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface GoalTrackingProps {
   playerData: any;
@@ -22,6 +24,7 @@ interface PlayerGoal {
 }
 
 export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTrackingProps) => {
+  const lang = usePortalLanguage();
   const [goals, setGoals] = useState<PlayerGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -86,7 +89,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
       });
       setNewMetric("");
       setNewTarget("");
-      toast.success("Goal saved");
+      toast.success(t(lang, "goal_saved"));
     }
     setSaving(false);
   };
@@ -95,7 +98,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
     const { error } = await supabase.from("player_goals" as any).delete().eq("id", goalId);
     if (!error) {
       setGoals(prev => prev.filter(g => g.id !== goalId));
-      toast.success("Goal removed");
+      toast.success(t(lang, "goal_removed"));
     }
   };
 
@@ -111,7 +114,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
       <div className="flex flex-col sm:flex-row gap-3 p-4 bg-muted/30 rounded-lg border">
         <Select value={newMetric} onValueChange={setNewMetric}>
           <SelectTrigger className="flex-1">
-            <SelectValue placeholder="Select metric..." />
+            <SelectValue placeholder={t(lang, "select_metric")} />
           </SelectTrigger>
           <SelectContent>
             {METRIC_CATEGORIES.map(cat => (
@@ -119,7 +122,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
                 {cat.metrics.filter(m => !usedMetrics.includes(m.key)).map(m => (
                   <SelectItem key={m.key} value={m.key}>
-                    {m.label}{m.key.endsWith('_pct') ? '' : ' / Game'}
+                    {m.label}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}
                   </SelectItem>
                 ))}
               </div>
@@ -129,14 +132,14 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
         <Input
           type="number"
           step="0.01"
-          placeholder="Target value"
+          placeholder={t(lang, "target_value")}
           value={newTarget}
           onChange={e => setNewTarget(e.target.value)}
           className="w-full sm:w-32"
         />
         <Button onClick={handleAddGoal} disabled={!newMetric || !newTarget || saving} size="sm">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-1" />}
-          Add Goal
+          {t(lang, "add_goal")}
         </Button>
       </div>
 
@@ -144,7 +147,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
       {goals.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>No goals set yet. Add a target above to start tracking your progress.</p>
+          <p>{t(lang, "no_goals_set")}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -163,7 +166,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
                   <div>
                     <span className="font-medium text-sm">{metric?.label || goal.metric_key}</span>
                     <span className="text-xs text-muted-foreground ml-2">
-                      {isPercentage ? '' : '/ Game'}
+                      {isPercentage ? '' : t(lang, "per_game")}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -188,7 +191,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
                 </div>
                 <Progress value={progress} className={`h-3 ${isAchieved ? '[&>div]:bg-green-500' : ''}`} />
                 {isAchieved && (
-                  <p className="text-xs text-green-600 mt-1 font-medium">Target achieved!</p>
+                  <p className="text-xs text-green-600 mt-1 font-medium">{t(lang, "target_achieved")}</p>
                 )}
               </div>
             );

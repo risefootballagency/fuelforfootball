@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { TrendingUp, BarChart3, Calendar, MoreHorizontal } from "lucide-react";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface TabConfig {
   id: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<any>;
 }
 
@@ -16,9 +18,9 @@ interface MobileBottomNavProps {
 }
 
 const ALL_TABS: TabConfig[] = [
-  { id: "hub", label: "HUB", icon: TrendingUp },
-  { id: "analysis", label: "ANALYSIS", icon: BarChart3 },
-  { id: "physical", label: "PROGRAMMING", icon: Calendar },
+  { id: "hub", labelKey: "hub", icon: TrendingUp },
+  { id: "analysis", labelKey: "analysis", icon: BarChart3 },
+  { id: "physical", labelKey: "programming", icon: Calendar },
 ];
 
 export const MobileBottomNav = ({
@@ -28,14 +30,15 @@ export const MobileBottomNav = ({
   hasAnalysis = true,
   hasProgramming = true,
 }: MobileBottomNavProps) => {
-  // Filter tabs based on available data
+  const lang = usePortalLanguage();
+  
   const tabs = ALL_TABS.filter(tab => {
     if (tab.id === "analysis") return hasAnalysis;
     if (tab.id === "physical") return hasProgramming;
     return true;
   });
 
-  const totalCols = tabs.length + 1; // +1 for MORE
+  const totalCols = tabs.length + 1;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-md border-t border-border/50 safe-area-bottom">
@@ -74,7 +77,7 @@ export const MobileBottomNav = ({
               <span
                 className={`text-[9px] tracking-wider transition-colors duration-200 ${isActive ? 'text-white' : 'text-muted-foreground'} group-hover:text-[hsl(140,40%,20%)]`}
               >
-                {tab.label}
+                {t(lang, tab.labelKey).toUpperCase()}
               </span>
             </button>
           );
@@ -89,7 +92,7 @@ export const MobileBottomNav = ({
           >
             <MoreHorizontal className="h-5 w-5 text-muted-foreground group-hover:text-[hsl(140,40%,20%)] transition-colors duration-200" />
           </motion.div>
-          <span className="text-[9px] tracking-wider text-muted-foreground group-hover:text-[hsl(140,40%,20%)] transition-colors duration-200">MORE</span>
+          <span className="text-[9px] tracking-wider text-muted-foreground group-hover:text-[hsl(140,40%,20%)] transition-colors duration-200">{t(lang, "more_label")}</span>
         </button>
       </div>
     </nav>
