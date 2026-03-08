@@ -21,8 +21,8 @@ export const LightConeBackground = () => {
         <defs>
           {/* Gradient for past cone (bottom) */}
           <linearGradient id="pastConeGradientAlways" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.08" />
           </linearGradient>
         </defs>
         
@@ -36,14 +36,14 @@ export const LightConeBackground = () => {
         <line 
           x1="50" y1="65" 
           x2="0" y2="100"
-          stroke="hsl(var(--primary))"
+          stroke="hsl(var(--accent))"
           strokeWidth="0.3"
           opacity="0.5"
         />
         <line 
           x1="50" y1="65" 
           x2="100" y2="100"
-          stroke="hsl(var(--primary))"
+          stroke="hsl(var(--accent))"
           strokeWidth="0.3"
           opacity="0.5"
         />
@@ -54,7 +54,7 @@ export const LightConeBackground = () => {
           rx="50" 
           ry="3"
           fill="none"
-          stroke="hsl(var(--primary))"
+          stroke="hsl(var(--accent))"
           strokeWidth="0.25"
           opacity="0.4"
         />
