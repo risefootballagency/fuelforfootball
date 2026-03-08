@@ -625,10 +625,10 @@ const Scouts = () => {
                   ].map((step, idx) => (
                     <div key={idx} className="relative text-center group">
                       <div className="relative mb-4">
-                        <div className="text-5xl font-bebas text-primary/20 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 group-hover:scale-110 transition-transform">
+                        <div className="text-5xl font-bebas text-accent/20 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 group-hover:scale-110 transition-transform">
                           {step.num}
                         </div>
-                        <div className="relative text-4xl font-bebas text-primary pt-2 group-hover:scale-110 transition-transform">
+                        <div className="relative text-4xl font-bebas text-accent pt-2 group-hover:scale-110 transition-transform">
                           {step.num}
                         </div>
                       </div>
