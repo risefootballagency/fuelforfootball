@@ -4,7 +4,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GripVertical, Maximize2, Minimize2 } from "lucide-react";
-import grassTexture from "@/assets/grass-smoky-3.png";
 import { cn } from "@/lib/utils";
 
 export interface WidgetLayout {
