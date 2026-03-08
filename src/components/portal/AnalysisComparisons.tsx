@@ -167,7 +167,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
     <div className="space-y-6">
       {/* Form window selector */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Form window:</span>
+        <span className="text-sm font-medium">{t(lang, "form")}:</span>
         {[5, 10, 20].map(n => (
           <button
             key={n}
@@ -178,7 +178,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                 : 'border-border hover:bg-muted'
             }`}
           >
-            Last {n}
+            {t(lang, "last_n")} {n}
           </button>
         ))}
       </div>
