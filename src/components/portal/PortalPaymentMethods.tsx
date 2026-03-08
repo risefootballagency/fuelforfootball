@@ -49,6 +49,7 @@ const METHODS = [
 
 export const PortalPaymentMethods = () => {
   const [selected, setSelected] = useState<PaymentMethod>(null);
+  const lang = usePortalLanguage();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const copy = async (text: string, field: string) => {
