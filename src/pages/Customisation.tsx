@@ -522,7 +522,7 @@ const Customisation = () => {
                     <div className="text-center">
                       <img src={fffLogo} alt="FFF" className="w-20 h-20 mx-auto opacity-20" />
                       <p className="text-muted-foreground mt-4 font-bebas uppercase tracking-wider text-sm">
-                        Hover over services to preview
+                        {t("custom.hover_preview", "Hover over services to preview")}
                       </p>
                     </div>
                   </motion.div>
