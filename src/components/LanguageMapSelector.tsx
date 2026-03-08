@@ -96,7 +96,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
       <button 
         type="button"
         onClick={() => handleOpenChange(true)}
-        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-accenttransition-all duration-300 focus:outline-none cursor-pointer"
+        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-accentransition-all duration-300 focus:outline-none cursor-pointer"
       >
         <img src={getFlagUrl(selectedLanguage.flagCode)} alt={selectedLanguage.name} className="w-[24px] h-auto rounded-sm" />
       </button>
@@ -112,7 +112,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
           
           {/* Content */}
           <div 
-            className="relative bg-black/95 border border-paccent30 max-w-4xl w-full mx-4 overflow-hidden rounded-lg z-[9999] flex flex-col"
+            className="relative bg-black/95 border border-paaccent max-w-4xl w-full mx-4 overflow-hidden rounded-lg z-[9999] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -157,7 +157,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                   >
                     {/* Pulse animation for pending selection */}
                     {isPending && (
-                      <span className="absolute inset-0 -m-2 rounded-full bg-primary/30 animate-ping" />
+                      <span className="absolute inset-0 -m-2 rounded-full bg-praccent0 animate-ping" />
                     )}
                     
                     {/* Marker dot */}
