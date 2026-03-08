@@ -659,6 +659,21 @@ const deExtended: Record<string, string> = {
   your_progress: "Ihr Fortschritt", vs_3_months_ago: "vs vor 3 Monaten",
   team_formation: "Teamformation", opposition_formation: "Gegnerformation",
   all_concepts: "Alle Konzepte", select_concept: "Konzept wählen", select_analysis: "Analyse wählen",
+  tactical_schemes: "Taktische Spielsysteme", concepts_label: "Konzepte", pre_match_analysis: "Spielvorschau",
+  positional_guides: "Positionsanleitungen", ai_quiz: "KI-Quiz",
+  instant_payment: "Sofortzahlung", quick_secure: "Schnell & sicher", debit_or_credit: "EC- oder Kreditkarte",
+  uk_domestic: "UK-Überweisung", iban_swift: "IBAN & SWIFT", bank_transfer: "Banküberweisung", international: "International",
+  card_label: "Karte",
+  select_payment_method: "Wählen Sie oben eine Zahlungsmethode.",
+  copied: "Kopiert", account_name: "Kontoinhaber", sort_code: "BLZ", account_number: "Kontonummer",
+  payment_reference_note: "Bitte verwenden Sie Ihren Namen und die Rechnungsnummer als Referenz.",
+  welcome_intro: "Dies ist Ihr persönlicher Hub für alles rund um Ihre Entwicklung.",
+  welcome_waiting: "Es warten bereits Inhalte auf Sie!",
+  welcome_view_performance: "Leistungsberichte ansehen", welcome_view_analysis: "Analyse ansehen",
+  welcome_cta: "Verstanden, los geht's!",
+  welcome_perf_reports: "Leistungsberichte", welcome_analysis: "Analyse", welcome_form: "Form & Vergleiche",
+  welcome_clips: "Clips & Highlights", welcome_programmes: "Programme",
+  next_track: "Nächster Titel", unknown_track: "Unbekannter Titel",
 };
 Object.entries(deExtended).forEach(([key, val]) => {
   if (translations.de) translations.de[key] = val;
