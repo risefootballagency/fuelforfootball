@@ -329,8 +329,8 @@ const Scouts = () => {
                           </p>
                         </Card>
 
-                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-primary/20">
-                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-primary mb-3">
+                        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-accent/20">
+                          <h4 className="font-bebas text-2xl uppercase tracking-wider text-accent mb-3">
                             Game Phases
                           </h4>
                           <p className="text-sm text-muted-foreground leading-relaxed">
