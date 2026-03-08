@@ -231,13 +231,13 @@ const Customisation = () => {
         <aside className="w-80 lg:w-96 border-r border-border bg-background flex flex-col h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] sticky top-16 md:top-20">
           {/* Header */}
           <div className="p-6 border-b border-border">
-            <h1 className="font-bebas text-2xl uppercase tracking-wider">Build Your Package</h1>
+            <h1 className="font-bebas text-2xl uppercase tracking-wider">{t("custom.title", "Build Your Package")}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Select monthly services to create your programme
+              {t("custom.subtitle", "Select monthly services to create your programme")}
             </p>
             <div className="mt-3 inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-medium">
               <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-              Monthly Subscription
+              {t("custom.monthly_sub", "Monthly Subscription")}
             </div>
           </div>
 
