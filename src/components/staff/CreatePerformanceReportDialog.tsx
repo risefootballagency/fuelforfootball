@@ -1753,9 +1753,9 @@ export const CreatePerformanceReportDialog = ({
                   minute: a.minute || '',
                   action_score: a.action_score || '',
                   action_type: a.action_type || '',
-                  action_description: a.description || '',
+                  action_description: a.action_description || '',
                   notes: a.notes || '',
-                  zone: a.zone_points?.[0]?.zone || null,
+                  zone: a.zone || null,
                 }))}
               />
             </CollapsibleContent>
