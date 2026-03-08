@@ -191,11 +191,34 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       setTranslationsLoaded(false);
       try {
-        // Fetch all translations - use range to get more than default 1000 limit
-        const { data, error } = await supabase
-          .from('translations')
-          .select('*')
-          .range(0, 9999);
+        // Fetch all translations with pagination to avoid PostgREST 1000-row limit
+        let allData: any[] = [];
+        let from = 0;
+        const batchSize = 1000;
+        let hasMore = true;
+        
+        while (hasMore) {
+          const { data: batch, error: batchError } = await supabase
+            .from('translations')
+            .select('*')
+            .range(from, from + batchSize - 1);
+          
+          if (batchError) {
+            console.error('Error fetching translations batch:', batchError);
+            setTranslationsLoaded(true);
+            return;
+          }
+          
+          if (batch && batch.length > 0) {
+            allData = allData.concat(batch);
+            from += batchSize;
+            hasMore = batch.length === batchSize;
+          } else {
+            hasMore = false;
+          }
+        }
+        
+        const data = allData;
 
         if (error) {
           console.error('Error fetching translations:', error);

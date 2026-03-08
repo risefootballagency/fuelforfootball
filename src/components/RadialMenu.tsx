@@ -747,9 +747,10 @@ export const RadialMenu = () => {
         const overlayOffsetY = (overlaySize - vh) / 2;
         const menuRadiusPercent = (menuRadius / overlaySize) * 100;
 
-        // Card size - compact to fit within wedge
-        const cardW = 240;
-        const cardH = 140;
+        // Card size adapts to wedge angle - wider wedges get bigger cards
+        const wedgeAngleRad = (segAngle * Math.PI) / 180;
+        const cardW = Math.min(280, Math.max(200, segAngle * 4));
+        const cardH = Math.min(160, Math.max(100, segAngle * 2.5));
 
         // Position card along mid-angle, between menu edge and viewport edge
         const midRad = (midAngle * Math.PI) / 180;
@@ -763,15 +764,20 @@ export const RadialMenu = () => {
         if (Math.abs(dirX) > 0.001) maxDist = Math.min(maxDist, Math.abs(halfW / dirX));
         if (Math.abs(dirY) > 0.001) maxDist = Math.min(maxDist, Math.abs(halfH / dirY));
         
-        // Place card center at ~55% of the way from menu edge to viewport edge
+        // Place card center at midpoint of available space, clamped to stay inside wedge
         const availableDist = maxDist - menuRadius;
         const distFromCenter = menuRadius + availableDist * 0.5;
         const cardCenterX = vw / 2 + dirX * distFromCenter;
         const cardCenterY = vh / 2 + dirY * distFromCenter;
 
+        // Clamp card to viewport with padding
+        const pad = 16;
+        const clampedX = Math.max(pad + cardW / 2, Math.min(vw - pad - cardW / 2, cardCenterX));
+        const clampedY = Math.max(pad + cardH / 2, Math.min(vh - pad - cardH / 2, cardCenterY));
+
         // Convert to overlay coordinates
-        const cardLeft = cardCenterX - cardW / 2 + overlayOffsetX;
-        const cardTop = cardCenterY - cardH / 2 + overlayOffsetY;
+        const cardLeft = clampedX - cardW / 2 + overlayOffsetX;
+        const cardTop = clampedY - cardH / 2 + overlayOffsetY;
         
         return (
           <div 

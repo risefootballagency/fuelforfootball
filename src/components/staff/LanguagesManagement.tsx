@@ -112,14 +112,31 @@ export const LanguagesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const fetchTranslations = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("translations")
-        .select("*")
-        .order("page_name")
-        .order("text_key");
-
-      if (error) throw error;
-      setTranslations(data || []);
+      // Paginated fetch to avoid PostgREST 1000-row limit
+      let allData: any[] = [];
+      let from = 0;
+      const batchSize = 1000;
+      let hasMore = true;
+      
+      while (hasMore) {
+        const { data: batch, error } = await supabase
+          .from("translations")
+          .select("*")
+          .order("page_name")
+          .order("text_key")
+          .range(from, from + batchSize - 1);
+        
+        if (error) throw error;
+        if (batch && batch.length > 0) {
+          allData = allData.concat(batch);
+          from += batchSize;
+          hasMore = batch.length === batchSize;
+        } else {
+          hasMore = false;
+        }
+      }
+      
+      setTranslations(allData);
     } catch (error) {
       console.error("Error fetching translations:", error);
       toast.error("Failed to load translations");
