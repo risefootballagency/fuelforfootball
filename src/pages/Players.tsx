@@ -119,13 +119,13 @@ const ServiceSection = ({
   reverse?: boolean;
   hasTitleBackground?: boolean;
 }) => (
-  <section id={id} className="md:pt-16 md:pb-10 bg-card/30 py-4 md:py-0">
+  <section id={id} className="md:pt-16 md:pb-10 bg-card/30 py-2 md:py-0 snap-start">
     <div className="container mx-auto">
       {hasTitleBackground ? (
-        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-12 md:mb-16">
+        <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 mb-3 md:mb-16">
           <Link 
             to={learnMoreLink}
-            className="block w-screen relative left-1/2 -translate-x-1/2 py-5 md:py-8 overflow-hidden border-y-4 border-accent cursor-pointer hover:opacity-90 transition-opacity"
+            className="block w-screen relative left-1/2 -translate-x-1/2 py-3 md:py-8 overflow-hidden border-y-4 border-accent cursor-pointer hover:opacity-90 transition-opacity"
             style={{
               backgroundImage: `url('/grass-bg-smoky.png')`,
               backgroundSize: 'cover',
@@ -138,14 +138,14 @@ const ServiceSection = ({
           </Link>
         </div>
       ) : (
-        <Link to={learnMoreLink} className="block mb-12 md:mb-16 hover:opacity-80 transition-opacity">
+        <Link to={learnMoreLink} className="block mb-3 md:mb-16 hover:opacity-80 transition-opacity">
           <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground">
             <HoverText text={title} />
           </h2>
         </Link>
       )}
       
-      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-stretch ${reverse ? 'lg:flex-row-reverse' : ''}`}>
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-12 items-stretch ${reverse ? 'lg:flex-row-reverse' : ''}`}>
         {/* Products Carousel */}
         <div className={`h-full ${reverse ? 'lg:order-2' : ''}`}>
           <ServiceCarousel products={products} />
@@ -294,7 +294,7 @@ const Players = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background snap-y snap-proximity md:snap-none">
       <SEO 
         title="Players - Football Performance Services | Fuel For Football"
         description="Fuel For Football is Football's leading performance consultancy. We work with Premier League and Football League players, offering strength, speed, power development, psychological performance sessions and game analysis."
