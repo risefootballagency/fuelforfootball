@@ -329,7 +329,7 @@ const Customisation = () => {
               {selectedServices.size > 0 && (
                 <>
                   <p className="text-xs text-muted-foreground text-right">
-                    {totalItems} {totalItems === 1 ? 'service' : 'services'} selected
+                    {totalItems} {totalItems === 1 ? t("custom.service", "service") : t("custom.services", "services")} {t("custom.selected", "selected")}
                   </p>
                   <p className="text-[10px] text-primary/70 text-right mt-1">
                     Billed monthly - cancel anytime
