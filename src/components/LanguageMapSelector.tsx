@@ -96,7 +96,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
       <button 
         type="button"
         onClick={() => handleOpenChange(true)}
-        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-accent transition-all duration-300 focus:outline-none cursor-pointer"
+        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-accenttransition-all duration-300 focus:outline-none cursor-pointer"
       >
         <img src={getFlagUrl(selectedLanguage.flagCode)} alt={selectedLanguage.name} className="w-[24px] h-auto rounded-sm" />
       </button>
@@ -112,7 +112,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
           
           {/* Content */}
           <div 
-            className="relative bg-black/95 border border-primary/30 max-w-4xl w-full mx-4 overflow-hidden rounded-lg z-[9999] flex flex-col"
+            className="relative bg-black/95 border border-paccent30 max-w-4xl w-full mx-4 overflow-hidden rounded-lg z-[9999] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
