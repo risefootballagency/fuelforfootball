@@ -909,11 +909,11 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
             {selectedGame === "schemes" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Team Formation</Label>
+                  <Label className="text-xs">{t(lang, "team_formation")}</Label>
                   <Select value={selectedTeamSchemeFilter} onValueChange={setSelectedTeamSchemeFilter}>
-                    <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t(lang, "all")} /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="all">{t(lang, "all")}</SelectItem>
                       {availableTeamSchemes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
