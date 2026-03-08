@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, TrendingUp, TrendingDown, Wallet, Receipt, AlertCircle } from "lucide-react";
 
 interface FinancialSnapshot {
