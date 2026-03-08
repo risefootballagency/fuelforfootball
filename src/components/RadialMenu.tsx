@@ -568,13 +568,13 @@ export const RadialMenu = () => {
 
   // Role selection menu items
   const roleMenuItems: MenuItem[] = [
-    { to: "/players", labelKey: "roles.players", fallback: "PLAYER", Icon: Users, angle: 0 },
-    { to: "/clubs", labelKey: "roles.clubs", fallback: "CLUB", Icon: Trophy, angle: 51.4 },
-    { to: "/scouts", labelKey: "roles.scouts", fallback: "SCOUT", Icon: Search, angle: 102.8 },
-    { to: "/agents", labelKey: "roles.agents", fallback: "AGENT", Icon: Briefcase, angle: 154.3 },
-    { to: "/coaches", labelKey: "roles.coaches", fallback: "COACH", Icon: Target, angle: 205.7 },
-    { to: "/media", labelKey: "roles.media", fallback: "MEDIA", Icon: Newspaper, angle: 257.1 },
-    { to: "/business", labelKey: "roles.business", fallback: "BUSINESS", Icon: Package, angle: 308.5 },
+    { to: "/players", labelKey: "roles.players", fallback: "PLAYER", Icon: Users, angle: 0, quadrantCard: { position: getQuadrantPositionForAngle(0), component: PerformanceQuadrantCard } },
+    { to: "/clubs", labelKey: "roles.clubs", fallback: "CLUB", Icon: Trophy, angle: 51.4, quadrantCard: { position: getQuadrantPositionForAngle(51.4), component: ClubSupportQuadrantCard } },
+    { to: "/scouts", labelKey: "roles.scouts", fallback: "SCOUT", Icon: Search, angle: 102.8, quadrantCard: { position: getQuadrantPositionForAngle(102.8), component: ScoutingQuadrantCard } },
+    { to: "/agents", labelKey: "roles.agents", fallback: "AGENT", Icon: Briefcase, angle: 154.3, quadrantCard: { position: getQuadrantPositionForAngle(154.3), component: ContactQuadrantCard } },
+    { to: "/coaches", labelKey: "roles.coaches", fallback: "COACH", Icon: Target, angle: 205.7, quadrantCard: { position: getQuadrantPositionForAngle(205.7), component: PerformanceQuadrantCard } },
+    { to: "/media", labelKey: "roles.media", fallback: "MEDIA", Icon: Newspaper, angle: 257.1, quadrantCard: { position: getQuadrantPositionForAngle(257.1), component: InsightsQuadrantCard } },
+    { to: "/business", labelKey: "roles.business", fallback: "BUSINESS", Icon: Package, angle: 308.5, quadrantCard: { position: getQuadrantPositionForAngle(308.5), component: PackagesQuadrantCard } },
   ];
 
   // Select menu based on current role or selection mode
