@@ -323,7 +323,7 @@ const Customisation = () => {
             {/* Pricing */}
             <div className="space-y-1 mb-4">
               <div className="flex justify-between items-baseline">
-                <span className="text-muted-foreground text-sm">Monthly Total</span>
+                <span className="text-muted-foreground text-sm">{t("custom.monthly_total", "Monthly Total")}</span>
                 <span className="font-bebas text-2xl text-primary">£{totalPrice.toFixed(2)}<span className="text-sm text-muted-foreground font-sans">/mo</span></span>
               </div>
               {selectedServices.size > 0 && (
