@@ -425,8 +425,8 @@ const Players = () => {
         {/* Technical Section */}
         <ServiceSection
           id="technical"
-          title="Technical"
-          description="Control the ball. Control the game. Technical aspects are the cornerstone of a player's ability to perform in matches. Ball mastery can mean the difference between a missed opportunity and a spectacular goal. Our tailored technical training services hone your ball manipulation, enabling precise passes, dribbling at speed, escaping pressure and accurate execution. Our evidence-based approaches refine your technical abilities through structured training and programming."
+          title={t("players.technical_title", "Technical")}
+          description={t("players.technical_desc", "Control the ball. Control the game. Technical aspects are the cornerstone of a player's ability to perform in matches. Ball mastery can mean the difference between a missed opportunity and a spectacular goal. Our tailored technical training services hone your ball manipulation, enabling precise passes, dribbling at speed, escaping pressure and accurate execution. Our evidence-based approaches refine your technical abilities through structured training and programming.")}
           hasTitleBackground
           products={technicalProducts}
           dailyFuelArticle={{
