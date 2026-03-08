@@ -3,8 +3,11 @@ import ClubNetworkManagement from "@/components/staff/ClubNetworkManagement";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ClubNetwork = () => {
+  const { t } = useLanguage();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -21,9 +24,9 @@ const ClubNetwork = () => {
           <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="max-w-7xl mx-auto">
               <div className="mb-8">
-                <h1 className="text-4xl md:text-5xl font-bebas mb-4">CLUB NETWORK</h1>
+                <h1 className="text-4xl md:text-5xl font-bebas mb-4">{t("club_network.title", "CLUB NETWORK")}</h1>
                 <p className="text-muted-foreground text-lg">
-                  Explore our extensive network of football clubs, scouts, and key decision-makers across Europe.
+                  {t("club_network.subtitle", "Explore our extensive network of football clubs, scouts, and key decision-makers across Europe.")}
                 </p>
               </div>
               <ClubNetworkManagement />

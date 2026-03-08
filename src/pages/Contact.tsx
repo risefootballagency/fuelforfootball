@@ -35,11 +35,11 @@ const Contact = () => {
 
       if (error) throw error;
 
-      toast.success("Message sent successfully! We'll get back to you soon.");
+      toast.success(t("contact.success_msg", "Message sent successfully! We'll get back to you soon."));
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to send message. Please try again.");
+      toast.error(t("contact.error_msg", "Failed to send message. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -54,7 +54,6 @@ const Contact = () => {
         url="/contact"
       />
       <div className="min-h-screen relative overflow-hidden">
-        {/* Animated smoky background */}
         <div className="fixed inset-0 z-0 pointer-events-none">
           <AnimatedSmokyBackground />
         </div>
@@ -63,7 +62,6 @@ const Contact = () => {
           <Header />
           
           <main className="pt-20 md:pt-24">
-            {/* Page Header */}
             <ScrollReveal>
               <section className="relative py-8 md:py-12 overflow-hidden">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -77,10 +75,8 @@ const Contact = () => {
               </section>
             </ScrollReveal>
 
-            {/* Contact Methods + Form */}
             <section className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-24">
               <div className="max-w-4xl mx-auto">
-                {/* Quick Contact Methods */}
                 <ScrollReveal>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                     <Button 
@@ -94,7 +90,7 @@ const Contact = () => {
                         rel="noopener noreferrer"
                       >
                         <MessageCircle className="mr-2 h-5 w-5" />
-                        WhatsApp Us
+                        {t("contact.whatsapp_btn", "WhatsApp Us")}
                       </a>
                     </Button>
 
@@ -110,68 +106,67 @@ const Contact = () => {
                         rel="noopener noreferrer"
                       >
                         <Mail className="mr-2 h-5 w-5" />
-                        Email Us
+                        {t("contact.email_btn", "Email Us")}
                       </a>
                     </Button>
                   </div>
                 </ScrollReveal>
 
-                {/* Contact Form */}
                 <ScrollReveal delay={0.1}>
                   <div className="bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-sm border border-white/20 rounded-2xl p-6 md:p-8">
                     <h2 className="text-2xl md:text-3xl font-bebas uppercase tracking-wider text-white mb-6 text-center">
-                      Send Us A Message
+                      {t("contact.form_title", "Send Us A Message")}
                     </h2>
                     
                     <form onSubmit={handleSubmit} className="space-y-5">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                          <Label htmlFor="name" className="text-white/80">Name</Label>
+                          <Label htmlFor="name" className="text-white/80">{t("contact.label_name", "Name")}</Label>
                           <Input
                             id="name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             className="bg-black/40 border-white/20 text-white placeholder:text-white/40"
-                            placeholder="Your name"
+                            placeholder={t("contact.placeholder_name", "Your name")}
                             required
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="email" className="text-white/80">Email</Label>
+                          <Label htmlFor="email" className="text-white/80">{t("contact.label_email", "Email")}</Label>
                           <Input
                             id="email"
                             type="email"
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             className="bg-black/40 border-white/20 text-white placeholder:text-white/40"
-                            placeholder="your@email.com"
+                            placeholder={t("contact.placeholder_email", "your@email.com")}
                             required
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="subject" className="text-white/80">Subject</Label>
+                        <Label htmlFor="subject" className="text-white/80">{t("contact.label_subject", "Subject")}</Label>
                         <Input
                           id="subject"
                           value={formData.subject}
                           onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                           className="bg-black/40 border-white/20 text-white placeholder:text-white/40"
-                          placeholder="What's this about?"
+                          placeholder={t("contact.placeholder_subject", "What's this about?")}
                           required
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="message" className="text-white/80">Message</Label>
+                        <Label htmlFor="message" className="text-white/80">{t("contact.label_message", "Message")}</Label>
                         <Textarea
                           id="message"
                           rows={5}
                           value={formData.message}
                           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                           className="bg-black/40 border-white/20 text-white placeholder:text-white/40 resize-none"
-                          placeholder="Tell us how we can help..."
+                          placeholder={t("contact.placeholder_message", "Tell us how we can help...")}
                           required
                         />
                       </div>
@@ -182,16 +177,15 @@ const Contact = () => {
                         size="lg"
                         className="w-full font-bebas uppercase tracking-wider text-lg"
                       >
-                        {submitting ? "Sending..." : "Send Message"}
+                        {submitting ? t("contact.sending", "Sending...") : t("contact.send_btn", "Send Message")}
                       </Button>
                     </form>
                   </div>
                 </ScrollReveal>
 
-                {/* Location Info */}
                 <div className="text-center mt-8">
                   <p className="text-white/60 text-sm">
-                    Based in the United Kingdom, working with players worldwide.
+                    {t("contact.location", "Based in the United Kingdom, working with players worldwide.")}
                   </p>
                 </div>
               </div>
