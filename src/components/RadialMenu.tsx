@@ -14,6 +14,7 @@ import europeMap from "@/assets/europe-outline.gif";
 import { Home, TrendingUp, BookOpen, Newspaper, MessageCircle, Target, Trophy, Users, Handshake, Briefcase, Search, Calendar, Heart, Package, X, ChevronDown, Star } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { SimpleQuadrantCard } from "@/components/radial-menu/SimpleQuadrantCard";
+import { calculateContentPlacement } from "@/lib/wedgeGeometry";
 
 export type QuadrantPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -741,42 +742,24 @@ export const RadialMenu = () => {
         
         const vw = window.innerWidth;
         const vh = window.innerHeight;
+        const cx = vw / 2;
+        const cy = vh / 2;
         const menuRadius = circleSize / 2;
+        const edgePadding = 24;
+
+        const placement = calculateContentPlacement(
+          cx,
+          cy,
+          startAngle,
+          endAngle,
+          menuRadius,
+          vw,
+          vh,
+          edgePadding
+        );
+
         const overlaySize = Math.max(vw, vh);
-        const overlayOffsetX = (overlaySize - vw) / 2;
-        const overlayOffsetY = (overlaySize - vh) / 2;
         const menuRadiusPercent = (menuRadius / overlaySize) * 100;
-
-        // Card size: fixed reasonable size
-        const cardW = 240;
-        const cardH = 140;
-
-        // Position card along mid-angle, between menu edge and viewport edge
-        const midRad = (midAngle * Math.PI) / 180;
-        const dirX = Math.cos(midRad);
-        const dirY = Math.sin(midRad);
-
-        // Calculate distance to viewport edge along this angle
-        const halfW = vw / 2;
-        const halfH = vh / 2;
-        let maxDist = Infinity;
-        if (Math.abs(dirX) > 0.001) maxDist = Math.min(maxDist, Math.abs(halfW / dirX));
-        if (Math.abs(dirY) > 0.001) maxDist = Math.min(maxDist, Math.abs(halfH / dirY));
-        
-        // Place card at ~65% of the way from menu edge to viewport edge
-        const availableDist = maxDist - menuRadius;
-        const distFromCenter = menuRadius + availableDist * 0.65;
-        const cardCenterX = vw / 2 + dirX * distFromCenter;
-        const cardCenterY = vh / 2 + dirY * distFromCenter;
-
-        // Clamp card to viewport with padding
-        const pad = 16;
-        const clampedX = Math.max(pad + cardW / 2, Math.min(vw - pad - cardW / 2, cardCenterX));
-        const clampedY = Math.max(pad + cardH / 2, Math.min(vh - pad - cardH / 2, cardCenterY));
-
-        // Convert to overlay coordinates
-        const cardLeft = clampedX - cardW / 2 + overlayOffsetX;
-        const cardTop = clampedY - cardH / 2 + overlayOffsetY;
         
         return (
           <div 
@@ -800,10 +783,11 @@ export const RadialMenu = () => {
             <div 
               className="absolute flex items-center justify-center"
               style={{
-                width: cardW,
-                height: cardH,
-                left: cardLeft,
-                top: cardTop,
+                left: `calc(50% + ${placement.x}px)`,
+                top: `calc(50% + ${placement.y}px)`,
+                transform: 'translate(-50%, -50%)',
+                width: `${placement.width}px`,
+                maxHeight: `${placement.height}px`,
               }}
             >
               <SimpleQuadrantCard
@@ -812,8 +796,8 @@ export const RadialMenu = () => {
                 description={card.description}
                 stat={card.stat}
                 position={card.position}
-                maxWidth={cardW}
-                maxHeight={cardH}
+                maxWidth={placement.width}
+                maxHeight={placement.height}
               />
             </div>
           </div>
