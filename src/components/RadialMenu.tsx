@@ -801,7 +801,15 @@ export const RadialMenu = () => {
                 top: cardTop,
               }}
             >
-              <CardComponent maxWidth={cardW} maxHeight={cardH} />
+              <SimpleQuadrantCard
+                icon={<hoveredIcon className="w-4 h-4" />}
+                title={card.title}
+                description={card.description}
+                stat={card.stat}
+                position={card.position}
+                maxWidth={cardW}
+                maxHeight={cardH}
+              />
             </div>
           </div>
         );
