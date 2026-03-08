@@ -226,7 +226,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
                       className={`
                         flex items-center gap-2 px-3 py-2 rounded transition-all
                         ${isPending 
-                          ? 'bg-primary text-black' 
+                          ? 'bg-accent text-black' 
                           : 'bg-white/5 text-white/80 hover:bg-white/10'
                         }
                       `}
