@@ -65,7 +65,7 @@ const getMultiplierDisplay = (zone: number): string => {
   return "0%";
 };
 
-export const ZonePitchSelector = ({ value, onChange, actionType, compact = false }: ZonePitchSelectorProps) => {
+export const ZonePitchSelector = ({ value, onChange, actionType, compact = false, popoverClassName }: ZonePitchSelectorProps) => {
   const [open, setOpen] = useState(false);
   const [expandedZone, setExpandedZone] = useState<number | null>(null);
   const showPass = isPassAction(actionType);
