@@ -486,10 +486,10 @@ const Customisation = () => {
                 >
                   <div className="text-center max-w-md">
                     <h3 className="font-bebas text-3xl uppercase tracking-wider mb-4 text-muted-foreground">
-                      Select a Category
+                      {t("custom.select_category", "Select a Category")}
                     </h3>
                     <p className="text-muted-foreground">
-                      Choose from our range of performance services to build your custom package
+                      {t("custom.select_desc", "Choose from our range of performance services to build your custom package")}
                     </p>
                   </div>
                 </motion.div>
