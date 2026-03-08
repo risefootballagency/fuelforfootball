@@ -98,8 +98,8 @@ export const ServiceCarousel = ({
               className="flex-[0_0_100%] min-w-0 px-1"
             >
               <div className="bg-card border border-border/50 rounded-lg hover:border-accent/50 transition-all duration-300 flex flex-col">
-                {/* Square Image - Full width, forced square */}
-                <div className="w-full aspect-square overflow-hidden bg-muted flex-shrink-0">
+                {/* Square Image - Hidden on mobile for compact fit */}
+                <div className="hidden md:block w-full aspect-square overflow-hidden bg-muted flex-shrink-0">
                   <img 
                     src={product.image} 
                     alt={product.title}
@@ -108,17 +108,18 @@ export const ServiceCarousel = ({
                 </div>
                 
                 {/* Content below image */}
-                <div className="p-4 md:p-6 flex flex-col flex-grow bg-card">
+                <div className="p-3 md:p-6 flex flex-col flex-grow bg-card">
                   <h4 className="text-lg md:text-xl font-bebas uppercase tracking-wider text-foreground mb-2">
                     {product.title}
                   </h4>
+                  {/* Description & price hidden on mobile */}
                   {product.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-grow">
+                    <p className="hidden md:block text-sm text-muted-foreground leading-relaxed mb-4 flex-grow">
                       {stripHtml(product.description)}
                     </p>
                   )}
                   {product.price && (
-                    <p className="text-accent font-semibold mb-4">
+                    <p className="hidden md:block text-accent font-semibold mb-4">
                       {product.currency || "£"}{product.price}
                     </p>
                   )}
