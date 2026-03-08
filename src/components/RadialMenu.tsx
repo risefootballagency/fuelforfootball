@@ -851,7 +851,7 @@ export const RadialMenu = () => {
                         fontSize: `${isMobile ? centerSize * 0.12 : centerSize * 0.0875}px`,
                         maxWidth: isMobile ? `${centerSize * 0.5}px` : 'none',
                         whiteSpace: isMobile ? 'normal' : 'nowrap',
-                        color: hovered ? 'hsl(45, 100%, 50%)' : 'hsl(var(--mint))',
+                        color: hovered ? 'hsl(45, 100%, 50%)' : 'rgba(255,255,255,0.85)',
                       }}
                     >
                       {t(item.labelKey, item.fallback)}
