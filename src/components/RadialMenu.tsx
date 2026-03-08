@@ -365,7 +365,17 @@ export const RadialMenu = () => {
       },
     ],
     coaches: [
-      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 0 },
+      { 
+        to: "/login", 
+        labelKey: "header.portal", 
+        fallback: "PORTAL", 
+        Icon: Users, 
+        angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: PortalQuadrantCard,
+        },
+      },
       { 
         to: "/players", 
         labelKey: "header.services", 
