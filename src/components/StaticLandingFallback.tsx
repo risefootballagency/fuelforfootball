@@ -138,6 +138,9 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
             </Button>
           </div>
 
+          <div className="flex justify-center">
+            <LanguageMapSelector />
+          </div>
           <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] font-bebas">
             {t("landing.select_role_enter", "Select Your Role To Enter Site")}
           </p>
