@@ -372,10 +372,10 @@ const Players = () => {
           <div className="container mx-auto text-center">
             <div className="max-w-3xl mx-auto px-4">
               <h2 className="text-2xl md:text-4xl font-bebas uppercase tracking-wider text-foreground mb-3">
-                While You're Reading This, They're Training
+                {t("players.while_reading", "While You're Reading This, They're Training")}
               </h2>
               <p className="text-muted-foreground text-sm md:text-base">
-                Every moment you hesitate is a moment your competition gets ahead.
+                {t("players.while_reading_desc", "Every moment you hesitate is a moment your competition gets ahead.")}
               </p>
             </div>
           </div>
