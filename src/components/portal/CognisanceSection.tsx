@@ -946,11 +946,11 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
 
             {selectedGame === "pre-match" && (
               <div className="space-y-1">
-                <Label className="text-xs">Select Analysis</Label>
+                <Label className="text-xs">{t(lang, "select_analysis")}</Label>
                 <Select value={selectedPreMatchFilter} onValueChange={setSelectedPreMatchFilter}>
-                  <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={t(lang, "all")} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="all">{t(lang, "all")}</SelectItem>
                     {preMatchAnalyses.map(a => <SelectItem key={a.id} value={a.id}>{a.title}</SelectItem>)}
                   </SelectContent>
                 </Select>
