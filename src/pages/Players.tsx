@@ -513,10 +513,10 @@ const Players = () => {
         <section className="py-8 md:py-12 bg-primary/5">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-5xl font-bebas uppercase tracking-wider text-center text-foreground mb-4">
-              Not Sure What Will Make The Greatest Impact?
+              {t("players.cta_title", "Not Sure What Will Make The Greatest Impact?")}
             </h2>
             <p className="text-center text-muted-foreground text-sm md:text-lg max-w-3xl mx-auto mb-8">
-              Consider a <strong>Consultation</strong>, which runs like any good doctor's appointment. We discuss your game and get into the intricacies of your situation, to be able to provide a strong understanding of what to do and a comprehensive plan of action. Equally, our <strong>Player Efficiency Report</strong> can give a direct view on how you can improve in line with what clubs scout and make recruitment decisions based on.
+              {t("players.cta_desc", "Consider a Consultation, which runs like any good doctor's appointment. We discuss your game and get into the intricacies of your situation, to be able to provide a strong understanding of what to do and a comprehensive plan of action. Equally, our Player Efficiency Report can give a direct view on how you can improve in line with what clubs scout and make recruitment decisions based on.")}
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 max-w-2xl mx-auto">
