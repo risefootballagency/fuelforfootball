@@ -533,10 +533,10 @@ const Scouts = () => {
                 
                 <div className="relative p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="h-12 w-12 bg-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Sparkles className="h-6 w-6 text-primary" />
+                    <div className="h-12 w-12 bg-accent/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Sparkles className="h-6 w-6 text-accent" />
                     </div>
-                    <div className="text-3xl font-bebas text-primary">Forever Commission</div>
+                    <div className="text-3xl font-bebas text-accent">Forever Commission</div>
                   </div>
                   
                   <h3 className="text-2xl font-bebas uppercase tracking-wider mb-3">Lifetime Earnings</h3>
