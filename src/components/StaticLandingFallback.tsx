@@ -92,7 +92,6 @@ export function StaticLandingFallback({ performanceReason }: StaticLandingFallba
           </Link>
         </div>
       </div>
-      </div>
 
       {/* Center Section - Static Player Image */}
       <div className="absolute top-0 left-0 right-0 bottom-[200px] md:bottom-[180px] flex items-center justify-center z-10 pointer-events-none">
