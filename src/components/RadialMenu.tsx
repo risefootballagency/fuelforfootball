@@ -319,8 +319,28 @@ export const RadialMenu = () => {
       },
     ],
     scouts: [
-      { to: "/scouts", labelKey: "header.what_we_look_for", fallback: "WHAT WE SEEK", Icon: Search, angle: 0 },
-      { to: "/login", labelKey: "header.portal", fallback: "PORTAL", Icon: Users, angle: 90 },
+      { 
+        to: "/scouts", 
+        labelKey: "header.what_we_look_for", 
+        fallback: "WHAT WE SEEK", 
+        Icon: Search, 
+        angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: ScoutingQuadrantCard,
+        },
+      },
+      { 
+        to: "/login", 
+        labelKey: "header.portal", 
+        fallback: "PORTAL", 
+        Icon: Users, 
+        angle: 90,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(90),
+          component: PortalQuadrantCard,
+        },
+      },
       { 
         to: "/daily-fuel",
         labelKey: "header.insights", 
