@@ -458,8 +458,8 @@ const Scouts = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative p-6">
-                  <div className="h-10 w-10 bg-primary/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                    <Target className="h-5 w-5 text-primary" />
+                  <div className="h-10 w-10 bg-accent/20 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <Target className="h-5 w-5 text-accent" />
                   </div>
                   
                   <h3 className="text-xl font-bebas uppercase tracking-wider mb-2">
