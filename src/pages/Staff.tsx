@@ -329,9 +329,36 @@ const Staff = () => {
     return () => document.removeEventListener("keydown", down);
   }, [expandedCategory, expandedSection]);
 
-  const handleSectionToggle = (section: string) => {
+  const handleSectionToggle = (section: string, replaceCurrentTab = false) => {
     setExpandedSection(section);
     setSearchParams({ section });
+    localStorage.setItem('staff_active_tab', section);
+    
+    // Auto-add section as tab (matching RISE behavior)
+    try {
+      const cats = buildCategories();
+      const sectionData = cats.flatMap(c => c.sections).find(s => s.id === section && !(s as any).isGroupLabel);
+      if (sectionData) {
+        setOpenTabs(prev => {
+          if (prev.some(t => t.id === section)) return prev;
+          const iconName = Object.entries(ICON_MAP).find(([, v]) => v === sectionData.icon)?.[0] || 'FileText';
+          const newTab: HeaderTab = { id: sectionData.id, title: sectionData.title, icon: iconName };
+          
+          if (replaceCurrentTab) {
+            const prevActive = localStorage.getItem('staff_active_tab_prev');
+            const activeIdx = prev.findIndex(t => t.id === prevActive);
+            if (activeIdx !== -1) {
+              const updated = [...prev];
+              updated[activeIdx] = newTab;
+              return updated.slice(-MAX_STORED_TABS);
+            }
+          }
+          return [...prev, newTab].slice(-MAX_STORED_TABS);
+        });
+      }
+    } catch {}
+    
+    localStorage.setItem('staff_active_tab_prev', section);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
