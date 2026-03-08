@@ -875,6 +875,21 @@ const csExtended: Record<string, string> = {
   your_progress: "Váš Pokrok", vs_3_months_ago: "vs před 3 měsíci",
   team_formation: "Formace Týmu", opposition_formation: "Formace Soupeře",
   all_concepts: "Všechny Koncepty", select_concept: "Vybrat Koncept", select_analysis: "Vybrat Analýzu",
+  tactical_schemes: "Taktická Schémata", concepts_label: "Koncepty", pre_match_analysis: "Předzápasová Analýza",
+  positional_guides: "Poziční Průvodci", ai_quiz: "AI Kvíz",
+  instant_payment: "Okamžitá platba", quick_secure: "Rychle a bezpečně", debit_or_credit: "Debetní nebo kreditní",
+  uk_domestic: "UK převod", iban_swift: "IBAN a SWIFT", bank_transfer: "Bankovní Převod", international: "Mezinárodní",
+  card_label: "Karta",
+  select_payment_method: "Vyberte výše způsob platby.",
+  copied: "Zkopírováno", account_name: "Název Účtu", sort_code: "Kód Pobočky", account_number: "Číslo Účtu",
+  payment_reference_note: "Jako referenci platby použijte své jméno a číslo faktury.",
+  welcome_intro: "Toto je váš osobní hub pro vše kolem vašeho rozvoje.",
+  welcome_waiting: "Již na vás čeká obsah!",
+  welcome_view_performance: "Zobrazit Výkonnostní Reporty", welcome_view_analysis: "Zobrazit Analýzu",
+  welcome_cta: "Rozumím, pojďme!",
+  welcome_perf_reports: "Výkonnostní Reporty", welcome_analysis: "Analýza", welcome_form: "Forma a Srovnání",
+  welcome_clips: "Klipy a Momenty", welcome_programmes: "Programy",
+  next_track: "Další skladba", unknown_track: "Neznámá Skladba",
 };
 Object.entries(csExtended).forEach(([key, val]) => {
   if (translations.cs) translations.cs[key] = val;
