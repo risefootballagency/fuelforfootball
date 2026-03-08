@@ -23,31 +23,13 @@ import { GrassBackground, SmokyBackground, GRASS_BACKGROUNDS } from "@/component
 import { HoverText } from "@/components/HoverText";
 
 // New slide content based on marketing messaging
-const HERO_SLIDE_CONTENT = [
-  {
-    title: "BY YOUR SIDE THROUGHOUT YOUR CAREER",
-    subtitle: "Our performance team stays with you, providing unwavering support even through transfers and relocations. No matter where your career takes you, we ensure you have the same dedicated team behind you, committed to your success."
-  },
-  {
-    title: "LONG-TERM SOLUTIONS",
-    subtitle: "Our work centres around career goals and where our clients aim to reach. Through our expertise, we transform strengths into specialities and eliminate weaknesses, such that it is possible to level up to compete in the highest echelons of the game."
-  },
-  {
-    title: "INDIVIDUALISED TRAINING",
-    subtitle: "Considering the varying physiology of each professional player, in order for real progression and elite performance to be achieved, this attention to detail is a must-have. Fuel For Football provides this much-needed service."
-  },
-  {
-    title: "24/7 SUPPORT EVERY DAY ALL YEAR",
-    subtitle: "At the highest level, every action matters. We support our players 24/7, because the day is not done when leaving the training ground. Our team is always available to provide guidance, helping our players gain every possible advantage."
-  },
-  {
-    title: "STRONGER FASTER FITTER",
-    subtitle: "Our strong client base includes players from the English Premier League and many across Europe's top divisions, who have rocketed into prominence through our extensive training, analysis and recovery protocol."
-  },
-  {
-    title: "WORKING HARD TO BETTER THE BEST",
-    subtitle: "8 National Team Players. 18 'Big 5' League Players. 74 Professional Players. Our strong client base has rocketed into prominence through our extensive training, analysis and recovery protocol."
-  }
+const HERO_SLIDE_KEYS = [
+  { titleKey: "players.hero_slide1_title", subtitleKey: "players.hero_slide1_subtitle", titleFallback: "BY YOUR SIDE THROUGHOUT YOUR CAREER", subtitleFallback: "Our performance team stays with you, providing unwavering support even through transfers and relocations. No matter where your career takes you, we ensure you have the same dedicated team behind you, committed to your success." },
+  { titleKey: "players.hero_slide2_title", subtitleKey: "players.hero_slide2_subtitle", titleFallback: "LONG-TERM SOLUTIONS", subtitleFallback: "Our work centres around career goals and where our clients aim to reach. Through our expertise, we transform strengths into specialities and eliminate weaknesses, such that it is possible to level up to compete in the highest echelons of the game." },
+  { titleKey: "players.hero_slide3_title", subtitleKey: "players.hero_slide3_subtitle", titleFallback: "INDIVIDUALISED TRAINING", subtitleFallback: "Considering the varying physiology of each professional player, in order for real progression and elite performance to be achieved, this attention to detail is a must-have. Fuel For Football provides this much-needed service." },
+  { titleKey: "players.hero_slide4_title", subtitleKey: "players.hero_slide4_subtitle", titleFallback: "24/7 SUPPORT EVERY DAY ALL YEAR", subtitleFallback: "At the highest level, every action matters. We support our players 24/7, because the day is not done when leaving the training ground. Our team is always available to provide guidance, helping our players gain every possible advantage." },
+  { titleKey: "players.hero_slide5_title", subtitleKey: "players.hero_slide5_subtitle", titleFallback: "STRONGER FASTER FITTER", subtitleFallback: "Our strong client base includes players from the English Premier League and many across Europe's top divisions, who have rocketed into prominence through our extensive training, analysis and recovery protocol." },
+  { titleKey: "players.hero_slide6_title", subtitleKey: "players.hero_slide6_subtitle", titleFallback: "WORKING HARD TO BETTER THE BEST", subtitleFallback: "8 National Team Players. 18 'Big 5' League Players. 74 Professional Players. Our strong client base has rocketed into prominence through our extensive training, analysis and recovery protocol." },
 ];
 
 // Dynamic Hero Slider that fetches images from landing folder
