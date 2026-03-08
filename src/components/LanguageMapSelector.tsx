@@ -96,7 +96,7 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
       <button 
         type="button"
         onClick={() => handleOpenChange(true)}
-        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-primary transition-all duration-300 focus:outline-none cursor-pointer"
+        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-accent transition-all duration-300 focus:outline-none cursor-pointer"
       >
         <img src={getFlagUrl(selectedLanguage.flagCode)} alt={selectedLanguage.name} className="w-[24px] h-auto rounded-sm" />
       </button>
