@@ -309,10 +309,10 @@ const Players = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-transparent to-accent/5 pointer-events-none" />
           <div className="container mx-auto relative z-10">
             <h2 className="text-3xl md:text-6xl font-bebas uppercase tracking-wider text-center text-white mb-2 md:mb-4">
-              How We Fuel
+              {t("players.how_we_fuel", "How We Fuel")}
             </h2>
             <p className="text-center text-accent font-bebas uppercase tracking-wider text-lg md:text-2xl mb-4 md:mb-8">
-              Football's Leading Performance Consultancy
+              {t("players.leading_consultancy", "Football's Leading Performance Consultancy")}
             </p>
             <p className="text-center text-muted-foreground text-sm md:text-base max-w-4xl mx-auto mb-8 md:mb-16">
               {BRAND_CONTENT.overview} {BRAND_CONTENT.valueProposition}
