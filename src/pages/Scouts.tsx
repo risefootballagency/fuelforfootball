@@ -400,12 +400,12 @@ const Scouts = () => {
                 </div>
               </Card>
 
-              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-primary/30 bg-gradient-to-br from-card via-card/95 to-primary/5 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <Card className="group relative overflow-hidden border-2 border-transparent hover:border-accent/30 bg-gradient-to-br from-card via-card/95 to-accent/5 transition-all duration-500 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1">
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <div className="relative p-6 text-center">
-                  <div className="h-12 w-12 mx-auto bg-primary/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Award className="h-6 w-6 text-primary" />
+                  <div className="h-12 w-12 mx-auto bg-accent/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <Award className="h-6 w-6 text-accent" />
                   </div>
                   
                   <h3 className="text-2xl font-bebas uppercase tracking-wider mb-2 group-hover:text-primary transition-colors">
