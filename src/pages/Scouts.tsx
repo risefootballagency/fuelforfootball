@@ -607,7 +607,7 @@ const Scouts = () => {
               </Card>
             </div>
 
-            <Card className="relative overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-card via-primary/5 to-card">
+            <Card className="relative overflow-hidden border-2 border-accent/20 bg-gradient-to-br from-card via-accent/5 to-card">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
               
               <div className="relative p-6">
