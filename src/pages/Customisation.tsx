@@ -332,7 +332,7 @@ const Customisation = () => {
                     {totalItems} {totalItems === 1 ? t("custom.service", "service") : t("custom.services", "services")} {t("custom.selected", "selected")}
                   </p>
                   <p className="text-[10px] text-primary/70 text-right mt-1">
-                    Billed monthly - cancel anytime
+                    {t("custom.billed_monthly", "Billed monthly - cancel anytime")}
                   </p>
                 </>
               )}
