@@ -138,7 +138,7 @@ const Consultation = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-0 pb-6">
-          <ServiceSectionTitle>HOW IT WORKS</ServiceSectionTitle>
+          <ServiceSectionTitle>{t("consultation.section_how", "HOW IT WORKS")}</ServiceSectionTitle>
           
           <p className="text-white/80 text-center max-w-4xl mx-auto mb-10 leading-relaxed text-sm md:text-base">
             {t("services_consultation.how_it_works_desc", "Our consultation process is designed to be straightforward and effective.")}
