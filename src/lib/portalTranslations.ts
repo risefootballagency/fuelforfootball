@@ -351,6 +351,28 @@ const frExtended: Record<string, string> = {
   open_report: "Ouvrir le rapport", performance_report: "Rapport de performance", match: "Match",
   match_performance_rated_at_r90: "Performance du match notée à R90",
   minutes_played_suffix: "minutes jouées.",
+  // New keys
+  all_reports: "Tous les Rapports", search_reports: "Rechercher des rapports...", newest: "Plus récent", oldest: "Plus ancien",
+  all: "Tous", no_reports_match_filters: "Aucun rapport ne correspond à vos filtres.", no_reports_available: "Pas encore de rapports disponibles.",
+  actions: "actions", loading_all_reports: "Chargement de tous les rapports...",
+  pre_match_label: "Pré-Match", post_match_label: "Post-Match", concept_label: "Concept", action_report_label: "Rapport d'Action",
+  log_injury: "Enregistrer une Blessure", body_area: "Zone du corps...", describe_injury: "Décrivez la blessure...",
+  minor: "Mineure", moderate: "Modérée", severe: "Grave", cancel: "Annuler", save: "Enregistrer",
+  active: "Active", recovered: "Guérie", marked_as_recovered: "Marquée comme guérie",
+  injury_logged: "Blessure enregistrée", no_injuries_logged: "Aucune blessure enregistrée. Restez en forme !",
+  select_metric: "Sélectionner un indicateur...", target_value: "Valeur cible", add_goal: "Ajouter un Objectif",
+  goal_saved: "Objectif enregistré", goal_removed: "Objectif supprimé", target_achieved: "Objectif atteint !",
+  no_goals_set: "Aucun objectif défini. Ajoutez un objectif ci-dessus pour suivre votre progression.",
+  per_game: "/ Match",
+  compare_with: "Comparer avec", add_comparison_players: "Ajouter des joueurs à comparer...",
+  search_players: "Rechercher des joueurs...", no_players_for_position: "Aucun joueur pour ce poste.",
+  selected: "sélectionné(s)", last_n: "Derniers",
+  request_player: "Demander l'ajout d'un joueur",
+  more_label: "PLUS",
+  days_label: "JOURS", hrs_label: "HRS", min_label: "MIN", sec_label: "SEC",
+  your_progress: "Votre Progression", vs_3_months_ago: "vs il y a 3 mois",
+  team_formation: "Formation d'Équipe", opposition_formation: "Formation Adverse",
+  all_concepts: "Tous les Concepts", select_concept: "Sélectionner un Concept", select_analysis: "Sélectionner une Analyse",
 };
 Object.entries(frExtended).forEach(([key, val]) => {
   if (translations.fr) translations.fr[key] = val;
