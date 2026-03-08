@@ -169,6 +169,10 @@ export const RadialMenu = () => {
         fallback: "HOME", 
         Icon: Home, 
         angle: 0,
+        quadrantCard: {
+          position: getQuadrantPositionForAngle(0),
+          component: PerformanceQuadrantCard,
+        },
       },
       { 
         to: "/services", 
