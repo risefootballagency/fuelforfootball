@@ -260,16 +260,24 @@ const Staff = () => {
     isDragConfirmedRef.current = false;
   };
 
-  // Check URL parameters for section
+  // Check URL parameters for section, fallback to localStorage
   useEffect(() => {
-    const section = searchParams.get('section');
-    if (section && isStaff) {
-      setExpandedSection(section);
-      const cats = buildCategories();
-      const parentCat = cats.find(c => c.sections.some(s => s.id === section));
-      if (parentCat) setExpandedCategory(parentCat.id);
-    }
+    if (!isStaff) return;
+    const urlSection = searchParams.get('section');
+    const section = urlSection || localStorage.getItem('staff_active_tab') || 'overview';
+    setExpandedSection(section);
+    localStorage.setItem('staff_active_tab', section);
+    const cats = buildCategories();
+    const parentCat = cats.find(c => c.sections.some(s => s.id === section));
+    if (parentCat) setExpandedCategory(parentCat.id);
   }, [searchParams, isStaff]);
+
+  // Persist active section to localStorage whenever it changes
+  useEffect(() => {
+    if (expandedSection) {
+      localStorage.setItem('staff_active_tab', expandedSection);
+    }
+  }, [expandedSection]);
 
   // Keyboard shortcuts
   useEffect(() => {
