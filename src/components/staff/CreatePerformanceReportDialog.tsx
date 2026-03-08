@@ -548,6 +548,16 @@ export const CreatePerformanceReportDialog = ({
 
   // Sync unified stats when actions change (from recorded stats)
   useEffect(() => {
+    // Guard: skip during initial edit-mode load to prevent overwriting saved stats
+    if (isEditMode && !initialLoadDoneRef.current) return;
+    // Guard: skip while data is actively loading
+    if (loadingData) return;
+    // Skip the first sync after edit-mode load completes (actions were just populated from DB)
+    if (skipNextActionSyncRef.current) {
+      skipNextActionSyncRef.current = false;
+      return;
+    }
+
     const actionRecordedStats = aggregateRecordedStats(actions);
     const minutes = parseInt(minutesPlayed) || 0;
     
