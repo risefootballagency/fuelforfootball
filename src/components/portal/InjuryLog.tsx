@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface InjuryLogProps {
   playerId: string;
@@ -39,6 +41,7 @@ const SEVERITY_COLOURS: Record<string, string> = {
 };
 
 export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
+  const lang = usePortalLanguage();
   const [entries, setEntries] = useState<InjuryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -95,7 +98,7 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
         setNewBodyArea("");
         setNewDescription("");
         setNewSeverity("minor");
-        toast.success("Injury logged");
+        toast.success(t(lang, "injury_logged"));
       }
     } catch {
       toast.error("Injury log table not available yet");
@@ -111,7 +114,7 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
 
     if (!error) {
       setEntries(prev => prev.map(e => e.id === id ? { ...e, status: "recovered" } : e));
-      toast.success("Marked as recovered");
+      toast.success(t(lang, "marked_as_recovered"));
     }
   };
 
@@ -126,22 +129,22 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
     <div className="space-y-4">
       {!readOnly && (
         <div className="flex items-center justify-between">
-          <h4 className="font-semibold text-sm">Injury Log</h4>
+          <h4 className="font-semibold text-sm">{t(lang, "injury_log")}</h4>
           <Button variant="outline" size="sm" onClick={() => setShowForm(!showForm)}>
             <Plus className="h-4 w-4 mr-1" />
-            Log Injury
+            {t(lang, "log_injury")}
           </Button>
         </div>
       )}
 
-      {readOnly && <h4 className="font-semibold text-sm">Injury Log</h4>}
+      {readOnly && <h4 className="font-semibold text-sm">{t(lang, "injury_log")}</h4>}
 
       {showForm && !readOnly && (
         <div className="p-4 rounded-lg border bg-muted/30 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} />
             <Select value={newBodyArea} onValueChange={setNewBodyArea}>
-              <SelectTrigger><SelectValue placeholder="Body area..." /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t(lang, "body_area")} /></SelectTrigger>
               <SelectContent>
                 {BODY_AREAS.map(area => (
                   <SelectItem key={area} value={area}>{area}</SelectItem>
@@ -151,24 +154,24 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
             <Select value={newSeverity} onValueChange={setNewSeverity}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="minor">Minor</SelectItem>
-                <SelectItem value="moderate">Moderate</SelectItem>
-                <SelectItem value="severe">Severe</SelectItem>
+                <SelectItem value="minor">{t(lang, "minor")}</SelectItem>
+                <SelectItem value="moderate">{t(lang, "moderate")}</SelectItem>
+                <SelectItem value="severe">{t(lang, "severe")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <Textarea
-            placeholder="Describe the injury or niggle..."
+            placeholder={t(lang, "describe_injury")}
             value={newDescription}
             onChange={e => setNewDescription(e.target.value)}
             className="resize-none"
             rows={2}
           />
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowForm(false)}>{t(lang, "cancel")}</Button>
             <Button size="sm" onClick={handleAdd} disabled={!newBodyArea || saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-              Save
+              {t(lang, "save")}
             </Button>
           </div>
         </div>
@@ -176,7 +179,7 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
 
       {activeEntries.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t(lang, "active")}</p>
           {activeEntries.map(entry => (
             <div key={entry.id} className="flex items-start justify-between p-3 rounded-lg border bg-card">
               <div className="space-y-1">
@@ -184,7 +187,7 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
                   <AlertTriangle className="h-4 w-4 text-orange-500" />
                   <span className="font-medium text-sm">{entry.body_area}</span>
                   <Badge variant="outline" className={`text-xs ${SEVERITY_COLOURS[entry.severity] || ''}`}>
-                    {entry.severity}
+                    {t(lang, entry.severity)}
                   </Badge>
                 </div>
                 {entry.description && (
@@ -194,7 +197,7 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
               </div>
               {!readOnly && (
                 <Button variant="ghost" size="sm" onClick={() => handleRecover(entry.id)} className="text-green-600 hover:text-green-700">
-                  <CheckCircle2 className="h-4 w-4 mr-1" /> Recovered
+                  <CheckCircle2 className="h-4 w-4 mr-1" /> {t(lang, "recovered")}
                 </Button>
               )}
             </div>
@@ -204,14 +207,14 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
 
       {recoveredEntries.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Recovered</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t(lang, "recovered")}</p>
           {recoveredEntries.slice(0, 5).map(entry => (
             <div key={entry.id} className="flex items-start p-3 rounded-lg border bg-card/50 opacity-60">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
                   <span className="font-medium text-sm line-through">{entry.body_area}</span>
-                  <Badge variant="outline" className="text-xs">{entry.severity}</Badge>
+                  <Badge variant="outline" className="text-xs">{t(lang, entry.severity)}</Badge>
                 </div>
                 <p className="text-xs text-muted-foreground ml-6">{format(new Date(entry.date), "dd MMM yyyy")}</p>
               </div>
@@ -222,7 +225,7 @@ export const InjuryLog = ({ playerId, readOnly = false }: InjuryLogProps) => {
 
       {entries.length === 0 && (
         <div className="text-center py-6 text-muted-foreground text-sm">
-          No injuries logged. Stay healthy!
+          {t(lang, "no_injuries_logged")}
         </div>
       )}
     </div>

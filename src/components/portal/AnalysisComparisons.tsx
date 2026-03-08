@@ -16,6 +16,8 @@ import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparison
 import { ScatterComparisonChart } from "@/components/portal/ScatterComparisonChart";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 const RadarChart3D = lazy(() => import("@/components/portal/RadarChart3D").then(m => ({ default: m.RadarChart3D })));
 
@@ -50,6 +52,7 @@ interface Props {
 }
 
 export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) => {
+  const lang = usePortalLanguage();
   const [comparisonPlayers, setComparisonPlayers] = useState<ComparisonPlayer[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [formWindow, setFormWindow] = useState<number>(5);
@@ -164,7 +167,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
     <div className="space-y-6">
       {/* Form window selector */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Form window:</span>
+        <span className="text-sm font-medium">{t(lang, "form")}:</span>
         {[5, 10, 20].map(n => (
           <button
             key={n}
@@ -175,27 +178,27 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                 : 'border-border hover:bg-muted'
             }`}
           >
-            Last {n}
+            {t(lang, "last_n")} {n}
           </button>
         ))}
       </div>
 
       {/* Searchable player picker */}
       <div>
-        <p className="text-sm font-medium mb-2">Compare with ({playerPosition}):</p>
+        <p className="text-sm font-medium mb-2">{t(lang, "compare_with")} ({playerPosition}):</p>
         <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" className="w-full sm:w-[300px] justify-between">
-              {selectedPlayerIds.length > 0 ? `${selectedPlayerIds.length} selected` : "Add comparison players..."}
+              {selectedPlayerIds.length > 0 ? `${selectedPlayerIds.length} ${t(lang, "selected")}` : t(lang, "add_comparison_players")}
               <ChevronsUpDown className="h-4 w-4 opacity-50 ml-2" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[300px] p-0" align="start">
             <Command>
-              <CommandInput placeholder="Search players..." value={pickerSearch} onValueChange={setPickerSearch} />
+              <CommandInput placeholder={t(lang, "search_players")} value={pickerSearch} onValueChange={setPickerSearch} />
               <CommandList>
                 {filteredPlayers.length === 0 && !hasNoMatch && (
-                  <CommandEmpty>No players for this position.</CommandEmpty>
+                  <CommandEmpty>{t(lang, "no_players_for_position")}</CommandEmpty>
                 )}
                 <CommandGroup>
                   {filteredPlayers.map(cp => (

@@ -9,6 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, Search, Calendar, Eye, Download, Filter, SortAsc, SortDesc, ChevronDown, ChevronUp } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface UnifiedReport {
   id: string;
@@ -30,6 +32,7 @@ interface AllReportsSectionProps {
 
 export function AllReportsSection({ playerId, playerName }: AllReportsSectionProps) {
   const navigate = useNavigate();
+  const lang = usePortalLanguage();
   const [reports, setReports] = useState<UnifiedReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -46,7 +49,6 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
     const allReports: UnifiedReport[] = [];
 
     try {
-      // 1. Fetch player_analysis records
       const { data: analyses } = await sharedSupabase
         .from("player_analysis")
         .select("id, analysis_date, opponent, r90_score, pdf_url, video_url, analysis_writer_id, minutes_played")
@@ -56,7 +58,6 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
       if (analyses) {
         const analysisIds = analyses.map(a => a.id);
         
-        // Fetch action counts for each analysis
         let actionCounts: Record<string, number> = {};
         if (analysisIds.length > 0) {
           const { data: actions } = await sharedSupabase
@@ -74,7 +75,7 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
           allReports.push({
             id: a.id,
             type: "performance",
-            title: `Performance Report vs ${a.opponent || "Unknown"}`,
+            title: `${t(lang, "performance_report")} vs ${a.opponent || "Unknown"}`,
             date: a.analysis_date,
             opponent: a.opponent,
             score: a.r90_score ? `R90: ${a.r90_score}` : undefined,
@@ -85,7 +86,6 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
           });
         });
 
-        // 2. Fetch linked analyses (pre-match, concepts, post-match)
         const writerIds = analyses
           .filter((a: any) => a.analysis_writer_id)
           .map((a: any) => a.analysis_writer_id);
@@ -113,7 +113,7 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
               allReports.push({
                 id: `writer-${la.id}`,
                 type,
-                title: la.title || `${type === "pre-match" ? "Pre-Match" : type === "concept" ? "Concept" : "Post-Match"} Analysis`,
+                title: la.title || `${type === "pre-match" ? t(lang, "pre_match_label") : type === "concept" ? t(lang, "concept_label") : t(lang, "post_match_label")} ${t(lang, "analysis")}`,
                 date: la.match_date || la.created_at,
                 opponent: la.away_team || la.home_team,
                 score,
@@ -124,7 +124,6 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
         }
       }
 
-      // 3. Also fetch analyses tagged with player name
       if (playerName) {
         const { data: namedAnalyses } = await sharedSupabase
           .from("analyses")
@@ -142,7 +141,7 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
             allReports.push({
               id: `named-${na.id}`,
               type,
-              title: na.title || "Untitled Analysis",
+              title: na.title || `${t(lang, "analysis")}`,
               date: na.match_date || na.created_at,
               opponent: na.away_team,
               analysisWriterId: na.id,
@@ -191,11 +190,11 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
       "action-report": "bg-red-500/20 text-red-400 border-red-500/30",
     };
     const labels: Record<string, string> = {
-      "performance": "Performance",
-      "pre-match": "Pre-Match",
-      "post-match": "Post-Match",
-      "concept": "Concept",
-      "action-report": "Action Report",
+      "performance": t(lang, "performance"),
+      "pre-match": t(lang, "pre_match_label"),
+      "post-match": t(lang, "post_match_label"),
+      "concept": t(lang, "concept_label"),
+      "action-report": t(lang, "action_report_label"),
     };
     return <Badge variant="outline" className={`text-[10px] ${styles[type]}`}>{labels[type]}</Badge>;
   };
@@ -217,7 +216,7 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading all reports...</div>;
+    return <div className="text-center py-12 text-muted-foreground">{t(lang, "loading_all_reports")}</div>;
   }
 
   return (
@@ -225,7 +224,7 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-gold" />
-          <h3 className="font-bebas text-lg text-gold">All Reports</h3>
+          <h3 className="font-bebas text-lg text-gold">{t(lang, "all_reports")}</h3>
           <span className="text-xs text-muted-foreground">({reports.length})</span>
         </div>
         <Button
@@ -235,14 +234,14 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
           className="text-xs"
         >
           {sortOrder === "desc" ? <SortDesc className="w-3 h-3 mr-1" /> : <SortAsc className="w-3 h-3 mr-1" />}
-          {sortOrder === "desc" ? "Newest" : "Oldest"}
+          {sortOrder === "desc" ? t(lang, "newest") : t(lang, "oldest")}
         </Button>
       </div>
 
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search reports..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-8 text-sm" />
+          <Input placeholder={t(lang, "search_reports")} value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-8 text-sm" />
         </div>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-[160px] h-8 text-xs">
@@ -250,18 +249,18 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All ({typeCounts.all || 0})</SelectItem>
-            <SelectItem value="performance">Performance ({typeCounts.performance || 0})</SelectItem>
-            <SelectItem value="pre-match">Pre-Match ({typeCounts["pre-match"] || 0})</SelectItem>
-            <SelectItem value="post-match">Post-Match ({typeCounts["post-match"] || 0})</SelectItem>
-            <SelectItem value="concept">Concept ({typeCounts.concept || 0})</SelectItem>
+            <SelectItem value="all">{t(lang, "all")} ({typeCounts.all || 0})</SelectItem>
+            <SelectItem value="performance">{t(lang, "performance")} ({typeCounts.performance || 0})</SelectItem>
+            <SelectItem value="pre-match">{t(lang, "pre_match_label")} ({typeCounts["pre-match"] || 0})</SelectItem>
+            <SelectItem value="post-match">{t(lang, "post_match_label")} ({typeCounts["post-match"] || 0})</SelectItem>
+            <SelectItem value="concept">{t(lang, "concept_label")} ({typeCounts.concept || 0})</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {filteredReports.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground text-sm">
-          {search || typeFilter !== "all" ? "No reports match your filters." : "No reports available yet."}
+          {search || typeFilter !== "all" ? t(lang, "no_reports_match_filters") : t(lang, "no_reports_available")}
         </div>
       ) : (
         <ScrollArea className="max-h-[600px]">
@@ -285,7 +284,7 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
                       <div className="flex items-center gap-3 mt-0.5">
                         {report.score && <span className="text-xs text-gold">{report.score}</span>}
                         {report.actionCount != null && report.actionCount > 0 && (
-                          <span className="text-[10px] text-muted-foreground">{report.actionCount} actions</span>
+                          <span className="text-[10px] text-muted-foreground">{report.actionCount} {t(lang, "actions")}</span>
                         )}
                       </div>
                     </div>

@@ -2,24 +2,22 @@ import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface NextFixtureCountdownProps {
   playerName?: string;
 }
 
 export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) => {
+  const lang = usePortalLanguage();
   const [nextFixture, setNextFixture] = useState<{ match_date: string; home_team: string; away_team: string; venue?: string } | null>(null);
   const [now, setNow] = useState(new Date());
 
   const fetchNext = async () => {
     const now = new Date();
     const today = now.toISOString().split("T")[0];
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
-    // First try today's fixture (only if before ~kick-off, i.e. morning)
-    // Then fall back to tomorrow+
     const { data } = await sharedSupabase
       .from("fixtures")
       .select("match_date, home_team, away_team, venue")
@@ -31,11 +29,10 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
       const firstMatch = data[0];
       const matchDate = new Date(firstMatch.match_date);
       const diffMs = matchDate.getTime() - now.getTime();
-      // If the first fixture is today and countdown has passed, use the next one
       if (diffMs <= 0 && data.length > 1) {
         setNextFixture(data[1]);
       } else if (diffMs <= 0) {
-        setNextFixture(null); // no upcoming fixtures
+        setNextFixture(null);
       } else {
         setNextFixture(firstMatch);
       }
@@ -56,7 +53,6 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
     const target = new Date(nextFixture.match_date);
     const diff = target.getTime() - now.getTime();
     if (diff <= 0) {
-      // Countdown expired — re-fetch to get the next fixture
       fetchNext();
       return null;
     }
@@ -71,10 +67,10 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
   if (!nextFixture || !countdown) return null;
 
   const units = [
-    { label: "DAYS", value: countdown.days },
-    { label: "HRS", value: countdown.hours },
-    { label: "MIN", value: countdown.minutes },
-    { label: "SEC", value: countdown.seconds },
+    { label: t(lang, "days_label"), value: countdown.days },
+    { label: t(lang, "hrs_label"), value: countdown.hours },
+    { label: t(lang, "min_label"), value: countdown.minutes },
+    { label: t(lang, "sec_label"), value: countdown.seconds },
   ];
 
   return (
@@ -82,7 +78,7 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
       <CardHeader marble className="py-2">
         <div className="flex items-center gap-2 container mx-auto px-4">
           <Clock className="h-5 w-5" />
-          <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">Next Fixture</CardTitle>
+          <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">{t(lang, "next_fixture")}</CardTitle>
         </div>
       </CardHeader>
       <CardContent className="container mx-auto px-4 pt-3 pb-4">
