@@ -182,6 +182,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     };
   }, [last40AnalysisIds]);
 
+  const handleStartEdit = (analysisId: string, metricKey: string, currentValue: number | null) => {
     setEditingCell({ analysisId, metricKey });
     setEditValue(currentValue != null ? String(currentValue) : "");
   };
@@ -434,3 +435,6 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     </div>
   );
 };
+
+export default AnalysisDataTab;
+
