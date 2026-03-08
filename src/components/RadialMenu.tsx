@@ -1057,17 +1057,25 @@ export const RadialMenu = () => {
         const overlayOffsetY = (overlaySize - vh) / 2;
         const menuRadiusPercent = (menuRadius / overlaySize) * 100;
 
-        // Card size
-        const cardW = 280;
-        const cardH = 180;
+        // Card size - compact to fit within wedge
+        const cardW = 240;
+        const cardH = 140;
 
         // Position card along mid-angle, between menu edge and viewport edge
         const midRad = (midAngle * Math.PI) / 180;
         const dirX = Math.cos(midRad);
         const dirY = Math.sin(midRad);
 
-        // Place card center at ~70% of the way from menu edge to viewport edge
-        const distFromCenter = menuRadius + (Math.min(vw, vh) / 2 - menuRadius) * 0.65;
+        // Calculate distance to viewport edge along this angle
+        const halfW = vw / 2;
+        const halfH = vh / 2;
+        let maxDist = Infinity;
+        if (Math.abs(dirX) > 0.001) maxDist = Math.min(maxDist, Math.abs(halfW / dirX));
+        if (Math.abs(dirY) > 0.001) maxDist = Math.min(maxDist, Math.abs(halfH / dirY));
+        
+        // Place card center at ~55% of the way from menu edge to viewport edge
+        const availableDist = maxDist - menuRadius;
+        const distFromCenter = menuRadius + availableDist * 0.5;
         const cardCenterX = vw / 2 + dirX * distFromCenter;
         const cardCenterY = vh / 2 + dirY * distFromCenter;
 
@@ -1091,13 +1099,14 @@ export const RadialMenu = () => {
             <div 
               className="absolute inset-0"
               style={{
-                background: `radial-gradient(circle at 50% 50%, transparent ${menuRadiusPercent}%, rgba(0,0,0,0.4) ${menuRadiusPercent + 3}%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.9) 100%)`
+                background: `radial-gradient(circle at 50% 50%, transparent ${menuRadiusPercent}%, rgba(0,0,0,0.35) ${menuRadiusPercent + 2}%, rgba(0,0,0,0.6) 45%, rgba(0,0,0,0.85) 100%)`
               }}
             />
             <div 
-              className="absolute"
+              className="absolute flex items-center justify-center"
               style={{
                 width: cardW,
+                height: cardH,
                 left: cardLeft,
                 top: cardTop,
               }}
