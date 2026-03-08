@@ -364,7 +364,7 @@ const Players = () => {
                     <h3 className="text-lg md:text-2xl font-bebas uppercase tracking-wider text-white mb-2 md:mb-3 group-hover:text-accent transition-colors">
                       {corner.title}
                     </h3>
-                    <p className="text-white/80 text-xs md:text-sm leading-relaxed mb-2 md:mb-4 line-clamp-3 md:line-clamp-none">
+                    <p className="text-white/80 text-xs md:text-sm leading-relaxed mb-2 md:mb-4">
                       {corner.description}
                     </p>
                     <Button variant="link" className="p-0 h-auto text-accent text-xs md:text-sm font-medium group-hover:gap-2 md:group-hover:gap-3 transition-all">
