@@ -28,7 +28,7 @@ export function calculateWedgeArea(centerX: number, centerY: number, startAngleD
   const midAngle = (startAngleDeg + endAngleDeg) / 2; const midRad = (midAngle * Math.PI) / 180;
   const midScreenPoint = findRayScreenIntersection(centerX, centerY, midAngle, bounds);
   const distToScreen = Math.sqrt(Math.pow(midScreenPoint.x - centerX, 2) + Math.pow(midScreenPoint.y - centerY, 2));
-  const optimalDistance = menuRadius + (distToScreen - menuRadius) * 0.55;
+  const optimalDistance = menuRadius + (distToScreen - menuRadius) * 0.65;
   const centroid: Point = { x: centerX + Math.cos(midRad) * optimalDistance, y: centerY + Math.sin(midRad) * optimalDistance };
   const startEdgeRad = (startAngleDeg * Math.PI) / 180; const endEdgeRad = (endAngleDeg * Math.PI) / 180;
   const startEdgeAtContent: Point = { x: centerX + Math.cos(startEdgeRad) * optimalDistance, y: centerY + Math.sin(startEdgeRad) * optimalDistance };
