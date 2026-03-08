@@ -152,8 +152,8 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
                 color="text-destructive"
               />
               <StatCard
-                title="Net Profit"
-                value={`£${paymentSummary.net.toLocaleString()}`}
+                title="Net Position"
+                value={paymentSummary.income > 0 || paymentSummary.expenses > 0 ? `£${paymentSummary.net.toLocaleString()}` : '—'}
                 icon={DollarSign}
                 color={paymentSummary.net >= 0 ? 'text-green-500' : 'text-destructive'}
               />
