@@ -34,6 +34,7 @@ const HERO_SLIDE_KEYS = [
 
 // Dynamic Hero Slider that fetches images from landing folder
 const DynamicHeroSlider = () => {
+  const { t } = useLanguage();
   const [slides, setSlides] = useState<{ image: string; title: string; subtitle?: string }[]>([]);
 
   useEffect(() => {
@@ -46,29 +47,30 @@ const DynamicHeroSlider = () => {
         .limit(6);
 
       if (data && data.length > 0) {
-        // Map images to slide content, cycling through content if needed
-        const dynamicSlides = data.map((item, index) => ({
-          image: item.file_url,
-          title: HERO_SLIDE_CONTENT[index % HERO_SLIDE_CONTENT.length].title,
-          subtitle: HERO_SLIDE_CONTENT[index % HERO_SLIDE_CONTENT.length].subtitle
-        }));
+        const dynamicSlides = data.map((item, index) => {
+          const keys = HERO_SLIDE_KEYS[index % HERO_SLIDE_KEYS.length];
+          return {
+            image: item.file_url,
+            title: t(keys.titleKey, keys.titleFallback),
+            subtitle: t(keys.subtitleKey, keys.subtitleFallback),
+          };
+        });
         setSlides(dynamicSlides);
       } else {
-        // Fallback slides with placeholder images
-        setSlides(HERO_SLIDE_CONTENT.slice(0, 3).map((content, index) => ({
+        setSlides(HERO_SLIDE_KEYS.slice(0, 3).map((keys, index) => ({
           image: index === 0 
             ? "https://static.wixstatic.com/media/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_7de02c74bb1142dea9ce0997961fd1f5~mv2.jpg"
             : index === 1
               ? "https://static.wixstatic.com/media/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_2cc70832de7149aa87f67a71d4390f00~mv2.jpg"
               : "https://static.wixstatic.com/media/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg/v1/fill/w_1920,h_600,al_c,q_85,usm_2.00_1.00_0.00,enc_avif,quality_auto/c4f4b1_73a12b8d527341e594f266e5b77de8fe~mv2.jpg",
-          title: content.title,
-          subtitle: content.subtitle
+          title: t(keys.titleKey, keys.titleFallback),
+          subtitle: t(keys.subtitleKey, keys.subtitleFallback),
         })));
       }
     };
 
     fetchLandingImages();
-  }, []);
+  }, [t]);
 
   if (slides.length === 0) return null;
 
