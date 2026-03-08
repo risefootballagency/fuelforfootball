@@ -796,8 +796,8 @@ export const RadialMenu = () => {
                 description={card.description}
                 stat={card.stat}
                 position={card.position}
-                maxWidth={cardW}
-                maxHeight={cardH}
+                maxWidth={placement.width}
+                maxHeight={placement.height}
               />
             </div>
           </div>
