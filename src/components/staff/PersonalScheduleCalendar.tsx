@@ -389,23 +389,23 @@ export const PersonalScheduleCalendar = ({
                 <div 
                   className="p-3 rounded-lg border-2 flex items-center justify-between"
                   style={{ 
-                    backgroundColor: isToday ? 'hsl(43, 49%, 25%)' : 'hsl(0, 0%, 10%)',
-                    borderColor: isToday ? 'hsl(43, 49%, 61%)' : 'rgba(255, 255, 255, 0.1)'
+                    backgroundColor: isToday ? 'hsl(var(--muted))' : 'hsl(var(--card))',
+                    borderColor: isToday ? 'hsl(var(--ring))' : 'hsl(var(--border))'
                   }}
                 >
                   <div className="flex items-center gap-3">
                     <div 
                       className="text-xl font-bold px-3 py-1 rounded"
                       style={{ 
-                        backgroundColor: 'hsl(43, 49%, 61%)',
-                        color: 'hsl(0, 0%, 0%)'
+                        backgroundColor: 'hsl(var(--muted))',
+                        color: 'hsl(var(--foreground))'
                       }}
                     >
                       {format(currentDayDate, 'EEE')}
                     </div>
                     <div>
-                      <div className="font-semibold text-white text-lg">{format(currentDayDate, 'MMMM d, yyyy')}</div>
-                      {isToday && <span className="text-xs text-primary">Today</span>}
+                      <div className="font-semibold text-foreground text-lg">{format(currentDayDate, 'MMMM d, yyyy')}</div>
+                      {isToday && <span className="text-xs text-muted-foreground">Today</span>}
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground">
