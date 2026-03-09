@@ -34,7 +34,7 @@ export const StaffCardHeader = ({
   }
 
   return (
-    <CardHeader className={cn("bg-primary", className)}>
+    <CardHeader className={cn("bg-title-bg bg-[url('/grass-smoky-3.png')] bg-cover bg-center bg-no-repeat", className)}>
       {children}
     </CardHeader>
   );

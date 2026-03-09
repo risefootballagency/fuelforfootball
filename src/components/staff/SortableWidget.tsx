@@ -186,7 +186,7 @@ export const SortableWidget = ({
       )}
     >
       <Card className="h-full flex flex-col border-border/50 bg-card/50 backdrop-blur-sm hover:border-accent/30 hover:shadow-lg relative overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-fff-gold/20 px-3 py-2 bg-primary">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-fff-gold/20 px-3 py-2 bg-title-bg bg-[url('/grass-smoky-3.png')] bg-cover bg-center bg-no-repeat">
           <div className="flex items-center gap-2">
             {/* Drag handle */}
             <div

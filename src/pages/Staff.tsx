@@ -824,16 +824,10 @@ const Staff = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Marble background */}
-      <div 
+      {/* Background wash (dark green) */}
+      <div
         className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: `url(${marbleBackground})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          opacity: 0.25,
-        }}
+        style={{ backgroundColor: "hsl(var(--fff-green-dark))" }}
       />
 
       {/* Header */}
