@@ -630,7 +630,7 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
                     className={`${buttonHeight} ${buttonTextSize} px-1 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground border-0`} 
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.open(`/players/${player.id}?tab=analysis`, '_blank');
+                      navigateToPlayer(player.id, 'analysis');
                     }}
                   >
                     Analysis
