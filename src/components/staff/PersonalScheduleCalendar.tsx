@@ -264,7 +264,7 @@ export const PersonalScheduleCalendar = ({
 
   const getCategoryColor = (category: string | null): string => {
     const cat = EVENT_CATEGORIES.find(c => c.value === category);
-    return cat?.color || 'hsl(36, 100%, 50%)';
+    return cat?.color || 'hsl(127, 60%, 50%)';
   };
 
   const calendarWeeks = generateCalendarWeeks();
