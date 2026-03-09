@@ -557,24 +557,24 @@ export const PersonalScheduleCalendar = ({
                     const displayEvents = isExpanded ? dayEvents : dayEvents.slice(0, 2);
                     const remainingCount = dayEvents.length - 2;
 
-                    return (
-                      <div 
-                        key={dayOffset}
-                        onClick={() => handleDayClick(currentDate)}
-                        className={`p-1 rounded ${isFullscreen ? 'min-h-[80px]' : 'min-h-[50px]'} relative border transition-all cursor-pointer hover:border-primary/50`}
-                        style={{ 
-                          backgroundColor: 'hsl(0, 0%, 10%)',
-                          borderColor: isToday ? 'hsl(43, 49%, 61%)' : 'rgba(255, 255, 255, 0.1)',
-                          borderWidth: isToday ? '2px' : '1px'
-                        }}
-                      >
-                        {/* Day number */}
-                        <span 
-                          className="absolute top-0.5 right-0.5 text-[9px] opacity-40"
-                          style={{ color: 'hsl(0, 0%, 100%)' }}
+                      return (
+                        <div 
+                          key={dayOffset}
+                          onClick={() => handleDayClick(currentDate)}
+                          className={`p-1 rounded ${isFullscreen ? 'min-h-[80px]' : 'min-h-[50px]'} relative border transition-all cursor-pointer hover:border-ring/50`}
+                          style={{ 
+                            backgroundColor: 'hsl(var(--card))',
+                            borderColor: isToday ? 'hsl(var(--ring))' : 'hsl(var(--border))',
+                            borderWidth: isToday ? '2px' : '1px'
+                          }}
                         >
-                          {format(currentDate, 'd')}
-                        </span>
+                          {/* Day number */}
+                          <span 
+                            className="absolute top-0.5 right-0.5 text-[9px] opacity-40"
+                            style={{ color: 'hsl(var(--muted-foreground))' }}
+                          >
+                            {format(currentDate, 'd')}
+                          </span>
 
                         {/* Events */}
                         {dayEvents.length > 0 && (
