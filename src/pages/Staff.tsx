@@ -111,7 +111,7 @@ import { StaffMusicPlayer } from "@/components/staff/StaffMusicPlayer";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
 import { Checkbox } from "@/components/ui/checkbox";
-import marbleBackground from "@/assets/smudged-marble-overlay.png";
+
 import { 
   Calendar, Users, UserCog, Target, Dumbbell, LineChart, Megaphone, Newspaper, FileText, Mail, Eye, FileCheck, BellRing, Network, Scale, Shield, Lock, Download, HardDrive, Bell, ClipboardList, Settings, Languages, Film, Building2, Wallet, Receipt, Calculator, PiggyBank, TrendingUp, FileSpreadsheet, UserRound, MessageSquare, ShoppingCart, Package, Radio, Palette, Pencil, LayoutGrid, Briefcase, Handshake, Database, Tv, Apple, Video, Globe, Presentation, ScrollText, Monitor,
 } from "lucide-react";
