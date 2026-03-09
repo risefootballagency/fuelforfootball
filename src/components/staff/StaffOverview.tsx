@@ -363,12 +363,13 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
       const { data, error } = await supabase
         .from('players')
         .select('*')
-        .neq('status', 'Inactive')
+        .eq('category', 'Fuel For Football')
         .order('name');
       
-      if (data && !error) {
-        setPlayers(data);
-      }
+      if (error) { console.error('Failed to fetch players:', error); setPlayers([]); return; }
+      setPlayers((data || []).filter((p: any) => {
+        try { const bio = typeof p.bio === 'string' ? JSON.parse(p.bio) : p.bio; return bio?.is_active_client !== false; } catch { return true; }
+      }));
     };
 
     const fetchGoals = async () => {
