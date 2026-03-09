@@ -363,7 +363,7 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
       const { data, error } = await supabase
         .from('players')
         .select('*')
-        .eq('category', 'Fuel For Football')
+        .neq('status', 'Inactive')
         .order('name');
       
       if (data && !error) {
@@ -629,7 +629,7 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
                     className={`${buttonHeight} ${buttonTextSize} px-1 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground border-0`} 
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigateToPlayer(player.id, 'analysis');
+                      window.open(`/players/${player.id}?tab=analysis`, '_blank');
                     }}
                   >
                     Analysis
@@ -639,7 +639,7 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
                     className={`${buttonHeight} ${buttonTextSize} px-1 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground border-0`} 
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigateToPlayer(player.id, 'programming');
+                      window.open(`/players/${player.id}?tab=programming`, '_blank');
                     }}
                   >
                     Programming
