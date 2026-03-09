@@ -533,9 +533,9 @@ export const PersonalScheduleCalendar = ({
                   <div 
                     className="p-2 rounded flex flex-col items-center justify-center border"
                     style={{ 
-                      backgroundColor: 'hsl(43, 49%, 61%)',
-                      color: 'hsl(0, 0%, 0%)',
-                      borderColor: 'rgba(0, 0, 0, 0.1)'
+                      backgroundColor: 'hsl(var(--muted))',
+                      color: 'hsl(var(--foreground))',
+                      borderColor: 'hsl(var(--border))'
                     }}
                   >
                     <div className="text-lg font-bold">
