@@ -363,7 +363,7 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
       const { data, error } = await supabase
         .from('players')
         .select('*')
-        .eq('category', 'Fuel For Football')
+        .neq('status', 'Inactive')
         .order('name');
       
       if (data && !error) {
