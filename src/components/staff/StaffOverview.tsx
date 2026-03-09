@@ -627,9 +627,9 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
                   <Button 
                     size="sm" 
                     className={`${buttonHeight} ${buttonTextSize} px-1 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground border-0`} 
-                    onClick={(e) => {
+                    onClick={() => {
                       e.stopPropagation();
-                      navigateToPlayer(player.id, 'analysis');
+                      window.open(`/players/${player.id}?tab=analysis`, '_blank');
                     }}
                   >
                     Analysis
