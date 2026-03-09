@@ -166,8 +166,8 @@ export const SectionGridPicker = ({ categories, onSelect }: SectionGridPickerPro
             return (
               <div key={cat.id}>
                 <div className="flex items-center gap-2 mb-3">
-                  <CatIcon className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">
+                  <CatIcon className="h-4 w-4 text-fff-gold" />
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-fff-gold">
                     {cat.title}
                   </h3>
                   <div className="flex-1 h-px bg-border" />
@@ -185,7 +185,7 @@ export const SectionGridPicker = ({ categories, onSelect }: SectionGridPickerPro
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.02 }}
                         onClick={() => onSelect(section.id, cat.id)}
-                        className="group relative flex flex-col rounded-xl border border-border/50 bg-card hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all text-center overflow-hidden"
+                        className="group relative flex flex-col rounded-xl border border-border/50 bg-card hover:border-fff-gold hover:shadow-lg hover:shadow-fff-gold/10 transition-all text-center overflow-hidden"
                       >
                         {/* Preview area with gradient and large icon */}
                         <div className={`relative w-full h-24 bg-gradient-to-br ${gradientClass} flex items-center justify-center`}>
@@ -195,7 +195,7 @@ export const SectionGridPicker = ({ categories, onSelect }: SectionGridPickerPro
                             <div className="absolute bottom-2 left-2 w-5 h-5 border border-white/20 rounded" />
                             <div className="absolute top-4 left-4 w-12 h-[1px] bg-white/20 rotate-45" />
                           </div>
-                          <Icon className="w-10 h-10 text-primary drop-shadow-lg group-hover:scale-110 transition-transform" />
+                          <Icon className="w-10 h-10 text-white drop-shadow-lg group-hover:scale-110 transition-transform" />
                         </div>
                         {/* Label and description */}
                         <div className="px-3 py-3 flex flex-col gap-1">

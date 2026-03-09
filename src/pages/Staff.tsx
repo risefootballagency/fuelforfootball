@@ -847,16 +847,16 @@ const Staff = () => {
                   onDragEnd={handleTabDragEnd}
                   className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all select-none ${
                    isActive
-                       ? 'bg-accent text-accent-foreground shadow-md'
+                       ? 'bg-fff-gold text-fff-green-dark shadow-md'
                        : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
-                  } ${draggingTabId === tab.id ? 'opacity-50' : ''} ${dragOverTabId === tab.id ? 'ring-2 ring-accent' : ''}`}
+                  } ${draggingTabId === tab.id ? 'opacity-50' : ''} ${dragOverTabId === tab.id ? 'ring-2 ring-fff-gold' : ''}`}
                   onClick={() => {
                     handleSectionToggle(tab.id);
                     const parent = categories.find(c => c.sections.some(s => s.id === tab.id));
                     if (parent) setExpandedCategory(parent.id);
                   }}
                 >
-                  <TabIcon className="w-3 h-3 shrink-0" />
+                  <TabIcon className={`w-3 h-3 shrink-0 ${isActive ? 'text-fff-green-dark' : 'text-white'}`} />
                   <span className="truncate max-w-[80px]">{tab.title}</span>
                   <button
                     className="opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 p-0.5 rounded-full hover:bg-background/30"
