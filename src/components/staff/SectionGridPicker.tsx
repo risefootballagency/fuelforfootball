@@ -166,8 +166,8 @@ export const SectionGridPicker = ({ categories, onSelect }: SectionGridPickerPro
             return (
               <div key={cat.id}>
                 <div className="flex items-center gap-2 mb-3">
-                  <CatIcon className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">
+                  <CatIcon className="h-4 w-4 text-fff-gold" />
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-fff-gold">
                     {cat.title}
                   </h3>
                   <div className="flex-1 h-px bg-border" />
