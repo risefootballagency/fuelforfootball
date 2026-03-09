@@ -505,8 +505,8 @@ export const PersonalScheduleCalendar = ({
               <div 
                 className="p-2 text-center font-bebas uppercase text-xs rounded"
                 style={{ 
-                  backgroundColor: 'hsl(43, 49%, 61%)',
-                  color: 'hsl(0, 0%, 0%)'
+                  backgroundColor: 'hsl(var(--muted))',
+                  color: 'hsl(var(--foreground))'
                 }}
               >
                 Week
@@ -516,8 +516,8 @@ export const PersonalScheduleCalendar = ({
                   key={day}
                   className="p-2 text-center font-bebas uppercase text-xs rounded"
                   style={{ 
-                    backgroundColor: 'hsl(43, 49%, 61%)',
-                    color: 'hsl(0, 0%, 0%)'
+                    backgroundColor: 'hsl(var(--muted))',
+                    color: 'hsl(var(--foreground))'
                   }}
                 >
                   {day}
