@@ -619,8 +619,8 @@ export const PersonalScheduleCalendar = ({
                                 }}
                                 className="text-[8px] p-0.5 rounded font-bold transition-all hover:scale-105"
                                 style={{ 
-                                  backgroundColor: 'hsl(0, 0%, 20%)',
-                                  color: 'hsl(0, 0%, 80%)'
+                                  backgroundColor: 'hsl(var(--muted))',
+                                  color: 'hsl(var(--foreground))'
                                 }}
                               >
                                 +{remainingCount} more
