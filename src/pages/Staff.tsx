@@ -909,11 +909,13 @@ const Staff = () => {
               </Dialog>
             )}
 
-            {/* Add tab button - opens section picker */}
+            {/* Add tab button - toggles in-page section picker (RISE-style, no modal) */}
             <button
-              onClick={() => setNewTabPickerOpen(true)}
+              onClick={() => setNewTabPickerOpen((v) => !v)}
               className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
-              title="Open new section"
+              title="Open section picker"
+              aria-expanded={newTabPickerOpen}
+              aria-controls="staff-section-picker"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -943,99 +945,48 @@ const Staff = () => {
         </div>
       </header>
 
-      {/* Global Search Dialog */}
-      <Dialog open={sidebarSearchOpen} onOpenChange={setSidebarSearchOpen}>
-        <DialogContent className="sm:max-w-2xl p-0">
-          <Command className="rounded-lg border-none shadow-none">
-            <CommandInput
-              placeholder="Search sections, players, analyses..."
-              onValueChange={(val) => {
-                if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-                searchTimeoutRef.current = setTimeout(() => performGlobalSearch(val), 300);
-              }}
-            />
-            <CommandList className="max-h-[400px]">
-              {searchResults.length > 0 && (
-                <CommandGroup heading="Results">
-                  {searchResults.map((result) => (
-                    <CommandItem
-                      key={`${result.type}-${result.id}`}
-                      onSelect={() => {
-                        setExpandedSection(result.sectionId);
-                        setExpandedCategory(categories.find(c => c.sections.some(s => s.id === result.sectionId))?.id || null);
-                        if (result.type === 'player') {
-                          navigate(`/staff?section=${result.sectionId}&player=${result.id}`);
-                        }
-                        toast.success(`Opening ${result.section}`);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        setSidebarSearchOpen(false);
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <div className="flex flex-col gap-1 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{result.title}</span>
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">{result.section}</span>
-                        </div>
-                        {result.description && <span className="text-xs text-muted-foreground line-clamp-1">{result.description}</span>}
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-              {searchResults.length === 0 && (
-                <CommandEmpty>{searchLoading ? 'Searching...' : 'No results found.'}</CommandEmpty>
-              )}
-              <CommandGroup heading="Jump to Section">
-                {categories.flatMap(category => 
-                  category.sections.filter(s => !(s as any).isGroupLabel).map(section => ({ section, category }))
-                ).map(({ section, category }) => {
-                  const Icon = section.icon;
-                  return (
-                    <CommandItem
-                      key={section.id}
-                      onSelect={() => {
-                        handleSectionToggle(section.id);
-                        setExpandedCategory(category.id);
-                        setSidebarSearchOpen(false);
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <Icon className="mr-2 h-4 w-4" />
-                      <span>{section.title}</span>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </DialogContent>
-      </Dialog>
+      {/* In-page Section Picker (replaces modal) */}
+      <AnimatePresence initial={false}>
+        {newTabPickerOpen && (
+          <motion.section
+            id="staff-section-picker"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "70vh", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="border-b bg-background/95 backdrop-blur overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-3 md:px-4 py-2 border-b">
+              <div className="text-sm font-semibold">Open Section</div>
+              <button
+                onClick={() => setNewTabPickerOpen(false)}
+                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Close section picker"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-      {/* Keyboard Shortcuts Dialog */}
-      <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
-
-      {/* New Tab Picker Dialog */}
-      <Dialog open={newTabPickerOpen} onOpenChange={setNewTabPickerOpen}>
-        <DialogContent className="sm:max-w-4xl max-h-[85vh] p-0 overflow-hidden">
-          <DialogHeader className="sr-only"><DialogTitle>Open Section</DialogTitle></DialogHeader>
-          <SectionGridPicker
-            categories={categories}
-            onSelect={(sectionId, categoryId) => {
-              handleSectionToggle(sectionId);
-              setExpandedCategory(categoryId);
-              if (!openTabs.some(t => t.id === sectionId)) {
-                const section = categories.flatMap(c => c.sections).find(s => s.id === sectionId && !(s as any).isGroupLabel);
-                if (section) {
-                  const iconName = Object.entries(ICON_MAP).find(([, v]) => v === section.icon)?.[0] || 'FileText';
-                  setOpenTabs(prev => [...prev.slice(0, MAX_STORED_TABS - 1), { id: section.id, title: section.title, icon: iconName }]);
-                }
-              }
-              setNewTabPickerOpen(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+            <div className="h-[calc(70vh-41px)]">
+              <SectionGridPicker
+                categories={categories}
+                onSelect={(sectionId, categoryId) => {
+                  handleSectionToggle(sectionId);
+                  setExpandedCategory(categoryId);
+                  if (!openTabs.some(t => t.id === sectionId)) {
+                    const section = categories.flatMap(c => c.sections).find(s => s.id === sectionId && !(s as any).isGroupLabel);
+                    if (section) {
+                      const iconName = Object.entries(ICON_MAP).find(([, v]) => v === section.icon)?.[0] || 'FileText';
+                      setOpenTabs(prev => [...prev.slice(0, MAX_STORED_TABS - 1), { id: section.id, title: section.title, icon: iconName }]);
+                    }
+                  }
+                  setNewTabPickerOpen(false);
+                }}
+              />
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {/* Sidebar Collapse Toggle */}
       <button
