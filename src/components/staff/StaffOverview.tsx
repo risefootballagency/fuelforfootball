@@ -363,12 +363,13 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
       const { data, error } = await supabase
         .from('players')
         .select('*')
-        .neq('status', 'Inactive')
+        .eq('category', 'Fuel For Football')
         .order('name');
       
-      if (data && !error) {
-        setPlayers(data);
-      }
+      if (error) { console.error('Failed to fetch players:', error); setPlayers([]); return; }
+      setPlayers((data || []).filter((p: any) => {
+        try { const bio = typeof p.bio === 'string' ? JSON.parse(p.bio) : p.bio; return bio?.is_active_client !== false; } catch { return true; }
+      }));
     };
 
     const fetchGoals = async () => {
@@ -629,7 +630,7 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
                     className={`${buttonHeight} ${buttonTextSize} px-1 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground border-0`} 
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.open(`/players/${player.id}?tab=analysis`, '_blank');
+                      navigateToPlayer(player.id, 'analysis');
                     }}
                   >
                     Analysis
@@ -639,7 +640,7 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
                     className={`${buttonHeight} ${buttonTextSize} px-1 flex-1 bg-primary hover:bg-primary/90 text-primary-foreground border-0`} 
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.open(`/players/${player.id}?tab=programming`, '_blank');
+                      navigateToPlayer(player.id, 'programming');
                     }}
                   >
                     Programming

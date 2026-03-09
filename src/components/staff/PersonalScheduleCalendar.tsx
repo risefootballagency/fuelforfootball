@@ -24,10 +24,10 @@ interface CalendarEvent {
 }
 
 const EVENT_CATEGORIES = [
-  { value: 'work', label: 'Work', color: 'hsl(127, 60%, 50%)' },
-  { value: 'personal', label: 'Personal', color: 'hsl(200, 70%, 50%)' },
-  { value: 'meeting', label: 'Meeting', color: 'hsl(280, 60%, 55%)' },
-  { value: 'training', label: 'Training', color: 'hsl(140, 60%, 45%)' },
+  { value: 'work', label: 'Work', color: 'hsl(var(--muted))' },
+  { value: 'personal', label: 'Personal', color: 'hsl(var(--secondary))' },
+  { value: 'meeting', label: 'Meeting', color: 'hsl(var(--card))' },
+  { value: 'training', label: 'Training', color: 'hsl(var(--muted))' },
 ];
 
 interface PersonalScheduleCalendarProps {
@@ -264,7 +264,7 @@ export const PersonalScheduleCalendar = ({
 
   const getCategoryColor = (category: string | null): string => {
     const cat = EVENT_CATEGORIES.find(c => c.value === category);
-    return cat?.color || 'hsl(127, 60%, 50%)';
+    return cat?.color || 'hsl(var(--muted))';
   };
 
   const calendarWeeks = generateCalendarWeeks();
@@ -389,23 +389,23 @@ export const PersonalScheduleCalendar = ({
                 <div 
                   className="p-3 rounded-lg border-2 flex items-center justify-between"
                   style={{ 
-                    backgroundColor: isToday ? 'hsl(43, 49%, 25%)' : 'hsl(0, 0%, 10%)',
-                    borderColor: isToday ? 'hsl(43, 49%, 61%)' : 'rgba(255, 255, 255, 0.1)'
+                    backgroundColor: isToday ? 'hsl(var(--muted))' : 'hsl(var(--card))',
+                    borderColor: isToday ? 'hsl(var(--ring))' : 'hsl(var(--border))'
                   }}
                 >
                   <div className="flex items-center gap-3">
                     <div 
                       className="text-xl font-bold px-3 py-1 rounded"
                       style={{ 
-                        backgroundColor: 'hsl(43, 49%, 61%)',
-                        color: 'hsl(0, 0%, 0%)'
+                        backgroundColor: 'hsl(var(--muted))',
+                        color: 'hsl(var(--foreground))'
                       }}
                     >
                       {format(currentDayDate, 'EEE')}
                     </div>
                     <div>
-                      <div className="font-semibold text-white text-lg">{format(currentDayDate, 'MMMM d, yyyy')}</div>
-                      {isToday && <span className="text-xs text-primary">Today</span>}
+                      <div className="font-semibold text-foreground text-lg">{format(currentDayDate, 'MMMM d, yyyy')}</div>
+                      {isToday && <span className="text-xs text-muted-foreground">Today</span>}
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -417,7 +417,7 @@ export const PersonalScheduleCalendar = ({
                 {dayEvents.length === 0 ? (
                   <div 
                     className="p-6 text-center rounded-lg border"
-                    style={{ backgroundColor: 'hsl(0, 0%, 10%)', borderColor: 'rgba(255, 255, 255, 0.1)' }}
+                    style={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
                   >
                     <Calendar className="h-10 w-10 mx-auto mb-2 text-muted-foreground opacity-50" />
                     <p className="text-muted-foreground">No events scheduled for this day</p>
@@ -438,10 +438,10 @@ export const PersonalScheduleCalendar = ({
                       return (
                         <div 
                           key={event.id}
-                          className={`p-3 rounded-lg group relative transition-all ${isHighlighted ? 'ring-2 ring-offset-2 ring-offset-background ring-[hsl(43,49%,61%)]' : ''}`}
+                          className={`p-3 rounded-lg group relative transition-all ${isHighlighted ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''}`}
                           style={{ 
                             backgroundColor: getCategoryColor(event.category),
-                            color: 'hsl(0, 0%, 0%)'
+                            color: 'hsl(var(--foreground))'
                           }}
                         >
                           <div className="flex items-start justify-between gap-2">
@@ -452,7 +452,7 @@ export const PersonalScheduleCalendar = ({
                                 {isHighlighted && (
                                   <span 
                                     className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                                    style={{ backgroundColor: 'hsl(43, 49%, 61%)', color: 'hsl(0, 0%, 0%)' }}
+                                    style={{ backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))' }}
                                   >
                                     {isToday && event.start_time && event.end_time && format(new Date(), 'HH:mm') >= event.start_time && format(new Date(), 'HH:mm') <= event.end_time ? 'NOW' : 'CURRENT'}
                                   </span>
@@ -505,8 +505,8 @@ export const PersonalScheduleCalendar = ({
               <div 
                 className="p-2 text-center font-bebas uppercase text-xs rounded"
                 style={{ 
-                  backgroundColor: 'hsl(43, 49%, 61%)',
-                  color: 'hsl(0, 0%, 0%)'
+                  backgroundColor: 'hsl(var(--muted))',
+                  color: 'hsl(var(--foreground))'
                 }}
               >
                 Week
@@ -516,8 +516,8 @@ export const PersonalScheduleCalendar = ({
                   key={day}
                   className="p-2 text-center font-bebas uppercase text-xs rounded"
                   style={{ 
-                    backgroundColor: 'hsl(43, 49%, 61%)',
-                    color: 'hsl(0, 0%, 0%)'
+                    backgroundColor: 'hsl(var(--muted))',
+                    color: 'hsl(var(--foreground))'
                   }}
                 >
                   {day}
@@ -533,9 +533,9 @@ export const PersonalScheduleCalendar = ({
                   <div 
                     className="p-2 rounded flex flex-col items-center justify-center border"
                     style={{ 
-                      backgroundColor: 'hsl(43, 49%, 61%)',
-                      color: 'hsl(0, 0%, 0%)',
-                      borderColor: 'rgba(0, 0, 0, 0.1)'
+                      backgroundColor: 'hsl(var(--muted))',
+                      color: 'hsl(var(--foreground))',
+                      borderColor: 'hsl(var(--border))'
                     }}
                   >
                     <div className="text-lg font-bold">
@@ -557,24 +557,24 @@ export const PersonalScheduleCalendar = ({
                     const displayEvents = isExpanded ? dayEvents : dayEvents.slice(0, 2);
                     const remainingCount = dayEvents.length - 2;
 
-                    return (
-                      <div 
-                        key={dayOffset}
-                        onClick={() => handleDayClick(currentDate)}
-                        className={`p-1 rounded ${isFullscreen ? 'min-h-[80px]' : 'min-h-[50px]'} relative border transition-all cursor-pointer hover:border-primary/50`}
-                        style={{ 
-                          backgroundColor: 'hsl(0, 0%, 10%)',
-                          borderColor: isToday ? 'hsl(43, 49%, 61%)' : 'rgba(255, 255, 255, 0.1)',
-                          borderWidth: isToday ? '2px' : '1px'
-                        }}
-                      >
-                        {/* Day number */}
-                        <span 
-                          className="absolute top-0.5 right-0.5 text-[9px] opacity-40"
-                          style={{ color: 'hsl(0, 0%, 100%)' }}
+                      return (
+                        <div 
+                          key={dayOffset}
+                          onClick={() => handleDayClick(currentDate)}
+                          className={`p-1 rounded ${isFullscreen ? 'min-h-[80px]' : 'min-h-[50px]'} relative border transition-all cursor-pointer hover:border-ring/50`}
+                          style={{ 
+                            backgroundColor: 'hsl(var(--card))',
+                            borderColor: isToday ? 'hsl(var(--ring))' : 'hsl(var(--border))',
+                            borderWidth: isToday ? '2px' : '1px'
+                          }}
                         >
-                          {format(currentDate, 'd')}
-                        </span>
+                          {/* Day number */}
+                          <span 
+                            className="absolute top-0.5 right-0.5 text-[9px] opacity-40"
+                            style={{ color: 'hsl(var(--muted-foreground))' }}
+                          >
+                            {format(currentDate, 'd')}
+                          </span>
 
                         {/* Events */}
                         {dayEvents.length > 0 && (
@@ -585,7 +585,7 @@ export const PersonalScheduleCalendar = ({
                                 className="text-[9px] p-1 rounded group relative"
                                 style={{ 
                                   backgroundColor: getCategoryColor(event.category),
-                                  color: 'hsl(0, 0%, 0%)'
+                                  color: 'hsl(var(--foreground))'
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                               >
@@ -619,8 +619,8 @@ export const PersonalScheduleCalendar = ({
                                 }}
                                 className="text-[8px] p-0.5 rounded font-bold transition-all hover:scale-105"
                                 style={{ 
-                                  backgroundColor: 'hsl(0, 0%, 20%)',
-                                  color: 'hsl(0, 0%, 80%)'
+                                  backgroundColor: 'hsl(var(--muted))',
+                                  color: 'hsl(var(--foreground))'
                                 }}
                               >
                                 +{remainingCount} more
@@ -640,8 +640,8 @@ export const PersonalScheduleCalendar = ({
                                 }}
                                 className="text-[8px] p-0.5 rounded font-bold"
                                 style={{ 
-                                  backgroundColor: 'hsl(0, 0%, 20%)',
-                                  color: 'hsl(0, 0%, 80%)'
+                                  backgroundColor: 'hsl(var(--muted))',
+                                  color: 'hsl(var(--foreground))'
                                 }}
                               >
                                 Show less
@@ -664,7 +664,7 @@ export const PersonalScheduleCalendar = ({
         <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <Calendar className="h-5 w-5 text-primary" />
+              <Calendar className="h-5 w-5 text-foreground" />
               Add Event {selectedDate && `- ${format(selectedDate, 'EEEE, MMM d, yyyy')}`}
             </DialogTitle>
           </DialogHeader>
