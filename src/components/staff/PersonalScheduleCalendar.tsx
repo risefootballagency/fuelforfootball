@@ -24,10 +24,10 @@ interface CalendarEvent {
 }
 
 const EVENT_CATEGORIES = [
-  { value: 'work', label: 'Work', color: 'hsl(127, 60%, 50%)' },
-  { value: 'personal', label: 'Personal', color: 'hsl(200, 70%, 50%)' },
-  { value: 'meeting', label: 'Meeting', color: 'hsl(280, 60%, 55%)' },
-  { value: 'training', label: 'Training', color: 'hsl(140, 60%, 45%)' },
+  { value: 'work', label: 'Work', color: 'hsl(var(--muted))' },
+  { value: 'personal', label: 'Personal', color: 'hsl(var(--secondary))' },
+  { value: 'meeting', label: 'Meeting', color: 'hsl(var(--card))' },
+  { value: 'training', label: 'Training', color: 'hsl(var(--muted))' },
 ];
 
 interface PersonalScheduleCalendarProps {
