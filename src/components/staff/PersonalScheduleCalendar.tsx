@@ -585,7 +585,7 @@ export const PersonalScheduleCalendar = ({
                                 className="text-[9px] p-1 rounded group relative"
                                 style={{ 
                                   backgroundColor: getCategoryColor(event.category),
-                                  color: 'hsl(0, 0%, 0%)'
+                                  color: 'hsl(var(--foreground))'
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                               >
