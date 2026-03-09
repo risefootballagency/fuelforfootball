@@ -988,6 +988,79 @@ const Staff = () => {
         )}
       </AnimatePresence>
 
+      {/* Global Search Dialog */}
+      <Dialog open={sidebarSearchOpen} onOpenChange={setSidebarSearchOpen}>
+        <DialogContent className="sm:max-w-2xl p-0">
+          <Command className="rounded-lg border-none shadow-none">
+            <CommandInput
+              placeholder="Search sections, players, analyses..."
+              onValueChange={(val) => {
+                if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+                searchTimeoutRef.current = setTimeout(() => performGlobalSearch(val), 300);
+              }}
+            />
+            <CommandList className="max-h-[400px]">
+              {searchResults.length > 0 && (
+                <CommandGroup heading="Results">
+                  {searchResults.map((result) => (
+                    <CommandItem
+                      key={`${result.type}-${result.id}`}
+                      onSelect={() => {
+                        setExpandedSection(result.sectionId);
+                        setExpandedCategory(categories.find(c => c.sections.some(s => s.id === result.sectionId))?.id || null);
+                        if (result.type === 'player') {
+                          navigate(`/staff?section=${result.sectionId}&player=${result.id}`);
+                        }
+                        toast.success(`Opening ${result.section}`);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        setSidebarSearchOpen(false);
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex flex-col gap-1 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{result.title}</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">{result.section}</span>
+                        </div>
+                        {result.description && <span className="text-xs text-muted-foreground line-clamp-1">{result.description}</span>}
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+              {searchResults.length === 0 && (
+                <CommandEmpty>{searchLoading ? 'Searching...' : 'No results found.'}</CommandEmpty>
+              )}
+              <CommandGroup heading="Jump to Section">
+                {categories.flatMap(category => 
+                  category.sections.filter(s => !(s as any).isGroupLabel).map(section => ({ section, category }))
+                ).map(({ section, category }) => {
+                  const Icon = section.icon;
+                  return (
+                    <CommandItem
+                      key={section.id}
+                      onSelect={() => {
+                        handleSectionToggle(section.id);
+                        setExpandedCategory(category.id);
+                        setSidebarSearchOpen(false);
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <Icon className="mr-2 h-4 w-4" />
+                      <span>{section.title}</span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </DialogContent>
+      </Dialog>
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+
+
       {/* Sidebar Collapse Toggle */}
       <button
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
