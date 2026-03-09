@@ -417,7 +417,7 @@ export const PersonalScheduleCalendar = ({
                 {dayEvents.length === 0 ? (
                   <div 
                     className="p-6 text-center rounded-lg border"
-                    style={{ backgroundColor: 'hsl(0, 0%, 10%)', borderColor: 'rgba(255, 255, 255, 0.1)' }}
+                    style={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
                   >
                     <Calendar className="h-10 w-10 mx-auto mb-2 text-muted-foreground opacity-50" />
                     <p className="text-muted-foreground">No events scheduled for this day</p>
