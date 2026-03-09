@@ -111,7 +111,7 @@ import { StaffMusicPlayer } from "@/components/staff/StaffMusicPlayer";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
 import { Checkbox } from "@/components/ui/checkbox";
-import marbleBackground from "@/assets/smudged-marble-overlay.png";
+
 import { 
   Calendar, Users, UserCog, Target, Dumbbell, LineChart, Megaphone, Newspaper, FileText, Mail, Eye, FileCheck, BellRing, Network, Scale, Shield, Lock, Download, HardDrive, Bell, ClipboardList, Settings, Languages, Film, Building2, Wallet, Receipt, Calculator, PiggyBank, TrendingUp, FileSpreadsheet, UserRound, MessageSquare, ShoppingCart, Package, Radio, Palette, Pencil, LayoutGrid, Briefcase, Handshake, Database, Tv, Apple, Video, Globe, Presentation, ScrollText, Monitor,
 } from "lucide-react";
@@ -824,16 +824,10 @@ const Staff = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-      {/* Marble background */}
-      <div 
+      {/* Background wash (dark green) */}
+      <div
         className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: `url(${marbleBackground})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          opacity: 0.25,
-        }}
+        style={{ backgroundColor: "hsl(var(--fff-green-dark))" }}
       />
 
       {/* Header */}
