@@ -185,7 +185,7 @@ export const SectionGridPicker = ({ categories, onSelect }: SectionGridPickerPro
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.02 }}
                         onClick={() => onSelect(section.id, cat.id)}
-                        className="group relative flex flex-col rounded-xl border border-border/50 bg-card hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all text-center overflow-hidden"
+                        className="group relative flex flex-col rounded-xl border border-border/50 bg-card hover:border-fff-gold hover:shadow-lg hover:shadow-fff-gold/10 transition-all text-center overflow-hidden"
                       >
                         {/* Preview area with gradient and large icon */}
                         <div className={`relative w-full h-24 bg-gradient-to-br ${gradientClass} flex items-center justify-center`}>
