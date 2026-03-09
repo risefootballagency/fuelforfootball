@@ -438,10 +438,10 @@ export const PersonalScheduleCalendar = ({
                       return (
                         <div 
                           key={event.id}
-                          className={`p-3 rounded-lg group relative transition-all ${isHighlighted ? 'ring-2 ring-offset-2 ring-offset-background ring-[hsl(43,49%,61%)]' : ''}`}
+                          className={`p-3 rounded-lg group relative transition-all ${isHighlighted ? 'ring-2 ring-ring ring-offset-2 ring-offset-background' : ''}`}
                           style={{ 
                             backgroundColor: getCategoryColor(event.category),
-                            color: 'hsl(0, 0%, 0%)'
+                            color: 'hsl(var(--foreground))'
                           }}
                         >
                           <div className="flex items-start justify-between gap-2">
