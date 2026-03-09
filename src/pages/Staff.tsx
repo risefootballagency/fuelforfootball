@@ -909,11 +909,13 @@ const Staff = () => {
               </Dialog>
             )}
 
-            {/* Add tab button - opens section picker */}
+            {/* Add tab button - toggles in-page section picker (RISE-style, no modal) */}
             <button
-              onClick={() => setNewTabPickerOpen(true)}
+              onClick={() => setNewTabPickerOpen((v) => !v)}
               className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
-              title="Open new section"
+              title="Open section picker"
+              aria-expanded={newTabPickerOpen}
+              aria-controls="staff-section-picker"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
@@ -942,6 +944,49 @@ const Staff = () => {
           </div>
         </div>
       </header>
+
+      {/* In-page Section Picker (replaces modal) */}
+      <AnimatePresence initial={false}>
+        {newTabPickerOpen && (
+          <motion.section
+            id="staff-section-picker"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "70vh", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="border-b bg-background/95 backdrop-blur overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-3 md:px-4 py-2 border-b">
+              <div className="text-sm font-semibold">Open Section</div>
+              <button
+                onClick={() => setNewTabPickerOpen(false)}
+                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Close section picker"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="h-[calc(70vh-41px)]">
+              <SectionGridPicker
+                categories={categories}
+                onSelect={(sectionId, categoryId) => {
+                  handleSectionToggle(sectionId);
+                  setExpandedCategory(categoryId);
+                  if (!openTabs.some(t => t.id === sectionId)) {
+                    const section = categories.flatMap(c => c.sections).find(s => s.id === sectionId && !(s as any).isGroupLabel);
+                    if (section) {
+                      const iconName = Object.entries(ICON_MAP).find(([, v]) => v === section.icon)?.[0] || 'FileText';
+                      setOpenTabs(prev => [...prev.slice(0, MAX_STORED_TABS - 1), { id: section.id, title: section.title, icon: iconName }]);
+                    }
+                  }
+                  setNewTabPickerOpen(false);
+                }}
+              />
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {/* Global Search Dialog */}
       <Dialog open={sidebarSearchOpen} onOpenChange={setSidebarSearchOpen}>
@@ -1015,27 +1060,6 @@ const Staff = () => {
       {/* Keyboard Shortcuts Dialog */}
       <KeyboardShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
 
-      {/* New Tab Picker Dialog */}
-      <Dialog open={newTabPickerOpen} onOpenChange={setNewTabPickerOpen}>
-        <DialogContent className="sm:max-w-4xl max-h-[85vh] p-0 overflow-hidden">
-          <DialogHeader className="sr-only"><DialogTitle>Open Section</DialogTitle></DialogHeader>
-          <SectionGridPicker
-            categories={categories}
-            onSelect={(sectionId, categoryId) => {
-              handleSectionToggle(sectionId);
-              setExpandedCategory(categoryId);
-              if (!openTabs.some(t => t.id === sectionId)) {
-                const section = categories.flatMap(c => c.sections).find(s => s.id === sectionId && !(s as any).isGroupLabel);
-                if (section) {
-                  const iconName = Object.entries(ICON_MAP).find(([, v]) => v === section.icon)?.[0] || 'FileText';
-                  setOpenTabs(prev => [...prev.slice(0, MAX_STORED_TABS - 1), { id: section.id, title: section.title, icon: iconName }]);
-                }
-              }
-              setNewTabPickerOpen(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
 
       {/* Sidebar Collapse Toggle */}
       <button
