@@ -195,7 +195,7 @@ export const SectionGridPicker = ({ categories, onSelect }: SectionGridPickerPro
                             <div className="absolute bottom-2 left-2 w-5 h-5 border border-white/20 rounded" />
                             <div className="absolute top-4 left-4 w-12 h-[1px] bg-white/20 rotate-45" />
                           </div>
-                          <Icon className="w-10 h-10 text-primary drop-shadow-lg group-hover:scale-110 transition-transform" />
+                          <Icon className="w-10 h-10 text-white drop-shadow-lg group-hover:scale-110 transition-transform" />
                         </div>
                         {/* Label and description */}
                         <div className="px-3 py-3 flex flex-col gap-1">
