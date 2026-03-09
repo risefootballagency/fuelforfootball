@@ -452,7 +452,7 @@ export const PersonalScheduleCalendar = ({
                                 {isHighlighted && (
                                   <span 
                                     className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                                    style={{ backgroundColor: 'hsl(43, 49%, 61%)', color: 'hsl(0, 0%, 0%)' }}
+                                    style={{ backgroundColor: 'hsl(var(--muted))', color: 'hsl(var(--foreground))' }}
                                   >
                                     {isToday && event.start_time && event.end_time && format(new Date(), 'HH:mm') >= event.start_time && format(new Date(), 'HH:mm') <= event.end_time ? 'NOW' : 'CURRENT'}
                                   </span>
