@@ -664,7 +664,7 @@ export const PersonalScheduleCalendar = ({
         <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <Calendar className="h-5 w-5 text-primary" />
+              <Calendar className="h-5 w-5 text-foreground" />
               Add Event {selectedDate && `- ${format(selectedDate, 'EEEE, MMM d, yyyy')}`}
             </DialogTitle>
           </DialogHeader>
