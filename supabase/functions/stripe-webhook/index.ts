@@ -52,10 +52,12 @@ serve(async (req) => {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
+      const paymentLinkId = (session as any).payment_link as string | null;
       logStep("Checkout session completed", { 
         sessionId: session.id, 
         customerEmail: session.customer_email,
-        amountTotal: session.amount_total
+        amountTotal: session.amount_total,
+        paymentLinkId
       });
 
       // Update service_orders status
@@ -74,8 +76,26 @@ serve(async (req) => {
         logStep("Service order updated to completed");
       }
 
-      // Get service details from metadata
-      const serviceName = session.metadata?.service_name || 'Unknown Service';
+      // If this checkout came from a payment link, update the pay_links record
+      let payLinkTitle = '';
+      if (paymentLinkId) {
+        const { data: payLink, error: payLinkError } = await supabaseClient
+          .from('pay_links')
+          .update({ status: 'completed', updated_at: new Date().toISOString() })
+          .eq('stripe_payment_link_id', paymentLinkId)
+          .select('title, customer_name, customer_email, description')
+          .maybeSingle();
+
+        if (payLinkError) {
+          logStep("Failed to update pay link", { error: payLinkError.message });
+        } else if (payLink) {
+          payLinkTitle = payLink.title;
+          logStep("Pay link marked as completed", { title: payLink.title });
+        }
+      }
+
+      // Get service details from metadata or pay link
+      const serviceName = session.metadata?.service_name || payLinkTitle || 'Unknown Service';
       const selectedOption = session.metadata?.selected_option || '';
       const amount = session.amount_total ? session.amount_total / 100 : 0;
 
