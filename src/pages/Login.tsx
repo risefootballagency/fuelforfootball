@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
-  const lang = usePortalLanguage();
+  const lang = usePortalLanguage({ includePortalHint: false });
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
@@ -206,7 +206,10 @@ const Login = () => {
                 {t(lang, "keep_me_logged_in")}
               </Label>
             </div>
-              <LanguageMapSelector />
+              <div className="pt-2 flex flex-col items-center gap-1">
+                <LanguageMapSelector showCode />
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t(lang, "login_language_label")}</p>
+              </div>
             </form>
         </div>
       </section>

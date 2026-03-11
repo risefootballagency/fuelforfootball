@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Globe, X } from "lucide-react";
+import { X } from "lucide-react";
 import europeMap from "@/assets/europe-outline.gif";
 
 type LanguageCode = 'en' | 'es' | 'pt' | 'fr' | 'de' | 'it' | 'pl' | 'cs' | 'ru' | 'tr' | 'hr' | 'no';
@@ -38,9 +38,10 @@ const languageRegions: LanguageRegion[] = [
 interface LanguageMapSelectorProps {
   onOpenChange?: (open: boolean) => void;
   className?: string;
+  showCode?: boolean;
 }
 
-export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSelectorProps) => {
+export const LanguageMapSelector = ({ onOpenChange, className, showCode = false }: LanguageMapSelectorProps) => {
   const { language, switchLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
 
@@ -92,13 +93,14 @@ export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSele
 
   return (
     <>
-      {/* Trigger Button - Flag only, no globe icon */}
+      {/* Trigger Button */}
       <button 
         type="button"
         onClick={() => handleOpenChange(true)}
-        className="flex flex-row items-center gap-2 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-accentransition-all duration-300 focus:outline-none cursor-pointer"
+        className={`flex flex-col items-center justify-center gap-1 text-xs md:text-sm font-bebas uppercase tracking-wider text-foreground hover:text-accent transition-all duration-300 focus:outline-none cursor-pointer ${className ?? ""}`}
       >
         <img src={getFlagUrl(selectedLanguage.flagCode)} alt={selectedLanguage.name} className="w-[24px] h-auto rounded-sm" />
+        {showCode && <span className="text-[10px] leading-none text-muted-foreground">{selectedLanguage.code.toUpperCase()}</span>}
       </button>
 
       {/* Modal Overlay - rendered via portal to escape overflow:hidden */}

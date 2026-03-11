@@ -1,15 +1,22 @@
 import { useState, useEffect } from "react";
 import { normalizePortalLanguage } from "@/lib/portalTranslations";
 
+interface UsePortalLanguageOptions {
+  includePortalHint?: boolean;
+}
+
 /**
  * Reads the portal language from storage/browser settings.
  * Switzerland defaults to French when no explicit preference exists.
  */
-export function usePortalLanguage(): string {
+export function usePortalLanguage(options: UsePortalLanguageOptions = {}): string {
+  const { includePortalHint = true } = options;
+
   const resolve = () => {
-    const hint = localStorage.getItem("portal_language_hint")
-      || localStorage.getItem("preferred_language")
-      || sessionStorage.getItem("ip_language_detected");
+    const portalHint = includePortalHint ? localStorage.getItem("portal_language_hint") : null;
+    const ipDetected = sessionStorage.getItem("ip_language_detected");
+    const preferred = localStorage.getItem("preferred_language");
+    const hint = portalHint || ipDetected || preferred;
 
     if (hint) return normalizePortalLanguage(hint);
 
@@ -46,7 +53,8 @@ export function usePortalLanguage(): string {
       window.removeEventListener("storage", onStorage);
       clearInterval(interval);
     };
-  }, []);
+  }, [includePortalHint]);
 
   return lang;
 }
+
