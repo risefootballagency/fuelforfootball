@@ -145,7 +145,7 @@ export const ScatterComparisonChart = ({
           </Select>
         </div>
         <div className="flex-1">
-          <label className="text-xs font-medium text-muted-foreground mb-1 block">Y-Axis</label>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">{t(lang, "y_axis") || "Y-Axis"}</label>
           <Select value={yMetric} onValueChange={(v) => { setYMetric(v); setSelectedIdx(null); }}>
             <SelectTrigger className="w-full">
               <SelectValue />
