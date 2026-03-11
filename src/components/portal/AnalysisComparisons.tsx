@@ -441,7 +441,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PORTAL_COLOUR }} />
                                 <div>
                                   <div className="text-xs font-medium">{playerName}</div>
-                                  <div className="text-[10px] text-muted-foreground">Last {formWindow} avg</div>
+                                  <div className="text-[10px] text-muted-foreground">{t(lang, "last_n")} {formWindow} {t(lang, "last_n_avg")}</div>
                                 </div>
                               </div>
                             </TableHead>
