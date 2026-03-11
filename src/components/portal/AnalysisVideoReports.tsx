@@ -307,13 +307,13 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                 {/* Export dropdown */}
                 <div className="flex gap-2">
                   <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={() => handleExport('single')}>
-                    <Download className="h-4 w-4 mr-1" /> Clip
+                    <Download className="h-4 w-4 mr-1" /> {t(lang, "clip_label")}
                   </Button>
                   <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={() => handleExport('selected')}>
-                    <CheckSquare className="h-4 w-4 mr-1" /> Selected ({selectedClipIds.size})
+                    <CheckSquare className="h-4 w-4 mr-1" /> {t(lang, "selected")} ({selectedClipIds.size})
                   </Button>
                   <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={() => handleExport('all')}>
-                    <Download className="h-4 w-4 mr-1" /> All
+                    <Download className="h-4 w-4 mr-1" /> {t(lang, "all")}
                   </Button>
                 </div>
               </div>
