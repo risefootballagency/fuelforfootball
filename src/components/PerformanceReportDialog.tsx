@@ -19,7 +19,8 @@ import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toTitleCase } from "@/lib/titleCase";
 import { sortActionsByMinute } from "@/lib/actionSorting";
 import { t, normalizePortalLanguage, translateStatLabel } from "@/lib/portalTranslations";
-import { getReportLanguage, getReportLocale, getTranslatedActionField, getTranslatedReportField, hasTranslatedReportContent } from "@/lib/reportTranslations";
+import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
 const formatMinute = (minute: number | null | undefined): string => {
