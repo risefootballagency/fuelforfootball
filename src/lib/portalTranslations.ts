@@ -571,6 +571,9 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     assists: "Asistence", passes: "Přihrávky", dribbles: "Obejití",
     tackles: "Skluzové zákroky", interceptions: "Zachycení", clearances: "Odkopy",
     fouls: "Fauly", turnovers: "Ztráty", recoveries: "Zisky míče",
+    progressive_passes: "Progresivní přihrávky", long_passes: "Dlouhé přihrávky", successful_dribbles: "Úspěšná obejití",
+    xg_via_live_passes: "xG přes živé přihrávky", xg_chain: "Řetězec xG", xg_buildup: "Výstavba xG",
+  },
   },
   pl: {
     goals: "Bramki", shots: "Strzały", shots_on_target: "Strzały celne", xg: "xG", xa: "xA",
