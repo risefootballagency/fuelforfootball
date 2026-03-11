@@ -1806,7 +1806,7 @@ const Dashboard = () => {
                   className="flex items-center gap-2 relative"
                 >
                   <Bell className="h-4 w-4" />
-                  <span className="hidden sm:inline">Notifications</span>
+                  <span className="hidden sm:inline">{t(portalLang, "notifications")}</span>
                   {/* Notification Badge */}
                   {(() => {
                     const recentCount = [
