@@ -288,23 +288,37 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     }
   };
 
-  // Format stat key to readable label using config lookup
+  // Format stat key to readable label using config lookup, with portal translation
   const formatStatLabel = (key: string): string => {
     // Try exact match first
     let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
-    if (config) return config.name;
+    if (config) {
+      if (isPortalView && reportLanguage !== 'en') {
+        return translateStatLabel(reportLanguage, key, config.name);
+      }
+      return config.name;
+    }
     
     // Try lowercase match
     const keyLower = key.toLowerCase();
     config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
-    if (config) return config.name;
+    if (config) {
+      if (isPortalView && reportLanguage !== 'en') {
+        return translateStatLabel(reportLanguage, key, config.name);
+      }
+      return config.name;
+    }
     
     // Fallback to formatted key
-    return key
+    const fallback = key
       .replace(/_/g, ' ')
       .replace(/([A-Z])/g, ' $1')
       .replace(/^./, str => str.toUpperCase())
       .trim();
+    if (isPortalView && reportLanguage !== 'en') {
+      return translateStatLabel(reportLanguage, key, fallback);
+    }
+    return fallback;
   };
 
   // Get advanced stats from striker_stats, excluding internal fields
