@@ -4216,7 +4216,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Make a Payment
+                          {t(portalLang, "make_a_payment")}
                         </CardTitle>
                       </div>
                     </CardHeader>
