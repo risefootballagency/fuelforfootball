@@ -255,7 +255,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
         <div className="space-y-2 pr-6">
           <div className="font-bold text-white text-base mb-1">{data.result} {data.opponent}</div>
           {data.minutesPlayed && (
-            <div className="text-xs text-white/60">Minutes Played: {data.minutesPlayed}</div>
+            <div className="text-xs text-white/60">{t(portalLanguage, "minutes_played")}: {data.minutesPlayed}</div>
           )}
           {stats && (
             <div className="space-y-1 pt-2 border-t border-white/20">
