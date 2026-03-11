@@ -362,7 +362,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
               {/* Stat Picker Comparison */}
               <div className="bg-card border rounded-lg p-4 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <h4 className="font-semibold">Stat Comparison</h4>
+                  <h4 className="font-semibold">{t(lang, "stat_comparison")}</h4>
                   <Select value={selectedMetricKey} onValueChange={setSelectedMetricKey}>
                     <SelectTrigger className="w-full sm:w-[260px]">
                       <SelectValue />
