@@ -22,6 +22,7 @@ interface NotificationSettingsProps {
 }
 
 export const NotificationSettings = ({ playerId }: NotificationSettingsProps) => {
+  const portalLang = usePortalLanguage();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [preferences, setPreferences] = useState<NotificationPreferences>({
