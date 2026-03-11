@@ -850,6 +850,11 @@ const esExtended: Record<string, string> = {
   no_zone_clips: "No se encontraron clips para esta zona", zone_clips_title: "Zona",
   fullscreen: "Pantalla completa",
   switch_to_at_a_glance: "Cambiar a vista general", switch_to_in_depth: "Cambiar a vista detallada",
+  your_current_package: "Tu Paquete Actual", package_status: "Estado del Paquete", not_on_package: "Sin paquete activo",
+  recommended_package: "Paquete Recomendado", upgrade_available: "Mejora Disponible", upgrade_now: "Mejorar Ahora", get_started: "Comenzar",
+  notification_settings: "Configuración de Notificaciones", notification_settings_desc: "Elige las notificaciones que deseas recibir",
+  no_coach_availability: "Aún no hay disponibilidad.", data_overview: "Resumen de Datos", other_analysis: "Otros Análisis",
+  physical_programming: "Programación Física", invoices: "Facturas", make_a_payment: "Realizar un Pago", services: "Servicios",
 };
 Object.entries(esExtended).forEach(([key, val]) => {
   if (translations.es) translations.es[key] = val;
