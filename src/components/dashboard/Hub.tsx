@@ -1020,7 +1020,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                         {portalSettings.current_package_features.map((f, i) => (
                           <div key={i} className="flex items-center gap-1 text-xs text-accent">
                             <Check className="w-3 h-3" />
-                            <span>{f}</span>
+                            <span>{translateServiceName(portalLanguage, f)}</span>
                           </div>
                         ))}
                       </div>
