@@ -4920,6 +4920,7 @@ const Dashboard = () => {
         open={performanceReportDialogOpen}
         onOpenChange={setPerformanceReportDialogOpen}
         analysisId={selectedReportAnalysisId}
+        isPortalView={true}
       />
 
       {/* Mobile Bottom Nav */}
