@@ -429,7 +429,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                 return (
                   <div key={cat.category} className="border rounded-lg overflow-hidden">
                     <div className="bg-muted px-4 py-2">
-                      <h4 className="font-semibold text-sm">{cat.category}</h4>
+                      <h4 className="font-semibold text-sm">{translateMetricCategory(lang, cat.category)}</h4>
                     </div>
                     <Table>
                       <TableHeader>
