@@ -874,7 +874,7 @@ const Dashboard = () => {
       // Online - verify with Supabase
       const { data: player, error: playerError } = await supabase
         .from("players")
-        .select("id")
+        .select("id, portal_language")
         .eq("email", playerEmail)
         .maybeSingle();
 
