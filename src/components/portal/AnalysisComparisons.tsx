@@ -278,7 +278,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
         {/* 3D Radar Tab */}
         <TabsContent value="radar3d" className="mt-4">
           {hasPortalData ? (
-            <Suspense fallback={<div className="h-[400px] flex items-center justify-center text-muted-foreground">Loading 3D radar...</div>}>
+            <Suspense fallback={<div className="h-[400px] flex items-center justify-center text-muted-foreground">{t(lang, "loading_3d_radar")}</div>}>
               <RadarChart3D
                 playerName={playerName}
                 metrics={(() => {
