@@ -506,11 +506,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const dribbleSuccess = getSuccessVal('dribbles');
     const dribbleTotal = getTotalVal('dribbles');
     if (dribbleSuccess !== null && dribbleTotal !== null && dribbleTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'dribble_success_pct', 'Dribble Success %', 'Dribbles Completed ÷ Total');
       calculated.push({
         key: 'dribble_success_pct',
-        displayName: 'Dribble Success %',
+        displayName: translated.displayName,
         value: (dribbleSuccess / dribbleTotal) * 100,
-        description: 'Dribbles Completed ÷ Total'
+        description: translated.description
       });
     }
     
