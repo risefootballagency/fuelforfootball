@@ -73,10 +73,10 @@ export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName
   if (images.length === 0) return null;
 
   const units = countdown ? [
-    { label: "DAYS", value: countdown.days },
-    { label: "HRS", value: countdown.hours },
-    { label: "MIN", value: countdown.minutes },
-    { label: "SEC", value: countdown.seconds },
+    { label: t(lang, "days_label"), value: countdown.days },
+    { label: t(lang, "hrs_label"), value: countdown.hours },
+    { label: t(lang, "min_label"), value: countdown.minutes },
+    { label: t(lang, "sec_label"), value: countdown.seconds },
   ] : [];
 
   return (
