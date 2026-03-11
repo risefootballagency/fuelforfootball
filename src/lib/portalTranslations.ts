@@ -724,7 +724,6 @@ const frExtended: Record<string, string> = {
   notification_settings_desc: "Choisissez les notifications que vous souhaitez recevoir",
   no_coach_availability: "Aucune disponibilité définie.",
   data_overview: "Aperçu des Données",
-  all_reports: "Tous les Rapports",
   other_analysis: "Autre Analyse",
   physical_programming: "Programmation Physique",
   invoices: "Factures",
