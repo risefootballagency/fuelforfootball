@@ -4,6 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface AvailabilitySlot {
   id: string;
@@ -22,6 +24,7 @@ interface CoachAvailabilityProps {
 export const CoachAvailability = ({ open, onOpenChange }: CoachAvailabilityProps) => {
   const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
   const [loading, setLoading] = useState(true);
+  const portalLang = usePortalLanguage();
 
   useEffect(() => {
     if (open) {
@@ -85,15 +88,15 @@ export const CoachAvailability = ({ open, onOpenChange }: CoachAvailabilityProps
         <DialogHeader className="mb-4">
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <Calendar className="h-6 w-6" />
-            Coach Availability
+            {t(portalLang, "coach_availability")}
           </DialogTitle>
         </DialogHeader>
 
         {loading ? (
-          <div className="text-center py-4">Loading availability...</div>
+          <div className="text-center py-4">{t(portalLang, "loading")}</div>
         ) : availability.length === 0 ? (
           <div className="text-center py-4 text-muted-foreground">
-            No coach availability set yet.
+            {t(portalLang, "no_coach_availability")}
           </div>
         ) : (
           <div className="space-y-2 flex-1 overflow-y-auto">
@@ -130,7 +133,7 @@ export const CoachAvailability = ({ open, onOpenChange }: CoachAvailabilityProps
 
         <div className="flex justify-end mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            {t(portalLang, "close")}
           </Button>
         </div>
       </DialogContent>

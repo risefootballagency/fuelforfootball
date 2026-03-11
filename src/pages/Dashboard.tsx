@@ -1979,7 +1979,7 @@ const Dashboard = () => {
                     {activeTab === "invoices" && t(portalLang, "key_documents")}
                     {activeTab === "updates" && t(portalLang, "updates")}
                     {activeTab === "highlights" && t(portalLang, "highlights")}
-                    {activeTab === "services" && "Services"}
+                    {activeTab === "services" && t(portalLang, "services")}
                     {activeTab === "nutrition" && t(portalLang, "nutrition")}
                   </span>
                   <ChevronDown className="ml-2 h-5 w-5" />
@@ -2038,7 +2038,7 @@ const Dashboard = () => {
                       { tab: "hub", label: t(portalLang, "hub"), icon: <TrendingUp className="h-8 w-8 sm:h-9 sm:w-9" />, isHub: true },
                       { tab: "updates", label: t(portalLang, "updates"), icon: <Bell className="h-6 w-6 sm:h-7 sm:w-7" /> },
                       { tab: "analysis", label: t(portalLang, "video_reports"), icon: <Play className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "video-reports" },
-                      { tab: "services", label: "Services", icon: <ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "services", label: t(portalLang, "services"), icon: <ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7" /> },
                       { tab: "analysis", label: t(portalLang, "comparisons"), icon: <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "comparisons" },
                     ].map((item) => (
                       <DropdownMenuItem
@@ -2207,7 +2207,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Performance Analysis
+                          {t(portalLang, "performance_analysis")}
                         </CardTitle>
                       </div>
                     </CardHeader>
@@ -2345,7 +2345,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Concepts
+                          {t(portalLang, "concepts")}
                         </CardTitle>
                       </div>
                     </CardHeader>
@@ -2406,7 +2406,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Tactical Schemes
+                          {t(portalLang, "tactical_schemes")}
                         </CardTitle>
                       </div>
                     </CardHeader>
@@ -2586,7 +2586,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Cognisance
+                          {t(portalLang, "cognisance")}
                         </CardTitle>
                       </div>
                     </CardHeader>
@@ -2604,7 +2604,7 @@ const Dashboard = () => {
                   <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">Data Overview</CardTitle>
+                        <CardTitle className="font-heading tracking-tight">{t(portalLang, "data_overview")}</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
@@ -2617,7 +2617,7 @@ const Dashboard = () => {
                   <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">Video Reports</CardTitle>
+                        <CardTitle className="font-heading tracking-tight">{t(portalLang, "video_reports")}</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
@@ -2630,7 +2630,7 @@ const Dashboard = () => {
                   <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">Comparisons</CardTitle>
+                        <CardTitle className="font-heading tracking-tight">{t(portalLang, "comparisons")}</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
@@ -2643,7 +2643,7 @@ const Dashboard = () => {
                   <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">All Reports</CardTitle>
+                        <CardTitle className="font-heading tracking-tight">{t(portalLang, "all_reports")}</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
@@ -2657,7 +2657,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Form
+                          {t(portalLang, "form")}
                         </CardTitle>
                       </div>
                     </CardHeader>
@@ -3192,7 +3192,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Other Analysis
+                          {t(portalLang, "other_analysis")}
                         </CardTitle>
                       </div>
                     </CardHeader>
@@ -3263,7 +3263,7 @@ const Dashboard = () => {
                 <CardHeader marble>
                   <div className="container mx-auto px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <CardTitle className="font-heading tracking-tight">
-                      Physical Programming
+                      {t(portalLang, "physical_programming")}
                     </CardTitle>
                     {programs.length > 1 && (
                       <Select value={selectedProgramId || undefined} onValueChange={setSelectedProgramId}>
@@ -4026,7 +4026,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Invoices
+                          {t(portalLang, "invoices")}
                         </CardTitle>
                       </div>
                     </CardHeader>
@@ -4216,7 +4216,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Make a Payment
+                          {t(portalLang, "make_a_payment")}
                         </CardTitle>
                       </div>
                     </CardHeader>
@@ -4529,7 +4529,7 @@ const Dashboard = () => {
                     <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
                       <CardHeader marble>
                         <div className="container mx-auto px-4">
-                          <CardTitle className="font-heading tracking-tight">Match Clipper</CardTitle>
+                          <CardTitle className="font-heading tracking-tight">{t(portalLang, "match_clipper")}</CardTitle>
                         </div>
                       </CardHeader>
                       <CardContent className="container mx-auto px-4">
@@ -4551,7 +4551,7 @@ const Dashboard = () => {
               <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
                 <CardHeader marble>
                   <div className="container mx-auto px-4">
-                    <CardTitle className="font-heading tracking-tight">Nutrition</CardTitle>
+                    <CardTitle className="font-heading tracking-tight">{t(portalLang, "nutrition")}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="container mx-auto px-4">
@@ -4897,7 +4897,7 @@ const Dashboard = () => {
             onClick={handleLogout}
             className="font-bebas uppercase tracking-wider"
           >
-            Log Out
+            {t(portalLang, "log_out")}
           </Button>
           <Button 
             variant="outline"

@@ -143,6 +143,31 @@ const extendedKeys: Record<string, string> = {
   // PortalMusicControls
   next_track: "Next track",
   unknown_track: "Unknown Track",
+  // Hub package/offer labels
+  your_current_package: "Your Current Package",
+  package_status: "Package Status",
+  not_on_package: "Not currently on a package",
+  recommended_package: "Recommended Package",
+  upgrade_available: "Upgrade Available",
+  upgrade_now: "Upgrade Now",
+  get_started: "Get Started",
+  // NotificationSettings
+  notification_settings: "Notification Settings",
+  notification_settings_desc: "Choose which notifications you want to receive",
+  // CoachAvailability
+  no_coach_availability: "No coach availability set yet.",
+  // Section headers
+  data_overview: "Data Overview",
+  all_reports: "All Reports",
+  other_analysis: "Other Analysis",
+  physical_programming: "Physical Programming",
+  invoices: "Invoices",
+  make_a_payment: "Make a Payment",
+  services: "Services",
+  // Stat labels for reports
+  xg_via_live_passes: "xG via Live Passes",
+  xg_chain: "xG Chain",
+  xg_buildup: "xG Buildup",
 };
 
 const translations: Record<string, Record<string, string>> = {
@@ -490,6 +515,7 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     assists: "Passes décisives", key_passes: "Passes clés", chances_created: "Occasions créées",
     passes: "Passes", accurate_passes: "Passes réussies", long_balls: "Longs ballons",
     crosses: "Centres", progressive_passes: "Passes progressives",
+    long_passes: "Passes longues",
     dribbles: "Dribbles", successful_dribbles: "Dribbles réussis",
     tackles: "Tacles", interceptions: "Interceptions", clearances: "Dégagements",
     aerial_duels: "Duels aériens", duels: "Duels", blocks: "Contres",
@@ -498,6 +524,10 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     touches: "Touches", carries: "Conduites", progressive_carries: "Conduites progressives",
     yellow_cards: "Cartons jaunes", red_cards: "Cartons rouges",
     minutes_played: "Minutes jouées", distance: "Distance",
+    xg_via_live_passes: "xG via Passes en jeu", xg_chain: "Chaîne xG", xg_buildup: "Construction xG",
+    progressive_passes_received: "Passes progressives reçues",
+    carries_into_final_third: "Conduites en dernier tiers", carries_into_box: "Conduites dans la surface",
+    regains_adj: "Regains ajustés", turnovers_adj: "Pertes ajustées", progressive_passes_adj: "Passes prog. ajustées",
   },
   es: {
     goals: "Goles", shots: "Tiros", shots_on_target: "Tiros a puerta", xg: "xG", xa: "xA",
@@ -505,30 +535,40 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     passes: "Pases", dribbles: "Regates", tackles: "Entradas", interceptions: "Intercepciones",
     clearances: "Despejes", aerial_duels: "Duelos aéreos", fouls: "Faltas",
     turnovers: "Pérdidas", recoveries: "Recuperaciones",
+    progressive_passes: "Pases progresivos", long_passes: "Pases largos", successful_dribbles: "Regates exitosos",
+    xg_via_live_passes: "xG vía Pases en juego", xg_chain: "Cadena xG", xg_buildup: "Construcción xG",
   },
   pt: {
     goals: "Gols", shots: "Finalizações", shots_on_target: "Chutes a gol", xg: "xG", xa: "xA",
     assists: "Assistências", passes: "Passes", dribbles: "Dribles",
     tackles: "Desarmes", interceptions: "Interceptações", clearances: "Cortes",
     fouls: "Faltas", turnovers: "Perdas", recoveries: "Recuperações",
+    progressive_passes: "Passes progressivos", long_passes: "Passes longos", successful_dribbles: "Dribles bem-sucedidos",
+    xg_via_live_passes: "xG via Passes em jogo", xg_chain: "Cadeia xG", xg_buildup: "Construção xG",
   },
   de: {
     goals: "Tore", shots: "Schüsse", shots_on_target: "Schüsse aufs Tor", xg: "xG", xa: "xA",
     assists: "Vorlagen", passes: "Pässe", dribbles: "Dribblings",
     tackles: "Tackles", interceptions: "Abfangaktionen", clearances: "Klärungen",
     fouls: "Fouls", turnovers: "Ballverluste", recoveries: "Balleroberungen",
+    progressive_passes: "Progressive Pässe", long_passes: "Lange Pässe", successful_dribbles: "Erfolgreiche Dribblings",
+    xg_via_live_passes: "xG über Livepässe", xg_chain: "xG-Kette", xg_buildup: "xG-Aufbau",
   },
   it: {
     goals: "Gol", shots: "Tiri", shots_on_target: "Tiri in porta", xg: "xG", xa: "xA",
     assists: "Assist", passes: "Passaggi", dribbles: "Dribbling",
     tackles: "Contrasti", interceptions: "Intercettazioni", clearances: "Spazzate",
     fouls: "Falli", turnovers: "Palle perse", recoveries: "Recuperi",
+    progressive_passes: "Passaggi progressivi", long_passes: "Passaggi lunghi", successful_dribbles: "Dribbling riusciti",
+    xg_via_live_passes: "xG via Passaggi dal vivo", xg_chain: "Catena xG", xg_buildup: "Costruzione xG",
   },
   cs: {
     goals: "Góly", shots: "Střely", shots_on_target: "Střely na branku", xg: "xG", xa: "xA",
     assists: "Asistence", passes: "Přihrávky", dribbles: "Obejití",
     tackles: "Skluzové zákroky", interceptions: "Zachycení", clearances: "Odkopy",
     fouls: "Fauly", turnovers: "Ztráty", recoveries: "Zisky míče",
+    progressive_passes: "Progresivní přihrávky", long_passes: "Dlouhé přihrávky", successful_dribbles: "Úspěšná obejití",
+    xg_via_live_passes: "xG přes živé přihrávky", xg_chain: "Řetězec xG", xg_buildup: "Výstavba xG",
   },
   pl: {
     goals: "Bramki", shots: "Strzały", shots_on_target: "Strzały celne", xg: "xG", xa: "xA",
@@ -688,6 +728,25 @@ const frExtended: Record<string, string> = {
   avg_vs: "moy. vs",
   game_singular: "match",
   game_plural: "matchs",
+  your_current_package: "Votre Forfait Actuel",
+  package_status: "Statut du Forfait",
+  not_on_package: "Pas de forfait actif",
+  recommended_package: "Forfait Recommandé",
+  upgrade_available: "Mise à Niveau Disponible",
+  upgrade_now: "Mettre à Niveau",
+  get_started: "Commencer",
+  notification_settings: "Paramètres de Notification",
+  notification_settings_desc: "Choisissez les notifications que vous souhaitez recevoir",
+  no_coach_availability: "Aucune disponibilité définie.",
+  data_overview: "Aperçu des Données",
+  other_analysis: "Autre Analyse",
+  physical_programming: "Programmation Physique",
+  invoices: "Factures",
+  make_a_payment: "Effectuer un Paiement",
+  services: "Services",
+  xg_via_live_passes: "xG via Passes en Jeu",
+  xg_chain: "Chaîne xG",
+  xg_buildup: "Construction xG",
 };
 Object.entries(frExtended).forEach(([key, val]) => {
   if (translations.fr) translations.fr[key] = val;
@@ -806,6 +865,11 @@ const esExtended: Record<string, string> = {
   no_zone_clips: "No se encontraron clips para esta zona", zone_clips_title: "Zona",
   fullscreen: "Pantalla completa",
   switch_to_at_a_glance: "Cambiar a vista general", switch_to_in_depth: "Cambiar a vista detallada",
+  your_current_package: "Tu Paquete Actual", package_status: "Estado del Paquete", not_on_package: "Sin paquete activo",
+  recommended_package: "Paquete Recomendado", upgrade_available: "Mejora Disponible", upgrade_now: "Mejorar Ahora", get_started: "Comenzar",
+  notification_settings: "Configuración de Notificaciones", notification_settings_desc: "Elige las notificaciones que deseas recibir",
+  no_coach_availability: "Aún no hay disponibilidad.", data_overview: "Resumen de Datos", other_analysis: "Otros Análisis",
+  physical_programming: "Programación Física", invoices: "Facturas", make_a_payment: "Realizar un Pago", services: "Servicios",
 };
 Object.entries(esExtended).forEach(([key, val]) => {
   if (translations.es) translations.es[key] = val;
@@ -907,6 +971,11 @@ const ptExtended: Record<string, string> = {
   no_zone_clips: "Nenhum clip encontrado para esta zona", zone_clips_title: "Zona",
   fullscreen: "Ecrã inteiro",
   switch_to_at_a_glance: "Mudar para vista geral", switch_to_in_depth: "Mudar para vista detalhada",
+  your_current_package: "Seu Pacote Atual", package_status: "Estado do Pacote", not_on_package: "Sem pacote ativo",
+  recommended_package: "Pacote Recomendado", upgrade_available: "Upgrade Disponível", upgrade_now: "Fazer Upgrade", get_started: "Começar",
+  notification_settings: "Configurações de Notificação", notification_settings_desc: "Escolha as notificações que deseja receber",
+  no_coach_availability: "Sem disponibilidade definida.", data_overview: "Visão Geral dos Dados", other_analysis: "Outra Análise",
+  physical_programming: "Programação Física", invoices: "Faturas", make_a_payment: "Efetuar Pagamento", services: "Serviços",
 };
 Object.entries(ptExtended).forEach(([key, val]) => {
   if (translations.pt) translations.pt[key] = val;
@@ -1008,6 +1077,11 @@ const deExtended: Record<string, string> = {
   no_zone_clips: "Keine Clips für diese Zone gefunden", zone_clips_title: "Zone",
   fullscreen: "Vollbild",
   switch_to_at_a_glance: "Zur Übersicht wechseln", switch_to_in_depth: "Zur Detailansicht wechseln",
+  your_current_package: "Ihr aktuelles Paket", package_status: "Paketstatus", not_on_package: "Kein aktives Paket",
+  recommended_package: "Empfohlenes Paket", upgrade_available: "Upgrade verfügbar", upgrade_now: "Jetzt upgraden", get_started: "Loslegen",
+  notification_settings: "Benachrichtigungseinstellungen", notification_settings_desc: "Wählen Sie die Benachrichtigungen aus",
+  no_coach_availability: "Keine Verfügbarkeit eingestellt.", data_overview: "Datenübersicht", other_analysis: "Andere Analyse",
+  physical_programming: "Physische Programmierung", invoices: "Rechnungen", make_a_payment: "Zahlung vornehmen", services: "Dienstleistungen",
 };
 Object.entries(deExtended).forEach(([key, val]) => {
   if (translations.de) translations.de[key] = val;
@@ -1109,6 +1183,11 @@ const itExtended: Record<string, string> = {
   no_zone_clips: "Nessun clip trovato per questa zona", zone_clips_title: "Zona",
   fullscreen: "Schermo intero",
   switch_to_at_a_glance: "Passa alla vista d'insieme", switch_to_in_depth: "Passa alla vista dettagliata",
+  your_current_package: "Il Tuo Pacchetto Attuale", package_status: "Stato del Pacchetto", not_on_package: "Nessun pacchetto attivo",
+  recommended_package: "Pacchetto Consigliato", upgrade_available: "Upgrade Disponibile", upgrade_now: "Aggiorna Ora", get_started: "Inizia",
+  notification_settings: "Impostazioni Notifiche", notification_settings_desc: "Scegli le notifiche che vuoi ricevere",
+  no_coach_availability: "Nessuna disponibilità impostata.", data_overview: "Panoramica Dati", other_analysis: "Altre Analisi",
+  physical_programming: "Programmazione Fisica", invoices: "Fatture", make_a_payment: "Effettua un Pagamento", services: "Servizi",
 };
 Object.entries(itExtended).forEach(([key, val]) => {
   if (translations.it) translations.it[key] = val;
@@ -1207,6 +1286,11 @@ const plExtended: Record<string, string> = {
   no_zone_clips: "Brak klipów dla tej strefy", zone_clips_title: "Strefa",
   fullscreen: "Pełny ekran",
   switch_to_at_a_glance: "Przełącz na widok ogólny", switch_to_in_depth: "Przełącz na widok szczegółowy",
+  your_current_package: "Twój Aktualny Pakiet", package_status: "Status Pakietu", not_on_package: "Brak aktywnego pakietu",
+  recommended_package: "Rekomendowany Pakiet", upgrade_available: "Dostępna Aktualizacja", upgrade_now: "Zaktualizuj", get_started: "Rozpocznij",
+  notification_settings: "Ustawienia Powiadomień", notification_settings_desc: "Wybierz powiadomienia, które chcesz otrzymywać",
+  no_coach_availability: "Brak ustawionej dostępności.", data_overview: "Przegląd Danych", other_analysis: "Inna Analiza",
+  physical_programming: "Programowanie Fizyczne", invoices: "Faktury", make_a_payment: "Dokonaj Płatności", services: "Usługi",
 };
 Object.entries(plExtended).forEach(([key, val]) => {
   if (translations.pl) translations.pl[key] = val;
@@ -1303,6 +1387,11 @@ const csExtended: Record<string, string> = {
   no_zone_clips: "Žádné klipy pro tuto zónu", zone_clips_title: "Zóna",
   fullscreen: "Celá obrazovka",
   switch_to_at_a_glance: "Přepnout na přehled", switch_to_in_depth: "Přepnout na detail",
+  your_current_package: "Váš Aktuální Balíček", package_status: "Stav Balíčku", not_on_package: "Žádný aktivní balíček",
+  recommended_package: "Doporučený Balíček", upgrade_available: "K dispozici upgrade", upgrade_now: "Upgradovat", get_started: "Začít",
+  notification_settings: "Nastavení Oznámení", notification_settings_desc: "Vyberte oznámení, která chcete dostávat",
+  no_coach_availability: "Zatím žádná dostupnost.", data_overview: "Přehled Dat", other_analysis: "Další Analýza",
+  physical_programming: "Fyzická Příprava", invoices: "Faktury", make_a_payment: "Provést Platbu", services: "Služby",
 };
 Object.entries(csExtended).forEach(([key, val]) => {
   if (translations.cs) translations.cs[key] = val;
@@ -1399,6 +1488,11 @@ const ruExtended: Record<string, string> = {
   no_zone_clips: "Клипы для этой зоны не найдены", zone_clips_title: "Зона",
   fullscreen: "Полный экран",
   switch_to_at_a_glance: "Переключить на обзор", switch_to_in_depth: "Переключить на детали",
+  your_current_package: "Ваш текущий пакет", package_status: "Статус пакета", not_on_package: "Нет активного пакета",
+  recommended_package: "Рекомендуемый пакет", upgrade_available: "Доступно обновление", upgrade_now: "Обновить", get_started: "Начать",
+  notification_settings: "Настройки уведомлений", notification_settings_desc: "Выберите уведомления, которые хотите получать",
+  no_coach_availability: "Нет доступности.", data_overview: "Обзор данных", other_analysis: "Другой анализ",
+  physical_programming: "Физическая подготовка", invoices: "Счета", make_a_payment: "Произвести оплату", services: "Услуги",
 };
 Object.entries(ruExtended).forEach(([key, val]) => {
   if (translations.ru) translations.ru[key] = val;
@@ -1495,6 +1589,11 @@ const trExtended: Record<string, string> = {
   no_zone_clips: "Bu bölge için klip bulunamadı", zone_clips_title: "Bölge",
   fullscreen: "Tam ekran",
   switch_to_at_a_glance: "Genel görünüme geç", switch_to_in_depth: "Ayrıntılı görünüme geç",
+  your_current_package: "Mevcut Paketiniz", package_status: "Paket Durumu", not_on_package: "Aktif paket yok",
+  recommended_package: "Önerilen Paket", upgrade_available: "Yükseltme Mevcut", upgrade_now: "Şimdi Yükselt", get_started: "Başla",
+  notification_settings: "Bildirim Ayarları", notification_settings_desc: "Almak istediğiniz bildirimleri seçin",
+  no_coach_availability: "Henüz müsaitlik belirlenmedi.", data_overview: "Veri Genel Bakış", other_analysis: "Diğer Analiz",
+  physical_programming: "Fiziksel Programlama", invoices: "Faturalar", make_a_payment: "Ödeme Yap", services: "Hizmetler",
 };
 Object.entries(trExtended).forEach(([key, val]) => {
   if (translations.tr) translations.tr[key] = val;

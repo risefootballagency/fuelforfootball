@@ -177,7 +177,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
       });
 
       if (actionsResult.error) throw actionsResult.error;
-      setActions(sortActionsByMinute((actionsResult.data || []) as any));
+      setActions((actionsResult.data || []).sort((a: any, b: any) => (a.action_number ?? 0) - (b.action_number ?? 0)) as any);
       
       // Mark this ID as prefetched
       setPrefetchedId(id);
@@ -895,7 +895,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         const hasGoalBorder = isGoals && typeof goalsValue === 'number' && goalsValue >= 1;
                         return (
                         <div key={stat.key} className={`text-center p-1.5 md:p-3 bg-accent/10 rounded ${hasGoalBorder ? 'ring-2 ring-gold' : ''}`}>
-                          <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5 capitalize truncate">{formatStatLabel(stat.key)}</p>
+                          <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5" title={formatStatLabel(stat.key)}>{formatStatLabel(stat.key)}</p>
                           {stat.isPaired ? (
                             <>
                               <p className="text-sm md:text-lg font-bold">{stat.percentage}%</p>

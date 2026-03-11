@@ -998,12 +998,12 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                   <CardContent className="relative py-4 px-4 space-y-4">
                     {hasCurrentPackage ? (
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Current Package</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(portalLanguage, "your_current_package")}</p>
                         <p className="text-lg font-bold text-accent">{portalSettings!.current_package_name}</p>
                         {portalSettings!.current_package_price != null && (() => {
                           const currentPkgs = (portalSettings as any)?.current_packages;
                           const freq = Array.isArray(currentPkgs) && currentPkgs[0]?.frequency;
-                          const freqLabel = freq === "one-off" ? "/pc" : freq === "weekly" ? "/wk" : freq === "6-monthly" ? "/6mo" : freq === "annual" ? "/yr" : freq === "monthly" ? "/mo" : "";
+                          const freqLabel = freq === "one-off" ? "" : freq === "weekly" ? "/wk" : freq === "6-monthly" ? "/6mo" : freq === "annual" ? "/yr" : freq === "monthly" ? "/mo" : "";
                           return (
                             <p className="text-sm text-muted-foreground">{currencySymbol}{portalSettings!.current_package_price}{freqLabel}</p>
                           );
@@ -1011,8 +1011,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                       </div>
                     ) : (
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Package Status</p>
-                        <p className="text-base text-muted-foreground">Not currently on a package</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(portalLanguage, "package_status")}</p>
+                        <p className="text-base text-muted-foreground">{t(portalLanguage, "not_on_package")}</p>
                       </div>
                     )}
                     {portalSettings?.current_package_features && portalSettings.current_package_features.length > 0 && (
@@ -1044,12 +1044,12 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                               <div className="bg-card rounded-[6px] p-4 space-y-3">
                                 <div className="text-center">
                                   <p className="text-xs text-accent uppercase tracking-wider font-semibold">
-                                    {hasCurrentPackage ? "Upgrade Available" : "Recommended Package"}
+                                    {hasCurrentPackage ? t(portalLanguage, "upgrade_available") : t(portalLanguage, "recommended_package")}
                                   </p>
                                   <p className="text-lg font-bold text-accent">{offer.name}</p>
                                   {offer.price && (() => {
                                     const pt = offer.payment_type || offer.recurring_interval;
-                                    const freqLabel = pt === "one_off" || pt === "one-off" ? "/pc" : pt === "weekly" ? "/wk" : pt === "6-monthly" || pt === "6_monthly" ? "/6mo" : pt === "annual" || pt === "yearly" ? "/yr" : pt === "monthly" || pt === "month" ? "/mo" : "/pc";
+                                    const freqLabel = pt === "one_off" || pt === "one-off" ? "" : pt === "weekly" ? "/wk" : pt === "6-monthly" || pt === "6_monthly" ? "/6mo" : pt === "annual" || pt === "yearly" ? "/yr" : pt === "monthly" || pt === "month" ? "/mo" : "";
                                     return <p className="text-sm text-muted-foreground">{offerCurrSym}{offer.price}{freqLabel}</p>;
                                   })()}
                                 </div>
@@ -1073,7 +1073,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                                         className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
                                         onClick={() => window.open(offer.pay_link_url, "_blank")}
                                       >
-                                        {hasCurrentPackage ? "Upgrade Now" : "Get Started"}
+                                        {hasCurrentPackage ? t(portalLanguage, "upgrade_now") : t(portalLanguage, "get_started")}
                                       </Button>
                                     </motion.div>
                                   </div>

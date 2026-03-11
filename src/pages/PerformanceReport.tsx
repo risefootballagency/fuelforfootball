@@ -141,7 +141,7 @@ const PerformanceReport = () => {
       });
 
       if (actionsResult.error) throw actionsResult.error;
-      setActions(sortActionsByMinute((actionsResult.data || []) as any));
+      setActions((actionsResult.data || []).sort((a: any, b: any) => (a.action_number ?? 0) - (b.action_number ?? 0)) as any);
     } catch (error: any) {
       console.error("Error fetching performance data:", error);
       toast.error("Failed to load performance report");

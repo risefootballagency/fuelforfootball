@@ -6,6 +6,8 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Bell } from 'lucide-react';
 import { toast } from 'sonner';
+import { t } from '@/lib/portalTranslations';
+import { usePortalLanguage } from '@/hooks/usePortalLanguage';
 
 interface NotificationPreferences {
   performance_reports: boolean;
@@ -20,6 +22,7 @@ interface NotificationSettingsProps {
 }
 
 export const NotificationSettings = ({ playerId }: NotificationSettingsProps) => {
+  const portalLang = usePortalLanguage();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [preferences, setPreferences] = useState<NotificationPreferences>({
@@ -103,10 +106,10 @@ export const NotificationSettings = ({ playerId }: NotificationSettingsProps) =>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-bebas uppercase text-2xl">
-            Notification Settings
+            {t(portalLang, "notification_settings")}
           </DialogTitle>
           <DialogDescription>
-            Choose which notifications you want to receive
+            {t(portalLang, "notification_settings_desc")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
