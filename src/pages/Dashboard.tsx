@@ -1972,14 +1972,14 @@ const Dashboard = () => {
                 className="w-full justify-center font-bebas uppercase text-xl px-6 py-6 bg-card hover:bg-card/80 border-t-2 border-gold border-x-0 border-b-2 !text-gold hover:!text-gold z-50 rounded-none"
                 >
                   <span>
-                    {activeTab === "hub" && "Hub"}
-                    {activeTab === "analysis" && "Analysis"}
-                    {activeTab === "physical" && "Programming"}
-                    {activeTab === "invoices" && "Invoices"}
-                    {activeTab === "updates" && "Updates"}
-                    {activeTab === "highlights" && "Highlights"}
+                    {activeTab === "hub" && t(portalLang, "hub")}
+                    {activeTab === "analysis" && t(portalLang, "analysis")}
+                    {activeTab === "physical" && t(portalLang, "programming")}
+                    {activeTab === "invoices" && t(portalLang, "key_documents")}
+                    {activeTab === "updates" && t(portalLang, "updates")}
+                    {activeTab === "highlights" && t(portalLang, "highlights")}
                     {activeTab === "services" && "Services"}
-                    {activeTab === "nutrition" && "Nutrition"}
+                    {activeTab === "nutrition" && t(portalLang, "nutrition")}
                   </span>
                   <ChevronDown className="ml-2 h-5 w-5" />
                 </Button>
