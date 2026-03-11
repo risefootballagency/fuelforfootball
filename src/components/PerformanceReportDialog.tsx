@@ -691,7 +691,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     onClick={() => setShowClippedActions(true)}
                   >
                     <Play className="h-4 w-4" />
-                    {actions.filter(a => a.video_url).length}
+                    {actions.filter(a => a.video_url).length} {t(reportLanguage, "clips_label")}
                   </Button>
                 )}
               </div>
@@ -706,7 +706,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     className="text-xs"
                   >
                     <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
-                    R90 Flow
+                    {t(reportLanguage, "r90_flow")}
                   </Button>
                   <Button
                     variant={showHeatmap ? "default" : "outline"}
@@ -715,7 +715,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     className="text-xs"
                   >
                     <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
-                    Period Grade Map
+                    {t(reportLanguage, "period_grade_map")}
                   </Button>
                   {actions.some(a => a.zone || (a.zone_details && a.zone_details.length > 0)) && (
                     <>
@@ -726,7 +726,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         className="text-xs"
                       >
                         <MapPin className="h-3.5 w-3.5 mr-1.5" />
-                        Pitch Heatmap
+                        {t(reportLanguage, "pitch_heatmap")}
                       </Button>
                       <Button
                         variant={showZonePerformance ? "default" : "outline"}
@@ -735,7 +735,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         className="text-xs"
                       >
                         <Grid3X3 className="h-3.5 w-3.5 mr-1.5" />
-                        Zone Performance
+                        {t(reportLanguage, "zone_performance")}
                       </Button>
                     </>
                   )}
@@ -748,7 +748,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                       className="text-xs"
                     >
                       <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
-                      Chance Creation Flow
+                      {t(reportLanguage, "chance_creation_flow")}
                     </Button>
                   )}
                   {actions.filter(a => a.video_url).length > 0 && (
@@ -760,7 +760,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         className="text-xs"
                       >
                         <Film className="h-3.5 w-3.5 mr-1.5" />
-                        Full Match Video
+                        {t(reportLanguage, "full_match_video")}
                       </Button>
                       <Button
                         variant="outline"
@@ -769,7 +769,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         className="text-xs"
                       >
                         <Award className="h-3.5 w-3.5 mr-1.5" />
-                        Ranked Actions
+                        {t(reportLanguage, "ranked_actions")}
                       </Button>
                       {actions.some(a => a.video_url && a.notes) && (
                         <Button
@@ -779,7 +779,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                           className="text-xs"
                         >
                           <MessageSquareText className="h-3.5 w-3.5 mr-1.5" />
-                          Noted Actions
+                          {t(reportLanguage, "noted_actions")}
                         </Button>
                       )}
                     </>
@@ -791,7 +791,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showR90Flow && analysis.minutes_played && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} />
+                    <R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
@@ -800,7 +800,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showHeatmap && analysis.minutes_played && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} />
+                    <ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} />
                   </CardContent>
               </Card>
               )}
@@ -809,7 +809,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showPitchHeatmap && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <PitchHeatmap actions={actions} />
+                    <PitchHeatmap actions={actions} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
@@ -818,7 +818,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showZonePerformance && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <ZonePerformance actions={actions} />
+                    <ZonePerformance actions={actions} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
@@ -827,7 +827,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showChanceCreation && analysis.striker_stats && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} />
+                    <ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
