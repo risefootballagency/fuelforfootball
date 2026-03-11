@@ -183,7 +183,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
         <>
           {/* Step 1: Select action types */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider mb-2">Step 1: Select Action Types</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-2">{t(lang, "video_reports_step_select_action_types")}</h3>
             <div className="flex flex-wrap gap-2">
               {actionTypes.map(type => (
                 <button
