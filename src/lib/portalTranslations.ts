@@ -1574,6 +1574,11 @@ const trExtended: Record<string, string> = {
   no_zone_clips: "Bu bölge için klip bulunamadı", zone_clips_title: "Bölge",
   fullscreen: "Tam ekran",
   switch_to_at_a_glance: "Genel görünüme geç", switch_to_in_depth: "Ayrıntılı görünüme geç",
+  your_current_package: "Mevcut Paketiniz", package_status: "Paket Durumu", not_on_package: "Aktif paket yok",
+  recommended_package: "Önerilen Paket", upgrade_available: "Yükseltme Mevcut", upgrade_now: "Şimdi Yükselt", get_started: "Başla",
+  notification_settings: "Bildirim Ayarları", notification_settings_desc: "Almak istediğiniz bildirimleri seçin",
+  no_coach_availability: "Henüz müsaitlik belirlenmedi.", data_overview: "Veri Genel Bakış", other_analysis: "Diğer Analiz",
+  physical_programming: "Fiziksel Programlama", invoices: "Faturalar", make_a_payment: "Ödeme Yap", services: "Hizmetler",
 };
 Object.entries(trExtended).forEach(([key, val]) => {
   if (translations.tr) translations.tr[key] = val;
