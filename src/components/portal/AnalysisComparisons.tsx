@@ -434,7 +434,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Metric / Game</TableHead>
+                          <TableHead>{translateMetricLabel(lang, 'metric_per_game', 'Metric')} {t(lang, "per_game")}</TableHead>
                           {hasPortalData && (
                             <TableHead>
                               <div className="flex items-center gap-1.5">
