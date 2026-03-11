@@ -120,7 +120,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
       if (dateA !== dateB) return dateA.localeCompare(dateB);
       return a.action_number - b.action_number;
     });
-    if (clips.length === 0) { toast.error('No clips available'); return; }
+    if (clips.length === 0) { toast.error(t(lang, 'no_clips_available')); return; }
     setCompilationClips(clips);
     setSelectedClipIds(new Set(clips.map(c => c.id)));
     setCurrentClipIndex(0);
