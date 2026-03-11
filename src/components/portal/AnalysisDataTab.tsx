@@ -280,8 +280,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
       {/* Category filter tabs for match data */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-sm uppercase tracking-wider">Match-by-Match</h3>
-          <Button variant="ghost" size="sm" onClick={selectAll}>Select All</Button>
+          <h3 className="font-semibold text-sm uppercase tracking-wider">{t(lang, "match_by_match")}</h3>
+          <Button variant="ghost" size="sm" onClick={selectAll}>{t(lang, "select_all_label")}</Button>
         </div>
 
         <Tabs value={activeStatCategory} onValueChange={setActiveStatCategory} className="mb-4">
