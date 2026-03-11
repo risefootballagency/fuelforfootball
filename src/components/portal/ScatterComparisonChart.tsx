@@ -81,7 +81,7 @@ export const ScatterComparisonChart = ({
   if (comparisonPlayers.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p className="text-sm">No comparison players available for this position.</p>
+        <p className="text-sm">{t(lang, "no_comparison_scatter")}</p>
       </div>
     );
   }
@@ -89,7 +89,7 @@ export const ScatterComparisonChart = ({
   if (points.length < 2) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p className="text-sm">Not enough data for the selected metrics. Try different ones.</p>
+        <p className="text-sm">{t(lang, "not_enough_data_metrics")}</p>
       </div>
     );
   }
