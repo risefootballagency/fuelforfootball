@@ -4,7 +4,7 @@ import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient
 import { insertStaffNotification } from "@/lib/staffNotifications";
 import { t } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
-import { PortalFlagLanguageSelector } from "@/components/portal/PortalFlagLanguageSelector";
+import { LanguageMapSelector } from "@/components/LanguageMapSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,11 +16,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
-
-  const handleLanguageSelect = (language: string) => {
-    localStorage.setItem("preferred_language", language);
-    localStorage.setItem("portal_language_hint", language);
-  };
 
   useEffect(() => {
     const checkAuth = async () => {
