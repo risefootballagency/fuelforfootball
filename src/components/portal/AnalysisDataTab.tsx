@@ -238,7 +238,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Position</p>
-            <p className="font-semibold">{playerData?.position || '-'}</p>
+            <p className="font-semibold">{translatePosition(lang, playerData?.position) || '-'}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Club</p>
