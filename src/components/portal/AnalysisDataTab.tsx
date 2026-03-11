@@ -13,7 +13,7 @@ import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toast } from "sonner";
-import { translateMetricLabel, translateMetricCategory, translatePosition } from "@/lib/portalTranslations";
+import { t, translateMetricLabel, translateMetricCategory, translatePosition } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface Analysis {
