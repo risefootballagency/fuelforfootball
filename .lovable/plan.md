@@ -1,84 +1,58 @@
 
-What I found
+Goal: restore RISE-equivalent staff notifications so site visitors, portal logins, and performance report views actually appear.
 
-This is not fully synced from RISE yet. I checked the current files against RISE and found the actual breakpoints causing Nicky’s portal/report to stay in English:
+What I found (root cause):
+1) `staff_notification_events` is empty (`0` rows) in this project.
+2) `site_visits` is actively receiving data (thousands of rows), so tracking exists.
+3) `staff_notification_events` RLS currently has only a SELECT policy; no INSERT policy (and no UPDATE read-status policy), so portal-side client inserts are blocked.
+4) The DB trigger package that exists in RISE (auto-writing notification events from `site_visits`, `form_submissions`, `playlists`, `players`) is missing here.
+5) Realtime publication currently does not include `staff_notification_events`, so bell dropdown live updates won’t fire even when rows exist.
+6) Notification settings UI diverged from RISE and is not backed by `staff_notification_settings` like RISE.
 
-1. `src/pages/Dashboard.tsx`
-- It does write `portal_language_hint` to localStorage.
-- But it does not keep/use the same `portalLanguageHint` state wiring RISE has.
-- It also does not pass `portalLanguage={playerData?.portal_language}` into `Hub`, which RISE does.
+Concise implementation plan:
+1) Sync backend notification schema/policies from RISE
+- Add `staff_notification_settings` table + role/event settings policies + updated_at trigger.
+- Ensure `staff_notification_events` matches RISE shape (`title`, `body`, `read_by`) and add missing UPDATE policy for read status.
+- Keep staff/admin read policies aligned with current role model.
 
-2. `src/components/dashboard/Hub.tsx`
-- This file is still the older non-localized version.
-- It does not accept a `portalLanguage` prop.
-- It does not import/use `t(...)` from `portalTranslations`.
-- Most importantly, it opens the report dialog without portal mode:
-  `analysisId={selectedReportId}`
-  instead of RISE’s:
-  `analysisId={selectedReportId} isPortalView={true}`
+2) Port RISE notification trigger pipeline
+- Add RISE trigger functions and triggers:
+  - `log_site_visit_notification` on `site_visits` INSERT
+  - `log_form_submission_notification` on `form_submissions` INSERT
+  - `log_playlist_change_notification` on `playlists` INSERT/UPDATE/DELETE
+  - `log_clip_upload_notification` on `players` UPDATE (highlights diff)
+- This removes dependence on staff browser subscriptions for these event sources and matches RISE behavior.
 
-That means the report dialog falls back to English by design.
+3) Fix portal-origin notification writes (logins + performance views)
+- Ensure `portal_login`, `portal_performance_view`, `portal_analysis_view` events can be persisted in this project’s backend path.
+- Align `Dashboard.tsx` tracking logic back to RISE behavior (only analysis context generates performance/analysis view events; no broad non-analysis misclassification).
+- Keep event payload parity (`player_id`, `player_name`, `sub_tab`, dedupe behavior).
 
-3. `src/components/dashboard/NewsFeed.tsx`
-- This is also the older English-only version.
-- RISE’s version localizes inbox labels, relative/absolute dates, and uses `translated_content` for report title/overview/opponent.
-- Your current version does none of that.
+4) Realtime parity for dropdown UX
+- Add `staff_notification_events` to realtime publication (as in RISE migration) so dropdown updates instantly on new events.
 
-4. `src/components/PerformanceReportDialog.tsx`
-- The translation helpers are there.
-- But they only fully kick in for the portal flow when `isPortalView={true}` is passed in.
-- Right now Hub is not passing that, so the report is opened in English mode.
+5) UI parity cleanup
+- Replace current `NotificationSettingsManagement.tsx` with RISE role/event matrix behavior backed by `staff_notification_settings`.
+- Remove legacy/non-RISE event drift (e.g., outdated IDs that don’t map to actual emitted event types).
 
-Plan to fix it properly
+Technical details (exact files/touchpoints):
+- DB migrations (new migration in this project):
+  - create/update policies for `public.staff_notification_events`
+  - create `public.staff_notification_settings`
+  - create 4 notification trigger functions + 4 triggers
+  - `ALTER PUBLICATION supabase_realtime ADD TABLE public.staff_notification_events`
+- Frontend:
+  - `src/pages/Dashboard.tsx` (restore RISE event emission conditions for portal view events)
+  - `src/components/staff/NotificationSettingsManagement.tsx` (RISE settings table-driven version)
+  - optional cleanup in `src/components/staff/StaffNotificationsDropdown.tsx` for event label parity (`portal_view` legacy handling)
 
-1. Port the RISE portal-language wiring exactly
-- Bring over the Dashboard changes that maintain `portalLanguageHint` state.
-- Pass `portalLanguage={playerData?.portal_language}` into `Hub` exactly like RISE.
+Validation checklist after implementation:
+1) Visit public pages → new `visitor` events appear in bell list.
+2) Player login via `/login` → `portal_login` appears.
+3) Player opens portal analysis/performance tabs → `portal_performance_view` / `portal_analysis_view` appear.
+4) New form submission / playlist change / clip update → corresponding events appear without needing staff page open.
+5) Mark-as-read works (UPDATE policy verified).
+6) Realtime bell updates without manual refresh.
 
-2. Replace the current Hub localization flow with the RISE one
-- Add `portalLanguage` prop to `Hub`.
-- Import/use `t` from `portalTranslations`.
-- Pass `isPortalView={true}` into `PerformanceReportDialog`.
-- Mirror the RISE localized labels/tooltips/buttons logic instead of patching one-off strings.
-
-3. Replace `NewsFeed.tsx` with the RISE localized implementation
-- Localize Inbox UI text.
-- Localize timestamps formatting.
-- Use translated report content from `translated_content` where available.
-- Keep your branding/styling consistent, but keep RISE logic intact.
-
-4. Keep the existing report translation helpers, but wire them correctly
-- Leave `reportTranslations.ts` in place.
-- Ensure every portal-opened report uses portal mode.
-- Ensure French portal language is the fallback when translated report content exists/doesn’t exist.
-
-5. Sanity-check data before/while implementing
-- Confirm Nicky’s player record is actually set to French in the backend path the portal uses.
-- Confirm his report rows contain `translated_content` in the shared data source used by the portal.
-- If some reports still have no translated content stored, the portal chrome can be French while those report bodies remain English; if that happens I’ll identify that specifically rather than guessing.
-
-6. Also remove the stray portal menu
-- I already found the obvious unwanted menu implementation in the public portal surface.
-- I’ll remove that cleanup as part of the same pass so the portal view stops showing that dropdown/navigation artifact.
-
-Technical details
-
-- Current bug line of thought:
-  - `PerformanceReportDialog` computes:
-    `const portalLanguage = isPortalView ? localStorage.getItem("portal_language_hint") || "en" : "en";`
-  - Since `Hub` currently does not pass `isPortalView={true}`, report language becomes English.
-
-- RISE already fixes this through the combination of:
-  - Dashboard passing `portalLanguage`
-  - Hub using localized portal strings
-  - Hub opening reports with `isPortalView={true}`
-  - NewsFeed using localized report/inbox content
-
-- I also checked the exposed local schema here and it does not show `translated_content` on the local `player_analysis` table, so I’ll preserve the existing shared-data fetch path used by the portal/report flow and not accidentally wire this to the wrong database path.
-
-Expected outcome
-
-After this sync:
-- Nicky’s portal UI will render in French.
-- His portal-opened performance report will open in portal mode and use French translated content where stored.
-- The old English-only Hub/Inbox path will be replaced with the actual RISE behavior rather than another partial patch.
+Expected outcome:
+Notification pipeline will match RISE’s working model and stop relying on currently broken paths (missing trigger migrations + blocked inserts), which is why you currently see “literally nothing.”

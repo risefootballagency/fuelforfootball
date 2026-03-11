@@ -1,4 +1,5 @@
 import * as React from "react";
+import { t } from "@/lib/portalTranslations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye, Check } from "lucide-react";
@@ -178,6 +179,7 @@ interface HubProps {
   playerData: any;
   dailyAphorism?: any;
   portalSettings?: PortalSettings | null;
+  portalLanguage?: string | null;
   onNavigateToAnalysis: () => void;
   onNavigateToComparisons?: () => void;
   onNavigateToForm?: () => void;
@@ -185,7 +187,7 @@ interface HubProps {
   onNavigateToSchedule?: () => void;
 }
 
-export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSettings, onNavigateToAnalysis, onNavigateToComparisons, onNavigateToForm, onNavigateToSession, onNavigateToSchedule }: HubProps) => {
+export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSettings, portalLanguage, onNavigateToAnalysis, onNavigateToComparisons, onNavigateToForm, onNavigateToSession, onNavigateToSchedule }: HubProps) => {
   const navigate = useNavigate();
   const [marketingImages, setMarketingImages] = React.useState<string[]>([]);
   const [imageFocalPoints, setImageFocalPoints] = React.useState<string[]>([]);
@@ -253,7 +255,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
         <div className="space-y-2 pr-6">
           <div className="font-bold text-white text-base mb-1">{data.result} {data.opponent}</div>
           {data.minutesPlayed && (
-            <div className="text-xs text-white/60">Minutes Played: {data.minutesPlayed}</div>
+            <div className="text-xs text-white/60">{t(portalLanguage, "minutes_played")}: {data.minutesPlayed}</div>
           )}
           {stats && (
             <div className="space-y-1 pt-2 border-t border-white/20">
@@ -525,7 +527,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
             <div className="flex items-center justify-between container mx-auto px-4 pr-6">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
-                <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">Schedule</CardTitle>
+                <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">{t(portalLanguage, "schedule")}</CardTitle>
               </div>
               <Button 
                 variant="ghost" 
@@ -533,7 +535,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                 onClick={onNavigateToSchedule}
                 className="flex items-center justify-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
               >
-                See All
+                {t(portalLanguage, "view_all")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
@@ -620,6 +622,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
           <NewsFeed
             playerId={playerData.id}
             playerName={playerData.name || "Player"}
+            portalLanguage={portalLanguage}
             onNavigateToAnalysis={onNavigateToAnalysis}
             onOpenReport={(id) => {
               setSelectedReportId(id);
@@ -634,7 +637,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
             <div className="flex items-center justify-between container mx-auto px-4 pr-6">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">Form</CardTitle>
+                <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">{t(portalLanguage, "form")}</CardTitle>
               </div>
               <Button 
                 variant="ghost" 
@@ -642,7 +645,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                 onClick={onNavigateToForm || onNavigateToAnalysis}
                 className="flex items-center justify-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
               >
-                See All
+                {t(portalLanguage, "view_all")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
@@ -944,6 +947,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
         open={reportDialogOpen} 
         onOpenChange={setReportDialogOpen}
         analysisId={selectedReportId}
+        isPortalView={true}
       />
 
       {/* Quick Stats Comparison - before aphorism */}
