@@ -1,5 +1,5 @@
 import * as React from "react";
-import { t } from "@/lib/portalTranslations";
+import { t, translateServiceName } from "@/lib/portalTranslations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye, Check } from "lucide-react";
