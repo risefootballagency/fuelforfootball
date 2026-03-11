@@ -177,7 +177,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
       });
 
       if (actionsResult.error) throw actionsResult.error;
-      setActions(sortActionsByMinute((actionsResult.data || []) as any));
+      setActions((actionsResult.data || []).sort((a: any, b: any) => (a.action_number ?? 0) - (b.action_number ?? 0)) as any);
       
       // Mark this ID as prefetched
       setPrefetchedId(id);
