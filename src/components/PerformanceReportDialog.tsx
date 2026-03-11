@@ -835,7 +835,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {/* Key Stats */}
               <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
                 <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "raw_score")}</p>
                   <p className="text-base md:text-2xl font-bold">
                     {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
                   </p>
@@ -861,7 +861,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                   </p>
                 </div>
                 <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "mins_short")}</p>
                   <p className="text-base md:text-2xl font-bold">{analysis.minutes_played ?? "N/A"}</p>
                 </div>
               </div>
@@ -870,7 +870,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {advancedStats.length > 0 && (
                 <Card className="overflow-hidden">
                   <CardHeader className="py-1.5 md:py-2">
-                    <CardTitle className="text-sm md:text-lg">Match Statistics</CardTitle>
+                    <CardTitle className="text-sm md:text-lg">{t(reportLanguage, "match_statistics")}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-2 md:p-4">
                     <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
