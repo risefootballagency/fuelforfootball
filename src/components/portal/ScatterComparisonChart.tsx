@@ -339,7 +339,7 @@ export const ScatterComparisonChart = ({
               <line x1="2.5" y1="2.5" x2="7.5" y2="7.5" stroke={COMP_COLOUR} strokeWidth="1" strokeLinecap="round" />
               <line x1="7.5" y1="2.5" x2="2.5" y2="7.5" stroke={COMP_COLOUR} strokeWidth="1" strokeLinecap="round" />
             </svg>
-            {comparisonPlayers[0]?.position || ""} players
+            {comparisonPlayers[0]?.position || ""} {t(lang, "position_players")}
           </span>
         </div>
       </div>
