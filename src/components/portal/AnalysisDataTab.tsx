@@ -229,31 +229,31 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Name</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "name_label")}</p>
             <p className="font-semibold">{playerData?.name || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Age</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "age_label")}</p>
             <p className="font-semibold">{playerData?.age || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Position</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "position_label")}</p>
             <p className="font-semibold">{translatePosition(lang, playerData?.position) || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Club</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "club_label")}</p>
             <p className="font-semibold">{playerData?.club || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Minutes Played</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "minutes_played")}</p>
             <p className="font-semibold text-foreground">{seasonAverages.totalMinutes?.toFixed(0) || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Season R90</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "season_r90")}</p>
             <p className="font-semibold" style={seasonAverages.r90 != null ? { color: getR90Color(seasonAverages.r90) } : undefined}>{seasonAverages.r90?.toFixed(2) || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Matches</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "matches_label")}</p>
             <p className="font-semibold">{selectedAnalyses.length}</p>
           </div>
         </div>
