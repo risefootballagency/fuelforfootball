@@ -115,7 +115,7 @@ export const NotificationSettings = ({ playerId }: NotificationSettingsProps) =>
         <div className="space-y-4 py-4">
           <div className="flex items-center justify-between">
             <Label htmlFor="performance_reports" className="cursor-pointer">
-              Performance Reports & R90 Scores
+              {t(portalLang, "notification_pref_performance_reports")}
             </Label>
             <Switch
               id="performance_reports"
@@ -126,7 +126,7 @@ export const NotificationSettings = ({ playerId }: NotificationSettingsProps) =>
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="analyses" className="cursor-pointer">
-              Match Analyses & Concepts
+              {t(portalLang, "notification_pref_analyses")}
             </Label>
             <Switch
               id="analyses"
@@ -137,7 +137,7 @@ export const NotificationSettings = ({ playerId }: NotificationSettingsProps) =>
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="programmes" className="cursor-pointer">
-              Training Programmes
+              {t(portalLang, "notification_pref_programmes")}
             </Label>
             <Switch
               id="programmes"
@@ -148,7 +148,7 @@ export const NotificationSettings = ({ playerId }: NotificationSettingsProps) =>
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="highlights" className="cursor-pointer">
-              Match Highlights
+              {t(portalLang, "notification_pref_highlights")}
             </Label>
             <Switch
               id="highlights"
@@ -159,7 +159,7 @@ export const NotificationSettings = ({ playerId }: NotificationSettingsProps) =>
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="clips" className="cursor-pointer">
-              Video Clips
+              {t(portalLang, "notification_pref_clips")}
             </Label>
             <Switch
               id="clips"

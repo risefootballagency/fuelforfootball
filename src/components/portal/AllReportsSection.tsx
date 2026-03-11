@@ -75,7 +75,7 @@ export function AllReportsSection({ playerId, playerName }: AllReportsSectionPro
           allReports.push({
             id: a.id,
             type: "performance",
-            title: `${t(lang, "performance_report")} vs ${a.opponent || "Unknown"}`,
+            title: `${t(lang, "performance_report")} ${t(lang, "versus_short")} ${a.opponent || "Unknown"}`,
             date: a.analysis_date,
             opponent: a.opponent,
             score: a.r90_score ? `R90: ${a.r90_score}` : undefined,
