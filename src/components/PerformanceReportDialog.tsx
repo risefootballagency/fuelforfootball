@@ -680,9 +680,9 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
             <div className="relative">
               {isPortalView && analysis.visibility_status === "draft" && (
                 <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
-                  <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
-                    <p className="font-semibold text-sm">Report In Progress</p>
-                    <p className="text-xs text-muted-foreground mt-1">This report is still being prepared. Check back soon.</p>
+                <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
+                    <p className="font-semibold text-sm">{t(reportLanguage, "report_in_progress")}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t(reportLanguage, "report_in_progress_message")}</p>
                   </div>
                 </div>
               )}
