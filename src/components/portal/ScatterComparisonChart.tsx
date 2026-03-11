@@ -345,7 +345,7 @@ export const ScatterComparisonChart = ({
       </div>
 
       <p className="text-xs text-muted-foreground text-center">
-        Hover or tap any marker to reveal player details.
+        {t(lang, "hover_tap_marker")}
       </p>
     </div>
   );

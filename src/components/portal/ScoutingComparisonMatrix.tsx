@@ -118,7 +118,7 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
             return (
               <tr key={key} className="border-t border-border/30">
                 <td className="p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10 whitespace-nowrap">
-                  {METRIC_LABELS[key] || key}
+                  {translateMetricLabel(lang, key, METRIC_LABELS[key] || key)}
                 </td>
                 {allPlayers.map((p, i) => {
                   const val = p.metrics[key];
