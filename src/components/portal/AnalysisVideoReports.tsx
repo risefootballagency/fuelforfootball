@@ -39,6 +39,7 @@ interface Props {
 }
 
 export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) => {
+  const lang = usePortalLanguage();
   const [allActions, setAllActions] = useState<ActionClip[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMatches, setSelectedMatches] = useState<string[]>([]);
