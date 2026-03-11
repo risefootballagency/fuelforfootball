@@ -317,7 +317,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
 
                 return (
                   <div key={cat.category}>
-                    <h4 className="font-semibold text-sm mb-3">{cat.category}</h4>
+                    <h4 className="font-semibold text-sm mb-3">{translateMetricCategory(lang, cat.category)}</h4>
                     <div className="space-y-3">
                       {metricsWithValues.map(m => {
                         const value = portalMetrics[m.key]!;
