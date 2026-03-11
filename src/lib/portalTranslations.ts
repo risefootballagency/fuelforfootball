@@ -143,6 +143,31 @@ const extendedKeys: Record<string, string> = {
   // PortalMusicControls
   next_track: "Next track",
   unknown_track: "Unknown Track",
+  // Hub package/offer labels
+  your_current_package: "Your Current Package",
+  package_status: "Package Status",
+  not_on_package: "Not currently on a package",
+  recommended_package: "Recommended Package",
+  upgrade_available: "Upgrade Available",
+  upgrade_now: "Upgrade Now",
+  get_started: "Get Started",
+  // NotificationSettings
+  notification_settings: "Notification Settings",
+  notification_settings_desc: "Choose which notifications you want to receive",
+  // CoachAvailability
+  no_coach_availability: "No coach availability set yet.",
+  // Section headers
+  data_overview: "Data Overview",
+  all_reports: "All Reports",
+  other_analysis: "Other Analysis",
+  physical_programming: "Physical Programming",
+  invoices: "Invoices",
+  make_a_payment: "Make a Payment",
+  services: "Services",
+  // Stat labels for reports
+  xg_via_live_passes: "xG via Live Passes",
+  xg_chain: "xG Chain",
+  xg_buildup: "xG Buildup",
 };
 
 const translations: Record<string, Record<string, string>> = {
