@@ -135,9 +135,9 @@ export const ScatterComparisonChart = ({
             <SelectContent>
               {METRIC_CATEGORIES.map(cat => (
                 <div key={cat.category}>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                   {cat.metrics.map(m => (
-                    <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>
+                    <SelectItem key={m.key} value={m.key}>{translateMetricLabel(lang, m.key, m.label)}</SelectItem>
                   ))}
                 </div>
               ))}
