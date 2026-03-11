@@ -979,6 +979,9 @@ const Dashboard = () => {
       }
 
       setPlayerData(parsedPlayerData);
+      if (parsedPlayerData?.portal_language) {
+        localStorage.setItem("portal_language_hint", parsedPlayerData.portal_language);
+      }
 
       // Fetch portal settings: shared DB for feature toggles, local DB for widget/sales data
       try {
