@@ -408,7 +408,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       ));
                     })()}
                     <p className="text-xs text-muted-foreground pt-1">
-                      {selectedMetric?.label}{selectedMetricKey.endsWith('_pct') ? '' : ' per game'} · Last {formWindow} avg for {playerName}
+                      {translateMetricLabel(lang, selectedMetricKey, selectedMetric?.label || '')}{selectedMetricKey.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`} · {t(lang, "last_n")} {formWindow} avg
                     </p>
                   </div>
                 ) : (
