@@ -622,6 +622,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
           <NewsFeed
             playerId={playerData.id}
             playerName={playerData.name || "Player"}
+            portalLanguage={portalLanguage}
             onNavigateToAnalysis={onNavigateToAnalysis}
             onOpenReport={(id) => {
               setSelectedReportId(id);
