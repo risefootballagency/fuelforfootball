@@ -24,6 +24,7 @@ interface CoachAvailabilityProps {
 export const CoachAvailability = ({ open, onOpenChange }: CoachAvailabilityProps) => {
   const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
   const [loading, setLoading] = useState(true);
+  const portalLang = usePortalLanguage();
 
   useEffect(() => {
     if (open) {
