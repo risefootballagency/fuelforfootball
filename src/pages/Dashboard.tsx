@@ -3263,7 +3263,7 @@ const Dashboard = () => {
                 <CardHeader marble>
                   <div className="container mx-auto px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <CardTitle className="font-heading tracking-tight">
-                      Physical Programming
+                      {t(portalLang, "physical_programming")}
                     </CardTitle>
                     {programs.length > 1 && (
                       <Select value={selectedProgramId || undefined} onValueChange={setSelectedProgramId}>
