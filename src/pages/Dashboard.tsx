@@ -1772,8 +1772,14 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <p className="text-muted-foreground p-4">Loading...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <img src="/fff_logo.png" alt="Fuel For Football" className="h-14 w-auto animate-pulse" />
+          <div className="relative">
+            <div className="h-10 w-10 rounded-full border-4 border-muted animate-pulse" />
+            <div className="absolute inset-0 h-10 w-10 rounded-full border-4 border-accent border-t-transparent animate-spin" />
+          </div>
+        </div>
       </div>
     );
   }
