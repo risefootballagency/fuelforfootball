@@ -947,6 +947,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
         open={reportDialogOpen} 
         onOpenChange={setReportDialogOpen}
         analysisId={selectedReportId}
+        isPortalView={true}
       />
 
       {/* Quick Stats Comparison - before aphorism */}

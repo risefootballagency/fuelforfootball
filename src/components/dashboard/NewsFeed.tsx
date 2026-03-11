@@ -3,10 +3,11 @@ import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Inbox, ArrowRight, FileText, Trophy, Video, BarChart3, Dumbbell, Eye, Bell } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createAnalysisSlug } from "@/lib/urlHelpers";
+import { t, normalizePortalLanguage } from "@/lib/portalTranslations";
+import { getReportLanguage, getReportLocale, getTranslatedReportField } from "@/lib/reportTranslations";
 
 interface FeedItem {
   id: string;
@@ -22,6 +23,7 @@ interface FeedItem {
 interface NewsFeedProps {
   playerId: string;
   playerName: string;
+  portalLanguage?: string | null;
   onNavigateToAnalysis?: () => void;
   onNavigateToForm?: () => void;
   onOpenReport?: (id: string) => void;
@@ -60,12 +62,39 @@ const markAsRead = (id: string) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...read]));
 };
 
-export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigateToForm, onOpenReport }: NewsFeedProps) => {
+export const NewsFeed = ({ playerId, playerName, portalLanguage, onNavigateToAnalysis, onNavigateToForm, onOpenReport }: NewsFeedProps) => {
   const navigate = useNavigate();
   const [items, setItems] = React.useState<FeedItem[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [readItems, setReadItems] = React.useState<Set<string>>(new Set());
   const [selectedItem, setSelectedItem] = React.useState<FeedItem | null>(null);
+
+  const langCode = normalizePortalLanguage(portalLanguage);
+  const locale = getReportLocale(langCode);
+
+  const formatRelative = (value: string) => {
+    const target = new Date(value);
+    const now = new Date();
+    const diffMs = target.getTime() - now.getTime();
+    const hours = Math.round(diffMs / (1000 * 60 * 60));
+    const days = Math.round(diffMs / (1000 * 60 * 60 * 24));
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+
+    if (Math.abs(hours) < 24) {
+      return rtf.format(hours, "hour");
+    }
+
+    return rtf.format(days, "day");
+  };
+
+  const formatAbsolute = (value: string) =>
+    new Date(value).toLocaleString(locale, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   React.useEffect(() => {
     setReadItems(getReadItems());
@@ -94,7 +123,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
         // Performance reports
         const { data: reports } = await sharedSupabase
           .from("player_analysis")
-          .select("id, analysis_date, opponent, r90_score, performance_overview, minutes_played, visibility_status")
+          .select("id, analysis_date, opponent, r90_score, performance_overview, minutes_played, visibility_status, translated_content")
           .eq("player_id", playerId)
           .not("r90_score", "is", null)
           .order("analysis_date", { ascending: false })
@@ -103,14 +132,18 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
         const liveReports = (reports || []).filter((r: any) => !r.visibility_status || r.visibility_status === "live");
 
         liveReports?.forEach((r: any) => {
+          const reportLanguage = getReportLanguage(r.translated_content, portalLanguage);
+          const reportOpponent = getTranslatedReportField(r.translated_content, "opponent", r.opponent || t(reportLanguage, "match"));
+          const reportOverview = getTranslatedReportField(r.translated_content, "performanceOverview", r.performance_overview || "");
+
           feed.push({
             id: `report-${r.id}`,
             type: "report",
-            title: `Performance Report: ${r.opponent || "Match"}`,
-            subtitle: `R90: ${r.r90_score} — ${format(new Date(r.analysis_date), "d MMM yyyy")}`,
-            description: r.performance_overview || `Match performance rated at R90 ${r.r90_score}. ${r.minutes_played ? `${r.minutes_played} minutes played.` : ''}`,
+            title: `${t(reportLanguage, "performance_report")}: ${reportOpponent}`,
+            subtitle: `R90: ${r.r90_score} — ${new Date(r.analysis_date).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })}`,
+            description: reportOverview || `${t(reportLanguage, "match_performance_rated_at_r90")} ${r.r90_score}. ${r.minutes_played ? `${r.minutes_played} ${t(reportLanguage, "minutes_played_suffix")}` : ''}`,
             timestamp: r.analysis_date,
-            linkLabel: "Open Report",
+            linkLabel: t(reportLanguage, "open_report"),
             onClick: () => onOpenReport?.(r.id),
           });
         });
@@ -123,18 +156,22 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
           .order("created_at", { ascending: false })
           .limit(5);
 
-        tags?.forEach(t => {
-          const a = (t as any).analyses;
+        tags?.forEach(tag => {
+          const a = (tag as any).analyses;
           if (!a) return;
-          const typeLabel = a.analysis_type === "pre-match" ? "Pre-Match" : a.analysis_type === "post-match" ? "Post-Match" : a.analysis_type;
+          const typeLabel = a.analysis_type === "pre-match"
+            ? t(portalLanguage, "pre_match")
+            : a.analysis_type === "post-match"
+            ? t(portalLanguage, "post_match")
+            : a.analysis_type;
           feed.push({
             id: `analysis-${a.id}`,
             type: "analysis",
             title: `${typeLabel}: ${a.home_team || ""} vs ${a.away_team || ""}`,
-            subtitle: a.title || "New analysis available",
-            description: `You've been tagged in a ${typeLabel.toLowerCase()} analysis for ${a.home_team || ''} vs ${a.away_team || ''}.`,
-            timestamp: t.created_at,
-            linkLabel: "View Analysis",
+            subtitle: a.title || t(portalLanguage, "new_analysis_available"),
+            description: `${t(portalLanguage, "tagged_in_analysis_for")} ${a.home_team || ''} vs ${a.away_team || ''}.`,
+            timestamp: tag.created_at,
+            linkLabel: t(portalLanguage, "view_analysis"),
             onClick: () => {
               const slug = createAnalysisSlug(a.home_team || '', a.away_team || '', a.id);
               navigate(slug);
@@ -154,11 +191,11 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
           feed.push({
             id: `highlight-${h.id}`,
             type: "highlight",
-            title: `New Highlight Reel`,
+            title: t(portalLanguage, "new_highlight_reel"),
             subtitle: h.name,
-            description: `A new highlight reel "${h.name}" has been created for you.`,
+            description: `${t(portalLanguage, "new_highlight_created_for_you")} "${h.name}".`,
             timestamp: h.created_at,
-            linkLabel: "View Highlights",
+            linkLabel: t(portalLanguage, "view_highlights"),
           });
         });
 
@@ -192,7 +229,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
         <div className="flex items-center justify-between container mx-auto px-4 pr-6">
           <div className="flex items-center gap-2">
             <Inbox className="h-5 w-5" />
-            <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">Inbox</CardTitle>
+            <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">{t(portalLanguage, "inbox")}</CardTitle>
             {unreadCount > 0 && (
               <span className="bg-accent text-accent-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
                 {unreadCount}
@@ -207,7 +244,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
                 onClick={onNavigateToAnalysis}
                 className="flex items-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
               >
-                See All
+                {t(portalLanguage, "see_all")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             )}
@@ -257,7 +294,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
                           <p className="text-xs font-medium truncate">{item.title}</p>
                         </div>
                         <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                          {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
+                          {formatRelative(item.timestamp)}
                         </p>
                       </div>
                     </button>
@@ -294,7 +331,7 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
 
                     <div className="flex items-center gap-2 pt-1">
                       <span className="text-[10px] text-muted-foreground">
-                        {format(new Date(selectedItem.timestamp), "d MMM yyyy 'at' HH:mm")}
+                        {formatAbsolute(selectedItem.timestamp)}
                       </span>
                     </div>
 
@@ -305,13 +342,13 @@ export const NewsFeed = ({ playerId, playerName, onNavigateToAnalysis, onNavigat
                         className="mt-2 bg-accent text-accent-foreground hover:bg-accent/80"
                       >
                         <Eye className="h-3.5 w-3.5 mr-1.5" />
-                        {selectedItem.linkLabel || "View"}
+                        {selectedItem.linkLabel || t(portalLanguage, "view")}
                       </Button>
                     )}
                   </motion.div>
                 ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                    <p>Select an item to preview</p>
+                    <p>{t(portalLanguage, "select_item_to_preview")}</p>
                   </div>
                 )}
               </AnimatePresence>
