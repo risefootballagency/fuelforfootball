@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SkipForward, SkipBack } from "lucide-react";
+import { t } from "@/lib/portalTranslations";
 
 interface Clip {
   id: string;
@@ -19,9 +20,10 @@ interface RankedActionsPlayerProps {
   onOpenChange: (open: boolean) => void;
   clips: Clip[];
   mode: "chronological" | "ranked" | "noted";
+  language?: string;
 }
 
-export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode }: RankedActionsPlayerProps) => {
+export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language = "en" }: RankedActionsPlayerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -105,13 +107,13 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode }: RankedA
         className="fixed inset-0 !left-0 !top-0 !translate-x-0 !translate-y-0 w-screen h-screen max-w-none max-h-none p-0 bg-black border-0 rounded-none flex flex-col overflow-hidden z-[200] data-[state=open]:!animate-none data-[state=closed]:!animate-none data-[state=open]:!slide-in-from-left-0 data-[state=open]:!slide-in-from-top-0 [&>button:last-child]:hidden"
       >
         <DialogTitle className="sr-only">
-          {mode === "ranked" ? "Ranked" : mode === "noted" ? "Noted" : "Full Match"} Video Report
+          {mode === "ranked" ? t(language, "ranked_actions") : mode === "noted" ? t(language, "noted_actions") : t(language, "full_match_video")}
         </DialogTitle>
         {/* Header with single close button */}
         <div className="flex items-center justify-between px-4 py-3 bg-black/80 border-b border-border/30 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <span className="text-accent font-bold text-sm">
-              {mode === "ranked" ? "RANKED" : mode === "noted" ? "NOTED" : "MATCH"} REPORT
+              {mode === "ranked" ? t(language, "ranked_report") : mode === "noted" ? t(language, "noted_report") : t(language, "match_report")}
             </span>
             <span className="text-xs text-white/60">
               {currentIndex + 1} / {sortedClips.length}
