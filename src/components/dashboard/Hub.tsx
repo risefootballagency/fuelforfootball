@@ -998,12 +998,12 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                   <CardContent className="relative py-4 px-4 space-y-4">
                     {hasCurrentPackage ? (
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Your Current Package</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(portalLanguage, "your_current_package")}</p>
                         <p className="text-lg font-bold text-accent">{portalSettings!.current_package_name}</p>
                         {portalSettings!.current_package_price != null && (() => {
                           const currentPkgs = (portalSettings as any)?.current_packages;
                           const freq = Array.isArray(currentPkgs) && currentPkgs[0]?.frequency;
-                          const freqLabel = freq === "one-off" ? "/pc" : freq === "weekly" ? "/wk" : freq === "6-monthly" ? "/6mo" : freq === "annual" ? "/yr" : freq === "monthly" ? "/mo" : "";
+                          const freqLabel = freq === "one-off" ? "" : freq === "weekly" ? "/wk" : freq === "6-monthly" ? "/6mo" : freq === "annual" ? "/yr" : freq === "monthly" ? "/mo" : "";
                           return (
                             <p className="text-sm text-muted-foreground">{currencySymbol}{portalSettings!.current_package_price}{freqLabel}</p>
                           );
@@ -1011,8 +1011,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                       </div>
                     ) : (
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Package Status</p>
-                        <p className="text-base text-muted-foreground">Not currently on a package</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(portalLanguage, "package_status")}</p>
+                        <p className="text-base text-muted-foreground">{t(portalLanguage, "not_on_package")}</p>
                       </div>
                     )}
                     {portalSettings?.current_package_features && portalSettings.current_package_features.length > 0 && (
