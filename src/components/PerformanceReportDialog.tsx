@@ -836,7 +836,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showZonePerformance && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <ZonePerformance actions={actions} language={reportLanguage} />
+                    <ZonePerformance actions={displayActions} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
