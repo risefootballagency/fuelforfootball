@@ -374,6 +374,7 @@ const translations: Record<string, Record<string, string>> = {
  */
 export function normalizePortalLanguage(lang: string | null | undefined): string {
   const raw = (lang || "en").trim().toLowerCase();
+  if (!raw) return "en";
 
   const aliases: Record<string, string> = {
     "français": "fr", "francais": "fr", "french": "fr",
@@ -388,7 +389,12 @@ export function normalizePortalLanguage(lang: string | null | undefined): string
     "türkçe": "tr", "turkce": "tr",
   };
 
-  return aliases[raw] ?? raw;
+  const localeLike = raw.replace("_", "-");
+  const baseCode = localeLike.split("-")[0];
+  const normalized = aliases[localeLike] ?? aliases[baseCode] ?? baseCode;
+  const supported = new Set(["en", "fr", "es", "pt", "de", "it", "pl", "cs", "ru", "tr"]);
+
+  return supported.has(normalized) ? normalized : "en";
 }
 
 export function t(lang: string | null | undefined, key: string): string {
