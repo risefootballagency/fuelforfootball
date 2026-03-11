@@ -124,6 +124,7 @@ interface Update {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const portalLang = usePortalLanguage();
   const [loading, setLoading] = useState(true);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [concepts, setConcepts] = useState<any[]>([]);
