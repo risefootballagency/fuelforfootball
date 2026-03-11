@@ -1473,6 +1473,11 @@ const ruExtended: Record<string, string> = {
   no_zone_clips: "Клипы для этой зоны не найдены", zone_clips_title: "Зона",
   fullscreen: "Полный экран",
   switch_to_at_a_glance: "Переключить на обзор", switch_to_in_depth: "Переключить на детали",
+  your_current_package: "Ваш текущий пакет", package_status: "Статус пакета", not_on_package: "Нет активного пакета",
+  recommended_package: "Рекомендуемый пакет", upgrade_available: "Доступно обновление", upgrade_now: "Обновить", get_started: "Начать",
+  notification_settings: "Настройки уведомлений", notification_settings_desc: "Выберите уведомления, которые хотите получать",
+  no_coach_availability: "Нет доступности.", data_overview: "Обзор данных", other_analysis: "Другой анализ",
+  physical_programming: "Физическая подготовка", invoices: "Счета", make_a_payment: "Произвести оплату", services: "Услуги",
 };
 Object.entries(ruExtended).forEach(([key, val]) => {
   if (translations.ru) translations.ru[key] = val;
