@@ -94,22 +94,24 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const [filterRating, setFilterRating] = useState<string | null>(null);
   const [filterHasNotes, setFilterHasNotes] = useState(false);
 
+  const livePortalLanguage = usePortalLanguage();
   const portalLanguage = isPortalView
     ? normalizePortalLanguage(
-        localStorage.getItem("portal_language_hint")
+        livePortalLanguage
+        || localStorage.getItem("portal_language_hint")
         || localStorage.getItem("preferred_language")
         || sessionStorage.getItem("ip_language_detected")
         || analysis?.translated_content?.language
         || "en"
       )
     : "en";
-  const reportLanguage = getReportLanguage(analysis?.translated_content, portalLanguage);
+  const reportLanguage = portalLanguage;
+  const reportContentLanguage = getReportLanguage(analysis?.translated_content, portalLanguage);
   const portalLocale = getReportLocale(reportLanguage);
 
   const tc = analysis?.translated_content;
-  const hasTranslation = hasTranslatedReportContent(tc);
-  const tf = (key: string, fallback: string) => getTranslatedReportField(tc, key, fallback);
-  const tAction = (index: number, field: "type" | "description" | "notes", fallback: string) => getTranslatedActionField(tc, index, field, fallback);
+  const hasTranslation = hasTranslatedReportContent(tc) && reportContentLanguage === reportLanguage;
+  const tAction = (index: number, field: "type" | "description" | "notes", fallback: string) => hasTranslation ? getTranslatedActionField(tc, index, field, fallback) : fallback;
   const getTranslatedActionData = (action: PerformanceAction) => {
     const translatedType = toTitleCase(tAction(action.action_number - 1, "type", action.action_type));
     const translatedDescription = tAction(action.action_number - 1, "description", action.action_description);
