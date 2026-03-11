@@ -179,6 +179,7 @@ interface HubProps {
   playerData: any;
   dailyAphorism?: any;
   portalSettings?: PortalSettings | null;
+  portalLanguage?: string | null;
   onNavigateToAnalysis: () => void;
   onNavigateToComparisons?: () => void;
   onNavigateToForm?: () => void;
@@ -186,7 +187,7 @@ interface HubProps {
   onNavigateToSchedule?: () => void;
 }
 
-export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSettings, onNavigateToAnalysis, onNavigateToComparisons, onNavigateToForm, onNavigateToSession, onNavigateToSchedule }: HubProps) => {
+export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSettings, portalLanguage, onNavigateToAnalysis, onNavigateToComparisons, onNavigateToForm, onNavigateToSession, onNavigateToSchedule }: HubProps) => {
   const navigate = useNavigate();
   const [marketingImages, setMarketingImages] = React.useState<string[]>([]);
   const [imageFocalPoints, setImageFocalPoints] = React.useState<string[]>([]);
