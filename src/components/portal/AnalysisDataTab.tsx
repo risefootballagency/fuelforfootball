@@ -225,7 +225,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
       {/* Player Summary */}
       <div className="bg-card border rounded-lg p-6">
         <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-          <User className="w-5 h-5 text-primary" /> Player Summary
+          <User className="w-5 h-5 text-primary" /> {t(lang, "player_summary")}
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
