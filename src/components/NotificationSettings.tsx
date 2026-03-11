@@ -106,10 +106,10 @@ export const NotificationSettings = ({ playerId }: NotificationSettingsProps) =>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-bebas uppercase text-2xl">
-            Notification Settings
+            {t(portalLang, "notification_settings")}
           </DialogTitle>
           <DialogDescription>
-            Choose which notifications you want to receive
+            {t(portalLang, "notification_settings_desc")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
