@@ -467,11 +467,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const ppSuccess = getSuccessVal('progressive_passes');
     if (ppSuccess !== null && turnovers !== null) {
       const ratio = turnovers === 0 ? (ppSuccess > 0 ? ppSuccess : 0) : ppSuccess / turnovers;
+      const translated = translateCalculatedStat(reportLanguage, 'pp_turnovers_ratio', 'PP/Turnovers', 'Progressive Passes ÷ Turnovers');
       calculated.push({
         key: 'pp_turnovers_ratio',
-        displayName: 'PP/Turnovers',
+        displayName: translated.displayName,
         value: ratio,
-        description: 'Progressive Passes ÷ Turnovers'
+        description: translated.description
       });
     }
     
