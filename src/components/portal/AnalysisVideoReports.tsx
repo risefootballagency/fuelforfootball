@@ -99,7 +99,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
     });
 
     if (clips.length === 0) {
-      toast.error('No clips match your selection');
+      toast.error(t(lang, 'no_clips_match_selection'));
       return;
     }
     setCompilationClips(clips);
