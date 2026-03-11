@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Play, Pause, SkipBack, SkipForward, X, Maximize, Trash2, Download, CheckSquare, Film, ListVideo } from "lucide-react";
 import { downloadVideo } from "@/lib/videoDownload";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface Analysis {
   id: string;
