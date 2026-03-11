@@ -14,6 +14,7 @@ interface ParallaxHeroProps {
 }
 
 export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName, clubName, position, nextFixture }: ParallaxHeroProps) => {
+  const lang = usePortalLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
