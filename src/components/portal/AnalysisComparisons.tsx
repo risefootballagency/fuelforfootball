@@ -297,7 +297,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
               />
             </Suspense>
           ) : (
-            <p className="text-muted-foreground text-center py-6">No fixture stats recorded yet.</p>
+            <p className="text-muted-foreground text-center py-6">{t(lang, "no_fixture_stats_yet")}</p>
           )}
         </TabsContent>
 
