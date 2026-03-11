@@ -454,11 +454,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const turnovers = getVal('turnovers');
     if (recoveries !== null && turnovers !== null) {
       const ratio = turnovers === 0 ? (recoveries > 0 ? recoveries : 0) : recoveries / turnovers;
+      const translated = translateCalculatedStat(reportLanguage, 'recovery_turnover_ratio', 'Recovery/Turnover', 'Recoveries ÷ Turnovers');
       calculated.push({
         key: 'recovery_turnover_ratio',
-        displayName: 'Recovery/Turnover',
+        displayName: translated.displayName,
         value: ratio,
-        description: 'Recoveries ÷ Turnovers'
+        description: translated.description
       });
     }
     
