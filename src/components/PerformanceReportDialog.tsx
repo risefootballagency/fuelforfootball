@@ -1186,7 +1186,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
         onOpenChange={setShowRankedPlayer}
         mode={rankedMode}
         language={reportLanguage}
-        clips={actions
+        clips={displayActions
           .filter(a => a.video_url)
           .map(a => ({
             id: a.id,
