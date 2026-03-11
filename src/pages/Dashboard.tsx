@@ -1979,7 +1979,7 @@ const Dashboard = () => {
                     {activeTab === "invoices" && t(portalLang, "key_documents")}
                     {activeTab === "updates" && t(portalLang, "updates")}
                     {activeTab === "highlights" && t(portalLang, "highlights")}
-                    {activeTab === "services" && "Services"}
+                    {activeTab === "services" && t(portalLang, "services")}
                     {activeTab === "nutrition" && t(portalLang, "nutrition")}
                   </span>
                   <ChevronDown className="ml-2 h-5 w-5" />
