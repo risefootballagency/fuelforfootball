@@ -197,7 +197,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                 </button>
               ))}
               {selectedActionTypes.length > 0 && (
-                <Button variant="ghost" size="sm" onClick={() => setSelectedActionTypes([])}>Clear</Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedActionTypes([])}>{t(lang, "clear_filters")}</Button>
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Leave empty to include all action types</p>
