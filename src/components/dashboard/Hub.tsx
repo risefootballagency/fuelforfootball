@@ -1073,7 +1073,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                                         className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
                                         onClick={() => window.open(offer.pay_link_url, "_blank")}
                                       >
-                                        {hasCurrentPackage ? "Upgrade Now" : "Get Started"}
+                                        {hasCurrentPackage ? t(portalLanguage, "upgrade_now") : t(portalLanguage, "get_started")}
                                       </Button>
                                     </motion.div>
                                   </div>

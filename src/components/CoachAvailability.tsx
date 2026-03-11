@@ -133,7 +133,7 @@ export const CoachAvailability = ({ open, onOpenChange }: CoachAvailabilityProps
 
         <div className="flex justify-end mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            {t(portalLang, "close")}
           </Button>
         </div>
       </DialogContent>
