@@ -1044,12 +1044,12 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                               <div className="bg-card rounded-[6px] p-4 space-y-3">
                                 <div className="text-center">
                                   <p className="text-xs text-accent uppercase tracking-wider font-semibold">
-                                    {hasCurrentPackage ? "Upgrade Available" : "Recommended Package"}
+                                    {hasCurrentPackage ? t(portalLanguage, "upgrade_available") : t(portalLanguage, "recommended_package")}
                                   </p>
                                   <p className="text-lg font-bold text-accent">{offer.name}</p>
                                   {offer.price && (() => {
                                     const pt = offer.payment_type || offer.recurring_interval;
-                                    const freqLabel = pt === "one_off" || pt === "one-off" ? "/pc" : pt === "weekly" ? "/wk" : pt === "6-monthly" || pt === "6_monthly" ? "/6mo" : pt === "annual" || pt === "yearly" ? "/yr" : pt === "monthly" || pt === "month" ? "/mo" : "/pc";
+                                    const freqLabel = pt === "one_off" || pt === "one-off" ? "" : pt === "weekly" ? "/wk" : pt === "6-monthly" || pt === "6_monthly" ? "/6mo" : pt === "annual" || pt === "yearly" ? "/yr" : pt === "monthly" || pt === "month" ? "/mo" : "";
                                     return <p className="text-sm text-muted-foreground">{offerCurrSym}{offer.price}{freqLabel}</p>;
                                   })()}
                                 </div>
