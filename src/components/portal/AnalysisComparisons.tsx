@@ -407,14 +407,14 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                         </div>
                       ));
                     })()}
-                    <p className="text-xs text-muted-foreground pt-1">
-                      {translateMetricLabel(lang, selectedMetricKey, selectedMetric?.label || '')}{selectedMetricKey.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`} · {t(lang, "last_n")} {formWindow} avg
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Select players above to compare stats
-                  </p>
+                     <p className="text-xs text-muted-foreground pt-1">
+                       {translateMetricLabel(lang, selectedMetricKey, selectedMetric?.label || '')}{selectedMetricKey.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`} · {t(lang, "last_n")} {formWindow} {t(lang, "last_n_avg")}
+                     </p>
+                   </div>
+                 ) : (
+                   <p className="text-sm text-muted-foreground text-center py-4">
+                     {t(lang, "select_players_to_compare")}
+                   </p>
                 )}
               </div>
 
