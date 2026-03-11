@@ -2406,7 +2406,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Tactical Schemes
+                          {t(portalLang, "tactical_schemes")}
                         </CardTitle>
                       </div>
                     </CardHeader>
