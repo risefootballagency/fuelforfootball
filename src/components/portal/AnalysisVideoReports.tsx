@@ -176,9 +176,9 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
   return (
     <div className="space-y-6">
       {loading ? (
-        <div className="text-center py-8 text-muted-foreground">Loading clips...</div>
+        <div className="text-center py-8 text-muted-foreground">{t(lang, "video_reports_loading_clips")}</div>
       ) : allActions.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">No action clips available from your reports.</div>
+        <div className="text-center py-8 text-muted-foreground">{t(lang, "video_reports_no_clips")}</div>
       ) : (
         <>
           {/* Step 1: Select action types */}
