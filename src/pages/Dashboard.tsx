@@ -885,6 +885,11 @@ const Dashboard = () => {
         return;
       }
 
+      // Set portal language hint from player's configured language
+      if ((player as any)?.portal_language) {
+        localStorage.setItem("portal_language_hint", (player as any).portal_language);
+      }
+
       await fetchAnalyses(playerEmail);
       await fetchPrograms(playerEmail);
       await fetchInvoices(playerEmail);
