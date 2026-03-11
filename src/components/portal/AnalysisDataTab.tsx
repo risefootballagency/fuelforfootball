@@ -286,9 +286,9 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
 
         <Tabs value={activeStatCategory} onValueChange={setActiveStatCategory} className="mb-4">
           <TabsList className="grid grid-cols-4 gap-1">
-            {METRIC_CATEGORIES.map(cat => (
+             {METRIC_CATEGORIES.map(cat => (
               <TabsTrigger key={cat.category} value={cat.category} className="text-xs">
-                {cat.category}
+                {translateMetricCategory(lang, cat.category)}
               </TabsTrigger>
             ))}
           </TabsList>
