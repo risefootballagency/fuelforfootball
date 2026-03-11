@@ -535,7 +535,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                 onClick={onNavigateToSchedule}
                 className="flex items-center justify-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
               >
-                See All
+                {t(portalLanguage, "view_all")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
