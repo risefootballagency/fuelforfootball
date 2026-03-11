@@ -18,7 +18,7 @@ import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toTitleCase } from "@/lib/titleCase";
 import { sortActionsByMinute } from "@/lib/actionSorting";
-import { t, normalizePortalLanguage } from "@/lib/portalTranslations";
+import { t, normalizePortalLanguage, translateStatLabel } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedActionField, getTranslatedReportField, hasTranslatedReportContent } from "@/lib/reportTranslations";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
@@ -288,23 +288,37 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     }
   };
 
-  // Format stat key to readable label using config lookup
+  // Format stat key to readable label using config lookup, with portal translation
   const formatStatLabel = (key: string): string => {
     // Try exact match first
     let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
-    if (config) return config.name;
+    if (config) {
+      if (isPortalView && reportLanguage !== 'en') {
+        return translateStatLabel(reportLanguage, key, config.name);
+      }
+      return config.name;
+    }
     
     // Try lowercase match
     const keyLower = key.toLowerCase();
     config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
-    if (config) return config.name;
+    if (config) {
+      if (isPortalView && reportLanguage !== 'en') {
+        return translateStatLabel(reportLanguage, key, config.name);
+      }
+      return config.name;
+    }
     
     // Fallback to formatted key
-    return key
+    const fallback = key
       .replace(/_/g, ' ')
       .replace(/([A-Z])/g, ' $1')
       .replace(/^./, str => str.toUpperCase())
       .trim();
+    if (isPortalView && reportLanguage !== 'en') {
+      return translateStatLabel(reportLanguage, key, fallback);
+    }
+    return fallback;
   };
 
   // Get advanced stats from striker_stats, excluding internal fields
@@ -692,7 +706,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     onClick={() => setShowClippedActions(true)}
                   >
                     <Play className="h-4 w-4" />
-                    {actions.filter(a => a.video_url).length} {t(reportLanguage, "clips_label")}
+                    {`${actions.filter(a => a.video_url).length} ${t(reportLanguage, "clips_label")}`}
                   </Button>
                 )}
               </div>

@@ -483,6 +483,79 @@ export function translateMetricLabel(
   return METRIC_LABEL_TRANSLATIONS[code]?.[metricKey] ?? fallbackLabel;
 }
 
+// Match statistic label translations (for striker_stats keys in performance reports)
+const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
+  fr: {
+    goals: "Buts", shots: "Tirs", shots_on_target: "Tirs cadrés", xg: "xG", xa: "xA",
+    assists: "Passes décisives", key_passes: "Passes clés", chances_created: "Occasions créées",
+    passes: "Passes", accurate_passes: "Passes réussies", long_balls: "Longs ballons",
+    crosses: "Centres", progressive_passes: "Passes progressives",
+    dribbles: "Dribbles", successful_dribbles: "Dribbles réussis",
+    tackles: "Tacles", interceptions: "Interceptions", clearances: "Dégagements",
+    aerial_duels: "Duels aériens", duels: "Duels", blocks: "Contres",
+    fouls: "Fautes", fouls_won: "Fautes obtenues", offsides: "Hors-jeu",
+    turnovers: "Pertes de balle", recoveries: "Récupérations", regains: "Regains",
+    touches: "Touches", carries: "Conduites", progressive_carries: "Conduites progressives",
+    yellow_cards: "Cartons jaunes", red_cards: "Cartons rouges",
+    minutes_played: "Minutes jouées", distance: "Distance",
+  },
+  es: {
+    goals: "Goles", shots: "Tiros", shots_on_target: "Tiros a puerta", xg: "xG", xa: "xA",
+    assists: "Asistencias", key_passes: "Pases clave", chances_created: "Ocasiones creadas",
+    passes: "Pases", dribbles: "Regates", tackles: "Entradas", interceptions: "Intercepciones",
+    clearances: "Despejes", aerial_duels: "Duelos aéreos", fouls: "Faltas",
+    turnovers: "Pérdidas", recoveries: "Recuperaciones",
+  },
+  pt: {
+    goals: "Gols", shots: "Finalizações", shots_on_target: "Chutes a gol", xg: "xG", xa: "xA",
+    assists: "Assistências", passes: "Passes", dribbles: "Dribles",
+    tackles: "Desarmes", interceptions: "Interceptações", clearances: "Cortes",
+    fouls: "Faltas", turnovers: "Perdas", recoveries: "Recuperações",
+  },
+  de: {
+    goals: "Tore", shots: "Schüsse", shots_on_target: "Schüsse aufs Tor", xg: "xG", xa: "xA",
+    assists: "Vorlagen", passes: "Pässe", dribbles: "Dribblings",
+    tackles: "Tackles", interceptions: "Abfangaktionen", clearances: "Klärungen",
+    fouls: "Fouls", turnovers: "Ballverluste", recoveries: "Balleroberungen",
+  },
+  it: {
+    goals: "Gol", shots: "Tiri", shots_on_target: "Tiri in porta", xg: "xG", xa: "xA",
+    assists: "Assist", passes: "Passaggi", dribbles: "Dribbling",
+    tackles: "Contrasti", interceptions: "Intercettazioni", clearances: "Spazzate",
+    fouls: "Falli", turnovers: "Palle perse", recoveries: "Recuperi",
+  },
+  cs: {
+    goals: "Góly", shots: "Střely", shots_on_target: "Střely na branku", xg: "xG", xa: "xA",
+    assists: "Asistence", passes: "Přihrávky", dribbles: "Obejití",
+    tackles: "Skluzové zákroky", interceptions: "Zachycení", clearances: "Odkopy",
+    fouls: "Fauly", turnovers: "Ztráty", recoveries: "Zisky míče",
+  },
+  pl: {
+    goals: "Bramki", shots: "Strzały", shots_on_target: "Strzały celne", xg: "xG", xa: "xA",
+    assists: "Asysty", passes: "Podania", dribbles: "Dryblingi",
+    tackles: "Wślizgi", interceptions: "Przechwyty", clearances: "Wybicia",
+    fouls: "Faule", turnovers: "Straty", recoveries: "Odbiory",
+  },
+  ru: {
+    goals: "Голы", shots: "Удары", shots_on_target: "Удары в створ", xg: "xG", xa: "xA",
+    assists: "Ассисты", passes: "Передачи", dribbles: "Обводки",
+    tackles: "Отборы", interceptions: "Перехваты", clearances: "Выносы",
+    fouls: "Фолы", turnovers: "Потери", recoveries: "Подборы",
+  },
+  tr: {
+    goals: "Goller", shots: "Şutlar", shots_on_target: "İsabetli şutlar", xg: "xG", xa: "xA",
+    assists: "Asistler", passes: "Paslar", dribbles: "Çalımlar",
+    tackles: "Müdahaleler", interceptions: "Top kesme", clearances: "Uzaklaştırma",
+    fouls: "Fauller", turnovers: "Top kayıpları", recoveries: "Top kazanma",
+  },
+};
+
+export function translateStatLabel(lang: string | null | undefined, statKey: string, fallbackLabel: string): string {
+  const code = normalizePortalLanguage(lang);
+  if (code === 'en') return fallbackLabel;
+  return STAT_LABEL_TRANSLATIONS[code]?.[statKey] ?? METRIC_LABEL_TRANSLATIONS[code]?.[statKey] ?? fallbackLabel;
+}
+
 // ─── Extended translations per language ────────────────────────────────────────
 // These add the extendedKeys translations for each non-English language.
 
@@ -1428,3 +1501,23 @@ Object.entries(trExtended).forEach(([key, val]) => {
 });
 
 export type { TranslationKey };
+
+// Position acronym translations
+const POSITION_TRANSLATIONS: Record<string, Record<string, string>> = {
+  fr: { GK: "G", CB: "DC", FB: "AL", CDM: "MDC", CM: "MC", CAM: "MOC", W: "AI", CF: "AC", ST: "AT", LB: "AG", RB: "AD", LW: "AIG", RW: "AID", RCM: "MCD", LCM: "MCG", DM: "MD", AM: "MO", LM: "MG", RM: "MD", SS: "2eAT", RWB: "PD", LWB: "PG" },
+  es: { GK: "PO", CB: "DC", FB: "LAT", CDM: "MCD", CM: "MC", CAM: "MCO", W: "EXT", CF: "DC", ST: "DEL", LB: "LI", RB: "LD", LW: "EI", RW: "ED", DM: "MD", AM: "MO" },
+  pt: { GK: "GR", CB: "ZC", FB: "LAT", CDM: "VOL", CM: "MC", CAM: "MEI", W: "EXT", CF: "CA", ST: "AV", LB: "LE", RB: "LD", LW: "EE", RW: "ED", DM: "MD", AM: "MO" },
+  de: { GK: "TW", CB: "IV", FB: "AV", CDM: "ZDM", CM: "ZM", CAM: "ZOM", W: "AW", CF: "MS", ST: "ST", LB: "LV", RB: "RV", LW: "LA", RW: "RA", DM: "DM", AM: "OM" },
+  it: { GK: "POR", CB: "DC", FB: "TS", CDM: "CDC", CM: "CC", CAM: "TRQ", W: "ALA", CF: "AC", ST: "ATT", LB: "TS", RB: "TD", LW: "AS", RW: "AD", DM: "MD", AM: "MO" },
+  cs: { GK: "BR", CB: "SO", FB: "KO", CDM: "DZ", CM: "SZ", CAM: "OZ", W: "KŘ", CF: "SÚ", ST: "ÚT", LB: "LO", RB: "PO", LW: "LK", RW: "PK", DM: "DZ", AM: "OZ" },
+  pl: { GK: "BR", CB: "ŚO", FB: "BO", CDM: "ŚDP", CM: "ŚP", CAM: "ŚOP", W: "SK", CF: "ŚN", ST: "NP", LB: "LO", RB: "PO", LW: "LS", RW: "PS", DM: "ŚD", AM: "ŚO" },
+  ru: { GK: "ВР", CB: "ЦЗ", FB: "КЗ", CDM: "ОПЗ", CM: "ЦП", CAM: "АП", W: "Фл", CF: "ЦН", ST: "НП", LB: "ЛЗ", RB: "ПЗ", LW: "ЛФ", RW: "ПФ", DM: "ОП", AM: "АП" },
+  tr: { GK: "KL", CB: "STP", FB: "BK", CDM: "DSO", CM: "OSO", CAM: "OOS", W: "KN", CF: "SFR", ST: "FRV", LB: "SB", RB: "SĞB", LW: "SK", RW: "SĞK", DM: "DO", AM: "OO" },
+};
+
+export function translatePosition(lang: string | null | undefined, position: string | null | undefined): string {
+  if (!position) return '';
+  const code = normalizePortalLanguage(lang);
+  if (code === 'en') return position;
+  return POSITION_TRANSLATIONS[code]?.[position] || position;
+}

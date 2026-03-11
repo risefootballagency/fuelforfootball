@@ -13,6 +13,8 @@ import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toast } from "sonner";
+import { translateMetricLabel, translateMetricCategory, translatePosition } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface Analysis {
   id: string;
@@ -62,6 +64,7 @@ const getStatValue = (analysis: Analysis, key: string): number | null => {
 };
 
 export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
+  const lang = usePortalLanguage();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(analyses.map(a => a.id)));
   const [activeStatCategory, setActiveStatCategory] = useState("Shooting");
   const [editingCell, setEditingCell] = useState<{ analysisId: string; metricKey: string } | null>(null);
@@ -235,7 +238,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Position</p>
-            <p className="font-semibold">{playerData?.position || '-'}</p>
+            <p className="font-semibold">{translatePosition(lang, playerData?.position) || '-'}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Club</p>
@@ -263,8 +266,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Season Averages</p>
               <div className="flex flex-wrap gap-3">
                 {availableStats.map(m => (
-                  <div key={m.key} className="bg-muted/50 px-3 py-1.5 rounded text-sm">
-                    <span className="text-muted-foreground">{m.label}:</span>{' '}
+                   <div key={m.key} className="bg-muted/50 px-3 py-1.5 rounded text-sm">
+                    <span className="text-muted-foreground">{translateMetricLabel(lang, m.key, m.label)}:</span>{' '}
                     <span className="font-semibold">{seasonAverages[m.key]?.toFixed(2)}</span>
                   </div>
                 ))}
@@ -283,9 +286,9 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
 
         <Tabs value={activeStatCategory} onValueChange={setActiveStatCategory} className="mb-4">
           <TabsList className="grid grid-cols-4 gap-1">
-            {METRIC_CATEGORIES.map(cat => (
+             {METRIC_CATEGORIES.map(cat => (
               <TabsTrigger key={cat.category} value={cat.category} className="text-xs">
-                {cat.category}
+                {translateMetricCategory(lang, cat.category)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -303,7 +306,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
               <TableHead>Mins</TableHead>
               <TableHead>R90</TableHead>
               {currentMetrics.map(m => (
-                <TableHead key={m.key} className="text-xs min-w-[80px]">{m.label}</TableHead>
+                <TableHead key={m.key} className="text-xs min-w-[80px]">{translateMetricLabel(lang, m.key, m.label)}</TableHead>
               ))}
             </TableRow>
           </TableHeader>

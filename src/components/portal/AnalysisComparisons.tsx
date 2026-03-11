@@ -16,7 +16,7 @@ import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparison
 import { ScatterComparisonChart } from "@/components/portal/ScatterComparisonChart";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { t } from "@/lib/portalTranslations";
+import { t, translateMetricLabel, translateMetricCategory } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 const RadarChart3D = lazy(() => import("@/components/portal/RadarChart3D").then(m => ({ default: m.RadarChart3D })));
@@ -317,7 +317,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
 
                 return (
                   <div key={cat.category}>
-                    <h4 className="font-semibold text-sm mb-3">{cat.category}</h4>
+                    <h4 className="font-semibold text-sm mb-3">{translateMetricCategory(lang, cat.category)}</h4>
                     <div className="space-y-3">
                       {metricsWithValues.map(m => {
                         const value = portalMetrics[m.key]!;
@@ -330,7 +330,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                         return (
                           <div key={m.key} className="space-y-1">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm">{m.label}{m.key.endsWith('_pct') ? '' : ' / Game'}</span>
+                              <span className="text-sm">{translateMetricLabel(lang, m.key, m.label)}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}</span>
                               <div className="flex items-center gap-3">
                                 <span className="text-sm text-muted-foreground">{value.toFixed(2)}{m.key.endsWith('_pct') ? '%' : ''}</span>
                                 <span className="text-lg font-bold text-primary w-12 text-right">{pct}%</span>
@@ -368,12 +368,12 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {METRIC_CATEGORIES.map(cat => (
+                     {METRIC_CATEGORIES.map(cat => (
                         <div key={cat.category}>
-                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                           {cat.metrics.map(m => (
                             <SelectItem key={m.key} value={m.key}>
-                              {m.label}{m.key.endsWith('_pct') ? '' : ' / Game'}
+                              {translateMetricLabel(lang, m.key, m.label)}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}
                             </SelectItem>
                           ))}
                         </div>
@@ -408,7 +408,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       ));
                     })()}
                     <p className="text-xs text-muted-foreground pt-1">
-                      {selectedMetric?.label}{selectedMetricKey.endsWith('_pct') ? '' : ' per game'} · Last {formWindow} avg for {playerName}
+                      {translateMetricLabel(lang, selectedMetricKey, selectedMetric?.label || '')}{selectedMetricKey.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`} · {t(lang, "last_n")} {formWindow} avg
                     </p>
                   </div>
                 ) : (
@@ -429,12 +429,12 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                 return (
                   <div key={cat.category} className="border rounded-lg overflow-hidden">
                     <div className="bg-muted px-4 py-2">
-                      <h4 className="font-semibold text-sm">{cat.category}</h4>
+                      <h4 className="font-semibold text-sm">{translateMetricCategory(lang, cat.category)}</h4>
                     </div>
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Metric / Game</TableHead>
+                          <TableHead>{translateMetricLabel(lang, 'metric_per_game', 'Metric')} {t(lang, "per_game")}</TableHead>
                           {hasPortalData && (
                             <TableHead>
                               <div className="flex items-center gap-1.5">
@@ -465,7 +465,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       <TableBody>
                         {catMetrics.map(m => (
                           <TableRow key={m.key}>
-                            <TableCell className="font-medium text-sm">{m.label}</TableCell>
+                            <TableCell className="font-medium text-sm">{translateMetricLabel(lang, m.key, m.label)}</TableCell>
                             {hasPortalData && (
                               <TableCell className="font-semibold">
                                 {portalMetrics[m.key] != null ? portalMetrics[m.key]!.toFixed(2) : '-'}
