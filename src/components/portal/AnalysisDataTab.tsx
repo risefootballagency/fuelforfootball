@@ -377,14 +377,14 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
       {/* Season zone aggregate (last 40 reports) */}
       <div className="bg-card border rounded-lg p-4 space-y-4">
         <div>
-          <h4 className="font-semibold">Season Heat Map & Zone Performance</h4>
-          <p className="text-xs text-muted-foreground">Aggregated from the latest 40 reports.</p>
+          <h4 className="font-semibold">{t(lang, "season_heatmap_zone_performance")}</h4>
+          <p className="text-xs text-muted-foreground">{t(lang, "aggregated_latest_reports")}</p>
         </div>
 
         {seasonZoneLoading ? (
-          <p className="text-sm text-muted-foreground">Loading zone data…</p>
+          <p className="text-sm text-muted-foreground">{t(lang, "loading_zone_data")}</p>
         ) : seasonZoneActions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No zone data available in the latest 40 reports.</p>
+          <p className="text-sm text-muted-foreground">{t(lang, "no_zone_data_latest_reports")}</p>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="rounded-lg border p-3">
