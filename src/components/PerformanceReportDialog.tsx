@@ -18,7 +18,8 @@ import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toTitleCase } from "@/lib/titleCase";
 import { sortActionsByMinute } from "@/lib/actionSorting";
-import { t, normalizePortalLanguage } from "@/lib/portalTranslations";
+import { t } from "@/lib/portalTranslations";
+import { getReportLanguage, getReportLocale, getTranslatedActionField, getTranslatedReportField, hasTranslatedReportContent } from "@/lib/reportTranslations";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
 const formatMinute = (minute: number | null | undefined): string => {
@@ -58,6 +59,7 @@ interface AnalysisDetails {
   visibility_status?: string;
   placeholder_raw_score?: number | null;
   placeholder_minutes?: number | null;
+  translated_content?: { language: string; fields: Record<string, string> } | null;
 }
 
 interface PerformanceReportDialogProps {
@@ -92,7 +94,25 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const [filterHasNotes, setFilterHasNotes] = useState(false);
 
   const portalLanguage = isPortalView ? (localStorage.getItem("portal_language_hint") || "en") : "en";
-  const portalLocale = normalizePortalLanguage(portalLanguage) === "fr" ? "fr-FR" : "en-GB";
+  const reportLanguage = getReportLanguage(analysis?.translated_content, portalLanguage);
+  const portalLocale = getReportLocale(reportLanguage);
+
+  const tc = analysis?.translated_content;
+  const hasTranslation = hasTranslatedReportContent(tc);
+  const tf = (key: string, fallback: string) => getTranslatedReportField(tc, key, fallback);
+  const tAction = (index: number, field: "type" | "description" | "notes", fallback: string) => getTranslatedActionField(tc, index, field, fallback);
+  const getTranslatedActionData = (action: PerformanceAction) => {
+    const translatedType = toTitleCase(tAction(action.action_number - 1, "type", action.action_type));
+    const translatedDescription = tAction(action.action_number - 1, "description", action.action_description);
+    const translatedNotes = tAction(action.action_number - 1, "notes", action.notes || "") || null;
+
+    return {
+      ...action,
+      action_type: translatedType,
+      action_description: translatedDescription,
+      notes: translatedNotes,
+    };
+  };
 
   // Pre-fetch data when analysisId changes (even before dialog opens)
   useEffect(() => {
@@ -145,6 +165,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
         visibility_status: (analysisResult.data as any).visibility_status || "live",
         placeholder_raw_score: (analysisResult.data as any).placeholder_raw_score,
         placeholder_minutes: (analysisResult.data as any).placeholder_minutes,
+        translated_content: (analysisResult.data as any).translated_content || null,
       });
 
       if (actionsResult.error) throw actionsResult.error;
@@ -636,19 +657,19 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
                   <div>
-                    <p className="text-xs md:text-sm text-muted-foreground">Player</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "player_label")}</p>
                     <p className="font-bold text-sm md:text-base truncate">{analysis.player_name}</p>
                   </div>
                   <div>
-                    <p className="text-xs md:text-sm text-muted-foreground">{t(portalLanguage, "date")}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "date")}</p>
                     <p className="font-bold text-sm md:text-base">{new Date(analysis.analysis_date).toLocaleDateString(portalLocale)}</p>
                   </div>
                   <div>
-                    <p className="text-xs md:text-sm text-muted-foreground">Opponent</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "opponent")}</p>
                     <p className="font-bold text-sm md:text-base truncate">{analysis.opponent || "N/A"}</p>
                   </div>
                   <div>
-                    <p className="text-xs md:text-sm text-muted-foreground">Result</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "result")}</p>
                     <p className="font-bold text-sm md:text-base">{analysis.result || "N/A"}</p>
                   </div>
                 </div>
