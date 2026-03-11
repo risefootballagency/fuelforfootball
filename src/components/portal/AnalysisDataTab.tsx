@@ -421,7 +421,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
 
           {radarData.length >= 3 && (
             <div className="bg-card border rounded-lg p-4">
-              <h4 className="font-semibold mb-4">Performance Radar</h4>
+              <h4 className="font-semibold mb-4">{t(lang, "performance_radar")}</h4>
               <ResponsiveContainer width="100%" height={350}>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="hsl(var(--border))" />
