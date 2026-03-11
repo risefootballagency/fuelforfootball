@@ -20,6 +20,7 @@ import { toTitleCase } from "@/lib/titleCase";
 import { sortActionsByMinute } from "@/lib/actionSorting";
 import { t, normalizePortalLanguage, translateStatLabel } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
+import { translateCalculatedStat } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
@@ -453,11 +454,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const turnovers = getVal('turnovers');
     if (recoveries !== null && turnovers !== null) {
       const ratio = turnovers === 0 ? (recoveries > 0 ? recoveries : 0) : recoveries / turnovers;
+      const translated = translateCalculatedStat(reportLanguage, 'recovery_turnover_ratio', 'Recovery/Turnover', 'Recoveries ÷ Turnovers');
       calculated.push({
         key: 'recovery_turnover_ratio',
-        displayName: 'Recovery/Turnover',
+        displayName: translated.displayName,
         value: ratio,
-        description: 'Recoveries ÷ Turnovers'
+        description: translated.description
       });
     }
     
@@ -465,11 +467,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const ppSuccess = getSuccessVal('progressive_passes');
     if (ppSuccess !== null && turnovers !== null) {
       const ratio = turnovers === 0 ? (ppSuccess > 0 ? ppSuccess : 0) : ppSuccess / turnovers;
+      const translated = translateCalculatedStat(reportLanguage, 'pp_turnovers_ratio', 'PP/Turnovers', 'Progressive Passes ÷ Turnovers');
       calculated.push({
         key: 'pp_turnovers_ratio',
-        displayName: 'PP/Turnovers',
+        displayName: translated.displayName,
         value: ratio,
-        description: 'Progressive Passes ÷ Turnovers'
+        description: translated.description
       });
     }
     
@@ -477,11 +480,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const aerialSuccess = getSuccessVal('aerial_duels');
     const aerialTotal = getTotalVal('aerial_duels');
     if (aerialSuccess !== null && aerialTotal !== null && aerialTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'aerial_duel_win_pct', 'Aerial Duel Win %', 'Aerial Duels Won ÷ Total');
       calculated.push({
         key: 'aerial_duel_win_pct',
-        displayName: 'Aerial Duel Win %',
+        displayName: translated.displayName,
         value: (aerialSuccess / aerialTotal) * 100,
-        description: 'Aerial Duels Won ÷ Total'
+        description: translated.description
       });
     }
     
@@ -489,11 +493,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const passSuccess = getSuccessVal('passes');
     const passTotal = getTotalVal('passes');
     if (passSuccess !== null && passTotal !== null && passTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'pass_completion', 'Pass Completion %', 'Passes Completed ÷ Total');
       calculated.push({
         key: 'pass_completion',
-        displayName: 'Pass Completion %',
+        displayName: translated.displayName,
         value: (passSuccess / passTotal) * 100,
-        description: 'Passes Completed ÷ Total'
+        description: translated.description
       });
     }
     
@@ -501,11 +506,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const dribbleSuccess = getSuccessVal('dribbles');
     const dribbleTotal = getTotalVal('dribbles');
     if (dribbleSuccess !== null && dribbleTotal !== null && dribbleTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'dribble_success_pct', 'Dribble Success %', 'Dribbles Completed ÷ Total');
       calculated.push({
         key: 'dribble_success_pct',
-        displayName: 'Dribble Success %',
+        displayName: translated.displayName,
         value: (dribbleSuccess / dribbleTotal) * 100,
-        description: 'Dribbles Completed ÷ Total'
+        description: translated.description
       });
     }
     
@@ -513,11 +519,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const tackleSuccess = getSuccessVal('tackles');
     const tackleTotal = getTotalVal('tackles');
     if (tackleSuccess !== null && tackleTotal !== null && tackleTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'tackle_success_pct', 'Tackle Success %', 'Tackles Won ÷ Total');
       calculated.push({
         key: 'tackle_success_pct',
-        displayName: 'Tackle Success %',
+        displayName: translated.displayName,
         value: (tackleSuccess / tackleTotal) * 100,
-        description: 'Tackles Won ÷ Total'
+        description: translated.description
       });
     }
     
@@ -525,11 +532,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const xg = getVal('xg');
     const shotsTotal = getTotalVal('shots') ?? getVal('shots');
     if (xg !== null && shotsTotal !== null && shotsTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'xg_per_shot', 'xG per Shot', 'xG ÷ Total Shots');
       calculated.push({
         key: 'xg_per_shot',
-        displayName: 'xG per Shot',
+        displayName: translated.displayName,
         value: xg / shotsTotal,
-        description: 'xG ÷ Total Shots'
+        description: translated.description
       });
     }
     
@@ -648,33 +656,33 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {analysis.placeholder_raw_score != null && (analysis.placeholder_minutes ?? 0) > 0 ? (
                 <div className="grid grid-cols-3 gap-4 max-w-md mx-auto p-4 bg-accent/20 rounded-lg">
                   <div className="text-center p-2">
-                    <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
-                    <p className="text-base md:text-2xl font-bold">{analysis.placeholder_raw_score.toFixed(3)}</p>
-                  </div>
-                  <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4">
-                    <p className="text-[10px] md:text-sm opacity-90 mb-0.5 md:mb-1">R90</p>
-                    <p className="text-lg md:text-3xl font-bold">{((analysis.placeholder_raw_score / analysis.placeholder_minutes!) * 90).toFixed(2)}</p>
-                  </div>
-                  <div className="text-center p-2">
-                    <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
-                    <p className="text-base md:text-2xl font-bold">{analysis.placeholder_minutes}</p>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Placeholder stats are not set yet.</p>
-              )}
-              <div className="bg-muted/50 rounded-lg p-4 max-w-sm mx-auto">
-                <p className="text-sm font-medium">This report is locked</p>
-                <p className="text-xs text-muted-foreground mt-1">Contact us to unlock the full performance breakdown.</p>
-              </div>
+              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "raw_score")}</p>
+                     <p className="text-base md:text-2xl font-bold">{analysis.placeholder_raw_score.toFixed(3)}</p>
+                   </div>
+                   <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4">
+                     <p className="text-[10px] md:text-sm opacity-90 mb-0.5 md:mb-1">R90</p>
+                     <p className="text-lg md:text-3xl font-bold">{((analysis.placeholder_raw_score / analysis.placeholder_minutes!) * 90).toFixed(2)}</p>
+                   </div>
+                   <div className="text-center p-2">
+                     <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "mins_short")}</p>
+                     <p className="text-base md:text-2xl font-bold">{analysis.placeholder_minutes}</p>
+                   </div>
+                 </div>
+               ) : (
+                 <p className="text-sm text-muted-foreground">{t(reportLanguage, "placeholder_stats_not_set")}</p>
+               )}
+               <div className="bg-muted/50 rounded-lg p-4 max-w-sm mx-auto">
+                 <p className="text-sm font-medium">{t(reportLanguage, "report_locked")}</p>
+                 <p className="text-xs text-muted-foreground mt-1">{t(reportLanguage, "contact_to_unlock_report")}</p>
+               </div>
             </div>
           ) : (
             <div className="relative">
               {isPortalView && analysis.visibility_status === "draft" && (
                 <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
-                  <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
-                    <p className="font-semibold text-sm">Report In Progress</p>
-                    <p className="text-xs text-muted-foreground mt-1">This report is still being prepared. Check back soon.</p>
+                <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
+                    <p className="font-semibold text-sm">{t(reportLanguage, "report_in_progress")}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t(reportLanguage, "report_in_progress_message")}</p>
                   </div>
                 </div>
               )}

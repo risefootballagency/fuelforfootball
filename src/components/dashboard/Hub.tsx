@@ -1,5 +1,5 @@
 import * as React from "react";
-import { t } from "@/lib/portalTranslations";
+import { t, translateServiceName } from "@/lib/portalTranslations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye, Check } from "lucide-react";
@@ -1020,7 +1020,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                         {portalSettings.current_package_features.map((f, i) => (
                           <div key={i} className="flex items-center gap-1 text-xs text-accent">
                             <Check className="w-3 h-3" />
-                            <span>{f}</span>
+                            <span>{translateServiceName(portalLanguage, f)}</span>
                           </div>
                         ))}
                       </div>
@@ -1058,7 +1058,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                                     {offer.features.map((f, i) => (
                                       <div key={i} className="flex items-center gap-1.5 text-xs text-foreground/80">
                                         <Check className="w-3 h-3 text-accent flex-shrink-0" />
-                                        <span>{f}</span>
+                                        <span>{translateServiceName(portalLanguage, f)}</span>
                                       </div>
                                     ))}
                                   </div>

@@ -1750,6 +1750,123 @@ Object.entries(trExtended).forEach(([key, val]) => {
   if (translations.tr) translations.tr[key] = val;
 });
 
+// Service name translations for package features
+const SERVICE_NAME_TRANSLATIONS: Record<string, Record<string, string>> = {
+  fr: {
+    "Action Reports": "Rapports d'Action", "Video Analysis": "Analyse Vidéo",
+    "Conditioning": "Conditionnement", "Strength, Power & Speed": "Force, Puissance et Vitesse",
+    "Nutrition": "Nutrition", "Mental Performance": "Performance Mentale",
+    "Pre-Match Analysis": "Analyse Pré-Match", "Post-Match Analysis": "Analyse Post-Match",
+    "Positional Guide": "Guide Positionnel", "Player Efficiency Report": "Rapport d'Efficacité",
+    "SPS Training": "Entraînement FPV", "SPS Programming": "Programmation FPV",
+    "Conditioning Training": "Entraînement de Conditionnement", "Conditioning Programming": "Programmation de Conditionnement",
+    "Highlight Reels": "Meilleures Séquences", "Training Programmes": "Programmes d'Entraînement",
+    "Full Package": "Pack Complet", "Performance Reports": "Rapports de Performance",
+    "Match Highlights": "Temps Forts des Matchs", "Video Clips": "Clips Vidéo",
+  },
+  es: {
+    "Action Reports": "Informes de Acción", "Video Analysis": "Análisis de Vídeo",
+    "Conditioning": "Acondicionamiento", "Strength, Power & Speed": "Fuerza, Potencia y Velocidad",
+    "Nutrition": "Nutrición", "Mental Performance": "Rendimiento Mental",
+    "Pre-Match Analysis": "Análisis Pre-Partido", "Post-Match Analysis": "Análisis Post-Partido",
+    "Full Package": "Paquete Completo", "Performance Reports": "Informes de Rendimiento",
+    "Training Programmes": "Programas de Entrenamiento",
+  },
+  pt: {
+    "Action Reports": "Relatórios de Ação", "Video Analysis": "Análise de Vídeo",
+    "Conditioning": "Condicionamento", "Strength, Power & Speed": "Força, Potência e Velocidade",
+    "Nutrition": "Nutrição", "Mental Performance": "Performance Mental",
+    "Full Package": "Pacote Completo", "Performance Reports": "Relatórios de Desempenho",
+    "Training Programmes": "Programas de Treino",
+  },
+  de: {
+    "Action Reports": "Aktionsberichte", "Video Analysis": "Videoanalyse",
+    "Conditioning": "Konditionierung", "Strength, Power & Speed": "Kraft, Power und Schnelligkeit",
+    "Nutrition": "Ernährung", "Mental Performance": "Mentale Leistung",
+    "Full Package": "Komplettpaket", "Performance Reports": "Leistungsberichte",
+    "Training Programmes": "Trainingsprogramme",
+  },
+  it: {
+    "Action Reports": "Report delle Azioni", "Video Analysis": "Analisi Video",
+    "Conditioning": "Condizionamento", "Strength, Power & Speed": "Forza, Potenza e Velocità",
+    "Nutrition": "Nutrizione", "Mental Performance": "Prestazione Mentale",
+    "Full Package": "Pacchetto Completo", "Performance Reports": "Report di Prestazioni",
+    "Training Programmes": "Programmi di Allenamento",
+  },
+  cs: {
+    "Action Reports": "Akční Reporty", "Video Analysis": "Video Analýza",
+    "Conditioning": "Kondice", "Strength, Power & Speed": "Síla, Výbušnost a Rychlost",
+    "Nutrition": "Výživa", "Mental Performance": "Mentální Výkon",
+    "Full Package": "Kompletní Balíček", "Performance Reports": "Výkonnostní Reporty",
+    "Training Programmes": "Tréninkové Programy",
+  },
+  pl: {
+    "Action Reports": "Raporty Akcji", "Video Analysis": "Analiza Wideo",
+    "Conditioning": "Kondycja", "Strength, Power & Speed": "Siła, Moc i Szybkość",
+    "Nutrition": "Żywienie", "Mental Performance": "Wydajność Mentalna",
+    "Full Package": "Pełny Pakiet", "Performance Reports": "Raporty Wydajności",
+    "Training Programmes": "Programy Treningowe",
+  },
+  ru: {
+    "Action Reports": "Отчёты по Действиям", "Video Analysis": "Видеоанализ",
+    "Conditioning": "Кондиция", "Strength, Power & Speed": "Сила, Мощность и Скорость",
+    "Nutrition": "Питание", "Mental Performance": "Ментальная подготовка",
+    "Full Package": "Полный Пакет", "Performance Reports": "Отчёты о производительности",
+    "Training Programmes": "Тренировочные Программы",
+  },
+  tr: {
+    "Action Reports": "Aksiyon Raporları", "Video Analysis": "Video Analizi",
+    "Conditioning": "Kondisyon", "Strength, Power & Speed": "Güç, Patlayıcılık ve Hız",
+    "Nutrition": "Beslenme", "Mental Performance": "Zihinsel Performans",
+    "Full Package": "Tam Paket", "Performance Reports": "Performans Raporları",
+    "Training Programmes": "Antrenman Programları",
+  },
+};
+
+export function translateServiceName(lang: string | null | undefined, name: string): string {
+  const code = normalizePortalLanguage(lang);
+  if (code === 'en') return name;
+  return SERVICE_NAME_TRANSLATIONS[code]?.[name] ?? name;
+}
+
+// Calculated stat translations
+const CALCULATED_STAT_TRANSLATIONS: Record<string, Record<string, { displayName: string; description: string }>> = {
+  fr: {
+    recovery_turnover_ratio: { displayName: "Récup./Pertes", description: "Récupérations ÷ Pertes" },
+    pp_turnovers_ratio: { displayName: "PP/Pertes", description: "Passes Progressives ÷ Pertes" },
+    aerial_duel_win_pct: { displayName: "% Duels Aériens", description: "Duels Aériens Gagnés ÷ Total" },
+    pass_completion: { displayName: "% Passes Réussies", description: "Passes Réussies ÷ Total" },
+    dribble_success_pct: { displayName: "% Dribbles Réussis", description: "Dribbles Réussis ÷ Total" },
+    tackle_success_pct: { displayName: "% Tacles Réussis", description: "Tacles Gagnés ÷ Total" },
+    xg_per_shot: { displayName: "xG par Tir", description: "xG ÷ Tirs Totaux" },
+  },
+  es: {
+    recovery_turnover_ratio: { displayName: "Recup./Pérdidas", description: "Recuperaciones ÷ Pérdidas" },
+    pp_turnovers_ratio: { displayName: "PP/Pérdidas", description: "Pases Progresivos ÷ Pérdidas" },
+    aerial_duel_win_pct: { displayName: "% Duelos Aéreos", description: "Duelos Aéreos ÷ Total" },
+    pass_completion: { displayName: "% Pases Comp.", description: "Pases Completados ÷ Total" },
+    dribble_success_pct: { displayName: "% Regates", description: "Regates Completados ÷ Total" },
+    tackle_success_pct: { displayName: "% Entradas", description: "Entradas Ganadas ÷ Total" },
+    xg_per_shot: { displayName: "xG por Tiro", description: "xG ÷ Tiros Totales" },
+  },
+  cs: {
+    recovery_turnover_ratio: { displayName: "Zisky/Ztráty", description: "Zisky míče ÷ Ztráty" },
+    pp_turnovers_ratio: { displayName: "PP/Ztráty", description: "Progresivní přihrávky ÷ Ztráty" },
+    aerial_duel_win_pct: { displayName: "% Hlaviček", description: "Vyhraných ÷ Celkem" },
+    pass_completion: { displayName: "% Přihrávek", description: "Přesných ÷ Celkem" },
+    dribble_success_pct: { displayName: "% Obejití", description: "Úspěšných ÷ Celkem" },
+    tackle_success_pct: { displayName: "% Skluzů", description: "Úspěšných ÷ Celkem" },
+    xg_per_shot: { displayName: "xG na střelu", description: "xG ÷ Celkem střel" },
+  },
+};
+
+export function translateCalculatedStat(lang: string | null | undefined, key: string, displayName: string, description: string): { displayName: string; description: string } {
+  const code = normalizePortalLanguage(lang);
+  if (code === 'en') return { displayName, description };
+  const t = CALCULATED_STAT_TRANSLATIONS[code]?.[key];
+  return t ?? { displayName, description };
+}
+
 export type { TranslationKey };
 
 // Position acronym translations
