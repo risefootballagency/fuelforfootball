@@ -94,7 +94,25 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const [filterHasNotes, setFilterHasNotes] = useState(false);
 
   const portalLanguage = isPortalView ? (localStorage.getItem("portal_language_hint") || "en") : "en";
-  const portalLocale = normalizePortalLanguage(portalLanguage) === "fr" ? "fr-FR" : "en-GB";
+  const reportLanguage = getReportLanguage(analysis?.translated_content, portalLanguage);
+  const portalLocale = getReportLocale(reportLanguage);
+
+  const tc = analysis?.translated_content;
+  const hasTranslation = hasTranslatedReportContent(tc);
+  const tf = (key: string, fallback: string) => getTranslatedReportField(tc, key, fallback);
+  const tAction = (index: number, field: "type" | "description" | "notes", fallback: string) => getTranslatedActionField(tc, index, field, fallback);
+  const getTranslatedActionData = (action: PerformanceAction) => {
+    const translatedType = toTitleCase(tAction(action.action_number - 1, "type", action.action_type));
+    const translatedDescription = tAction(action.action_number - 1, "description", action.action_description);
+    const translatedNotes = tAction(action.action_number - 1, "notes", action.notes || "") || null;
+
+    return {
+      ...action,
+      action_type: translatedType,
+      action_description: translatedDescription,
+      notes: translatedNotes,
+    };
+  };
 
   // Pre-fetch data when analysisId changes (even before dialog opens)
   useEffect(() => {
