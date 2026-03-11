@@ -43,6 +43,7 @@ export const ScatterComparisonChart = ({
   hasPortalData,
   comparisonPlayers,
 }: Props) => {
+  const lang = usePortalLanguage();
   const [xMetric, setXMetric] = useState("goals_per90");
   const [yMetric, setYMetric] = useState("xa_per90");
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
