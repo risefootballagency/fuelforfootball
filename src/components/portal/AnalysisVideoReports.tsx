@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Play, Pause, SkipBack, SkipForward, X, Maximize, Trash2, Download, CheckSquare, Film, ListVideo } from "lucide-react";
 import { downloadVideo } from "@/lib/videoDownload";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface Analysis {
   id: string;
@@ -37,6 +39,7 @@ interface Props {
 }
 
 export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) => {
+  const lang = usePortalLanguage();
   const [allActions, setAllActions] = useState<ActionClip[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMatches, setSelectedMatches] = useState<string[]>([]);
@@ -96,7 +99,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
     });
 
     if (clips.length === 0) {
-      toast.error('No clips match your selection');
+      toast.error(t(lang, 'no_clips_match_selection'));
       return;
     }
     setCompilationClips(clips);
@@ -117,7 +120,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
       if (dateA !== dateB) return dateA.localeCompare(dateB);
       return a.action_number - b.action_number;
     });
-    if (clips.length === 0) { toast.error('No clips available'); return; }
+    if (clips.length === 0) { toast.error(t(lang, 'no_clips_available')); return; }
     setCompilationClips(clips);
     setSelectedClipIds(new Set(clips.map(c => c.id)));
     setCurrentClipIndex(0);
@@ -173,14 +176,14 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
   return (
     <div className="space-y-6">
       {loading ? (
-        <div className="text-center py-8 text-muted-foreground">Loading clips...</div>
+        <div className="text-center py-8 text-muted-foreground">{t(lang, "video_reports_loading_clips")}</div>
       ) : allActions.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">No action clips available from your reports.</div>
+        <div className="text-center py-8 text-muted-foreground">{t(lang, "video_reports_no_clips")}</div>
       ) : (
         <>
           {/* Step 1: Select action types */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider mb-2">Step 1: Select Action Types</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider mb-2">{t(lang, "video_reports_step_select_action_types")}</h3>
             <div className="flex flex-wrap gap-2">
               {actionTypes.map(type => (
                 <button
@@ -194,17 +197,17 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                 </button>
               ))}
               {selectedActionTypes.length > 0 && (
-                <Button variant="ghost" size="sm" onClick={() => setSelectedActionTypes([])}>Clear</Button>
+                <Button variant="ghost" size="sm" onClick={() => setSelectedActionTypes([])}>{t(lang, "clear_filters")}</Button>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Leave empty to include all action types</p>
+            <p className="text-xs text-muted-foreground mt-1">{t(lang, "video_reports_leave_empty_action_types")}</p>
           </div>
 
           {/* Step 2: Select matches */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold uppercase tracking-wider">Step 2: Select Matches</h3>
-              <Button variant="ghost" size="sm" onClick={selectAllMatches}>Select All</Button>
+              <h3 className="text-sm font-semibold uppercase tracking-wider">{t(lang, "video_reports_step_select_matches")}</h3>
+              <Button variant="ghost" size="sm" onClick={selectAllMatches}>{t(lang, "select_all_label")}</Button>
             </div>
             <div className="flex flex-wrap gap-2">
               {analyses.filter(a => allActions.some(ac => ac.analysis_id === a.id)).map(a => (
@@ -215,7 +218,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                     selectedMatches.includes(a.id) ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'
                   }`}
                 >
-                  {a.opponent ? `vs ${a.opponent}` : new Date(a.analysis_date).toLocaleDateString('en-GB')}
+                  {a.opponent ? `${t(lang, "versus_short")} ${a.opponent}` : new Date(a.analysis_date).toLocaleDateString('en-GB')}
                   {a.result && <span className="ml-1 opacity-70">({a.result})</span>}
                 </button>
               ))}
@@ -226,10 +229,10 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
           {selectedMatches.length > 0 && (
             <div className="flex gap-3 flex-wrap">
               <Button onClick={generateCompilation}>
-                <Film className="w-4 h-4 mr-2" /> Watch
+                <Film className="w-4 h-4 mr-2" /> {t(lang, "watch_selected")}
               </Button>
               <Button variant="outline" onClick={generateFullReport}>
-                <ListVideo className="w-4 h-4 mr-2" /> Full Action Report Video
+                <ListVideo className="w-4 h-4 mr-2" /> {t(lang, "full_action_report_video")}
               </Button>
             </div>
           )}
@@ -250,7 +253,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                     <span className="font-semibold">{currentClip.action_type}</span>
                   </div>
                   <p className="text-xs text-white/70">
-                    vs {currentClip.opponent} {currentClip.minute != null && `· ${currentClip.minute}'`}
+                    {t(lang, "versus_short")} {currentClip.opponent} {currentClip.minute != null && `· ${currentClip.minute}'`}
                   </p>
                   {currentClip.action_description && (
                     <p className="text-xs text-white/60 mt-0.5 line-clamp-2">{currentClip.action_description}</p>
@@ -304,13 +307,13 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                 {/* Export dropdown */}
                 <div className="flex gap-2">
                   <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={() => handleExport('single')}>
-                    <Download className="h-4 w-4 mr-1" /> Clip
+                    <Download className="h-4 w-4 mr-1" /> {t(lang, "clip_label")}
                   </Button>
                   <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={() => handleExport('selected')}>
-                    <CheckSquare className="h-4 w-4 mr-1" /> Selected ({selectedClipIds.size})
+                    <CheckSquare className="h-4 w-4 mr-1" /> {t(lang, "selected")} ({selectedClipIds.size})
                   </Button>
                   <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={() => handleExport('all')}>
-                    <Download className="h-4 w-4 mr-1" /> All
+                    <Download className="h-4 w-4 mr-1" /> {t(lang, "all")}
                   </Button>
                 </div>
               </div>
@@ -332,7 +335,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                       />
                       <button className="flex-1 text-left" onClick={() => setCurrentClipIndex(index)}>
                         <span className="font-mono text-xs opacity-60">#{clip.action_number}</span>{' '}
-                        {clip.action_type} · vs {clip.opponent}
+                        {clip.action_type} · {t(lang, "versus_short")} {clip.opponent}
                         {clip.minute != null && <span className="opacity-60"> · {clip.minute}'</span>}
                       </button>
                       <Button variant="ghost" size="icon" className="h-6 w-6 text-white/50 hover:text-destructive"

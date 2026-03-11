@@ -189,7 +189,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
                 transition={{ duration: 0.4 }}
               >
                 <p className="text-xs text-muted-foreground mb-3">
-                 <span className="font-semibold text-foreground">{statLabel}</span> — {gameCount < 5 ? `${gameCount} game${gameCount === 1 ? '' : 's'}` : 'Last 5 games'} avg vs{" "}
+                 <span className="font-semibold text-foreground">{statLabel}</span> — {gameCount < 5 ? `${gameCount} ${t(portalLanguage, gameCount === 1 ? "game_singular" : "game_plural")}` : `${t(portalLanguage, "last_n")} 5 ${t(portalLanguage, "game_plural")}`} {t(portalLanguage, "avg_vs")}{" "}
                   <span className="font-semibold text-accent">{benchmarkName}{benchmarkSeason ? ` ${benchmarkSeason}` : ''}</span>
                 </p>
                 <div className="h-[120px]">

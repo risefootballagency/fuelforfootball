@@ -259,7 +259,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
           )}
           {stats && (
             <div className="space-y-1 pt-2 border-t border-white/20">
-              <div className="text-xs font-semibold text-white/80">Advanced Stats (per 90):</div>
+              <div className="text-xs font-semibold text-white/80">{t(portalLanguage, "advanced_stats_per_90")}:</div>
               {stats.xG_adj_per90 !== undefined && (
                 <div className="text-xs text-white/70">xG (adj): {stats.xG_adj_per90.toFixed(2)}</div>
               )}

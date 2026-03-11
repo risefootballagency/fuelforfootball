@@ -13,7 +13,7 @@ import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toast } from "sonner";
-import { translateMetricLabel, translateMetricCategory, translatePosition } from "@/lib/portalTranslations";
+import { t, translateMetricLabel, translateMetricCategory, translatePosition } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface Analysis {
@@ -225,35 +225,35 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
       {/* Player Summary */}
       <div className="bg-card border rounded-lg p-6">
         <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-          <User className="w-5 h-5 text-primary" /> Player Summary
+          <User className="w-5 h-5 text-primary" /> {t(lang, "player_summary")}
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Name</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "name_label")}</p>
             <p className="font-semibold">{playerData?.name || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Age</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "age_label")}</p>
             <p className="font-semibold">{playerData?.age || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Position</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "position_label")}</p>
             <p className="font-semibold">{translatePosition(lang, playerData?.position) || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Club</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "club_label")}</p>
             <p className="font-semibold">{playerData?.club || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Minutes Played</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "minutes_played")}</p>
             <p className="font-semibold text-foreground">{seasonAverages.totalMinutes?.toFixed(0) || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Season R90</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "season_r90")}</p>
             <p className="font-semibold" style={seasonAverages.r90 != null ? { color: getR90Color(seasonAverages.r90) } : undefined}>{seasonAverages.r90?.toFixed(2) || '-'}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Matches</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t(lang, "matches_label")}</p>
             <p className="font-semibold">{selectedAnalyses.length}</p>
           </div>
         </div>
@@ -263,7 +263,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
           if (availableStats.length === 0) return null;
           return (
             <div className="mt-4 pt-4 border-t">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Season Averages</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{t(lang, "season_averages")}</p>
               <div className="flex flex-wrap gap-3">
                 {availableStats.map(m => (
                    <div key={m.key} className="bg-muted/50 px-3 py-1.5 rounded text-sm">
@@ -280,8 +280,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
       {/* Category filter tabs for match data */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-sm uppercase tracking-wider">Match-by-Match</h3>
-          <Button variant="ghost" size="sm" onClick={selectAll}>Select All</Button>
+          <h3 className="font-semibold text-sm uppercase tracking-wider">{t(lang, "match_by_match")}</h3>
+          <Button variant="ghost" size="sm" onClick={selectAll}>{t(lang, "select_all_label")}</Button>
         </div>
 
         <Tabs value={activeStatCategory} onValueChange={setActiveStatCategory} className="mb-4">
@@ -301,9 +301,9 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[40px]"></TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Opponent</TableHead>
-              <TableHead>Mins</TableHead>
+              <TableHead>{t(lang, "date")}</TableHead>
+              <TableHead>{t(lang, "opponent")}</TableHead>
+              <TableHead>{t(lang, "mins_short")}</TableHead>
               <TableHead>R90</TableHead>
               {currentMetrics.map(m => (
                 <TableHead key={m.key} className="text-xs min-w-[80px]">{translateMetricLabel(lang, m.key, m.label)}</TableHead>
@@ -377,14 +377,14 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
       {/* Season zone aggregate (last 40 reports) */}
       <div className="bg-card border rounded-lg p-4 space-y-4">
         <div>
-          <h4 className="font-semibold">Season Heat Map & Zone Performance</h4>
-          <p className="text-xs text-muted-foreground">Aggregated from the latest 40 reports.</p>
+          <h4 className="font-semibold">{t(lang, "season_heatmap_zone_performance")}</h4>
+          <p className="text-xs text-muted-foreground">{t(lang, "aggregated_latest_reports")}</p>
         </div>
 
         {seasonZoneLoading ? (
-          <p className="text-sm text-muted-foreground">Loading zone data…</p>
+          <p className="text-sm text-muted-foreground">{t(lang, "loading_zone_data")}</p>
         ) : seasonZoneActions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No zone data available in the latest 40 reports.</p>
+          <p className="text-sm text-muted-foreground">{t(lang, "no_zone_data_latest_reports")}</p>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="rounded-lg border p-3">
@@ -402,7 +402,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
         <>
           {r90BarData.length > 0 && (
             <div className="bg-card border rounded-lg p-4">
-              <h4 className="font-semibold mb-4">R90 Distribution</h4>
+              <h4 className="font-semibold mb-4">{t(lang, "r90_distribution")}</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={r90BarData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -421,7 +421,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
 
           {radarData.length >= 3 && (
             <div className="bg-card border rounded-lg p-4">
-              <h4 className="font-semibold mb-4">Performance Radar</h4>
+              <h4 className="font-semibold mb-4">{t(lang, "performance_radar")}</h4>
               <ResponsiveContainer width="100%" height={350}>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="hsl(var(--border))" />

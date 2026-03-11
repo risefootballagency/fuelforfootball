@@ -60,7 +60,7 @@ export const ActionHeatmap = ({ actions, minutesPlayed, language = "en" }: Actio
       const effectiveEnd = period.start === 75 ? Math.max(endMinute, 90) : Math.min(period.end, endMinute);
       const periodMinutes = Math.max(effectiveEnd - effectiveStart, 0);
 
-      const r15 = periodMinutes > 0 ? (totalScore / periodMinutes) * 15 : 0;
+      const r15 = periodMinutes > 0 ? (totalScore / 15) * 90 : 0;
 
       result.push({ range: period.label, actions: blockActions, totalScore, count: blockActions.length, r15 });
     }
