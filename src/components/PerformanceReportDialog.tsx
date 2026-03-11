@@ -519,11 +519,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const tackleSuccess = getSuccessVal('tackles');
     const tackleTotal = getTotalVal('tackles');
     if (tackleSuccess !== null && tackleTotal !== null && tackleTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'tackle_success_pct', 'Tackle Success %', 'Tackles Won ÷ Total');
       calculated.push({
         key: 'tackle_success_pct',
-        displayName: 'Tackle Success %',
+        displayName: translated.displayName,
         value: (tackleSuccess / tackleTotal) * 100,
-        description: 'Tackles Won ÷ Total'
+        description: translated.description
       });
     }
     
