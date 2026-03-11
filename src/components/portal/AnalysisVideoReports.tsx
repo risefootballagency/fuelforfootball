@@ -253,7 +253,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                     <span className="font-semibold">{currentClip.action_type}</span>
                   </div>
                   <p className="text-xs text-white/70">
-                    vs {currentClip.opponent} {currentClip.minute != null && `· ${currentClip.minute}'`}
+                    {t(lang, "versus_short")} {currentClip.opponent} {currentClip.minute != null && `· ${currentClip.minute}'`}
                   </p>
                   {currentClip.action_description && (
                     <p className="text-xs text-white/60 mt-0.5 line-clamp-2">{currentClip.action_description}</p>
