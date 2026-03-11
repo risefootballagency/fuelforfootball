@@ -1,5 +1,8 @@
+import { t } from "@/lib/portalTranslations";
+
 interface ChanceCreationFlowProps {
   strikerStats: Record<string, any>;
+  language?: string;
 }
 
 const XC_ZONES = [
