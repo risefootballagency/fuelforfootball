@@ -32,6 +32,8 @@ import { VersionManager } from "@/lib/versionManager";
 import { insertStaffNotification } from "@/lib/staffNotifications";
 import { Hub } from "@/components/dashboard/Hub";
 import { MobileBottomNav } from "@/components/portal/MobileBottomNav";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList, ReferenceLine } from "recharts";
 import { Link } from "react-router-dom";
 
@@ -122,6 +124,7 @@ interface Update {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const portalLang = usePortalLanguage();
   const [loading, setLoading] = useState(true);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [concepts, setConcepts] = useState<any[]>([]);
@@ -1803,7 +1806,7 @@ const Dashboard = () => {
                   className="flex items-center gap-2 relative"
                 >
                   <Bell className="h-4 w-4" />
-                  <span className="hidden sm:inline">Notifications</span>
+                  <span className="hidden sm:inline">{t(portalLang, "notifications")}</span>
                   {/* Notification Badge */}
                   {(() => {
                     const recentCount = [
@@ -1938,8 +1941,8 @@ const Dashboard = () => {
               className="flex items-center gap-2"
             >
               <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Coach Availability</span>
-              <span className="sm:hidden">Availability</span>
+              <span className="hidden sm:inline">{t(portalLang, "coach_availability")}</span>
+              <span className="sm:hidden">{t(portalLang, "availability")}</span>
             </Button>
           </div>
         </div>
@@ -1969,14 +1972,14 @@ const Dashboard = () => {
                 className="w-full justify-center font-bebas uppercase text-xl px-6 py-6 bg-card hover:bg-card/80 border-t-2 border-gold border-x-0 border-b-2 !text-gold hover:!text-gold z-50 rounded-none"
                 >
                   <span>
-                    {activeTab === "hub" && "Hub"}
-                    {activeTab === "analysis" && "Analysis"}
-                    {activeTab === "physical" && "Programming"}
-                    {activeTab === "invoices" && "Invoices"}
-                    {activeTab === "updates" && "Updates"}
-                    {activeTab === "highlights" && "Highlights"}
+                    {activeTab === "hub" && t(portalLang, "hub")}
+                    {activeTab === "analysis" && t(portalLang, "analysis")}
+                    {activeTab === "physical" && t(portalLang, "programming")}
+                    {activeTab === "invoices" && t(portalLang, "key_documents")}
+                    {activeTab === "updates" && t(portalLang, "updates")}
+                    {activeTab === "highlights" && t(portalLang, "highlights")}
                     {activeTab === "services" && "Services"}
-                    {activeTab === "nutrition" && "Nutrition"}
+                    {activeTab === "nutrition" && t(portalLang, "nutrition")}
                   </span>
                   <ChevronDown className="ml-2 h-5 w-5" />
                 </Button>
@@ -1993,17 +1996,17 @@ const Dashboard = () => {
                     </button>
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
                       {[
-                        { value: "performance", label: "Performance", icon: <Activity className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "form", label: "Form", icon: <LineChart className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "video-reports", label: "Video Reports", icon: <Video className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "data", label: "Data", icon: <Database className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "comparisons", label: "Comparisons", icon: <Users className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "scouting", label: "Scouting", icon: <Search className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "positional-guides", label: "Positional", icon: <Compass className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "schemes", label: "Schemes", icon: <Layers className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "concepts", label: "Concepts", icon: <Brain className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "cognisance", label: "Cognisance", icon: <Eye className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "other", label: "Other", icon: <FolderOpen className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "performance", label: t(portalLang, "performance"), icon: <Activity className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "form", label: t(portalLang, "form"), icon: <LineChart className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "video-reports", label: t(portalLang, "video_reports"), icon: <Video className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "data", label: t(portalLang, "data"), icon: <Database className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "comparisons", label: t(portalLang, "comparisons"), icon: <Users className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "scouting", label: t(portalLang, "scouting"), icon: <Search className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "positional-guides", label: t(portalLang, "positional"), icon: <Compass className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "schemes", label: t(portalLang, "schemes"), icon: <Layers className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "concepts", label: t(portalLang, "concepts"), icon: <Brain className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "cognisance", label: t(portalLang, "cognisance"), icon: <Eye className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "other", label: t(portalLang, "other"), icon: <FolderOpen className="h-5 w-5 sm:h-6 sm:w-6" /> },
                       ].map((tab) => (
                         <DropdownMenuItem
                           key={tab.value}
@@ -2027,15 +2030,15 @@ const Dashboard = () => {
                 ) : (
                   <div className="grid gap-1.5 sm:gap-2" style={{ gridTemplateColumns: '0.8fr 1.4fr 0.8fr', gridTemplateRows: 'auto auto auto' }}>
                     {[
-                      { tab: "analysis", label: "Analysis", icon: <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true },
-                      { tab: "physical", label: "Programming", icon: <Calendar className="h-6 w-6 sm:h-7 sm:w-7" /> },
-                      { tab: "nutrition", label: "Nutrition", icon: <Apple className="h-6 w-6 sm:h-7 sm:w-7" /> },
-                      { tab: "invoices", label: "Invoices", icon: <FileText className="h-6 w-6 sm:h-7 sm:w-7" /> },
-                      { tab: "hub", label: "Hub", icon: <TrendingUp className="h-8 w-8 sm:h-9 sm:w-9" />, isHub: true },
-                      { tab: "updates", label: "Updates", icon: <Bell className="h-6 w-6 sm:h-7 sm:w-7" /> },
-                      { tab: "analysis", label: "Video Reports", icon: <Play className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "video-reports" },
+                      { tab: "analysis", label: t(portalLang, "analysis"), icon: <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true },
+                      { tab: "physical", label: t(portalLang, "programming"), icon: <Calendar className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "nutrition", label: t(portalLang, "nutrition"), icon: <Apple className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "invoices", label: t(portalLang, "key_documents"), icon: <FileText className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "hub", label: t(portalLang, "hub"), icon: <TrendingUp className="h-8 w-8 sm:h-9 sm:w-9" />, isHub: true },
+                      { tab: "updates", label: t(portalLang, "updates"), icon: <Bell className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "analysis", label: t(portalLang, "video_reports"), icon: <Play className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "video-reports" },
                       { tab: "services", label: "Services", icon: <ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7" /> },
-                      { tab: "analysis", label: "Comparisons", icon: <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "comparisons" },
+                      { tab: "analysis", label: t(portalLang, "comparisons"), icon: <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "comparisons" },
                     ].map((item) => (
                       <DropdownMenuItem
                         key={`${item.tab}-${item.label}`}
@@ -2161,40 +2164,40 @@ const Dashboard = () => {
                   <Tabs value={activeAnalysisTab} onValueChange={setActiveAnalysisTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 mb-0 bg-muted h-auto p-1.5">
                   <TabsTrigger value="performance" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Performance
+                    {t(portalLang, "performance")}
                   </TabsTrigger>
                   <TabsTrigger value="form" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Form
+                    {t(portalLang, "form")}
                   </TabsTrigger>
                   <TabsTrigger value="other" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Other
+                    {t(portalLang, "other")}
                   </TabsTrigger>
                   <TabsTrigger value="scouting" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Scouting
+                    {t(portalLang, "scouting")}
                   </TabsTrigger>
                   <TabsTrigger value="concepts" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Concepts
+                    {t(portalLang, "concepts")}
                   </TabsTrigger>
                   <TabsTrigger value="schemes" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Schemes
+                    {t(portalLang, "schemes")}
                   </TabsTrigger>
                   <TabsTrigger value="positional-guides" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Pos. Guides
+                    {t(portalLang, "positional")}
                   </TabsTrigger>
                   <TabsTrigger value="cognisance" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Cognisance
+                    {t(portalLang, "cognisance")}
                   </TabsTrigger>
                   <TabsTrigger value="data" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Data
+                    {t(portalLang, "data")}
                   </TabsTrigger>
                   <TabsTrigger value="video-reports" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Video
+                    {t(portalLang, "video_reports")}
                   </TabsTrigger>
                    <TabsTrigger value="comparisons" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                     Comparisons
+                     {t(portalLang, "comparisons")}
                    </TabsTrigger>
                    <TabsTrigger value="all-reports" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                     All Reports
+                     {t(portalLang, "all_reports")}
                    </TabsTrigger>
                  </TabsList>
 
@@ -4917,6 +4920,7 @@ const Dashboard = () => {
         open={performanceReportDialogOpen}
         onOpenChange={setPerformanceReportDialogOpen}
         analysisId={selectedReportAnalysisId}
+        isPortalView={true}
       />
 
       {/* Mobile Bottom Nav */}
