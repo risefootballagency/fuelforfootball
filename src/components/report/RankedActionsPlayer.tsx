@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, SkipForward, SkipBack } from "lucide-react";
+import { SkipForward, SkipBack } from "lucide-react";
 
 interface Clip {
   id: string;
@@ -57,7 +57,6 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode }: RankedA
   };
 
   const handleVideoEnd = () => {
-    // In noted mode, don't auto-advance
     if (mode === "noted") return;
     if (currentIndex < sortedClips.length - 1) {
       const next = currentIndex + 1;
@@ -103,23 +102,24 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode }: RankedA
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         style={{ transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined, opacity: swipeY > 0 ? Math.max(0.3, 1 - swipeY / 300) : 1, transition: swiping ? 'none' : 'transform 0.3s ease, opacity 0.3s ease' }}
-        className="fixed inset-0 !left-0 !top-0 !translate-x-0 !translate-y-0 w-screen h-screen max-w-none max-h-none p-0 bg-black border-0 rounded-none flex flex-col overflow-hidden z-[200] data-[state=open]:!animate-none data-[state=closed]:!animate-none data-[state=open]:!slide-in-from-left-0 data-[state=open]:!slide-in-from-top-0">
+        className="fixed inset-0 !left-0 !top-0 !translate-x-0 !translate-y-0 w-screen h-screen max-w-none max-h-none p-0 bg-black border-0 rounded-none flex flex-col overflow-hidden z-[200] data-[state=open]:!animate-none data-[state=closed]:!animate-none data-[state=open]:!slide-in-from-left-0 data-[state=open]:!slide-in-from-top-0 [&>button:last-child]:hidden"
+      >
         <DialogTitle className="sr-only">
           {mode === "ranked" ? "Ranked" : mode === "noted" ? "Noted" : "Full Match"} Video Report
         </DialogTitle>
-        {/* Header */}
+        {/* Header with single close button */}
         <div className="flex items-center justify-between px-4 py-3 bg-black/80 border-b border-border/30 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="text-primary font-bold text-sm">
+            <span className="text-accent font-bold text-sm">
               {mode === "ranked" ? "RANKED" : mode === "noted" ? "NOTED" : "MATCH"} REPORT
             </span>
             <span className="text-xs text-white/60">
               {currentIndex + 1} / {sortedClips.length}
             </span>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="text-white hover:text-white hover:bg-white/20 h-10 w-10 min-w-[40px]">
-            <X className="h-5 w-5" />
-          </Button>
+          <button onClick={() => onOpenChange(false)} className="text-white hover:text-white/80 h-10 w-10 min-w-[40px] flex items-center justify-center rounded-full hover:bg-white/20 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
 
         {/* Video - fills remaining space */}
@@ -158,9 +158,9 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode }: RankedA
                   {current.action_score != null ? `${current.action_score >= 0 ? "+" : ""}${current.action_score.toFixed(3)}` : "—"}
                 </span>
               </div>
-              <p className="text-white/60 text-xs truncate mt-0.5">{current.action_type}: {current.action_description}</p>
+              <p className="text-white/60 text-xs mt-0.5">{current.action_type}: {current.action_description}</p>
               {current.notes && (
-                <p className="text-accent text-[10px] italic mt-1 line-clamp-2">📝 {current.notes}</p>
+                <p className="text-accent text-[10px] italic mt-1">📝 {current.notes}</p>
               )}
             </div>
             <div className="flex gap-1">

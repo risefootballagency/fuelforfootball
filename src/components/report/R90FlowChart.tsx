@@ -17,14 +17,10 @@ export const R90FlowChart = ({ actions, minutesPlayed }: R90FlowChartProps) => {
   const chartData = useMemo(() => {
     if (actions.length === 0 || !minutesPlayed) return [];
 
-    // Sort actions by minute
     const sorted = [...actions].sort((a, b) => a.minute - b.minute);
-
-    // Calculate the start minute (final action minute - minutes played)
     const lastActionMinute = Math.max(...sorted.map(a => Math.floor(a.minute)));
     const startMinute = Math.max(0, lastActionMinute - minutesPlayed);
 
-    // Build cumulative score, then interpolate minute-by-minute
     const actionPoints: { minute: number; score: number; label: string }[] = [];
     let cumulativeScore = 0;
 
@@ -37,11 +33,9 @@ export const R90FlowChart = ({ actions, minutesPlayed }: R90FlowChartProps) => {
       });
     });
 
-    // Generate a point for every minute from start to end
     const endMinute = Math.max(...actionPoints.map(a => a.minute));
     const points: { minute: number; r90: number; rawScore: number; label: string }[] = [];
 
-    // Build a map of cumulative score at each action minute
     const scoreAtMinute = new Map<number, { score: number; label: string }>();
     actionPoints.forEach(ap => {
       scoreAtMinute.set(ap.minute, { score: ap.score, label: ap.label });
@@ -116,14 +110,14 @@ export const R90FlowChart = ({ actions, minutesPlayed }: R90FlowChartProps) => {
               }}
               labelFormatter={(label) => `Minute ${label}`}
             />
-            <ReferenceLine y={1} stroke="hsl(var(--primary))" strokeDasharray="4 4" strokeWidth={1} />
+            <ReferenceLine y={1} stroke="hsl(var(--accent))" strokeDasharray="4 4" strokeWidth={1} />
             <Line
               type="monotone"
               dataKey="r90"
-              stroke="hsl(var(--primary))"
+              stroke="hsl(var(--accent))"
               strokeWidth={2.5}
-              dot={{ r: 4, fill: "hsl(var(--primary))", strokeWidth: 2, stroke: "hsl(var(--background))" }}
-              activeDot={{ r: 6, fill: "hsl(var(--primary))" }}
+              dot={{ r: 4, fill: "hsl(47, 100%, 51%)", strokeWidth: 2, stroke: "hsl(var(--background))" }}
+              activeDot={{ r: 6, fill: "hsl(47, 100%, 51%)" }}
             />
           </LineChart>
         </ResponsiveContainer>
