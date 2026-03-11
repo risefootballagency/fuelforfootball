@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { insertStaffNotification } from "@/lib/staffNotifications";
+import { t } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
+import { PortalFlagLanguageSelector } from "@/components/portal/PortalFlagLanguageSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,9 +12,15 @@ import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
+  const lang = usePortalLanguage();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+
+  const handleLanguageSelect = (language: string) => {
+    localStorage.setItem("preferred_language", language);
+    localStorage.setItem("portal_language_hint", language);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -161,10 +170,10 @@ const Login = () => {
       <section className="relative py-16 md:py-24 px-4 w-full max-w-md">
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-4">
-            PLAYER PORTAL
+            {t(lang, "player_portal_login_title")}
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
-            Your dedicated space for performance analysis and development.
+            {t(lang, "player_portal_login_subtitle")}
           </p>
           
           <form onSubmit={handleEmailLogin} className="space-y-4" autoComplete="on">
@@ -172,7 +181,7 @@ const Login = () => {
               id="login"
               name="username"
               type="text"
-              placeholder="Enter your login"
+              placeholder={t(lang, "login_input_placeholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -188,7 +197,7 @@ const Login = () => {
               className="w-full btn-shine font-bebas text-lg uppercase tracking-wider h-12"
               disabled={loading}
             >
-              {loading ? "..." : "ENTER"}
+              {loading ? "..." : t(lang, "login_enter_button")}
             </Button>
             <div className="flex items-center justify-center gap-2">
               <input
@@ -199,9 +208,10 @@ const Login = () => {
                 className="w-4 h-4 rounded border-border"
               />
               <Label htmlFor="remember" className="text-muted-foreground text-sm cursor-pointer">
-                Keep me logged in
+                {t(lang, "keep_me_logged_in")}
               </Label>
             </div>
+            <PortalFlagLanguageSelector language={lang} onSelect={handleLanguageSelect} />
           </form>
         </div>
       </section>

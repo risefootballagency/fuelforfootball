@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { AnimatePresence, motion } from "framer-motion";
 import { ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
+import { t } from "@/lib/portalTranslations";
 
 interface QuickStatsComparisonProps {
   playerId: string;
@@ -13,6 +14,7 @@ interface QuickStatsComparisonProps {
   playerPosition: string;
   analyses: { striker_stats?: any; fixture_stats?: any; r90_score?: number | null }[];
   onSeeAll?: () => void;
+  portalLanguage?: string;
 }
 
 // Use ALL_METRICS as the single source of truth for comparable stats
@@ -33,7 +35,7 @@ const getStatValue = (analysis: any, key: string): number | null => {
   return null;
 };
 
-export const QuickStatsComparison = ({ playerId, playerName, playerPosition, analyses, onSeeAll }: QuickStatsComparisonProps) => {
+export const QuickStatsComparison = ({ playerId, playerName, playerPosition, analyses, onSeeAll, portalLanguage = "en" }: QuickStatsComparisonProps) => {
   const [loading, setLoading] = React.useState(true);
   const [chartData, setChartData] = React.useState<{ name: string; value: number }[] | null>(null);
   const [statLabel, setStatLabel] = React.useState("");
@@ -152,7 +154,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
         <div className="flex items-center justify-between container mx-auto px-4 pr-6">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">Comparisons</CardTitle>
+            <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">{t(portalLanguage, "comparisons")}</CardTitle>
           </div>
           <div className="flex items-center gap-1">
             {onSeeAll && (
@@ -162,7 +164,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
                  onClick={onSeeAll}
                  className="flex items-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
                 >
-                See All
+                {t(portalLanguage, "see_all")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             )}

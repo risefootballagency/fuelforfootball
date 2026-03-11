@@ -547,7 +547,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   ];
 
   // Filtered actions
-  const filteredActions = actions.filter(a => {
+  const displayActions = hasTranslation ? actions.map(getTranslatedActionData) : actions;
+  const filteredActions = displayActions.filter(a => {
     if (filterTypes.length > 0) {
       const actionTypes = (a.action_type || '').split(',').map(t => t.trim().toLowerCase());
       if (!filterTypes.some(ft => actionTypes.includes(ft))) return false;
@@ -567,11 +568,11 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] md:max-w-[95vw] w-full max-h-[95vh] overflow-y-auto overflow-x-hidden p-0">
         <div className="sticky top-0 z-10 bg-background border-b p-2 md:p-4 flex items-center justify-between gap-2">
-          <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">Performance Report</h2>
+          <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">{t(reportLanguage, "performance_report")}</h2>
           <div className="flex gap-1 md:gap-2 flex-shrink-0">
             <Button onClick={handleSaveAsWebp} variant="default" size="sm" className="px-2 md:px-3" disabled={savingImage || loading}>
               <ImageIcon className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">{savingImage ? 'Saving...' : 'Save'}</span>
+              <span className="hidden md:inline">{savingImage ? t(reportLanguage, "saving_label") : t(reportLanguage, "save_label")}</span>
             </Button>
             <Button
               variant="outline"
@@ -584,17 +585,17 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                   const slug = `${playerName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-vs-${opponent.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${analysisId}`;
                   const url = `${window.location.origin}/performance-report/${slug}`;
                   navigator.clipboard.writeText(url);
-                  toast.success("Report link copied to clipboard");
+                  toast.success(t(reportLanguage, "report_link_copied"));
                 }
               }}
               disabled={!analysis}
             >
               <Link2 className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Share</span>
+              <span className="hidden md:inline">{t(reportLanguage, "share_label")}</span>
             </Button>
             <Button onClick={() => onOpenChange(false)} variant="outline" size="sm" className="px-2 md:px-3">
               <X className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Close</span>
+              <span className="hidden md:inline">{t(reportLanguage, "close")}</span>
             </Button>
           </div>
         </div>
@@ -621,7 +622,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               <div className="h-40 bg-muted rounded"></div>
             </div>
           ) : !analysis ? (
-            <div className="text-center py-8 text-muted-foreground">Performance report not found</div>
+            <div className="text-center py-8 text-muted-foreground">{t(reportLanguage, "report_not_found")}</div>
           ) : (analysis.visibility_status || "").toLowerCase() === "hidden" ? (
             <div className="text-center py-12 space-y-6">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
@@ -691,7 +692,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     onClick={() => setShowClippedActions(true)}
                   >
                     <Play className="h-4 w-4" />
-                    {actions.filter(a => a.video_url).length}
+                    {actions.filter(a => a.video_url).length} {t(reportLanguage, "clips_label")}
                   </Button>
                 )}
               </div>
@@ -706,7 +707,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     className="text-xs"
                   >
                     <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
-                    R90 Flow
+                    {t(reportLanguage, "r90_flow")}
                   </Button>
                   <Button
                     variant={showHeatmap ? "default" : "outline"}
@@ -715,7 +716,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     className="text-xs"
                   >
                     <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
-                    Period Grade Map
+                    {t(reportLanguage, "period_grade_map")}
                   </Button>
                   {actions.some(a => a.zone || (a.zone_details && a.zone_details.length > 0)) && (
                     <>
@@ -726,7 +727,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         className="text-xs"
                       >
                         <MapPin className="h-3.5 w-3.5 mr-1.5" />
-                        Pitch Heatmap
+                        {t(reportLanguage, "pitch_heatmap")}
                       </Button>
                       <Button
                         variant={showZonePerformance ? "default" : "outline"}
@@ -735,7 +736,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         className="text-xs"
                       >
                         <Grid3X3 className="h-3.5 w-3.5 mr-1.5" />
-                        Zone Performance
+                        {t(reportLanguage, "zone_performance")}
                       </Button>
                     </>
                   )}
@@ -748,7 +749,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                       className="text-xs"
                     >
                       <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
-                      Chance Creation Flow
+                      {t(reportLanguage, "chance_creation_flow")}
                     </Button>
                   )}
                   {actions.filter(a => a.video_url).length > 0 && (
@@ -760,7 +761,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         className="text-xs"
                       >
                         <Film className="h-3.5 w-3.5 mr-1.5" />
-                        Full Match Video
+                        {t(reportLanguage, "full_match_video")}
                       </Button>
                       <Button
                         variant="outline"
@@ -769,7 +770,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         className="text-xs"
                       >
                         <Award className="h-3.5 w-3.5 mr-1.5" />
-                        Ranked Actions
+                        {t(reportLanguage, "ranked_actions")}
                       </Button>
                       {actions.some(a => a.video_url && a.notes) && (
                         <Button
@@ -779,7 +780,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                           className="text-xs"
                         >
                           <MessageSquareText className="h-3.5 w-3.5 mr-1.5" />
-                          Noted Actions
+                          {t(reportLanguage, "noted_actions")}
                         </Button>
                       )}
                     </>
@@ -791,7 +792,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showR90Flow && analysis.minutes_played && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} />
+                    <R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
@@ -800,7 +801,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showHeatmap && analysis.minutes_played && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} />
+                    <ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} />
                   </CardContent>
               </Card>
               )}
@@ -809,7 +810,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showPitchHeatmap && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <PitchHeatmap actions={actions} />
+                    <PitchHeatmap actions={actions} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
@@ -818,7 +819,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showZonePerformance && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <ZonePerformance actions={actions} />
+                    <ZonePerformance actions={actions} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
@@ -827,7 +828,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {showChanceCreation && analysis.striker_stats && (
                 <Card className="overflow-hidden">
                   <CardContent className="p-3 md:p-6">
-                    <ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} />
+                    <ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} language={reportLanguage} />
                   </CardContent>
                 </Card>
               )}
@@ -835,7 +836,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {/* Key Stats */}
               <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
                 <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "raw_score")}</p>
                   <p className="text-base md:text-2xl font-bold">
                     {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
                   </p>
@@ -861,7 +862,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                   </p>
                 </div>
                 <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
+                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "mins_short")}</p>
                   <p className="text-base md:text-2xl font-bold">{analysis.minutes_played ?? "N/A"}</p>
                 </div>
               </div>
@@ -870,7 +871,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               {advancedStats.length > 0 && (
                 <Card className="overflow-hidden">
                   <CardHeader className="py-1.5 md:py-2">
-                    <CardTitle className="text-sm md:text-lg">Match Statistics</CardTitle>
+                    <CardTitle className="text-sm md:text-lg">{t(reportLanguage, "match_statistics")}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-2 md:p-4">
                     <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">

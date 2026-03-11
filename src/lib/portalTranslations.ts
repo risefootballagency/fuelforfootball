@@ -67,11 +67,22 @@ const extendedKeys: Record<string, string> = {
   no_zone_clips: "No clips found for this zone", zone_clips_title: "Zone",
   fullscreen: "Fullscreen",
   switch_to_at_a_glance: "Switch to at-a-glance view", switch_to_in_depth: "Switch to in-depth view",
-  // AllReportsSection
-  all_reports: "All Reports", search_reports: "Search reports...", newest: "Newest", oldest: "Oldest",
-  all: "All", no_reports_match_filters: "No reports match your filters.", no_reports_available: "No reports available yet.",
-  actions: "actions", loading_all_reports: "Loading all reports...",
-  pre_match_label: "Pre-Match", post_match_label: "Post-Match", concept_label: "Concept", action_report_label: "Action Report",
+  // Login + portal parity keys
+  login_language_label: "Language",
+  player_portal_login_title: "Player Portal",
+  player_portal_login_subtitle: "Your dedicated space for performance analysis and development.",
+  login_input_placeholder: "Enter your login",
+  login_enter_button: "Enter",
+  keep_me_logged_in: "Keep me logged in",
+  email_not_found: "Email not found. Please contact support to get access.",
+  report_link_copied: "Report link copied to clipboard",
+  report_not_found: "Performance report not found",
+  no_active_program_schedule: "No active program schedule",
+  advanced_stats_per_90: "Advanced Stats (per 90)",
+  avg_vs: "avg vs",
+  game_singular: "game",
+  game_plural: "games",
+
   // InjuryLog
   log_injury: "Log Injury", body_area: "Body area...", describe_injury: "Describe the injury or niggle...",
   minor: "Minor", moderate: "Moderate", severe: "Severe", cancel: "Cancel", save: "Save",
@@ -363,6 +374,7 @@ const translations: Record<string, Record<string, string>> = {
  */
 export function normalizePortalLanguage(lang: string | null | undefined): string {
   const raw = (lang || "en").trim().toLowerCase();
+  if (!raw) return "en";
 
   const aliases: Record<string, string> = {
     "français": "fr", "francais": "fr", "french": "fr",
@@ -377,7 +389,12 @@ export function normalizePortalLanguage(lang: string | null | undefined): string
     "türkçe": "tr", "turkce": "tr",
   };
 
-  return aliases[raw] ?? raw;
+  const localeLike = raw.replace("_", "-");
+  const baseCode = localeLike.split("-")[0];
+  const normalized = aliases[localeLike] ?? aliases[baseCode] ?? baseCode;
+  const supported = new Set(["en", "fr", "es", "pt", "de", "it", "pl", "cs", "ru", "tr"]);
+
+  return supported.has(normalized) ? normalized : "en";
 }
 
 export function t(lang: string | null | undefined, key: string): string {
@@ -502,6 +519,21 @@ const frExtended: Record<string, string> = {
   no_zone_clips: "Aucun clip trouvé pour cette zone", zone_clips_title: "Zone",
   fullscreen: "Plein écran",
   switch_to_at_a_glance: "Passer à la vue d'ensemble", switch_to_in_depth: "Passer à la vue détaillée",
+  // Login + parity keys
+  login_language_label: "Langue",
+  player_portal_login_title: "Portail Joueur",
+  player_portal_login_subtitle: "Votre espace dédié à l'analyse de performance et au développement.",
+  login_input_placeholder: "Entrez votre identifiant",
+  login_enter_button: "Entrer",
+  keep_me_logged_in: "Rester connecté",
+  email_not_found: "Email introuvable. Contactez le support pour obtenir l'accès.",
+  report_link_copied: "Lien du rapport copié dans le presse-papiers",
+  report_not_found: "Rapport de performance introuvable",
+  no_active_program_schedule: "Aucun programme actif",
+  advanced_stats_per_90: "Statistiques avancées (par 90)",
+  avg_vs: "moy. vs",
+  game_singular: "match",
+  game_plural: "matchs",
 };
 Object.entries(frExtended).forEach(([key, val]) => {
   if (translations.fr) translations.fr[key] = val;
