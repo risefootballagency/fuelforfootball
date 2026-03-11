@@ -532,11 +532,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const xg = getVal('xg');
     const shotsTotal = getTotalVal('shots') ?? getVal('shots');
     if (xg !== null && shotsTotal !== null && shotsTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'xg_per_shot', 'xG per Shot', 'xG ÷ Total Shots');
       calculated.push({
         key: 'xg_per_shot',
-        displayName: 'xG per Shot',
+        displayName: translated.displayName,
         value: xg / shotsTotal,
-        description: 'xG ÷ Total Shots'
+        description: translated.description
       });
     }
     
