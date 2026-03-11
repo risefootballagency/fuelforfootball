@@ -547,7 +547,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   ];
 
   // Filtered actions
-  const filteredActions = actions.filter(a => {
+  const displayActions = hasTranslation ? actions.map(getTranslatedActionData) : actions;
+  const filteredActions = displayActions.filter(a => {
     if (filterTypes.length > 0) {
       const actionTypes = (a.action_type || '').split(',').map(t => t.trim().toLowerCase());
       if (!filterTypes.some(ft => actionTypes.includes(ft))) return false;
