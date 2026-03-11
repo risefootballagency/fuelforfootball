@@ -1372,6 +1372,11 @@ const csExtended: Record<string, string> = {
   no_zone_clips: "Žádné klipy pro tuto zónu", zone_clips_title: "Zóna",
   fullscreen: "Celá obrazovka",
   switch_to_at_a_glance: "Přepnout na přehled", switch_to_in_depth: "Přepnout na detail",
+  your_current_package: "Váš Aktuální Balíček", package_status: "Stav Balíčku", not_on_package: "Žádný aktivní balíček",
+  recommended_package: "Doporučený Balíček", upgrade_available: "K dispozici upgrade", upgrade_now: "Upgradovat", get_started: "Začít",
+  notification_settings: "Nastavení Oznámení", notification_settings_desc: "Vyberte oznámení, která chcete dostávat",
+  no_coach_availability: "Zatím žádná dostupnost.", data_overview: "Přehled Dat", other_analysis: "Další Analýza",
+  physical_programming: "Fyzická Příprava", invoices: "Faktury", make_a_payment: "Provést Platbu", services: "Služby",
 };
 Object.entries(csExtended).forEach(([key, val]) => {
   if (translations.cs) translations.cs[key] = val;
