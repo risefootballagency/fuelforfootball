@@ -170,10 +170,10 @@ const Login = () => {
       <section className="relative py-16 md:py-24 px-4 w-full max-w-md">
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl font-bebas uppercase tracking-wider text-foreground mb-4">
-            PLAYER PORTAL
+            {t(lang, "player_portal_login_title")}
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
-            Your dedicated space for performance analysis and development.
+            {t(lang, "player_portal_login_subtitle")}
           </p>
           
           <form onSubmit={handleEmailLogin} className="space-y-4" autoComplete="on">
