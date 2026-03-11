@@ -18,7 +18,7 @@ import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toTitleCase } from "@/lib/titleCase";
 import { sortActionsByMinute } from "@/lib/actionSorting";
-import { t } from "@/lib/portalTranslations";
+import { t, normalizePortalLanguage } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedActionField, getTranslatedReportField, hasTranslatedReportContent } from "@/lib/reportTranslations";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
@@ -93,7 +93,15 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const [filterRating, setFilterRating] = useState<string | null>(null);
   const [filterHasNotes, setFilterHasNotes] = useState(false);
 
-  const portalLanguage = isPortalView ? (localStorage.getItem("portal_language_hint") || "en") : "en";
+  const portalLanguage = isPortalView
+    ? normalizePortalLanguage(
+        localStorage.getItem("portal_language_hint")
+        || localStorage.getItem("preferred_language")
+        || sessionStorage.getItem("ip_language_detected")
+        || analysis?.translated_content?.language
+        || "en"
+      )
+    : "en";
   const reportLanguage = getReportLanguage(analysis?.translated_content, portalLanguage);
   const portalLocale = getReportLocale(reportLanguage);
 
