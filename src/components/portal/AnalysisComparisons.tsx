@@ -223,9 +223,9 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       onSelect={handleRequestPlayer}
                       className="cursor-pointer text-accent"
                     >
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Request "{pickerSearch.trim()}"
-                    </CommandItem>
+                     <UserPlus className="h-4 w-4 mr-2" />
+                       {t(lang, "request_name")} "{pickerSearch.trim()}"
+                     </CommandItem>
                   </CommandGroup>
                 )}
               </CommandList>
