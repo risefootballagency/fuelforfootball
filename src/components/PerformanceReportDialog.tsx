@@ -567,11 +567,11 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] md:max-w-[95vw] w-full max-h-[95vh] overflow-y-auto overflow-x-hidden p-0">
         <div className="sticky top-0 z-10 bg-background border-b p-2 md:p-4 flex items-center justify-between gap-2">
-          <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">Performance Report</h2>
+          <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">{t(reportLanguage, "performance_report")}</h2>
           <div className="flex gap-1 md:gap-2 flex-shrink-0">
             <Button onClick={handleSaveAsWebp} variant="default" size="sm" className="px-2 md:px-3" disabled={savingImage || loading}>
               <ImageIcon className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">{savingImage ? 'Saving...' : 'Save'}</span>
+              <span className="hidden md:inline">{savingImage ? t(reportLanguage, "saving_label") : t(reportLanguage, "save_label")}</span>
             </Button>
             <Button
               variant="outline"
@@ -584,17 +584,17 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                   const slug = `${playerName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-vs-${opponent.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${analysisId}`;
                   const url = `${window.location.origin}/performance-report/${slug}`;
                   navigator.clipboard.writeText(url);
-                  toast.success("Report link copied to clipboard");
+                  toast.success(t(reportLanguage, "report_link_copied"));
                 }
               }}
               disabled={!analysis}
             >
               <Link2 className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Share</span>
+              <span className="hidden md:inline">{t(reportLanguage, "share_label")}</span>
             </Button>
             <Button onClick={() => onOpenChange(false)} variant="outline" size="sm" className="px-2 md:px-3">
               <X className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Close</span>
+              <span className="hidden md:inline">{t(reportLanguage, "close")}</span>
             </Button>
           </div>
         </div>
@@ -621,7 +621,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               <div className="h-40 bg-muted rounded"></div>
             </div>
           ) : !analysis ? (
-            <div className="text-center py-8 text-muted-foreground">Performance report not found</div>
+            <div className="text-center py-8 text-muted-foreground">{t(reportLanguage, "report_not_found")}</div>
           ) : (analysis.visibility_status || "").toLowerCase() === "hidden" ? (
             <div className="text-center py-12 space-y-6">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-2">
