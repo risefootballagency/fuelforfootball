@@ -12,17 +12,17 @@ interface ActionHeatmapProps {
   minutesPlayed: number;
 }
 
-// R90 rating colour scale
-const getR90Color = (r90: number) => {
-  if (r90 >= 2.5) return "hsl(43, 49%, 61%)";
-  if (r90 >= 1.8) return "hsl(142, 72%, 29%)";
-  if (r90 >= 1.4) return "hsl(142, 76%, 36%)";
-  if (r90 >= 1.0) return "hsl(82, 84%, 67%)";
-  if (r90 >= 0.8) return "hsl(48, 96%, 53%)";
-  if (r90 >= 0.6) return "hsl(25, 95%, 53%)";
-  if (r90 >= 0.4) return "hsl(25, 95%, 37%)";
-  if (r90 >= 0.2) return "hsl(0, 91%, 71%)";
-  if (r90 >= 0) return "hsl(0, 84%, 60%)";
+// R15 rating colour scale (same thresholds as R90 but applied to per-15-min rate)
+const getR15Color = (r15: number) => {
+  if (r15 >= 2.5) return "hsl(43, 49%, 61%)";
+  if (r15 >= 1.8) return "hsl(142, 72%, 29%)";
+  if (r15 >= 1.4) return "hsl(142, 76%, 36%)";
+  if (r15 >= 1.0) return "hsl(82, 84%, 67%)";
+  if (r15 >= 0.8) return "hsl(48, 96%, 53%)";
+  if (r15 >= 0.6) return "hsl(25, 95%, 53%)";
+  if (r15 >= 0.4) return "hsl(25, 95%, 37%)";
+  if (r15 >= 0.2) return "hsl(0, 91%, 71%)";
+  if (r15 >= 0) return "hsl(0, 84%, 60%)";
   return "hsl(0, 93%, 12%)";
 };
 
@@ -40,43 +40,38 @@ export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) =>
     ];
 
     // Determine the player's active range using action minutes
-    // For subs, minutesPlayed is a duration (e.g. 26) but actions have absolute minutes (e.g. 64-90)
     const actionMinutes = actions.map(a => Math.floor(a.minute));
     const firstActionMinute = actionMinutes.length > 0 ? Math.min(...actionMinutes) : 0;
     const lastActionMinute = actionMinutes.length > 0 ? Math.max(...actionMinutes) : 0;
 
-    // Infer the absolute end minute from actions or minutesPlayed
     const endMinute = lastActionMinute > minutesPlayed ? Math.max(lastActionMinute + 1, minutesPlayed) : minutesPlayed;
-    // Infer start minute: if actions are beyond minutesPlayed, player is a sub
     const startMinute = endMinute > minutesPlayed ? Math.max(0, endMinute - minutesPlayed) : 0;
 
-    const result: { range: string; actions: PerformanceAction[]; totalScore: number; count: number; r90: number }[] = [];
+    const result: { range: string; actions: PerformanceAction[]; totalScore: number; count: number; r15: number }[] = [];
 
     for (const period of periods) {
-      // Skip periods entirely outside the player's active range
       if (period.end <= startMinute && minutesPlayed > 0) continue;
       if (period.start >= endMinute && minutesPlayed > 0) continue;
 
-      // For the last period (75-90+), include all actions >= 75
       const blockActions = period.start === 75
         ? actions.filter(a => Math.floor(a.minute) >= 75)
         : actions.filter(a => Math.floor(a.minute) >= period.start && Math.floor(a.minute) < period.end);
 
       const totalScore = blockActions.reduce((sum, a) => sum + a.action_score, 0);
 
-      // Calculate actual minutes played in this period
       const effectiveStart = Math.max(period.start, startMinute);
       const effectiveEnd = period.start === 75 ? Math.max(endMinute, 90) : Math.min(period.end, endMinute);
       const periodMinutes = Math.max(effectiveEnd - effectiveStart, 0);
 
-      const r90 = periodMinutes > 0 ? (totalScore / periodMinutes) * 90 : 0;
+      // R15: divide by period minutes, multiply by 15 (not 90)
+      const r15 = periodMinutes > 0 ? (totalScore / periodMinutes) * 15 : 0;
 
       result.push({
         range: period.label,
         actions: blockActions,
         totalScore,
         count: blockActions.length,
-        r90,
+        r15,
       });
     }
 
@@ -100,7 +95,7 @@ export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) =>
 
       <div className="grid grid-cols-6 gap-1">
         {blocks.map((block, idx) => {
-          const color = block.count > 0 ? getR90Color(block.r90) : "hsl(var(--muted))";
+          const color = block.count > 0 ? getR15Color(block.r15) : "hsl(var(--muted))";
 
           return (
             <div
@@ -110,7 +105,7 @@ export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) =>
                 backgroundColor: color,
                 opacity: block.count > 0 ? 0.85 : 0.2,
               }}
-              title={`${block.range}: ${block.count} actions, R90 ${block.r90.toFixed(2)}`}
+              title={`${block.range}: ${block.count} actions, R15 ${block.r15.toFixed(2)}`}
             >
               <span className="text-[10px] font-bold text-black drop-shadow-sm">{block.range}</span>
               <span className="text-[9px] text-black/70">

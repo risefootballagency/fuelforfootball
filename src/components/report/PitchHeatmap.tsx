@@ -34,16 +34,21 @@ const getPosition = (zone: number, sub?: number): { x: number; y: number } => {
   return { x: majorX + subOffsetX, y: majorY + subOffsetY };
 };
 
+// Red-based heat color scale for better differentiation
 const getHeatColor = (intensity: number): string => {
-  if (intensity <= 0.33) {
-    const t = intensity / 0.33;
-    return `${255}, ${Math.round(220 - t * 50)}, 0`;
-  } else if (intensity <= 0.66) {
-    const t = (intensity - 0.33) / 0.33;
-    return `${255}, ${Math.round(170 - t * 120)}, 0`;
+  // Low intensity: warm yellow-orange, high intensity: deep red
+  if (intensity <= 0.25) {
+    const t = intensity / 0.25;
+    return `${255}, ${Math.round(200 - t * 60)}, ${Math.round(50 - t * 50)}`;
+  } else if (intensity <= 0.5) {
+    const t = (intensity - 0.25) / 0.25;
+    return `${255}, ${Math.round(140 - t * 80)}, 0`;
+  } else if (intensity <= 0.75) {
+    const t = (intensity - 0.5) / 0.25;
+    return `${Math.round(255 - t * 30)}, ${Math.round(60 - t * 40)}, 0`;
   } else {
-    const t = (intensity - 0.66) / 0.34;
-    return `${Math.round(255 - t * 55)}, ${Math.round(50 - t * 50)}, 0`;
+    const t = (intensity - 0.75) / 0.25;
+    return `${Math.round(225 - t * 55)}, ${Math.round(20 - t * 20)}, 0`;
   }
 };
 
@@ -112,9 +117,9 @@ export const PitchHeatmap = ({ actions }: PitchHeatmapProps) => {
               const rgb = getHeatColor(intensity);
               return (
                 <radialGradient key={`grad-${i}`} id={`heat-${i}`} cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor={`rgba(${rgb}, ${0.4 + intensity * 0.5})`} />
-                  <stop offset="35%" stopColor={`rgba(${rgb}, ${0.25 + intensity * 0.35})`} />
-                  <stop offset="65%" stopColor={`rgba(${rgb}, ${0.08 + intensity * 0.15})`} />
+                  <stop offset="0%" stopColor={`rgba(${rgb}, ${0.5 + intensity * 0.45})`} />
+                  <stop offset="30%" stopColor={`rgba(${rgb}, ${0.35 + intensity * 0.35})`} />
+                  <stop offset="60%" stopColor={`rgba(${rgb}, ${0.12 + intensity * 0.2})`} />
                   <stop offset="100%" stopColor={`rgba(${rgb}, 0)`} />
                 </radialGradient>
               );
@@ -138,10 +143,10 @@ export const PitchHeatmap = ({ actions }: PitchHeatmapProps) => {
           <rect x="60" y={HEIGHT - 65} width="180" height="55" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <rect x="100" y={HEIGHT - 35} width="100" height="25" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
           
-          {/* Heatmap blobs */}
+          {/* Heatmap blobs - use additive blending for red intensity */}
           {heatmapData.blobs.map((blob, i) => {
             const intensity = blob.count / heatmapData.maxCount;
-            const radius = 45 + intensity * 50;
+            const radius = 40 + intensity * 45;
             return (
               <ellipse
                 key={`blob-${i}`}

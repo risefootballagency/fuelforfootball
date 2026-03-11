@@ -211,7 +211,7 @@ const Login = () => {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-3">
             <a href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors font-bebas uppercase tracking-wider">Home</a>
-            <a href="/stars" className="text-sm text-muted-foreground hover:text-primary transition-colors font-bebas uppercase tracking-wider">Stars</a>
+            <a href="/players" className="text-sm text-muted-foreground hover:text-primary transition-colors font-bebas uppercase tracking-wider">Players</a>
             <a href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors font-bebas uppercase tracking-wider">About</a>
             <a href="/performance" className="text-sm text-muted-foreground hover:text-primary transition-colors font-bebas uppercase tracking-wider">Realise Potential</a>
             <a href="/news" className="text-sm text-muted-foreground hover:text-primary transition-colors font-bebas uppercase tracking-wider">News</a>
