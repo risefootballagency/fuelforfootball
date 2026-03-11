@@ -2862,6 +2862,7 @@ export type Database = {
           nationality: string
           next_program_notes: string | null
           player_list_order: number | null
+          portal_language: string | null
           position: string
           preferred_currency: string | null
           representation_status: string | null
@@ -2893,6 +2894,7 @@ export type Database = {
           nationality: string
           next_program_notes?: string | null
           player_list_order?: number | null
+          portal_language?: string | null
           position: string
           preferred_currency?: string | null
           representation_status?: string | null
@@ -2924,6 +2926,7 @@ export type Database = {
           nationality?: string
           next_program_notes?: string | null
           player_list_order?: number | null
+          portal_language?: string | null
           position?: string
           preferred_currency?: string | null
           representation_status?: string | null
