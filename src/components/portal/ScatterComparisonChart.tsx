@@ -3,6 +3,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ALL_METRICS, METRIC_CATEGORIES } from "@/components/staff/ComparisonPlayerData";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { t, translateMetricLabel, translateMetricCategory } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface ComparisonPlayer {
   id: string;
