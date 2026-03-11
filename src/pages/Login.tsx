@@ -206,8 +206,8 @@ const Login = () => {
                 {t(lang, "keep_me_logged_in")}
               </Label>
             </div>
-            <PortalFlagLanguageSelector language={lang} onSelect={handleLanguageSelect} />
-          </form>
+              <LanguageMapSelector />
+            </form>
         </div>
       </section>
 

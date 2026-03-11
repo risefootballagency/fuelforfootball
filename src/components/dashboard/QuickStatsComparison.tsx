@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { AnimatePresence, motion } from "framer-motion";
 import { ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
-import { t } from "@/lib/portalTranslations";
+import { t, translateMetricLabel } from "@/lib/portalTranslations";
 
 interface QuickStatsComparisonProps {
   playerId: string;
@@ -84,7 +84,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
           usedStatsRef.current.add(stat.label);
           statLabelRef.current = stat.label;
           benchmarkNameRef.current = benchmark.name;
-          setStatLabel(stat.label);
+          setStatLabel(translateMetricLabel(portalLanguage, stat.key, stat.label));
           setBenchmarkName(benchmark.name);
           setBenchmarkSeason(benchmark.season || "");
           setGameCount(playerVals.length);
@@ -97,7 +97,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
       }
     }
     return false;
-  }, [playerName, recentAnalyses]);
+  }, [playerName, portalLanguage, recentAnalyses]);
 
   // Fetch only benchmarks (analyses come from prop now)
   React.useEffect(() => {
