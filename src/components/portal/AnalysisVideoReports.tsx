@@ -335,7 +335,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                       />
                       <button className="flex-1 text-left" onClick={() => setCurrentClipIndex(index)}>
                         <span className="font-mono text-xs opacity-60">#{clip.action_number}</span>{' '}
-                        {clip.action_type} · vs {clip.opponent}
+                        {clip.action_type} · {t(lang, "versus_short")} {clip.opponent}
                         {clip.minute != null && <span className="opacity-60"> · {clip.minute}'</span>}
                       </button>
                       <Button variant="ghost" size="icon" className="h-6 w-6 text-white/50 hover:text-destructive"
