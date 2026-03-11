@@ -4897,7 +4897,7 @@ const Dashboard = () => {
             onClick={handleLogout}
             className="font-bebas uppercase tracking-wider"
           >
-            Log Out
+            {t(portalLang, "log_out")}
           </Button>
           <Button 
             variant="outline"
