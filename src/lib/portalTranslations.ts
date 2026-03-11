@@ -544,6 +544,9 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     assists: "Assistências", passes: "Passes", dribbles: "Dribles",
     tackles: "Desarmes", interceptions: "Interceptações", clearances: "Cortes",
     fouls: "Faltas", turnovers: "Perdas", recoveries: "Recuperações",
+    progressive_passes: "Passes progressivos", long_passes: "Passes longos", successful_dribbles: "Dribles bem-sucedidos",
+    xg_via_live_passes: "xG via Passes em jogo", xg_chain: "Cadeia xG", xg_buildup: "Construção xG",
+  },
   },
   de: {
     goals: "Tore", shots: "Schüsse", shots_on_target: "Schüsse aufs Tor", xg: "xG", xa: "xA",
