@@ -28,7 +28,7 @@ const getTextColor = (value: number): string => {
   return '#000';
 };
 
-export const ChanceCreationFlow = ({ strikerStats }: ChanceCreationFlowProps) => {
+export const ChanceCreationFlow = ({ strikerStats, language = "en" }: ChanceCreationFlowProps) => {
   const crossingXC = strikerStats?.crossing_movement_xC ?? null;
   const inBehindXC = strikerStats?.movement_in_behind_xC ?? null;
   const downSideXC = strikerStats?.movement_down_side_xC ?? null;
@@ -46,8 +46,8 @@ export const ChanceCreationFlow = ({ strikerStats }: ChanceCreationFlowProps) =>
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold">Chance Creation Flow</h4>
-        <span className="text-xs text-muted-foreground">xC by movement type</span>
+        <h4 className="text-sm font-semibold">{t(language, "chance_creation_flow")}</h4>
+        <span className="text-xs text-muted-foreground">{t(language, "xc_by_movement")}</span>
       </div>
 
       <svg viewBox={`0 0 ${pitchW} ${pitchH}`} className="w-full max-w-[400px] mx-auto" style={{ background: 'hsl(142, 40%, 32%)' }}>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { AnimatePresence, motion } from "framer-motion";
 import { ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
+import { t } from "@/lib/portalTranslations";
 
 interface QuickStatsComparisonProps {
   playerId: string;
@@ -13,6 +14,7 @@ interface QuickStatsComparisonProps {
   playerPosition: string;
   analyses: { striker_stats?: any; fixture_stats?: any; r90_score?: number | null }[];
   onSeeAll?: () => void;
+  portalLanguage?: string;
 }
 
 // Use ALL_METRICS as the single source of truth for comparable stats
