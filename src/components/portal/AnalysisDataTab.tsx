@@ -402,7 +402,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
         <>
           {r90BarData.length > 0 && (
             <div className="bg-card border rounded-lg p-4">
-              <h4 className="font-semibold mb-4">R90 Distribution</h4>
+              <h4 className="font-semibold mb-4">{t(lang, "r90_distribution")}</h4>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={r90BarData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
