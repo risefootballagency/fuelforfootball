@@ -368,12 +368,12 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {METRIC_CATEGORIES.map(cat => (
+                     {METRIC_CATEGORIES.map(cat => (
                         <div key={cat.category}>
-                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                           {cat.metrics.map(m => (
                             <SelectItem key={m.key} value={m.key}>
-                              {m.label}{m.key.endsWith('_pct') ? '' : ' / Game'}
+                              {translateMetricLabel(lang, m.key, m.label)}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}
                             </SelectItem>
                           ))}
                         </div>
