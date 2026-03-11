@@ -1996,17 +1996,17 @@ const Dashboard = () => {
                     </button>
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
                       {[
-                        { value: "performance", label: "Performance", icon: <Activity className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "form", label: "Form", icon: <LineChart className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "video-reports", label: "Video Reports", icon: <Video className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "data", label: "Data", icon: <Database className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "comparisons", label: "Comparisons", icon: <Users className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "scouting", label: "Scouting", icon: <Search className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "positional-guides", label: "Positional", icon: <Compass className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "schemes", label: "Schemes", icon: <Layers className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "concepts", label: "Concepts", icon: <Brain className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "cognisance", label: "Cognisance", icon: <Eye className="h-5 w-5 sm:h-6 sm:w-6" /> },
-                        { value: "other", label: "Other", icon: <FolderOpen className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "performance", label: t(portalLang, "performance"), icon: <Activity className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "form", label: t(portalLang, "form"), icon: <LineChart className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "video-reports", label: t(portalLang, "video_reports"), icon: <Video className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "data", label: t(portalLang, "data"), icon: <Database className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "comparisons", label: t(portalLang, "comparisons"), icon: <Users className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "scouting", label: t(portalLang, "scouting"), icon: <Search className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "positional-guides", label: t(portalLang, "positional"), icon: <Compass className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "schemes", label: t(portalLang, "schemes"), icon: <Layers className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "concepts", label: t(portalLang, "concepts"), icon: <Brain className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "cognisance", label: t(portalLang, "cognisance"), icon: <Eye className="h-5 w-5 sm:h-6 sm:w-6" /> },
+                        { value: "other", label: t(portalLang, "other"), icon: <FolderOpen className="h-5 w-5 sm:h-6 sm:w-6" /> },
                       ].map((tab) => (
                         <DropdownMenuItem
                           key={tab.value}
