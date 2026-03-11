@@ -1168,6 +1168,11 @@ const itExtended: Record<string, string> = {
   no_zone_clips: "Nessun clip trovato per questa zona", zone_clips_title: "Zona",
   fullscreen: "Schermo intero",
   switch_to_at_a_glance: "Passa alla vista d'insieme", switch_to_in_depth: "Passa alla vista dettagliata",
+  your_current_package: "Il Tuo Pacchetto Attuale", package_status: "Stato del Pacchetto", not_on_package: "Nessun pacchetto attivo",
+  recommended_package: "Pacchetto Consigliato", upgrade_available: "Upgrade Disponibile", upgrade_now: "Aggiorna Ora", get_started: "Inizia",
+  notification_settings: "Impostazioni Notifiche", notification_settings_desc: "Scegli le notifiche che vuoi ricevere",
+  no_coach_availability: "Nessuna disponibilità impostata.", data_overview: "Panoramica Dati", other_analysis: "Altre Analisi",
+  physical_programming: "Programmazione Fisica", invoices: "Fatture", make_a_payment: "Effettua un Pagamento", services: "Servizi",
 };
 Object.entries(itExtended).forEach(([key, val]) => {
   if (translations.it) translations.it[key] = val;
