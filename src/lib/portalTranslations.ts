@@ -483,6 +483,79 @@ export function translateMetricLabel(
   return METRIC_LABEL_TRANSLATIONS[code]?.[metricKey] ?? fallbackLabel;
 }
 
+// Match statistic label translations (for striker_stats keys in performance reports)
+const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
+  fr: {
+    goals: "Buts", shots: "Tirs", shots_on_target: "Tirs cadrés", xg: "xG", xa: "xA",
+    assists: "Passes décisives", key_passes: "Passes clés", chances_created: "Occasions créées",
+    passes: "Passes", accurate_passes: "Passes réussies", long_balls: "Longs ballons",
+    crosses: "Centres", progressive_passes: "Passes progressives",
+    dribbles: "Dribbles", successful_dribbles: "Dribbles réussis",
+    tackles: "Tacles", interceptions: "Interceptions", clearances: "Dégagements",
+    aerial_duels: "Duels aériens", duels: "Duels", blocks: "Contres",
+    fouls: "Fautes", fouls_won: "Fautes obtenues", offsides: "Hors-jeu",
+    turnovers: "Pertes de balle", recoveries: "Récupérations", regains: "Regains",
+    touches: "Touches", carries: "Conduites", progressive_carries: "Conduites progressives",
+    yellow_cards: "Cartons jaunes", red_cards: "Cartons rouges",
+    minutes_played: "Minutes jouées", distance: "Distance",
+  },
+  es: {
+    goals: "Goles", shots: "Tiros", shots_on_target: "Tiros a puerta", xg: "xG", xa: "xA",
+    assists: "Asistencias", key_passes: "Pases clave", chances_created: "Ocasiones creadas",
+    passes: "Pases", dribbles: "Regates", tackles: "Entradas", interceptions: "Intercepciones",
+    clearances: "Despejes", aerial_duels: "Duelos aéreos", fouls: "Faltas",
+    turnovers: "Pérdidas", recoveries: "Recuperaciones",
+  },
+  pt: {
+    goals: "Gols", shots: "Finalizações", shots_on_target: "Chutes a gol", xg: "xG", xa: "xA",
+    assists: "Assistências", passes: "Passes", dribbles: "Dribles",
+    tackles: "Desarmes", interceptions: "Interceptações", clearances: "Cortes",
+    fouls: "Faltas", turnovers: "Perdas", recoveries: "Recuperações",
+  },
+  de: {
+    goals: "Tore", shots: "Schüsse", shots_on_target: "Schüsse aufs Tor", xg: "xG", xa: "xA",
+    assists: "Vorlagen", passes: "Pässe", dribbles: "Dribblings",
+    tackles: "Tackles", interceptions: "Abfangaktionen", clearances: "Klärungen",
+    fouls: "Fouls", turnovers: "Ballverluste", recoveries: "Balleroberungen",
+  },
+  it: {
+    goals: "Gol", shots: "Tiri", shots_on_target: "Tiri in porta", xg: "xG", xa: "xA",
+    assists: "Assist", passes: "Passaggi", dribbles: "Dribbling",
+    tackles: "Contrasti", interceptions: "Intercettazioni", clearances: "Spazzate",
+    fouls: "Falli", turnovers: "Palle perse", recoveries: "Recuperi",
+  },
+  cs: {
+    goals: "Góly", shots: "Střely", shots_on_target: "Střely na branku", xg: "xG", xa: "xA",
+    assists: "Asistence", passes: "Přihrávky", dribbles: "Obejití",
+    tackles: "Skluzové zákroky", interceptions: "Zachycení", clearances: "Odkopy",
+    fouls: "Fauly", turnovers: "Ztráty", recoveries: "Zisky míče",
+  },
+  pl: {
+    goals: "Bramki", shots: "Strzały", shots_on_target: "Strzały celne", xg: "xG", xa: "xA",
+    assists: "Asysty", passes: "Podania", dribbles: "Dryblingi",
+    tackles: "Wślizgi", interceptions: "Przechwyty", clearances: "Wybicia",
+    fouls: "Faule", turnovers: "Straty", recoveries: "Odbiory",
+  },
+  ru: {
+    goals: "Голы", shots: "Удары", shots_on_target: "Удары в створ", xg: "xG", xa: "xA",
+    assists: "Ассисты", passes: "Передачи", dribbles: "Обводки",
+    tackles: "Отборы", interceptions: "Перехваты", clearances: "Выносы",
+    fouls: "Фолы", turnovers: "Потери", recoveries: "Подборы",
+  },
+  tr: {
+    goals: "Goller", shots: "Şutlar", shots_on_target: "İsabetli şutlar", xg: "xG", xa: "xA",
+    assists: "Asistler", passes: "Paslar", dribbles: "Çalımlar",
+    tackles: "Müdahaleler", interceptions: "Top kesme", clearances: "Uzaklaştırma",
+    fouls: "Fauller", turnovers: "Top kayıpları", recoveries: "Top kazanma",
+  },
+};
+
+export function translateStatLabel(lang: string | null | undefined, statKey: string, fallbackLabel: string): string {
+  const code = normalizePortalLanguage(lang);
+  if (code === 'en') return fallbackLabel;
+  return STAT_LABEL_TRANSLATIONS[code]?.[statKey] ?? METRIC_LABEL_TRANSLATIONS[code]?.[statKey] ?? fallbackLabel;
+}
+
 // ─── Extended translations per language ────────────────────────────────────────
 // These add the extendedKeys translations for each non-English language.
 
