@@ -36,6 +36,7 @@ const getCellColor = (val: number, best: number, worst: number) => {
 };
 
 export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalData, comparisonPlayers }: Props) => {
+  const lang = usePortalLanguage();
   const [loading, setLoading] = useState(true);
   const [players, setPlayers] = useState<any[]>([]);
 
