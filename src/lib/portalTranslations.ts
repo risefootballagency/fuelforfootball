@@ -402,6 +402,87 @@ export function t(lang: string | null | undefined, key: string): string {
   return translations[code]?.[key] ?? extendedKeys[key] ?? translations.en?.[key] ?? key;
 }
 
+const METRIC_CATEGORY_TRANSLATIONS: Record<string, Record<string, string>> = {
+  fr: {
+    Shooting: "Finition",
+    Passing: "Passes",
+    Possession: "Possession",
+    Defending: "Défense",
+  },
+};
+
+const METRIC_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
+  fr: {
+    goals_per90: "Buts",
+    npxg_per90: "npxG",
+    shots_on_target_per90: "Tirs cadrés",
+    on_target_pct: "% tirs cadrés",
+    created_own_shot_per90: "Occasions créées seul",
+    total_shots_per90: "Tirs totaux",
+    shots_outside_box_per90: "Tirs hors surface",
+    shots_inside_box_per90: "Tirs dans la surface",
+    assists_per90: "Passes décisives",
+    xa_per90: "xA",
+    key_passes_per90: "Passes clés",
+    xt_via_live_passes_per90: "xT via passes en jeu",
+    progressive_passes_per90: "Passes progressives",
+    passes_into_final_3rd_per90: "Passes dans le dernier tiers",
+    forward_passes_per90: "Passes vers l'avant",
+    passes_in_opp_half_per90: "Passes dans la moitié adverse",
+    passes_in_own_half_per90: "Passes dans sa moitié",
+    accurate_passes_per90: "Passes réussies",
+    accurate_long_balls_per90: "Longs ballons réussis",
+    accurate_crosses_per90: "Centres réussis",
+    pass_accuracy_pct: "% réussite des passes",
+    long_ball_accuracy_pct: "% réussite longs ballons",
+    cross_accuracy_pct: "% réussite des centres",
+    successful_dribbles_per90: "Dribbles réussis",
+    dribble_attempts_per90: "Dribbles tentés",
+    dribble_success_pct: "% dribbles réussis",
+    progressive_carries_per90: "Conduites progressives",
+    xt_via_prog_carries_per90: "xT via conduites progressives",
+    carries_into_final_3rd_per90: "Conduites dans le dernier tiers",
+    touches_in_opp_box_per90: "Touches dans la surface adverse",
+    fouls_drawn_per90: "Fautes obtenues",
+    tackles_won_pct: "% tacles gagnés",
+    aerials_won_pct: "% duels aériens gagnés",
+    duels_won_pct: "% duels gagnés",
+    tackles_won_per90: "Tacles gagnés",
+    aerials_won_per90: "Duels aériens gagnés",
+    duels_won_per90: "Duels gagnés",
+    clearances_per90: "Dégagements",
+    interceptions_per90: "Interceptions",
+    xG_adj_per90: "xG (p90)",
+    xA_adj_per90: "xA (p90)",
+    regains_adj_per90: "Récupérations (p90)",
+    xGChain_per90: "xG Chain (p90)",
+    progressive_passes_adj_per90: "Passes progressives (p90)",
+    dribbles_per90: "Dribbles (p90)",
+    turnovers_adj_per90: "Pertes de balle (p90)",
+    ShotsOnTarget_per90: "Tirs cadrés (p90)",
+    recovery_turnover_ratio: "Ratio récup./pertes",
+    pp_turnovers_ratio: "Ratio PP/pertes",
+    aerial_duel_win_pct: "% duels aériens gagnés",
+    pass_completion: "% passes réussies",
+    tackle_success_pct: "% tacles réussis",
+    xg_per_shot: "xG par tir",
+  },
+};
+
+export function translateMetricCategory(lang: string | null | undefined, category: string): string {
+  const code = normalizePortalLanguage(lang);
+  return METRIC_CATEGORY_TRANSLATIONS[code]?.[category] ?? category;
+}
+
+export function translateMetricLabel(
+  lang: string | null | undefined,
+  metricKey: string,
+  fallbackLabel: string,
+): string {
+  const code = normalizePortalLanguage(lang);
+  return METRIC_LABEL_TRANSLATIONS[code]?.[metricKey] ?? fallbackLabel;
+}
+
 // ─── Extended translations per language ────────────────────────────────────────
 // These add the extendedKeys translations for each non-English language.
 

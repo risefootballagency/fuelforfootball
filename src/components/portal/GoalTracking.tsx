@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Target, Plus, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
-import { t } from "@/lib/portalTranslations";
+import { t, translateMetricCategory, translateMetricLabel } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface GoalTrackingProps {
@@ -119,10 +119,10 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
           <SelectContent>
             {METRIC_CATEGORIES.map(cat => (
               <div key={cat.category}>
-                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                 {cat.metrics.filter(m => !usedMetrics.includes(m.key)).map(m => (
                   <SelectItem key={m.key} value={m.key}>
-                    {m.label}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}
+                    {translateMetricLabel(lang, m.key, m.label)}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}
                   </SelectItem>
                 ))}
               </div>
@@ -164,7 +164,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
               <div key={goal.id} className={`p-4 rounded-lg border ${isAchieved ? 'border-green-500/50 bg-green-500/5' : 'border-border'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <div>
-                    <span className="font-medium text-sm">{metric?.label || goal.metric_key}</span>
+                    <span className="font-medium text-sm">{translateMetricLabel(lang, goal.metric_key, metric?.label || goal.metric_key)}</span>
                     <span className="text-xs text-muted-foreground ml-2">
                       {isPercentage ? '' : t(lang, "per_game")}
                     </span>
