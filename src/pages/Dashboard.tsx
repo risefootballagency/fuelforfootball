@@ -2038,7 +2038,7 @@ const Dashboard = () => {
                       { tab: "hub", label: t(portalLang, "hub"), icon: <TrendingUp className="h-8 w-8 sm:h-9 sm:w-9" />, isHub: true },
                       { tab: "updates", label: t(portalLang, "updates"), icon: <Bell className="h-6 w-6 sm:h-7 sm:w-7" /> },
                       { tab: "analysis", label: t(portalLang, "video_reports"), icon: <Play className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "video-reports" },
-                      { tab: "services", label: "Services", icon: <ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7" /> },
+                      { tab: "services", label: t(portalLang, "services"), icon: <ShoppingBag className="h-6 w-6 sm:h-7 sm:w-7" /> },
                       { tab: "analysis", label: t(portalLang, "comparisons"), icon: <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7" />, isAnalysis: true, analysisSubTab: "comparisons" },
                     ].map((item) => (
                       <DropdownMenuItem
