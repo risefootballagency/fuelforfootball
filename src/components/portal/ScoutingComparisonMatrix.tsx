@@ -87,7 +87,7 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
     return (
       <div className="text-center py-8 text-muted-foreground text-sm">
         <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        Not enough players for comparison matrix.
+        {t(lang, "not_enough_players")}
       </div>
     );
   }
