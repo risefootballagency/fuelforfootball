@@ -515,6 +515,7 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     assists: "Passes décisives", key_passes: "Passes clés", chances_created: "Occasions créées",
     passes: "Passes", accurate_passes: "Passes réussies", long_balls: "Longs ballons",
     crosses: "Centres", progressive_passes: "Passes progressives",
+    long_passes: "Passes longues",
     dribbles: "Dribbles", successful_dribbles: "Dribbles réussis",
     tackles: "Tacles", interceptions: "Interceptions", clearances: "Dégagements",
     aerial_duels: "Duels aériens", duels: "Duels", blocks: "Contres",
@@ -523,6 +524,10 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     touches: "Touches", carries: "Conduites", progressive_carries: "Conduites progressives",
     yellow_cards: "Cartons jaunes", red_cards: "Cartons rouges",
     minutes_played: "Minutes jouées", distance: "Distance",
+    xg_via_live_passes: "xG via Passes en jeu", xg_chain: "Chaîne xG", xg_buildup: "Construction xG",
+    progressive_passes_received: "Passes progressives reçues",
+    carries_into_final_third: "Conduites en dernier tiers", carries_into_box: "Conduites dans la surface",
+    regains_adj: "Regains ajustés", turnovers_adj: "Pertes ajustées", progressive_passes_adj: "Passes prog. ajustées",
   },
   es: {
     goals: "Goles", shots: "Tiros", shots_on_target: "Tiros a puerta", xg: "xG", xa: "xA",
