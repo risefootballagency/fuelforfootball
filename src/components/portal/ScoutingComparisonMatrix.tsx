@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Users } from "lucide-react";
+import { t, translateMetricLabel } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface Props {
   playerName: string;
@@ -34,6 +36,7 @@ const getCellColor = (val: number, best: number, worst: number) => {
 };
 
 export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalData, comparisonPlayers }: Props) => {
+  const lang = usePortalLanguage();
   const [loading, setLoading] = useState(true);
   const [players, setPlayers] = useState<any[]>([]);
 
@@ -84,7 +87,7 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
     return (
       <div className="text-center py-8 text-muted-foreground text-sm">
         <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        Not enough players for comparison matrix.
+        {t(lang, "not_enough_players")}
       </div>
     );
   }
@@ -99,7 +102,7 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
       <table className="w-full text-xs">
         <thead>
           <tr>
-            <th className="text-left p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10">Metric</th>
+            <th className="text-left p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10">{t(lang, "metric_label")}</th>
             {allPlayers.map((p, i) => (
               <th key={i} className="p-2 text-center font-medium text-foreground min-w-[70px]">
                 {surname(p.name)}
@@ -115,7 +118,7 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
             return (
               <tr key={key} className="border-t border-border/30">
                 <td className="p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10 whitespace-nowrap">
-                  {METRIC_LABELS[key] || key}
+                  {translateMetricLabel(lang, key, METRIC_LABELS[key] || key)}
                 </td>
                 {allPlayers.map((p, i) => {
                   const val = p.metrics[key];

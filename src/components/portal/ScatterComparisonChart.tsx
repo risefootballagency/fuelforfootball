@@ -3,6 +3,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ALL_METRICS, METRIC_CATEGORIES } from "@/components/staff/ComparisonPlayerData";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { t, translateMetricLabel, translateMetricCategory } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface ComparisonPlayer {
   id: string;
@@ -41,6 +43,7 @@ export const ScatterComparisonChart = ({
   hasPortalData,
   comparisonPlayers,
 }: Props) => {
+  const lang = usePortalLanguage();
   const [xMetric, setXMetric] = useState("goals_per90");
   const [yMetric, setYMetric] = useState("xa_per90");
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -78,7 +81,7 @@ export const ScatterComparisonChart = ({
   if (comparisonPlayers.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p className="text-sm">No comparison players available for this position.</p>
+        <p className="text-sm">{t(lang, "no_comparison_scatter")}</p>
       </div>
     );
   }
@@ -86,7 +89,7 @@ export const ScatterComparisonChart = ({
   if (points.length < 2) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p className="text-sm">Not enough data for the selected metrics. Try different ones.</p>
+        <p className="text-sm">{t(lang, "not_enough_data_metrics")}</p>
       </div>
     );
   }
@@ -124,7 +127,7 @@ export const ScatterComparisonChart = ({
       {/* Metric selectors */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
-          <label className="text-xs font-medium text-muted-foreground mb-1 block">X-Axis</label>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">{t(lang, "x_axis") || "X-Axis"}</label>
           <Select value={xMetric} onValueChange={(v) => { setXMetric(v); setSelectedIdx(null); }}>
             <SelectTrigger className="w-full">
               <SelectValue />
@@ -132,9 +135,9 @@ export const ScatterComparisonChart = ({
             <SelectContent>
               {METRIC_CATEGORIES.map(cat => (
                 <div key={cat.category}>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                   {cat.metrics.map(m => (
-                    <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>
+                    <SelectItem key={m.key} value={m.key}>{translateMetricLabel(lang, m.key, m.label)}</SelectItem>
                   ))}
                 </div>
               ))}
@@ -142,7 +145,7 @@ export const ScatterComparisonChart = ({
           </Select>
         </div>
         <div className="flex-1">
-          <label className="text-xs font-medium text-muted-foreground mb-1 block">Y-Axis</label>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">{t(lang, "y_axis") || "Y-Axis"}</label>
           <Select value={yMetric} onValueChange={(v) => { setYMetric(v); setSelectedIdx(null); }}>
             <SelectTrigger className="w-full">
               <SelectValue />
@@ -150,9 +153,9 @@ export const ScatterComparisonChart = ({
             <SelectContent>
               {METRIC_CATEGORIES.map(cat => (
                 <div key={cat.category}>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{cat.category}</div>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                   {cat.metrics.map(m => (
-                    <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>
+                    <SelectItem key={m.key} value={m.key}>{translateMetricLabel(lang, m.key, m.label)}</SelectItem>
                   ))}
                 </div>
               ))}
@@ -336,13 +339,13 @@ export const ScatterComparisonChart = ({
               <line x1="2.5" y1="2.5" x2="7.5" y2="7.5" stroke={COMP_COLOUR} strokeWidth="1" strokeLinecap="round" />
               <line x1="7.5" y1="2.5" x2="2.5" y2="7.5" stroke={COMP_COLOUR} strokeWidth="1" strokeLinecap="round" />
             </svg>
-            {comparisonPlayers[0]?.position || ""} players
+            {comparisonPlayers[0]?.position || ""} {t(lang, "position_players")}
           </span>
         </div>
       </div>
 
       <p className="text-xs text-muted-foreground text-center">
-        Hover or tap any marker to reveal player details.
+        {t(lang, "hover_tap_marker")}
       </p>
     </div>
   );

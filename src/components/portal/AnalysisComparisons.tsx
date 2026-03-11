@@ -223,9 +223,9 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       onSelect={handleRequestPlayer}
                       className="cursor-pointer text-accent"
                     >
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Request "{pickerSearch.trim()}"
-                    </CommandItem>
+                     <UserPlus className="h-4 w-4 mr-2" />
+                       {t(lang, "request_name")} "{pickerSearch.trim()}"
+                     </CommandItem>
                   </CommandGroup>
                 )}
               </CommandList>
@@ -257,12 +257,12 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
 
       <Tabs value={subTab} onValueChange={setSubTab}>
         <TabsList className="flex flex-wrap h-auto gap-1">
-          <TabsTrigger value="scatter"><ScatterChart className="w-4 h-4 mr-1" /> Scatter</TabsTrigger>
-          <TabsTrigger value="percentile"><BarChart3 className="w-4 h-4 mr-1" /> Percentile</TabsTrigger>
-          <TabsTrigger value="radar3d"><Box className="w-4 h-4 mr-1" /> 3D Radar</TabsTrigger>
-          <TabsTrigger value="comparison"><Users className="w-4 h-4 mr-1" /> Player Comparison</TabsTrigger>
-          <TabsTrigger value="scouting"><Crosshair className="w-4 h-4 mr-1" /> Scouting Matrix</TabsTrigger>
-          <TabsTrigger value="goals"><Target className="w-4 h-4 mr-1" /> Goals</TabsTrigger>
+          <TabsTrigger value="scatter"><ScatterChart className="w-4 h-4 mr-1" /> {t(lang, "scatter_label")}</TabsTrigger>
+          <TabsTrigger value="percentile"><BarChart3 className="w-4 h-4 mr-1" /> {t(lang, "percentile_label")}</TabsTrigger>
+          <TabsTrigger value="radar3d"><Box className="w-4 h-4 mr-1" /> {t(lang, "radar_3d_label")}</TabsTrigger>
+          <TabsTrigger value="comparison"><Users className="w-4 h-4 mr-1" /> {t(lang, "player_comparison_label")}</TabsTrigger>
+          <TabsTrigger value="scouting"><Crosshair className="w-4 h-4 mr-1" /> {t(lang, "scouting_matrix_label")}</TabsTrigger>
+          <TabsTrigger value="goals"><Target className="w-4 h-4 mr-1" /> {t(lang, "goals_label")}</TabsTrigger>
         </TabsList>
 
         {/* Scatter Tab */}
@@ -278,7 +278,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
         {/* 3D Radar Tab */}
         <TabsContent value="radar3d" className="mt-4">
           {hasPortalData ? (
-            <Suspense fallback={<div className="h-[400px] flex items-center justify-center text-muted-foreground">Loading 3D radar...</div>}>
+            <Suspense fallback={<div className="h-[400px] flex items-center justify-center text-muted-foreground">{t(lang, "loading_3d_radar")}</div>}>
               <RadarChart3D
                 playerName={playerName}
                 metrics={(() => {
@@ -297,17 +297,17 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
               />
             </Suspense>
           ) : (
-            <p className="text-muted-foreground text-center py-6">No fixture stats recorded yet.</p>
+            <p className="text-muted-foreground text-center py-6">{t(lang, "no_fixture_stats_yet")}</p>
           )}
         </TabsContent>
 
         {/* Percentile Tab */}
         <TabsContent value="percentile" className="space-y-6 mt-4">
           {comparisonPlayers.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6">No comparison players stored for position: {playerPosition}</p>
+            <p className="text-muted-foreground text-center py-6">{t(lang, "no_comparison_players_for")} {playerPosition}</p>
           ) : !hasPortalData ? (
             <p className="text-muted-foreground text-center py-6">
-              No fixture stats recorded yet. Stats will appear once your performance data is entered.
+              {t(lang, "no_fixture_stats_detail")}
             </p>
           ) : (
             <div className="space-y-6">
@@ -362,7 +362,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
               {/* Stat Picker Comparison */}
               <div className="bg-card border rounded-lg p-4 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <h4 className="font-semibold">Stat Comparison</h4>
+                  <h4 className="font-semibold">{t(lang, "stat_comparison")}</h4>
                   <Select value={selectedMetricKey} onValueChange={setSelectedMetricKey}>
                     <SelectTrigger className="w-full sm:w-[260px]">
                       <SelectValue />
@@ -407,14 +407,14 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                         </div>
                       ));
                     })()}
-                    <p className="text-xs text-muted-foreground pt-1">
-                      {translateMetricLabel(lang, selectedMetricKey, selectedMetric?.label || '')}{selectedMetricKey.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`} · {t(lang, "last_n")} {formWindow} avg
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Select players above to compare stats
-                  </p>
+                     <p className="text-xs text-muted-foreground pt-1">
+                       {translateMetricLabel(lang, selectedMetricKey, selectedMetric?.label || '')}{selectedMetricKey.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`} · {t(lang, "last_n")} {formWindow} {t(lang, "last_n_avg")}
+                     </p>
+                   </div>
+                 ) : (
+                   <p className="text-sm text-muted-foreground text-center py-4">
+                     {t(lang, "select_players_to_compare")}
+                   </p>
                 )}
               </div>
 
@@ -434,14 +434,14 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>{translateMetricLabel(lang, 'metric_per_game', 'Metric')} {t(lang, "per_game")}</TableHead>
+                          <TableHead>{t(lang, "metric_label")} {t(lang, "per_game")}</TableHead>
                           {hasPortalData && (
                             <TableHead>
                               <div className="flex items-center gap-1.5">
                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PORTAL_COLOUR }} />
                                 <div>
                                   <div className="text-xs font-medium">{playerName}</div>
-                                  <div className="text-[10px] text-muted-foreground">Last {formWindow} avg</div>
+                                  <div className="text-[10px] text-muted-foreground">{t(lang, "last_n")} {formWindow} {t(lang, "last_n_avg")}</div>
                                 </div>
                               </div>
                             </TableHead>
