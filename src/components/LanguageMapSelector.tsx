@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Globe, X } from "lucide-react";
+import { X } from "lucide-react";
 import europeMap from "@/assets/europe-outline.gif";
 
 type LanguageCode = 'en' | 'es' | 'pt' | 'fr' | 'de' | 'it' | 'pl' | 'cs' | 'ru' | 'tr' | 'hr' | 'no';
@@ -38,9 +38,10 @@ const languageRegions: LanguageRegion[] = [
 interface LanguageMapSelectorProps {
   onOpenChange?: (open: boolean) => void;
   className?: string;
+  showCode?: boolean;
 }
 
-export const LanguageMapSelector = ({ onOpenChange, className }: LanguageMapSelectorProps) => {
+export const LanguageMapSelector = ({ onOpenChange, className, showCode = false }: LanguageMapSelectorProps) => {
   const { language, switchLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
 

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
-  const lang = usePortalLanguage();
+  const lang = usePortalLanguage({ includePortalHint: false });
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
