@@ -2643,7 +2643,7 @@ const Dashboard = () => {
                   <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-[hsl(43,49%,61%)] border-b-0">
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
-                        <CardTitle className="font-heading tracking-tight">All Reports</CardTitle>
+                        <CardTitle className="font-heading tracking-tight">{t(portalLang, "all_reports")}</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
