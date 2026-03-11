@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Users } from "lucide-react";
+import { t, translateMetricLabel } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface Props {
   playerName: string;
