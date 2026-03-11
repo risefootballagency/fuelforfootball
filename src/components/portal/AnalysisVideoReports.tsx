@@ -206,8 +206,8 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
           {/* Step 2: Select matches */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold uppercase tracking-wider">Step 2: Select Matches</h3>
-              <Button variant="ghost" size="sm" onClick={selectAllMatches}>Select All</Button>
+              <h3 className="text-sm font-semibold uppercase tracking-wider">{t(lang, "video_reports_step_select_matches")}</h3>
+              <Button variant="ghost" size="sm" onClick={selectAllMatches}>{t(lang, "select_all_label")}</Button>
             </div>
             <div className="flex flex-wrap gap-2">
               {analyses.filter(a => allActions.some(ac => ac.analysis_id === a.id)).map(a => (
