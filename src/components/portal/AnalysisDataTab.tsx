@@ -266,8 +266,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Season Averages</p>
               <div className="flex flex-wrap gap-3">
                 {availableStats.map(m => (
-                  <div key={m.key} className="bg-muted/50 px-3 py-1.5 rounded text-sm">
-                    <span className="text-muted-foreground">{m.label}:</span>{' '}
+                   <div key={m.key} className="bg-muted/50 px-3 py-1.5 rounded text-sm">
+                    <span className="text-muted-foreground">{translateMetricLabel(lang, m.key, m.label)}:</span>{' '}
                     <span className="font-semibold">{seasonAverages[m.key]?.toFixed(2)}</span>
                   </div>
                 ))}
