@@ -127,7 +127,7 @@ export const ScatterComparisonChart = ({
       {/* Metric selectors */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
-          <label className="text-xs font-medium text-muted-foreground mb-1 block">X-Axis</label>
+          <label className="text-xs font-medium text-muted-foreground mb-1 block">{t(lang, "x_axis") || "X-Axis"}</label>
           <Select value={xMetric} onValueChange={(v) => { setXMetric(v); setSelectedIdx(null); }}>
             <SelectTrigger className="w-full">
               <SelectValue />
