@@ -330,7 +330,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                         return (
                           <div key={m.key} className="space-y-1">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm">{m.label}{m.key.endsWith('_pct') ? '' : ' / Game'}</span>
+                              <span className="text-sm">{translateMetricLabel(lang, m.key, m.label)}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}</span>
                               <div className="flex items-center gap-3">
                                 <span className="text-sm text-muted-foreground">{value.toFixed(2)}{m.key.endsWith('_pct') ? '%' : ''}</span>
                                 <span className="text-lg font-bold text-primary w-12 text-right">{pct}%</span>
