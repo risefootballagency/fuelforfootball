@@ -519,6 +519,21 @@ const frExtended: Record<string, string> = {
   no_zone_clips: "Aucun clip trouvé pour cette zone", zone_clips_title: "Zone",
   fullscreen: "Plein écran",
   switch_to_at_a_glance: "Passer à la vue d'ensemble", switch_to_in_depth: "Passer à la vue détaillée",
+  // Login + parity keys
+  login_language_label: "Langue",
+  player_portal_login_title: "Portail Joueur",
+  player_portal_login_subtitle: "Votre espace dédié à l'analyse de performance et au développement.",
+  login_input_placeholder: "Entrez votre identifiant",
+  login_enter_button: "Entrer",
+  keep_me_logged_in: "Rester connecté",
+  email_not_found: "Email introuvable. Contactez le support pour obtenir l'accès.",
+  report_link_copied: "Lien du rapport copié dans le presse-papiers",
+  report_not_found: "Rapport de performance introuvable",
+  no_active_program_schedule: "Aucun programme actif",
+  advanced_stats_per_90: "Statistiques avancées (par 90)",
+  avg_vs: "moy. vs",
+  game_singular: "match",
+  game_plural: "matchs",
 };
 Object.entries(frExtended).forEach(([key, val]) => {
   if (translations.fr) translations.fr[key] = val;
