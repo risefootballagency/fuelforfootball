@@ -538,7 +538,6 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     progressive_passes: "Pases progresivos", long_passes: "Pases largos", successful_dribbles: "Regates exitosos",
     xg_via_live_passes: "xG vía Pases en juego", xg_chain: "Cadena xG", xg_buildup: "Construcción xG",
   },
-  },
   pt: {
     goals: "Gols", shots: "Finalizações", shots_on_target: "Chutes a gol", xg: "xG", xa: "xA",
     assists: "Assistências", passes: "Passes", dribbles: "Dribles",
@@ -546,7 +545,6 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     fouls: "Faltas", turnovers: "Perdas", recoveries: "Recuperações",
     progressive_passes: "Passes progressivos", long_passes: "Passes longos", successful_dribbles: "Dribles bem-sucedidos",
     xg_via_live_passes: "xG via Passes em jogo", xg_chain: "Cadeia xG", xg_buildup: "Construção xG",
-  },
   },
   de: {
     goals: "Tore", shots: "Schüsse", shots_on_target: "Schüsse aufs Tor", xg: "xG", xa: "xA",
@@ -556,7 +554,6 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     progressive_passes: "Progressive Pässe", long_passes: "Lange Pässe", successful_dribbles: "Erfolgreiche Dribblings",
     xg_via_live_passes: "xG über Livepässe", xg_chain: "xG-Kette", xg_buildup: "xG-Aufbau",
   },
-  },
   it: {
     goals: "Gol", shots: "Tiri", shots_on_target: "Tiri in porta", xg: "xG", xa: "xA",
     assists: "Assist", passes: "Passaggi", dribbles: "Dribbling",
@@ -565,7 +562,6 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     progressive_passes: "Passaggi progressivi", long_passes: "Passaggi lunghi", successful_dribbles: "Dribbling riusciti",
     xg_via_live_passes: "xG via Passaggi dal vivo", xg_chain: "Catena xG", xg_buildup: "Costruzione xG",
   },
-  },
   cs: {
     goals: "Góly", shots: "Střely", shots_on_target: "Střely na branku", xg: "xG", xa: "xA",
     assists: "Asistence", passes: "Přihrávky", dribbles: "Obejití",
@@ -573,7 +569,6 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
     fouls: "Fauly", turnovers: "Ztráty", recoveries: "Zisky míče",
     progressive_passes: "Progresivní přihrávky", long_passes: "Dlouhé přihrávky", successful_dribbles: "Úspěšná obejití",
     xg_via_live_passes: "xG přes živé přihrávky", xg_chain: "Řetězec xG", xg_buildup: "Výstavba xG",
-  },
   },
   pl: {
     goals: "Bramki", shots: "Strzały", shots_on_target: "Strzały celne", xg: "xG", xa: "xA",
