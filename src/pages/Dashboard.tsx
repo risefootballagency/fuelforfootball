@@ -1834,18 +1834,17 @@ const Dashboard = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-80 max-h-96 overflow-y-auto bg-card border-2 border-gold z-50">
                 <div className="px-4 py-3 border-b border-border">
-                  <h3 className="font-semibold">Recent Notifications</h3>
+                  <h3 className="font-semibold">{t(portalLang, "recent_notifications")}</h3>
                 </div>
                 <div className="py-2">
                   {(() => {
                     const notifications: Array<{ type: string; title: string; subtitle: string; date: Date; onClick?: () => void }> = [];
                     
-                    // Add recent analyses
                     analyses.slice(0, 3).forEach(analysis => {
                       notifications.push({
                         type: 'analysis',
-                        title: 'New Performance Report',
-                        subtitle: `${analysis.opponent || 'Match'} - ${format(parseISO(analysis.analysis_date), 'MMM d')}`,
+                        title: t(portalLang, "new_performance_report"),
+                        subtitle: `${analysis.opponent || t(portalLang, "match")} - ${format(parseISO(analysis.analysis_date), 'MMM d')}`,
                         date: parseISO(analysis.analysis_date),
                         onClick: () => {
                           setActiveTab('analysis');
@@ -1854,23 +1853,21 @@ const Dashboard = () => {
                       });
                     });
                     
-                    // Add recent programs
                     programs.filter(p => p.is_current).slice(0, 2).forEach(program => {
                       notifications.push({
                         type: 'program',
-                        title: 'Training Program',
+                        title: t(portalLang, "training_program"),
                         subtitle: program.program_name,
                         date: parseISO(program.created_at),
                         onClick: () => setActiveTab('physical')
                       });
                     });
                     
-                    // Add recent concepts
                     concepts.slice(0, 2).forEach(concept => {
                       notifications.push({
                         type: 'concept',
-                        title: 'New Concept',
-                        subtitle: concept.title || 'Analysis',
+                        title: t(portalLang, "new_concept"),
+                        subtitle: concept.title || t(portalLang, "analysis"),
                         date: parseISO(concept.created_at),
                         onClick: () => {
                           setActiveTab('analysis');
@@ -1879,18 +1876,16 @@ const Dashboard = () => {
                       });
                     });
                     
-                    // Add recent updates
                     updates.slice(0, 2).forEach(update => {
                       notifications.push({
                         type: 'update',
-                        title: 'New Update',
+                        title: t(portalLang, "new_update"),
                         subtitle: update.title,
                         date: parseISO(update.date),
                         onClick: () => setActiveTab('updates')
                       });
                     });
                     
-                    // Sort by date and take most recent 5
                     const sortedNotifications = notifications
                       .sort((a, b) => b.date.getTime() - a.date.getTime())
                       .slice(0, 5);
@@ -1898,7 +1893,7 @@ const Dashboard = () => {
                     if (sortedNotifications.length === 0) {
                       return (
                         <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-                          No recent notifications
+                          {t(portalLang, "no_recent_notifications")}
                         </div>
                       );
                     }
@@ -1922,12 +1917,12 @@ const Dashboard = () => {
                                 const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                                 
                                 if (diffDays === 0) {
-                                  if (diffHours === 0) return 'Just now';
-                                  if (diffHours === 1) return '1 hour ago';
-                                  return `${diffHours} hours ago`;
+                                  if (diffHours === 0) return t(portalLang, "just_now");
+                                  if (diffHours === 1) return t(portalLang, "one_hour_ago");
+                                  return `${diffHours} ${t(portalLang, "hours_ago")}`;
                                 }
-                                if (diffDays === 1) return '1 day ago';
-                                return `${diffDays} days ago`;
+                                if (diffDays === 1) return t(portalLang, "one_day_ago");
+                                return `${diffDays} ${t(portalLang, "days_ago")}`;
                               })()}
                             </p>
                           </div>

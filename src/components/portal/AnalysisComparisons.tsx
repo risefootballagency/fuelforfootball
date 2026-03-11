@@ -465,7 +465,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       <TableBody>
                         {catMetrics.map(m => (
                           <TableRow key={m.key}>
-                            <TableCell className="font-medium text-sm">{m.label}</TableCell>
+                            <TableCell className="font-medium text-sm">{translateMetricLabel(lang, m.key, m.label)}</TableCell>
                             {hasPortalData && (
                               <TableCell className="font-semibold">
                                 {portalMetrics[m.key] != null ? portalMetrics[m.key]!.toFixed(2) : '-'}

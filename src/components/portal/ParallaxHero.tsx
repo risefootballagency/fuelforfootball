@@ -109,7 +109,7 @@ export const ParallaxHero = ({ imageUrl, imageUrls, imageFocalPoints, playerName
         <div className="flex items-center gap-2 mt-1">
           {position && (
              <span className="text-xs md:text-sm font-semibold text-accent bg-black/60 px-2 py-0.5 rounded">
-               {position}
+               {translatePosition(lang, position)}
              </span>
           )}
           {clubName && (

@@ -306,7 +306,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
               <TableHead>Mins</TableHead>
               <TableHead>R90</TableHead>
               {currentMetrics.map(m => (
-                <TableHead key={m.key} className="text-xs min-w-[80px]">{m.label}</TableHead>
+                <TableHead key={m.key} className="text-xs min-w-[80px]">{translateMetricLabel(lang, m.key, m.label)}</TableHead>
               ))}
             </TableRow>
           </TableHeader>
