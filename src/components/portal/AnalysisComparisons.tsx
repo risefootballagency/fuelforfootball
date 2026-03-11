@@ -304,10 +304,10 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
         {/* Percentile Tab */}
         <TabsContent value="percentile" className="space-y-6 mt-4">
           {comparisonPlayers.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6">No comparison players stored for position: {playerPosition}</p>
+            <p className="text-muted-foreground text-center py-6">{t(lang, "no_comparison_players_for")} {playerPosition}</p>
           ) : !hasPortalData ? (
             <p className="text-muted-foreground text-center py-6">
-              No fixture stats recorded yet. Stats will appear once your performance data is entered.
+              {t(lang, "no_fixture_stats_detail")}
             </p>
           ) : (
             <div className="space-y-6">
