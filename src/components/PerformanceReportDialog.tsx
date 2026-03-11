@@ -658,7 +658,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                   <Button
                     variant="default"
                     size="sm"
-                    className="bg-risegold hover:bg-risegold/90 text-black font-semibold flex items-center gap-2"
+                    className="bg-accent hover:bg-accent/90 text-black font-semibold flex items-center gap-2"
                     onClick={() => setShowClippedActions(true)}
                   >
                     <Play className="h-4 w-4" />

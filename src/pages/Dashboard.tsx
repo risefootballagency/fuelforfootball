@@ -874,7 +874,7 @@ const Dashboard = () => {
       // Online - verify with Supabase
       const { data: player, error: playerError } = await supabase
         .from("players")
-        .select("id")
+        .select("id, portal_language")
         .eq("email", playerEmail)
         .maybeSingle();
 
@@ -883,6 +883,11 @@ const Dashboard = () => {
         localStorage.removeItem("player_email");
         navigate("/login");
         return;
+      }
+
+      // Set portal language hint from player's configured language
+      if ((player as any)?.portal_language) {
+        localStorage.setItem("portal_language_hint", (player as any).portal_language);
       }
 
       await fetchAnalyses(playerEmail);
@@ -958,9 +963,15 @@ const Dashboard = () => {
             }
           }
           
-          // Only merge if bioData is a valid object
+          // Only merge if bioData is a valid object, but preserve critical player fields
           if (bioData && typeof bioData === 'object' && !Array.isArray(bioData)) {
-            parsedPlayerData = { ...playerData, ...bioData };
+            const preservedFields = {
+              portal_language: playerData.portal_language,
+              id: playerData.id,
+              email: playerData.email,
+              name: playerData.name,
+            };
+            parsedPlayerData = { ...playerData, ...bioData, ...preservedFields };
           }
         }
       } catch (e) {
@@ -968,6 +979,9 @@ const Dashboard = () => {
       }
 
       setPlayerData(parsedPlayerData);
+      if (parsedPlayerData?.portal_language) {
+        localStorage.setItem("portal_language_hint", parsedPlayerData.portal_language);
+      }
 
       // Fetch portal settings: shared DB for feature toggles, local DB for widget/sales data
       try {
