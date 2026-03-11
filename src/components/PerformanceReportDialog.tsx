@@ -493,11 +493,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const passSuccess = getSuccessVal('passes');
     const passTotal = getTotalVal('passes');
     if (passSuccess !== null && passTotal !== null && passTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'pass_completion', 'Pass Completion %', 'Passes Completed ÷ Total');
       calculated.push({
         key: 'pass_completion',
-        displayName: 'Pass Completion %',
+        displayName: translated.displayName,
         value: (passSuccess / passTotal) * 100,
-        description: 'Passes Completed ÷ Total'
+        description: translated.description
       });
     }
     
