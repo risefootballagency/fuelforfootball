@@ -263,7 +263,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
           if (availableStats.length === 0) return null;
           return (
             <div className="mt-4 pt-4 border-t">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Season Averages</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{t(lang, "season_averages")}</p>
               <div className="flex flex-wrap gap-3">
                 {availableStats.map(m => (
                    <div key={m.key} className="bg-muted/50 px-3 py-1.5 rounded text-sm">
