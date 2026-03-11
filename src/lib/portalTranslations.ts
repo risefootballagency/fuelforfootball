@@ -67,11 +67,22 @@ const extendedKeys: Record<string, string> = {
   no_zone_clips: "No clips found for this zone", zone_clips_title: "Zone",
   fullscreen: "Fullscreen",
   switch_to_at_a_glance: "Switch to at-a-glance view", switch_to_in_depth: "Switch to in-depth view",
-  // AllReportsSection
-  all_reports: "All Reports", search_reports: "Search reports...", newest: "Newest", oldest: "Oldest",
-  all: "All", no_reports_match_filters: "No reports match your filters.", no_reports_available: "No reports available yet.",
-  actions: "actions", loading_all_reports: "Loading all reports...",
-  pre_match_label: "Pre-Match", post_match_label: "Post-Match", concept_label: "Concept", action_report_label: "Action Report",
+  // Login + portal parity keys
+  login_language_label: "Language",
+  player_portal_login_title: "Player Portal",
+  player_portal_login_subtitle: "Your dedicated space for performance analysis and development.",
+  login_input_placeholder: "Enter your login",
+  login_enter_button: "Enter",
+  keep_me_logged_in: "Keep me logged in",
+  email_not_found: "Email not found. Please contact support to get access.",
+  report_link_copied: "Report link copied to clipboard",
+  report_not_found: "Performance report not found",
+  no_active_program_schedule: "No active program schedule",
+  advanced_stats_per_90: "Advanced Stats (per 90)",
+  avg_vs: "avg vs",
+  game_singular: "game",
+  game_plural: "games",
+
   // InjuryLog
   log_injury: "Log Injury", body_area: "Body area...", describe_injury: "Describe the injury or niggle...",
   minor: "Minor", moderate: "Moderate", severe: "Severe", cancel: "Cancel", save: "Save",
