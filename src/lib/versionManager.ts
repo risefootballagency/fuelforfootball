@@ -7,6 +7,22 @@ const VERSION_CHECK_INTERVAL = 2 * 60 * 1000; // 2 minutes (more aggressive)
 const LAST_CHECK_KEY = 'fff_last_version_check';
 const CURRENT_VERSION_KEY = 'fff_current_version';
 
+// Check if running in Lovable preview environment
+function isLovablePreview(): boolean {
+  try {
+    const hostname = window.location.hostname;
+    return hostname.startsWith('id-preview--') ||
+           hostname.includes('lovable.app') ||
+           hostname.includes('lovableproject.com') ||
+           hostname.includes('localhost') ||
+           hostname.includes('127.0.0.1') ||
+           window.location.search.includes('__lovable_token') ||
+           window.self !== window.top;
+  } catch {
+    return false;
+  }
+}
+
 interface VersionInfo {
   version: string;
   buildTime: string;
