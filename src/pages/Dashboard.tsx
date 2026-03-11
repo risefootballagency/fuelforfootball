@@ -2164,40 +2164,40 @@ const Dashboard = () => {
                   <Tabs value={activeAnalysisTab} onValueChange={setActiveAnalysisTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 mb-0 bg-muted h-auto p-1.5">
                   <TabsTrigger value="performance" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Performance
+                    {t(portalLang, "performance")}
                   </TabsTrigger>
                   <TabsTrigger value="form" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Form
+                    {t(portalLang, "form")}
                   </TabsTrigger>
                   <TabsTrigger value="other" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Other
+                    {t(portalLang, "other")}
                   </TabsTrigger>
                   <TabsTrigger value="scouting" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Scouting
+                    {t(portalLang, "scouting")}
                   </TabsTrigger>
                   <TabsTrigger value="concepts" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Concepts
+                    {t(portalLang, "concepts")}
                   </TabsTrigger>
                   <TabsTrigger value="schemes" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Schemes
+                    {t(portalLang, "schemes")}
                   </TabsTrigger>
                   <TabsTrigger value="positional-guides" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Pos. Guides
+                    {t(portalLang, "positional")}
                   </TabsTrigger>
                   <TabsTrigger value="cognisance" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Cognisance
+                    {t(portalLang, "cognisance")}
                   </TabsTrigger>
                   <TabsTrigger value="data" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Data
+                    {t(portalLang, "data")}
                   </TabsTrigger>
                   <TabsTrigger value="video-reports" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                    Video
+                    {t(portalLang, "video_reports")}
                   </TabsTrigger>
                    <TabsTrigger value="comparisons" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                     Comparisons
+                     {t(portalLang, "comparisons")}
                    </TabsTrigger>
                    <TabsTrigger value="all-reports" className="font-bebas uppercase text-xs sm:text-sm px-1">
-                     All Reports
+                     {t(portalLang, "all_reports")}
                    </TabsTrigger>
                  </TabsList>
 
