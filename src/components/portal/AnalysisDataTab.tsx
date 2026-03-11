@@ -64,6 +64,7 @@ const getStatValue = (analysis: Analysis, key: string): number | null => {
 };
 
 export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
+  const lang = usePortalLanguage();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(analyses.map(a => a.id)));
   const [activeStatCategory, setActiveStatCategory] = useState("Shooting");
   const [editingCell, setEditingCell] = useState<{ analysisId: string; metricKey: string } | null>(null);
