@@ -6,6 +6,8 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Bell } from 'lucide-react';
 import { toast } from 'sonner';
+import { t } from '@/lib/portalTranslations';
+import { usePortalLanguage } from '@/hooks/usePortalLanguage';
 
 interface NotificationPreferences {
   performance_reports: boolean;
