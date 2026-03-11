@@ -1062,6 +1062,11 @@ const deExtended: Record<string, string> = {
   no_zone_clips: "Keine Clips für diese Zone gefunden", zone_clips_title: "Zone",
   fullscreen: "Vollbild",
   switch_to_at_a_glance: "Zur Übersicht wechseln", switch_to_in_depth: "Zur Detailansicht wechseln",
+  your_current_package: "Ihr aktuelles Paket", package_status: "Paketstatus", not_on_package: "Kein aktives Paket",
+  recommended_package: "Empfohlenes Paket", upgrade_available: "Upgrade verfügbar", upgrade_now: "Jetzt upgraden", get_started: "Loslegen",
+  notification_settings: "Benachrichtigungseinstellungen", notification_settings_desc: "Wählen Sie die Benachrichtigungen aus",
+  no_coach_availability: "Keine Verfügbarkeit eingestellt.", data_overview: "Datenübersicht", other_analysis: "Andere Analyse",
+  physical_programming: "Physische Programmierung", invoices: "Rechnungen", make_a_payment: "Zahlung vornehmen", services: "Dienstleistungen",
 };
 Object.entries(deExtended).forEach(([key, val]) => {
   if (translations.de) translations.de[key] = val;
