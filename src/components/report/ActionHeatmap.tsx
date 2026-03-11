@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { t } from "@/lib/portalTranslations";
 
 interface PerformanceAction {
   action_number: number;
@@ -10,9 +11,9 @@ interface PerformanceAction {
 interface ActionHeatmapProps {
   actions: PerformanceAction[];
   minutesPlayed: number;
+  language?: string;
 }
 
-// R15 rating colour scale (same thresholds as R90 but applied to per-15-min rate)
 const getR15Color = (r15: number) => {
   if (r15 >= 2.5) return "hsl(43, 49%, 61%)";
   if (r15 >= 1.8) return "hsl(142, 72%, 29%)";
@@ -26,9 +27,7 @@ const getR15Color = (r15: number) => {
   return "hsl(0, 93%, 12%)";
 };
 
-
-export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) => {
-  // Group actions into fixed 15-minute periods, only showing periods the player was active in
+export const ActionHeatmap = ({ actions, minutesPlayed, language = "en" }: ActionHeatmapProps) => {
   const blocks = useMemo(() => {
     const periods = [
       { start: 0, end: 15, label: "0-15'" },
@@ -39,9 +38,7 @@ export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) =>
       { start: 75, end: 90, label: "75-90+'" },
     ];
 
-    // Determine the player's active range using action minutes
     const actionMinutes = actions.map(a => Math.floor(a.minute));
-    const firstActionMinute = actionMinutes.length > 0 ? Math.min(...actionMinutes) : 0;
     const lastActionMinute = actionMinutes.length > 0 ? Math.max(...actionMinutes) : 0;
 
     const endMinute = lastActionMinute > minutesPlayed ? Math.max(lastActionMinute + 1, minutesPlayed) : minutesPlayed;
@@ -63,34 +60,23 @@ export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) =>
       const effectiveEnd = period.start === 75 ? Math.max(endMinute, 90) : Math.min(period.end, endMinute);
       const periodMinutes = Math.max(effectiveEnd - effectiveStart, 0);
 
-      // R15: divide by period minutes, multiply by 15 (not 90)
       const r15 = periodMinutes > 0 ? (totalScore / periodMinutes) * 15 : 0;
 
-      result.push({
-        range: period.label,
-        actions: blockActions,
-        totalScore,
-        count: blockActions.length,
-        r15,
-      });
+      result.push({ range: period.label, actions: blockActions, totalScore, count: blockActions.length, r15 });
     }
 
     return result;
   }, [actions, minutesPlayed]);
 
   if (actions.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground text-sm">
-        No action data available
-      </div>
-    );
+    return <div className="text-center py-8 text-muted-foreground text-sm">{t(language, "no_action_data")}</div>;
   }
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold">Period Grade Map</h4>
-        <span className="text-xs text-muted-foreground">{actions.length} actions across {minutesPlayed} min</span>
+        <h4 className="text-sm font-semibold">{t(language, "period_grade_map")}</h4>
+        <span className="text-xs text-muted-foreground">{actions.length} {t(language, "actions_across_min")} {minutesPlayed} {t(language, "min_short").toLowerCase()}</span>
       </div>
 
       <div className="grid grid-cols-6 gap-1">
@@ -101,16 +87,11 @@ export const ActionHeatmap = ({ actions, minutesPlayed }: ActionHeatmapProps) =>
             <div
               key={idx}
               className="relative rounded-md flex flex-col items-center justify-center py-3 px-1 transition-all hover:scale-105"
-              style={{
-                backgroundColor: color,
-                opacity: block.count > 0 ? 0.85 : 0.2,
-              }}
-              title={`${block.range}: ${block.count} actions, R15 ${block.r15.toFixed(2)}`}
+              style={{ backgroundColor: color, opacity: block.count > 0 ? 0.85 : 0.2 }}
+              title={`${block.range}: ${block.count} ${t(language, "actions_label").toLowerCase()}, R15 ${block.r15.toFixed(2)}`}
             >
               <span className="text-[10px] font-bold text-black drop-shadow-sm">{block.range}</span>
-              <span className="text-[9px] text-black/70">
-                {block.count} act{block.count !== 1 ? "s" : ""}
-              </span>
+              <span className="text-[9px] text-black/70">{block.count} {block.count !== 1 ? t(language, "actions_word") : t(language, "action_word")}</span>
             </div>
           );
         })}

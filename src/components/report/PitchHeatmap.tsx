@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { t } from "@/lib/portalTranslations";
 
 interface PitchHeatmapAction {
   action_number: number;
@@ -9,6 +10,7 @@ interface PitchHeatmapAction {
 
 interface PitchHeatmapProps {
   actions: PitchHeatmapAction[];
+  language?: string;
 }
 
 const WIDTH = 300;
@@ -34,34 +36,30 @@ const getPosition = (zone: number, sub?: number): { x: number; y: number } => {
   return { x: majorX + subOffsetX, y: majorY + subOffsetY };
 };
 
-// Red-based heat color scale for better differentiation
 const getHeatColor = (intensity: number): string => {
-  // Low intensity: warm yellow-orange, high intensity: deep red
   if (intensity <= 0.25) {
-    const t = intensity / 0.25;
-    return `${255}, ${Math.round(200 - t * 60)}, ${Math.round(50 - t * 50)}`;
+    const tt = intensity / 0.25;
+    return `${255}, ${Math.round(200 - tt * 60)}, ${Math.round(50 - tt * 50)}`;
   } else if (intensity <= 0.5) {
-    const t = (intensity - 0.25) / 0.25;
-    return `${255}, ${Math.round(140 - t * 80)}, 0`;
+    const tt = (intensity - 0.25) / 0.25;
+    return `${255}, ${Math.round(140 - tt * 80)}, 0`;
   } else if (intensity <= 0.75) {
-    const t = (intensity - 0.5) / 0.25;
-    return `${Math.round(255 - t * 30)}, ${Math.round(60 - t * 40)}, 0`;
-  } else {
-    const t = (intensity - 0.75) / 0.25;
-    return `${Math.round(225 - t * 55)}, ${Math.round(20 - t * 20)}, 0`;
+    const tt = (intensity - 0.5) / 0.25;
+    return `${Math.round(255 - tt * 30)}, ${Math.round(60 - tt * 40)}, 0`;
   }
+
+  const tt = (intensity - 0.75) / 0.25;
+  return `${Math.round(225 - tt * 55)}, ${Math.round(20 - tt * 20)}, 0`;
 };
 
-export const PitchHeatmap = ({ actions }: PitchHeatmapProps) => {
+export const PitchHeatmap = ({ actions, language = "en" }: PitchHeatmapProps) => {
   const heatmapData = useMemo(() => {
     const points: { x: number; y: number }[] = [];
 
     for (const a of actions) {
       if (a.zone_details && Array.isArray(a.zone_details) && a.zone_details.length > 0) {
         for (const zp of a.zone_details) {
-          if (zp.zone >= 1 && zp.zone <= 18) {
-            points.push(getPosition(zp.zone, zp.sub));
-          }
+          if (zp.zone >= 1 && zp.zone <= 18) points.push(getPosition(zp.zone, zp.sub));
         }
       } else if (a.zone != null && a.zone >= 1 && a.zone <= 18) {
         points.push(getPosition(a.zone));
@@ -83,34 +81,20 @@ export const PitchHeatmap = ({ actions }: PitchHeatmapProps) => {
       bins[key].totalY += p.y;
     }
 
-    const blobs = Object.values(bins).map(b => ({
-      x: b.totalX / b.count,
-      y: b.totalY / b.count,
-      count: b.count,
-    }));
-
+    const blobs = Object.values(bins).map(b => ({ x: b.totalX / b.count, y: b.totalY / b.count, count: b.count }));
     const maxCount = Math.max(...blobs.map(b => b.count), 1);
     return { blobs, maxCount };
   }, [actions]);
 
   if (!heatmapData || heatmapData.blobs.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground text-sm">
-        No zone data available for heatmap
-      </div>
-    );
+    return <div className="text-center py-8 text-muted-foreground text-sm">{t(language, "no_zone_data")}</div>;
   }
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-semibold">Pitch Heatmap</h4>
-      
+      <h4 className="text-sm font-semibold">{t(language, "pitch_heatmap")}</h4>
       <div className="flex justify-center">
-        <svg
-          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-          className="w-full max-w-[280px] md:max-w-[320px]"
-          style={{ aspectRatio: `${WIDTH}/${HEIGHT}` }}
-        >
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="w-full max-w-[280px] md:max-w-[320px]" style={{ aspectRatio: `${WIDTH}/${HEIGHT}` }}>
           <defs>
             {heatmapData.blobs.map((blob, i) => {
               const intensity = blob.count / heatmapData.maxCount;
@@ -126,47 +110,27 @@ export const PitchHeatmap = ({ actions }: PitchHeatmapProps) => {
             })}
           </defs>
 
-          {/* Pitch background */}
           <rect x="0" y="0" width={WIDTH} height={HEIGHT} rx="6" fill="#1a472a" />
-          
-          {/* Pitch markings */}
           <rect x="10" y="10" width={WIDTH - 20} height={HEIGHT - 20} rx="2" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <line x1="10" y1={HEIGHT / 2} x2={WIDTH - 10} y2={HEIGHT / 2} stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <circle cx={WIDTH / 2} cy={HEIGHT / 2} r="35" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <circle cx={WIDTH / 2} cy={HEIGHT / 2} r="2" fill="rgba(255,255,255,0.25)" />
-          
-          {/* Top penalty box (attacking) */}
+
           <rect x="60" y="10" width="180" height="55" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <rect x="100" y="10" width="100" height="25" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
-          
-          {/* Bottom penalty box (defending) */}
           <rect x="60" y={HEIGHT - 65} width="180" height="55" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <rect x="100" y={HEIGHT - 35} width="100" height="25" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
-          
-          {/* Heatmap blobs - use additive blending for red intensity */}
+
           {heatmapData.blobs.map((blob, i) => {
             const intensity = blob.count / heatmapData.maxCount;
             const radius = 40 + intensity * 45;
             return (
-              <ellipse
-                key={`blob-${i}`}
-                cx={blob.x}
-                cy={blob.y}
-                rx={radius}
-                ry={radius * 0.85}
-                fill={`url(#heat-${i})`}
-                style={{ mixBlendMode: "screen" }}
-              />
+              <ellipse key={`blob-${i}`} cx={blob.x} cy={blob.y} rx={radius} ry={radius * 0.85} fill={`url(#heat-${i})`} style={{ mixBlendMode: "screen" }} />
             );
           })}
-          
-          {/* Direction labels */}
-          <text x={WIDTH / 2} y={HEIGHT - 2} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">
-            Own Goal
-          </text>
-          <text x={WIDTH / 2} y="7" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">
-            ↑ Attacking
-          </text>
+
+          <text x={WIDTH / 2} y={HEIGHT - 2} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">{t(language, "own_goal")}</text>
+          <text x={WIDTH / 2} y="7" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">↑ {t(language, "attacking_direction")}</text>
         </svg>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { t } from "@/lib/portalTranslations";
 
 interface PerformanceAction {
   action_number: number;
@@ -11,9 +12,10 @@ interface PerformanceAction {
 interface R90FlowChartProps {
   actions: PerformanceAction[];
   minutesPlayed: number;
+  language?: string;
 }
 
-export const R90FlowChart = ({ actions, minutesPlayed }: R90FlowChartProps) => {
+export const R90FlowChart = ({ actions, minutesPlayed, language = "en" }: R90FlowChartProps) => {
   const chartData = useMemo(() => {
     if (actions.length === 0 || !minutesPlayed) return [];
 
@@ -63,7 +65,7 @@ export const R90FlowChart = ({ actions, minutesPlayed }: R90FlowChartProps) => {
   if (chartData.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground text-sm">
-        No action data available for R90 flow
+        {t(language, "no_action_data")}
       </div>
     );
   }
@@ -73,9 +75,9 @@ export const R90FlowChart = ({ actions, minutesPlayed }: R90FlowChartProps) => {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold">R90 Flow Through Match</h4>
+        <h4 className="text-sm font-semibold">{t(language, "r90_flow_through_match")}</h4>
         <span className="text-xs text-muted-foreground">
-          Final R90: <span className="font-bold text-foreground">{finalR90.toFixed(2)}</span>
+          {t(language, "final_r90")}: <span className="font-bold text-foreground">{finalR90.toFixed(2)}</span>
         </span>
       </div>
       <div className="h-[250px] md:h-[300px]">
@@ -90,7 +92,7 @@ export const R90FlowChart = ({ actions, minutesPlayed }: R90FlowChartProps) => {
               domain={['dataMin', 'dataMax']}
               tickFormatter={(value: number) => `${value}'`}
               ticks={chartData.filter(d => d.minute % 5 === 0).map(d => d.minute)}
-              label={{ value: "Minute", position: "insideBottom", offset: -5, style: { fill: "hsl(var(--muted-foreground))", fontSize: 10 } }}
+              label={{ value: t(language, "min_short"), position: "insideBottom", offset: -5, style: { fill: "hsl(var(--muted-foreground))", fontSize: 10 } }}
             />
             <YAxis
               stroke="hsl(var(--muted-foreground))"
@@ -108,7 +110,7 @@ export const R90FlowChart = ({ actions, minutesPlayed }: R90FlowChartProps) => {
                 if (name === "r90") return [value.toFixed(2), "R90"];
                 return [value, name];
               }}
-              labelFormatter={(label) => `Minute ${label}`}
+              labelFormatter={(label) => `${t(language, "min_short")} ${label}`}
             />
             <ReferenceLine y={1} stroke="hsl(var(--accent))" strokeDasharray="4 4" strokeWidth={1} />
             <Line
