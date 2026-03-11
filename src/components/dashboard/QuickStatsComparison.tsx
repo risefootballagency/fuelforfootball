@@ -154,7 +154,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
         <div className="flex items-center justify-between container mx-auto px-4 pr-6">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">Comparisons</CardTitle>
+            <CardTitle className="font-heading tracking-tight ml-[9px] mt-[1px]">{t(portalLanguage, "comparisons")}</CardTitle>
           </div>
           <div className="flex items-center gap-1">
             {onSeeAll && (
@@ -164,7 +164,7 @@ export const QuickStatsComparison = ({ playerId, playerName, playerPosition, ana
                  onClick={onSeeAll}
                  className="flex items-center gap-1 text-sm text-accent hover:text-black hover:bg-accent h-10"
                 >
-                See All
+                {t(portalLanguage, "see_all")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             )}
