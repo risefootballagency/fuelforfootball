@@ -35,7 +35,7 @@ const getStatValue = (analysis: any, key: string): number | null => {
   return null;
 };
 
-export const QuickStatsComparison = ({ playerId, playerName, playerPosition, analyses, onSeeAll }: QuickStatsComparisonProps) => {
+export const QuickStatsComparison = ({ playerId, playerName, playerPosition, analyses, onSeeAll, portalLanguage = "en" }: QuickStatsComparisonProps) => {
   const [loading, setLoading] = React.useState(true);
   const [chartData, setChartData] = React.useState<{ name: string; value: number }[] | null>(null);
   const [statLabel, setStatLabel] = React.useState("");
