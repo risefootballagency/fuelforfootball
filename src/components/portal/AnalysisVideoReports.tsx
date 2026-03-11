@@ -218,7 +218,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                     selectedMatches.includes(a.id) ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'
                   }`}
                 >
-                  {a.opponent ? `vs ${a.opponent}` : new Date(a.analysis_date).toLocaleDateString('en-GB')}
+                  {a.opponent ? `${t(lang, "versus_short")} ${a.opponent}` : new Date(a.analysis_date).toLocaleDateString('en-GB')}
                   {a.result && <span className="ml-1 opacity-70">({a.result})</span>}
                 </button>
               ))}
