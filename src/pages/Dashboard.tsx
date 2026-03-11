@@ -3192,7 +3192,7 @@ const Dashboard = () => {
                     <CardHeader marble>
                       <div className="container mx-auto px-4">
                         <CardTitle className="font-heading tracking-tight">
-                          Other Analysis
+                          {t(portalLang, "other_analysis")}
                         </CardTitle>
                       </div>
                     </CardHeader>
