@@ -93,7 +93,15 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const [filterRating, setFilterRating] = useState<string | null>(null);
   const [filterHasNotes, setFilterHasNotes] = useState(false);
 
-  const portalLanguage = isPortalView ? (localStorage.getItem("portal_language_hint") || "en") : "en";
+  const portalLanguage = isPortalView
+    ? normalizePortalLanguage(
+        localStorage.getItem("portal_language_hint")
+        || localStorage.getItem("preferred_language")
+        || sessionStorage.getItem("ip_language_detected")
+        || analysis?.translated_content?.language
+        || "en"
+      )
+    : "en";
   const reportLanguage = getReportLanguage(analysis?.translated_content, portalLanguage);
   const portalLocale = getReportLocale(reportLanguage);
 

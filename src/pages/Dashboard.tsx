@@ -2090,7 +2090,7 @@ const Dashboard = () => {
             playerData={playerData}
             dailyAphorism={dailyAphorism}
             portalSettings={portalSettings}
-            portalLanguage={playerData?.portal_language}
+            portalLanguage={portalLang}
             onNavigateToAnalysis={() => {
               setActiveTab("analysis");
               setActiveAnalysisTab("performance");
