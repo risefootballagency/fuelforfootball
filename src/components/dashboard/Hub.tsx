@@ -1058,7 +1058,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                                     {offer.features.map((f, i) => (
                                       <div key={i} className="flex items-center gap-1.5 text-xs text-foreground/80">
                                         <Check className="w-3 h-3 text-accent flex-shrink-0" />
-                                        <span>{f}</span>
+                                        <span>{translateServiceName(portalLanguage, f)}</span>
                                       </div>
                                     ))}
                                   </div>
