@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { t, translatePosition } from "@/lib/portalTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface ParallaxHeroProps {
   imageUrl: string | null;
