@@ -181,7 +181,7 @@ const Login = () => {
               id="login"
               name="username"
               type="text"
-              placeholder="Enter your login"
+              placeholder={t(lang, "login_input_placeholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -197,7 +197,7 @@ const Login = () => {
               className="w-full btn-shine font-bebas text-lg uppercase tracking-wider h-12"
               disabled={loading}
             >
-              {loading ? "..." : "ENTER"}
+              {loading ? "..." : t(lang, "login_enter_button")}
             </Button>
             <div className="flex items-center justify-center gap-2">
               <input
@@ -208,9 +208,10 @@ const Login = () => {
                 className="w-4 h-4 rounded border-border"
               />
               <Label htmlFor="remember" className="text-muted-foreground text-sm cursor-pointer">
-                Keep me logged in
+                {t(lang, "keep_me_logged_in")}
               </Label>
             </div>
+            <PortalFlagLanguageSelector language={lang} onSelect={handleLanguageSelect} />
           </form>
         </div>
       </section>
