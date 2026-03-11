@@ -480,11 +480,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     const aerialSuccess = getSuccessVal('aerial_duels');
     const aerialTotal = getTotalVal('aerial_duels');
     if (aerialSuccess !== null && aerialTotal !== null && aerialTotal > 0) {
+      const translated = translateCalculatedStat(reportLanguage, 'aerial_duel_win_pct', 'Aerial Duel Win %', 'Aerial Duels Won ÷ Total');
       calculated.push({
         key: 'aerial_duel_win_pct',
-        displayName: 'Aerial Duel Win %',
+        displayName: translated.displayName,
         value: (aerialSuccess / aerialTotal) * 100,
-        description: 'Aerial Duels Won ÷ Total'
+        description: translated.description
       });
     }
     
