@@ -1941,8 +1941,8 @@ const Dashboard = () => {
               className="flex items-center gap-2"
             >
               <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Coach Availability</span>
-              <span className="sm:hidden">Availability</span>
+              <span className="hidden sm:inline">{t(portalLang, "coach_availability")}</span>
+              <span className="sm:hidden">{t(portalLang, "availability")}</span>
             </Button>
           </div>
         </div>
