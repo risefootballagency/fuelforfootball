@@ -162,7 +162,7 @@ export const ZonePerformance = ({ actions, language = "en" }: ZonePerformancePro
         <div className="text-center text-[8px] text-muted-foreground py-0.5 bg-muted/30">{t(language, "own_goal")}</div>
       </div>
 
-      <RankedActionsPlayer open={zoneVideoOpen} onOpenChange={setZoneVideoOpen} clips={zoneVideoClips} mode="chronological" />
+      <RankedActionsPlayer open={zoneVideoOpen} onOpenChange={setZoneVideoOpen} clips={zoneVideoClips} mode="chronological" language={language} />
     </div>
   );
 };
