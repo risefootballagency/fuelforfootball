@@ -12,9 +12,15 @@ import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
+  const lang = usePortalLanguage();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+
+  const handleLanguageSelect = (language: string) => {
+    localStorage.setItem("preferred_language", language);
+    localStorage.setItem("portal_language_hint", language);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
