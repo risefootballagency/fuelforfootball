@@ -485,7 +485,7 @@ const PerformanceReport = () => {
                 onClick={() => setShowClippedActions(true)}
               >
                 <Play className="h-4 w-4" />
-                {`${actions.filter(a => a.video_url).length} ${t(reportLanguage, "clips_label")}`}
+                {`${actions.filter(a => a.video_url).length} Clips`}
               </Button>
             )}
           </div>

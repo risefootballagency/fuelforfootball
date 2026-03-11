@@ -1428,3 +1428,23 @@ Object.entries(trExtended).forEach(([key, val]) => {
 });
 
 export type { TranslationKey };
+
+// Position acronym translations
+const POSITION_TRANSLATIONS: Record<string, Record<string, string>> = {
+  fr: { GK: "G", CB: "DC", FB: "AL", CDM: "MDC", CM: "MC", CAM: "MOC", W: "AI", CF: "AC", ST: "AT", LB: "AG", RB: "AD", LW: "AIG", RW: "AID", RCM: "MCD", LCM: "MCG", DM: "MD", AM: "MO", LM: "MG", RM: "MD", SS: "2eAT", RWB: "PD", LWB: "PG" },
+  es: { GK: "PO", CB: "DC", FB: "LAT", CDM: "MCD", CM: "MC", CAM: "MCO", W: "EXT", CF: "DC", ST: "DEL", LB: "LI", RB: "LD", LW: "EI", RW: "ED", DM: "MD", AM: "MO" },
+  pt: { GK: "GR", CB: "ZC", FB: "LAT", CDM: "VOL", CM: "MC", CAM: "MEI", W: "EXT", CF: "CA", ST: "AV", LB: "LE", RB: "LD", LW: "EE", RW: "ED", DM: "MD", AM: "MO" },
+  de: { GK: "TW", CB: "IV", FB: "AV", CDM: "ZDM", CM: "ZM", CAM: "ZOM", W: "AW", CF: "MS", ST: "ST", LB: "LV", RB: "RV", LW: "LA", RW: "RA", DM: "DM", AM: "OM" },
+  it: { GK: "POR", CB: "DC", FB: "TS", CDM: "CDC", CM: "CC", CAM: "TRQ", W: "ALA", CF: "AC", ST: "ATT", LB: "TS", RB: "TD", LW: "AS", RW: "AD", DM: "MD", AM: "MO" },
+  cs: { GK: "BR", CB: "SO", FB: "KO", CDM: "DZ", CM: "SZ", CAM: "OZ", W: "KŘ", CF: "SÚ", ST: "ÚT", LB: "LO", RB: "PO", LW: "LK", RW: "PK", DM: "DZ", AM: "OZ" },
+  pl: { GK: "BR", CB: "ŚO", FB: "BO", CDM: "ŚDP", CM: "ŚP", CAM: "ŚOP", W: "SK", CF: "ŚN", ST: "NP", LB: "LO", RB: "PO", LW: "LS", RW: "PS", DM: "ŚD", AM: "ŚO" },
+  ru: { GK: "ВР", CB: "ЦЗ", FB: "КЗ", CDM: "ОПЗ", CM: "ЦП", CAM: "АП", W: "Фл", CF: "ЦН", ST: "НП", LB: "ЛЗ", RB: "ПЗ", LW: "ЛФ", RW: "ПФ", DM: "ОП", AM: "АП" },
+  tr: { GK: "KL", CB: "STP", FB: "BK", CDM: "DSO", CM: "OSO", CAM: "OOS", W: "KN", CF: "SFR", ST: "FRV", LB: "SB", RB: "SĞB", LW: "SK", RW: "SĞK", DM: "DO", AM: "OO" },
+};
+
+export function translatePosition(lang: string | null | undefined, position: string | null | undefined): string {
+  if (!position) return '';
+  const code = normalizePortalLanguage(lang);
+  if (code === 'en') return position;
+  return POSITION_TRANSLATIONS[code]?.[position] || position;
+}
