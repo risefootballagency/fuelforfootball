@@ -229,10 +229,10 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
           {selectedMatches.length > 0 && (
             <div className="flex gap-3 flex-wrap">
               <Button onClick={generateCompilation}>
-                <Film className="w-4 h-4 mr-2" /> Watch
+                <Film className="w-4 h-4 mr-2" /> {t(lang, "watch_selected")}
               </Button>
               <Button variant="outline" onClick={generateFullReport}>
-                <ListVideo className="w-4 h-4 mr-2" /> Full Action Report Video
+                <ListVideo className="w-4 h-4 mr-2" /> {t(lang, "full_action_report_video")}
               </Button>
             </div>
           )}
