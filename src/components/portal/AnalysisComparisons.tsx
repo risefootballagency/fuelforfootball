@@ -257,12 +257,12 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
 
       <Tabs value={subTab} onValueChange={setSubTab}>
         <TabsList className="flex flex-wrap h-auto gap-1">
-          <TabsTrigger value="scatter"><ScatterChart className="w-4 h-4 mr-1" /> Scatter</TabsTrigger>
-          <TabsTrigger value="percentile"><BarChart3 className="w-4 h-4 mr-1" /> Percentile</TabsTrigger>
-          <TabsTrigger value="radar3d"><Box className="w-4 h-4 mr-1" /> 3D Radar</TabsTrigger>
-          <TabsTrigger value="comparison"><Users className="w-4 h-4 mr-1" /> Player Comparison</TabsTrigger>
-          <TabsTrigger value="scouting"><Crosshair className="w-4 h-4 mr-1" /> Scouting Matrix</TabsTrigger>
-          <TabsTrigger value="goals"><Target className="w-4 h-4 mr-1" /> Goals</TabsTrigger>
+          <TabsTrigger value="scatter"><ScatterChart className="w-4 h-4 mr-1" /> {t(lang, "scatter_label")}</TabsTrigger>
+          <TabsTrigger value="percentile"><BarChart3 className="w-4 h-4 mr-1" /> {t(lang, "percentile_label")}</TabsTrigger>
+          <TabsTrigger value="radar3d"><Box className="w-4 h-4 mr-1" /> {t(lang, "radar_3d_label")}</TabsTrigger>
+          <TabsTrigger value="comparison"><Users className="w-4 h-4 mr-1" /> {t(lang, "player_comparison_label")}</TabsTrigger>
+          <TabsTrigger value="scouting"><Crosshair className="w-4 h-4 mr-1" /> {t(lang, "scouting_matrix_label")}</TabsTrigger>
+          <TabsTrigger value="goals"><Target className="w-4 h-4 mr-1" /> {t(lang, "goals_label")}</TabsTrigger>
         </TabsList>
 
         {/* Scatter Tab */}
