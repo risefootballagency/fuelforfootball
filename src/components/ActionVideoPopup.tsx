@@ -2,6 +2,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Maximize } from 'lucide-react';
 import { useRef, useEffect } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ActionVideoPopupProps {
   open: boolean;
@@ -17,6 +18,7 @@ export const ActionVideoPopup = ({
   actionTitle,
 }: ActionVideoPopupProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (open && videoRef.current) {
@@ -43,8 +45,13 @@ export const ActionVideoPopup = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden bg-black">
-        <div className="relative">
+      <DialogContent
+        className={isMobile
+          ? "fixed inset-0 !left-0 !top-0 !translate-x-0 !translate-y-0 w-screen h-screen max-w-none max-h-none p-0 bg-black border-0 rounded-none flex flex-col overflow-hidden z-[220] data-[state=open]:!animate-none data-[state=closed]:!animate-none [&>button:last-child]:hidden"
+          : "max-w-3xl p-0 overflow-hidden bg-black [&>button:last-child]:hidden"
+        }
+      >
+        <div className={`relative ${isMobile ? 'flex-1' : ''}`}>
           <div className="absolute top-2 right-2 z-10 flex gap-2">
             <Button
               variant="ghost"
@@ -73,7 +80,7 @@ export const ActionVideoPopup = ({
             ref={videoRef}
             key={videoUrl}
             src={videoUrl}
-            className="w-full max-h-[80vh] object-contain"
+            className={isMobile ? 'w-full h-full object-contain' : 'w-full max-h-[80vh] object-contain'}
             preload="auto"
             crossOrigin="anonymous"
             muted
