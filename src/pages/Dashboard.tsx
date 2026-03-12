@@ -4367,7 +4367,7 @@ const Dashboard = () => {
                                       size="sm"
                                     >
                                       <Upload className="w-4 h-4 mr-2" />
-                                      Upload Clip{uploadProgress !== null ? 'ping...' : 's'}
+                                      {t(portalLang, "upload_clips")}{uploadProgress !== null ? '...' : ''}
                                     </Button>
                                     {uploadProgress !== null && (
                                       <div className="text-sm text-muted-foreground">
