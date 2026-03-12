@@ -437,6 +437,42 @@ export const PortalManagementAdmin = () => {
 
   const removePackage = (index: number) => {
     setFormData(prev => ({ ...prev, current_packages: prev.current_packages.filter((_, i) => i !== index) }));
+    if (editingPackageIndex === index) setEditingPackageIndex(null);
+  };
+
+  const updatePackageField = (index: number, field: keyof CurrentPackage, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      current_packages: prev.current_packages.map((pkg, i) => i === index ? { ...pkg, [field]: value } : pkg),
+    }));
+  };
+
+  const updateOfferField = (index: number, field: keyof UpgradeOffer, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      upgrade_offers: prev.upgrade_offers.map((o, i) => i === index ? { ...o, [field]: value } : o),
+    }));
+  };
+
+  const regenerateOfferPayLink = async (index: number) => {
+    const offer = formData.upgrade_offers[index];
+    if (!offer.name || !offer.price) { toast.error("Name and price required"); return; }
+    setRegeneratingOfferLink(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-pay-link", {
+        body: {
+          title: offer.name, amount: parseFloat(offer.price), currency: offer.currency,
+          description: offer.message || undefined, paymentType: offer.payment_type,
+          recurringInterval: offer.payment_type === "subscription" ? offer.recurring_interval : undefined,
+        },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        updateOfferField(index, "pay_link_url", data.url);
+        toast.success("Payment link regenerated");
+      } else throw new Error("No URL returned");
+    } catch { toast.error("Failed to regenerate payment link"); }
+    setRegeneratingOfferLink(false);
   };
 
   const createInvoice = async () => {
