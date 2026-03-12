@@ -276,10 +276,10 @@ const Services = () => {
               {!loading && filteredServices.length === 0 && (
                 <div className="text-center py-12 md:py-16">
                   <p className="text-lg md:text-xl font-bebas uppercase tracking-wider text-muted-foreground">
-                    No services found
+                    {t("services.no_results", "No services found")}
                   </p>
                   <p className="text-xs md:text-sm text-muted-foreground mt-2">
-                    Try adjusting your filters
+                    {t("services.adjust_filters", "Try adjusting your filters")}
                   </p>
                 </div>
               )}
