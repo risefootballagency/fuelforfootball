@@ -4669,7 +4669,7 @@ const Dashboard = () => {
             
             {(selectedExercise?.videoUrl || selectedExercise?.video_url) && (
               <div>
-                <h4 className="font-semibold mb-2">Video</h4>
+                <h4 className="font-semibold mb-2">{t(portalLang, "video")}</h4>
                 <a 
                   href={selectedExercise.videoUrl || selectedExercise.video_url}
                   target="_blank"
