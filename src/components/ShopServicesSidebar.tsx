@@ -106,7 +106,7 @@ export const ShopServicesSidebar = ({
         {/* Categories Section */}
         <div className="p-4">
           <h3 className="font-bebas text-lg uppercase tracking-wider text-foreground mb-4">
-            {type === 'shop' ? 'Products' : 'Categories'}
+            {type === 'shop' ? t("services.products", "Products") : t("services.categories", "Categories")}
           </h3>
           
           <nav className="space-y-1">
