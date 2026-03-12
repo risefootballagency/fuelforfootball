@@ -11,6 +11,7 @@ import { ServiceDetailPanel } from "@/components/ServiceDetailPanel";
 import { ServiceCard } from "@/components/ServiceCard";
 import { AnimatePresence } from "framer-motion";
 import fffLogo from "@/assets/fff_logo.png";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Service {
   id: string;
@@ -28,28 +29,29 @@ interface Service {
 
 // Sidebar categories - using exact database category values
 const sidebarCategories = [
-  { label: "All Services", value: "All" },
-  { label: "All in One", value: "All in One Services" },
-  { label: "Analysis", value: "Analysis Services" },
-  { label: "Technical", value: "Technical Services" },
-  { label: "Tactical", value: "Tactical" },
-  { label: "Physical", value: "Physical Services" },
-  { label: "Nutrition", value: "Nutrition Services" },
-  { label: "Psychological", value: "Psychological Services" },
-  { label: "Coaching", value: "Coaching Services" },
-  { label: "Data & Stats", value: "Data Services" },
-  { label: "Special Packages", value: "Special Packages" },
+  { labelKey: "services.cat_all", label: "All Services", value: "All" },
+  { labelKey: "services.cat_all_in_one", label: "All in One", value: "All in One Services" },
+  { labelKey: "services.cat_analysis", label: "Analysis", value: "Analysis Services" },
+  { labelKey: "services.cat_technical", label: "Technical", value: "Technical Services" },
+  { labelKey: "services.cat_tactical", label: "Tactical", value: "Tactical" },
+  { labelKey: "services.cat_physical", label: "Physical", value: "Physical Services" },
+  { labelKey: "services.cat_nutrition", label: "Nutrition", value: "Nutrition Services" },
+  { labelKey: "services.cat_psychological", label: "Psychological", value: "Psychological Services" },
+  { labelKey: "services.cat_coaching", label: "Coaching", value: "Coaching Services" },
+  { labelKey: "services.cat_data", label: "Data & Stats", value: "Data Services" },
+  { labelKey: "services.cat_special", label: "Special Packages", value: "Special Packages" },
 ];
 
 const priceRanges = [
-  { label: "All Prices", value: "all" },
-  { label: "Under £100", value: "under-100" },
-  { label: "£100 - £500", value: "100-500" },
-  { label: "£500 - £1000", value: "500-1000" },
-  { label: "Over £1000", value: "over-1000" },
+  { labelKey: "services.price_all", label: "All Prices", value: "all" },
+  { labelKey: "services.price_under_100", label: "Under £100", value: "under-100" },
+  { labelKey: "services.price_100_500", label: "£100 - £500", value: "100-500" },
+  { labelKey: "services.price_500_1000", label: "£500 - £1000", value: "500-1000" },
+  { labelKey: "services.price_over_1000", label: "Over £1000", value: "over-1000" },
 ];
 
 const Services = () => {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,7 +149,7 @@ const Services = () => {
       >
         <div className="container mx-auto px-4">
           <h1 className="text-3xl md:text-7xl font-bebas uppercase tracking-wider text-center text-foreground">
-            Services
+            {t("services.title", "Services")}
           </h1>
         </div>
       </InfoBoxWithPlayerBg>
@@ -161,12 +163,12 @@ const Services = () => {
             <div className="flex gap-2">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="flex-1 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder={t("services.category_placeholder", "Category")} />
                 </SelectTrigger>
                 <SelectContent>
                   {sidebarCategories.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value} className="text-xs">
-                      {cat.label}
+                      {t(cat.labelKey, cat.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -174,12 +176,12 @@ const Services = () => {
               
               <Select value={selectedPrice} onValueChange={setSelectedPrice}>
                 <SelectTrigger className="flex-1 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
-                  <SelectValue placeholder="Price" />
+                  <SelectValue placeholder={t("services.price_placeholder", "Price")} />
                 </SelectTrigger>
                 <SelectContent>
                   {priceRanges.map((range) => (
                     <SelectItem key={range.value} value={range.value} className="text-xs">
-                      {range.label}
+                      {t(range.labelKey, range.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -187,20 +189,20 @@ const Services = () => {
               
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-24 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
-                  <SelectValue placeholder="Sort" />
+                  <SelectValue placeholder={t("services.sort_placeholder", "Sort")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default" className="text-xs">Default</SelectItem>
-                  <SelectItem value="price-low" className="text-xs">Price ↑</SelectItem>
-                  <SelectItem value="price-high" className="text-xs">Price ↓</SelectItem>
-                  <SelectItem value="name" className="text-xs">Name</SelectItem>
+                  <SelectItem value="default" className="text-xs">{t("services.sort_default", "Default")}</SelectItem>
+                  <SelectItem value="price-low" className="text-xs">{t("services.sort_price_low", "Price ↑")}</SelectItem>
+                  <SelectItem value="price-high" className="text-xs">{t("services.sort_price_high", "Price ↓")}</SelectItem>
+                  <SelectItem value="name" className="text-xs">{t("services.sort_name", "Name")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             {/* Results count */}
             <p className="text-muted-foreground text-xs">
-              {loading ? 'Loading...' : `${filteredServices.length} services`}
+              {loading ? t("services.loading", "Loading...") : `${filteredServices.length} ${t("services.services_count", "services")}`}
             </p>
           </div>
 
@@ -209,7 +211,7 @@ const Services = () => {
             <div className="hidden lg:block">
               <ShopServicesSidebar
                 type="services"
-                categories={sidebarCategories}
+                categories={sidebarCategories.map(c => ({ ...c, label: t(c.labelKey, c.label) }))}
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
               />
@@ -220,17 +222,17 @@ const Services = () => {
               {/* Sort Header - Desktop only */}
               <div className="hidden lg:flex justify-between items-center mb-4 md:mb-6">
                 <p className="text-muted-foreground text-xs md:text-sm">
-                  {loading ? 'Loading...' : `${filteredServices.length} services`}
+                  {loading ? t("services.loading", "Loading...") : `${filteredServices.length} ${t("services.services_count", "services")}`}
                 </p>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-36 md:w-48 bg-primary/10 border-primary/30 text-foreground text-sm">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="default">Sort by</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
-                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="default">{t("services.sort_by", "Sort by")}</SelectItem>
+                    <SelectItem value="price-low">{t("services.sort_price_low_full", "Price: Low to High")}</SelectItem>
+                    <SelectItem value="price-high">{t("services.sort_price_high_full", "Price: High to Low")}</SelectItem>
+                    <SelectItem value="name">{t("services.sort_name", "Name")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -274,10 +276,10 @@ const Services = () => {
               {!loading && filteredServices.length === 0 && (
                 <div className="text-center py-12 md:py-16">
                   <p className="text-lg md:text-xl font-bebas uppercase tracking-wider text-muted-foreground">
-                    No services found
+                    {t("services.no_results", "No services found")}
                   </p>
                   <p className="text-xs md:text-sm text-muted-foreground mt-2">
-                    Try adjusting your filters
+                    {t("services.adjust_filters", "Try adjusting your filters")}
                   </p>
                 </div>
               )}

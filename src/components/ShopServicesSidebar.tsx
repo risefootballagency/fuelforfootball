@@ -3,6 +3,7 @@ import { ChevronRight, ChevronDown, ShoppingCart, ArrowLeft, Sparkles, Zap, Star
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Category {
   label: string;
@@ -32,6 +33,7 @@ export const ShopServicesSidebar = ({
   promotedServices = [],
 }: ShopServicesSidebarProps) => {
   const { totalItems, totalPrice } = useCart();
+  const { t } = useLanguage();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   const toggleCategory = (category: string) => {
@@ -61,13 +63,13 @@ export const ShopServicesSidebar = ({
             to="/customisation"
             className="flex items-center gap-3 py-3 px-4 bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 rounded-lg transition-all group"
           >
-            <Sparkles className="w-5 h-5 text-primary" />
+            <Sparkles className="w-5 h-5 text-accent" />
             <div className="flex-1">
               <span className="font-bebas uppercase tracking-wider text-foreground block text-sm">
-                Build Your Package
+                {t("services.build_your_package", "Build Your Package")}
               </span>
               <span className="text-[10px] text-muted-foreground">
-                Custom programme
+                {t("services.custom_programme", "Custom programme")}
               </span>
             </div>
             <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
@@ -82,7 +84,7 @@ export const ShopServicesSidebar = ({
           >
             <div className="flex items-center gap-3">
               <div className="relative">
-                <ShoppingCart className="w-5 h-5 text-primary" />
+                <ShoppingCart className="w-5 h-5 text-accent" />
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                     {totalItems}
@@ -90,7 +92,7 @@ export const ShopServicesSidebar = ({
                 )}
               </div>
               <span className="font-bebas text-sm uppercase tracking-wider text-foreground">
-                Basket
+                {t("services.basket", "Basket")}
               </span>
             </div>
             {totalItems > 0 && (
@@ -104,7 +106,7 @@ export const ShopServicesSidebar = ({
         {/* Categories Section */}
         <div className="p-4">
           <h3 className="font-bebas text-lg uppercase tracking-wider text-foreground mb-4">
-            {type === 'shop' ? 'Products' : 'Categories'}
+            {type === 'shop' ? t("services.products", "Products") : t("services.categories", "Categories")}
           </h3>
           
           <nav className="space-y-1">
@@ -126,7 +128,7 @@ export const ShopServicesSidebar = ({
                     className={cn(
                       "w-full flex items-center justify-between py-2.5 px-3 text-sm font-medium transition-all duration-200 rounded-md",
                       isActive && !hasSubCategories
-                        ? "bg-primary/10 text-primary"
+                        ? "bg-accent/10 text-accent"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                   >
@@ -174,7 +176,7 @@ export const ShopServicesSidebar = ({
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <h3 className="font-bebas text-sm uppercase tracking-wider text-foreground">
-                  Featured Services
+                  {t("services.featured_services", "Featured Services")}
                 </h3>
               </div>
               
@@ -210,7 +212,7 @@ export const ShopServicesSidebar = ({
             className="flex items-center gap-2 py-2 px-3 text-xs text-muted-foreground hover:text-primary transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="font-bebas uppercase tracking-wider">Back to Players</span>
+            <span className="font-bebas uppercase tracking-wider">{t("services.back_to_players", "Back to Players")}</span>
           </LocalizedLink>
         </div>
       </div>
