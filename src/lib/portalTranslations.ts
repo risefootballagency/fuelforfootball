@@ -642,10 +642,75 @@ const STAT_LABEL_TRANSLATIONS: Record<string, Record<string, string>> = {
   },
 };
 
+const STAT_KEY_ALIASES: Record<string, string[]> = {
+  dribbles_completed: ["successful_dribbles", "dribbles"],
+  crosses_completed: ["crosses"],
+  long_passes_completed: ["long_passes"],
+  tackles_won: ["tackles"],
+  aerial_duels_won: ["aerial_duels"],
+  duels_won: ["duels"],
+  ground_duels_won: ["duels_won", "duels"],
+  fouls_committed: ["fouls"],
+  shot_creating_actions: ["chances_created"],
+  touches_in_box: ["touches"],
+};
+
+const toStatSnakeCase = (value: string): string =>
+  value
+    .trim()
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/[\s-]+/g, "_")
+    .replace(/__+/g, "_")
+    .toLowerCase();
+
+const buildStatKeyCandidates = (statKey: string, fallbackLabel: string): string[] => {
+  const raw = (statKey || "").trim();
+  const rawLower = raw.toLowerCase();
+  const snake = toStatSnakeCase(raw);
+  const fallbackSnake = toStatSnakeCase(fallbackLabel || "");
+
+  const candidates = new Set<string>([raw, rawLower, snake, fallbackSnake]);
+
+  const addDerivedCandidates = (key: string) => {
+    if (!key) return;
+
+    const suffixPatterns: Array<{ regex: RegExp; map: (base: string) => string[] }> = [
+      { regex: /^(.+)_completed$/, map: (base) => [base, `successful_${base}`, `${base}_successful`] },
+      { regex: /^(.+)_won$/, map: (base) => [base, `successful_${base}`, `${base}_successful`] },
+      { regex: /^(.+)_successful$/, map: (base) => [base] },
+      { regex: /^(.+)_attempted$/, map: (base) => [base] },
+      { regex: /^(.+)_total$/, map: (base) => [base] },
+    ];
+
+    for (const pattern of suffixPatterns) {
+      const match = key.match(pattern.regex);
+      if (match) {
+        pattern.map(match[1]).forEach((variant) => candidates.add(variant));
+      }
+    }
+
+    STAT_KEY_ALIASES[key]?.forEach((alias) => candidates.add(alias));
+  };
+
+  addDerivedCandidates(snake);
+  addDerivedCandidates(fallbackSnake);
+
+  if (snake === "xg_chain") candidates.add("xGChain");
+
+  return Array.from(candidates).filter(Boolean);
+};
+
 export function translateStatLabel(lang: string | null | undefined, statKey: string, fallbackLabel: string): string {
   const code = normalizePortalLanguage(lang);
   if (code === 'en') return fallbackLabel;
-  return STAT_LABEL_TRANSLATIONS[code]?.[statKey] ?? METRIC_LABEL_TRANSLATIONS[code]?.[statKey] ?? fallbackLabel;
+
+  const candidates = buildStatKeyCandidates(statKey, fallbackLabel);
+  for (const candidate of candidates) {
+    const translated = STAT_LABEL_TRANSLATIONS[code]?.[candidate] ?? METRIC_LABEL_TRANSLATIONS[code]?.[candidate];
+    if (translated) return translated;
+  }
+
+  return fallbackLabel;
 }
 
 // ─── Extended translations per language ────────────────────────────────────────
