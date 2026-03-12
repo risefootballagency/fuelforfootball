@@ -1438,6 +1438,7 @@ const csExtended: Record<string, string> = {
   minor: "Lehké", moderate: "Střední", severe: "Vážné", cancel: "Zrušit", save: "Uložit",
   active: "Aktivní", recovered: "Vyléčené", marked_as_recovered: "Označeno jako vyléčené",
   injury_logged: "Zranění zaznamenáno", no_injuries_logged: "Žádná zranění. Zůstaňte zdraví!",
+  goal_tracking: "Sledování cílů",
   select_metric: "Vyberte metriku...", target_value: "Cílová hodnota", add_goal: "Přidat Cíl",
   goal_saved: "Cíl uložen", goal_removed: "Cíl odstraněn", target_achieved: "Cíl dosažen!",
   no_goals_set: "Zatím žádné cíle. Přidejte cíl výše pro sledování pokroku.",
