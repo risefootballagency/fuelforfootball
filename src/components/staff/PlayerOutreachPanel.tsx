@@ -135,10 +135,49 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
   const handleEdit = (item: any) => { setEditingItem(item); setFormData({ ...item }); setDialogOpen(true); };
   const openDetail = (item: any) => { setDetailItem(item); setDetailEditMode(false); setFormData({ ...item }); setDetailOpen(true); };
 
+  const normalizeOutreachSubmitData = (rawData: any) => {
+    const submitData = { ...rawData };
+
+    if (typeof submitData.player_name === 'string') {
+      submitData.player_name = submitData.player_name.trim();
+    }
+
+    const nullableTextFields = ['ig_handle', 'current_club', 'position', 'nationality', 'parents_name', 'parent_contact', 'initial_message', 'notes'];
+    nullableTextFields.forEach((field) => {
+      if (typeof submitData[field] === 'string') {
+        const trimmed = submitData[field].trim();
+        submitData[field] = trimmed === '' ? null : trimmed;
+      }
+    });
+
+    if (typeof submitData.date_of_birth === 'string') {
+      const trimmedDob = submitData.date_of_birth.trim();
+      submitData.date_of_birth = trimmedDob === '' ? null : trimmedDob;
+    }
+
+    submitData.age = submitData.date_of_birth ? calculateAge(submitData.date_of_birth) : null;
+
+    if (!isYouth) {
+      delete submitData.parents_name;
+      delete submitData.parent_contact;
+      delete submitData.parent_approval;
+    } else {
+      submitData.parent_approval = !!submitData.parent_approval;
+    }
+
+    return submitData;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
-    const submitData = { ...formData }; if (submitData.date_of_birth) submitData.age = calculateAge(submitData.date_of_birth);
-    if (!isYouth) { delete submitData.parents_name; delete submitData.parent_contact; delete submitData.parent_approval; }
+    e.preventDefault();
+    const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
+    const submitData = normalizeOutreachSubmitData(formData);
+
+    if (!submitData.player_name) {
+      toast.error('Player name is required');
+      return;
+    }
+
     try {
       if (editingItem) { const { error } = await db.from(tableName).update(submitData).eq('id', editingItem.id); if (error) throw error; toast.success('Entry updated'); }
       else { const { error } = await db.from(tableName).insert([submitData]); if (error) throw error; toast.success('Entry added'); }
@@ -147,9 +186,15 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
   };
 
   const handleDetailSave = async () => {
-    if (!detailItem) return; const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
-    const submitData = { ...formData }; if (submitData.date_of_birth) submitData.age = calculateAge(submitData.date_of_birth);
-    if (!isYouth) { delete submitData.parents_name; delete submitData.parent_contact; delete submitData.parent_approval; }
+    if (!detailItem) return;
+    const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
+    const submitData = normalizeOutreachSubmitData(formData);
+
+    if (!submitData.player_name) {
+      toast.error('Player name is required');
+      return;
+    }
+
     try { const { error } = await db.from(tableName).update(submitData).eq('id', detailItem.id); if (error) throw error; toast.success('Updated'); setDetailOpen(false); fetchData(); } catch (error: any) { toast.error(error.message || 'Failed to save'); }
   };
 
