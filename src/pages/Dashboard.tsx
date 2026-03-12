@@ -771,23 +771,21 @@ const Dashboard = () => {
     };
   }, [navigate]);
 
-  // Track portal tab views for staff notifications (split by type like RISE)
+  // Track portal tab views for staff notifications (match RISE: only fire when on analysis tab)
   useEffect(() => {
     if (!playerData?.name || !playerData?.id) return;
+    if (activeTab !== "analysis") return;
 
-    const isAnalysisTab = activeTab === "analysis";
-    const eventType = isAnalysisTab ? "portal_analysis_view" : "portal_performance_view";
-    const subTab = isAnalysisTab ? activeAnalysisTab : activeTab;
-    const tabLabel = isAnalysisTab ? `Analysis > ${activeAnalysisTab}` : activeTab;
-
+    const subType = activeAnalysisTab === "performance" ? "portal_performance_view" : "portal_analysis_view";
+    const label = activeAnalysisTab === "performance" ? "Performance Reports" : "Analysis";
     insertStaffNotification({
-      eventType,
-      title: `${playerData.name} viewed ${tabLabel}`,
-      body: `Portal tab: ${tabLabel}`,
+      eventType: subType,
+      title: `Portal ${label} View`,
+      body: `${playerData.name} viewed ${label}`,
       eventData: {
         player_id: playerData.id,
         player_name: playerData.name,
-        sub_tab: subTab,
+        sub_tab: activeAnalysisTab,
       },
       dedupeKey: playerData.id,
     });
