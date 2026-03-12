@@ -61,7 +61,7 @@ export const ShopServicesSidebar = ({
             to="/customisation"
             className="flex items-center gap-3 py-3 px-4 bg-gradient-to-r from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 rounded-lg transition-all group"
           >
-            <Sparkles className="w-5 h-5 text-primary" />
+            <Sparkles className="w-5 h-5 text-accent" />
             <div className="flex-1">
               <span className="font-bebas uppercase tracking-wider text-foreground block text-sm">
                 Build Your Package
