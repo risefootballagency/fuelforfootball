@@ -1870,6 +1870,93 @@ export function translateCalculatedStat(lang: string | null | undefined, key: st
   return t ?? { displayName, description };
 }
 
+// Action type translations (used for dynamic action chips/lists)
+const ACTION_TYPE_TRANSLATIONS: Record<string, Record<string, string>> = {
+  fr: {
+    "aerial duel": "Duel aérien",
+    "applied pressure": "Pression appliquée",
+    "blocked cross": "Centre contré",
+    "clearance": "Dégagement",
+    "defensive positioning": "Placement défensif",
+    "defensive transition": "Transition défensive",
+    "tackle": "Tacle",
+    "double team": "Prise à deux",
+    "double-team": "Prise à deux",
+    "dribble": "Dribble",
+    "fouled": "Faute subie",
+    "turnover": "Perte de balle",
+    "foul": "Faute",
+    "header": "Tête",
+    "hold-up play": "Jeu dos au but",
+    "loose ball": "Ballon disputé",
+    "offensive positioning": "Placement offensif",
+    "offer down the side": "Appel sur le côté",
+    "offer in behind": "Appel dans le dos",
+    "offer to feet": "Appel dans les pieds",
+    "opportunity to offer to feet": "Occasion d'appel dans les pieds",
+    "overlapping run": "Course de chevauchement",
+    "pass": "Passe",
+    "pressing": "Pressing",
+    "regain": "Récupération",
+    "rest defence": "Défense de couverture",
+  },
+  cs: {
+    "aerial duel": "Hlavičkový souboj",
+    "applied pressure": "Vyvinutý tlak",
+    "blocked cross": "Zablokovaný centr",
+    "clearance": "Odklizení",
+    "defensive positioning": "Defenzivní postavení",
+    "defensive transition": "Defenzivní přechod",
+    "tackle": "Skluz",
+    "double team": "Zdvojení",
+    "double-team": "Zdvojení",
+    "dribble": "Klička",
+    "fouled": "Faulován",
+    "turnover": "Ztráta míče",
+    "foul": "Faul",
+    "header": "Hlavička",
+    "hold-up play": "Hra zády k bráně",
+    "loose ball": "Volný míč",
+    "offensive positioning": "Ofenzivní postavení",
+    "offer down the side": "Náběh po straně",
+    "offer in behind": "Náběh za obranu",
+    "offer to feet": "Nabídka do nohy",
+    "opportunity to offer to feet": "Příležitost nabídnout se do nohy",
+    "overlapping run": "Přeběhnutí",
+    "pass": "Přihrávka",
+    "pressing": "Presink",
+    "regain": "Zisk míče",
+    "rest defence": "Zajišťovací obrana",
+  },
+};
+
+const normalizeActionTypeKey = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+
+export function translateActionTypeLabel(lang: string | null | undefined, label: string): string {
+  if (!label) return label;
+
+  const code = normalizePortalLanguage(lang);
+  if (code === "en") return label;
+
+  const parts = label
+    .split(/[\/,]/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) return label;
+
+  const translatedParts = parts.map((part) => {
+    const key = normalizeActionTypeKey(part);
+    return ACTION_TYPE_TRANSLATIONS[code]?.[key] ?? part;
+  });
+
+  return translatedParts.join(", ");
+}
+
 export type { TranslationKey };
 
 // Position acronym translations
