@@ -4014,10 +4014,10 @@ const Dashboard = () => {
                   <Tabs defaultValue="invoices" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 gap-2 mb-0 bg-muted h-auto p-2">
                   <TabsTrigger value="invoices" className="font-bebas uppercase text-sm sm:text-base">
-                    Invoices
+                    {t(portalLang, "invoices")}
                   </TabsTrigger>
                   <TabsTrigger value="payment" data-value="payment" className="font-bebas uppercase text-sm sm:text-base">
-                    Make Payment
+                    {t(portalLang, "make_a_payment")}
                   </TabsTrigger>
                 </TabsList>
 
