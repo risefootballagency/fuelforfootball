@@ -138,6 +138,7 @@ export const PlayerOutreachPanel = ({ type }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); const tableName = isYouth ? 'player_outreach_youth' : 'player_outreach_pro';
     const submitData = { ...formData }; if (submitData.date_of_birth) submitData.age = calculateAge(submitData.date_of_birth);
+    if (!isYouth) { delete submitData.parents_name; delete submitData.parent_contact; delete submitData.parent_approval; }
     try {
       if (editingItem) { const { error } = await db.from(tableName).update(submitData).eq('id', editingItem.id); if (error) throw error; toast.success('Entry updated'); }
       else { const { error } = await db.from(tableName).insert([submitData]); if (error) throw error; toast.success('Entry added'); }
