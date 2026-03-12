@@ -4238,13 +4238,13 @@ const Dashboard = () => {
                   <Tabs defaultValue="best" className="w-full" key="highlights-tabs">
                     <TabsList className="grid w-full grid-cols-3 gap-2 mb-2 bg-muted h-auto p-2">
                       <TabsTrigger value="match" className="font-bebas uppercase">
-                        Match Highlights
+                        {t(portalLang, "match_highlights")}
                       </TabsTrigger>
                       <TabsTrigger value="best" className="font-bebas uppercase">
-                        Best Clips
+                        {t(portalLang, "best_clips")}
                       </TabsTrigger>
                       <TabsTrigger value="clipper" className="font-bebas uppercase">
-                        Match Clipper
+                        {t(portalLang, "match_clipper")}
                       </TabsTrigger>
                     </TabsList>
                         
