@@ -4677,7 +4677,7 @@ const Dashboard = () => {
                   className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
                   <Play className="w-4 h-4" />
-                  Watch Exercise Video
+                  {t(portalLang, "watch_exercise_video")}
                 </a>
               </div>
             )}
