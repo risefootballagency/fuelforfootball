@@ -4250,7 +4250,7 @@ const Dashboard = () => {
                         
                         <TabsContent value="match">
                           {!highlightsData.matchHighlights || highlightsData.matchHighlights.length === 0 ? (
-                            <PortalEmptyState icon="highlights" title="No match highlights available yet" description="Your highlights will appear here once they've been created." />
+                            <PortalEmptyState icon="highlights" title={t(portalLang, "no_match_highlights_yet")} description={t(portalLang, "highlights_will_appear")} />
                           ) : (
                             <div className="grid gap-4 md:grid-cols-2">
                               {highlightsData.matchHighlights?.map((highlight: any, index: number) => (
