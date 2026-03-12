@@ -4325,7 +4325,7 @@ const Dashboard = () => {
                             <TabsContent value="clips">
                               {!highlightsData.bestClips || highlightsData.bestClips.length === 0 ? (
                                 <div className="py-8 flex flex-col items-center justify-center space-y-4">
-                                  <p className="text-muted-foreground">No best clips available yet.</p>
+                                  <p className="text-muted-foreground">{t(portalLang, "no_best_clips_yet")}</p>
                                   <Button
                                     onClick={() => {
                                       const input = document.createElement('input');
