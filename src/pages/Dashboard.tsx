@@ -3199,7 +3199,7 @@ const Dashboard = () => {
                     <CardContent className="container mx-auto px-4 space-y-3 md:space-y-4">
                       {otherAnalyses.length === 0 ? (
                         <div className="py-8">
-                          <p className="text-center text-muted-foreground text-sm md:text-base">No other analysis available yet.</p>
+                          <p className="text-center text-muted-foreground text-sm md:text-base">{t(portalLang, "no_other_analysis_yet")}</p>
                         </div>
                       ) : (
                         <div className="space-y-3">
@@ -4014,10 +4014,10 @@ const Dashboard = () => {
                   <Tabs defaultValue="invoices" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 gap-2 mb-0 bg-muted h-auto p-2">
                   <TabsTrigger value="invoices" className="font-bebas uppercase text-sm sm:text-base">
-                    Invoices
+                    {t(portalLang, "invoices")}
                   </TabsTrigger>
                   <TabsTrigger value="payment" data-value="payment" className="font-bebas uppercase text-sm sm:text-base">
-                    Make Payment
+                    {t(portalLang, "make_a_payment")}
                   </TabsTrigger>
                 </TabsList>
 
@@ -4034,7 +4034,7 @@ const Dashboard = () => {
                       {/* Outstanding Summary */}
                       {invoices.length > 0 && invoices.some(inv => inv.status === 'pending' || inv.status === 'overdue') && (
                         <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-6">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Outstanding</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{t(portalLang, "outstanding")}</p>
                           <p className="text-xl font-bold text-amber-500">
                             {(() => {
                               const outstanding = invoices
@@ -4052,7 +4052,7 @@ const Dashboard = () => {
                       )}
 
                       {invoices.length === 0 ? (
-                        <PortalEmptyState icon="invoices" title="No invoices available yet" description="Your invoices will appear here once they've been generated." />
+                        <PortalEmptyState icon="invoices" title={t(portalLang, "no_invoices_yet")} description={t(portalLang, "invoices_will_appear")} />
                       ) : (
                         <div className="space-y-4">
                           {/* Outstanding invoices first */}
@@ -4100,7 +4100,7 @@ const Dashboard = () => {
 
                                     <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                                       <span className="text-sm text-muted-foreground">
-                                        Due: {format(new Date(invoice.due_date), 'dd/MM/yyyy')}
+                                        {t(portalLang, "due_label")}: {format(new Date(invoice.due_date), 'dd/MM/yyyy')}
                                       </span>
                                     </div>
 
@@ -4114,7 +4114,7 @@ const Dashboard = () => {
                                         </span>
                                         {isPartiallyPaid && (
                                           <span className="text-xs text-primary">
-                                            {(invoice.amount_paid || 0).toFixed(2)} paid
+                                            {(invoice.amount_paid || 0).toFixed(2)} {t(portalLang, "paid_label")}
                                           </span>
                                         )}
                                       </div>
@@ -4132,7 +4132,7 @@ const Dashboard = () => {
                                         onClick={() => window.open(invoice.pdf_url!, '_blank')}
                                       >
                                         <FileText className="w-4 h-4 mr-2" />
-                                        View PDF
+                                        {t(portalLang, "view_pdf")}
                                       </Button>
                                     )}
                                     <Button
@@ -4142,7 +4142,7 @@ const Dashboard = () => {
                                         if (paymentTab) paymentTab.click();
                                       }}
                                     >
-                                      Pay Now
+                                      {t(portalLang, "pay_now")}
                                     </Button>
                                   </div>
                                 </div>
@@ -4199,7 +4199,7 @@ const Dashboard = () => {
                                       onClick={() => window.open(invoice.pdf_url!, '_blank')}
                                     >
                                       <FileText className="w-4 h-4 mr-2" />
-                                      View PDF
+                                      {t(portalLang, "view_pdf")}
                                     </Button>
                                   )}
                                 </div>
@@ -4238,19 +4238,19 @@ const Dashboard = () => {
                   <Tabs defaultValue="best" className="w-full" key="highlights-tabs">
                     <TabsList className="grid w-full grid-cols-3 gap-2 mb-2 bg-muted h-auto p-2">
                       <TabsTrigger value="match" className="font-bebas uppercase">
-                        Match Highlights
+                        {t(portalLang, "match_highlights")}
                       </TabsTrigger>
                       <TabsTrigger value="best" className="font-bebas uppercase">
-                        Best Clips
+                        {t(portalLang, "best_clips")}
                       </TabsTrigger>
                       <TabsTrigger value="clipper" className="font-bebas uppercase">
-                        Match Clipper
+                        {t(portalLang, "match_clipper")}
                       </TabsTrigger>
                     </TabsList>
                         
                         <TabsContent value="match">
                           {!highlightsData.matchHighlights || highlightsData.matchHighlights.length === 0 ? (
-                            <PortalEmptyState icon="highlights" title="No match highlights available yet" description="Your highlights will appear here once they've been created." />
+                            <PortalEmptyState icon="highlights" title={t(portalLang, "no_match_highlights_yet")} description={t(portalLang, "highlights_will_appear")} />
                           ) : (
                             <div className="grid gap-4 md:grid-cols-2">
                               {highlightsData.matchHighlights?.map((highlight: any, index: number) => (
@@ -4299,7 +4299,7 @@ const Dashboard = () => {
                                             className="flex-1"
                                           >
                                             <Download className="w-4 h-4 mr-2" />
-                                            Download
+                                             {t(portalLang, "download")}
                                           </Button>
                                         </>
                                       )}
@@ -4315,17 +4315,17 @@ const Dashboard = () => {
                           <Tabs defaultValue="clips" className="w-full">
                             <TabsList className="grid w-full grid-cols-2 gap-2 mb-6 bg-muted h-auto p-2 -mt-2">
                               <TabsTrigger value="clips" className="font-bebas uppercase">
-                                All Clips
+                                {t(portalLang, "all_clips")}
                               </TabsTrigger>
                               <TabsTrigger value="playlists" className="font-bebas uppercase">
-                                Playlists
+                                {t(portalLang, "playlists")}
                               </TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="clips">
                               {!highlightsData.bestClips || highlightsData.bestClips.length === 0 ? (
                                 <div className="py-8 flex flex-col items-center justify-center space-y-4">
-                                  <p className="text-muted-foreground">No best clips available yet.</p>
+                                  <p className="text-muted-foreground">{t(portalLang, "no_best_clips_yet")}</p>
                                   <Button
                                     onClick={() => {
                                       const input = document.createElement('input');
@@ -4343,7 +4343,7 @@ const Dashboard = () => {
                                     variant="outline"
                                   >
                                     <Upload className="w-4 h-4 mr-2" />
-                                    Upload Clip{uploadProgress !== null ? 'ping...' : 's'}
+                                    {t(portalLang, "upload_clips")}{uploadProgress !== null ? '...' : ''}
                                   </Button>
                                 </div>
                               ) : (
@@ -4367,11 +4367,11 @@ const Dashboard = () => {
                                       size="sm"
                                     >
                                       <Upload className="w-4 h-4 mr-2" />
-                                      Upload Clip{uploadProgress !== null ? 'ping...' : 's'}
+                                      {t(portalLang, "upload_clips")}{uploadProgress !== null ? '...' : ''}
                                     </Button>
                                     {uploadProgress !== null && (
                                       <div className="text-sm text-muted-foreground">
-                                        Uploading: {uploadProgress}%
+                                        {t(portalLang, "uploading_progress")}: {uploadProgress}%
                                       </div>
                                     )}
                                   </div>
@@ -4435,13 +4435,13 @@ const Dashboard = () => {
                                            ) : highlight.uploadFailed ? (
                                              <div className="space-y-1">
                                                <p className="font-bebas text-lg uppercase tracking-wider text-destructive truncate">{highlight.name}</p>
-                                               <p className="text-xs text-destructive">Upload failed. Please try again.</p>
+                                               <p className="text-xs text-destructive">{t(portalLang, "upload_failed")}</p>
                                                <Button 
                                                  variant="destructive" 
                                                  size="sm"
                                                  onClick={() => handleDeleteClip(highlight.name, highlight.videoUrl)}
                                                >
-                                                 Remove
+                                                  {t(portalLang, "remove")}
                                                </Button>
                                              </div>
                                            ) : highlight.justCompleted ? (
@@ -4471,7 +4471,7 @@ const Dashboard = () => {
                                                  className="h-8 px-2"
                                                >
                                                  <Play className="w-4 h-4" />
-                                                 <span className="hidden sm:inline ml-2">Watch</span>
+                                                 <span className="hidden sm:inline ml-2">{t(portalLang, "watch")}</span>
                                                </Button>
                                               <Button 
                                                 variant="ghost" 
@@ -4506,7 +4506,7 @@ const Dashboard = () => {
                                         onClick={() => setVisibleClipsCount(prev => prev + 10)}
                                         variant="outline"
                                       >
-                                        Load More Clips ({highlightsData.bestClips.length - visibleClipsCount} remaining)
+                                        {t(portalLang, "load_more_clips")} ({highlightsData.bestClips.length - visibleClipsCount} {t(portalLang, "remaining")})
                                       </Button>
                                     </div>
                                   )}
@@ -4536,7 +4536,7 @@ const Dashboard = () => {
                         {playerData?.id && playerData?.email ? (
                           <PlayerMatchClipper playerId={playerData.id} playerEmail={playerData.email} />
                         ) : (
-                          <PortalEmptyState icon="highlights" title="Match Clipper" description="Match video clips will appear here once analyses with videos are available." />
+                          <PortalEmptyState icon="highlights" title={t(portalLang, "match_clipper")} description={t(portalLang, "match_clipper_empty")} />
                         )}
                       </CardContent>
                     </Card>
@@ -4567,19 +4567,19 @@ const Dashboard = () => {
                   <Tabs defaultValue="general" className="w-full">
                     <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 gap-2 mb-6 bg-muted h-auto p-2">
                       <TabsTrigger value="general" className="font-bebas uppercase text-sm">
-                        General Updates
+                        {t(portalLang, "general_updates")}
                       </TabsTrigger>
                       <TabsTrigger value="app" className="font-bebas uppercase text-sm">
-                        App Updates
+                        {t(portalLang, "app_updates")}
                       </TabsTrigger>
                       <TabsTrigger value="offline" className="font-bebas uppercase text-sm">
-                        Offline Access
+                        {t(portalLang, "offline_access")}
                       </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="general" className="space-y-6 pl-6 pr-6">
                       {updates.length === 0 ? (
-                        <PortalEmptyState icon="updates" title="No updates available yet" description="Check back soon for the latest updates from your coaching team." />
+                        <PortalEmptyState icon="updates" title={t(portalLang, "no_updates_yet")} description={t(portalLang, "updates_check_back")} />
                       ) : (
                         <div className="space-y-6">
                           {updates.map((update) => (
@@ -4607,7 +4607,7 @@ const Dashboard = () => {
                     <TabsContent value="app" className="space-y-6 pl-6 pr-6">
                       <div>
                         <h3 className="text-xl font-bebas uppercase tracking-wider mb-4">
-                          Latest App Update
+                          {t(portalLang, "latest_app_update")}
                         </h3>
                         <PWAInstallPrompt />
                       </div>
@@ -4616,7 +4616,7 @@ const Dashboard = () => {
                     <TabsContent value="offline" className="space-y-6 pl-6 pr-6">
                       <div>
                         <h3 className="text-xl font-bebas uppercase tracking-wider mb-4">
-                          Offline Access
+                          {t(portalLang, "offline_access")}
                         </h3>
                         <OfflineContentManager 
                           playerData={playerData}
@@ -4654,13 +4654,13 @@ const Dashboard = () => {
         <DialogContent className="w-[98vw] max-w-none sm:max-w-2xl mx-2 sm:mx-auto">
           <DialogHeader>
             <DialogTitle className="font-bebas uppercase text-2xl">
-              {selectedExercise?.name || 'Exercise Details'}
+              {selectedExercise?.name || t(portalLang, "exercise_details")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {selectedExercise?.description && (
               <div>
-                <h4 className="font-semibold mb-2">Description</h4>
+                <h4 className="font-semibold mb-2">{t(portalLang, "description")}</h4>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {selectedExercise.description}
                 </p>
@@ -4669,7 +4669,7 @@ const Dashboard = () => {
             
             {(selectedExercise?.videoUrl || selectedExercise?.video_url) && (
               <div>
-                <h4 className="font-semibold mb-2">Video</h4>
+                <h4 className="font-semibold mb-2">{t(portalLang, "video")}</h4>
                 <a 
                   href={selectedExercise.videoUrl || selectedExercise.video_url}
                   target="_blank"
@@ -4677,7 +4677,7 @@ const Dashboard = () => {
                   className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
                   <Play className="w-4 h-4" />
-                  Watch Exercise Video
+                  {t(portalLang, "watch_exercise_video")}
                 </a>
               </div>
             )}

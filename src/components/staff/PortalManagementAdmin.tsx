@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { toast } from "sonner";
-import { Monitor, Eye, EyeOff, Image, Save, RotateCcw, Upload, Trash2, User, Move, Settings, CreditCard, FileText, Plus, Copy, Check, ExternalLink, Mail, LogIn, Link, Package } from "lucide-react";
+import { Monitor, Eye, EyeOff, Image, Save, RotateCcw, Upload, Trash2, User, Move, Settings, CreditCard, FileText, Plus, Copy, Check, ExternalLink, Mail, LogIn, Link, Package, Pencil } from "lucide-react";
 import { ImageCropDialog } from "./ImageCropDialog";
 
 interface Player {
@@ -201,6 +201,11 @@ export const PortalManagementAdmin = () => {
   const [newOfferFeature, setNewOfferFeature] = useState("");
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [creatingOfferLink, setCreatingOfferLink] = useState(false);
+  const [editingPackageIndex, setEditingPackageIndex] = useState<number | null>(null);
+  const [editingOfferIndex, setEditingOfferIndex] = useState<number | null>(null);
+  const [editPackageFeature, setEditPackageFeature] = useState("");
+  const [editOfferFeature, setEditOfferFeature] = useState("");
+  const [regeneratingOfferLink, setRegeneratingOfferLink] = useState(false);
   const [previewProduct, setPreviewProduct] = useState<ServiceProduct | null>(null);
 
   useEffect(() => { fetchPlayers(); fetchProducts(); }, []);
@@ -432,6 +437,42 @@ export const PortalManagementAdmin = () => {
 
   const removePackage = (index: number) => {
     setFormData(prev => ({ ...prev, current_packages: prev.current_packages.filter((_, i) => i !== index) }));
+    if (editingPackageIndex === index) setEditingPackageIndex(null);
+  };
+
+  const updatePackageField = (index: number, field: keyof CurrentPackage, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      current_packages: prev.current_packages.map((pkg, i) => i === index ? { ...pkg, [field]: value } : pkg),
+    }));
+  };
+
+  const updateOfferField = (index: number, field: keyof UpgradeOffer, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      upgrade_offers: prev.upgrade_offers.map((o, i) => i === index ? { ...o, [field]: value } : o),
+    }));
+  };
+
+  const regenerateOfferPayLink = async (index: number) => {
+    const offer = formData.upgrade_offers[index];
+    if (!offer.name || !offer.price) { toast.error("Name and price required"); return; }
+    setRegeneratingOfferLink(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-pay-link", {
+        body: {
+          title: offer.name, amount: parseFloat(offer.price), currency: offer.currency,
+          description: offer.message || undefined, paymentType: offer.payment_type,
+          recurringInterval: offer.payment_type === "subscription" ? offer.recurring_interval : undefined,
+        },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        updateOfferField(index, "pay_link_url", data.url);
+        toast.success("Payment link regenerated");
+      } else throw new Error("No URL returned");
+    } catch { toast.error("Failed to regenerate payment link"); }
+    setRegeneratingOfferLink(false);
   };
 
   const createInvoice = async () => {
@@ -771,14 +812,43 @@ export const PortalManagementAdmin = () => {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {formData.current_packages.map((pkg, idx) => (
+                        editingPackageIndex === idx ? (
+                          <div key={idx} className="border-2 border-primary rounded-lg p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-semibold">Edit Package</p>
+                              <button onClick={() => removePackage(idx)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div><Label className="text-xs">Package Name</Label><Input value={pkg.name} onChange={e => updatePackageField(idx, "name", e.target.value)} /></div>
+                              <div className="grid grid-cols-3 gap-2">
+                                <div><Label className="text-xs">Price</Label><Input type="number" value={pkg.price} onChange={e => updatePackageField(idx, "price", e.target.value)} /></div>
+                                <div><Label className="text-xs">Currency</Label><Select value={pkg.currency} onValueChange={v => updatePackageField(idx, "currency", v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="GBP">GBP</SelectItem><SelectItem value="EUR">EUR</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
+                                <div><Label className="text-xs">Frequency</Label><Select value={pkg.frequency} onValueChange={v => updatePackageField(idx, "frequency", v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="weekly">Weekly</SelectItem><SelectItem value="monthly">Monthly</SelectItem><SelectItem value="6-monthly">6-Monthly</SelectItem><SelectItem value="annual">Annual</SelectItem><SelectItem value="one-off">One-off</SelectItem></SelectContent></Select></div>
+                              </div>
+                            </div>
+                            <div>
+                              <Label className="text-xs">Features</Label>
+                              <div className="flex gap-2 mt-1">
+                                <Input value={editPackageFeature} onChange={e => setEditPackageFeature(e.target.value)} placeholder="Add feature" onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); if (editPackageFeature.trim()) { updatePackageField(idx, "features", [...pkg.features, editPackageFeature.trim()]); setEditPackageFeature(""); } } }} />
+                                <Button variant="outline" size="sm" onClick={() => { if (editPackageFeature.trim()) { updatePackageField(idx, "features", [...pkg.features, editPackageFeature.trim()]); setEditPackageFeature(""); } }}><Plus className="h-4 w-4" /></Button>
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-2">{pkg.features.map((f, i) => <Badge key={i} variant="secondary" className="gap-1 text-xs">{f}<button onClick={() => updatePackageField(idx, "features", pkg.features.filter((_, fi) => fi !== i))} className="ml-1 hover:text-destructive"><Trash2 className="h-3 w-3" /></button></Badge>)}</div>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={() => setEditingPackageIndex(null)}>Done</Button>
+                          </div>
+                        ) : (
                         <div key={idx} className="border rounded-lg p-3 relative">
-                          <button onClick={() => removePackage(idx)} className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
-                          <div className="flex items-center justify-between pr-8">
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            <button onClick={() => { setEditingPackageIndex(idx); setEditPackageFeature(""); }} className="text-muted-foreground hover:text-primary"><Pencil className="h-4 w-4" /></button>
+                            <button onClick={() => removePackage(idx)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                          </div>
+                          <div className="flex items-center justify-between pr-16">
                             <p className="font-medium">{pkg.name}</p>
                             <p className="text-sm font-bold">{currencySymbol(pkg.currency)}{pkg.price}{frequencyLabel(pkg.frequency)}</p>
                           </div>
                           {pkg.features.length > 0 && <div className="flex flex-wrap gap-1 mt-1">{pkg.features.map((f, i) => <Badge key={i} variant="secondary" className="text-xs">{f}</Badge>)}</div>}
                         </div>
+                        )
                       ))}
                       {showPackageForm && (
                         <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-4 space-y-3">
@@ -819,9 +889,47 @@ export const PortalManagementAdmin = () => {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {formData.upgrade_offers.map((offer, idx) => (
+                        editingOfferIndex === idx ? (
+                          <div key={idx} className="border-2 border-accent rounded-lg p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-semibold text-accent">Edit Offer</p>
+                              <button onClick={() => removeOffer(idx)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div><Label className="text-xs">Package Name</Label><Input value={offer.name} onChange={e => updateOfferField(idx, "name", e.target.value)} /></div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div><Label className="text-xs">Price</Label><Input type="number" value={offer.price} onChange={e => updateOfferField(idx, "price", e.target.value)} /></div>
+                                <div><Label className="text-xs">Currency</Label><Select value={offer.currency} onValueChange={v => updateOfferField(idx, "currency", v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="GBP">GBP</SelectItem><SelectItem value="EUR">EUR</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div><Label className="text-xs">Payment Type</Label><Select value={offer.payment_type} onValueChange={v => updateOfferField(idx, "payment_type", v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="one_off">One-off Payment</SelectItem><SelectItem value="subscription">Subscription</SelectItem></SelectContent></Select></div>
+                              {offer.payment_type === "subscription" && (
+                                <div><Label className="text-xs">Recurring Interval</Label><Select value={offer.recurring_interval} onValueChange={v => updateOfferField(idx, "recurring_interval", v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="week">Weekly</SelectItem><SelectItem value="month">Monthly</SelectItem><SelectItem value="year">Yearly</SelectItem></SelectContent></Select></div>
+                              )}
+                            </div>
+                            <div>
+                              <Label className="text-xs">Features</Label>
+                              <div className="flex gap-2 mt-1">
+                                <Input value={editOfferFeature} onChange={e => setEditOfferFeature(e.target.value)} placeholder="Add feature" onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); if (editOfferFeature.trim()) { updateOfferField(idx, "features", [...offer.features, editOfferFeature.trim()]); setEditOfferFeature(""); } } }} />
+                                <Button variant="outline" size="sm" onClick={() => { if (editOfferFeature.trim()) { updateOfferField(idx, "features", [...offer.features, editOfferFeature.trim()]); setEditOfferFeature(""); } }}><Plus className="h-4 w-4" /></Button>
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-2">{offer.features.map((f, i) => <Badge key={i} variant="secondary" className="gap-1 text-xs">{f}<button onClick={() => updateOfferField(idx, "features", offer.features.filter((_, fi) => fi !== i))} className="ml-1 hover:text-destructive"><Trash2 className="h-3 w-3" /></button></Badge>)}</div>
+                            </div>
+                            <div><Label className="text-xs">Custom Message</Label><Textarea value={offer.message} onChange={e => updateOfferField(idx, "message", e.target.value)} rows={2} /></div>
+                            <div className="flex gap-2">
+                              <Button onClick={() => regenerateOfferPayLink(idx)} disabled={regeneratingOfferLink} variant="outline" className="flex-1">{regeneratingOfferLink ? "Regenerating..." : "Regenerate Payment Link"}</Button>
+                              <Button variant="outline" size="sm" onClick={() => setEditingOfferIndex(null)}>Done</Button>
+                            </div>
+                            {offer.pay_link_url && <div className="flex items-center gap-2 text-xs"><Link className="h-3 w-3 text-accent" /><a href={offer.pay_link_url} target="_blank" rel="noopener noreferrer" className="text-accent underline truncate">{offer.pay_link_url}</a></div>}
+                          </div>
+                        ) : (
                         <div key={idx} className="border rounded-lg p-3 space-y-2 relative">
-                          <button onClick={() => removeOffer(idx)} className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
-                          <div className="flex items-center justify-between pr-8">
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            <button onClick={() => { setEditingOfferIndex(idx); setEditOfferFeature(""); }} className="text-muted-foreground hover:text-primary"><Pencil className="h-4 w-4" /></button>
+                            <button onClick={() => removeOffer(idx)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                          </div>
+                          <div className="flex items-center justify-between pr-16">
                             <p className="font-medium">{offer.name}</p>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="text-xs">{offer.payment_type === "subscription" ? `Sub / ${offer.recurring_interval}` : "One-off"}</Badge>
@@ -832,6 +940,7 @@ export const PortalManagementAdmin = () => {
                           {offer.message && <p className="text-xs text-muted-foreground">{offer.message}</p>}
                           {offer.pay_link_url && <div className="flex items-center gap-2 text-xs"><Link className="h-3 w-3 text-accent" /><a href={offer.pay_link_url} target="_blank" rel="noopener noreferrer" className="text-accent underline truncate">{offer.pay_link_url}</a></div>}
                         </div>
+                        )
                       ))}
                       {showOfferForm && (
                         <div className="border-2 border-dashed border-accent/30 rounded-lg p-4 space-y-3">

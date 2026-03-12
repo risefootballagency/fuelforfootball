@@ -220,6 +220,44 @@ const extendedKeys: Record<string, string> = {
   no_zone_data_latest_reports: "No zone data available in the latest 40 reports.",
   r90_distribution: "R90 Distribution",
   performance_radar: "Performance Radar",
+  // Invoice/payment tab labels
+  outstanding: "Outstanding",
+  no_invoices_yet: "No invoices available yet",
+  invoices_will_appear: "Your invoices will appear here once they've been generated.",
+  due_label: "Due",
+  paid_label: "paid",
+  view_pdf: "View PDF",
+  pay_now: "Pay Now",
+  // Highlights tab labels
+  match_highlights: "Match Highlights",
+  best_clips: "Best Clips",
+  all_clips: "All Clips",
+  playlists: "Playlists",
+  no_match_highlights_yet: "No match highlights available yet",
+  highlights_will_appear: "Your highlights will appear here once they've been created.",
+  no_best_clips_yet: "No best clips available yet.",
+  upload_clips: "Upload Clips",
+  uploading_progress: "Uploading",
+  upload_failed: "Upload failed. Please try again.",
+  remove: "Remove",
+  watch: "Watch",
+  load_more_clips: "Load More Clips",
+  remaining: "remaining",
+  match_clipper_empty: "Match video clips will appear here once analyses with videos are available.",
+  // Updates tab labels
+  general_updates: "General Updates",
+  app_updates: "App Updates",
+  offline_access: "Offline Access",
+  latest_app_update: "Latest App Update",
+  no_updates_yet: "No updates available yet",
+  updates_check_back: "Check back soon for the latest updates from your coaching team.",
+  // Other analysis
+  no_other_analysis_yet: "No other analysis available yet.",
+  // Exercise dialog
+  exercise_details: "Exercise Details",
+  description: "Description",
+  video: "Video",
+  watch_exercise_video: "Watch Exercise Video",
 };
 
 const translations: Record<string, Record<string, string>> = {
@@ -915,6 +953,44 @@ const frExtended: Record<string, string> = {
   no_zone_data_latest_reports: "Aucune donnée de zone dans les 40 derniers rapports.",
   r90_distribution: "Distribution R90",
   performance_radar: "Radar de performance",
+  // Invoice/payment tab labels
+  outstanding: "En attente",
+  no_invoices_yet: "Aucune facture disponible pour le moment",
+  invoices_will_appear: "Vos factures apparaîtront ici une fois générées.",
+  due_label: "Échéance",
+  paid_label: "payé",
+  view_pdf: "Voir le PDF",
+  pay_now: "Payer maintenant",
+  // Highlights tab labels
+  match_highlights: "Moments forts du match",
+  best_clips: "Meilleurs Clips",
+  all_clips: "Tous les Clips",
+  playlists: "Playlists",
+  no_match_highlights_yet: "Pas encore de moments forts du match",
+  highlights_will_appear: "Vos moments forts apparaîtront ici une fois créés.",
+  no_best_clips_yet: "Pas encore de meilleurs clips.",
+  upload_clips: "Téléverser des Clips",
+  uploading_progress: "Téléversement",
+  upload_failed: "Échec du téléversement. Veuillez réessayer.",
+  remove: "Supprimer",
+  watch: "Regarder",
+  load_more_clips: "Charger plus de clips",
+  remaining: "restants",
+  match_clipper_empty: "Les clips vidéo apparaîtront ici une fois les analyses vidéo disponibles.",
+  // Updates tab labels
+  general_updates: "Mises à jour générales",
+  app_updates: "Mises à jour de l'app",
+  offline_access: "Accès hors ligne",
+  latest_app_update: "Dernière mise à jour de l'app",
+  no_updates_yet: "Aucune mise à jour disponible pour le moment",
+  updates_check_back: "Revenez bientôt pour les dernières nouvelles de votre staff.",
+  // Other analysis
+  no_other_analysis_yet: "Aucune autre analyse disponible pour le moment.",
+  // Exercise dialog
+  exercise_details: "Détails de l'exercice",
+  description: "Description",
+  video: "Vidéo",
+  watch_exercise_video: "Voir la vidéo de l'exercice",
 };
 Object.entries(frExtended).forEach(([key, val]) => {
   if (translations.fr) translations.fr[key] = val;
