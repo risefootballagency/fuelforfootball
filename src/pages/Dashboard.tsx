@@ -4616,7 +4616,7 @@ const Dashboard = () => {
                     <TabsContent value="offline" className="space-y-6 pl-6 pr-6">
                       <div>
                         <h3 className="text-xl font-bebas uppercase tracking-wider mb-4">
-                          Offline Access
+                          {t(portalLang, "offline_access")}
                         </h3>
                         <OfflineContentManager 
                           playerData={playerData}
