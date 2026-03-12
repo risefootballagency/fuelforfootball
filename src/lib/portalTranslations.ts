@@ -690,6 +690,7 @@ const frExtended: Record<string, string> = {
   minor: "Mineure", moderate: "Modérée", severe: "Grave", cancel: "Annuler", save: "Enregistrer",
   active: "Active", recovered: "Guérie", marked_as_recovered: "Marquée comme guérie",
   injury_logged: "Blessure enregistrée", no_injuries_logged: "Aucune blessure enregistrée. Restez en forme !",
+  goal_tracking: "Suivi des objectifs",
   select_metric: "Sélectionner un indicateur...", target_value: "Valeur cible", add_goal: "Ajouter un Objectif",
   goal_saved: "Objectif enregistré", goal_removed: "Objectif supprimé", target_achieved: "Objectif atteint !",
   no_goals_set: "Aucun objectif défini. Ajoutez un objectif ci-dessus pour suivre votre progression.",
