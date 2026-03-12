@@ -66,10 +66,10 @@ export const ShopServicesSidebar = ({
             <Sparkles className="w-5 h-5 text-accent" />
             <div className="flex-1">
               <span className="font-bebas uppercase tracking-wider text-foreground block text-sm">
-                Build Your Package
+                {t("services.build_your_package", "Build Your Package")}
               </span>
               <span className="text-[10px] text-muted-foreground">
-                Custom programme
+                {t("services.custom_programme", "Custom programme")}
               </span>
             </div>
             <ChevronRight className="w-4 h-4 text-primary group-hover:translate-x-1 transition-transform" />
