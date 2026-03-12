@@ -202,7 +202,7 @@ const Services = () => {
             
             {/* Results count */}
             <p className="text-muted-foreground text-xs">
-              {loading ? 'Loading...' : `${filteredServices.length} services`}
+              {loading ? t("services.loading", "Loading...") : `${filteredServices.length} ${t("services.services_count", "services")}`}
             </p>
           </div>
 
