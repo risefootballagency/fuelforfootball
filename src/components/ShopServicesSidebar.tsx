@@ -33,6 +33,7 @@ export const ShopServicesSidebar = ({
   promotedServices = [],
 }: ShopServicesSidebarProps) => {
   const { totalItems, totalPrice } = useCart();
+  const { t } = useLanguage();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   const toggleCategory = (category: string) => {
