@@ -3199,7 +3199,7 @@ const Dashboard = () => {
                     <CardContent className="container mx-auto px-4 space-y-3 md:space-y-4">
                       {otherAnalyses.length === 0 ? (
                         <div className="py-8">
-                          <p className="text-center text-muted-foreground text-sm md:text-base">No other analysis available yet.</p>
+                          <p className="text-center text-muted-foreground text-sm md:text-base">{t(portalLang, "no_other_analysis_yet")}</p>
                         </div>
                       ) : (
                         <div className="space-y-3">
