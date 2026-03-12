@@ -4536,7 +4536,7 @@ const Dashboard = () => {
                         {playerData?.id && playerData?.email ? (
                           <PlayerMatchClipper playerId={playerData.id} playerEmail={playerData.email} />
                         ) : (
-                          <PortalEmptyState icon="highlights" title="Match Clipper" description="Match video clips will appear here once analyses with videos are available." />
+                          <PortalEmptyState icon="highlights" title={t(portalLang, "match_clipper")} description={t(portalLang, "match_clipper_empty")} />
                         )}
                       </CardContent>
                     </Card>
