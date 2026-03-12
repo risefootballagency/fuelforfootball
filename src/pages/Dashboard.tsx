@@ -4660,7 +4660,7 @@ const Dashboard = () => {
           <div className="space-y-4">
             {selectedExercise?.description && (
               <div>
-                <h4 className="font-semibold mb-2">Description</h4>
+                <h4 className="font-semibold mb-2">{t(portalLang, "description")}</h4>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {selectedExercise.description}
                 </p>
