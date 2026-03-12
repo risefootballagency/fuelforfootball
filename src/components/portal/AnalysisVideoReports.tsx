@@ -73,7 +73,16 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
     fetchActions();
   }, [analyses]);
 
-  const actionTypes = useMemo(() => [...new Set(allActions.map(a => a.action_type).filter(Boolean))].sort(), [allActions]);
+  const splitActionTypes = (actionType: string | null | undefined): string[] =>
+    (actionType || "")
+      .split(/[\/,]/)
+      .map(type => type.trim())
+      .filter(Boolean);
+
+  const actionTypes = useMemo(
+    () => [...new Set(allActions.flatMap(a => splitActionTypes(a.action_type)))].sort((a, b) => a.localeCompare(b)),
+    [allActions]
+  );
 
   const toggleMatch = (id: string) => {
     setSelectedMatches(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
