@@ -4435,7 +4435,7 @@ const Dashboard = () => {
                                            ) : highlight.uploadFailed ? (
                                              <div className="space-y-1">
                                                <p className="font-bebas text-lg uppercase tracking-wider text-destructive truncate">{highlight.name}</p>
-                                               <p className="text-xs text-destructive">Upload failed. Please try again.</p>
+                                               <p className="text-xs text-destructive">{t(portalLang, "upload_failed")}</p>
                                                <Button 
                                                  variant="destructive" 
                                                  size="sm"
