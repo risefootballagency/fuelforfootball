@@ -97,10 +97,12 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
   };
 
   const generateCompilation = () => {
-    const clips = allActions.filter(a =>
-      selectedMatches.includes(a.analysis_id) &&
-      (selectedActionTypes.length === 0 || selectedActionTypes.includes(a.action_type))
-    ).sort((a, b) => {
+    const clips = allActions.filter(a => {
+      if (!selectedMatches.includes(a.analysis_id)) return false;
+      if (selectedActionTypes.length === 0) return true;
+      const actionParts = splitActionTypes(a.action_type);
+      return selectedActionTypes.some(selectedType => actionParts.includes(selectedType));
+    }).sort((a, b) => {
       const dateA = a.match_date || '';
       const dateB = b.match_date || '';
       if (dateA !== dateB) return dateA.localeCompare(dateB);
