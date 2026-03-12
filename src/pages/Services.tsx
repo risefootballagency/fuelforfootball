@@ -181,7 +181,7 @@ const Services = () => {
                 <SelectContent>
                   {priceRanges.map((range) => (
                     <SelectItem key={range.value} value={range.value} className="text-xs">
-                      {range.label}
+                      {t(range.labelKey, range.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
