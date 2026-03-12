@@ -4142,7 +4142,7 @@ const Dashboard = () => {
                                         if (paymentTab) paymentTab.click();
                                       }}
                                     >
-                                      Pay Now
+                                      {t(portalLang, "pay_now")}
                                     </Button>
                                   </div>
                                 </div>
