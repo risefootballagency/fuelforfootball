@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { toast } from "sonner";
-import { Monitor, Eye, EyeOff, Image, Save, RotateCcw, Upload, Trash2, User, Move, Settings, CreditCard, FileText, Plus, Copy, Check, ExternalLink, Mail, LogIn, Link, Package } from "lucide-react";
+import { Monitor, Eye, EyeOff, Image, Save, RotateCcw, Upload, Trash2, User, Move, Settings, CreditCard, FileText, Plus, Copy, Check, ExternalLink, Mail, LogIn, Link, Package, Pencil } from "lucide-react";
 import { ImageCropDialog } from "./ImageCropDialog";
 
 interface Player {
