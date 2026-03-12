@@ -43,11 +43,11 @@ const sidebarCategories = [
 ];
 
 const priceRanges = [
-  { label: "All Prices", value: "all" },
-  { label: "Under £100", value: "under-100" },
-  { label: "£100 - £500", value: "100-500" },
-  { label: "£500 - £1000", value: "500-1000" },
-  { label: "Over £1000", value: "over-1000" },
+  { labelKey: "services.price_all", label: "All Prices", value: "all" },
+  { labelKey: "services.price_under_100", label: "Under £100", value: "under-100" },
+  { labelKey: "services.price_100_500", label: "£100 - £500", value: "100-500" },
+  { labelKey: "services.price_500_1000", label: "£500 - £1000", value: "500-1000" },
+  { labelKey: "services.price_over_1000", label: "Over £1000", value: "over-1000" },
 ];
 
 const Services = () => {
