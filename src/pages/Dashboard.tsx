@@ -4506,7 +4506,7 @@ const Dashboard = () => {
                                         onClick={() => setVisibleClipsCount(prev => prev + 10)}
                                         variant="outline"
                                       >
-                                        Load More Clips ({highlightsData.bestClips.length - visibleClipsCount} remaining)
+                                        {t(portalLang, "load_more_clips")} ({highlightsData.bestClips.length - visibleClipsCount} {t(portalLang, "remaining")})
                                       </Button>
                                     </div>
                                   )}
