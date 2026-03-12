@@ -4654,7 +4654,7 @@ const Dashboard = () => {
         <DialogContent className="w-[98vw] max-w-none sm:max-w-2xl mx-2 sm:mx-auto">
           <DialogHeader>
             <DialogTitle className="font-bebas uppercase text-2xl">
-              {selectedExercise?.name || 'Exercise Details'}
+              {selectedExercise?.name || t(portalLang, "exercise_details")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
