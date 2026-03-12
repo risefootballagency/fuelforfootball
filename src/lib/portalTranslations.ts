@@ -110,6 +110,7 @@ const extendedKeys: Record<string, string> = {
   active: "Active", recovered: "Recovered", marked_as_recovered: "Marked as recovered",
   injury_logged: "Injury logged", no_injuries_logged: "No injuries logged. Stay healthy!",
   // GoalTracking
+  goal_tracking: "Goal Tracking",
   select_metric: "Select metric...", target_value: "Target value", add_goal: "Add Goal",
   goal_saved: "Goal saved", goal_removed: "Goal removed", target_achieved: "Target achieved!",
   no_goals_set: "No goals set yet. Add a target above to start tracking your progress.",
