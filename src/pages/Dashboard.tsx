@@ -4471,7 +4471,7 @@ const Dashboard = () => {
                                                  className="h-8 px-2"
                                                >
                                                  <Play className="w-4 h-4" />
-                                                 <span className="hidden sm:inline ml-2">Watch</span>
+                                                 <span className="hidden sm:inline ml-2">{t(portalLang, "watch")}</span>
                                                </Button>
                                               <Button 
                                                 variant="ghost" 
