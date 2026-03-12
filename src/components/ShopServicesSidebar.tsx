@@ -126,7 +126,7 @@ export const ShopServicesSidebar = ({
                     className={cn(
                       "w-full flex items-center justify-between py-2.5 px-3 text-sm font-medium transition-all duration-200 rounded-md",
                       isActive && !hasSubCategories
-                        ? "bg-primary/10 text-primary"
+                        ? "bg-accent/10 text-accent"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                   >
