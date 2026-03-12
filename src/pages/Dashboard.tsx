@@ -4441,7 +4441,7 @@ const Dashboard = () => {
                                                  size="sm"
                                                  onClick={() => handleDeleteClip(highlight.name, highlight.videoUrl)}
                                                >
-                                                 Remove
+                                                  {t(portalLang, "remove")}
                                                </Button>
                                              </div>
                                            ) : highlight.justCompleted ? (
