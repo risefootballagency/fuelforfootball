@@ -4567,13 +4567,13 @@ const Dashboard = () => {
                   <Tabs defaultValue="general" className="w-full">
                     <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 gap-2 mb-6 bg-muted h-auto p-2">
                       <TabsTrigger value="general" className="font-bebas uppercase text-sm">
-                        General Updates
+                        {t(portalLang, "general_updates")}
                       </TabsTrigger>
                       <TabsTrigger value="app" className="font-bebas uppercase text-sm">
-                        App Updates
+                        {t(portalLang, "app_updates")}
                       </TabsTrigger>
                       <TabsTrigger value="offline" className="font-bebas uppercase text-sm">
-                        Offline Access
+                        {t(portalLang, "offline_access")}
                       </TabsTrigger>
                     </TabsList>
 
