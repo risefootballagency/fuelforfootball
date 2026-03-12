@@ -11,6 +11,7 @@ import { ServiceDetailPanel } from "@/components/ServiceDetailPanel";
 import { ServiceCard } from "@/components/ServiceCard";
 import { AnimatePresence } from "framer-motion";
 import fffLogo from "@/assets/fff_logo.png";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Service {
   id: string;
@@ -28,17 +29,17 @@ interface Service {
 
 // Sidebar categories - using exact database category values
 const sidebarCategories = [
-  { label: "All Services", value: "All" },
-  { label: "All in One", value: "All in One Services" },
-  { label: "Analysis", value: "Analysis Services" },
-  { label: "Technical", value: "Technical Services" },
-  { label: "Tactical", value: "Tactical" },
-  { label: "Physical", value: "Physical Services" },
-  { label: "Nutrition", value: "Nutrition Services" },
-  { label: "Psychological", value: "Psychological Services" },
-  { label: "Coaching", value: "Coaching Services" },
-  { label: "Data & Stats", value: "Data Services" },
-  { label: "Special Packages", value: "Special Packages" },
+  { labelKey: "services.cat_all", label: "All Services", value: "All" },
+  { labelKey: "services.cat_all_in_one", label: "All in One", value: "All in One Services" },
+  { labelKey: "services.cat_analysis", label: "Analysis", value: "Analysis Services" },
+  { labelKey: "services.cat_technical", label: "Technical", value: "Technical Services" },
+  { labelKey: "services.cat_tactical", label: "Tactical", value: "Tactical" },
+  { labelKey: "services.cat_physical", label: "Physical", value: "Physical Services" },
+  { labelKey: "services.cat_nutrition", label: "Nutrition", value: "Nutrition Services" },
+  { labelKey: "services.cat_psychological", label: "Psychological", value: "Psychological Services" },
+  { labelKey: "services.cat_coaching", label: "Coaching", value: "Coaching Services" },
+  { labelKey: "services.cat_data", label: "Data & Stats", value: "Data Services" },
+  { labelKey: "services.cat_special", label: "Special Packages", value: "Special Packages" },
 ];
 
 const priceRanges = [
