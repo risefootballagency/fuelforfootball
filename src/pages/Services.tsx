@@ -163,7 +163,7 @@ const Services = () => {
             <div className="flex gap-2">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="flex-1 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder={t("services.category_placeholder", "Category")} />
                 </SelectTrigger>
                 <SelectContent>
                   {sidebarCategories.map((cat) => (
