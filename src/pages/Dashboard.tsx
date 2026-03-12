@@ -4371,7 +4371,7 @@ const Dashboard = () => {
                                     </Button>
                                     {uploadProgress !== null && (
                                       <div className="text-sm text-muted-foreground">
-                                        Uploading: {uploadProgress}%
+                                        {t(portalLang, "uploading_progress")}: {uploadProgress}%
                                       </div>
                                     )}
                                   </div>
