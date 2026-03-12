@@ -204,7 +204,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                     selectedActionTypes.includes(type) ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'
                   }`}
                 >
-                  {type}
+                  {translateActionTypeLabel(lang, type)}
                 </button>
               ))}
               {selectedActionTypes.length > 0 && (
