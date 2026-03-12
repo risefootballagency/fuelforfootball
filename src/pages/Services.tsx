@@ -51,6 +51,7 @@ const priceRanges = [
 ];
 
 const Services = () => {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
