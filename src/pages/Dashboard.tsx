@@ -4132,7 +4132,7 @@ const Dashboard = () => {
                                         onClick={() => window.open(invoice.pdf_url!, '_blank')}
                                       >
                                         <FileText className="w-4 h-4 mr-2" />
-                                        View PDF
+                                        {t(portalLang, "view_pdf")}
                                       </Button>
                                     )}
                                     <Button
