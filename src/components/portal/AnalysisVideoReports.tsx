@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Play, Pause, SkipBack, SkipForward, X, Maximize, Trash2, Download, CheckSquare, Film, ListVideo } from "lucide-react";
 import { downloadVideo } from "@/lib/videoDownload";
-import { t } from "@/lib/portalTranslations";
+import { t, translateActionTypeLabel } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 interface Analysis {
@@ -73,7 +73,16 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
     fetchActions();
   }, [analyses]);
 
-  const actionTypes = useMemo(() => [...new Set(allActions.map(a => a.action_type).filter(Boolean))].sort(), [allActions]);
+  const splitActionTypes = (actionType: string | null | undefined): string[] =>
+    (actionType || "")
+      .split(/[\/,]/)
+      .map(type => type.trim())
+      .filter(Boolean);
+
+  const actionTypes = useMemo(
+    () => [...new Set(allActions.flatMap(a => splitActionTypes(a.action_type)))].sort((a, b) => a.localeCompare(b)),
+    [allActions]
+  );
 
   const toggleMatch = (id: string) => {
     setSelectedMatches(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -88,10 +97,12 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
   };
 
   const generateCompilation = () => {
-    const clips = allActions.filter(a =>
-      selectedMatches.includes(a.analysis_id) &&
-      (selectedActionTypes.length === 0 || selectedActionTypes.includes(a.action_type))
-    ).sort((a, b) => {
+    const clips = allActions.filter(a => {
+      if (!selectedMatches.includes(a.analysis_id)) return false;
+      if (selectedActionTypes.length === 0) return true;
+      const actionParts = splitActionTypes(a.action_type);
+      return selectedActionTypes.some(selectedType => actionParts.includes(selectedType));
+    }).sort((a, b) => {
       const dateA = a.match_date || '';
       const dateB = b.match_date || '';
       if (dateA !== dateB) return dateA.localeCompare(dateB);
@@ -193,7 +204,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                     selectedActionTypes.includes(type) ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'
                   }`}
                 >
-                  {type}
+                  {translateActionTypeLabel(lang, type)}
                 </button>
               ))}
               {selectedActionTypes.length > 0 && (
@@ -250,7 +261,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                 <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-sm px-3 py-2 rounded">
                   <div className="flex items-center gap-2 mb-1">
                     <Badge className="bg-primary text-primary-foreground text-xs">{currentClipIndex + 1}/{compilationClips.length}</Badge>
-                    <span className="font-semibold">{currentClip.action_type}</span>
+                    <span className="font-semibold">{translateActionTypeLabel(lang, currentClip.action_type)}</span>
                   </div>
                   <p className="text-xs text-white/70">
                     {t(lang, "versus_short")} {currentClip.opponent} {currentClip.minute != null && `· ${currentClip.minute}'`}

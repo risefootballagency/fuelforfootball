@@ -2325,7 +2325,7 @@ const Dashboard = () => {
                       {/* Goal Tracking - integrated into performance */}
                       {analyses.length > 0 && (
                         <div className="mt-4">
-                          <h3 className="font-bebas text-lg uppercase tracking-wider mb-3 text-accent">Goal Tracking</h3>
+                          <h3 className="font-bebas text-lg uppercase tracking-wider mb-3 text-accent">{t(portalLang, "goal_tracking")}</h3>
                           <GoalTracking playerData={playerData} fixtureAnalyses={analyses} formWindow={5} />
                         </div>
                       )}
