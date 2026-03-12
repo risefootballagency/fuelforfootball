@@ -4052,7 +4052,7 @@ const Dashboard = () => {
                       )}
 
                       {invoices.length === 0 ? (
-                        <PortalEmptyState icon="invoices" title="No invoices available yet" description="Your invoices will appear here once they've been generated." />
+                        <PortalEmptyState icon="invoices" title={t(portalLang, "no_invoices_yet")} description={t(portalLang, "invoices_will_appear")} />
                       ) : (
                         <div className="space-y-4">
                           {/* Outstanding invoices first */}
