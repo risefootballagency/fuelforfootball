@@ -92,7 +92,7 @@ export const ShopServicesSidebar = ({
                 )}
               </div>
               <span className="font-bebas text-sm uppercase tracking-wider text-foreground">
-                Basket
+                {t("services.basket", "Basket")}
               </span>
             </div>
             {totalItems > 0 && (
