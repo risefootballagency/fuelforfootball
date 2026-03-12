@@ -261,7 +261,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
                 <div className="absolute top-3 left-3 z-10 bg-black/70 text-white text-sm px-3 py-2 rounded">
                   <div className="flex items-center gap-2 mb-1">
                     <Badge className="bg-primary text-primary-foreground text-xs">{currentClipIndex + 1}/{compilationClips.length}</Badge>
-                    <span className="font-semibold">{currentClip.action_type}</span>
+                    <span className="font-semibold">{translateActionTypeLabel(lang, currentClip.action_type)}</span>
                   </div>
                   <p className="text-xs text-white/70">
                     {t(lang, "versus_short")} {currentClip.opponent} {currentClip.minute != null && `· ${currentClip.minute}'`}
