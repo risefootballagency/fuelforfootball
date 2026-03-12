@@ -212,7 +212,7 @@ export const ShopServicesSidebar = ({
             className="flex items-center gap-2 py-2 px-3 text-xs text-muted-foreground hover:text-primary transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="font-bebas uppercase tracking-wider">Back to Players</span>
+            <span className="font-bebas uppercase tracking-wider">{t("services.back_to_players", "Back to Players")}</span>
           </LocalizedLink>
         </div>
       </div>
