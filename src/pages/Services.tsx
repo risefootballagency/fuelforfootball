@@ -192,10 +192,10 @@ const Services = () => {
                   <SelectValue placeholder={t("services.sort_placeholder", "Sort")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default" className="text-xs">Default</SelectItem>
-                  <SelectItem value="price-low" className="text-xs">Price ↑</SelectItem>
-                  <SelectItem value="price-high" className="text-xs">Price ↓</SelectItem>
-                  <SelectItem value="name" className="text-xs">Name</SelectItem>
+                  <SelectItem value="default" className="text-xs">{t("services.sort_default", "Default")}</SelectItem>
+                  <SelectItem value="price-low" className="text-xs">{t("services.sort_price_low", "Price ↑")}</SelectItem>
+                  <SelectItem value="price-high" className="text-xs">{t("services.sort_price_high", "Price ↓")}</SelectItem>
+                  <SelectItem value="name" className="text-xs">{t("services.sort_name", "Name")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
