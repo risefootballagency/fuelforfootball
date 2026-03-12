@@ -4579,7 +4579,7 @@ const Dashboard = () => {
 
                     <TabsContent value="general" className="space-y-6 pl-6 pr-6">
                       {updates.length === 0 ? (
-                        <PortalEmptyState icon="updates" title="No updates available yet" description="Check back soon for the latest updates from your coaching team." />
+                        <PortalEmptyState icon="updates" title={t(portalLang, "no_updates_yet")} description={t(portalLang, "updates_check_back")} />
                       ) : (
                         <div className="space-y-6">
                           {updates.map((update) => (
