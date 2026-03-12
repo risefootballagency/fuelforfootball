@@ -953,6 +953,44 @@ const frExtended: Record<string, string> = {
   no_zone_data_latest_reports: "Aucune donnée de zone dans les 40 derniers rapports.",
   r90_distribution: "Distribution R90",
   performance_radar: "Radar de performance",
+  // Invoice/payment tab labels
+  outstanding: "En attente",
+  no_invoices_yet: "Aucune facture disponible pour le moment",
+  invoices_will_appear: "Vos factures apparaîtront ici une fois générées.",
+  due_label: "Échéance",
+  paid_label: "payé",
+  view_pdf: "Voir le PDF",
+  pay_now: "Payer maintenant",
+  // Highlights tab labels
+  match_highlights: "Moments forts du match",
+  best_clips: "Meilleurs Clips",
+  all_clips: "Tous les Clips",
+  playlists: "Playlists",
+  no_match_highlights_yet: "Pas encore de moments forts du match",
+  highlights_will_appear: "Vos moments forts apparaîtront ici une fois créés.",
+  no_best_clips_yet: "Pas encore de meilleurs clips.",
+  upload_clips: "Téléverser des Clips",
+  uploading_progress: "Téléversement",
+  upload_failed: "Échec du téléversement. Veuillez réessayer.",
+  remove: "Supprimer",
+  watch: "Regarder",
+  load_more_clips: "Charger plus de clips",
+  remaining: "restants",
+  match_clipper_empty: "Les clips vidéo apparaîtront ici une fois les analyses vidéo disponibles.",
+  // Updates tab labels
+  general_updates: "Mises à jour générales",
+  app_updates: "Mises à jour de l'app",
+  offline_access: "Accès hors ligne",
+  latest_app_update: "Dernière mise à jour de l'app",
+  no_updates_yet: "Aucune mise à jour disponible pour le moment",
+  updates_check_back: "Revenez bientôt pour les dernières nouvelles de votre staff.",
+  // Other analysis
+  no_other_analysis_yet: "Aucune autre analyse disponible pour le moment.",
+  // Exercise dialog
+  exercise_details: "Détails de l'exercice",
+  description: "Description",
+  video: "Vidéo",
+  watch_exercise_video: "Voir la vidéo de l'exercice",
 };
 Object.entries(frExtended).forEach(([key, val]) => {
   if (translations.fr) translations.fr[key] = val;
