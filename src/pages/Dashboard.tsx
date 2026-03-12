@@ -4299,7 +4299,7 @@ const Dashboard = () => {
                                             className="flex-1"
                                           >
                                             <Download className="w-4 h-4 mr-2" />
-                                            Download
+                                             {t(portalLang, "download")}
                                           </Button>
                                         </>
                                       )}
