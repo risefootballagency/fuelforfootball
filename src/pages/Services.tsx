@@ -222,7 +222,7 @@ const Services = () => {
               {/* Sort Header - Desktop only */}
               <div className="hidden lg:flex justify-between items-center mb-4 md:mb-6">
                 <p className="text-muted-foreground text-xs md:text-sm">
-                  {loading ? 'Loading...' : `${filteredServices.length} services`}
+                  {loading ? t("services.loading", "Loading...") : `${filteredServices.length} ${t("services.services_count", "services")}`}
                 </p>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-36 md:w-48 bg-primary/10 border-primary/30 text-foreground text-sm">
