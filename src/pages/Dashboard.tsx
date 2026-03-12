@@ -4114,7 +4114,7 @@ const Dashboard = () => {
                                         </span>
                                         {isPartiallyPaid && (
                                           <span className="text-xs text-primary">
-                                            {(invoice.amount_paid || 0).toFixed(2)} paid
+                                            {(invoice.amount_paid || 0).toFixed(2)} {t(portalLang, "paid_label")}
                                           </span>
                                         )}
                                       </div>
