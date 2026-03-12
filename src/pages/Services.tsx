@@ -176,7 +176,7 @@ const Services = () => {
               
               <Select value={selectedPrice} onValueChange={setSelectedPrice}>
                 <SelectTrigger className="flex-1 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
-                  <SelectValue placeholder="Price" />
+                  <SelectValue placeholder={t("services.price_placeholder", "Price")} />
                 </SelectTrigger>
                 <SelectContent>
                   {priceRanges.map((range) => (
