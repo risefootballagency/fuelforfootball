@@ -4100,7 +4100,7 @@ const Dashboard = () => {
 
                                     <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                                       <span className="text-sm text-muted-foreground">
-                                        Due: {format(new Date(invoice.due_date), 'dd/MM/yyyy')}
+                                        {t(portalLang, "due_label")}: {format(new Date(invoice.due_date), 'dd/MM/yyyy')}
                                       </span>
                                     </div>
 
