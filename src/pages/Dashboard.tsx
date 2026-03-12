@@ -4034,7 +4034,7 @@ const Dashboard = () => {
                       {/* Outstanding Summary */}
                       {invoices.length > 0 && invoices.some(inv => inv.status === 'pending' || inv.status === 'overdue') && (
                         <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-6">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Outstanding</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{t(portalLang, "outstanding")}</p>
                           <p className="text-xl font-bold text-amber-500">
                             {(() => {
                               const outstanding = invoices
