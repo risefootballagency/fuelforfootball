@@ -168,7 +168,7 @@ const Services = () => {
                 <SelectContent>
                   {sidebarCategories.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value} className="text-xs">
-                      {cat.label}
+                      {t(cat.labelKey, cat.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
