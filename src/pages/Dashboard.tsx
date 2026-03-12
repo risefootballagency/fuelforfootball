@@ -4607,7 +4607,7 @@ const Dashboard = () => {
                     <TabsContent value="app" className="space-y-6 pl-6 pr-6">
                       <div>
                         <h3 className="text-xl font-bebas uppercase tracking-wider mb-4">
-                          Latest App Update
+                          {t(portalLang, "latest_app_update")}
                         </h3>
                         <PWAInstallPrompt />
                       </div>
