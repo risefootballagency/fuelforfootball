@@ -211,7 +211,7 @@ const Services = () => {
             <div className="hidden lg:block">
               <ShopServicesSidebar
                 type="services"
-                categories={sidebarCategories}
+                categories={sidebarCategories.map(c => ({ ...c, label: t(c.labelKey, c.label) }))}
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
               />
