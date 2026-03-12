@@ -189,7 +189,7 @@ const Services = () => {
               
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-24 bg-primary/10 border-primary/30 text-foreground text-xs h-9">
-                  <SelectValue placeholder="Sort" />
+                  <SelectValue placeholder={t("services.sort_placeholder", "Sort")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="default" className="text-xs">Default</SelectItem>
