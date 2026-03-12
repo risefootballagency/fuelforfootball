@@ -3,6 +3,7 @@ import { ChevronRight, ChevronDown, ShoppingCart, ArrowLeft, Sparkles, Zap, Star
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { useCart } from "@/contexts/CartContext";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Category {
   label: string;
