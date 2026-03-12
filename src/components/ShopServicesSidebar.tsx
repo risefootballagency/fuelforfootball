@@ -176,7 +176,7 @@ export const ShopServicesSidebar = ({
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <h3 className="font-bebas text-sm uppercase tracking-wider text-foreground">
-                  Featured Services
+                  {t("services.featured_services", "Featured Services")}
                 </h3>
               </div>
               
