@@ -201,6 +201,11 @@ export const PortalManagementAdmin = () => {
   const [newOfferFeature, setNewOfferFeature] = useState("");
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [creatingOfferLink, setCreatingOfferLink] = useState(false);
+  const [editingPackageIndex, setEditingPackageIndex] = useState<number | null>(null);
+  const [editingOfferIndex, setEditingOfferIndex] = useState<number | null>(null);
+  const [editPackageFeature, setEditPackageFeature] = useState("");
+  const [editOfferFeature, setEditOfferFeature] = useState("");
+  const [regeneratingOfferLink, setRegeneratingOfferLink] = useState(false);
   const [previewProduct, setPreviewProduct] = useState<ServiceProduct | null>(null);
 
   useEffect(() => { fetchPlayers(); fetchProducts(); }, []);
