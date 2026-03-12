@@ -229,10 +229,10 @@ const Services = () => {
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="default">Sort by</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
-                    <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="default">{t("services.sort_by", "Sort by")}</SelectItem>
+                    <SelectItem value="price-low">{t("services.sort_price_low_full", "Price: Low to High")}</SelectItem>
+                    <SelectItem value="price-high">{t("services.sort_price_high_full", "Price: High to Low")}</SelectItem>
+                    <SelectItem value="name">{t("services.sort_name", "Name")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
