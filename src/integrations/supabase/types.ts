@@ -54,6 +54,7 @@ export type Database = {
           away_team_logo: string | null
           concept: string | null
           created_at: string
+          estimated_ready_at: string | null
           explanation: string | null
           fixture_id: string | null
           home_score: number | null
@@ -86,6 +87,7 @@ export type Database = {
           starting_xi: Json | null
           strengths_improvements: string | null
           title: string | null
+          translated_content: Json | null
           updated_at: string
           video_url: string | null
           writer_user_id: string | null
@@ -99,6 +101,7 @@ export type Database = {
           away_team_logo?: string | null
           concept?: string | null
           created_at?: string
+          estimated_ready_at?: string | null
           explanation?: string | null
           fixture_id?: string | null
           home_score?: number | null
@@ -131,6 +134,7 @@ export type Database = {
           starting_xi?: Json | null
           strengths_improvements?: string | null
           title?: string | null
+          translated_content?: Json | null
           updated_at?: string
           video_url?: string | null
           writer_user_id?: string | null
@@ -144,6 +148,7 @@ export type Database = {
           away_team_logo?: string | null
           concept?: string | null
           created_at?: string
+          estimated_ready_at?: string | null
           explanation?: string | null
           fixture_id?: string | null
           home_score?: number | null
@@ -176,6 +181,7 @@ export type Database = {
           starting_xi?: Json | null
           strengths_improvements?: string | null
           title?: string | null
+          translated_content?: Json | null
           updated_at?: string
           video_url?: string | null
           writer_user_id?: string | null

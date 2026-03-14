@@ -50,7 +50,7 @@ const DraggableTabsTrigger = ({ tab }: DraggableTabsTriggerProps) => {
     <div ref={setNodeRef} style={style} className="relative group">
       <TabsTrigger
         value={tab.value}
-        className="flex items-center gap-2 w-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+        className="flex items-center gap-2 w-full data-[state=active]:bg-primary data-[state=active]:text-[hsl(var(--fff-green-dark))]"
       >
         <span
           {...attributes}
