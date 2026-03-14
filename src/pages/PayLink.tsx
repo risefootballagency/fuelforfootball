@@ -123,7 +123,10 @@ export default function PayLink() {
           <PortalPaymentMethods 
             amount={payLink.amount} 
             currency={payLink.currency} 
-            stripePaymentLinkUrl={payLink.stripe_payment_link_url} 
+            stripePaymentLinkUrl={payLink.stripe_payment_link_url}
+            payLinkId={payLink.id}
+            title={payLink.title}
+            description={payLink.description || undefined}
           />
         </div>
       </div>
