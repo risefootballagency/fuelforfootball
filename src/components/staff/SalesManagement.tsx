@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Copy, Link, FileText, TrendingUp, Eye, Trash2, Check, Clock, X, CreditCard, CalendarDays, Repeat, Package } from "lucide-react";
+import { Plus, Copy, Link, FileText, TrendingUp, Eye, Trash2, Check, Clock, X, CreditCard, CalendarDays, Repeat, Package, CopyPlus } from "lucide-react";
 
 interface PayLink {
   id: string;
@@ -189,6 +189,8 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
 
     const totalAmount = calculateTotal();
 
+    const slug = payLinkForm.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-') + '-' + Date.now().toString(36);
+
     // Create pay link
     const { data: payLinkData, error: payLinkError } = await supabase.from("pay_links").insert({
       title: payLinkForm.title,
@@ -202,6 +204,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
       customer_name: payLinkForm.customer_name || null,
       customer_email: payLinkForm.customer_email || null,
       invoice_notes: payLinkForm.invoice_notes || null,
+      slug,
     }).select().single();
 
     if (payLinkError) {
@@ -276,10 +279,51 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
     fetchSales();
   };
 
-  const copyPayLink = (id: string) => {
-    const url = `${window.location.origin}/pay/${id}`;
+  const copyPayLink = (link: PayLink) => {
+    const slug = (link as any).slug || link.id;
+    const url = `${window.location.origin}/pay/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success("Pay link copied to clipboard!");
+  };
+
+  const duplicatePayLink = async (link: PayLink) => {
+    const slug = link.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+    const { data: newLink, error } = await supabase.from("pay_links").insert({
+      title: link.title,
+      amount: link.amount,
+      currency: link.currency,
+      description: link.description,
+      status: "active",
+      payment_type: link.payment_type || "one_off",
+      recurring_interval: link.recurring_interval,
+      installment_count: link.installment_count,
+      customer_name: null,
+      customer_email: null,
+      invoice_notes: link.invoice_notes,
+      slug: slug + '-' + Date.now().toString(36),
+    }).select().single();
+
+    if (error) {
+      toast.error(`Failed to duplicate: ${error.message}`);
+      return;
+    }
+
+    // Also duplicate pay_link_items
+    const { data: items } = await supabase.from("pay_link_items").select("*").eq("pay_link_id", link.id);
+    if (items && items.length > 0 && newLink) {
+      await supabase.from("pay_link_items").insert(
+        items.map(item => ({
+          pay_link_id: newLink.id,
+          product_id: item.product_id,
+          product_name: item.product_name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+        }))
+      );
+    }
+
+    toast.success("Pay link duplicated!");
+    fetchPayLinks();
   };
 
   const deletePayLink = async (id: string) => {
@@ -651,13 +695,18 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                           <p className="text-sm text-muted-foreground mt-1">{link.description}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => copyPayLink(link.id)}>
+                      <div className="flex items-center gap-1">
+                        <Button variant="outline" size="sm" onClick={() => copyPayLink(link)}>
                           <Copy className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => window.open(`/pay/${link.id}`, "_blank")}>
+                        <Button variant="outline" size="sm" onClick={() => window.open(`/pay/${(link as any).slug || link.id}`, "_blank")}>
                           <Eye className="w-4 h-4" />
                         </Button>
+                        {isAdmin && (
+                          <Button variant="outline" size="sm" onClick={() => duplicatePayLink(link)} title="Duplicate">
+                            <CopyPlus className="w-4 h-4" />
+                          </Button>
+                        )}
                         {isAdmin && link.status === "active" && (
                           <Button variant="outline" size="sm" onClick={() => updatePayLinkStatus(link.id, "completed")}>
                             <Check className="w-4 h-4" />
