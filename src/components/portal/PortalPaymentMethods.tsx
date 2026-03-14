@@ -61,6 +61,7 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
   const currencyCode = (currency || 'GBP').toUpperCase();
   const formattedAmount = amount ? new Intl.NumberFormat("en-GB", { style: "currency", currency: currencyCode }).format(amount) : null;
   const [selected, setSelected] = useState<PaymentMethod>(null);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
   const lang = usePortalLanguage();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
