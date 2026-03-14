@@ -680,9 +680,14 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
             <div className="relative">
               {isPortalView && analysis.visibility_status === "draft" && (
                 <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
-                <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
+                  <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
                     <p className="font-semibold text-sm">{t(reportLanguage, "report_in_progress")}</p>
                     <p className="text-xs text-muted-foreground mt-1">{t(reportLanguage, "report_in_progress_message")}</p>
+                    {(analysis as any).estimated_ready_at && (
+                      <p className="text-xs text-primary mt-2 font-medium">
+                        {t(reportLanguage, "expected_by")}: {new Date((analysis as any).estimated_ready_at).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} {t(reportLanguage, "at")} {new Date((analysis as any).estimated_ready_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
