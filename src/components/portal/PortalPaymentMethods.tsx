@@ -7,6 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { t } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
+interface PortalPaymentMethodsProps {
+  amount?: number;
+  currency?: string;
+  stripePaymentLinkUrl?: string | null;
+}
+
 type PaymentMethod = "revolut" | "paypal" | "card" | "bank" | "international" | null;
 
 const METHODS = [
@@ -33,21 +39,23 @@ const METHODS = [
   },
   {
     id: "bank" as const,
-    label: "Bank Transfer",
+    label: "UK Bank Transfer",
     icon: "🏦",
-    subtitle: "UK domestic",
+    subtitle: "Domestic",
     gradient: "from-[hsl(150,50%,35%)] to-[hsl(160,60%,30%)]",
   },
   {
     id: "international" as const,
-    label: "International",
+    label: "International Bank Transfer",
     icon: "🌍",
     subtitle: "IBAN & SWIFT",
     gradient: "from-[hsl(30,70%,45%)] to-[hsl(40,80%,40%)]",
   },
 ];
 
-export const PortalPaymentMethods = () => {
+export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl }: PortalPaymentMethodsProps) => {
+  const currencyCode = (currency || 'GBP').toUpperCase();
+  const formattedAmount = amount ? new Intl.NumberFormat("en-GB", { style: "currency", currency: currencyCode }).format(amount) : null;
   const [selected, setSelected] = useState<PaymentMethod>(null);
   const lang = usePortalLanguage();
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -83,17 +91,27 @@ export const PortalPaymentMethods = () => {
   );
 
   const renderDetail = (method: PaymentMethod) => {
+    const amountSuffix = amount ? `/${amount}${currencyCode}` : '';
+    const paypalUrl = `https://paypal.me/fuelforfootball${amountSuffix}`;
+    const revolutUrl = amount 
+      ? `https://revolut.me/fuelforfootball` 
+      : "https://checkout.revolut.com/pay/a31abdd1-ff2c-444d-8455-6463398141f9";
+    const cardUrl = stripePaymentLinkUrl || "https://buy.stripe.com/cNidR87Xjgdvcgc505bbG03";
+
     switch (method) {
       case "revolut":
         return (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Pay instantly via Revolut — fast, free, and secure.</p>
+            <p className="text-sm text-muted-foreground">
+              Pay instantly via Revolut — fast, free, and secure.
+              {formattedAmount && <span className="font-semibold text-foreground ml-1">{formattedAmount}</span>}
+            </p>
             <Button
               className="w-full bg-[hsl(220,80%,50%)] hover:bg-[hsl(220,80%,45%)] text-white"
-              onClick={() => window.open("https://checkout.revolut.com/pay/a31abdd1-ff2c-444d-8455-6463398141f9", "_blank")}
+              onClick={() => window.open(revolutUrl, "_blank")}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Pay with Revolut
+              Pay {formattedAmount || ''} with Revolut
               <ArrowRight className="h-4 w-4 ml-auto" />
             </Button>
           </div>
@@ -101,13 +119,16 @@ export const PortalPaymentMethods = () => {
       case "paypal":
         return (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Pay securely via PayPal — no account required.</p>
+            <p className="text-sm text-muted-foreground">
+              Pay securely via PayPal — no account required.
+              {formattedAmount && <span className="font-semibold text-foreground ml-1">{formattedAmount}</span>}
+            </p>
             <Button
               className="w-full bg-[hsl(210,80%,45%)] hover:bg-[hsl(210,80%,40%)] text-white"
-              onClick={() => window.open("http://paypal.me/fuelforfootball", "_blank")}
+              onClick={() => window.open(paypalUrl, "_blank")}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Pay with PayPal
+              Pay {formattedAmount || ''} with PayPal
               <ArrowRight className="h-4 w-4 ml-auto" />
             </Button>
           </div>
@@ -115,14 +136,16 @@ export const PortalPaymentMethods = () => {
       case "card":
         return (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Pay by debit or credit card via our secure Stripe checkout.</p>
-            <p className="text-xs text-muted-foreground">£1 per unit — adjust quantity at checkout to match your invoice amount.</p>
+            <p className="text-sm text-muted-foreground">
+              Pay by debit or credit card via our secure checkout.
+              {formattedAmount && <span className="font-semibold text-foreground ml-1">{formattedAmount}</span>}
+            </p>
             <Button
               className="w-full bg-[hsl(270,60%,50%)] hover:bg-[hsl(270,60%,45%)] text-white"
-              onClick={() => window.open("https://buy.stripe.com/cNidR87Xjgdvcgc505bbG03", "_blank")}
+              onClick={() => window.open(cardUrl, "_blank")}
             >
               <CreditCard className="h-4 w-4 mr-2" />
-              Pay by Card
+              Pay {formattedAmount || ''} by Card
               <ArrowRight className="h-4 w-4 ml-auto" />
             </Button>
           </div>
