@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Copy, Check, Building2, CreditCard, ExternalLink } from "lucide-react";
-import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
+import { PortalPaymentMethods } from "@/components/portal/PortalPaymentMethods";
 
 interface PayLink {
   id: string;
