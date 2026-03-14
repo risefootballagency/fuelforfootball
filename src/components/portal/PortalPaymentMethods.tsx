@@ -178,10 +178,12 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl }:
     }
   };
 
+  const availableMethods = METHODS.filter(m => m.id !== "card" || stripePaymentLinkUrl);
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {METHODS.map((m) => {
+      <div className={`grid grid-cols-2 sm:grid-cols-3 ${availableMethods.length >= 5 ? 'lg:grid-cols-5' : `lg:grid-cols-${availableMethods.length}`} gap-3`}>
+        {availableMethods.map((m) => {
           const isActive = selected === m.id;
           return (
             <motion.button
