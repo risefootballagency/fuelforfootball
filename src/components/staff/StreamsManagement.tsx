@@ -186,7 +186,7 @@ export const StreamsManagement = () => {
           <TooltipTrigger asChild>
             <TabsTrigger
               value={ch.id}
-              className="text-xs px-3 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              className="text-xs px-3 py-1.5 data-[state=active]:bg-primary data-[state=active]:text-[hsl(var(--fff-green-dark))]"
             >
               {showLinkIcon && <LinkIcon className="h-3 w-3 mr-1 opacity-60" />}
               <span>{ch.label}</span>
