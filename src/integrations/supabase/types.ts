@@ -1945,6 +1945,7 @@ export type Database = {
           player_id: string | null
           product_id: string | null
           recurring_interval: string | null
+          slug: string | null
           status: string
           stripe_payment_link_id: string | null
           stripe_payment_link_url: string | null
@@ -1966,6 +1967,7 @@ export type Database = {
           player_id?: string | null
           product_id?: string | null
           recurring_interval?: string | null
+          slug?: string | null
           status?: string
           stripe_payment_link_id?: string | null
           stripe_payment_link_url?: string | null
@@ -1987,6 +1989,7 @@ export type Database = {
           player_id?: string | null
           product_id?: string | null
           recurring_interval?: string | null
+          slug?: string | null
           status?: string
           stripe_payment_link_id?: string | null
           stripe_payment_link_url?: string | null
