@@ -53,8 +53,9 @@ const METHODS = [
   },
 ];
 
-export const PortalPaymentMethods = () => {
-  const [selected, setSelected] = useState<PaymentMethod>(null);
+export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl }: PortalPaymentMethodsProps = {}) => {
+  const currencyCode = (currency || 'GBP').toUpperCase();
+  const formattedAmount = amount ? new Intl.NumberFormat("en-GB", { style: "currency", currency: currencyCode }).format(amount) : null;
   const lang = usePortalLanguage();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
