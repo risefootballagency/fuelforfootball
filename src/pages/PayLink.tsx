@@ -120,17 +120,12 @@ export default function PayLink() {
         {/* Payment Methods */}
         <div className="space-y-3">
           <h3 className="text-lg font-semibold text-foreground text-center">Choose a Payment Method</h3>
-          <PortalPaymentMethods />
+          <PortalPaymentMethods 
+            amount={payLink.amount} 
+            currency={payLink.currency} 
+            stripePaymentLinkUrl={payLink.stripe_payment_link_url} 
+          />
         </div>
-
-        {/* Reference Note */}
-        <Card className="bg-accent/10 border-accent/30">
-          <CardContent className="pt-6">
-            <p className="text-sm text-center text-foreground">
-              <strong>Important:</strong> Please use <span className="font-mono bg-background/50 px-2 py-1 rounded">{payLink.id.slice(0, 8)}</span> as your payment reference.
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

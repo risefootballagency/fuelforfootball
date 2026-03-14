@@ -7,6 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { t } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
+interface PortalPaymentMethodsProps {
+  amount?: number;
+  currency?: string;
+  stripePaymentLinkUrl?: string | null;
+}
+
 type PaymentMethod = "revolut" | "paypal" | "card" | "bank" | "international" | null;
 
 const METHODS = [
@@ -33,14 +39,14 @@ const METHODS = [
   },
   {
     id: "bank" as const,
-    label: "Bank Transfer",
+    label: "UK Bank Transfer",
     icon: "🏦",
-    subtitle: "UK domestic",
+    subtitle: "Domestic",
     gradient: "from-[hsl(150,50%,35%)] to-[hsl(160,60%,30%)]",
   },
   {
     id: "international" as const,
-    label: "International",
+    label: "International Bank Transfer",
     icon: "🌍",
     subtitle: "IBAN & SWIFT",
     gradient: "from-[hsl(30,70%,45%)] to-[hsl(40,80%,40%)]",
