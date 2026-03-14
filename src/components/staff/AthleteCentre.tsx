@@ -375,7 +375,7 @@ export const AthleteCentre = () => {
                 <TabsList className="w-full justify-start h-auto p-0 bg-transparent rounded-none gap-1">
                   <TabsTrigger
                     value="matchflow"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded px-4 py-2 text-sm font-semibold"
+                    className="data-[state=active]:bg-primary data-[state=active]:text-[hsl(var(--fff-green-dark))] rounded px-4 py-2 text-sm font-semibold"
                   >
                     <Zap className="h-4 w-4 mr-1.5" />
                     Match Flow
