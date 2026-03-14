@@ -131,7 +131,7 @@ export const CoachingDataSection = () => {
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded px-3 py-2 text-sm"
+                className="data-[state=active]:bg-primary data-[state=active]:text-[hsl(var(--fff-green-dark))] rounded px-3 py-2 text-sm"
               >
                 <tab.icon className="h-4 w-4 mr-1.5" />
                 {tab.label}
