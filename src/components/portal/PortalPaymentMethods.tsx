@@ -110,29 +110,11 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
   };
 
   const renderDetail = (method: PaymentMethod) => {
-    const revolutUrl = "https://revolut.me/fuelforfootball";
     const paypalUrl = amount
       ? `https://paypal.me/fuelforfootball/${amount.toFixed(2)}${currencyCode}`
       : "https://paypal.me/fuelforfootball";
 
     switch (method) {
-      case "revolut":
-        return (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Pay instantly via Revolut — fast, free, and secure.
-              {formattedAmount && <span className="font-semibold text-foreground ml-1">{formattedAmount}</span>}
-            </p>
-            <Button
-              className="w-full bg-[hsl(220,80%,50%)] hover:bg-[hsl(220,80%,45%)] text-white"
-              onClick={() => window.open(revolutUrl, "_blank")}
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Pay {formattedAmount || ''} with Revolut
-              <ArrowRight className="h-4 w-4 ml-auto" />
-            </Button>
-          </div>
-        );
       case "paypal":
         return (
           <div className="space-y-4">
