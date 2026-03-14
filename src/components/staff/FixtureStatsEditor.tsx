@@ -9,7 +9,7 @@ import { METRIC_CATEGORIES } from "./ComparisonPlayerData";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
-import { Sparkles, Plus, Loader2, ArrowUpToLine } from "lucide-react";
+import { Sparkles, Plus, Loader2, ArrowUpToLine, Link2 } from "lucide-react";
 
 // Mapping from fixture stat keys to match statistics (unified stats) keys
 export const FIXTURE_TO_UNIFIED_MAP: Record<string, { key: string; type: 'count' | 'score' }> = {
@@ -53,6 +53,7 @@ interface PerformanceActionForAI {
   action_type: string;
   action_description: string;
   notes: string;
+  zone?: number | null;
 }
 
 interface FixtureStatsEditorProps {
@@ -67,6 +68,9 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
   const [activeCategory, setActiveCategory] = useState("Shooting");
   const [aiSuggestions, setAiSuggestions] = useState<Record<string, AISuggestion>>({});
   const [aiLoading, setAiLoading] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
+  const [urlParsing, setUrlParsing] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
 
   const handleChange = (key: string, value: string) => {
     const updated = { ...fixtureStats };
@@ -86,6 +90,12 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
       delete next[key];
       return next;
     });
+  };
+
+  const getActionHoverText = (actionNumber: number) => {
+    const action = actions?.find(a => a.action_number === actionNumber);
+    if (!action) return `Action #${actionNumber}`;
+    return `#${actionNumber} · min ${action.minute || '?'} · score ${action.action_score || 'N/A'} · ${action.action_description || action.action_type || 'No description'}`;
   };
 
   const handleSuggestWithAI = async () => {
@@ -109,6 +119,7 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
             action_type: a.action_type,
             action_description: a.action_description,
             notes: a.notes,
+            zone: a.zone || null,
           })),
           statDefinitions: allMetrics,
           previousStats: previousFixtureStats || {},
@@ -116,7 +127,12 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
       });
 
       if (error) throw error;
-      if (data?.error) { toast.error(data.error); return; }
+
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
       if (data?.suggestions) {
         setAiSuggestions(data.suggestions);
         const count = Object.keys(data.suggestions).length;
@@ -130,28 +146,141 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
     }
   };
 
+  const handleParseUrl = async () => {
+    if (!urlInput.trim()) {
+      toast.error('Please enter a URL');
+      return;
+    }
+
+    setUrlParsing(true);
+    try {
+      const { data, error } = await invokeEdgeFunction('parse-stats-url', {
+        body: { url: urlInput.trim() },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.multiplePlayersAvailable && data?.players) {
+        const bestPlayerEntry = Object.entries(data.players as Record<string, { stats?: Record<string, number>; team?: string }>)
+          .map(([name, player]) => ({
+            name,
+            team: player?.team || 'Unknown',
+            stats: player?.stats || {},
+            count: Object.keys(player?.stats || {}).length,
+          }))
+          .sort((a, b) => b.count - a.count)[0];
+
+        if (bestPlayerEntry && bestPlayerEntry.count > 0) {
+          const suggestions: Record<string, AISuggestion> = {};
+          for (const [key, value] of Object.entries(bestPlayerEntry.stats)) {
+            suggestions[key] = {
+              value,
+              reasoning: `From SofaScore (${bestPlayerEntry.name}, ${bestPlayerEntry.team})`,
+              contributing_action_numbers: [],
+            };
+          }
+          setAiSuggestions(prev => ({ ...prev, ...suggestions }));
+          toast.success(`Parsed ${bestPlayerEntry.count} stat${bestPlayerEntry.count !== 1 ? 's' : ''} from SofaScore for ${bestPlayerEntry.name}`);
+          setShowUrlInput(false);
+          setUrlInput("");
+        } else {
+          const playerCount = Object.keys(data.players).length;
+          toast.info(`Found ${playerCount} players but no reliable stats were extracted yet`);
+        }
+      } else if (data?.fixtureStats) {
+        const suggestions: Record<string, AISuggestion> = {};
+        for (const [key, value] of Object.entries(data.fixtureStats as Record<string, number>)) {
+          suggestions[key] = {
+            value,
+            reasoning: `From ${data.source || 'external source'}`,
+            contributing_action_numbers: [],
+          };
+        }
+        setAiSuggestions(prev => ({ ...prev, ...suggestions }));
+        const count = Object.keys(data.fixtureStats).length;
+        toast.success(`Parsed ${count} stat${count !== 1 ? 's' : ''} from ${data.source || 'link'}${data.playerName ? ` (${data.playerName})` : ''}`);
+        setShowUrlInput(false);
+        setUrlInput("");
+      } else {
+        toast.info('No stats could be extracted from that page');
+      }
+    } catch (err: any) {
+      console.error('URL parse error:', err);
+      toast.error('Failed to parse stats: ' + (err.message || 'Unknown error'));
+    } finally {
+      setUrlParsing(false);
+    }
+  };
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <div>
           <Label className="text-sm font-semibold">Fixture Stats</Label>
           <p className="text-xs text-muted-foreground">
             Raw match totals. Per-90 averages are calculated automatically for portal comparisons.
           </p>
         </div>
-        {actions && actions.length > 0 && (
-          <Button variant="outline" size="sm" onClick={handleSuggestWithAI} disabled={aiLoading} className="gap-1.5 shrink-0">
-            {aiLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            {aiLoading ? 'Analysing...' : 'Suggest with AI'}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            className="gap-1.5"
+          >
+            <Link2 className="w-3.5 h-3.5" />
+            Parse Link
           </Button>
-        )}
+          {actions && actions.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSuggestWithAI}
+              disabled={aiLoading}
+              className="gap-1.5"
+            >
+              {aiLoading ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
+              {aiLoading ? 'Analysing...' : 'Suggest with AI'}
+            </Button>
+          )}
+        </div>
       </div>
+
+      {showUrlInput && (
+        <div className="flex gap-2 items-center p-2 bg-muted/50 rounded-md border">
+          <Input
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            placeholder="Paste SofaScore or FBRef match URL..."
+            className="h-8 text-sm flex-1"
+            onKeyDown={(e) => e.key === 'Enter' && handleParseUrl()}
+          />
+          <Button
+            size="sm"
+            onClick={handleParseUrl}
+            disabled={urlParsing || !urlInput.trim()}
+            className="h-8 gap-1.5"
+          >
+            {urlParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5" />}
+            {urlParsing ? 'Parsing...' : 'Parse'}
+          </Button>
+        </div>
+      )}
+
       <Tabs value={activeCategory} onValueChange={setActiveCategory}>
         <TabsList className="grid grid-cols-4 gap-1">
           {METRIC_CATEGORIES.map(cat => (
-            <TabsTrigger key={cat.category} value={cat.category} className="text-xs">{cat.category}</TabsTrigger>
+            <TabsTrigger key={cat.category} value={cat.category} className="text-xs">
+              {cat.category}
+            </TabsTrigger>
           ))}
         </TabsList>
+
         {METRIC_CATEGORIES.map(cat => (
           <TabsContent key={cat.category} value={cat.category} className="mt-3">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -176,12 +305,21 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
                         </Tooltip>
                       )}
                     </div>
-                    <Input type="number" step="0.01" value={fixtureStats[m.key] ?? ''} onChange={(e) => handleChange(m.key, e.target.value)} className="h-8 text-sm" placeholder="-" />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={fixtureStats[m.key] ?? ''}
+                      onChange={(e) => handleChange(m.key, e.target.value)}
+                      className="h-8 text-sm"
+                      placeholder="-"
+                    />
                     {suggestion && (
                       <Popover>
                         <PopoverTrigger asChild>
                           <button className="mt-1 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer">
-                            <span className="font-mono font-semibold bg-primary/10 px-1.5 py-0.5 rounded">{suggestion.value}</span>
+                            <span className="font-mono font-semibold bg-primary/10 px-1.5 py-0.5 rounded">
+                              {suggestion.value}
+                            </span>
                             <Plus className="w-3 h-3" />
                           </button>
                         </PopoverTrigger>
@@ -190,9 +328,28 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
                             <p className="font-medium">AI Suggestion: {suggestion.value}</p>
                             <p className="text-muted-foreground">{suggestion.reasoning}</p>
                             {suggestion.contributing_action_numbers.length > 0 && (
-                              <p className="text-muted-foreground">Contributing actions: #{suggestion.contributing_action_numbers.join(', #')}</p>
+                              <div className="text-muted-foreground">
+                                <p>Contributing actions:</p>
+                                <div className="mt-1 flex flex-wrap gap-1">
+                                  {suggestion.contributing_action_numbers.map((actionNumber) => (
+                                    <span
+                                      key={actionNumber}
+                                      title={getActionHoverText(actionNumber)}
+                                      className="px-1.5 py-0.5 rounded bg-muted font-mono cursor-help"
+                                    >
+                                      #{actionNumber}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
                             )}
-                            <Button size="sm" className="w-full h-7 text-xs" onClick={() => handleAcceptSuggestion(m.key, suggestion.value)}>Accept suggestion</Button>
+                            <Button
+                              size="sm"
+                              className="w-full h-7 text-xs"
+                              onClick={() => handleAcceptSuggestion(m.key, suggestion.value)}
+                            >
+                              Accept suggestion
+                            </Button>
                           </div>
                         </PopoverContent>
                       </Popover>
