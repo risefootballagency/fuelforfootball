@@ -95,11 +95,34 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
     </div>
   );
 
+  const handleCardPayment = async () => {
+    if (stripePaymentLinkUrl) {
+      window.open(stripePaymentLinkUrl, "_blank");
+      return;
+    }
+    if (!amount || !title) { toast.error("Payment details missing"); return; }
+    setLoadingCheckout(true);
+    try {
+      const { data, error } = await invokeEdgeFunction<{ url: string }>("create-pay-checkout", {
+        body: { title: title || "Payment", amount, currency: currencyCode, description, payLinkId },
+      });
+      if (error) throw error;
+      if (data?.url) window.open(data.url, "_blank");
+      else throw new Error("No checkout URL returned");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to create checkout");
+    } finally {
+      setLoadingCheckout(false);
+    }
+  };
+
   const renderDetail = (method: PaymentMethod) => {
-    const amountSuffix = amount ? `/${amount}${currencyCode}` : '';
-    const paypalUrl = `https://paypal.me/fuelforfootball${amountSuffix}`;
-    const revolutUrl = "https://checkout.revolut.com/pay/a31abdd1-ff2c-444d-8455-6463398141f9";
-    const cardUrl = stripePaymentLinkUrl;
+    const revolutUrl = amount
+      ? `https://revolut.me/fuelforfootball/${amount.toFixed(2)}${currencyCode}`
+      : "https://revolut.me/fuelforfootball";
+    const paypalUrl = amount
+      ? `https://paypal.me/fuelforfootball/${amount.toFixed(2)}${currencyCode}`
+      : "https://paypal.me/fuelforfootball";
 
     switch (method) {
       case "revolut":
@@ -145,11 +168,12 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
             </p>
             <Button
               className="w-full bg-[hsl(270,60%,50%)] hover:bg-[hsl(270,60%,45%)] text-white"
-              onClick={() => window.open(cardUrl, "_blank")}
+              onClick={handleCardPayment}
+              disabled={loadingCheckout}
             >
-              <CreditCard className="h-4 w-4 mr-2" />
-              Pay {formattedAmount || ''} by Card
-              <ArrowRight className="h-4 w-4 ml-auto" />
+              {loadingCheckout ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CreditCard className="h-4 w-4 mr-2" />}
+              {loadingCheckout ? "Creating secure checkout..." : `Pay ${formattedAmount || ''} by Card`}
+              {!loadingCheckout && <ArrowRight className="h-4 w-4 ml-auto" />}
             </Button>
           </div>
         );
