@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, ExternalLink, X, Building2, CreditCard, Globe, ArrowRight } from "lucide-react";
+import { Copy, Check, ExternalLink, X, Building2, CreditCard, Globe, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { t } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 interface PortalPaymentMethodsProps {
   amount?: number;
   currency?: string;
   stripePaymentLinkUrl?: string | null;
+  payLinkId?: string;
+  title?: string;
+  description?: string;
 }
 
 type PaymentMethod = "revolut" | "paypal" | "card" | "bank" | "international" | null;
