@@ -252,7 +252,7 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
     }
   };
 
-  const availableMethods = METHODS.filter(m => m.id !== "card" || stripePaymentLinkUrl);
+  const availableMethods = METHODS;
 
   return (
     <div className="space-y-4">
