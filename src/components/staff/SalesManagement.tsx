@@ -189,6 +189,8 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
 
     const totalAmount = calculateTotal();
 
+    const slug = payLinkForm.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-') + '-' + Date.now().toString(36);
+
     // Create pay link
     const { data: payLinkData, error: payLinkError } = await supabase.from("pay_links").insert({
       title: payLinkForm.title,
@@ -202,6 +204,7 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
       customer_name: payLinkForm.customer_name || null,
       customer_email: payLinkForm.customer_email || null,
       invoice_notes: payLinkForm.invoice_notes || null,
+      slug,
     }).select().single();
 
     if (payLinkError) {
