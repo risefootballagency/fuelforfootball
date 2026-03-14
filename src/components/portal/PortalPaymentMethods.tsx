@@ -93,10 +93,8 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl }:
   const renderDetail = (method: PaymentMethod) => {
     const amountSuffix = amount ? `/${amount}${currencyCode}` : '';
     const paypalUrl = `https://paypal.me/fuelforfootball${amountSuffix}`;
-    const revolutUrl = amount 
-      ? `https://revolut.me/fuelforfootball` 
-      : "https://checkout.revolut.com/pay/a31abdd1-ff2c-444d-8455-6463398141f9";
-    const cardUrl = stripePaymentLinkUrl || "https://buy.stripe.com/cNidR87Xjgdvcgc505bbG03";
+    const revolutUrl = "https://checkout.revolut.com/pay/a31abdd1-ff2c-444d-8455-6463398141f9";
+    const cardUrl = stripePaymentLinkUrl;
 
     switch (method) {
       case "revolut":
