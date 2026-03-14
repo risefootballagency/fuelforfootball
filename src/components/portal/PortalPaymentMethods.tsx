@@ -17,16 +17,9 @@ interface PortalPaymentMethodsProps {
   description?: string;
 }
 
-type PaymentMethod = "revolut" | "paypal" | "card" | "bank" | "international" | null;
+type PaymentMethod = "paypal" | "card" | "bank" | "international" | null;
 
 const METHODS = [
-  {
-    id: "revolut" as const,
-    label: "Revolut",
-    icon: "🔄",
-    subtitle: "Instant payment",
-    gradient: "from-[hsl(220,80%,50%)] to-[hsl(260,70%,55%)]",
-  },
   {
     id: "paypal" as const,
     label: "PayPal",
