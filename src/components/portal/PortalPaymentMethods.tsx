@@ -93,10 +93,8 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl }:
   const renderDetail = (method: PaymentMethod) => {
     const amountSuffix = amount ? `/${amount}${currencyCode}` : '';
     const paypalUrl = `https://paypal.me/fuelforfootball${amountSuffix}`;
-    const revolutUrl = amount 
-      ? `https://revolut.me/fuelforfootball` 
-      : "https://checkout.revolut.com/pay/a31abdd1-ff2c-444d-8455-6463398141f9";
-    const cardUrl = stripePaymentLinkUrl || "https://buy.stripe.com/cNidR87Xjgdvcgc505bbG03";
+    const revolutUrl = "https://checkout.revolut.com/pay/a31abdd1-ff2c-444d-8455-6463398141f9";
+    const cardUrl = stripePaymentLinkUrl;
 
     switch (method) {
       case "revolut":
@@ -160,6 +158,30 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl }:
               <DetailRow label="Account Number" value="43613860" field="bank-acc" mono />
             </div>
             <p className="text-xs text-muted-foreground italic">Please use your name and invoice number as the payment reference.</p>
+            <div className="pt-1">
+              <p className="text-xs text-muted-foreground mb-2">Quick pay via your bank app:</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { name: "Monzo", url: "https://monzo.com/pay", color: "from-[hsl(350,70%,50%)] to-[hsl(350,70%,40%)]" },
+                  { name: "Starling", url: "https://app.starlingbank.com", color: "from-[hsl(260,50%,50%)] to-[hsl(260,50%,40%)]" },
+                  { name: "Revolut", url: "https://revolut.com/app", color: "from-[hsl(220,80%,50%)] to-[hsl(220,80%,40%)]" },
+                  { name: "HSBC", url: "https://www.hsbc.co.uk/ways-to-bank/mobile-banking/", color: "from-[hsl(0,70%,45%)] to-[hsl(0,70%,35%)]" },
+                  { name: "Barclays", url: "https://www.barclays.co.uk/app/", color: "from-[hsl(200,80%,40%)] to-[hsl(200,80%,30%)]" },
+                  { name: "Lloyds", url: "https://www.lloydsbank.com/mobile-banking.html", color: "from-[hsl(140,60%,30%)] to-[hsl(140,60%,20%)]" },
+                ].map((bank) => (
+                  <Button
+                    key={bank.name}
+                    variant="outline"
+                    size="sm"
+                    className={`text-xs border-white/10 hover:border-white/30 bg-gradient-to-r ${bank.color} text-white border-0`}
+                    onClick={() => window.open(bank.url, "_blank")}
+                  >
+                    <Building2 className="h-3 w-3 mr-1" />
+                    {bank.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
           </div>
         );
       case "international":
@@ -173,6 +195,27 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl }:
               <DetailRow label="IBAN" value="GB45 BUKB 2003 8443 6138 60" field="intl-iban" mono />
             </div>
             <p className="text-xs text-muted-foreground italic">Please use your name and invoice number as the payment reference.</p>
+            <div className="pt-1">
+              <p className="text-xs text-muted-foreground mb-2">Quick pay via your bank app:</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { name: "Wise", url: "https://wise.com/pay", color: "from-[hsl(155,70%,40%)] to-[hsl(155,70%,30%)]" },
+                  { name: "Revolut", url: "https://revolut.com/app", color: "from-[hsl(220,80%,50%)] to-[hsl(220,80%,40%)]" },
+                  { name: "N26", url: "https://n26.com/en-eu", color: "from-[hsl(170,60%,35%)] to-[hsl(170,60%,25%)]" },
+                ].map((bank) => (
+                  <Button
+                    key={bank.name}
+                    variant="outline"
+                    size="sm"
+                    className={`text-xs border-white/10 hover:border-white/30 bg-gradient-to-r ${bank.color} text-white border-0`}
+                    onClick={() => window.open(bank.url, "_blank")}
+                  >
+                    <Globe className="h-3 w-3 mr-1" />
+                    {bank.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
           </div>
         );
       default:
@@ -180,10 +223,12 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl }:
     }
   };
 
+  const availableMethods = METHODS.filter(m => m.id !== "card" || stripePaymentLinkUrl);
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {METHODS.map((m) => {
+      <div className={`grid grid-cols-2 sm:grid-cols-3 ${availableMethods.length >= 5 ? 'lg:grid-cols-5' : `lg:grid-cols-${availableMethods.length}`} gap-3`}>
+        {availableMethods.map((m) => {
           const isActive = selected === m.id;
           return (
             <motion.button
