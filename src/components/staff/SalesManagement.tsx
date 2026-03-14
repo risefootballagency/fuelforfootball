@@ -276,10 +276,51 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
     fetchSales();
   };
 
-  const copyPayLink = (id: string) => {
-    const url = `${window.location.origin}/pay/${id}`;
+  const copyPayLink = (link: PayLink) => {
+    const slug = (link as any).slug || link.id;
+    const url = `${window.location.origin}/pay/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success("Pay link copied to clipboard!");
+  };
+
+  const duplicatePayLink = async (link: PayLink) => {
+    const slug = link.title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+    const { data: newLink, error } = await supabase.from("pay_links").insert({
+      title: link.title,
+      amount: link.amount,
+      currency: link.currency,
+      description: link.description,
+      status: "active",
+      payment_type: link.payment_type || "one_off",
+      recurring_interval: link.recurring_interval,
+      installment_count: link.installment_count,
+      customer_name: null,
+      customer_email: null,
+      invoice_notes: link.invoice_notes,
+      slug: slug + '-' + Date.now().toString(36),
+    }).select().single();
+
+    if (error) {
+      toast.error(`Failed to duplicate: ${error.message}`);
+      return;
+    }
+
+    // Also duplicate pay_link_items
+    const { data: items } = await supabase.from("pay_link_items").select("*").eq("pay_link_id", link.id);
+    if (items && items.length > 0 && newLink) {
+      await supabase.from("pay_link_items").insert(
+        items.map(item => ({
+          pay_link_id: newLink.id,
+          product_id: item.product_id,
+          product_name: item.product_name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+        }))
+      );
+    }
+
+    toast.success("Pay link duplicated!");
+    fetchPayLinks();
   };
 
   const deletePayLink = async (id: string) => {

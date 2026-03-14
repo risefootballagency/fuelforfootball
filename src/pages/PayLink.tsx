@@ -17,20 +17,27 @@ interface PayLink {
 }
 
 export default function PayLink() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [payLink, setPayLink] = useState<PayLink | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) fetchPayLink();
-  }, [id]);
+    if (slug) fetchPayLink();
+  }, [slug]);
 
   const fetchPayLink = async () => {
-    const { data, error } = await supabase
-      .from("pay_links")
-      .select("*")
-      .eq("id", id)
-      .single();
+    // Try slug first, then fall back to ID for backwards compatibility
+    let query = supabase.from("pay_links").select("*");
+    
+    // If it looks like a UUID, search by ID; otherwise by slug
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug || "");
+    if (isUuid) {
+      query = query.eq("id", slug);
+    } else {
+      query = query.eq("slug", slug);
+    }
+    
+    const { data, error } = await query.single();
 
     if (error) {
       console.error("Error fetching pay link:", error);
