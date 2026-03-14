@@ -695,13 +695,18 @@ export const SalesManagement = ({ isAdmin }: SalesManagementProps) => {
                           <p className="text-sm text-muted-foreground mt-1">{link.description}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => copyPayLink(link.id)}>
+                      <div className="flex items-center gap-1">
+                        <Button variant="outline" size="sm" onClick={() => copyPayLink(link)}>
                           <Copy className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => window.open(`/pay/${link.id}`, "_blank")}>
+                        <Button variant="outline" size="sm" onClick={() => window.open(`/pay/${(link as any).slug || link.id}`, "_blank")}>
                           <Eye className="w-4 h-4" />
                         </Button>
+                        {isAdmin && (
+                          <Button variant="outline" size="sm" onClick={() => duplicatePayLink(link)} title="Duplicate">
+                            <CopyPlus className="w-4 h-4" />
+                          </Button>
+                        )}
                         {isAdmin && link.status === "active" && (
                           <Button variant="outline" size="sm" onClick={() => updatePayLinkStatus(link.id, "completed")}>
                             <Check className="w-4 h-4" />
