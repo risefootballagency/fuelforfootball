@@ -115,11 +115,13 @@ const getActionScoreBgColor = (score: number | undefined | null): string => {
   return "bg-red-700";
 };
 
-// Individual video item with trim + annotate support
+// Individual video item with trim + annotate + crop support
 const VideoItem = ({
   url,
   onRemove,
   onTrimComplete,
+  onCropSaved,
+  existingCrop,
   pointIndex,
   totalPoints,
   onMoveToPoint,
@@ -129,6 +131,8 @@ const VideoItem = ({
   url: string;
   onRemove: () => void;
   onTrimComplete: (newUrl: string) => void;
+  onCropSaved: (crop: CropRect) => void;
+  existingCrop?: CropRect | null;
   pointIndex: number;
   totalPoints: number;
   onMoveToPoint: (targetPointIndex: number) => void;
@@ -136,6 +140,7 @@ const VideoItem = ({
   existingAnnotationId?: string;
 }) => {
   const [trimOpen, setTrimOpen] = useState(false);
+  const [cropOpen, setCropOpen] = useState(false);
   const [annotateOpen, setAnnotateOpen] = useState(false);
   const [annotationProject, setAnnotationProject] = useState<AnnotationProject | null>(null);
   const [annotationVersion, setAnnotationVersion] = useState(0);
