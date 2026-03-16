@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SkipForward, SkipBack } from "lucide-react";
 import { t } from "@/lib/portalTranslations";
+import { ReadOnlyAnnotationOverlay } from "@/components/portal/ReadOnlyAnnotationOverlay";
 
 interface Clip {
   id: string;
@@ -13,6 +14,7 @@ interface Clip {
   video_url: string;
   minute: number;
   notes?: string | null;
+  clip_annotations?: any[] | null;
 }
 
 interface RankedActionsPlayerProps {
@@ -137,6 +139,12 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
             onCanPlay={(e) => { if (isPlaying) e.currentTarget.play().catch(() => {}); }}
             onEnded={handleVideoEnd}
           />
+          {current.clip_annotations && current.clip_annotations.length > 0 && (
+            <ReadOnlyAnnotationOverlay
+              elements={current.clip_annotations}
+              videoRef={videoRef as React.RefObject<HTMLVideoElement>}
+            />
+          )}
           {sortedClips[currentIndex + 1] && (
             <video
               key={`prefetch-${sortedClips[currentIndex + 1].video_url}`}

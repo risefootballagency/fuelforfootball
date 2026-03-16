@@ -1507,19 +1507,38 @@ export const CreatePerformanceReportDialog = ({
           } catch { /* fixture_stats parsing issue - ignore */ }
 
           if (improvements.length > 0) {
-            await supabase.from('staff_notification_events').insert({
-              event_type: 'performance_improvement',
-              title: `📈 ${playerName} Performance Improvement`,
-              body: `${playerName} showed improvement vs ${opponent}:\n${improvements.join('\n')}`,
+            const dedupeKey = `improvement_${analysisIdToUse}`;
+            const { data: existing } = await supabase
+              .from('staff_notification_events')
+              .select('id')
+              .eq('event_type', 'performance_improvement')
+              .contains('event_data', { dedupe_key: dedupeKey })
+              .limit(1);
+
+            const notifPayload = {
+              event_type: 'performance_improvement' as const,
+              title: `📈 ${playerName} Improvement Report`,
+              body: `${playerName} vs ${opponent} — ${improvements.length} improvement${improvements.length !== 1 ? 's' : ''} detected`,
               event_data: {
+                dedupe_key: dedupeKey,
                 player_id: playerId,
                 player_name: playerName,
                 opponent,
                 improvements,
+                r90_current: current.r90_score,
+                r90_previous: previous.r90_score,
                 r90_score: calculatedR90,
                 analysis_id: analysisIdToUse,
               },
-            }).throwOnError();
+            };
+
+            if (existing && existing.length > 0) {
+              await supabase.from('staff_notification_events')
+                .update({ ...notifPayload, read_by: [] })
+                .eq('id', existing[0].id);
+            } else {
+              await supabase.from('staff_notification_events').insert(notifPayload);
+            }
           }
         }
       } catch (notifErr) {
