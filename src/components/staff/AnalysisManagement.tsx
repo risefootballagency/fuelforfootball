@@ -318,7 +318,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     try {
       const { data, error } = await supabase
         .from("players")
-        .select("id, name, representation_status")
+        .select("id, name, representation_status, club, club_logo")
         .order("name");
 
       if (error) throw error;
