@@ -838,7 +838,7 @@ const PointVideos = ({ point }: { point: any }) => {
               <AnalysisVideo
                 src={url}
                 className="w-full rounded-lg shadow-md border-2"
-                style={{ borderColor: BRAND.gold }}
+                style={{ borderColor: BRAND.cardBorder }}
               />
             </div>
           );
