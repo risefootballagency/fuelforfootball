@@ -80,6 +80,110 @@ const SECTION_IDS = {
   improvements: "section-improvements",
 };
 
+type MappedValue<T> = Record<string, T> | T[] | T | null | undefined;
+
+const normalizeVideoLookupKey = (value: string): string => {
+  try {
+    return decodeURIComponent(value).trim().replace(/#t=.*$/, "");
+  } catch {
+    return value.trim().replace(/#t=.*$/, "");
+  }
+};
+
+const canonicalizeVideoLookupKey = (value: string): string => {
+  const normalized = normalizeVideoLookupKey(value);
+  try {
+    const parsed = new URL(normalized);
+    return `${parsed.origin}${parsed.pathname}`;
+  } catch {
+    return normalized.split("?")[0].split("#")[0];
+  }
+};
+
+const getLookupCandidates = (value: string): string[] => {
+  const normalized = normalizeVideoLookupKey(value);
+  const canonical = canonicalizeVideoLookupKey(value);
+  return Array.from(new Set([value, normalized, canonical]));
+};
+
+const resolveMappedValue = <T,>(map: MappedValue<T>, url: string, index: number): T | undefined => {
+  if (!map) return undefined;
+
+  if (Array.isArray(map)) return map[index];
+
+  if (typeof map !== "object") {
+    return index === 0 ? (map as T) : undefined;
+  }
+
+  const record = map as Record<string, T>;
+  const lookupCandidates = new Set(getLookupCandidates(url));
+
+  if (record[String(index)] !== undefined) {
+    return record[String(index)];
+  }
+
+  for (const candidate of lookupCandidates) {
+    if (record[candidate] !== undefined) return record[candidate];
+  }
+
+  for (const [key, value] of Object.entries(record)) {
+    const keyCandidates = getLookupCandidates(key);
+    if (keyCandidates.some((candidate) => lookupCandidates.has(candidate))) {
+      return value;
+    }
+  }
+
+  return undefined;
+};
+
+const resolveAnnotationProjectId = (value: unknown): string | undefined => {
+  if (!value) return undefined;
+  if (typeof value === "string") return value;
+  if (typeof value !== "object") return undefined;
+
+  const record = value as Record<string, unknown>;
+  const candidates = [record.annotation_id, record.project_id, record.id, record.annotationProjectId];
+  const found = candidates.find((candidate) => typeof candidate === "string");
+  return found as string | undefined;
+};
+
+const preloadImageAsset = (url: string): Promise<void> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = url;
+  });
+};
+
+const preloadAnalysisAssets = async (analysis: Analysis): Promise<void> => {
+  const primaryPointImages = Array.isArray(analysis.points)
+    ? analysis.points
+        .map((point: any) => (Array.isArray(point?.images) && point.images.length > 0 ? point.images[0] : null))
+        .filter(Boolean) as string[]
+    : [];
+
+  const urls = Array.from(
+    new Set(
+      [
+        analysis.match_image_url,
+        analysis.player_image_url,
+        analysis.home_team_logo,
+        analysis.away_team_logo,
+        analysis.scheme_image_url,
+        ...primaryPointImages,
+      ].filter((url): url is string => typeof url === "string" && url.length > 0)
+    )
+  );
+
+  if (urls.length === 0) return;
+
+  await Promise.race([
+    Promise.all(urls.map((url) => preloadImageAsset(url))).then(() => undefined),
+    new Promise<void>((resolve) => setTimeout(resolve, 7000)),
+  ]);
+};
+
 // Enhanced Kit SVG Component with more styling options - THINNER design
 interface KitProps {
   primaryColor: string;
@@ -862,18 +966,6 @@ const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => 
   const videoUrls: string[] = point.video_urls?.length > 0 ? point.video_urls : point.video_url ? [point.video_url] : [];
   if (videoUrls.length === 0) return null;
 
-  const normalizeVideoKey = (value: string) => value.replace(/#t=.*$/, '');
-  const resolveMappedValue = <T,>(map: Record<string, T> | undefined, url: string): T | undefined => {
-    if (!map) return undefined;
-    if (map[url] !== undefined) return map[url];
-
-    const normalizedUrl = normalizeVideoKey(url);
-    if (map[normalizedUrl] !== undefined) return map[normalizedUrl];
-
-    const matchedEntry = Object.entries(map).find(([key]) => normalizeVideoKey(key) === normalizedUrl);
-    return matchedEntry?.[1];
-  };
-
   return (
     <TextReveal delay={0.2}>
       <div className="space-y-3 -mx-[24px] md:-mx-[40px]">
@@ -881,8 +973,8 @@ const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => 
           <AnnotatedPointVideo
             key={i}
             url={url}
-            annotationId={resolveMappedValue<string>(point.annotation_ids, url)}
-            crop={resolveMappedValue<{ top: number; right: number; bottom: number; left: number }>(point.video_crops, url)}
+            annotationId={resolveAnnotationProjectId(resolveMappedValue<unknown>(point.annotation_ids, url, i))}
+            crop={resolveMappedValue<{ top: number; right: number; bottom: number; left: number }>(point.video_crops, url, i)}
             audioUrl={i === 0 ? audioUrl : undefined}
           />
         ))}
@@ -898,6 +990,7 @@ const AnalysisViewer = () => {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [criticalAssetsReady, setCriticalAssetsReady] = useState(false);
   // contentRef removed - PDF now uses pure jsPDF rendering from data
   
   // Extract the UUID from the slug (supports both old UUID-only and new team-vs-team-uuid formats)
@@ -962,11 +1055,15 @@ const AnalysisViewer = () => {
 
   useEffect(() => {
     if (analysisId) {
+      setCriticalAssetsReady(false);
       fetchAnalysis();
     }
   }, [analysisId]);
 
   const fetchAnalysis = async () => {
+    setLoading(true);
+    setCriticalAssetsReady(false);
+
     try {
       // Fetch analysis data
       const { data, error } = await supabase
@@ -1052,11 +1149,14 @@ const AnalysisViewer = () => {
         matchups: Array.isArray(data.matchups) ? data.matchups : [],
         points: Array.isArray(data.points) ? data.points : []
       };
-      
+
       setAnalysis(parsedAnalysis);
+      await preloadAnalysisAssets(parsedAnalysis);
+      setCriticalAssetsReady(true);
     } catch (error: any) {
       console.error("Error fetching analysis:", error);
       toast.error("Failed to load analysis. Please check database permissions.");
+      setCriticalAssetsReady(true);
     } finally {
       setLoading(false);
     }
@@ -1070,7 +1170,7 @@ const AnalysisViewer = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const showLoading = loading || !minDelayPassed;
+  const showLoading = loading || !minDelayPassed || !criticalAssetsReady;
 
   if (showLoading) {
     return (
