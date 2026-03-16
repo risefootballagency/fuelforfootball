@@ -67,6 +67,7 @@ const BRAND = {
   darkGreen: "#052208",
   contentBg: "#c7d4ca",
   bodyText: "#000000",
+  cardBorder: "#c4da9d",
 };
 
 // Section IDs for quick navigation
