@@ -104,6 +104,20 @@ interface AnalysisManagementProps {
 
 const MAX_VIDEO_UPLOAD_BYTES = 50 * 1024 * 1024 * 1024;
 
+const toDateTimeLocalValue = (iso?: string | null) => {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (v: number) => String(v).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
+const fromDateTimeLocalValue = (value: string) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+};
+
 export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = false, defaultPlayerId }: AnalysisManagementProps) => {
   const navigate = useNavigate();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
