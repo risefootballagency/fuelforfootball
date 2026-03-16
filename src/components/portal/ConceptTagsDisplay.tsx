@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import {
   Dialog,
@@ -7,6 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+
+const BRAND_GOLD = "#fdc61b";
 
 interface Concept {
   id: string;
