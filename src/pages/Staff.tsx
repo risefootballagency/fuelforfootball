@@ -847,7 +847,7 @@ const Staff = () => {
                   onDragEnd={handleTabDragEnd}
                   className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all select-none ${
                    isActive
-                       ? 'bg-fff-gold text-fff-green-dark shadow-md'
+                       ? 'bg-fff-gold text-[hsl(var(--fff-green-dark))] shadow-md'
                        : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
                   } ${draggingTabId === tab.id ? 'opacity-50' : ''} ${dragOverTabId === tab.id ? 'ring-2 ring-fff-gold' : ''}`}
                   onClick={() => {
