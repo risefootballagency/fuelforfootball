@@ -1547,67 +1547,102 @@ const AnalysisViewer = () => {
               playerTeam={analysis.player_team}
             />
 
-            {/* Player Image with Premium Gold Arch Frame */}
-            {analysis.player_image_url && (
+            {/* Player/Match Image with Premium Gold Arch Frame - same as pre-match */}
+            {(analysis.player_image_url || analysis.match_image_url) && (
               <ScrollReveal className="w-full">
-                <div className="relative w-full overflow-hidden">
-                  {/* Green fade gradient overlay - layered on top of match image */}
+                <div 
+                  className="relative w-full overflow-hidden"
+                  style={{
+                    backgroundImage: `url('/analysis-page-bg.png')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
+                  {/* Green fade gradient overlay */}
                   <div 
-                    className="absolute inset-x-0 top-0 h-32 md:h-48 z-10 pointer-events-none"
+                    className="absolute inset-x-0 top-0 h-32 md:h-48 z-20 pointer-events-none"
                     style={{
                       background: 'linear-gradient(to bottom, #0a2e12 0%, transparent 100%)'
                     }}
                   />
                   
-                  {/* Player image container - square aspect ratio */}
-                  <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
-                    <img
-                      src={analysis.player_image_url}
-                      alt={analysis.player_name || "Player"}
-                      className="w-full h-full object-cover object-top"
-                    />
-                    
-                    {/* Thick Gold Arch Frame at bottom - creates the premium curved border effect */}
-                    <svg 
-                      className="absolute bottom-0 left-0 right-0 w-full"
-                      style={{ height: '60%' }}
-                      viewBox="0 0 400 240" 
-                      preserveAspectRatio="none"
-                    >
-                      {/* Background fill that connects to the grass section */}
-                      <path
-                        d="M0,240 L0,180 Q200,0 400,180 L400,240 Z"
-                        fill={BRAND.gold}
-                      />
-                      {/* Inner curve for thickness effect */}
-                      <path
-                        d="M0,240 L0,204 Q200,36 400,204 L400,240 Z"
-                        fill="#0a1f0d"
-                      />
-                    </svg>
-                  </div>
-                  
-                  {/* Grass background area with player name */}
+                  {/* Subtle shader overlay for premium look */}
                   <div 
-                    className="relative py-6 md:py-10"
+                    className="absolute inset-0 pointer-events-none z-10"
                     style={{
-                      backgroundImage: `url('/analysis-grass-bg.png')`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center top',
-                      marginTop: '-2px'
+                      background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.3) 100%)',
+                      mixBlendMode: 'multiply'
                     }}
-                  >
-                    {/* Dark overlay for contrast */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/60 pointer-events-none" />
-                    
-                    {/* Player name in GOLD CAPITALS with HoverText effect */}
-                    <div className="relative text-center px-4">
-                      <h2 
-                        className="text-3xl md:text-5xl lg:text-6xl font-bebas uppercase tracking-[0.2em] drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
-                        style={{ color: BRAND.gold }}
-                      >
-                        <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
-                      </h2>
+                  />
+                  
+                  {/* Image container with gold arch */}
+                  <div className="relative w-full z-0">
+                    <div className="relative w-full" style={{ height: '400px', maxHeight: '400px' }}>
+                      <img
+                        src={analysis.match_image_url || analysis.player_image_url}
+                        alt={analysis.player_name || "Match"}
+                        className="w-full h-full object-cover object-top"
+                      />
+                      
+                      {/* Gold arch with transparent outer glow and solid center */}
+                      <div className="absolute bottom-0 left-0 right-0 z-30">
+                        <svg 
+                          className="w-full"
+                          viewBox="0 0 400 120" 
+                          preserveAspectRatio="none"
+                          style={{ height: '120px' }}
+                        >
+                          <defs>
+                            <linearGradient id="goldFadeUpPost" x1="0%" y1="100%" x2="0%" y2="0%">
+                              <stop offset="0%" stopColor="#fdc61b" />
+                              <stop offset="60%" stopColor="rgba(253,198,27,0.4)" />
+                              <stop offset="100%" stopColor="rgba(253,198,27,0)" />
+                            </linearGradient>
+                          </defs>
+                          <path d="M0,20 Q200,70 400,20 L400,120 L0,120 Z" fill="url(#goldFadeUpPost)" />
+                          <path d="M0,50 Q200,90 400,50 L400,120 L0,120 Z" fill="#fdc61b" />
+                        </svg>
+                        
+                        {/* Player name centered on the arch */}
+                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ paddingTop: '30px' }}>
+                          <div 
+                            className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
+                            style={{
+                              backgroundImage: `url('/grass-bg-smoky.png')`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              border: `2px solid ${BRAND.gold}`,
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
+                            }}
+                          >
+                            <div className="absolute inset-0 bg-black/40 rounded-full" />
+                            <h2 
+                              className="relative text-lg md:text-2xl lg:text-3xl font-bebas uppercase tracking-widest text-center drop-shadow-md text-white"
+                            >
+                              <HoverText text={analysis.player_name?.toUpperCase() || "PLAYER NAME"} />
+                            </h2>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Downward arch below the image */}
+                      <div className="absolute -bottom-[60px] left-0 right-0 z-20">
+                        <svg 
+                          className="w-full"
+                          viewBox="0 0 400 60" 
+                          preserveAspectRatio="none"
+                          style={{ height: '60px' }}
+                        >
+                          <defs>
+                            <linearGradient id="goldFadeDownPost" x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" stopColor="#fdc61b" />
+                              <stop offset="40%" stopColor="rgba(253,198,27,0.4)" />
+                              <stop offset="100%" stopColor="rgba(253,198,27,0)" />
+                            </linearGradient>
+                          </defs>
+                          <path d="M0,0 L400,0 Q200,60 0,0 Z" fill="url(#goldFadeDownPost)" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
