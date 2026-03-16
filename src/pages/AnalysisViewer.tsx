@@ -800,26 +800,22 @@ const PointVideos = ({ point }: { point: any }) => {
   if (videoUrls.length === 0) return null;
   return (
     <TextReveal delay={0.2}>
-      <div className="space-y-3">
+      <div className="space-y-3 -mx-[8px] md:-mx-[16px]">
         {videoUrls.map((url: string, i: number) => {
           const crop = point.video_crops?.[url];
           const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
           
           if (hasCrop) {
-            // Calculate the visible portion as percentages
             const visibleWidth = 100 - crop.left - crop.right;
             const visibleHeight = 100 - crop.top - crop.bottom;
             
             return (
               <div
                 key={i}
-                className="rounded-lg shadow-md border-2 overflow-hidden"
+                className="shadow-md border-2 overflow-hidden"
                 style={{ borderColor: BRAND.gold }}
               >
-                <div style={{
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}>
+                <div style={{ overflow: 'hidden' }}>
                   <div style={{
                     marginTop: `-${(crop.top / visibleHeight) * 100}%`,
                     marginBottom: `-${(crop.bottom / visibleHeight) * 100}%`,
@@ -840,7 +836,7 @@ const PointVideos = ({ point }: { point: any }) => {
             <div key={i}>
               <AnalysisVideo
                 src={url}
-                className="w-full rounded-lg shadow-md border-2"
+                className="w-full shadow-md border-2"
                 style={{ borderColor: BRAND.gold }}
               />
             </div>
