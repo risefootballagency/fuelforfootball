@@ -856,7 +856,7 @@ const Staff = () => {
                     if (parent) setExpandedCategory(parent.id);
                   }}
                 >
-                  <TabIcon className={`w-3 h-3 shrink-0 ${isActive ? 'text-fff-green-dark' : 'text-white'}`} />
+                  <TabIcon className={`w-3 h-3 shrink-0 ${isActive ? 'text-[hsl(var(--fff-green-dark))]' : 'text-white'}`} />
                   <span className="truncate max-w-[80px]">{tab.title}</span>
                   <button
                     className="opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 p-0.5 rounded-full hover:bg-background/30"
