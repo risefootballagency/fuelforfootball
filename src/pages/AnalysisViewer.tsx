@@ -836,7 +836,7 @@ const PointVideos = ({ point }: { point: any }) => {
             <div key={i}>
               <AnalysisVideo
                 src={url}
-                className="w-full shadow-md border-2"
+                className="w-full rounded-lg shadow-md border-2"
                 style={{ borderColor: BRAND.gold }}
               />
             </div>
