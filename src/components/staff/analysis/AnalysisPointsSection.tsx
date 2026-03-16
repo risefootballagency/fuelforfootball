@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, X, Sparkles, ChevronDown, Film, GripVertical, Scissors, PenLine, Loader2, ArrowUp, ArrowDown, ArrowRightLeft } from "lucide-react";
+import { Plus, X, Sparkles, ChevronDown, Film, GripVertical, Scissors, PenLine, Loader2, ArrowUp, ArrowDown, ArrowRightLeft, Crop } from "lucide-react";
 import { AudioRecorder } from "./AudioRecorder";
 import {
   Collapsible,
@@ -25,6 +25,7 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState, useEffect, useMemo } from "react";
 import { VideoTrimmerDialog } from "./VideoTrimmerDialog";
+import { VideoCropDialog, type CropRect } from "./VideoCropDialog";
 import { AnnotationEditor } from "@/components/staff/annotations/AnnotationEditor";
 import type { AnnotationProject } from "@/components/staff/annotations/AnnotationProjects";
 import { ReadOnlyAnnotationPlayback } from "@/components/portal/ReadOnlyAnnotationPlayback";
