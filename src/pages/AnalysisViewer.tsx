@@ -118,6 +118,10 @@ const resolveMappedValue = <T,>(map: MappedValue<T>, url: string, index: number)
   const record = map as Record<string, T>;
   const lookupCandidates = new Set(getLookupCandidates(url));
 
+  if (record[String(index)] !== undefined) {
+    return record[String(index)];
+  }
+
   for (const candidate of lookupCandidates) {
     if (record[candidate] !== undefined) return record[candidate];
   }
