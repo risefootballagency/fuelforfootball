@@ -1652,7 +1652,7 @@ const AnalysisViewer = () => {
                                 return (
                                   <div key={imgIndex} className="relative w-full">
                                     {imgEl}
-                                    <div className="absolute top-3 right-3 z-20">
+                                     <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
                                       <AudioPlaybackButton audioUrl={point.audio_url} />
                                     </div>
                                   </div>
