@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, X, Crop } from "lucide-react";
+import { Plus, X, Crop, ArrowLeftRight } from "lucide-react";
 import { sortPlayersByRepresentation, getStatusLabel } from "@/lib/playerSorting";
 import {
   Collapsible,
@@ -285,25 +285,56 @@ export const AnalysisMatchDetails = ({
 
         {analysisType === "pre-match" ? (
           <>
-            <div className="border-t pt-4">
-              <Label>Match Date</Label>
-              <Input
-                type="date"
-                value={formData.match_date || ""}
-                onChange={(e) => setFormData({ ...formData, match_date: e.target.value })}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Match Date</Label>
+                <Input
+                  type="date"
+                  value={formData.match_date || ""}
+                  onChange={(e) => setFormData({ ...formData, match_date: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Kick-off Time</Label>
+                <Input
+                  type="time"
+                  value={formData.match_time || ""}
+                  onChange={(e) => setFormData({ ...formData, match_time: e.target.value })}
+                  placeholder="HH:MM"
+                />
+              </div>
             </div>
-            
-            {/* Teams on one line */}
-            <div className="flex items-end gap-2 flex-wrap">
-              <div className="flex-1 min-w-[120px]">
+
+            {/* Teams on one line with swap */}
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-end">
+              <div>
                 <Label>Home Team</Label>
                 <Input
                   value={formData.home_team || ""}
                   onChange={(e) => setFormData({ ...formData, home_team: e.target.value })}
                 />
               </div>
-              <div className="flex-1 min-w-[120px]">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 mb-0.5"
+                title="Swap home and away"
+                onClick={() => setFormData({
+                  ...formData,
+                  home_team: formData.away_team || "",
+                  away_team: formData.home_team || "",
+                  home_team_logo: formData.away_team_logo || "",
+                  away_team_logo: formData.home_team_logo || "",
+                  home_team_bg_color: formData.away_team_bg_color || "",
+                  away_team_bg_color: formData.home_team_bg_color || "",
+                  home_score: formData.away_score,
+                  away_score: formData.home_score,
+                })}
+              >
+                <ArrowLeftRight className="h-4 w-4" />
+              </Button>
+              <div>
                 <Label>Away Team</Label>
                 <Input
                   value={formData.away_team || ""}
@@ -464,9 +495,9 @@ export const AnalysisMatchDetails = ({
               )}
             </div>
             
-            {/* Teams and Score all on one line */}
-            <div className="flex items-end gap-2 flex-wrap">
-              <div className="flex-1 min-w-[100px]">
+            {/* Teams and Score with swap */}
+            <div className="grid grid-cols-[1fr_auto_auto_auto_1fr] gap-2 items-end">
+              <div>
                 <Label className="text-sm">Home Team</Label>
                 <Input
                   value={formData.home_team || ""}
@@ -484,6 +515,26 @@ export const AnalysisMatchDetails = ({
                   className="text-center"
                 />
               </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 mb-0.5"
+                title="Swap home and away"
+                onClick={() => setFormData({
+                  ...formData,
+                  home_team: formData.away_team || "",
+                  away_team: formData.home_team || "",
+                  home_team_logo: formData.away_team_logo || "",
+                  away_team_logo: formData.home_team_logo || "",
+                  home_team_bg_color: formData.away_team_bg_color || "",
+                  away_team_bg_color: formData.home_team_bg_color || "",
+                  home_score: formData.away_score,
+                  away_score: formData.home_score,
+                })}
+              >
+                <ArrowLeftRight className="h-4 w-4" />
+              </Button>
               <div className="w-14">
                 <Label className="text-sm">Score</Label>
                 <Input
@@ -495,7 +546,7 @@ export const AnalysisMatchDetails = ({
                   className="text-center"
                 />
               </div>
-              <div className="flex-1 min-w-[100px]">
+              <div>
                 <Label className="text-sm">Away Team</Label>
                 <Input
                   value={formData.away_team || ""}
