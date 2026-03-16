@@ -1057,6 +1057,9 @@ const AnalysisViewer = () => {
   }, [analysisId]);
 
   const fetchAnalysis = async () => {
+    setLoading(true);
+    setCriticalAssetsReady(false);
+
     try {
       // Fetch analysis data
       const { data, error } = await supabase
@@ -1142,11 +1145,14 @@ const AnalysisViewer = () => {
         matchups: Array.isArray(data.matchups) ? data.matchups : [],
         points: Array.isArray(data.points) ? data.points : []
       };
-      
+
       setAnalysis(parsedAnalysis);
+      await preloadAnalysisAssets(parsedAnalysis);
+      setCriticalAssetsReady(true);
     } catch (error: any) {
       console.error("Error fetching analysis:", error);
       toast.error("Failed to load analysis. Please check database permissions.");
+      setCriticalAssetsReady(true);
     } finally {
       setLoading(false);
     }
