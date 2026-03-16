@@ -1959,7 +1959,7 @@ const AnalysisViewer = () => {
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
                                 className="w-full rounded-lg border-2"
-                                style={{ borderColor: BRAND.gold }}
+                                style={{ borderColor: BRAND.cardBorder }}
                               />
                             ))}
                           </div>
