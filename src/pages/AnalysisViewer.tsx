@@ -1050,6 +1050,7 @@ const AnalysisViewer = () => {
 
   useEffect(() => {
     if (analysisId) {
+      setCriticalAssetsReady(false);
       fetchAnalysis();
     }
   }, [analysisId]);
