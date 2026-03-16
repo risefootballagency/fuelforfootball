@@ -252,12 +252,17 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
 );
 
 // Content card with correct background (#c7d4ca) and black text
+// Uses a pointer-events-none overlay to ensure border renders on top of negatively-margined videos
 const ContentCard = ({ children, className = "", transparent = false }: { children: React.ReactNode; className?: string; transparent?: boolean }) => (
   <div 
-    className={`rounded-lg p-4 md:p-6 border-2 ${className}`}
-    style={{ backgroundColor: transparent ? 'transparent' : BRAND.contentBg, borderColor: BRAND.cardBorder }}
+    className={`relative rounded-lg p-4 md:p-6 ${className}`}
+    style={{ backgroundColor: transparent ? 'transparent' : BRAND.contentBg }}
   >
     {children}
+    <div 
+      className="absolute inset-0 rounded-lg border-2 pointer-events-none z-10"
+      style={{ borderColor: BRAND.cardBorder }}
+    />
   </div>
 );
 
