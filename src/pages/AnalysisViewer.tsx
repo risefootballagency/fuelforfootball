@@ -67,6 +67,7 @@ const BRAND = {
   darkGreen: "#052208",
   contentBg: "#c7d4ca",
   bodyText: "#000000",
+  cardBorder: "#c4da9d",
 };
 
 // Section IDs for quick navigation
@@ -253,8 +254,8 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
 // Content card with correct background (#c7d4ca) and black text
 const ContentCard = ({ children, className = "", transparent = false }: { children: React.ReactNode; className?: string; transparent?: boolean }) => (
   <div 
-    className={`rounded-lg p-4 md:p-6 ${className}`}
-    style={{ backgroundColor: transparent ? 'transparent' : BRAND.contentBg }}
+    className={`rounded-lg p-4 md:p-6 border-2 ${className}`}
+    style={{ backgroundColor: transparent ? 'transparent' : BRAND.contentBg, borderColor: BRAND.cardBorder }}
   >
     {children}
   </div>
@@ -813,7 +814,7 @@ const PointVideos = ({ point }: { point: any }) => {
               <div
                 key={i}
                 className="rounded-lg shadow-md border-2 overflow-hidden"
-                style={{ borderColor: BRAND.gold }}
+                style={{ borderColor: BRAND.cardBorder }}
               >
                 <div style={{ overflow: 'hidden' }}>
                   <div style={{
@@ -837,7 +838,7 @@ const PointVideos = ({ point }: { point: any }) => {
               <AnalysisVideo
                 src={url}
                 className="w-full rounded-lg shadow-md border-2"
-                style={{ borderColor: BRAND.gold }}
+                style={{ borderColor: BRAND.cardBorder }}
               />
             </div>
           );
@@ -1528,7 +1529,7 @@ const AnalysisViewer = () => {
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
                                 className="w-full rounded-lg shadow-md border-2"
-                                style={{ borderColor: BRAND.gold }}
+                                style={{ borderColor: BRAND.cardBorder }}
                               />
                             ))}
                           </div>
@@ -1812,7 +1813,7 @@ const AnalysisViewer = () => {
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
                                 className="w-full rounded-lg shadow-md border-2"
-                                style={{ borderColor: BRAND.gold }}
+                                style={{ borderColor: BRAND.cardBorder }}
                               />
                             ))}
                           </div>
@@ -1958,7 +1959,7 @@ const AnalysisViewer = () => {
                                 src={img}
                                 alt={`${point.title} - Image ${imgIndex + 1}`}
                                 className="w-full rounded-lg border-2"
-                                style={{ borderColor: BRAND.gold }}
+                                style={{ borderColor: BRAND.cardBorder }}
                               />
                             ))}
                           </div>
