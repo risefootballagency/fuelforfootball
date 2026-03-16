@@ -543,10 +543,11 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the right side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase text-center leading-tight overflow-hidden"
+            className="font-bebas tracking-wide uppercase text-center leading-tight overflow-hidden"
             style={{
               fontSize: 'clamp(0.7rem, 3.5vw, 1.2rem)',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+              textShadow: isLightColor(homeBgColor) ? 'none' : '2px 2px 4px rgba(0,0,0,0.8)',
+              color: isLightColor(homeBgColor) ? '#000000' : '#ffffff',
               lineHeight: 1.1,
               display: '-webkit-box',
               WebkitLineClamp: 2,
