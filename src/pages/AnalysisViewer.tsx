@@ -804,11 +804,40 @@ const PointVideos = ({ point }: { point: any }) => {
         {videoUrls.map((url: string, i: number) => {
           const crop = point.video_crops?.[url];
           const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
-          const cropStyle = hasCrop
-            ? { clipPath: `inset(${crop.top}% ${crop.right}% ${crop.bottom}% ${crop.left}%)` }
-            : {};
+          
+          if (hasCrop) {
+            // Calculate the visible portion as percentages
+            const visibleWidth = 100 - crop.left - crop.right;
+            const visibleHeight = 100 - crop.top - crop.bottom;
+            
+            return (
+              <div
+                key={i}
+                className="rounded-lg shadow-md border-2 overflow-hidden"
+                style={{ borderColor: BRAND.gold }}
+              >
+                <div style={{
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}>
+                  <div style={{
+                    marginTop: `-${(crop.top / visibleHeight) * 100}%`,
+                    marginBottom: `-${(crop.bottom / visibleHeight) * 100}%`,
+                    marginLeft: `-${(crop.left / visibleWidth) * 100}%`,
+                    marginRight: `-${(crop.right / visibleWidth) * 100}%`,
+                  }}>
+                    <AnalysisVideo
+                      src={url}
+                      className="w-full block"
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          
           return (
-            <div key={i} style={cropStyle}>
+            <div key={i}>
               <AnalysisVideo
                 src={url}
                 className="w-full rounded-lg shadow-md border-2"
