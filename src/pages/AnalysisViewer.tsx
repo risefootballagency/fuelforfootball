@@ -862,6 +862,18 @@ const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => 
   const videoUrls: string[] = point.video_urls?.length > 0 ? point.video_urls : point.video_url ? [point.video_url] : [];
   if (videoUrls.length === 0) return null;
 
+  const normalizeVideoKey = (value: string) => value.replace(/#t=.*$/, '');
+  const resolveMappedValue = <T,>(map: Record<string, T> | undefined, url: string): T | undefined => {
+    if (!map) return undefined;
+    if (map[url] !== undefined) return map[url];
+
+    const normalizedUrl = normalizeVideoKey(url);
+    if (map[normalizedUrl] !== undefined) return map[normalizedUrl];
+
+    const matchedEntry = Object.entries(map).find(([key]) => normalizeVideoKey(key) === normalizedUrl);
+    return matchedEntry?.[1];
+  };
+
   return (
     <TextReveal delay={0.2}>
       <div className="space-y-3 -mx-[24px] md:-mx-[40px]">
@@ -869,8 +881,8 @@ const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => 
           <AnnotatedPointVideo
             key={i}
             url={url}
-            annotationId={point.annotation_ids?.[url]}
-            crop={point.video_crops?.[url]}
+            annotationId={resolveMappedValue<string>(point.annotation_ids, url)}
+            crop={resolveMappedValue<{ top: number; right: number; bottom: number; left: number }>(point.video_crops, url)}
             audioUrl={i === 0 ? audioUrl : undefined}
           />
         ))}
