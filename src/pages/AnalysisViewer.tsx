@@ -80,6 +80,106 @@ const SECTION_IDS = {
   improvements: "section-improvements",
 };
 
+type MappedValue<T> = Record<string, T> | T[] | T | null | undefined;
+
+const normalizeVideoLookupKey = (value: string): string => {
+  try {
+    return decodeURIComponent(value).trim().replace(/#t=.*$/, "");
+  } catch {
+    return value.trim().replace(/#t=.*$/, "");
+  }
+};
+
+const canonicalizeVideoLookupKey = (value: string): string => {
+  const normalized = normalizeVideoLookupKey(value);
+  try {
+    const parsed = new URL(normalized);
+    return `${parsed.origin}${parsed.pathname}`;
+  } catch {
+    return normalized.split("?")[0].split("#")[0];
+  }
+};
+
+const getLookupCandidates = (value: string): string[] => {
+  const normalized = normalizeVideoLookupKey(value);
+  const canonical = canonicalizeVideoLookupKey(value);
+  return Array.from(new Set([value, normalized, canonical]));
+};
+
+const resolveMappedValue = <T,>(map: MappedValue<T>, url: string, index: number): T | undefined => {
+  if (!map) return undefined;
+
+  if (Array.isArray(map)) return map[index];
+
+  if (typeof map !== "object") {
+    return index === 0 ? (map as T) : undefined;
+  }
+
+  const record = map as Record<string, T>;
+  const lookupCandidates = new Set(getLookupCandidates(url));
+
+  for (const candidate of lookupCandidates) {
+    if (record[candidate] !== undefined) return record[candidate];
+  }
+
+  for (const [key, value] of Object.entries(record)) {
+    const keyCandidates = getLookupCandidates(key);
+    if (keyCandidates.some((candidate) => lookupCandidates.has(candidate))) {
+      return value;
+    }
+  }
+
+  return undefined;
+};
+
+const resolveAnnotationProjectId = (value: unknown): string | undefined => {
+  if (!value) return undefined;
+  if (typeof value === "string") return value;
+  if (typeof value !== "object") return undefined;
+
+  const record = value as Record<string, unknown>;
+  const candidates = [record.annotation_id, record.project_id, record.id, record.annotationProjectId];
+  const found = candidates.find((candidate) => typeof candidate === "string");
+  return found as string | undefined;
+};
+
+const preloadImageAsset = (url: string): Promise<void> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = url;
+  });
+};
+
+const preloadAnalysisAssets = async (analysis: Analysis): Promise<void> => {
+  const primaryPointImages = Array.isArray(analysis.points)
+    ? analysis.points
+        .map((point: any) => (Array.isArray(point?.images) && point.images.length > 0 ? point.images[0] : null))
+        .filter(Boolean) as string[]
+    : [];
+
+  const urls = Array.from(
+    new Set(
+      [
+        analysis.match_image_url,
+        analysis.player_image_url,
+        analysis.home_team_logo,
+        analysis.away_team_logo,
+        analysis.scheme_image_url,
+        ...primaryPointImages,
+      ].filter((url): url is string => typeof url === "string" && url.length > 0)
+    )
+  );
+
+  if (urls.length === 0) return;
+
+  await Promise.race([
+    Promise.all(urls.map((url) => preloadImageAsset(url))).then(() => undefined),
+    new Promise<void>((resolve) => setTimeout(resolve, 7000)),
+  ]);
+};
+
 // Enhanced Kit SVG Component with more styling options - THINNER design
 interface KitProps {
   primaryColor: string;
