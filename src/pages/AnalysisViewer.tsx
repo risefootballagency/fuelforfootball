@@ -249,6 +249,7 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
             <HoverText text={title} />
           </h2>
         </div>
+      </div>
     </div>
   );
 };
