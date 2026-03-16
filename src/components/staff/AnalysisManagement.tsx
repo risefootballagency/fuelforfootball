@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import * as tus from 'tus-js-client';
 import { useNavigate } from "react-router-dom";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { logActivity } from "@/lib/activityLogger";
-import { Pencil, Trash2, Plus, X, Sparkles, Database, Copy, Settings, Eye, Users } from "lucide-react";
+import { Pencil, Trash2, Plus, X, Sparkles, Database, Copy, Settings, Eye, Users, FileEdit, EyeOff, ArrowLeftRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createAnalysisSlug } from "@/lib/urlHelpers";
 import {
   Dialog,
