@@ -419,6 +419,19 @@ const TextReveal = ({ children, delay = 0 }: { children: React.ReactNode; delay?
   </motion.div>
 );
 
+// Helper: determine if a hex color is light (for text contrast)
+const isLightColor = (color: string | null): boolean => {
+  if (!color) return false;
+  const hex = color.replace('#', '');
+  if (hex.length < 6) return false;
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  // Perceived luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.65;
+};
+
 // Main Header - ONE set of club logos BEHIND color bars, double size, higher up
 const AnalysisHeader = ({ 
   homeTeam, 
@@ -543,10 +556,11 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the right side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase text-center leading-tight overflow-hidden"
+            className="font-bebas tracking-wide uppercase text-center leading-tight overflow-hidden"
             style={{
               fontSize: 'clamp(0.7rem, 3.5vw, 1.2rem)',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+              textShadow: isLightColor(homeBgColor) ? 'none' : '2px 2px 4px rgba(0,0,0,0.8)',
+              color: isLightColor(homeBgColor) ? '#000000' : '#ffffff',
               lineHeight: 1.1,
               display: '-webkit-box',
               WebkitLineClamp: 2,
@@ -572,10 +586,11 @@ const AnalysisHeader = ({
         >
         {/* Team name - positioned to the left side, leaving space from VS circle and logo */}
           <span 
-            className="font-bebas text-white tracking-wide uppercase text-center leading-tight overflow-hidden"
+            className="font-bebas tracking-wide uppercase text-center leading-tight overflow-hidden"
             style={{
               fontSize: 'clamp(0.7rem, 3.5vw, 1.2rem)',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+              textShadow: isLightColor(awayBgColor) ? 'none' : '2px 2px 4px rgba(0,0,0,0.8)',
+              color: isLightColor(awayBgColor) ? '#000000' : '#ffffff',
               lineHeight: 1.1,
               display: '-webkit-box',
               WebkitLineClamp: 2,
@@ -949,12 +964,32 @@ const AnalysisViewer = () => {
         throw error;
       }
       
-      // Player name: First check if it's stored directly on the analysis, then fallback to player_analysis join
+      // Player name: First check if it's stored directly on the analysis, then fallback to tagged players, then player_analysis join
       let playerName: string | null = data.player_name || null;
       
-      // If no direct player_name, try to fetch via player_analysis linkage
+      // If no direct player_name, try to fetch via analysis_player_tags (editor tagging)
       if (!playerName) {
-        // Try: check if this analysis is linked via analysis_writer_id
+        const { data: tagData } = await supabase
+          .from("analysis_player_tags")
+          .select("player_id")
+          .eq("analysis_id", analysisId)
+          .limit(1)
+          .maybeSingle();
+        
+        if (tagData?.player_id) {
+          const { data: playerData } = await supabase
+            .from("players")
+            .select("name")
+            .eq("id", tagData.player_id)
+            .maybeSingle();
+          if (playerData?.name) {
+            playerName = playerData.name.toUpperCase();
+          }
+        }
+      }
+      
+      // If still no name, try via player_analysis linkage
+      if (!playerName) {
         const { data: linkedData1 } = await supabase
           .from("player_analysis")
           .select("player_id, players(name)")
@@ -962,7 +997,7 @@ const AnalysisViewer = () => {
           .maybeSingle();
         
         if (linkedData1?.players) {
-          playerName = (linkedData1.players as any).name;
+          playerName = ((linkedData1.players as any).name as string).toUpperCase();
         }
         
         // Second try: check if this analysis was created for a player (via fixture linkage)
@@ -974,7 +1009,7 @@ const AnalysisViewer = () => {
             .maybeSingle();
           
           if (fixturePlayer?.players) {
-            playerName = (fixturePlayer.players as any).name;
+            playerName = ((fixturePlayer.players as any).name as string).toUpperCase();
           }
         }
       }
