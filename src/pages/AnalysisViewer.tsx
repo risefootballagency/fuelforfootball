@@ -1050,10 +1050,9 @@ const AnalysisViewer = () => {
     }
   };
 
-  // Extra loading delay: hold loading screen for 3.5s total minimum
+  // Hold only the final branded loading screen for a fixed minimum time
   const [minDelayPassed, setMinDelayPassed] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => setMinDelayPassed(true), 6500);
     return () => clearTimeout(timer);
@@ -1061,14 +1060,7 @@ const AnalysisViewer = () => {
 
   const showLoading = loading || !minDelayPassed;
 
-  // Trigger fade-out transition when loading completes
-  useEffect(() => {
-    if (!showLoading && !fadeOut) {
-      setFadeOut(true);
-    }
-  }, [showLoading]);
-
-  if (showLoading || (fadeOut && !minDelayPassed)) {
+  if (showLoading) {
     return (
       <div 
         className="min-h-screen flex items-center justify-center relative overflow-hidden"
