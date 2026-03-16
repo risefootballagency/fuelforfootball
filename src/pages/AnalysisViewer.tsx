@@ -1054,7 +1054,7 @@ const AnalysisViewer = () => {
   const [fadeOut, setFadeOut] = useState(false);
   
   useEffect(() => {
-    const timer = setTimeout(() => setMinDelayPassed(true), 3500);
+    const timer = setTimeout(() => setMinDelayPassed(true), 6500);
     return () => clearTimeout(timer);
   }, []);
 
