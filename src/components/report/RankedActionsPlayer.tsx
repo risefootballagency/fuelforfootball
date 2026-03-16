@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SkipForward, SkipBack } from "lucide-react";
 import { t } from "@/lib/portalTranslations";
+import { ReadOnlyAnnotationOverlay } from "@/components/portal/ReadOnlyAnnotationOverlay";
 
 interface Clip {
   id: string;
