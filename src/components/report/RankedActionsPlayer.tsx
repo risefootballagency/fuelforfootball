@@ -139,6 +139,12 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
             onCanPlay={(e) => { if (isPlaying) e.currentTarget.play().catch(() => {}); }}
             onEnded={handleVideoEnd}
           />
+          {current.clip_annotations && current.clip_annotations.length > 0 && (
+            <ReadOnlyAnnotationOverlay
+              elements={current.clip_annotations}
+              videoRef={videoRef as React.RefObject<HTMLVideoElement>}
+            />
+          )}
           {sortedClips[currentIndex + 1] && (
             <video
               key={`prefetch-${sortedClips[currentIndex + 1].video_url}`}
