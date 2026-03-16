@@ -249,9 +249,9 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
             <HoverText text={title} />
           </h2>
         </div>
-      </div>
-  </div>
-);
+    </div>
+  );
+};
 
 // Content card with correct background (#c7d4ca) and black text
 // Uses a pointer-events-none overlay to ensure border renders on top of negatively-margined videos
