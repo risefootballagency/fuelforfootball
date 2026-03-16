@@ -801,7 +801,7 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
 };
 
 // Render video_urls array or singular video_url for a point, with optional crop
-const PointVideos = ({ point }: { point: any }) => {
+const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => {
   const videoUrls: string[] = point.video_urls?.length > 0 ? point.video_urls : point.video_url ? [point.video_url] : [];
   if (videoUrls.length === 0) return null;
   return (
@@ -811,34 +811,27 @@ const PointVideos = ({ point }: { point: any }) => {
           const crop = point.video_crops?.[url];
           const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
           
-          if (hasCrop) {
-            const visibleWidth = 100 - crop.left - crop.right;
-            const visibleHeight = 100 - crop.top - crop.bottom;
-            
-            return (
-              <div
-                key={i}
-                className="rounded-lg shadow-md border-2 overflow-hidden"
-                style={{ borderColor: BRAND.cardBorder }}
-              >
-                <div style={{ overflow: 'hidden' }}>
-                  <div style={{
-                    marginTop: `-${(crop.top / visibleHeight) * 100}%`,
-                    marginBottom: `-${(crop.bottom / visibleHeight) * 100}%`,
-                    marginLeft: `-${(crop.left / visibleWidth) * 100}%`,
-                    marginRight: `-${(crop.right / visibleWidth) * 100}%`,
-                  }}>
-                    <AnalysisVideo
-                      src={url}
-                      className="w-full block"
-                    />
-                  </div>
+          const videoEl = hasCrop ? (
+            <div
+              key={i}
+              className="rounded-lg shadow-md border-2 overflow-hidden"
+              style={{ borderColor: BRAND.cardBorder }}
+            >
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{
+                  marginTop: `-${(crop.top / (100 - crop.top - crop.bottom)) * 100}%`,
+                  marginBottom: `-${(crop.bottom / (100 - crop.top - crop.bottom)) * 100}%`,
+                  marginLeft: `-${(crop.left / (100 - crop.left - crop.right)) * 100}%`,
+                  marginRight: `-${(crop.right / (100 - crop.left - crop.right)) * 100}%`,
+                }}>
+                  <AnalysisVideo
+                    src={url}
+                    className="w-full block"
+                  />
                 </div>
               </div>
-            );
-          }
-          
-          return (
+            </div>
+          ) : (
             <div key={i}>
               <AnalysisVideo
                 src={url}
@@ -847,6 +840,20 @@ const PointVideos = ({ point }: { point: any }) => {
               />
             </div>
           );
+
+          // Overlay audio button on first video
+          if (i === 0 && audioUrl) {
+            return (
+              <div key={i} className="relative">
+                {videoEl}
+                <div className="absolute top-3 right-3 z-20 md:top-4 md:right-4">
+                  <AudioPlaybackButton audioUrl={audioUrl} />
+                </div>
+              </div>
+            );
+          }
+          
+          return videoEl;
         })}
       </div>
     </TextReveal>
