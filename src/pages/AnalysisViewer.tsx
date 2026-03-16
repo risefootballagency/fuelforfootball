@@ -1520,11 +1520,6 @@ const AnalysisViewer = () => {
                     forceOpen={isSaving}
                   >
                     <div className="space-y-4 md:space-y-6">
-                      {point.audio_url && (
-                        <div className="flex justify-center">
-                          <AudioPlaybackButton audioUrl={point.audio_url} />
-                        </div>
-                      )}
                       {point.paragraph_1 && (
                         <TextReveal>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
@@ -1535,19 +1530,32 @@ const AnalysisViewer = () => {
                       {point.images && point.images.length > 0 && (
                         <TextReveal delay={0.15}>
                           <div className="flex flex-col items-center gap-4">
-                            {point.images.map((img: string, imgIndex: number) => (
-                              <img
-                                key={imgIndex}
-                                src={img}
-                                alt={`${point.title} - Image ${imgIndex + 1}`}
-                                className="w-full rounded-lg shadow-md border-2"
-                                style={{ borderColor: BRAND.cardBorder }}
-                              />
-                            ))}
+                            {point.images.map((img: string, imgIndex: number) => {
+                              const imgEl = (
+                                <img
+                                  key={imgIndex}
+                                  src={img}
+                                  alt={`${point.title} - Image ${imgIndex + 1}`}
+                                  className="w-full rounded-lg shadow-md border-2"
+                                  style={{ borderColor: BRAND.cardBorder }}
+                                />
+                              );
+                              if (imgIndex === 0 && point.audio_url) {
+                                return (
+                                  <div key={imgIndex} className="relative w-full">
+                                    {imgEl}
+                                    <div className="absolute top-3 right-3 z-20">
+                                      <AudioPlaybackButton audioUrl={point.audio_url} />
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return imgEl;
+                            })}
                           </div>
                         </TextReveal>
                       )}
-                      <PointVideos point={point} />
+                      <PointVideos point={point} audioUrl={!(point.images?.length > 0) ? point.audio_url : undefined} />
                       {point.paragraph_2 && (
                         <TextReveal delay={0.25}>
                           <p className="leading-relaxed whitespace-pre-wrap text-sm md:text-lg" style={{ color: BRAND.bodyText }}>
