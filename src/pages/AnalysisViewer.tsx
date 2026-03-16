@@ -1048,16 +1048,86 @@ const AnalysisViewer = () => {
     }
   };
 
-  if (loading) {
+  // Extra loading delay: hold loading screen for 3.5s total minimum
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setMinDelayPassed(true), 3500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const showLoading = loading || !minDelayPassed;
+
+  // Trigger fade-out transition when loading completes
+  useEffect(() => {
+    if (!showLoading && !fadeOut) {
+      setFadeOut(true);
+    }
+  }, [showLoading]);
+
+  if (showLoading || (fadeOut && !minDelayPassed)) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div 
+        className="min-h-screen flex items-center justify-center relative overflow-hidden"
+        style={{ backgroundColor: BRAND.darkGreen }}
+      >
+        {/* Tactical background */}
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `url('/analysis-page-bg.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <TacticalSymbols />
+        
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative text-center flex flex-col items-center gap-6"
         >
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground font-bebas tracking-wider">Loading analysis...</p>
+          {/* Logo */}
+          <motion.img 
+            src={fffLogo} 
+            alt="Fuel For Football" 
+            className="w-20 h-20 md:w-28 md:h-28 object-contain"
+            animate={{ 
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          
+          {/* Gold line */}
+          <motion.div
+            className="h-[2px] rounded-full"
+            style={{ backgroundColor: BRAND.gold }}
+            initial={{ width: 0 }}
+            animate={{ width: 120 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          />
+          
+          <p 
+            className="font-bebas tracking-[0.3em] uppercase text-lg md:text-xl"
+            style={{ color: BRAND.gold }}
+          >
+            Loading Analysis
+          </p>
+          
+          {/* Animated dots */}
+          <div className="flex gap-2">
+            {[0, 1, 2].map(i => (
+              <motion.div
+                key={i}
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: BRAND.gold }}
+                animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+              />
+            ))}
+          </div>
         </motion.div>
       </div>
     );
