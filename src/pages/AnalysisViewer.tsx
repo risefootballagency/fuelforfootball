@@ -812,7 +812,7 @@ const PointVideos = ({ point }: { point: any }) => {
             return (
               <div
                 key={i}
-                className="shadow-md border-2 overflow-hidden"
+                className="rounded-lg shadow-md border-2 overflow-hidden"
                 style={{ borderColor: BRAND.gold }}
               >
                 <div style={{ overflow: 'hidden' }}>
