@@ -197,7 +197,7 @@ export const CoachingDataSection = () => {
               <SelectItem value="all">Select a player...</SelectItem>
               {sortPlayersByRepresentation(players).map((player) => (
                 <SelectItem key={player.id} value={player.id}>
-                  {player.name} ({player.position})
+                  <span className="text-accent font-medium">{player.name}</span> ({player.position})
                 </SelectItem>
               ))}
             </SelectContent>
