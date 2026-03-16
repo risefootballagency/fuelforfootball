@@ -986,6 +986,7 @@ const AnalysisViewer = () => {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [criticalAssetsReady, setCriticalAssetsReady] = useState(false);
   // contentRef removed - PDF now uses pure jsPDF rendering from data
   
   // Extract the UUID from the slug (supports both old UUID-only and new team-vs-team-uuid formats)
