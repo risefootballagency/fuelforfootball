@@ -800,7 +800,7 @@ const PointVideos = ({ point }: { point: any }) => {
   if (videoUrls.length === 0) return null;
   return (
     <TextReveal delay={0.2}>
-      <div className="space-y-3 -mx-[8px] md:-mx-[16px]">
+      <div className="space-y-3 -mx-[24px] md:-mx-[40px]">
         {videoUrls.map((url: string, i: number) => {
           const crop = point.video_crops?.[url];
           const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
@@ -812,7 +812,7 @@ const PointVideos = ({ point }: { point: any }) => {
             return (
               <div
                 key={i}
-                className="shadow-md border-2 overflow-hidden"
+                className="rounded-lg shadow-md border-2 overflow-hidden"
                 style={{ borderColor: BRAND.gold }}
               >
                 <div style={{ overflow: 'hidden' }}>
@@ -836,7 +836,7 @@ const PointVideos = ({ point }: { point: any }) => {
             <div key={i}>
               <AnalysisVideo
                 src={url}
-                className="w-full shadow-md border-2"
+                className="w-full rounded-lg shadow-md border-2"
                 style={{ borderColor: BRAND.gold }}
               />
             </div>
