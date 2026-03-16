@@ -800,7 +800,7 @@ const PointVideos = ({ point }: { point: any }) => {
   if (videoUrls.length === 0) return null;
   return (
     <TextReveal delay={0.2}>
-      <div className="space-y-3 -mx-[8px] md:-mx-[16px]">
+      <div className="space-y-3 -mx-[24px] md:-mx-[40px]">
         {videoUrls.map((url: string, i: number) => {
           const crop = point.video_crops?.[url];
           const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
