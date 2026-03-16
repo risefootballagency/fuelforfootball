@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import {
   Dialog,
@@ -7,6 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+
+const BRAND_GOLD = "#fdc61b";
 
 interface Concept {
   id: string;
@@ -68,11 +70,17 @@ export const ConceptTagsDisplay = ({ conceptTagIds }: ConceptTagsDisplayProps) =
         {taggedConcepts.map(concept => (
           <button
             key={concept.id}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors hover:brightness-110"
+            style={{
+              backgroundColor: 'rgba(253, 198, 27, 0.15)',
+              color: BRAND_GOLD,
+              border: `1.5px solid rgba(253, 198, 27, 0.4)`,
+            }}
             onClick={() => setViewingConcept(concept)}
           >
-            <BookOpen className="w-3 h-3" />
+            <BookOpen className="w-3.5 h-3.5" />
             {concept.title}
+            <ChevronRight className="w-3 h-3 opacity-70" />
           </button>
         ))}
       </div>

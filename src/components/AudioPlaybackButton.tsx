@@ -7,6 +7,10 @@ interface AudioPlaybackButtonProps {
 }
 
 const BRAND_GOLD = "#fdc61b";
+const BRAND_DARK_GREEN = "#052208";
+
+// Global registry for stopping other audio players
+let currentlyPlayingButton: (() => void) | null = null;
 
 export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -26,12 +30,24 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
     };
   }, []);
 
+  const stopPlayback = useCallback(() => {
+    audioRef.current?.pause();
+    audioRef.current = null;
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+    setIsPlaying(false);
+  }, []);
+
   const toggle = useCallback(() => {
     if (isPlaying) {
-      audioRef.current?.pause();
-      audioRef.current = null;
-      setIsPlaying(false);
+      stopPlayback();
+      if (currentlyPlayingButton === stopPlayback) currentlyPlayingButton = null;
     } else {
+      // Stop any other playing audio
+      if (currentlyPlayingButton) currentlyPlayingButton();
+
       const audio = new Audio(audioUrl);
       audio.crossOrigin = "anonymous";
       
@@ -52,12 +68,14 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
       audio.onended = () => {
         setIsPlaying(false);
         audioRef.current = null;
+        if (currentlyPlayingButton === stopPlayback) currentlyPlayingButton = null;
       };
       audio.play().catch(() => setIsPlaying(false));
       audioRef.current = audio;
       setIsPlaying(true);
+      currentlyPlayingButton = stopPlayback;
     }
-  }, [isPlaying, audioUrl]);
+  }, [isPlaying, audioUrl, stopPlayback]);
 
   const barVariants = {
     playing: (i: number) => ({
@@ -93,7 +111,7 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
               variants={barVariants}
               animate="playing"
               className="w-[2.5px] rounded-full origin-bottom"
-              style={{ height: "100%", backgroundColor: "#000" }}
+              style={{ height: "100%", backgroundColor: BRAND_DARK_GREEN }}
             />
           ))}
         </div>

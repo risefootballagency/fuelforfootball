@@ -220,19 +220,22 @@ const TacticalSymbols = () => (
 );
 
 // Section title with grass image background - with scroll letter effect on hover
-const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => (
-  <div className="relative mb-4">
-    <div 
-      className="relative rounded-lg overflow-hidden cursor-pointer group"
-      style={{
-        backgroundImage: `url('/analysis-grass-bg.png')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        border: `2px solid ${BRAND.gold}`
-      }}
-    >
-      <div className="py-3 md:py-4 px-4">
-        <div className="flex items-center justify-center gap-3">
+const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => {
+  const isOverview = title.toLowerCase() === 'overview';
+  const titleColor = isOverview ? BRAND.gold : '#ffffff';
+  
+  return (
+    <div className="relative mb-4">
+      <div 
+        className="relative rounded-lg overflow-hidden cursor-pointer group"
+        style={{
+          backgroundImage: `url('/analysis-grass-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          border: `2px solid ${BRAND.gold}`
+        }}
+      >
+        <div className="flex items-center justify-center gap-3" style={{ padding: '14px 16px' }}>
           {icon === "plus" && (
             <Plus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
           )}
@@ -241,15 +244,15 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
           )}
           <h2 
             className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
-            style={{ color: BRAND.gold }}
+            style={{ color: titleColor }}
           >
             <HoverText text={title} />
           </h2>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Content card with correct background (#c7d4ca) and black text
 // Uses a pointer-events-none overlay to ensure border renders on top of negatively-margined videos
@@ -861,7 +864,7 @@ const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => 
             return (
               <div key={i} className="relative">
                 {videoEl}
-                <div className="absolute top-3 right-3 z-20 md:top-4 md:right-4">
+                <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
                   <AudioPlaybackButton audioUrl={audioUrl} />
                 </div>
               </div>
@@ -1046,16 +1049,86 @@ const AnalysisViewer = () => {
     }
   };
 
-  if (loading) {
+  // Extra loading delay: hold loading screen for 3.5s total minimum
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => setMinDelayPassed(true), 3500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const showLoading = loading || !minDelayPassed;
+
+  // Trigger fade-out transition when loading completes
+  useEffect(() => {
+    if (!showLoading && !fadeOut) {
+      setFadeOut(true);
+    }
+  }, [showLoading]);
+
+  if (showLoading || (fadeOut && !minDelayPassed)) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div 
+        className="min-h-screen flex items-center justify-center relative overflow-hidden"
+        style={{ backgroundColor: BRAND.darkGreen }}
+      >
+        {/* Tactical background */}
+        <div 
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `url('/analysis-page-bg.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <TacticalSymbols />
+        
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative text-center flex flex-col items-center gap-6"
         >
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground font-bebas tracking-wider">Loading analysis...</p>
+          {/* Logo */}
+          <motion.img 
+            src={fffLogo} 
+            alt="Fuel For Football" 
+            className="w-20 h-20 md:w-28 md:h-28 object-contain"
+            animate={{ 
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          
+          {/* Gold line */}
+          <motion.div
+            className="h-[2px] rounded-full"
+            style={{ backgroundColor: BRAND.gold }}
+            initial={{ width: 0 }}
+            animate={{ width: 120 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          />
+          
+          <p 
+            className="font-bebas tracking-[0.3em] uppercase text-lg md:text-xl"
+            style={{ color: BRAND.gold }}
+          >
+            Loading Analysis
+          </p>
+          
+          {/* Animated dots */}
+          <div className="flex gap-2">
+            {[0, 1, 2].map(i => (
+              <motion.div
+                key={i}
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: BRAND.gold }}
+                animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+              />
+            ))}
+          </div>
         </motion.div>
       </div>
     );
@@ -1579,7 +1652,7 @@ const AnalysisViewer = () => {
                                 return (
                                   <div key={imgIndex} className="relative w-full">
                                     {imgEl}
-                                    <div className="absolute top-3 right-3 z-20">
+                                     <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
                                       <AudioPlaybackButton audioUrl={point.audio_url} />
                                     </div>
                                   </div>
@@ -1871,7 +1944,7 @@ const AnalysisViewer = () => {
                                 return (
                                   <div key={imgIndex} className="relative w-full">
                                     {imgEl}
-                                    <div className="absolute top-3 right-3 z-20">
+                                     <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
                                       <AudioPlaybackButton audioUrl={point.audio_url} />
                                     </div>
                                   </div>
@@ -2025,7 +2098,7 @@ const AnalysisViewer = () => {
                                 return (
                                   <div key={imgIndex} className="relative w-full">
                                     {imgEl}
-                                    <div className="absolute top-3 right-3 z-20">
+                                    <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
                                       <AudioPlaybackButton audioUrl={point.audio_url} />
                                     </div>
                                   </div>
