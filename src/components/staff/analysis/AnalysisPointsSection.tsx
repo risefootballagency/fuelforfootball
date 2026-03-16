@@ -58,6 +58,7 @@ interface Point {
   video_urls?: string[];
   audio_url?: string;
   annotation_ids?: Record<string, string>;
+  video_crops?: Record<string, CropRect>;
 }
 
 interface PerformanceReportAction {
