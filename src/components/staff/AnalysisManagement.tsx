@@ -738,7 +738,6 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         if (error) throw error;
         analysisId = data.id;
         toast.success("Analysis created successfully");
-        }
       }
 
       if (selectedPerformanceReportId && selectedPerformanceReportId !== "none" && analysisId) {
