@@ -794,21 +794,29 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   );
 };
 
-// Render video_urls array or singular video_url for a point
+// Render video_urls array or singular video_url for a point, with optional crop
 const PointVideos = ({ point }: { point: any }) => {
   const videoUrls: string[] = point.video_urls?.length > 0 ? point.video_urls : point.video_url ? [point.video_url] : [];
   if (videoUrls.length === 0) return null;
   return (
     <TextReveal delay={0.2}>
       <div className="space-y-3">
-        {videoUrls.map((url: string, i: number) => (
-          <AnalysisVideo
-            key={i}
-            src={url}
-            className="w-full rounded-lg shadow-md border-2"
-            style={{ borderColor: BRAND.gold }}
-          />
-        ))}
+        {videoUrls.map((url: string, i: number) => {
+          const crop = point.video_crops?.[url];
+          const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
+          const cropStyle = hasCrop
+            ? { clipPath: `inset(${crop.top}% ${crop.right}% ${crop.bottom}% ${crop.left}%)` }
+            : {};
+          return (
+            <div key={i} style={cropStyle}>
+              <AnalysisVideo
+                src={url}
+                className="w-full rounded-lg shadow-md border-2"
+                style={{ borderColor: BRAND.gold }}
+              />
+            </div>
+          );
+        })}
       </div>
     </TextReveal>
   );

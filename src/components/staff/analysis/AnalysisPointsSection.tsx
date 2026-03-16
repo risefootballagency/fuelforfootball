@@ -115,11 +115,13 @@ const getActionScoreBgColor = (score: number | undefined | null): string => {
   return "bg-red-700";
 };
 
-// Individual video item with trim + annotate support
+// Individual video item with trim + annotate + crop support
 const VideoItem = ({
   url,
   onRemove,
   onTrimComplete,
+  onCropSaved,
+  existingCrop,
   pointIndex,
   totalPoints,
   onMoveToPoint,
@@ -129,6 +131,8 @@ const VideoItem = ({
   url: string;
   onRemove: () => void;
   onTrimComplete: (newUrl: string) => void;
+  onCropSaved: (crop: CropRect) => void;
+  existingCrop?: CropRect | null;
   pointIndex: number;
   totalPoints: number;
   onMoveToPoint: (targetPointIndex: number) => void;
@@ -136,6 +140,7 @@ const VideoItem = ({
   existingAnnotationId?: string;
 }) => {
   const [trimOpen, setTrimOpen] = useState(false);
+  const [cropOpen, setCropOpen] = useState(false);
   const [annotateOpen, setAnnotateOpen] = useState(false);
   const [annotationProject, setAnnotationProject] = useState<AnnotationProject | null>(null);
   const [annotationVersion, setAnnotationVersion] = useState(0);
@@ -212,10 +217,14 @@ const VideoItem = ({
     return annotationProject.klips.flatMap((klip: any) => klip.elements || []);
   }, [annotationProject, annotationVersion]);
 
-  const hasAnnotation = !!(existingAnnotationId || (previewElements && previewElements.length > 0));
+   const hasAnnotation = !!(existingAnnotationId || (previewElements && previewElements.length > 0));
+
+  const cropStyle = existingCrop && (existingCrop.top > 0 || existingCrop.right > 0 || existingCrop.bottom > 0 || existingCrop.left > 0)
+    ? { clipPath: `inset(${existingCrop.top}% ${existingCrop.right}% ${existingCrop.bottom}% ${existingCrop.left}%)` }
+    : {};
 
   return (
-    <div className="relative max-w-xs">
+    <div className="relative max-w-xs" style={cropStyle}>
       {hasAnnotation ? (
         <ReadOnlyAnnotationPlayback
           key={`preview-${annotationVersion}`}
@@ -234,6 +243,9 @@ const VideoItem = ({
         <Button variant="secondary" size="sm" className="h-6 w-6 p-0" onClick={() => setTrimOpen(true)} title="Trim video">
           <Scissors className="w-3 h-3" />
         </Button>
+        <Button variant="secondary" size="sm" className="h-6 w-6 p-0" onClick={() => setCropOpen(true)} title="Crop video frame">
+          <Crop className="w-3 h-3" />
+        </Button>
         {otherPoints.length > 0 && (
           <Select value="" onValueChange={(val) => onMoveToPoint(Number(val))}>
             <SelectTrigger className="h-6 w-6 p-0 border-0 bg-secondary hover:bg-secondary/80 [&>svg.lucide-chevron-down]:hidden">
@@ -251,6 +263,13 @@ const VideoItem = ({
         </Button>
       </div>
       <VideoTrimmerDialog open={trimOpen} onOpenChange={setTrimOpen} videoUrl={url} onTrimComplete={onTrimComplete} />
+      <VideoCropDialog
+        open={cropOpen}
+        onOpenChange={setCropOpen}
+        videoUrl={url}
+        onCropComplete={onCropSaved}
+        initialCrop={existingCrop}
+      />
       <Dialog open={annotateOpen} onOpenChange={(open) => { if (!open) setAnnotateOpen(false); }}>
         <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 overflow-hidden">
           <VisuallyHidden><DialogTitle>Annotate Video</DialogTitle></VisuallyHidden>
@@ -556,10 +575,15 @@ const SortablePointCard = ({
                   pointIndex={index}
                   totalPoints={totalPoints}
                   existingAnnotationId={point.annotation_ids?.[url]}
+                  existingCrop={point.video_crops?.[url]}
                   onMoveToPoint={(targetIdx) => onMoveVideoToPoint(index, vidIndex, targetIdx)}
                   onAnnotationSaved={(annotationId) => {
                     const currentIds = point.annotation_ids || {};
                     updatePoint(index, "annotation_ids", { ...currentIds, [url]: annotationId });
+                  }}
+                  onCropSaved={(crop) => {
+                    const currentCrops = point.video_crops || {};
+                    updatePoint(index, "video_crops", { ...currentCrops, [url]: crop });
                   }}
                   onRemove={() => {
                     const currentVideos = point.video_urls || (point.video_url ? [point.video_url] : []);

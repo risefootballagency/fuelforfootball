@@ -131,7 +131,7 @@ export const CoachingDataSection = () => {
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="data-[state=active]:bg-primary data-[state=active]:text-[hsl(var(--fff-green-dark))] rounded px-3 py-2 text-sm"
+                className="data-[state=active]:bg-accent data-[state=active]:text-[hsl(var(--fff-green-dark))] rounded px-3 py-2 text-sm"
               >
                 <tab.icon className="h-4 w-4 mr-1.5" />
                 {tab.label}
@@ -173,7 +173,7 @@ export const CoachingDataSection = () => {
               <SelectItem value="all">Select a player...</SelectItem>
               {sortPlayersByRepresentation(players).map((player) => (
                 <SelectItem key={player.id} value={player.id}>
-                  {player.name} ({player.position})
+                  <span className="text-accent font-medium">{player.name}</span> ({player.position})
                 </SelectItem>
               ))}
             </SelectContent>
@@ -197,7 +197,7 @@ export const CoachingDataSection = () => {
               <SelectItem value="all">Select a player...</SelectItem>
               {sortPlayersByRepresentation(players).map((player) => (
                 <SelectItem key={player.id} value={player.id}>
-                  {player.name} ({player.position})
+                  <span className="text-accent font-medium">{player.name}</span> ({player.position})
                 </SelectItem>
               ))}
             </SelectContent>
