@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, createRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
@@ -11,8 +11,7 @@ import { normalizeText } from "@/lib/normalizeText";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { HoverText } from "@/components/HoverText";
-import { AnalysisVideo } from "@/components/AnalysisVideo";
-import { ReadOnlyAnnotationOverlay } from "@/components/portal/ReadOnlyAnnotationOverlay";
+import { ReadOnlyAnnotationPlayback } from "@/components/portal/ReadOnlyAnnotationPlayback";
 import { exportAnalysisPdf } from "@/lib/analysisPdfExport";
 import {
   DropdownMenu,
@@ -819,88 +818,71 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   );
 };
 
-// Single video with annotation overlay support
-const AnnotatedVideo = ({ url, annotationId, crop, borderColor, audioUrl }: {
-  url: string; annotationId?: string; crop?: any; borderColor: string; audioUrl?: string;
+// Video with annotation overlay for analysis points
+// Uses shared ReadOnlyAnnotationPlayback to mirror editor behavior
+const AnnotatedPointVideo = ({
+  url,
+  annotationId,
+  crop,
+  audioUrl,
+}: {
+  url: string;
+  annotationId?: string;
+  crop?: { top: number; right: number; bottom: number; left: number } | null;
+  audioUrl?: string;
 }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [annotationEls, setAnnotationEls] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (!annotationId) return;
-    const fetchAnnotations = async () => {
-      try {
-        const { data } = await supabase
-          .from("annotation_projects")
-          .select("klips")
-          .eq("id", annotationId)
-          .maybeSingle();
-        if (data?.klips && Array.isArray(data.klips)) {
-          const allEls = (data.klips as any[]).flatMap((klip: any) => (klip.elements || []));
-          setAnnotationEls(allEls);
-        }
-      } catch (e) {
-        console.error("Failed to fetch annotations:", e);
+  const hasCrop = !!(crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0));
+  const cropShiftStyle = hasCrop && crop
+    ? {
+        marginTop: `-${(crop.top / (100 - crop.top - crop.bottom)) * 100}%`,
+        marginBottom: `-${(crop.bottom / (100 - crop.top - crop.bottom)) * 100}%`,
+        marginLeft: `-${(crop.left / (100 - crop.left - crop.right)) * 100}%`,
+        marginRight: `-${(crop.right / (100 - crop.left - crop.right)) * 100}%`,
       }
-    };
-    fetchAnnotations();
-  }, [annotationId]);
+    : undefined;
 
-  const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
-  
-  const overlay = annotationEls.length > 0 ? (
-    <ReadOnlyAnnotationOverlay elements={annotationEls} videoRef={videoRef as React.RefObject<HTMLVideoElement>} />
-  ) : null;
-
-  const videoEl = hasCrop ? (
-    <div className="rounded-lg shadow-md border-2 overflow-hidden" style={{ borderColor }}>
-      <div style={{ overflow: 'hidden' }}>
-        <div style={{
-          marginTop: `-${(crop.top / (100 - crop.top - crop.bottom)) * 100}%`,
-          marginBottom: `-${(crop.bottom / (100 - crop.top - crop.bottom)) * 100}%`,
-          marginLeft: `-${(crop.left / (100 - crop.left - crop.right)) * 100}%`,
-          marginRight: `-${(crop.right / (100 - crop.left - crop.right)) * 100}%`,
-        }}>
-          <AnalysisVideo ref={videoRef} src={url} className="w-full block">
-            {overlay}
-          </AnalysisVideo>
+  return (
+    <div className="relative overflow-hidden rounded-lg border-2 shadow-md" style={{ borderColor: BRAND.cardBorder }}>
+      <div style={hasCrop ? { overflow: 'hidden' } : undefined}>
+        <div style={cropShiftStyle}>
+          <ReadOnlyAnnotationPlayback videoUrl={url} annotationProjectId={annotationId} />
         </div>
       </div>
-    </div>
-  ) : (
-    <AnalysisVideo ref={videoRef} src={url} className="w-full rounded-lg shadow-md border-2" style={{ borderColor }}>
-      {overlay}
-    </AnalysisVideo>
-  );
-
-  if (audioUrl) {
-    return (
-      <div className="relative">
-        {videoEl}
-        <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
+      {audioUrl && (
+        <div className="absolute right-4 top-4 z-20 md:right-5 md:top-5">
           <AudioPlaybackButton audioUrl={audioUrl} />
         </div>
-      </div>
-    );
-  }
-
-  return videoEl;
+      )}
+    </div>
+  );
 };
 
 // Render video_urls array or singular video_url for a point, with optional crop
 const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => {
   const videoUrls: string[] = point.video_urls?.length > 0 ? point.video_urls : point.video_url ? [point.video_url] : [];
   if (videoUrls.length === 0) return null;
+
+  const normalizeVideoKey = (value: string) => value.replace(/#t=.*$/, '');
+  const resolveMappedValue = <T,>(map: Record<string, T> | undefined, url: string): T | undefined => {
+    if (!map) return undefined;
+    if (map[url] !== undefined) return map[url];
+
+    const normalizedUrl = normalizeVideoKey(url);
+    if (map[normalizedUrl] !== undefined) return map[normalizedUrl];
+
+    const matchedEntry = Object.entries(map).find(([key]) => normalizeVideoKey(key) === normalizedUrl);
+    return matchedEntry?.[1];
+  };
+
   return (
     <TextReveal delay={0.2}>
       <div className="space-y-3 -mx-[24px] md:-mx-[40px]">
         {videoUrls.map((url: string, i: number) => (
-          <AnnotatedVideo
+          <AnnotatedPointVideo
             key={i}
             url={url}
-            annotationId={point.annotation_ids?.[url]}
-            crop={point.video_crops?.[url]}
-            borderColor={BRAND.cardBorder}
+            annotationId={resolveMappedValue<string>(point.annotation_ids, url)}
+            crop={resolveMappedValue<{ top: number; right: number; bottom: number; left: number }>(point.video_crops, url)}
             audioUrl={i === 0 ? audioUrl : undefined}
           />
         ))}
@@ -1080,10 +1062,9 @@ const AnalysisViewer = () => {
     }
   };
 
-  // Extra loading delay: hold loading screen for 3.5s total minimum
+  // Hold only the final branded loading screen for a fixed minimum time
   const [minDelayPassed, setMinDelayPassed] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => setMinDelayPassed(true), 6500);
     return () => clearTimeout(timer);
@@ -1091,14 +1072,7 @@ const AnalysisViewer = () => {
 
   const showLoading = loading || !minDelayPassed;
 
-  // Trigger fade-out transition when loading completes
-  useEffect(() => {
-    if (!showLoading && !fadeOut) {
-      setFadeOut(true);
-    }
-  }, [showLoading]);
-
-  if (showLoading || (fadeOut && !minDelayPassed)) {
+  if (showLoading) {
     return (
       <div 
         className="min-h-screen flex items-center justify-center relative overflow-hidden"
