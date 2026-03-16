@@ -688,73 +688,56 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
 
   const handleSave = async () => {
     try {
-      const extendedFormData = formData as any;
-      const { 
-        kit_collar_color, 
-        kit_number_color, 
-        kit_stripe_style, 
-        player_team,
-        strength_points,
-        ...restFormData 
-      } = extendedFormData;
-      
-      const dataToSaveWithNewFields: Record<string, any> = {
-        ...restFormData,
+      // Only include columns that exist in the database schema
+      const validColumns = [
+        'title', 'home_team', 'away_team', 'key_details', 'opposition_strengths',
+        'opposition_weaknesses', 'matchups', 'scheme_title', 'scheme_paragraph_1',
+        'scheme_paragraph_2', 'scheme_image_url', 'player_image_url', 'strengths_improvements',
+        'concept', 'explanation', 'points', 'home_score', 'away_score', 'fixture_id',
+        'match_date', 'home_team_logo', 'away_team_logo', 'selected_scheme', 'starting_xi',
+        'kit_primary_color', 'kit_secondary_color', 'kit_number_color', 'kit_collar_color',
+        'kit_stripe_style', 'match_image_url', 'home_team_bg_color',
+        'away_team_bg_color', 'video_url', 'player_name', 'player_team',
+        'visibility_status', 'estimated_ready_at', 'home_team_bold', 'away_team_bold',
+        'linked_video_analysis_ids', 'translated_content'
+      ];
+
+      const dataToSave: Record<string, any> = {
         analysis_type: analysisType,
         ...(currentUserId && isAnalystOnly ? { writer_user_id: currentUserId } : {}),
       };
-      
-      if (kit_collar_color !== undefined) dataToSaveWithNewFields.kit_collar_color = kit_collar_color;
-      if (kit_number_color !== undefined) dataToSaveWithNewFields.kit_number_color = kit_number_color;
-      if (kit_stripe_style !== undefined) dataToSaveWithNewFields.kit_stripe_style = kit_stripe_style;
-      if (player_team !== undefined) dataToSaveWithNewFields.player_team = player_team;
-      
-      const dataToSaveWithoutNewFields = {
-        ...restFormData,
-        analysis_type: analysisType,
-      };
+
+      // Only copy valid columns from formData
+      validColumns.forEach(col => {
+        if (formData[col] !== undefined) {
+          dataToSave[col] = formData[col];
+        }
+      });
+
+      if (dataToSave.visibility_status === "live") {
+        dataToSave.estimated_ready_at = null;
+      }
 
       let analysisId = editingAnalysis?.id;
 
       if (editingAnalysis) {
-        let { error } = await supabase
+        const { error } = await supabase
           .from("analyses")
-          .update(dataToSaveWithNewFields)
+          .update(dataToSave)
           .eq("id", editingAnalysis.id);
 
-        if (error) {
-          console.warn("Save with new fields failed, retrying without:", error.message);
-          const fallbackResult = await supabase
-            .from("analyses")
-            .update(dataToSaveWithoutNewFields)
-            .eq("id", editingAnalysis.id);
-          
-          if (fallbackResult.error) throw fallbackResult.error;
-          toast.success("Analysis updated (some kit options not saved - shared DB needs migration)");
-        } else {
-          toast.success("Analysis updated successfully");
-        }
+        if (error) throw error;
+        toast.success("Analysis updated successfully");
       } else {
-        let { data, error } = await supabase
+        const { data, error } = await supabase
           .from("analyses")
-          .insert([dataToSaveWithNewFields])
+          .insert([dataToSave as any])
           .select()
           .single();
 
-        if (error) {
-          console.warn("Insert with new fields failed, retrying without:", error.message);
-          const fallbackResult = await supabase
-            .from("analyses")
-            .insert([dataToSaveWithoutNewFields])
-            .select()
-            .single();
-          
-          if (fallbackResult.error) throw fallbackResult.error;
-          analysisId = fallbackResult.data.id;
-          toast.success("Analysis created (some kit options not saved - shared DB needs migration)");
-        } else {
-          analysisId = data.id;
-          toast.success("Analysis created successfully");
+        if (error) throw error;
+        analysisId = data.id;
+        toast.success("Analysis created successfully");
         }
       }
 
