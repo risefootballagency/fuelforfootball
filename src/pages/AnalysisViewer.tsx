@@ -863,7 +863,7 @@ const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => 
             return (
               <div key={i} className="relative">
                 {videoEl}
-                <div className="absolute top-3 right-3 z-20 md:top-4 md:right-4">
+                <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
                   <AudioPlaybackButton audioUrl={audioUrl} />
                 </div>
               </div>

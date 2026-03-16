@@ -111,7 +111,7 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
               variants={barVariants}
               animate="playing"
               className="w-[2.5px] rounded-full origin-bottom"
-              style={{ height: "100%", backgroundColor: "#000" }}
+              style={{ height: "100%", backgroundColor: BRAND_DARK_GREEN }}
             />
           ))}
         </div>
