@@ -254,8 +254,8 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
 // Content card with correct background (#c7d4ca) and black text
 const ContentCard = ({ children, className = "", transparent = false }: { children: React.ReactNode; className?: string; transparent?: boolean }) => (
   <div 
-    className={`rounded-lg p-4 md:p-6 ${className}`}
-    style={{ backgroundColor: transparent ? 'transparent' : BRAND.contentBg }}
+    className={`rounded-lg p-4 md:p-6 border-2 ${className}`}
+    style={{ backgroundColor: transparent ? 'transparent' : BRAND.contentBg, borderColor: BRAND.cardBorder }}
   >
     {children}
   </div>
