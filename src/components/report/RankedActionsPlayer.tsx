@@ -14,6 +14,7 @@ interface Clip {
   video_url: string;
   minute: number;
   notes?: string | null;
+  clip_annotations?: any[] | null;
 }
 
 interface RankedActionsPlayerProps {
