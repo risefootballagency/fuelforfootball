@@ -1626,6 +1626,8 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
               formData={formData}
               setFormData={setFormData}
               analysisType={activeView as "pre-match" | "post-match"}
+              taggedPlayerIds={taggedPlayerIds}
+              setTaggedPlayerIds={setTaggedPlayerIds}
             />
           )}
 
