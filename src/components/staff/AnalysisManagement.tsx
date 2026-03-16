@@ -279,6 +279,19 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     }
   }, [defaultPlayerId]);
 
+  // Auto-populate player_name from first tagged player
+  useEffect(() => {
+    if (taggedPlayerIds.length > 0 && players.length > 0) {
+      const firstTagged = players.find(p => p.id === taggedPlayerIds[0]);
+      if (firstTagged) {
+        const upperName = firstTagged.name.toUpperCase();
+        if (formData.player_name !== upperName) {
+          setFormData((prev: any) => ({ ...prev, player_name: upperName }));
+        }
+      }
+    }
+  }, [taggedPlayerIds, players]);
+
   // Fetch clips when a performance report is selected
   useEffect(() => {
     if (selectedPerformanceReportId && selectedPerformanceReportId !== "none") {
