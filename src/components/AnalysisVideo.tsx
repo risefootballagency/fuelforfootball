@@ -52,6 +52,17 @@ export const AnalysisVideo = ({ src, className, style }: AnalysisVideoProps) => 
     };
   }, []);
 
+  const handleClick = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play().catch(() => {});
+      currentlyPlayingVideo = video;
+    } else {
+      video.pause();
+    }
+  };
+
   return (
     <div ref={containerRef}>
       <video
@@ -60,8 +71,9 @@ export const AnalysisVideo = ({ src, className, style }: AnalysisVideoProps) => 
         muted
         loop
         playsInline
-        className={className}
+        className={`${className ?? ''} cursor-pointer`}
         style={style}
+        onClick={handleClick}
       />
     </div>
   );
