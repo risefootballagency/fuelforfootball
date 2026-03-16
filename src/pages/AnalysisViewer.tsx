@@ -1166,7 +1166,7 @@ const AnalysisViewer = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const showLoading = loading || !minDelayPassed;
+  const showLoading = loading || !minDelayPassed || !criticalAssetsReady;
 
   if (showLoading) {
     return (
