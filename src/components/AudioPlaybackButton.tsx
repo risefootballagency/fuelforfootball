@@ -7,6 +7,10 @@ interface AudioPlaybackButtonProps {
 }
 
 const BRAND_GOLD = "#fdc61b";
+const BRAND_DARK_GREEN = "#052208";
+
+// Global registry for stopping other audio players
+let currentlyPlayingButton: (() => void) | null = null;
 
 export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
