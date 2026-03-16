@@ -819,6 +819,74 @@ const QuickNavDropdown = ({ sections }: { sections: { id: string; label: string 
   );
 };
 
+// Single video with annotation overlay support
+const AnnotatedVideo = ({ url, annotationId, crop, borderColor, audioUrl }: {
+  url: string; annotationId?: string; crop?: any; borderColor: string; audioUrl?: string;
+}) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [annotationEls, setAnnotationEls] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!annotationId) return;
+    const fetchAnnotations = async () => {
+      try {
+        const { data } = await supabase
+          .from("annotation_projects")
+          .select("klips")
+          .eq("id", annotationId)
+          .maybeSingle();
+        if (data?.klips && Array.isArray(data.klips)) {
+          const allEls = (data.klips as any[]).flatMap((klip: any) => (klip.elements || []));
+          setAnnotationEls(allEls);
+        }
+      } catch (e) {
+        console.error("Failed to fetch annotations:", e);
+      }
+    };
+    fetchAnnotations();
+  }, [annotationId]);
+
+  const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
+  
+  const overlay = annotationEls.length > 0 ? (
+    <ReadOnlyAnnotationOverlay elements={annotationEls} videoRef={videoRef as React.RefObject<HTMLVideoElement>} />
+  ) : null;
+
+  const videoEl = hasCrop ? (
+    <div className="rounded-lg shadow-md border-2 overflow-hidden" style={{ borderColor }}>
+      <div style={{ overflow: 'hidden' }}>
+        <div style={{
+          marginTop: `-${(crop.top / (100 - crop.top - crop.bottom)) * 100}%`,
+          marginBottom: `-${(crop.bottom / (100 - crop.top - crop.bottom)) * 100}%`,
+          marginLeft: `-${(crop.left / (100 - crop.left - crop.right)) * 100}%`,
+          marginRight: `-${(crop.right / (100 - crop.left - crop.right)) * 100}%`,
+        }}>
+          <AnalysisVideo ref={videoRef} src={url} className="w-full block">
+            {overlay}
+          </AnalysisVideo>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <AnalysisVideo ref={videoRef} src={url} className="w-full rounded-lg shadow-md border-2" style={{ borderColor }}>
+      {overlay}
+    </AnalysisVideo>
+  );
+
+  if (audioUrl) {
+    return (
+      <div className="relative">
+        {videoEl}
+        <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
+          <AudioPlaybackButton audioUrl={audioUrl} />
+        </div>
+      </div>
+    );
+  }
+
+  return videoEl;
+};
+
 // Render video_urls array or singular video_url for a point, with optional crop
 const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => {
   const videoUrls: string[] = point.video_urls?.length > 0 ? point.video_urls : point.video_url ? [point.video_url] : [];
@@ -826,54 +894,16 @@ const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => 
   return (
     <TextReveal delay={0.2}>
       <div className="space-y-3 -mx-[24px] md:-mx-[40px]">
-        {videoUrls.map((url: string, i: number) => {
-          const crop = point.video_crops?.[url];
-          const hasCrop = crop && (crop.top > 0 || crop.right > 0 || crop.bottom > 0 || crop.left > 0);
-          
-          const videoEl = hasCrop ? (
-            <div
-              key={i}
-              className="rounded-lg shadow-md border-2 overflow-hidden"
-              style={{ borderColor: BRAND.cardBorder }}
-            >
-              <div style={{ overflow: 'hidden' }}>
-                <div style={{
-                  marginTop: `-${(crop.top / (100 - crop.top - crop.bottom)) * 100}%`,
-                  marginBottom: `-${(crop.bottom / (100 - crop.top - crop.bottom)) * 100}%`,
-                  marginLeft: `-${(crop.left / (100 - crop.left - crop.right)) * 100}%`,
-                  marginRight: `-${(crop.right / (100 - crop.left - crop.right)) * 100}%`,
-                }}>
-                  <AnalysisVideo
-                    src={url}
-                    className="w-full block"
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div key={i}>
-              <AnalysisVideo
-                src={url}
-                className="w-full rounded-lg shadow-md border-2"
-                style={{ borderColor: BRAND.cardBorder }}
-              />
-            </div>
-          );
-
-          // Overlay audio button on first video
-          if (i === 0 && audioUrl) {
-            return (
-              <div key={i} className="relative">
-                {videoEl}
-                <div className="absolute top-4 right-4 z-20 md:top-5 md:right-5">
-                  <AudioPlaybackButton audioUrl={audioUrl} />
-                </div>
-              </div>
-            );
-          }
-          
-          return videoEl;
-        })}
+        {videoUrls.map((url: string, i: number) => (
+          <AnnotatedVideo
+            key={i}
+            url={url}
+            annotationId={point.annotation_ids?.[url]}
+            crop={point.video_crops?.[url]}
+            borderColor={BRAND.cardBorder}
+            audioUrl={i === 0 ? audioUrl : undefined}
+          />
+        ))}
       </div>
     </TextReveal>
   );
