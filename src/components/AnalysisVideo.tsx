@@ -1,17 +1,20 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 
 interface AnalysisVideoProps {
   src: string;
   className?: string;
   style?: React.CSSProperties;
+  children?: React.ReactNode;
 }
 
 // Global registry to track currently playing video
 let currentlyPlayingVideo: HTMLVideoElement | null = null;
 
-export const AnalysisVideo = ({ src, className, style }: AnalysisVideoProps) => {
+export const AnalysisVideo = forwardRef<HTMLVideoElement, AnalysisVideoProps>(({ src, className, style, children }, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useImperativeHandle(ref, () => videoRef.current!);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -64,7 +67,7 @@ export const AnalysisVideo = ({ src, className, style }: AnalysisVideoProps) => 
   };
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="relative">
       <video
         ref={videoRef}
         src={src}
@@ -75,6 +78,9 @@ export const AnalysisVideo = ({ src, className, style }: AnalysisVideoProps) => 
         style={style}
         onClick={handleClick}
       />
+      {children}
     </div>
   );
-};
+});
+
+AnalysisVideo.displayName = 'AnalysisVideo';
