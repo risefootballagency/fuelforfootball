@@ -220,19 +220,22 @@ const TacticalSymbols = () => (
 );
 
 // Section title with grass image background - with scroll letter effect on hover
-const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => (
-  <div className="relative mb-4">
-    <div 
-      className="relative rounded-lg overflow-hidden cursor-pointer group"
-      style={{
-        backgroundImage: `url('/analysis-grass-bg.png')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        border: `2px solid ${BRAND.gold}`
-      }}
-    >
-      <div className="py-3 md:py-4 px-4">
-        <div className="flex items-center justify-center gap-3">
+const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" | null }) => {
+  const isOverview = title.toLowerCase() === 'overview';
+  const titleColor = isOverview ? BRAND.gold : '#ffffff';
+  
+  return (
+    <div className="relative mb-4">
+      <div 
+        className="relative rounded-lg overflow-hidden cursor-pointer group"
+        style={{
+          backgroundImage: `url('/analysis-grass-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          border: `2px solid ${BRAND.gold}`
+        }}
+      >
+        <div className="flex items-center justify-center gap-3" style={{ padding: '14px 16px' }}>
           {icon === "plus" && (
             <Plus className="w-5 h-5 md:w-6 md:h-6" style={{ color: BRAND.gold }} />
           )}
@@ -241,13 +244,12 @@ const SectionTitle = ({ title, icon }: { title: string; icon?: "plus" | "minus" 
           )}
           <h2 
             className="text-xl md:text-2xl font-bebas uppercase tracking-widest text-center drop-shadow-md"
-            style={{ color: BRAND.gold }}
+            style={{ color: titleColor }}
           >
             <HoverText text={title} />
           </h2>
         </div>
       </div>
-    </div>
   </div>
 );
 
