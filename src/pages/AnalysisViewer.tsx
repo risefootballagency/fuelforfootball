@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, createRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
@@ -11,8 +11,7 @@ import { normalizeText } from "@/lib/normalizeText";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { HoverText } from "@/components/HoverText";
-import { AnalysisVideo } from "@/components/AnalysisVideo";
-import { ReadOnlyAnnotationOverlay } from "@/components/portal/ReadOnlyAnnotationOverlay";
+import { ReadOnlyAnnotationPlayback } from "@/components/portal/ReadOnlyAnnotationPlayback";
 import { exportAnalysisPdf } from "@/lib/analysisPdfExport";
 import {
   DropdownMenu,
