@@ -1,14 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Link2, Loader2, Plus, Keyboard } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Link2, Loader2 } from "lucide-react";
+import { sortPlayersByRepresentation, getStatusLabel } from "@/lib/playerSorting";
+import { InlineFixtureCreator } from "@/components/staff/InlineFixtureCreator";
 import {
   Collapsible,
   CollapsibleContent,
@@ -21,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface Fixture {
@@ -38,6 +34,8 @@ interface Player {
   id: string;
   name: string;
   club?: string | null;
+  club_logo?: string | null;
+  representation_status?: string | null;
 }
 
 interface AnalysisQuickLinkProps {
@@ -45,6 +43,8 @@ interface AnalysisQuickLinkProps {
   setFormData: (data: any) => void;
   analysisType: "pre-match" | "post-match";
   defaultOpen?: boolean;
+  taggedPlayerIds?: string[];
+  setTaggedPlayerIds?: (ids: string[]) => void;
 }
 
 export const AnalysisQuickLink = ({
@@ -52,6 +52,8 @@ export const AnalysisQuickLink = ({
   setFormData,
   analysisType,
   defaultOpen = true,
+  taggedPlayerIds,
+  setTaggedPlayerIds,
 }: AnalysisQuickLinkProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -60,51 +62,15 @@ export const AnalysisQuickLink = ({
   const [selectedFixtureId, setSelectedFixtureId] = useState<string>("none");
   const [loadingPlayers, setLoadingPlayers] = useState(true);
   const [loadingFixtures, setLoadingFixtures] = useState(false);
-  const [createFixtureOpen, setCreateFixtureOpen] = useState(false);
-  const [newFixture, setNewFixture] = useState({
-    home_team: '',
-    away_team: '',
-    match_date: '',
-    competition: '',
-    home_score: '',
-    away_score: '',
-  });
-  const [creatingFixture, setCreatingFixture] = useState(false);
+  const [playerSearch, setPlayerSearch] = useState("");
+  const [recentPlayerIds, setRecentPlayerIds] = useState<string[]>([]);
 
-  // Keyboard shortcuts: Ctrl+Shift+F to open fixture creator, Ctrl+Shift+L to apply link
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Shift+F: Open create fixture dialog
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
-        e.preventDefault();
-        if (selectedPlayerId && selectedPlayerId !== "none") {
-          setCreateFixtureOpen(true);
-        } else {
-          toast.error("Select a player first");
-        }
-      }
-      // Ctrl+Shift+L: Apply/import selected fixture
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
-        e.preventDefault();
-        handleApplyFixture();
-      }
-      // Enter key within create fixture dialog to submit
-      if (e.key === 'Enter' && createFixtureOpen && !creatingFixture) {
-        e.preventDefault();
-        handleCreateFixture();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedPlayerId, selectedFixtureId, createFixtureOpen, creatingFixture]);
-
-  // Fetch players on mount
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
         const { data, error } = await supabase
           .from("players")
-          .select("id, name, club")
+          .select("id, name, club, club_logo, representation_status")
           .order("name");
 
         if (error) throw error;
@@ -116,13 +82,77 @@ export const AnalysisQuickLink = ({
       }
     };
 
+    const fetchRecentActivity = async () => {
+      try {
+        const { data: recentTags } = await supabase
+          .from("analysis_player_tags")
+          .select("player_id, created_at")
+          .order("created_at", { ascending: false })
+          .limit(50);
+
+        const seen = new Set<string>();
+        const ordered: string[] = [];
+        const all = (recentTags || []).map(r => r.player_id);
+        for (const pid of all) {
+          if (!seen.has(pid)) {
+            seen.add(pid);
+            ordered.push(pid);
+          }
+        }
+        setRecentPlayerIds(ordered);
+      } catch {
+        // Non-critical
+      }
+    };
+
     fetchPlayers();
+    fetchRecentActivity();
   }, []);
 
-  // Fetch fixtures when player changes
+  // Sort players: recently active first, then by representation status
+  const sortedPlayers = useMemo(() => {
+    const sorted = sortPlayersByRepresentation(players);
+    if (recentPlayerIds.length === 0) return sorted;
+
+    const recentSet = new Set(recentPlayerIds);
+    const recentIndexMap = new Map(recentPlayerIds.map((id, i) => [id, i]));
+
+    const recent = sorted
+      .filter((p: any) => recentSet.has(p.id))
+      .sort((a: any, b: any) => (recentIndexMap.get(a.id) ?? 999) - (recentIndexMap.get(b.id) ?? 999));
+    const rest = sorted.filter((p: any) => !recentSet.has(p.id));
+
+    return [...recent, ...rest];
+  }, [players, recentPlayerIds]);
+
+  // Filter by search
+  const filteredPlayers = useMemo(() => {
+    if (!playerSearch.trim()) return sortedPlayers;
+    const q = playerSearch.toLowerCase();
+    return sortedPlayers.filter((p: any) =>
+      p.name.toLowerCase().includes(q) ||
+      (p.club && p.club.toLowerCase().includes(q))
+    );
+  }, [sortedPlayers, playerSearch]);
+
+  // Auto-apply when fixture is selected
+  useEffect(() => {
+    if (selectedPlayerId && selectedPlayerId !== "none" &&
+        selectedFixtureId && selectedFixtureId !== "none") {
+      handleApplyFixture();
+    }
+  }, [selectedFixtureId]);
+
   useEffect(() => {
     if (selectedPlayerId && selectedPlayerId !== "none") {
       fetchPlayerFixtures(selectedPlayerId);
+
+      // Auto-tag the player
+      if (setTaggedPlayerIds && taggedPlayerIds) {
+        if (!taggedPlayerIds.includes(selectedPlayerId)) {
+          setTaggedPlayerIds([...taggedPlayerIds, selectedPlayerId]);
+        }
+      }
     } else {
       setPlayerFixtures([]);
       setSelectedFixtureId("none");
@@ -132,7 +162,6 @@ export const AnalysisQuickLink = ({
   const fetchPlayerFixtures = async (playerId: string) => {
     setLoadingFixtures(true);
     try {
-      // First get the player's fixture IDs
       const { data: playerFixtureLinks, error: pfError } = await supabase
         .from("player_fixtures")
         .select("fixture_id")
@@ -142,7 +171,7 @@ export const AnalysisQuickLink = ({
 
       if (playerFixtureLinks && playerFixtureLinks.length > 0) {
         const fixtureIds = playerFixtureLinks.map(pf => pf.fixture_id);
-        
+
         const { data: fixturesData, error: fError } = await supabase
           .from("fixtures")
           .select("*")
@@ -162,7 +191,7 @@ export const AnalysisQuickLink = ({
     }
   };
 
-  const handleApplyFixture = () => {
+  const handleApplyFixture = async () => {
     if (selectedFixtureId === "none") {
       toast.error("Please select a fixture first");
       return;
@@ -170,15 +199,13 @@ export const AnalysisQuickLink = ({
 
     const fixture = playerFixtures.find(f => f.id === selectedFixtureId);
     const player = players.find(p => p.id === selectedPlayerId);
-    
+
     if (!fixture || !player) return;
 
-    // Determine which team is the player's team based on their club
     const playerClub = player.club?.toLowerCase() || "";
     const homeTeamLower = fixture.home_team.toLowerCase();
     const awayTeamLower = fixture.away_team.toLowerCase();
-    
-    // Simple matching - check if player's club contains or is contained by team names
+
     let playerTeam: "home" | "away" | null = null;
     if (playerClub && (homeTeamLower.includes(playerClub) || playerClub.includes(homeTeamLower))) {
       playerTeam = "home";
@@ -186,7 +213,9 @@ export const AnalysisQuickLink = ({
       playerTeam = "away";
     }
 
-    // Build the update object
+    // Determine opponent name
+    const opponentName = playerTeam === "home" ? fixture.away_team : playerTeam === "away" ? fixture.home_team : fixture.away_team;
+
     const updateData: any = {
       ...formData,
       match_date: fixture.match_date,
@@ -196,14 +225,62 @@ export const AnalysisQuickLink = ({
       away_score: fixture.away_score,
     };
 
-    // For pre-match, set player_team for opacity highlight
-    if (analysisType === "pre-match" && playerTeam) {
-      updateData.player_team = playerTeam;
+    // Auto-generate title
+    if (analysisType === "pre-match") {
+      if (playerTeam) {
+        updateData.player_team = playerTeam;
+      }
+      updateData.title = `Opposition Analysis - ${opponentName}`;
     }
 
-    // For post-match, also set player name
     if (analysisType === "post-match") {
       updateData.player_name = player.name.toUpperCase();
+      updateData.title = `${player.name.toUpperCase()} vs ${opponentName}`;
+    }
+
+    // Auto-fill player's club logo
+    if (player.club_logo && playerTeam) {
+      if (playerTeam === "home") {
+        updateData.home_team_logo = player.club_logo;
+      } else {
+        updateData.away_team_logo = player.club_logo;
+      }
+    }
+
+    // Try to pull team bg colours from the most recent analysis with the same team names
+    try {
+      const { data: prevAnalysis } = await supabase
+        .from("analyses")
+        .select("home_team, away_team, home_team_logo, away_team_logo, home_team_bg_color, away_team_bg_color")
+        .or(`home_team.ilike.%${fixture.home_team}%,away_team.ilike.%${fixture.home_team}%`)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (prevAnalysis && prevAnalysis.length > 0) {
+        for (const prev of prevAnalysis) {
+          const prevHome = prev.home_team?.toLowerCase() || "";
+          const prevAway = prev.away_team?.toLowerCase() || "";
+
+          if (prevHome.includes(homeTeamLower) || homeTeamLower.includes(prevHome)) {
+            if (!updateData.home_team_logo && prev.home_team_logo) updateData.home_team_logo = prev.home_team_logo;
+            if (!updateData.home_team_bg_color && prev.home_team_bg_color) updateData.home_team_bg_color = prev.home_team_bg_color;
+          }
+          if (prevAway.includes(homeTeamLower) || homeTeamLower.includes(prevAway)) {
+            if (!updateData.home_team_logo && prev.away_team_logo) updateData.home_team_logo = prev.away_team_logo;
+            if (!updateData.home_team_bg_color && prev.away_team_bg_color) updateData.home_team_bg_color = prev.away_team_bg_color;
+          }
+          if (prevHome.includes(awayTeamLower) || awayTeamLower.includes(prevHome)) {
+            if (!updateData.away_team_logo && prev.home_team_logo) updateData.away_team_logo = prev.home_team_logo;
+            if (!updateData.away_team_bg_color && prev.home_team_bg_color) updateData.away_team_bg_color = prev.home_team_bg_color;
+          }
+          if (prevAway.includes(awayTeamLower) || awayTeamLower.includes(prevAway)) {
+            if (!updateData.away_team_logo && prev.away_team_logo) updateData.away_team_logo = prev.away_team_logo;
+            if (!updateData.away_team_bg_color && prev.away_team_bg_color) updateData.away_team_bg_color = prev.away_team_bg_color;
+          }
+        }
+      }
+    } catch {
+      // Non-critical
     }
 
     setFormData(updateData);
@@ -211,244 +288,95 @@ export const AnalysisQuickLink = ({
   };
 
   const formatFixtureLabel = (fixture: Fixture) => {
-    const date = new Date(fixture.match_date).toLocaleDateString('en-GB', { 
-      day: '2-digit', 
-      month: 'short', 
-      year: 'numeric' 
+    const date = new Date(fixture.match_date).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     });
-    const score = fixture.home_score !== null && fixture.away_score !== null 
-      ? ` (${fixture.home_score}-${fixture.away_score})` 
+    const score = fixture.home_score !== null && fixture.away_score !== null
+      ? ` (${fixture.home_score}-${fixture.away_score})`
       : '';
     return `${fixture.home_team} vs ${fixture.away_team}${score} - ${date}`;
   };
-  const handleCreateFixture = async () => {
-    if (!newFixture.home_team || !newFixture.away_team || !newFixture.match_date) {
-      toast.error("Please fill in home team, away team, and match date");
-      return;
-    }
-    setCreatingFixture(true);
-    try {
-      const fixtureData: any = {
-        home_team: newFixture.home_team,
-        away_team: newFixture.away_team,
-        match_date: newFixture.match_date,
-      };
-      if (newFixture.competition) fixtureData.competition = newFixture.competition;
-      if (newFixture.home_score !== '') fixtureData.home_score = parseInt(newFixture.home_score);
-      if (newFixture.away_score !== '') fixtureData.away_score = parseInt(newFixture.away_score);
-
-      const { data, error } = await supabase
-        .from("fixtures")
-        .insert(fixtureData)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Link fixture to selected player
-      if (selectedPlayerId && selectedPlayerId !== "none") {
-        await supabase
-          .from("player_fixtures")
-          .insert({ player_id: selectedPlayerId, fixture_id: data.id });
-        
-        // Refresh fixtures list and select the new one
-        await fetchPlayerFixtures(selectedPlayerId);
-        setSelectedFixtureId(data.id);
-      }
-
-      setCreateFixtureOpen(false);
-      setNewFixture({ home_team: '', away_team: '', match_date: '', competition: '', home_score: '', away_score: '' });
-      toast.success("Fixture created successfully");
-    } catch (error: any) {
-      console.error("Failed to create fixture:", error);
-      toast.error(error.message || "Failed to create fixture");
-    } finally {
-      setCreatingFixture(false);
-    }
-  };
 
   return (
-    <>
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-primary/10 border border-primary/30 rounded-lg hover:bg-primary/20 transition-colors">
-        <div className="flex items-center gap-2">
-          <Link2 className="w-4 h-4 text-primary" />
-          <h3 className="font-semibold text-lg">QUICK LINK</h3>
-          <span className="text-xs text-muted-foreground">(Import from fixture)</span>
+    <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">
+      <div className="flex items-center gap-2 mb-3">
+        <Link2 className="w-4 h-4 text-primary" />
+        <h3 className="font-semibold text-sm">QUICK LINK TO FIXTURE</h3>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">
+        Select a player and fixture to automatically import match details.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs">Player</Label>
+          <Input
+            placeholder="Search player..."
+            value={playerSearch}
+            onChange={(e) => setPlayerSearch(e.target.value)}
+            className="h-8 text-xs mb-1"
+          />
+          <Select value={selectedPlayerId} onValueChange={(val) => {
+            setSelectedPlayerId(val);
+            setPlayerSearch("");
+          }} disabled={loadingPlayers}>
+            <SelectTrigger className="h-9">
+              <SelectValue placeholder="Select a player" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Select a player</SelectItem>
+              {filteredPlayers.map((player: any, idx: number) => (
+                <SelectItem key={player.id} value={player.id}>
+                  {player.name}
+                  {player.club && (
+                    <span className="text-xs text-muted-foreground ml-1">({player.club})</span>
+                  )}
+                  {idx < recentPlayerIds.indexOf(player.id) + 1 && recentPlayerIds.indexOf(player.id) < 5 && (
+                    <span className="text-[10px] text-primary ml-1">●</span>
+                  )}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </CollapsibleTrigger>
-      <CollapsibleContent className="pt-4 space-y-4">
-        <p className="text-sm text-muted-foreground">
-          Select a player and their fixture to automatically import match details.
-        </p>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label>Player</Label>
-            <Select 
-              value={selectedPlayerId} 
-              onValueChange={setSelectedPlayerId}
-              disabled={loadingPlayers}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={loadingPlayers ? "Loading players..." : "Select player"} />
+
+        <div>
+          <Label className="text-xs">Fixture</Label>
+          <div className="flex gap-1.5 mt-[calc(2rem+0.25rem)]">
+            <Select value={selectedFixtureId} onValueChange={setSelectedFixtureId} disabled={loadingFixtures || playerFixtures.length === 0}>
+              <SelectTrigger className="h-9 flex-1">
+                <SelectValue placeholder={loadingFixtures ? "Loading..." : selectedPlayerId === "none" ? "Select player first" : playerFixtures.length === 0 ? "No fixtures" : "Select a fixture"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Select a player</SelectItem>
-                {players.map((player) => (
-                  <SelectItem key={player.id} value={player.id}>
-                    {player.name}
+                <SelectItem value="none">Select a fixture</SelectItem>
+                {playerFixtures.map((fixture) => (
+                  <SelectItem key={fixture.id} value={fixture.id}>
+                    {formatFixtureLabel(fixture)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          
-          <div>
-            <Label>Fixture</Label>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Select 
-                  value={selectedFixtureId} 
-                  onValueChange={setSelectedFixtureId}
-                  disabled={!selectedPlayerId || selectedPlayerId === "none" || loadingFixtures}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={
-                      loadingFixtures 
-                        ? "Loading fixtures..." 
-                        : selectedPlayerId === "none" 
-                          ? "Select player first" 
-                          : playerFixtures.length === 0 
-                            ? "No fixtures found" 
-                            : "Select fixture"
-                    } />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Select a fixture</SelectItem>
-                    {playerFixtures.map((fixture) => (
-                      <SelectItem key={fixture.id} value={fixture.id}>
-                        {formatFixtureLabel(fixture)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="shrink-0 mt-0"
-                disabled={!selectedPlayerId || selectedPlayerId === "none"}
-                onClick={() => setCreateFixtureOpen(true)}
-                title="Create new fixture"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <Button 
-          onClick={handleApplyFixture}
-          disabled={selectedFixtureId === "none" || loadingFixtures}
-          className="w-full sm:w-auto"
-          variant="outline"
-        >
-          {loadingFixtures ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Loading...
-            </>
-          ) : (
-            <>
-              <Link2 className="w-4 h-4 mr-2" />
-              Import Match Details
-            </>
-          )}
-        </Button>
-      </CollapsibleContent>
-    </Collapsible>
-
-    {/* Create Fixture Dialog */}
-    <Dialog open={createFixtureOpen} onOpenChange={setCreateFixtureOpen}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Create New Fixture</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Home Team *</Label>
-              <Input
-                value={newFixture.home_team}
-                onChange={(e) => setNewFixture({ ...newFixture, home_team: e.target.value })}
-                placeholder="Home team"
-              />
-            </div>
-            <div>
-              <Label>Away Team *</Label>
-              <Input
-                value={newFixture.away_team}
-                onChange={(e) => setNewFixture({ ...newFixture, away_team: e.target.value })}
-                placeholder="Away team"
-              />
-            </div>
-          </div>
-          <div>
-            <Label>Match Date *</Label>
-            <Input
-              type="date"
-              value={newFixture.match_date}
-              onChange={(e) => setNewFixture({ ...newFixture, match_date: e.target.value })}
+            <InlineFixtureCreator
+              playerId={selectedPlayerId !== "none" ? selectedPlayerId : undefined}
+              onFixtureCreated={(fixtureId) => {
+                if (selectedPlayerId && selectedPlayerId !== "none") {
+                  fetchPlayerFixtures(selectedPlayerId);
+                  setSelectedFixtureId(fixtureId);
+                }
+              }}
             />
           </div>
-          <div>
-            <Label>Competition</Label>
-            <Input
-              value={newFixture.competition}
-              onChange={(e) => setNewFixture({ ...newFixture, competition: e.target.value })}
-              placeholder="e.g. Premier League"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Home Score</Label>
-              <Input
-                type="number"
-                value={newFixture.home_score}
-                onChange={(e) => setNewFixture({ ...newFixture, home_score: e.target.value })}
-                placeholder="—"
-              />
-            </div>
-            <div>
-              <Label>Away Score</Label>
-              <Input
-                type="number"
-                value={newFixture.away_score}
-                onChange={(e) => setNewFixture({ ...newFixture, away_score: e.target.value })}
-                placeholder="—"
-              />
-            </div>
-          </div>
-          <Button 
-            onClick={handleCreateFixture} 
-            disabled={creatingFixture}
-            className="w-full"
-          >
-            {creatingFixture ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Fixture"
-            )}
-          </Button>
         </div>
-      </DialogContent>
-    </Dialog>
-    </>
+      </div>
+
+      {selectedFixtureId !== "none" && (
+        <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+          <Link2 className="w-3 h-3" />
+          Match details imported automatically
+        </p>
+      )}
+    </div>
   );
 };
