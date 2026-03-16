@@ -949,12 +949,32 @@ const AnalysisViewer = () => {
         throw error;
       }
       
-      // Player name: First check if it's stored directly on the analysis, then fallback to player_analysis join
+      // Player name: First check if it's stored directly on the analysis, then fallback to tagged players, then player_analysis join
       let playerName: string | null = data.player_name || null;
       
-      // If no direct player_name, try to fetch via player_analysis linkage
+      // If no direct player_name, try to fetch via analysis_player_tags (editor tagging)
       if (!playerName) {
-        // Try: check if this analysis is linked via analysis_writer_id
+        const { data: tagData } = await supabase
+          .from("analysis_player_tags")
+          .select("player_id")
+          .eq("analysis_id", analysisId)
+          .limit(1)
+          .maybeSingle();
+        
+        if (tagData?.player_id) {
+          const { data: playerData } = await supabase
+            .from("players")
+            .select("name")
+            .eq("id", tagData.player_id)
+            .maybeSingle();
+          if (playerData?.name) {
+            playerName = playerData.name.toUpperCase();
+          }
+        }
+      }
+      
+      // If still no name, try via player_analysis linkage
+      if (!playerName) {
         const { data: linkedData1 } = await supabase
           .from("player_analysis")
           .select("player_id, players(name)")
@@ -962,7 +982,7 @@ const AnalysisViewer = () => {
           .maybeSingle();
         
         if (linkedData1?.players) {
-          playerName = (linkedData1.players as any).name;
+          playerName = ((linkedData1.players as any).name as string).toUpperCase();
         }
         
         // Second try: check if this analysis was created for a player (via fixture linkage)
@@ -974,7 +994,7 @@ const AnalysisViewer = () => {
             .maybeSingle();
           
           if (fixturePlayer?.players) {
-            playerName = (fixturePlayer.players as any).name;
+            playerName = ((fixturePlayer.players as any).name as string).toUpperCase();
           }
         }
       }
