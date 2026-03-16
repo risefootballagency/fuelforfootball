@@ -479,7 +479,14 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       }
     } else {
       setEditingAnalysis(null);
-      setFormData({ analysis_type: type, points: [], matchups: [], starting_xi: [] });
+      setFormData({
+        analysis_type: type,
+        points: [],
+        matchups: [],
+        starting_xi: [],
+        visibility_status: "live",
+        estimated_ready_at: null,
+      });
       setSelectedPlayerId(defaultPlayerId || "none");
       setSelectedPerformanceReportId("none");
       setTaggedPlayerIds(defaultPlayerId ? [defaultPlayerId] : []);
