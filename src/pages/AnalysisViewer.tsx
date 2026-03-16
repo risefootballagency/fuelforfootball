@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { HoverText } from "@/components/HoverText";
 import { AnalysisVideo } from "@/components/AnalysisVideo";
+import { ReadOnlyAnnotationOverlay } from "@/components/portal/ReadOnlyAnnotationOverlay";
 import { exportAnalysisPdf } from "@/lib/analysisPdfExport";
 import {
   DropdownMenu,
