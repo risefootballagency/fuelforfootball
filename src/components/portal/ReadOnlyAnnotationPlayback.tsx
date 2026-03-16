@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { computeVisibleElements, type ComputedAnnotationElement } from "@/lib/annotationRenderUtils";
 import type { AnnotationElement } from "@/components/staff/annotations/AnnotationProjects";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase as localSupabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 
 /**
  * Shared read-only annotation playback component.
@@ -45,6 +46,11 @@ const getContrastColor = (hex: string): string => {
   } catch { return '#ffffff'; }
 };
 
+const extractAnnotationElements = (klips: unknown): AnnotationElement[] => {
+  if (!Array.isArray(klips)) return [];
+  return (klips as any[]).flatMap((klip: any) => (Array.isArray(klip?.elements) ? klip.elements : []));
+};
+
 export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, preloadedElements, className = "" }: Props) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,18 +79,35 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
       setElements(preloadedElements);
       return;
     }
-    if (!annotationProjectId) { setElements([]); return; }
-    supabase
-      .from("annotation_projects")
-      .select("klips")
-      .eq("id", annotationProjectId)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.klips && Array.isArray(data.klips)) {
-          const allEls = (data.klips as any[]).flatMap((klip: any) => (klip.elements || []));
-          setElements(allEls);
-        }
-      });
+
+    if (!annotationProjectId) {
+      setElements([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadFromClient = async (client: typeof localSupabase) => {
+      const { data } = await client
+        .from("annotation_projects")
+        .select("klips")
+        .eq("id", annotationProjectId)
+        .maybeSingle();
+
+      return extractAnnotationElements(data?.klips);
+    };
+
+    Promise.all([
+      loadFromClient(sharedSupabase),
+      loadFromClient(localSupabase),
+    ]).then(([sharedEls, localEls]) => {
+      if (cancelled) return;
+      setElements(sharedEls.length > 0 ? sharedEls : localEls);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [annotationProjectId, preloadedElements]);
 
   useEffect(() => {
