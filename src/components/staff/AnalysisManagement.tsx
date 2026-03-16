@@ -1501,40 +1501,56 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       return true;
     });
     return filtered.map((analysis) => (
-      <div 
-        key={analysis.id}
-        className="flex items-center justify-between p-3 bg-card border border-border/50 rounded-lg hover:border-accent/30 transition-colors"
-      >
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+      <Card key={analysis.id} className="p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">
-              {analysis.title || `${analysis.home_team} vs ${analysis.away_team}`}
-            </p>
-            <p className="text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-sm sm:text-base truncate">
+                {analysis.title || `${analysis.home_team} vs ${analysis.away_team}`}
+              </h3>
+              {analysis.visibility_status && analysis.visibility_status !== "live" && (
+                <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
+                  analysis.visibility_status === "draft"
+                    ? "bg-yellow-500/20 text-yellow-400"
+                    : "bg-red-500/20 text-red-400"
+                }`}>
+                  {analysis.visibility_status === "draft" ? <FileEdit className="w-2.5 h-2.5" /> : <EyeOff className="w-2.5 h-2.5" />}
+                  {analysis.visibility_status === "draft" ? "Draft" : "Hidden"}
+                </span>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {new Date(analysis.created_at).toLocaleDateString()}
             </p>
+            {(analysis.visibility_status === "draft" || analysis.visibility_status === "hidden") && analysis.estimated_ready_at && (
+              <p className="text-xs text-primary mt-1">
+                Expected by {new Date(analysis.estimated_ready_at).toLocaleString("en-GB", {
+                  day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
+                })}
+              </p>
+            )}
+            {linkedPlayers[analysis.id] && linkedPlayers[analysis.id].length > 0 && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                <Users className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{linkedPlayers[analysis.id].map(p => p.playerName).join(', ')}</span>
+              </div>
+            )}
           </div>
-          {linkedPlayers[analysis.id] && linkedPlayers[analysis.id].length > 0 && (
-            <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground">
-              <Users className="w-3 h-3" />
-              <span>{linkedPlayers[analysis.id].map(p => p.playerName).join(', ')}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => navigate(createAnalysisSlug(analysis.home_team, analysis.away_team, analysis.id))}>
-            <Eye className="w-4 h-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(type, analysis)}>
-            <Pencil className="w-4 h-4" />
-          </Button>
-          {isAdmin && (
-            <Button variant="ghost" size="sm" onClick={() => handleDelete(analysis.id)}>
-              <Trash2 className="w-4 h-4" />
+          <div className="flex gap-1 flex-shrink-0">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => navigate(createAnalysisSlug(analysis.home_team, analysis.away_team, analysis.id))}>
+              <Eye className="w-4 h-4" />
             </Button>
-          )}
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleOpenDialog(type, analysis)}>
+              <Pencil className="w-4 h-4" />
+            </Button>
+            {isAdmin && (
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDelete(analysis.id)}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
+      </Card>
     ));
   };
 
