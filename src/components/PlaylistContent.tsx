@@ -99,7 +99,7 @@ export const PlaylistContent = ({ playerData, availableClips }: PlaylistContentP
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('create-playlist', {
+      const { data, error } = await invokeEdgeFunction('create-playlist', {
         body: {
           playerEmail,
           name: newPlaylistName.trim()
