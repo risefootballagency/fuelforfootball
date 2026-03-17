@@ -4933,8 +4933,8 @@ const Dashboard = () => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
           setNavDropdownOpen(true);
         }}
-        hasAnalysis={analyses.length > 0}
-        hasProgramming={programs.some((p) => !!p.is_current)}
+        hasAnalysis={true}
+        hasProgramming={true}
       />
 
       {/* Portal Music Player */}
