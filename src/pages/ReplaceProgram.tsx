@@ -16,7 +16,7 @@ const ReplaceProgram = () => {
       const csvContent = await response.text();
 
       // Call edge function
-      const { data, error } = await supabase.functions.invoke("replace-program", {
+      const { data, error } = await invokeEdgeFunction("replace-program", {
         body: {
           programId: "7630aaf2-a106-4b47-bb1d-daa0e6967315",
           csvContent,

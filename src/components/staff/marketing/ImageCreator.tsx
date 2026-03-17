@@ -55,7 +55,7 @@ export const ImageCreator = () => {
   const autoTag = async (item: GalleryItem) => {
     setTaggingId(item.id);
     try {
-      const { data, error } = await supabase.functions.invoke("ai-image-tagger", {
+      const { data, error } = await invokeEdgeFunction("ai-image-tagger", {
         body: { imageUrl: item.file_url },
       });
       if (error) throw error;

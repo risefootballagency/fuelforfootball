@@ -62,7 +62,7 @@ const Cart = () => {
       // TODO: Implement multi-item checkout with Stripe
       const firstItem = items[0];
       
-      const { data, error } = await supabase.functions.invoke('create-service-checkout', {
+      const { data, error } = await invokeEdgeFunction('create-service-checkout', {
         body: {
           serviceId: firstItem.serviceId,
           selectedOption: firstItem.selectedOption,

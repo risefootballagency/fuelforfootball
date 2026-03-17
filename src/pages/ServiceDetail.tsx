@@ -233,7 +233,7 @@ const ServiceDetail = () => {
       const recurringInterval = selectedOption ? getRecurringInterval(selectedOption) : null;
       const intervalCount = selectedOption ? getIntervalCount(selectedOption) : 1;
 
-      const { data, error } = await supabase.functions.invoke('create-service-checkout', {
+      const { data, error } = await invokeEdgeFunction('create-service-checkout', {
         body: {
           serviceId: service.id,
           selectedOption: selectedOption || null,
