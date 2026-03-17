@@ -1090,7 +1090,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         type = 'analysis-paragraph';
       }
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: { prompt, context, type }
       });
 

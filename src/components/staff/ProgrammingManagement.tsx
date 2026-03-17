@@ -1281,7 +1281,7 @@ Phase Dates: ${programmingData.phaseDates || 'Not specified'}`;
       const player = allPlayers.find(p => p.id === selectedFixturePlayer);
       const teamName = player?.club || player?.name;
 
-      const { data, error } = await supabase.functions.invoke('fetch-team-fixtures', {
+      const { data, error } = await invokeEdgeFunction('fetch-team-fixtures', {
         body: { teamName }
       });
 
