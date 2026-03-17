@@ -34,7 +34,7 @@ export function AISessionSuggestions({ playerName, position, notes, recentAction
     setLoading(true);
     setSuggestion(null);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-session-suggest', {
+      const { data, error } = await invokeEdgeFunction('ai-session-suggest', {
         body: {
           playerName,
           position,

@@ -104,7 +104,7 @@ const ContractCrossReference = ({ open, onOpenChange }: ContractCrossReferencePr
     setAnalysisResult(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('contract-cross-reference', {
+      const { data, error } = await invokeEdgeFunction('contract-cross-reference', {
         body: {
           documents: documents.map(doc => ({
             name: doc.name,

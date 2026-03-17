@@ -111,7 +111,7 @@ export const EmailResponseDialog = ({
 
     setSending(true);
     try {
-      const { error } = await supabase.functions.invoke("send-form-email", {
+      const { error } = await invokeEdgeFunction("send-form-email", {
         body: {
           to: recipientEmail,
           subject: subject,

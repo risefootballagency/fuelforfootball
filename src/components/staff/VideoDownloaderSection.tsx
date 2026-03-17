@@ -16,7 +16,7 @@ export const VideoDownloaderSection = () => {
     setLoading(true);
     setLinks([]);
     try {
-      const { data, error } = await supabase.functions.invoke("extract-video-links", {
+      const { data, error } = await invokeEdgeFunction("extract-video-links", {
         body: { url: url.trim() },
       });
       if (error) throw error;

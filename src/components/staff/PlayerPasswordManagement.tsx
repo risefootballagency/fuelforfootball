@@ -69,7 +69,7 @@ export const PlayerPasswordManagement = () => {
     try {
       setResetting(playerEmail);
       
-      const { data, error } = await supabase.functions.invoke('reset-player-password', {
+      const { data, error } = await invokeEdgeFunction('reset-player-password', {
         body: { playerEmail }
       });
 

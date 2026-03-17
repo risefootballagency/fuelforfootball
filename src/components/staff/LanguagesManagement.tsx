@@ -261,7 +261,7 @@ export const LanguagesManagement = ({ isAdmin }: { isAdmin: boolean }) => {
 
     setIsGenerating(true);
     try {
-      const response = await supabase.functions.invoke("ai-translate", {
+      const response = await invokeEdgeFunction("ai-translate", {
         body: { text: formData.english },
       });
 
