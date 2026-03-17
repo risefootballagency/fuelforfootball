@@ -175,3 +175,47 @@ export function getPPTurnoversRatioGrade(score: number | null | undefined): Grad
   if (score >= 0.5) return { grade: 'D', color: 'hsl(0, 84%, 45%)' }; // Red
   return { grade: 'U', color: 'hsl(0, 84%, 30%)' }; // Dark Red
 }
+
+/**
+ * Calculate PER (Player Efficiency Rating) grade based on score ranges
+ */
+export function getPERGrade(score: number | null | undefined): GradeInfo {
+  if (score === null || score === undefined) {
+    return { grade: '-', color: 'hsl(var(--muted-foreground))' };
+  }
+
+  if (score < 0.4) return { grade: 'U', color: 'hsl(0, 84%, 30%)' };
+  if (score < 0.6) return { grade: 'D', color: 'hsl(0, 84%, 45%)' };
+  if (score < 0.75) return { grade: 'C-', color: 'hsl(0, 84%, 60%)' };
+  if (score < 0.9) return { grade: 'C', color: 'hsl(25, 75%, 45%)' };
+  if (score < 1.0) return { grade: 'C+', color: 'hsl(40, 85%, 50%)' };
+  if (score < 1.1) return { grade: 'B-', color: 'hsl(60, 70%, 50%)' };
+  if (score < 1.2) return { grade: 'B', color: 'hsl(142, 76%, 36%)' };
+  if (score < 1.35) return { grade: 'B+', color: 'hsl(142, 70%, 40%)' };
+  if (score < 1.5) return { grade: 'A-', color: 'hsl(142, 65%, 45%)' };
+  if (score < 1.75) return { grade: 'A', color: 'hsl(142, 70%, 50%)' };
+  if (score < 2.0) return { grade: 'A+', color: 'hsl(142, 76%, 55%)' };
+  return { grade: 'A*', color: 'hsl(43, 96%, 56%)' };
+}
+
+/**
+ * Calculate SR (Statistical Rating) grade based on score ranges
+ */
+export function getSRGrade(score: number | null | undefined): GradeInfo {
+  if (score === null || score === undefined) {
+    return { grade: '-', color: 'hsl(var(--muted-foreground))' };
+  }
+
+  if (score < 30) return { grade: 'U', color: 'hsl(0, 84%, 30%)' };
+  if (score < 40) return { grade: 'D', color: 'hsl(0, 84%, 45%)' };
+  if (score < 50) return { grade: 'C-', color: 'hsl(0, 84%, 60%)' };
+  if (score < 55) return { grade: 'C', color: 'hsl(25, 75%, 45%)' };
+  if (score < 60) return { grade: 'C+', color: 'hsl(40, 85%, 50%)' };
+  if (score < 65) return { grade: 'B-', color: 'hsl(60, 70%, 50%)' };
+  if (score < 70) return { grade: 'B', color: 'hsl(142, 76%, 36%)' };
+  if (score < 75) return { grade: 'B+', color: 'hsl(142, 70%, 40%)' };
+  if (score < 80) return { grade: 'A-', color: 'hsl(142, 65%, 45%)' };
+  if (score < 85) return { grade: 'A', color: 'hsl(142, 70%, 50%)' };
+  if (score < 90) return { grade: 'A+', color: 'hsl(142, 76%, 55%)' };
+  return { grade: 'A*', color: 'hsl(43, 96%, 56%)' };
+}

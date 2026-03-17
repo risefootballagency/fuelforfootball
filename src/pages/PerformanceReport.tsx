@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade } from "@/lib/gradeCalculations";
+import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade, getPERGrade, getSRGrade } from "@/lib/gradeCalculations";
 import { Download, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, MessageSquareText, Filter, X, ImageIcon, MapPin, Grid3X3 } from "lucide-react";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
@@ -584,6 +584,32 @@ const PerformanceReport = () => {
               <p className="text-base md:text-2xl font-bold">{analysis.minutes_played ?? "N/A"}</p>
             </div>
           </div>
+
+          {/* PER & SR Cards (if available) */}
+          {(analysis.placeholder_per != null || analysis.placeholder_sr != null) && (
+            <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto">
+              {analysis.placeholder_per != null && (() => {
+                const perGrade = getPERGrade(analysis.placeholder_per);
+                return (
+                  <div className="text-center rounded-lg p-2 md:p-3 border" style={{ borderColor: perGrade.color, backgroundColor: `${perGrade.color}15` }}>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 uppercase tracking-wide">PER</p>
+                    <p className="text-lg md:text-2xl font-bold" style={{ color: perGrade.color }}>{analysis.placeholder_per.toFixed(2)}</p>
+                    <p className="text-[9px] md:text-xs font-semibold" style={{ color: perGrade.color }}>{perGrade.grade}</p>
+                  </div>
+                );
+              })()}
+              {analysis.placeholder_sr != null && (() => {
+                const srGrade = getSRGrade(analysis.placeholder_sr);
+                return (
+                  <div className="text-center rounded-lg p-2 md:p-3 border" style={{ borderColor: srGrade.color, backgroundColor: `${srGrade.color}15` }}>
+                    <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 uppercase tracking-wide">SR</p>
+                    <p className="text-lg md:text-2xl font-bold" style={{ color: srGrade.color }}>{analysis.placeholder_sr.toFixed(2)}</p>
+                    <p className="text-[9px] md:text-xs font-semibold" style={{ color: srGrade.color }}>{srGrade.grade}</p>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           {/* Advanced Stats */}
           {advancedStats.length > 0 && (

@@ -11,7 +11,7 @@ const logStep = (step: string, details?: any) => {
   console.log(`[NOTIFY-PAY-LINK] ${step}${detailsStr}`);
 };
 
-const STAFF_EMAIL = "hello@fuelforfootball.com";
+const STAFF_EMAIL = "info@fuelforfootball.com";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
