@@ -787,6 +787,8 @@ export const CreatePerformanceReportDialog = ({
       initialVisibilityRef.current = (analysisData as any).visibility_status || "draft";
       setPlaceholderRawScore((analysisData as any).placeholder_raw_score?.toString() || "");
       setPlaceholderMinutes((analysisData as any).placeholder_minutes?.toString() || "");
+      setPlaceholderPer((analysisData as any).placeholder_per?.toString() || "");
+      setPlaceholderSr((analysisData as any).placeholder_sr?.toString() || "");
       setFixtureStats((analysisData.fixture_stats as Record<string, number>) || {});
       
       // Re-derive opponent from fixture data to reflect any changes to fixture
