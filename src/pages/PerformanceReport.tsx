@@ -590,7 +590,7 @@ const PerformanceReport = () => {
           {(analysis.placeholder_per != null || analysis.placeholder_sr != null) && (
             <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto">
               {analysis.placeholder_per != null && (() => {
-                const perGrade = getPERGrade(analysis.placeholder_per);
+                const perGrade = getGradeForScore('per', analysis.placeholder_per);
                 return (
                   <div className="text-center rounded-lg p-2 md:p-3 border" style={{ borderColor: perGrade.color, backgroundColor: `${perGrade.color}15` }}>
                     <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 uppercase tracking-wide">PER</p>
