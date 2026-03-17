@@ -21,6 +21,7 @@ export default function PayLink() {
   const { slug } = useParams();
   const [payLink, setPayLink] = useState<PayLink | null>(null);
   const [loading, setLoading] = useState(true);
+  const notifiedRef = useRef(false);
 
   useEffect(() => {
     if (slug) fetchPayLink();
