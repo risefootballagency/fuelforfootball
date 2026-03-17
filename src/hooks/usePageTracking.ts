@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 export const usePageTracking = () => {
   const location = useLocation();
@@ -25,7 +26,7 @@ export const usePageTracking = () => {
     // Track page view immediately when page loads
     const trackPageView = async () => {
       try {
-        const response = await supabase.functions.invoke("track-visit", {
+        const response = await invokeEdgeFunction("track-visit", {
           body: {
             visitorId: visitorIdRef.current,
             pagePath: location.pathname,

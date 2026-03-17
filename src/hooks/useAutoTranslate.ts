@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { invokeEdgeFunction } from '@/lib/edgeFunctionHelper';
 
 interface TranslatedContent {
   title: string;
@@ -37,7 +38,7 @@ export function useAutoTranslate({ title, excerpt, content, enabled = true }: Us
         // Combine all text with markers for splitting later
         const combinedText = `[TITLE]${title}[/TITLE][EXCERPT]${excerpt || ''}[/EXCERPT][CONTENT]${content}[/CONTENT]`;
         
-        const { data, error } = await supabase.functions.invoke('ai-translate', {
+        const { data, error } = await invokeEdgeFunction('ai-translate', {
           body: { text: combinedText }
         });
 

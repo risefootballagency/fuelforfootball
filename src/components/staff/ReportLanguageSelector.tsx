@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Languages, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
 
 export const LANGUAGES = [
@@ -73,7 +74,7 @@ export const ReportLanguageSelector = ({
 
     setTranslating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("translate-report-content", {
+      const { data, error } = await invokeEdgeFunction("translate-report-content", {
         body: { fields: nonEmptyFields, targetLanguage: selectedLanguage },
       });
 
@@ -135,7 +136,7 @@ export const ReportLanguageSelector = ({
 
     setUpdatingTranslation(true);
     try {
-      const { data, error } = await supabase.functions.invoke("translate-report-content", {
+      const { data, error } = await invokeEdgeFunction("translate-report-content", {
         body: { fields: changedFields, targetLanguage: translatedContent.language },
       });
 

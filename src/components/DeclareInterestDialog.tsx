@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { z } from "zod";
 import { players } from "@/data/players";
 
@@ -51,7 +52,7 @@ export const DeclareInterestDialog = ({ open, onOpenChange }: DeclareInterestDia
       
       const player = players.find(p => p.id === selectedPlayer);
       
-      const { error } = await supabase.functions.invoke("send-form-email", {
+      const { error } = await invokeEdgeFunction("send-form-email", {
         body: { 
           formType: "declare-interest", 
           data: { 

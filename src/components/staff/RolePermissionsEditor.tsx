@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 // Cast helper for tables not in local schema
 const db = supabase as any;
@@ -70,7 +71,7 @@ export const RolePermissionsEditor = () => {
     try {
       const { error: roleErr } = await db.from("available_roles").insert({ role_key: key, role_label: label, description: newRoleDesc.trim() || null }); if (roleErr) throw roleErr;
       const { data: sessionData } = await supabase.auth.getSession(); const token = sessionData?.session?.access_token;
-      if (token) { const res = await supabase.functions.invoke("manage-roles", { body: { action: "add_enum_value", role_key: key } }); if (res.error) console.warn("Could not add enum value:", res.error); }
+      if (token) { const res = await invokeEdgeFunction("manage-roles", { body: { action: "add_enum_value", role_key: key } }); if (res.error) console.warn("Could not add enum value:", res.error); }
       const adminPerms = permissions.filter((p) => p.role === "admin");
       const newPerms = adminPerms.map((p) => ({ role: key, section_id: p.section_id, section_title: p.section_title, category_id: p.category_id, category_title: p.category_title, can_view: false, can_edit: false }));
       if (newPerms.length > 0) { const { error: permErr } = await db.from("role_permissions").insert(newPerms); if (permErr) throw permErr; }

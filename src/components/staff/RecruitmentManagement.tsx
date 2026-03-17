@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Users, MessageSquare, Plus, Trash2, Edit, Sparkles, Copy, UserPlus, MapPin, Mail } from "lucide-react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PlayerOutreach } from "./PlayerOutreach";
@@ -354,7 +355,7 @@ export const RecruitmentManagement = ({ isAdmin, initialTab = 'prospects' }: { i
         ? `Use this template as a reference:\n\nTitle: ${aiWriterTemplate.message_title}\nContent: ${aiWriterTemplate.message_content}\n\n`
         : '';
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           type: 'recruitment-message',
           prompt: aiWriterInfo,

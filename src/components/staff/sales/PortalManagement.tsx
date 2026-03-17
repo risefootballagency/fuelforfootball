@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Settings, CreditCard, Package, ExternalLink, Copy, Check, FileText, Plus, Trash2, Eye, Link, Mail, LogIn } from "lucide-react";
 
 interface Player {
@@ -334,7 +335,7 @@ export function PortalManagement() {
     }
 
     try {
-      const { data: stripeData, error: stripeError } = await supabase.functions.invoke("create-pay-link", {
+      const { data: stripeData, error: stripeError } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: payLinkForm.title,
           amount: parseFloat(payLinkForm.amount),
@@ -367,7 +368,7 @@ export function PortalManagement() {
     setCreatingOfferLink(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("create-pay-link", {
+      const { data, error } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: newOffer.name,
           amount: parseFloat(newOffer.price),

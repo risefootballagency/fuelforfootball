@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { X, ChevronLeft, ChevronRight, Check, Maximize, Minimize } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 interface Clip {
   id?: string;
@@ -72,7 +73,7 @@ export const PlaylistPlayer = ({
         .filter((_, idx) => idx !== currentIndex)
         .map((clip, idx) => ({ ...clip, order: idx }));
 
-      const { data, error } = await supabase.functions.invoke("update-playlist", {
+      const { data, error } = await invokeEdgeFunction("update-playlist", {
         body: {
           playerEmail,
           playlistId,
@@ -122,7 +123,7 @@ export const PlaylistPlayer = ({
         idx === currentIndex ? { ...clip, duration } : clip,
       );
 
-      const { error } = await supabase.functions.invoke("update-playlist", {
+      const { error } = await invokeEdgeFunction("update-playlist", {
         body: {
           playerEmail,
           playlistId,
@@ -181,7 +182,7 @@ export const PlaylistPlayer = ({
         order: idx,
       }));
 
-      const { data, error } = await supabase.functions.invoke("update-playlist", {
+      const { data, error } = await invokeEdgeFunction("update-playlist", {
         body: {
           playerEmail,
           playlistId,

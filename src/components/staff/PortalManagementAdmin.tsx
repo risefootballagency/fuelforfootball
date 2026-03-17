@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -459,7 +460,7 @@ export const PortalManagementAdmin = () => {
     if (!offer.name || !offer.price) { toast.error("Name and price required"); return; }
     setRegeneratingOfferLink(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-pay-link", {
+      const { data, error } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: offer.name, amount: parseFloat(offer.price), currency: offer.currency,
           description: offer.message || undefined, paymentType: offer.payment_type,
@@ -513,7 +514,7 @@ export const PortalManagementAdmin = () => {
     if (error || !newLink) { toast.error("Failed to create pay link"); setCreatingPayLink(false); return; }
 
     try {
-      const { error: stripeError } = await supabase.functions.invoke("create-pay-link", {
+      const { error: stripeError } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: payLinkForm.title, amount: parseFloat(payLinkForm.amount), currency: payLinkForm.currency,
           description: payLinkForm.description, payLinkId: newLink.id, paymentType: payLinkForm.payment_type,
@@ -534,7 +535,7 @@ export const PortalManagementAdmin = () => {
     if (!newOffer.name || !newOffer.price) { toast.error("Fill in offer name and price"); return; }
     setCreatingOfferLink(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-pay-link", {
+      const { data, error } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: newOffer.name, amount: parseFloat(newOffer.price), currency: newOffer.currency,
           description: newOffer.message || `Upgrade to ${newOffer.name}`, paymentType: newOffer.payment_type,

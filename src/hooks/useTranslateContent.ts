@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { invokeEdgeFunction } from '@/lib/edgeFunctionHelper';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 type LanguageCode = 'en' | 'es' | 'pt' | 'fr' | 'de' | 'it' | 'pl' | 'cs' | 'ru' | 'tr' | 'hr' | 'no';
@@ -58,7 +59,7 @@ export function useTranslateContent() {
     // Fetch translation from AI
     setIsTranslating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-translate', {
+      const { data, error } = await invokeEdgeFunction('ai-translate', {
         body: { text }
       });
 
@@ -155,7 +156,7 @@ export function useTranslatedNews<T extends { id: string; title: string; excerpt
       // Batch translate uncached texts
       if (textsToTranslate.length > 0) {
         try {
-          const { data, error } = await supabase.functions.invoke('ai-translate-batch', {
+          const { data, error } = await invokeEdgeFunction('ai-translate-batch', {
             body: { texts: textsToTranslate }
           });
           

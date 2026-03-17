@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -98,7 +99,7 @@ export const PlaylistContent = ({ playerData, availableClips }: PlaylistContentP
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('create-playlist', {
+      const { data, error } = await invokeEdgeFunction('create-playlist', {
         body: {
           playerEmail,
           name: newPlaylistName.trim()
@@ -173,7 +174,7 @@ export const PlaylistContent = ({ playerData, availableClips }: PlaylistContentP
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('update-playlist', {
+      const { data, error } = await invokeEdgeFunction('update-playlist', {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,
@@ -215,7 +216,7 @@ export const PlaylistContent = ({ playerData, availableClips }: PlaylistContentP
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('update-playlist', {
+      const { data, error } = await invokeEdgeFunction('update-playlist', {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,
@@ -258,7 +259,7 @@ export const PlaylistContent = ({ playerData, availableClips }: PlaylistContentP
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('update-playlist', {
+      const { data, error } = await invokeEdgeFunction('update-playlist', {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,

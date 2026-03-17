@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { invokeEdgeFunction } from '@/lib/edgeFunctionHelper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -69,7 +70,7 @@ export const PlayerPasswordManagement = () => {
     try {
       setResetting(playerEmail);
       
-      const { data, error } = await supabase.functions.invoke('reset-player-password', {
+      const { data, error } = await invokeEdgeFunction('reset-player-password', {
         body: { playerEmail }
       });
 

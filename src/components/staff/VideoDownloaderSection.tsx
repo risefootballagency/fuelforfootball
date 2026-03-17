@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Download, Loader2, ExternalLink, Search, Film } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 export const VideoDownloaderSection = () => {
   const [url, setUrl] = useState("");
@@ -16,7 +17,7 @@ export const VideoDownloaderSection = () => {
     setLoading(true);
     setLinks([]);
     try {
-      const { data, error } = await supabase.functions.invoke("extract-video-links", {
+      const { data, error } = await invokeEdgeFunction("extract-video-links", {
         body: { url: url.trim() },
       });
       if (error) throw error;

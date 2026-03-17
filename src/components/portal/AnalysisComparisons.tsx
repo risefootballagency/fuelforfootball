@@ -15,6 +15,7 @@ import { GoalTracking } from "@/components/portal/GoalTracking";
 import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparisonMatrix";
 import { ScatterComparisonChart } from "@/components/portal/ScatterComparisonChart";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
 import { t, translateMetricLabel, translateMetricCategory } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
@@ -114,7 +115,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
     const name = pickerSearch.trim();
     if (!name) return;
     try {
-      await supabase.functions.invoke("notify-staff", {
+      await invokeEdgeFunction("notify-staff", {
         body: {
           event_type: "comparison_request",
           title: "Comparison Player Request",

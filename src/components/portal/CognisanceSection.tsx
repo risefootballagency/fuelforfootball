@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Brain, Shuffle, ChevronLeft, ChevronRight, RotateCcw, Target, Lightbulb, BookOpen, Eye, Zap, Map, Clock, Star, CheckCircle2, TrendingUp, BarChart3, Filter, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -619,9 +620,9 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
 
       const prompt = `You are a football coach creating a quiz for a player. Based on this tactical material, generate exactly 5 multiple-choice questions. Each question should test understanding of the tactical concepts.\n\nMaterial:\n${material.join('\n\n')}\n\nReturn ONLY a JSON array of objects with keys: "question" (string), "options" (array of 4 strings), "correctIndex" (0-3), "explanation" (string). No other text.`;
 
-      const response = await localSupabase.functions.invoke('ai-chat', {
+      const response = await invokeEdgeFunction('ai-chat', {
         body: { prompt, model: 'google/gemini-2.5-flash' }
-      });
+      }, localSupabase);
 
       if (response.data?.content) {
         const text = response.data.content;

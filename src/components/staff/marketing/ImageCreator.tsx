@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,7 +55,7 @@ export const ImageCreator = () => {
   const autoTag = async (item: GalleryItem) => {
     setTaggingId(item.id);
     try {
-      const { data, error } = await supabase.functions.invoke("ai-image-tagger", {
+      const { data, error } = await invokeEdgeFunction("ai-image-tagger", {
         body: { imageUrl: item.file_url },
       });
       if (error) throw error;

@@ -62,7 +62,7 @@ import { HighlightCompiler } from "@/components/staff/HighlightCompiler";
 import { SportscodeActionTypes } from "@/components/staff/SportscodeActionTypes";
 import { RecruitmentRulesTab } from "@/components/staff/RecruitmentRulesTab";
 import { PortalManagementAdmin } from "@/components/staff/PortalManagementAdmin";
-import { useStaffNotifications } from "@/hooks/useStaffNotifications";
+
 import { ExpensesManagement } from "@/components/staff/ExpensesManagement";
 import { TaxRecordsManagement } from "@/components/staff/TaxRecordsManagement";
 import { BudgetsManagement } from "@/components/staff/BudgetsManagement";
@@ -164,14 +164,7 @@ const Staff = () => {
   // Keyboard shortcuts dialog
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   
-  // Notification triggers memoized
-  const [isHydrated, setIsHydrated] = useState(false);
-  useEffect(() => { setIsHydrated(true); }, []);
-  const notificationTriggers = useMemo(() => {
-    if (!isHydrated) return {};
-    return { onVisitor: true, onFormSubmission: true, onClipUpload: true, onPlaylistChange: true };
-  }, [isHydrated]);
-  useStaffNotifications(notificationTriggers);
+  // Notifications handled by DB triggers (no client-side hook needed)
   
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -857,7 +850,7 @@ const Staff = () => {
                   }}
                 >
                   <TabIcon className={`w-3 h-3 shrink-0 ${isActive ? 'text-[hsl(var(--fff-green-dark))]' : 'text-white'}`} />
-                  <span className="truncate max-w-[80px]">{tab.title}</span>
+                  {!isMobile && <span className="truncate max-w-[80px]">{tab.title}</span>}
                   <button
                     className="opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 p-0.5 rounded-full hover:bg-background/30"
                     onClick={(e) => {

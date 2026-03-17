@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -109,7 +110,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const createStripePaymentLink = async (payLinkId: string, data: { title: string; amount: number; currency: string; description: string | null }) => {
     setCreatingStripeLink(true);
     try {
-      const { data: result, error } = await supabase.functions.invoke('create-pay-link', {
+      const { data: result, error } = await invokeEdgeFunction('create-pay-link', {
         body: {
           payLinkId,
           title: data.title,

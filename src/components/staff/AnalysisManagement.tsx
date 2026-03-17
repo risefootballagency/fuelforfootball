@@ -3,6 +3,7 @@ import * as tus from 'tus-js-client';
 import { useNavigate } from "react-router-dom";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -1089,7 +1090,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         type = 'analysis-paragraph';
       }
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: { prompt, context, type }
       });
 
@@ -1167,7 +1168,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         toast.warning("No overview examples found. Add examples via the settings icon for better results.");
       }
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           prompt: `SOURCE CONTENT (preserve ALL tactical observations and facts from this - do NOT add new analysis):\n${sourceContent}\n\nRewrite this as a single cohesive overview paragraph. Keep ALL the facts and observations but apply the writing style from the examples.`,
           context: `Analysis Type: ${analysisType}\n\nSTYLE EXAMPLES (copy the EXACT tone, vocabulary, phrasing patterns, and sentence structure from these):\n${styleExamplesText || 'No examples provided - write in a professional football analysis style.'}`,
@@ -1226,7 +1227,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           ).join('\n\n')}`
         : '';
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           prompt: `Write a comprehensive overview paragraph for a ${overviewWriter.category} analysis based on this information: ${overviewWriter.overviewInfo}. Match the writing style, vocabulary level, and level of detail shown in the examples. This should be one cohesive paragraph.`,
           context: `Analysis Type: ${overviewWriter.category}${exampleContext}`,
@@ -1285,7 +1286,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           ).join('\n\n')}`
         : '';
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           prompt: `Write two tactical scheme paragraphs based on this information: ${schemeWriter.schemeInfo}. Return exactly two paragraphs separated by a blank line.${p1Context}${p2Context}`,
           context: `Scheme analysis for football match`,
@@ -1339,7 +1340,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       let paragraph2 = '';
 
       if (aiWriter.paragraph1Info.trim()) {
-        const { data: data1, error: error1 } = await supabase.functions.invoke('ai-write', {
+        const { data: data1, error: error1 } = await invokeEdgeFunction('ai-write', {
           body: {
             prompt: `Write a professional analysis paragraph based on this information: ${aiWriter.paragraph1Info}. Match the writing style, vocabulary level, and level of detail shown in the examples.`,
             context: `Analysis Type: ${aiWriter.category}${exampleContext}`,
@@ -1352,7 +1353,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       }
 
       if (aiWriter.paragraph2Info.trim()) {
-        const { data: data2, error: error2 } = await supabase.functions.invoke('ai-write', {
+        const { data: data2, error: error2 } = await invokeEdgeFunction('ai-write', {
           body: {
             prompt: `Write a professional analysis paragraph based on this information: ${aiWriter.paragraph2Info}. Match the writing style, vocabulary level, and level of detail shown in the examples.`,
             context: `Analysis Type: ${aiWriter.category}${exampleContext}`,
@@ -1450,7 +1451,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
 
     setAiGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           prompt: `Adjust the following content according to these instructions: "${tweakDialog.tweakInstructions}"\n\nOriginal content:\n${generatedContent.content}`,
           context: `Category: ${generatedContent.category}`,

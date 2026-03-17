@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { invokeEdgeFunction } from '@/lib/edgeFunctionHelper';
 
 type LanguageCode = 'en' | 'es' | 'pt' | 'fr' | 'de' | 'it' | 'pl' | 'cs' | 'ru' | 'tr' | 'hr' | 'no';
 
@@ -595,7 +596,7 @@ export function usePlayerTranslations({ bio, position, playerId, strengths = [] 
         }
         
         // Batch translate bio + strengths in ONE API call
-        const { data, error } = await supabase.functions.invoke('ai-translate-batch', {
+        const { data, error } = await invokeEdgeFunction('ai-translate-batch', {
           body: { texts: textsToTranslate }
         });
         
@@ -698,7 +699,7 @@ export function useTranslatedBio(bio: string, playerId: string): { translatedBio
       };
 
       try {
-        const { data, error } = await supabase.functions.invoke('ai-translate', {
+        const { data, error } = await invokeEdgeFunction('ai-translate', {
           body: { text: bio }
         });
 

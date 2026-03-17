@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { invokeEdgeFunction } from '@/lib/edgeFunctionHelper';
 import { getEnglishPath, getLocalizedPath } from '@/lib/localizedRoutes';
 import { getSubdomainInfo, getLanguageFromSubdomain, isPreviewOrLocalEnvironment, ROLE_SUBDOMAINS } from '@/lib/subdomainUtils';
 
@@ -92,7 +93,7 @@ function detectLanguageFromSubdomain(): LanguageCode | null {
 
 async function detectLanguageFromIP(): Promise<LanguageCode> {
   try {
-    const { data, error } = await supabase.functions.invoke('detect-language');
+    const { data, error } = await invokeEdgeFunction('detect-language');
     
     if (error) {
       console.error('Language detection error:', error);

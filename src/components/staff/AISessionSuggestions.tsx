@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sparkles, Loader2, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
 
 interface AISessionSuggestionsProps {
@@ -34,7 +35,7 @@ export function AISessionSuggestions({ playerName, position, notes, recentAction
     setLoading(true);
     setSuggestion(null);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-session-suggest', {
+      const { data, error } = await invokeEdgeFunction('ai-session-suggest', {
         body: {
           playerName,
           position,

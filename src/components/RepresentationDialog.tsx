@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { z } from "zod";
 
 interface RepresentationDialogProps {
@@ -40,7 +41,7 @@ export const RepresentationDialog = ({ open, onOpenChange }: RepresentationDialo
     try {
       representationSchema.parse(formData);
       
-      const { error } = await supabase.functions.invoke("send-form-email", {
+      const { error } = await invokeEdgeFunction("send-form-email", {
         body: { formType: "representation", data: formData },
       });
 

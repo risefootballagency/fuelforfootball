@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -178,7 +179,7 @@ export const R90RatingsViewer = ({ open, onOpenChange, initialCategory, searchTe
       if (ratingsError) throw ratingsError;
 
       // Use AI to find the most relevant rating
-      const { data, error } = await supabase.functions.invoke('find-r90-rating', {
+      const { data, error } = await invokeEdgeFunction('find-r90-rating', {
         body: {
           actionType,
           actionContext,
@@ -190,7 +191,7 @@ export const R90RatingsViewer = ({ open, onOpenChange, initialCategory, searchTe
             content: r.content
           }))
         }
-      });
+      }, supabase);
 
       if (error) {
         console.error('AI search error:', error);

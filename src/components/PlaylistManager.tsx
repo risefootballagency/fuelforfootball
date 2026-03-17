@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -103,7 +104,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
       }
 
       // Call edge function to create playlist (bypasses RLS)
-      const { data, error } = await supabase.functions.invoke('create-playlist', {
+      const { data, error } = await invokeEdgeFunction('create-playlist', {
         body: {
           playerEmail,
           name: newPlaylistName.trim()
@@ -194,7 +195,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
       const updatedClips = [...existingClips, ...newClips];
 
       // Use edge function to update playlist (bypasses RLS)
-      const { data, error } = await supabase.functions.invoke('update-playlist', {
+      const { data, error } = await invokeEdgeFunction('update-playlist', {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,
@@ -253,7 +254,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
       });
 
       // Use edge function to update playlist (bypasses RLS)
-      const { data, error } = await supabase.functions.invoke("update-playlist", {
+      const { data, error } = await invokeEdgeFunction("update-playlist", {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,
@@ -312,7 +313,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
       const reorderedClips = clips.map((c, i) => ({ ...c, order: i + 1 }));
 
       // Use edge function to update playlist (bypasses RLS)
-      const { data, error } = await supabase.functions.invoke('update-playlist', {
+      const { data, error } = await invokeEdgeFunction('update-playlist', {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,
@@ -369,7 +370,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
       
       const reorderedClips = clips.map((c, i) => ({ ...c, order: i + 1 }));
 
-      const { data, error } = await supabase.functions.invoke('update-playlist', {
+      const { data, error } = await invokeEdgeFunction('update-playlist', {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,
@@ -476,7 +477,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
         { id: loadingToast }
       );
 
-      const { data, error } = await supabase.functions.invoke('save-playlist', {
+      const { data, error } = await invokeEdgeFunction('save-playlist', {
         body: { 
           playlistId: selectedPlaylist.id,
           playerEmail: playerData.email
@@ -518,7 +519,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
     if (!playerData?.email || !newName.trim() || newName === oldName) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('rename-player-highlight', {
+      const { data, error } = await invokeEdgeFunction('rename-player-highlight', {
         body: {
           playerEmail: playerData.email,
           oldName,
