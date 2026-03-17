@@ -62,7 +62,7 @@ import { HighlightCompiler } from "@/components/staff/HighlightCompiler";
 import { SportscodeActionTypes } from "@/components/staff/SportscodeActionTypes";
 import { RecruitmentRulesTab } from "@/components/staff/RecruitmentRulesTab";
 import { PortalManagementAdmin } from "@/components/staff/PortalManagementAdmin";
-import { useStaffNotifications } from "@/hooks/useStaffNotifications";
+
 import { ExpensesManagement } from "@/components/staff/ExpensesManagement";
 import { TaxRecordsManagement } from "@/components/staff/TaxRecordsManagement";
 import { BudgetsManagement } from "@/components/staff/BudgetsManagement";
