@@ -1239,7 +1239,7 @@ Phase Dates: ${programmingData.phaseDates || 'Not specified'}`;
 
       const prompt = `Write a comprehensive training program overview for this athlete's strength and conditioning program.`;
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: { 
           prompt,
           context,
