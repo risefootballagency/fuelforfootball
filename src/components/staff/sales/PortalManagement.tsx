@@ -334,7 +334,7 @@ export function PortalManagement() {
     }
 
     try {
-      const { data: stripeData, error: stripeError } = await supabase.functions.invoke("create-pay-link", {
+      const { data: stripeData, error: stripeError } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: payLinkForm.title,
           amount: parseFloat(payLinkForm.amount),
