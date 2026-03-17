@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { format, addDays, startOfWeek, parseISO, isSameDay, addWeeks } from "date-fns";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
