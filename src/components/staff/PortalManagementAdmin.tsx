@@ -514,7 +514,7 @@ export const PortalManagementAdmin = () => {
     if (error || !newLink) { toast.error("Failed to create pay link"); setCreatingPayLink(false); return; }
 
     try {
-      const { error: stripeError } = await supabase.functions.invoke("create-pay-link", {
+      const { error: stripeError } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: payLinkForm.title, amount: parseFloat(payLinkForm.amount), currency: payLinkForm.currency,
           description: payLinkForm.description, payLinkId: newLink.id, paymentType: payLinkForm.payment_type,
