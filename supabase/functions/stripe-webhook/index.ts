@@ -91,6 +91,26 @@ serve(async (req) => {
         } else if (payLink) {
           payLinkTitle = payLink.title;
           logStep("Pay link marked as completed", { title: payLink.title });
+
+          // Notify staff about completed payment via email
+          try {
+            await supabaseClient.functions.invoke('notify-pay-link', {
+              body: {
+                event: 'completed',
+                payLinkTitle: payLink.title,
+                payLinkAmount: amount,
+                payLinkCurrency: session.currency?.toUpperCase() || 'GBP',
+                payLinkId: paymentLinkId,
+                customerName: session.customer_details?.name || payLink.customer_name || 'Unknown',
+                customerEmail: session.customer_email || payLink.customer_email || 'Unknown',
+                ipAddress: session.customer_details?.address?.country || 'Unknown',
+                location: [session.customer_details?.address?.city, session.customer_details?.address?.country].filter(Boolean).join(', ') || 'Unknown',
+              }
+            });
+            logStep("Pay link completion email sent");
+          } catch (emailErr) {
+            logStep("Failed to send pay link completion email", { error: emailErr });
+          }
         }
       }
 
