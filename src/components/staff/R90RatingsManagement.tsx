@@ -353,7 +353,7 @@ export const R90RatingsManagement = ({ open, onOpenChange }: R90RatingsManagemen
 
     setIsSplitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('split-r90-ratings');
+      const { data, error } = await invokeEdgeFunction('split-r90-ratings', undefined, supabase);
       
       if (error) throw error;
       
