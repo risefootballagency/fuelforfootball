@@ -75,6 +75,8 @@ export type Database = {
           matchups: Json | null
           opposition_strengths: string | null
           opposition_weaknesses: string | null
+          placeholder_per: number | null
+          placeholder_sr: number | null
           player_image_url: string | null
           player_name: string | null
           player_team: string | null
@@ -122,6 +124,8 @@ export type Database = {
           matchups?: Json | null
           opposition_strengths?: string | null
           opposition_weaknesses?: string | null
+          placeholder_per?: number | null
+          placeholder_sr?: number | null
           player_image_url?: string | null
           player_name?: string | null
           player_team?: string | null
@@ -169,6 +173,8 @@ export type Database = {
           matchups?: Json | null
           opposition_strengths?: string | null
           opposition_weaknesses?: string | null
+          placeholder_per?: number | null
+          placeholder_sr?: number | null
           player_image_url?: string | null
           player_name?: string | null
           player_team?: string | null

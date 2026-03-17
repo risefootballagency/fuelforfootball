@@ -205,6 +205,8 @@ export const CreatePerformanceReportDialog = ({
   const [visibilityStatus, setVisibilityStatus] = useState<VisibilityStatus>("draft");
   const [placeholderRawScore, setPlaceholderRawScore] = useState("");
   const [placeholderMinutes, setPlaceholderMinutes] = useState("");
+  const [placeholderPer, setPlaceholderPer] = useState("");
+  const [placeholderSr, setPlaceholderSr] = useState("");
   const initialVisibilityRef = useRef<VisibilityStatus | null>(null);
 
   // Key stats
@@ -785,6 +787,8 @@ export const CreatePerformanceReportDialog = ({
       initialVisibilityRef.current = (analysisData as any).visibility_status || "draft";
       setPlaceholderRawScore((analysisData as any).placeholder_raw_score?.toString() || "");
       setPlaceholderMinutes((analysisData as any).placeholder_minutes?.toString() || "");
+      setPlaceholderPer((analysisData as any).placeholder_per?.toString() || "");
+      setPlaceholderSr((analysisData as any).placeholder_sr?.toString() || "");
       setFixtureStats((analysisData.fixture_stats as Record<string, number>) || {});
       
       // Re-derive opponent from fixture data to reflect any changes to fixture
@@ -1328,6 +1332,8 @@ export const CreatePerformanceReportDialog = ({
             visibility_status: visibilityStatus,
             placeholder_raw_score: visibilityStatus === "hidden" && placeholderRawScore ? parseFloat(placeholderRawScore) : null,
             placeholder_minutes: visibilityStatus === "hidden" && placeholderMinutes ? parseInt(placeholderMinutes) : null,
+            placeholder_per: visibilityStatus === "hidden" && placeholderPer ? parseFloat(placeholderPer) : null,
+            placeholder_sr: visibilityStatus === "hidden" && placeholderSr ? parseFloat(placeholderSr) : null,
           } as any)
           .eq("id", analysisId);
 
@@ -1392,6 +1398,8 @@ export const CreatePerformanceReportDialog = ({
             visibility_status: visibilityStatus,
             placeholder_raw_score: visibilityStatus === "hidden" && placeholderRawScore ? parseFloat(placeholderRawScore) : null,
             placeholder_minutes: visibilityStatus === "hidden" && placeholderMinutes ? parseInt(placeholderMinutes) : null,
+            placeholder_per: visibilityStatus === "hidden" && placeholderPer ? parseFloat(placeholderPer) : null,
+            placeholder_sr: visibilityStatus === "hidden" && placeholderSr ? parseFloat(placeholderSr) : null,
           } as any)
           .select()
           .single();
@@ -2441,6 +2449,10 @@ export const CreatePerformanceReportDialog = ({
                 placeholderMinutes={placeholderMinutes}
                 onPlaceholderRawScoreChange={setPlaceholderRawScore}
                 onPlaceholderMinutesChange={setPlaceholderMinutes}
+                placeholderPer={placeholderPer}
+                onPlaceholderPerChange={setPlaceholderPer}
+                placeholderSr={placeholderSr}
+                onPlaceholderSrChange={setPlaceholderSr}
               />
               <Button onClick={handleSave} disabled={loading || deleting} className="w-full sm:w-auto">
                 {loading ? (analysisId ? "Updating..." : "Creating...") : (analysisId ? "Update Report" : "Create Report")}
@@ -2825,6 +2837,10 @@ export const CreatePerformanceReportDialog = ({
                 placeholderMinutes={placeholderMinutes}
                 onPlaceholderRawScoreChange={setPlaceholderRawScore}
                 onPlaceholderMinutesChange={setPlaceholderMinutes}
+                placeholderPer={placeholderPer}
+                onPlaceholderPerChange={setPlaceholderPer}
+                placeholderSr={placeholderSr}
+                onPlaceholderSrChange={setPlaceholderSr}
               />
               <Button onClick={handleSave} disabled={loading} size="sm">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}

@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
 import { PortalPaymentMethods } from "@/components/portal/PortalPaymentMethods";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 interface PayLink {
   id: string;
@@ -20,6 +21,7 @@ export default function PayLink() {
   const { slug } = useParams();
   const [payLink, setPayLink] = useState<PayLink | null>(null);
   const [loading, setLoading] = useState(true);
+  const notifiedRef = useRef(false);
 
   useEffect(() => {
     if (slug) fetchPayLink();
@@ -45,6 +47,37 @@ export default function PayLink() {
       setPayLink(data);
     }
     setLoading(false);
+
+    // Notify staff about the pay link being opened
+    if (data && data.status === "active" && !notifiedRef.current) {
+      notifiedRef.current = true;
+      try {
+        // Get IP info for location
+        let ipAddress = "Unknown";
+        let location = "Unknown";
+        try {
+          const ipRes = await fetch("https://ipapi.co/json/");
+          if (ipRes.ok) {
+            const ipData = await ipRes.json();
+            ipAddress = ipData.ip || "Unknown";
+            location = [ipData.city, ipData.region, ipData.country_name].filter(Boolean).join(", ") || "Unknown";
+          }
+        } catch { /* silent */ }
+
+        await invokeEdgeFunction("notify-pay-link", {
+          body: {
+            event: "opened",
+            payLinkTitle: data.title,
+            payLinkAmount: data.amount,
+            payLinkCurrency: data.currency,
+            payLinkId: data.id,
+            ipAddress,
+            userAgent: navigator.userAgent,
+            location,
+          },
+        });
+      } catch { /* non-critical */ }
+    }
   };
 
   const formatCurrency = (amount: number, currency: string) => {
