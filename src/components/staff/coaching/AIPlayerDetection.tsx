@@ -211,7 +211,7 @@ export const AIPlayerDetection = ({ videoUrl, videoRef, onClipsAccepted, opponen
 
         if (frames.length === 0) continue;
 
-        const { data, error } = await supabase.functions.invoke('detect-player-actions', {
+        const { data, error } = await invokeEdgeFunction('detect-player-actions', {
           body: {
             frames,
             playerInfo: {

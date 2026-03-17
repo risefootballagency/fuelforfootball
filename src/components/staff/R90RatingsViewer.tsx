@@ -179,7 +179,7 @@ export const R90RatingsViewer = ({ open, onOpenChange, initialCategory, searchTe
       if (ratingsError) throw ratingsError;
 
       // Use AI to find the most relevant rating
-      const { data, error } = await supabase.functions.invoke('find-r90-rating', {
+      const { data, error } = await invokeEdgeFunction('find-r90-rating', {
         body: {
           actionType,
           actionContext,
@@ -191,7 +191,7 @@ export const R90RatingsViewer = ({ open, onOpenChange, initialCategory, searchTe
             content: r.content
           }))
         }
-      });
+      }, supabase);
 
       if (error) {
         console.error('AI search error:', error);
