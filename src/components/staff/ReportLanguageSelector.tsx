@@ -136,7 +136,7 @@ export const ReportLanguageSelector = ({
 
     setUpdatingTranslation(true);
     try {
-      const { data, error } = await supabase.functions.invoke("translate-report-content", {
+      const { data, error } = await invokeEdgeFunction("translate-report-content", {
         body: { fields: changedFields, targetLanguage: translatedContent.language },
       });
 

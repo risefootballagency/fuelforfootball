@@ -80,7 +80,7 @@ export const StaffPushNotifications = () => {
       });
 
       // Save subscription to database
-      const { error: saveError } = await supabase.functions.invoke('subscribe-staff-push', {
+      const { error: saveError } = await invokeEdgeFunction('subscribe-staff-push', {
         body: { subscription: subscription.toJSON() }
       });
 

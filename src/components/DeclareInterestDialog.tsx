@@ -52,7 +52,7 @@ export const DeclareInterestDialog = ({ open, onOpenChange }: DeclareInterestDia
       
       const player = players.find(p => p.id === selectedPlayer);
       
-      const { error } = await supabase.functions.invoke("send-form-email", {
+      const { error } = await invokeEdgeFunction("send-form-email", {
         body: { 
           formType: "declare-interest", 
           data: { 
