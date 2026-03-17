@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { invokeEdgeFunction } from '@/lib/edgeFunctionHelper';
 import { getEnglishPath, getLocalizedPath } from '@/lib/localizedRoutes';
 import { getSubdomainInfo, getLanguageFromSubdomain, isPreviewOrLocalEnvironment, ROLE_SUBDOMAINS } from '@/lib/subdomainUtils';
 
