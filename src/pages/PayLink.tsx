@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
 import { PortalPaymentMethods } from "@/components/portal/PortalPaymentMethods";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 interface PayLink {
   id: string;
