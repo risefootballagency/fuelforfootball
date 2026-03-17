@@ -313,7 +313,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
       const reorderedClips = clips.map((c, i) => ({ ...c, order: i + 1 }));
 
       // Use edge function to update playlist (bypasses RLS)
-      const { data, error } = await supabase.functions.invoke('update-playlist', {
+      const { data, error } = await invokeEdgeFunction('update-playlist', {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,
