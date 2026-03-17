@@ -1332,6 +1332,8 @@ export const CreatePerformanceReportDialog = ({
             visibility_status: visibilityStatus,
             placeholder_raw_score: visibilityStatus === "hidden" && placeholderRawScore ? parseFloat(placeholderRawScore) : null,
             placeholder_minutes: visibilityStatus === "hidden" && placeholderMinutes ? parseInt(placeholderMinutes) : null,
+            placeholder_per: visibilityStatus === "hidden" && placeholderPer ? parseFloat(placeholderPer) : null,
+            placeholder_sr: visibilityStatus === "hidden" && placeholderSr ? parseFloat(placeholderSr) : null,
           } as any)
           .eq("id", analysisId);
 
