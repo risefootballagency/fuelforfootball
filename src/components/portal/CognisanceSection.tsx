@@ -620,9 +620,9 @@ export function CognisanceSection({ playerId, playerPosition, playerName }: Cogn
 
       const prompt = `You are a football coach creating a quiz for a player. Based on this tactical material, generate exactly 5 multiple-choice questions. Each question should test understanding of the tactical concepts.\n\nMaterial:\n${material.join('\n\n')}\n\nReturn ONLY a JSON array of objects with keys: "question" (string), "options" (array of 4 strings), "correctIndex" (0-3), "explanation" (string). No other text.`;
 
-      const response = await localSupabase.functions.invoke('ai-chat', {
+      const response = await invokeEdgeFunction('ai-chat', {
         body: { prompt, model: 'google/gemini-2.5-flash' }
-      });
+      }, localSupabase);
 
       if (response.data?.content) {
         const text = response.data.content;

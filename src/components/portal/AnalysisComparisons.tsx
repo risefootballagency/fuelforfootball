@@ -115,7 +115,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
     const name = pickerSearch.trim();
     if (!name) return;
     try {
-      await supabase.functions.invoke("notify-staff", {
+      await invokeEdgeFunction("notify-staff", {
         body: {
           event_type: "comparison_request",
           title: "Comparison Player Request",

@@ -519,7 +519,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
     if (!playerData?.email || !newName.trim() || newName === oldName) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('rename-player-highlight', {
+      const { data, error } = await invokeEdgeFunction('rename-player-highlight', {
         body: {
           playerEmail: playerData.email,
           oldName,
