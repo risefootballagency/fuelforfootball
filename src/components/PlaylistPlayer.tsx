@@ -182,7 +182,7 @@ export const PlaylistPlayer = ({
         order: idx,
       }));
 
-      const { data, error } = await supabase.functions.invoke("update-playlist", {
+      const { data, error } = await invokeEdgeFunction("update-playlist", {
         body: {
           playerEmail,
           playlistId,

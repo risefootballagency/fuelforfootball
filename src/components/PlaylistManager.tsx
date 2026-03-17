@@ -477,7 +477,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
         { id: loadingToast }
       );
 
-      const { data, error } = await supabase.functions.invoke('save-playlist', {
+      const { data, error } = await invokeEdgeFunction('save-playlist', {
         body: { 
           playlistId: selectedPlaylist.id,
           playerEmail: playerData.email
