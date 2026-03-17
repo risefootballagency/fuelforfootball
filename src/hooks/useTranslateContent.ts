@@ -59,7 +59,7 @@ export function useTranslateContent() {
     // Fetch translation from AI
     setIsTranslating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-translate', {
+      const { data, error } = await invokeEdgeFunction('ai-translate', {
         body: { text }
       });
 
