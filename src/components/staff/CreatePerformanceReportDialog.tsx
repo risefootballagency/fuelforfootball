@@ -205,6 +205,8 @@ export const CreatePerformanceReportDialog = ({
   const [visibilityStatus, setVisibilityStatus] = useState<VisibilityStatus>("draft");
   const [placeholderRawScore, setPlaceholderRawScore] = useState("");
   const [placeholderMinutes, setPlaceholderMinutes] = useState("");
+  const [placeholderPer, setPlaceholderPer] = useState("");
+  const [placeholderSr, setPlaceholderSr] = useState("");
   const initialVisibilityRef = useRef<VisibilityStatus | null>(null);
 
   // Key stats
