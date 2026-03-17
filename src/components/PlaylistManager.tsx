@@ -104,7 +104,7 @@ export const PlaylistManager = ({ playerData, availableClips, onClose }: Playlis
       }
 
       // Call edge function to create playlist (bypasses RLS)
-      const { data, error } = await supabase.functions.invoke('create-playlist', {
+      const { data, error } = await invokeEdgeFunction('create-playlist', {
         body: {
           playerEmail,
           name: newPlaylistName.trim()
