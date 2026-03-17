@@ -361,7 +361,7 @@ export const PerformanceActionsDialog = ({
     setFillingScores(true);
     try {
       // Call the fill-action-scores edge function with single action
-      const { data, error } = await supabase.functions.invoke('fill-action-scores', {
+      const { data, error } = await invokeEdgeFunction('fill-action-scores', {
         body: { actions: [{ ...action, index: 0 }] }
       });
 

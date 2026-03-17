@@ -40,7 +40,7 @@ export const RepresentationDialog = ({ open, onOpenChange }: RepresentationDialo
     try {
       representationSchema.parse(formData);
       
-      const { error } = await supabase.functions.invoke("send-form-email", {
+      const { error } = await invokeEdgeFunction("send-form-email", {
         body: { formType: "representation", data: formData },
       });
 
