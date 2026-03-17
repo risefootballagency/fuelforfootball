@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Plus, Edit, Trash2, Search, Languages, RefreshCw, Globe } from "lucide-react";
 
 interface Translation {

@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "sonner";
 import { Upload, FileText, X, Loader2, GitCompare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 interface UploadedDocument {
   id: string;

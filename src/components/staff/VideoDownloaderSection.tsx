@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Download, Loader2, ExternalLink, Search, Film } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 
 export const VideoDownloaderSection = () => {
   const [url, setUrl] = useState("");
