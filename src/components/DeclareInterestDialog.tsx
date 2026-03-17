@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { z } from "zod";
 import { players } from "@/data/players";
 
