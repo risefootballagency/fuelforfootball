@@ -93,7 +93,7 @@ function detectLanguageFromSubdomain(): LanguageCode | null {
 
 async function detectLanguageFromIP(): Promise<LanguageCode> {
   try {
-    const { data, error } = await supabase.functions.invoke('detect-language');
+    const { data, error } = await invokeEdgeFunction('detect-language');
     
     if (error) {
       console.error('Language detection error:', error);
