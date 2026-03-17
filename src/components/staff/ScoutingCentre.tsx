@@ -306,12 +306,12 @@ export const ScoutingCentre = ({ open = true, onOpenChange }: ScoutingCentreProp
 
     setGeneratingReview(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-scouting-review', {
+      const { data, error } = await invokeEdgeFunction('generate-scouting-review', {
         body: {
           skill_evaluations: skillEvaluations,
           player_name: formData.player_name || "the player"
         }
-      });
+      }, supabase);
 
       if (error) throw error;
 

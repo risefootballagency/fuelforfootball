@@ -620,13 +620,13 @@ export const PlayerFixtures = ({ playerId, playerName, onCreateAnalysis, onViewR
             const content = e.target?.result;
             if (typeof content === 'string') {
               // Call edge function to process the performance report
-              const { data, error } = await supabase.functions.invoke('import-program-csv', {
+              const { data, error } = await invokeEdgeFunction('import-program-csv', {
                 body: {
                   playerId: playerId,
                   analysisId: analysisId,
                   csvContent: content,
                 }
-              });
+              }, supabase);
 
               if (error) {
                 console.error("Error processing performance report:", error);
