@@ -73,7 +73,7 @@ export const PlaylistPlayer = ({
         .filter((_, idx) => idx !== currentIndex)
         .map((clip, idx) => ({ ...clip, order: idx }));
 
-      const { data, error } = await supabase.functions.invoke("update-playlist", {
+      const { data, error } = await invokeEdgeFunction("update-playlist", {
         body: {
           playerEmail,
           playlistId,
