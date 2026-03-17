@@ -1,5 +1,6 @@
 import { HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getR90Grade, getPERGrade, getSRGrade } from "@/lib/gradeCalculations";
 
 interface HiddenScoresGridProps {
   placeholderRawScore: number | null | undefined;
@@ -25,18 +26,17 @@ export const HiddenScoresGrid = ({
   reportLanguage,
 }: HiddenScoresGridProps) => {
   const hasR90 = placeholderRawScore != null && (placeholderMinutes ?? 0) > 0;
-  const r90Value = hasR90 ? ((placeholderRawScore! / placeholderMinutes!) * 90).toFixed(2) : null;
+  const r90Num = hasR90 ? (placeholderRawScore! / placeholderMinutes!) * 90 : null;
+  const r90Grade = getR90Grade(r90Num);
+  const perGrade = getPERGrade(placeholderPer);
+  const srGrade = getSRGrade(placeholderSr);
 
   const scores = [
     ...(hasR90
-      ? [
-          { label: t(reportLanguage, "raw_score"), value: placeholderRawScore!.toFixed(3), highlight: false },
-          { label: "R90", value: r90Value!, highlight: true, explanation: SCORE_EXPLANATIONS.r90 },
-          { label: t(reportLanguage, "mins_short"), value: String(placeholderMinutes), highlight: false },
-        ]
+      ? [{ label: "R90", value: r90Num!.toFixed(2), grade: r90Grade, explanation: SCORE_EXPLANATIONS.r90 }]
       : []),
-    ...(placeholderPer != null ? [{ label: "PER", value: placeholderPer.toFixed(2), highlight: false, explanation: SCORE_EXPLANATIONS.per }] : []),
-    ...(placeholderSr != null ? [{ label: "SR", value: placeholderSr.toFixed(1), highlight: false, explanation: SCORE_EXPLANATIONS.sr }] : []),
+    ...(placeholderPer != null ? [{ label: "PER", value: placeholderPer.toFixed(2), grade: perGrade, explanation: SCORE_EXPLANATIONS.per }] : []),
+    ...(placeholderSr != null ? [{ label: "SR", value: placeholderSr.toFixed(2), grade: srGrade, explanation: SCORE_EXPLANATIONS.sr }] : []),
   ];
 
   if (scores.length === 0) {
@@ -45,30 +45,38 @@ export const HiddenScoresGrid = ({
 
   return (
     <TooltipProvider>
-      <div className={`grid gap-4 max-w-lg mx-auto p-4 bg-accent/20 rounded-lg`} style={{ gridTemplateColumns: `repeat(${scores.length}, minmax(0, 1fr))` }}>
+      <div className={`grid gap-3 max-w-md mx-auto`} style={{ gridTemplateColumns: `repeat(${scores.length}, minmax(0, 1fr))` }}>
         {scores.map((score) => (
           <div
             key={score.label}
-            className={`text-center p-2 ${score.highlight ? "bg-primary text-primary-foreground rounded-lg md:p-4" : ""}`}
+            className="text-center rounded-lg p-3 md:p-4 border"
+            style={{
+              borderColor: score.grade.color,
+              backgroundColor: `${score.grade.color}15`,
+            }}
           >
-            <p className={`text-[10px] md:text-sm ${score.highlight ? "opacity-90" : "text-muted-foreground"} mb-0.5 md:mb-1`}>
+            <p className="text-[10px] md:text-xs text-muted-foreground mb-1 uppercase tracking-wide">
               {score.label}
             </p>
-            <p className={`${score.highlight ? "text-lg md:text-3xl" : "text-base md:text-2xl"} font-bold`}>
+            <p
+              className="text-xl md:text-3xl font-bold"
+              style={{ color: score.grade.color }}
+            >
               {score.value}
             </p>
-            {score.explanation && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className={`mt-1 inline-flex ${score.highlight ? "text-primary-foreground/70 hover:text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                    <HelpCircle className="w-3.5 h-3.5" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-[250px] text-xs">
-                  {score.explanation}
-                </TooltipContent>
-              </Tooltip>
-            )}
+            <p className="text-[9px] md:text-xs font-semibold mt-0.5" style={{ color: score.grade.color }}>
+              {score.grade.grade}
+            </p>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="mt-1 inline-flex text-muted-foreground hover:text-foreground">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[250px] text-xs">
+                {score.explanation}
+              </TooltipContent>
+            </Tooltip>
           </div>
         ))}
       </div>
