@@ -1227,7 +1227,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           ).join('\n\n')}`
         : '';
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           prompt: `Write a comprehensive overview paragraph for a ${overviewWriter.category} analysis based on this information: ${overviewWriter.overviewInfo}. Match the writing style, vocabulary level, and level of detail shown in the examples. This should be one cohesive paragraph.`,
           context: `Analysis Type: ${overviewWriter.category}${exampleContext}`,
