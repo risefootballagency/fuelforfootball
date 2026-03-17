@@ -1340,7 +1340,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
       let paragraph2 = '';
 
       if (aiWriter.paragraph1Info.trim()) {
-        const { data: data1, error: error1 } = await supabase.functions.invoke('ai-write', {
+        const { data: data1, error: error1 } = await invokeEdgeFunction('ai-write', {
           body: {
             prompt: `Write a professional analysis paragraph based on this information: ${aiWriter.paragraph1Info}. Match the writing style, vocabulary level, and level of detail shown in the examples.`,
             context: `Analysis Type: ${aiWriter.category}${exampleContext}`,
