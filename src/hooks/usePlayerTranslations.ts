@@ -596,7 +596,7 @@ export function usePlayerTranslations({ bio, position, playerId, strengths = [] 
         }
         
         // Batch translate bio + strengths in ONE API call
-        const { data, error } = await supabase.functions.invoke('ai-translate-batch', {
+        const { data, error } = await invokeEdgeFunction('ai-translate-batch', {
           body: { texts: textsToTranslate }
         });
         
