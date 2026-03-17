@@ -1,6 +1,6 @@
 import { HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getR90Grade, getPERGrade, getSRGrade } from "@/lib/gradeCalculations";
+import { useFormGradeConfigs } from "@/hooks/useFormGradeConfigs";
 
 interface HiddenScoresGridProps {
   placeholderRawScore: number | null | undefined;
@@ -25,11 +25,12 @@ export const HiddenScoresGrid = ({
   t,
   reportLanguage,
 }: HiddenScoresGridProps) => {
+  const { getGradeForScore } = useFormGradeConfigs();
   const hasR90 = placeholderRawScore != null && (placeholderMinutes ?? 0) > 0;
   const r90Num = hasR90 ? (placeholderRawScore! / placeholderMinutes!) * 90 : null;
-  const r90Grade = getR90Grade(r90Num);
-  const perGrade = getPERGrade(placeholderPer);
-  const srGrade = getSRGrade(placeholderSr);
+  const r90Grade = getGradeForScore('r90', r90Num);
+  const perGrade = getGradeForScore('per', placeholderPer);
+  const srGrade = getGradeForScore('sr', placeholderSr);
 
   const scores = [
     ...(hasR90
