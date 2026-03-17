@@ -1451,7 +1451,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
 
     setAiGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           prompt: `Adjust the following content according to these instructions: "${tweakDialog.tweakInstructions}"\n\nOriginal content:\n${generatedContent.content}`,
           context: `Category: ${generatedContent.category}`,
