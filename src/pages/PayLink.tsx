@@ -47,6 +47,37 @@ export default function PayLink() {
       setPayLink(data);
     }
     setLoading(false);
+
+    // Notify staff about the pay link being opened
+    if (data && data.status === "active" && !notifiedRef.current) {
+      notifiedRef.current = true;
+      try {
+        // Get IP info for location
+        let ipAddress = "Unknown";
+        let location = "Unknown";
+        try {
+          const ipRes = await fetch("https://ipapi.co/json/");
+          if (ipRes.ok) {
+            const ipData = await ipRes.json();
+            ipAddress = ipData.ip || "Unknown";
+            location = [ipData.city, ipData.region, ipData.country_name].filter(Boolean).join(", ") || "Unknown";
+          }
+        } catch { /* silent */ }
+
+        await invokeEdgeFunction("notify-pay-link", {
+          body: {
+            event: "opened",
+            payLinkTitle: data.title,
+            payLinkAmount: data.amount,
+            payLinkCurrency: data.currency,
+            payLinkId: data.id,
+            ipAddress,
+            userAgent: navigator.userAgent,
+            location,
+          },
+        });
+      } catch { /* non-critical */ }
+    }
   };
 
   const formatCurrency = (amount: number, currency: string) => {
