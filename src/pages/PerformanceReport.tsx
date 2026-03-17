@@ -93,6 +93,7 @@ const PerformanceReport = () => {
   const [filterRating, setFilterRating] = useState<string | null>(null);
   const [filterHasNotes, setFilterHasNotes] = useState(false);
 
+  const { getGradeForScore } = useFormGradeConfigs();
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
 
   useEffect(() => {
