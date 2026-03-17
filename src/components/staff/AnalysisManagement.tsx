@@ -1168,7 +1168,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         toast.warning("No overview examples found. Add examples via the settings icon for better results.");
       }
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           prompt: `SOURCE CONTENT (preserve ALL tactical observations and facts from this - do NOT add new analysis):\n${sourceContent}\n\nRewrite this as a single cohesive overview paragraph. Keep ALL the facts and observations but apply the writing style from the examples.`,
           context: `Analysis Type: ${analysisType}\n\nSTYLE EXAMPLES (copy the EXACT tone, vocabulary, phrasing patterns, and sentence structure from these):\n${styleExamplesText || 'No examples provided - write in a professional football analysis style.'}`,
