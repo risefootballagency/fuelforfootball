@@ -123,7 +123,7 @@ export const PlaylistPlayer = ({
         idx === currentIndex ? { ...clip, duration } : clip,
       );
 
-      const { error } = await supabase.functions.invoke("update-playlist", {
+      const { error } = await invokeEdgeFunction("update-playlist", {
         body: {
           playerEmail,
           playlistId,
