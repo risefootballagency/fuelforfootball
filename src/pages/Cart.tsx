@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ExternalLink } from "lucide-react";
 import { LocalizedLink } from "@/components/LocalizedLink";
 import { useToast } from "@/hooks/use-toast";
