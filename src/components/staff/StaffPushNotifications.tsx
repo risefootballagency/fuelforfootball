@@ -68,7 +68,7 @@ export const StaffPushNotifications = () => {
       }
 
       // Get VAPID public key
-      const { data: vapidData, error: vapidError } = await supabase.functions.invoke('init-web-push');
+      const { data: vapidData, error: vapidError } = await invokeEdgeFunction('init-web-push');
       if (vapidError) throw vapidError;
 
       const registration = await navigator.serviceWorker.ready;
