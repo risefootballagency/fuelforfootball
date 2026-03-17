@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade, getPERGrade, getSRGrade } from "@/lib/gradeCalculations";
+import { useFormGradeConfigs } from "@/hooks/useFormGradeConfigs";
 import { Download, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, MessageSquareText, Filter, X, ImageIcon, MapPin, Grid3X3 } from "lucide-react";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
@@ -93,6 +93,7 @@ const PerformanceReport = () => {
   const [filterRating, setFilterRating] = useState<string | null>(null);
   const [filterHasNotes, setFilterHasNotes] = useState(false);
 
+  const { getGradeForScore } = useFormGradeConfigs();
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
 
   useEffect(() => {
@@ -589,7 +590,7 @@ const PerformanceReport = () => {
           {(analysis.placeholder_per != null || analysis.placeholder_sr != null) && (
             <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto">
               {analysis.placeholder_per != null && (() => {
-                const perGrade = getPERGrade(analysis.placeholder_per);
+                const perGrade = getGradeForScore('per', analysis.placeholder_per);
                 return (
                   <div className="text-center rounded-lg p-2 md:p-3 border" style={{ borderColor: perGrade.color, backgroundColor: `${perGrade.color}15` }}>
                     <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 uppercase tracking-wide">PER</p>
@@ -599,7 +600,7 @@ const PerformanceReport = () => {
                 );
               })()}
               {analysis.placeholder_sr != null && (() => {
-                const srGrade = getSRGrade(analysis.placeholder_sr);
+                const srGrade = getGradeForScore('sr', analysis.placeholder_sr);
                 return (
                   <div className="text-center rounded-lg p-2 md:p-3 border" style={{ borderColor: srGrade.color, backgroundColor: `${srGrade.color}15` }}>
                     <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 uppercase tracking-wide">SR</p>
