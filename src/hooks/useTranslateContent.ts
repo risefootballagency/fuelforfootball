@@ -156,7 +156,7 @@ export function useTranslatedNews<T extends { id: string; title: string; excerpt
       // Batch translate uncached texts
       if (textsToTranslate.length > 0) {
         try {
-          const { data, error } = await supabase.functions.invoke('ai-translate-batch', {
+          const { data, error } = await invokeEdgeFunction('ai-translate-batch', {
             body: { texts: textsToTranslate }
           });
           

@@ -26,7 +26,7 @@ export const usePageTracking = () => {
     // Track page view immediately when page loads
     const trackPageView = async () => {
       try {
-        const response = await supabase.functions.invoke("track-visit", {
+        const response = await invokeEdgeFunction("track-visit", {
           body: {
             visitorId: visitorIdRef.current,
             pagePath: location.pathname,
