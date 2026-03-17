@@ -367,7 +367,7 @@ export function PortalManagement() {
     setCreatingOfferLink(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("create-pay-link", {
+      const { data, error } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: newOffer.name,
           amount: parseFloat(newOffer.price),

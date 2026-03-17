@@ -535,7 +535,7 @@ export const PortalManagementAdmin = () => {
     if (!newOffer.name || !newOffer.price) { toast.error("Fill in offer name and price"); return; }
     setCreatingOfferLink(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-pay-link", {
+      const { data, error } = await invokeEdgeFunction("create-pay-link", {
         body: {
           title: newOffer.name, amount: parseFloat(newOffer.price), currency: newOffer.currency,
           description: newOffer.message || `Upgrade to ${newOffer.name}`, paymentType: newOffer.payment_type,

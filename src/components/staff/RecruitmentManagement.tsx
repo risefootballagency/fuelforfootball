@@ -354,7 +354,7 @@ export const RecruitmentManagement = ({ isAdmin, initialTab = 'prospects' }: { i
         ? `Use this template as a reference:\n\nTitle: ${aiWriterTemplate.message_title}\nContent: ${aiWriterTemplate.message_content}\n\n`
         : '';
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           type: 'recruitment-message',
           prompt: aiWriterInfo,

@@ -109,7 +109,7 @@ export const StaffSchedule = ({ isAdmin }: { isAdmin: boolean }) => {
       reader.onloadend = async () => {
         const base64Image = reader.result as string;
 
-        const { data, error } = await supabase.functions.invoke('extract-fixtures-from-image', {
+        const { data, error } = await invokeEdgeFunction('extract-fixtures-from-image', {
           body: {
             image: base64Image,
             teamName: player.club || player.name,
