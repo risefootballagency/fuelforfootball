@@ -600,7 +600,7 @@ const PerformanceReport = () => {
                 );
               })()}
               {analysis.placeholder_sr != null && (() => {
-                const srGrade = getSRGrade(analysis.placeholder_sr);
+                const srGrade = getGradeForScore('sr', analysis.placeholder_sr);
                 return (
                   <div className="text-center rounded-lg p-2 md:p-3 border" style={{ borderColor: srGrade.color, backgroundColor: `${srGrade.color}15` }}>
                     <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 uppercase tracking-wide">SR</p>
