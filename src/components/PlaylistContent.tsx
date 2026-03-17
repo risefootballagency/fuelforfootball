@@ -174,7 +174,7 @@ export const PlaylistContent = ({ playerData, availableClips }: PlaylistContentP
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('update-playlist', {
+      const { data, error } = await invokeEdgeFunction('update-playlist', {
         body: {
           playerEmail,
           playlistId: selectedPlaylist.id,
