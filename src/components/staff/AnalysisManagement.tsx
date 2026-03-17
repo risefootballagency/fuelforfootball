@@ -1286,7 +1286,7 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
           ).join('\n\n')}`
         : '';
 
-      const { data, error } = await supabase.functions.invoke('ai-write', {
+      const { data, error } = await invokeEdgeFunction('ai-write', {
         body: {
           prompt: `Write two tactical scheme paragraphs based on this information: ${schemeWriter.schemeInfo}. Return exactly two paragraphs separated by a blank line.${p1Context}${p2Context}`,
           context: `Scheme analysis for football match`,
