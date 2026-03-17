@@ -1086,7 +1086,7 @@ export const ProgrammingManagement = ({ isOpen, onClose, playerId, playerName, i
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('ai-write-description', {
+      const { data, error } = await invokeEdgeFunction('ai-write-description', {
         body: { 
           exerciseName,
           sampleDescriptions
