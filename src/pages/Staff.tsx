@@ -164,14 +164,7 @@ const Staff = () => {
   // Keyboard shortcuts dialog
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   
-  // Notification triggers memoized
-  const [isHydrated, setIsHydrated] = useState(false);
-  useEffect(() => { setIsHydrated(true); }, []);
-  const notificationTriggers = useMemo(() => {
-    if (!isHydrated) return {};
-    return { onVisitor: true, onFormSubmission: true, onClipUpload: true, onPlaylistChange: true };
-  }, [isHydrated]);
-  useStaffNotifications(notificationTriggers);
+  // Notifications handled by DB triggers (no client-side hook needed)
   
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
