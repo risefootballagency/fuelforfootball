@@ -106,7 +106,7 @@ export const DeclareInterestPlayerDialog = ({ open, onOpenChange, starsOnly = fa
       
       const playerNames = selectedPlayers.map(p => p.name).join(", ");
       
-      const { error } = await supabase.functions.invoke("send-form-email", {
+      const { error } = await invokeEdgeFunction("send-form-email", {
         body: { 
           formType: "declare-interest", 
           data: { 

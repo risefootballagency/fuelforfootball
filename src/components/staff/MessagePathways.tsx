@@ -97,7 +97,7 @@ const MessagePathways = () => {
   const generateAIResponse = async (step: PathwayStep, context: string) => {
     setGeneratingAI(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-ai-response', { body: { prompt: `Generate a personalized response based on template: ${step.custom_message} context: ${context}` } });
+      const { data, error } = await invokeEdgeFunction('generate-ai-response', { body: { prompt: `Generate a personalized response based on template: ${step.custom_message} context: ${context}` } });
       if (error) throw error;
       if (data?.response) { navigator.clipboard.writeText(data.response); toast.success('AI response generated and copied'); }
     } catch { toast.error('Failed to generate AI response'); } finally { setGeneratingAI(false); }

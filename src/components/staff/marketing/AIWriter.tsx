@@ -68,7 +68,7 @@ ${WRITING_STYLE_GUIDE}
 
 Write the full article now. Do not include the title in your response. Structure with clear paragraphs. Aim for 400-600 words.`;
 
-      const { data, error } = await supabase.functions.invoke("ai-writer", {
+      const { data, error } = await invokeEdgeFunction("ai-writer", {
         body: { prompt },
       });
 

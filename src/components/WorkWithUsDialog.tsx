@@ -130,7 +130,7 @@ export const WorkWithUsDialog = ({ children, open, onOpenChange }: WorkWithUsDia
     });
 
     try {
-      const { error } = await supabase.functions.invoke("send-form-email", {
+      const { error } = await invokeEdgeFunction("send-form-email", {
         body: { formType: "work-with-us", data },
       });
 
