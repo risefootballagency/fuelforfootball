@@ -1,58 +1,83 @@
 
-Goal: restore RISE-equivalent staff notifications so site visitors, portal logins, and performance report views actually appear.
 
-What I found (root cause):
-1) `staff_notification_events` is empty (`0` rows) in this project.
-2) `site_visits` is actively receiving data (thousands of rows), so tracking exists.
-3) `staff_notification_events` RLS currently has only a SELECT policy; no INSERT policy (and no UPDATE read-status policy), so portal-side client inserts are blocked.
-4) The DB trigger package that exists in RISE (auto-writing notification events from `site_visits`, `form_submissions`, `playlists`, `players`) is missing here.
-5) Realtime publication currently does not include `staff_notification_events`, so bell dropdown live updates won’t fire even when rows exist.
-6) Notification settings UI diverged from RISE and is not backed by `staff_notification_settings` like RISE.
+# Sync Recent RISE Football Changes (Last 7 Days)
 
-Concise implementation plan:
-1) Sync backend notification schema/policies from RISE
-- Add `staff_notification_settings` table + role/event settings policies + updated_at trigger.
-- Ensure `staff_notification_events` matches RISE shape (`title`, `body`, `read_by`) and add missing UPDATE policy for read status.
-- Keep staff/admin read policies aligned with current role model.
+Based on the RISE Football conversation history (Mar 11-15), here are all the changes that need to be synced to this project.
 
-2) Port RISE notification trigger pipeline
-- Add RISE trigger functions and triggers:
-  - `log_site_visit_notification` on `site_visits` INSERT
-  - `log_form_submission_notification` on `form_submissions` INSERT
-  - `log_playlist_change_notification` on `playlists` INSERT/UPDATE/DELETE
-  - `log_clip_upload_notification` on `players` UPDATE (highlights diff)
-- This removes dependence on staff browser subscriptions for these event sources and matches RISE behavior.
+## Changes Summary
 
-3) Fix portal-origin notification writes (logins + performance views)
-- Ensure `portal_login`, `portal_performance_view`, `portal_analysis_view` events can be persisted in this project’s backend path.
-- Align `Dashboard.tsx` tracking logic back to RISE behavior (only analysis context generates performance/analysis view events; no broad non-analysis misclassification).
-- Keep event payload parity (`player_id`, `player_name`, `sub_tab`, dedupe behavior).
+### 1. New Files to Create
 
-4) Realtime parity for dropdown UX
-- Add `staff_notification_events` to realtime publication (as in RISE migration) so dropdown updates instantly on new events.
+**`src/components/report/MatchTimelapse.tsx`** — Full match timelapse component with SVG pitch, animated zone trail, continuous MM:SS clock with variable speed playback (fast-forward gaps, normal speed during actions), vertical timeline with action markers.
 
-5) UI parity cleanup
-- Replace current `NotificationSettingsManagement.tsx` with RISE role/event matrix behavior backed by `staff_notification_settings`.
-- Remove legacy/non-RISE event drift (e.g., outdated IDs that don’t map to actual emitted event types).
+**`src/lib/reportActionHelpers.ts`** — Utility for chronological action sorting (`sortReportActionsChronologically`), zone filtering (`filterActionsByZone`, `actionMatchesZone`, `actionMatchesSubZone`). Used by MatchTimelapse, R90FlowChart, RankedActionsPlayer, ZonePerformance.
 
-Technical details (exact files/touchpoints):
-- DB migrations (new migration in this project):
-  - create/update policies for `public.staff_notification_events`
-  - create `public.staff_notification_settings`
-  - create 4 notification trigger functions + 4 triggers
-  - `ALTER PUBLICATION supabase_realtime ADD TABLE public.staff_notification_events`
-- Frontend:
-  - `src/pages/Dashboard.tsx` (restore RISE event emission conditions for portal view events)
-  - `src/components/staff/NotificationSettingsManagement.tsx` (RISE settings table-driven version)
-  - optional cleanup in `src/components/staff/StaffNotificationsDropdown.tsx` for event label parity (`portal_view` legacy handling)
+### 2. Report Components to Update (sync from RISE)
 
-Validation checklist after implementation:
-1) Visit public pages → new `visitor` events appear in bell list.
-2) Player login via `/login` → `portal_login` appears.
-3) Player opens portal analysis/performance tabs → `portal_performance_view` / `portal_analysis_view` appear.
-4) New form submission / playlist change / clip update → corresponding events appear without needing staff page open.
-5) Mark-as-read works (UPDATE policy verified).
-6) Realtime bell updates without manual refresh.
+**`src/components/report/R90FlowChart.tsx`** — Add import of `sortReportActionsChronologically` from reportActionHelpers; use it for chart data sorting.
 
-Expected outcome:
-Notification pipeline will match RISE’s working model and stop relying on currently broken paths (missing trigger migrations + blocked inserts), which is why you currently see “literally nothing.”
+**`src/components/report/RankedActionsPlayer.tsx`** — Add `sortReportActionsChronologically` import; add `X` close icon import; add `[&>button.absolute]:hidden` to DialogContent to fix duplicate X icons; add language prop usage.
+
+**`src/components/report/ZonePerformance.tsx`** — Replace inline video player with `onSelectZone` callback prop; add clickable zone buttons for zone-to-video filtering; remove embedded RankedActionsPlayer/clip logic.
+
+**`src/components/report/PitchHeatmap.tsx`** — Update heatmap color gradient for better red-density differentiation (green→yellow→red scale with clearer hot zones).
+
+**`src/components/report/ActionHeatmap.tsx`** — Add language prop; use `t()` for all labels.
+
+**`src/components/report/ChanceCreationFlow.tsx`** — Add language prop; use `t()` for labels.
+
+**`src/components/ClippedActionsPlayer.tsx`** — Add `[&>button.absolute]:hidden` to fix duplicate X icons; add language prop support.
+
+### 3. Performance Report Pages (major sync)
+
+**`src/pages/PerformanceReport.tsx`** — Add MatchTimelapse import and toggle; add `filterActionsByZone` import; add zone player state/handlers; add translation support via `reportTranslations` helpers; add Timer icon import; wire `onSelectZone` to ZonePerformance for zone-specific video popups.
+
+**`src/components/PerformanceReportDialog.tsx`** — Same changes as above: MatchTimelapse, zone player, `filterActionsByZone`, translation helpers, draft `estimated_ready_at` visibility.
+
+### 4. Edge Functions to Sync
+
+**`supabase/functions/parse-stats-url/index.ts`** — Complete rewrite: deterministic `__NEXT_DATA__` JSON extraction, AI fallback with tool calling (structured output), expanded stat key aliases, 40K char context limit.
+
+**`supabase/functions/suggest-fixture-stats/index.ts`** — Add `normaliseFixtureSuggestions` validation layer, pass zone evidence, arithmetic constraint enforcement, model upgrade to `gemini-3-flash-preview`.
+
+**`supabase/functions/ai-write/index.ts`** — Updated prompts enforcing British English, improved style example instructions for analysis-paragraph and analysis-overview types.
+
+### 5. UI Component Updates
+
+**`src/components/ui/textarea.tsx`** — Add `spellCheck` attribute globally.
+
+**`src/components/staff/VideoActionEditor.tsx`** — Description dropdown opens upward (`bottom-full mb-1`); jump-to list gets scroll arrow buttons at top/bottom.
+
+**`src/components/staff/R90RatingsViewer.tsx`** — Default expand "Offensive" category on open; sort "Offensive" to top; add `prefilledSearch` prop.
+
+**`src/components/staff/XGPitchMap.tsx`** — Rebuilt with research-based 12x9 xG grid, interactive tooltips, box zoom toggle.
+
+### 6. Translation Expansion
+
+**`src/lib/portalTranslations.ts`** — Add ~40 new translation keys across all 10 languages for report UI (match_timelapse, press_play, zone_word, view_clips, save_label, share_label, etc.).
+
+### 7. Error Reporting (main.tsx)
+
+**`src/main.tsx`** — Add monkey-patch of `toast.error` to include a "Report" button that inserts error details into `staff_notification_events` table. Requires importing `toast` from sonner and `supabase` client.
+
+### 8. Not synced (RISE-specific only)
+
+- Visitor Diagnostics page (RISE-specific debugging tool)
+- Birthday notification cron job fix (RISE-specific infrastructure)
+- PWA scope guard in main.tsx (RISE-specific, this project has its own approach)
+
+## Implementation Order
+
+1. Create new utility files (reportActionHelpers.ts)
+2. Create MatchTimelapse component
+3. Update report sub-components (R90FlowChart, RankedActionsPlayer, ZonePerformance, PitchHeatmap, ActionHeatmap, ChanceCreationFlow, ClippedActionsPlayer)
+4. Update portalTranslations.ts with new keys
+5. Update textarea.tsx (spellCheck)
+6. Sync edge functions (parse-stats-url, suggest-fixture-stats, ai-write)
+7. Update PerformanceReport.tsx and PerformanceReportDialog.tsx
+8. Update staff components (VideoActionEditor, R90RatingsViewer, XGPitchMap)
+9. Add error reporting to main.tsx
+
+## Branding Note
+All RISE-specific references (e.g. `text-risegold`) will be adapted to this project's equivalent colour tokens.
+
