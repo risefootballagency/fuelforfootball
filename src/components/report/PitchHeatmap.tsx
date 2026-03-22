@@ -37,19 +37,20 @@ const getPosition = (zone: number, sub?: number): { x: number; y: number } => {
 };
 
 const getHeatColor = (intensity: number): string => {
+  // Green (low) → Yellow (medium) → Red (high) with clear differentiation
   if (intensity <= 0.25) {
     const tt = intensity / 0.25;
-    return `${255}, ${Math.round(200 - tt * 60)}, ${Math.round(50 - tt * 50)}`;
+    return `${Math.round(tt * 255)}, ${Math.round(180 + tt * 75)}, 0`;
   } else if (intensity <= 0.5) {
     const tt = (intensity - 0.25) / 0.25;
-    return `${255}, ${Math.round(140 - tt * 80)}, 0`;
+    return `255, ${Math.round(255 - tt * 55)}, 0`;
   } else if (intensity <= 0.75) {
     const tt = (intensity - 0.5) / 0.25;
-    return `${Math.round(255 - tt * 30)}, ${Math.round(60 - tt * 40)}, 0`;
+    return `255, ${Math.round(200 - tt * 150)}, 0`;
+  } else {
+    const tt = (intensity - 0.75) / 0.25;
+    return `${Math.round(255 - tt * 40)}, ${Math.round(50 - tt * 50)}, 0`;
   }
-
-  const tt = (intensity - 0.75) / 0.25;
-  return `${Math.round(225 - tt * 55)}, ${Math.round(20 - tt * 20)}, 0`;
 };
 
 export const PitchHeatmap = ({ actions, language = "en" }: PitchHeatmapProps) => {
@@ -59,7 +60,9 @@ export const PitchHeatmap = ({ actions, language = "en" }: PitchHeatmapProps) =>
     for (const a of actions) {
       if (a.zone_details && Array.isArray(a.zone_details) && a.zone_details.length > 0) {
         for (const zp of a.zone_details) {
-          if (zp.zone >= 1 && zp.zone <= 18) points.push(getPosition(zp.zone, zp.sub));
+          if (zp.zone >= 1 && zp.zone <= 18) {
+            points.push(getPosition(zp.zone, zp.sub));
+          }
         }
       } else if (a.zone != null && a.zone >= 1 && a.zone <= 18) {
         points.push(getPosition(a.zone));
@@ -81,29 +84,43 @@ export const PitchHeatmap = ({ actions, language = "en" }: PitchHeatmapProps) =>
       bins[key].totalY += p.y;
     }
 
-    const blobs = Object.values(bins).map(b => ({ x: b.totalX / b.count, y: b.totalY / b.count, count: b.count }));
+    const blobs = Object.values(bins).map(b => ({
+      x: b.totalX / b.count,
+      y: b.totalY / b.count,
+      count: b.count,
+    }));
+
     const maxCount = Math.max(...blobs.map(b => b.count), 1);
     return { blobs, maxCount };
   }, [actions]);
 
   if (!heatmapData || heatmapData.blobs.length === 0) {
-    return <div className="text-center py-8 text-muted-foreground text-sm">{t(language, "no_zone_data")}</div>;
+    return (
+      <div className="text-center py-8 text-muted-foreground text-sm">
+        {t(language, "no_zone_data")}
+      </div>
+    );
   }
 
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-semibold">{t(language, "pitch_heatmap")}</h4>
+      
       <div className="flex justify-center">
-        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="w-full max-w-[280px] md:max-w-[320px]" style={{ aspectRatio: `${WIDTH}/${HEIGHT}` }}>
+        <svg
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          className="w-full max-w-[280px] md:max-w-[320px]"
+          style={{ aspectRatio: `${WIDTH}/${HEIGHT}` }}
+        >
           <defs>
             {heatmapData.blobs.map((blob, i) => {
               const intensity = blob.count / heatmapData.maxCount;
               const rgb = getHeatColor(intensity);
               return (
                 <radialGradient key={`grad-${i}`} id={`heat-${i}`} cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor={`rgba(${rgb}, ${0.5 + intensity * 0.45})`} />
+                  <stop offset="0%" stopColor={`rgba(${rgb}, ${0.55 + intensity * 0.4})`} />
                   <stop offset="30%" stopColor={`rgba(${rgb}, ${0.35 + intensity * 0.35})`} />
-                  <stop offset="60%" stopColor={`rgba(${rgb}, ${0.12 + intensity * 0.2})`} />
+                  <stop offset="60%" stopColor={`rgba(${rgb}, ${0.12 + intensity * 0.18})`} />
                   <stop offset="100%" stopColor={`rgba(${rgb}, 0)`} />
                 </radialGradient>
               );
@@ -115,22 +132,34 @@ export const PitchHeatmap = ({ actions, language = "en" }: PitchHeatmapProps) =>
           <line x1="10" y1={HEIGHT / 2} x2={WIDTH - 10} y2={HEIGHT / 2} stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <circle cx={WIDTH / 2} cy={HEIGHT / 2} r="35" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <circle cx={WIDTH / 2} cy={HEIGHT / 2} r="2" fill="rgba(255,255,255,0.25)" />
-
+          
           <rect x="60" y="10" width="180" height="55" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <rect x="100" y="10" width="100" height="25" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
           <rect x="60" y={HEIGHT - 65} width="180" height="55" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
           <rect x="100" y={HEIGHT - 35} width="100" height="25" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
-
+          
           {heatmapData.blobs.map((blob, i) => {
             const intensity = blob.count / heatmapData.maxCount;
             const radius = 40 + intensity * 45;
             return (
-              <ellipse key={`blob-${i}`} cx={blob.x} cy={blob.y} rx={radius} ry={radius * 0.85} fill={`url(#heat-${i})`} style={{ mixBlendMode: "screen" }} />
+              <ellipse
+                key={`blob-${i}`}
+                cx={blob.x}
+                cy={blob.y}
+                rx={radius}
+                ry={radius * 0.85}
+                fill={`url(#heat-${i})`}
+                style={{ mixBlendMode: "hard-light" }}
+              />
             );
           })}
-
-          <text x={WIDTH / 2} y={HEIGHT - 2} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">{t(language, "own_goal")}</text>
-          <text x={WIDTH / 2} y="7" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">↑ {t(language, "attacking_direction")}</text>
+          
+          <text x={WIDTH / 2} y={HEIGHT - 2} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">
+            {t(language, "own_goal")}
+          </text>
+          <text x={WIDTH / 2} y="7" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">
+            ↑ {t(language, "attacking_direction")}
+          </text>
         </svg>
       </div>
     </div>
