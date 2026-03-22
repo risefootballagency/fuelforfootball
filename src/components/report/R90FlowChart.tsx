@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { t } from "@/lib/portalTranslations";
+import { sortReportActionsChronologically } from "@/lib/reportActionHelpers";
 
 interface PerformanceAction {
   action_number: number;
@@ -19,7 +20,7 @@ export const R90FlowChart = ({ actions, minutesPlayed, language = "en" }: R90Flo
   const chartData = useMemo(() => {
     if (actions.length === 0 || !minutesPlayed) return [];
 
-    const sorted = [...actions].sort((a, b) => a.minute - b.minute);
+    const sorted = sortReportActionsChronologically(actions);
     const lastActionMinute = Math.max(...sorted.map(a => Math.floor(a.minute)));
     const startMinute = Math.max(0, lastActionMinute - minutesPlayed);
 
@@ -112,14 +113,14 @@ export const R90FlowChart = ({ actions, minutesPlayed, language = "en" }: R90Flo
               }}
               labelFormatter={(label) => `${t(language, "min_short")} ${label}`}
             />
-            <ReferenceLine y={1} stroke="hsl(var(--accent))" strokeDasharray="4 4" strokeWidth={1} />
+            <ReferenceLine y={1} stroke="hsl(var(--primary))" strokeDasharray="4 4" strokeWidth={1} />
             <Line
               type="monotone"
               dataKey="r90"
-              stroke="hsl(var(--accent))"
+              stroke="hsl(var(--primary))"
               strokeWidth={2.5}
-              dot={{ r: 4, fill: "hsl(47, 100%, 51%)", strokeWidth: 2, stroke: "hsl(var(--background))" }}
-              activeDot={{ r: 6, fill: "hsl(47, 100%, 51%)" }}
+              dot={{ r: 4, fill: "hsl(var(--primary))", strokeWidth: 2, stroke: "hsl(var(--background))" }}
+              activeDot={{ r: 6, fill: "hsl(var(--primary))" }}
             />
           </LineChart>
         </ResponsiveContainer>
