@@ -67,6 +67,8 @@ interface AnalysisDetails {
   placeholder_minutes?: number | null;
   placeholder_per?: number | null;
   placeholder_sr?: number | null;
+  translated_content?: { language: string; fields: Record<string, string> } | null;
+  show_action_descriptions?: boolean;
 }
 
 const PerformanceReport = () => {
