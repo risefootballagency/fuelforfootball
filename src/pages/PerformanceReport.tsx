@@ -73,6 +73,8 @@ interface AnalysisDetails {
 
 const PerformanceReport = () => {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const isPortalView = searchParams.get("portal") === "true";
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<AnalysisDetails | null>(null);
   const [actions, setActions] = useState<PerformanceAction[]>([]);
@@ -100,6 +102,23 @@ const PerformanceReport = () => {
 
   const { getGradeForScore } = useFormGradeConfigs();
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
+
+  // Language support
+  const livePortalLanguage = usePortalLanguage();
+  const reportLanguage = isPortalView
+    ? (livePortalLanguage || localStorage.getItem("portal_language_hint") || localStorage.getItem("preferred_language") || sessionStorage.getItem("ip_language_detected") || analysis?.translated_content?.language || "en")
+    : "en";
+  const reportContentLanguage = getReportLanguage(analysis?.translated_content, reportLanguage);
+  const portalLocale = getReportLocale(reportLanguage);
+  const tc = analysis?.translated_content;
+  const hasTranslation = hasTranslatedReportContent(tc) && reportContentLanguage === reportLanguage;
+  const tAction = (index: number, field: "type" | "description" | "notes", fallback: string) => hasTranslation ? getTranslatedActionField(tc, index, field, fallback) : fallback;
+  const getTranslatedActionData = (action: PerformanceAction) => ({
+    ...action,
+    action_type: toTitleCase(tAction(action.action_number - 1, "type", action.action_type)),
+    action_description: tAction(action.action_number - 1, "description", action.action_description),
+    notes: tAction(action.action_number - 1, "notes", action.notes || "") || null,
+  });
 
   useEffect(() => {
     const checkAuth = async () => {
