@@ -460,11 +460,8 @@ const PerformanceReport = () => {
               placeholderMinutes={analysis.placeholder_minutes}
               placeholderPer={analysis.placeholder_per}
               placeholderSr={analysis.placeholder_sr}
-              t={(lang, key) => {
-                const map: Record<string, string> = { raw_score: "Raw Score", mins_short: "Mins", placeholder_stats_not_set: "Placeholder stats are not set yet." };
-                return map[key] || key;
-              }}
-              reportLanguage="en"
+              t={t}
+              reportLanguage={reportLanguage}
             />
              <div className="bg-muted/50 rounded-lg p-6 max-w-sm mx-auto">
                <p className="text-sm font-medium">{t(reportLanguage, "report_locked")}</p>
