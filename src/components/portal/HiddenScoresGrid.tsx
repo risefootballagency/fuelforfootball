@@ -65,12 +65,15 @@ export const HiddenScoresGrid = ({
   const perGrade = getGradeForScore('per', placeholderPer);
   const srGrade = getGradeForScore('sr', placeholderSr);
 
+  const lang = reportLanguage || "en";
+  const getExplanation = (metric: string) => SCORE_EXPLANATIONS[metric]?.[lang] || SCORE_EXPLANATIONS[metric]?.en || "";
+
   const scores = [
     ...(hasR90
-      ? [{ label: "R90", value: r90Num!.toFixed(2), grade: r90Grade, explanation: SCORE_EXPLANATIONS.r90 }]
+      ? [{ label: "R90", value: r90Num!.toFixed(2), grade: r90Grade, explanation: getExplanation("r90") }]
       : []),
-    ...(placeholderPer != null ? [{ label: "PER", value: placeholderPer.toFixed(2), grade: perGrade, explanation: SCORE_EXPLANATIONS.per }] : []),
-    ...(placeholderSr != null ? [{ label: "SR", value: placeholderSr.toFixed(2), grade: srGrade, explanation: SCORE_EXPLANATIONS.sr }] : []),
+    ...(placeholderPer != null ? [{ label: "PER", value: placeholderPer.toFixed(2), grade: perGrade, explanation: getExplanation("per") }] : []),
+    ...(placeholderSr != null ? [{ label: "SR", value: placeholderSr.toFixed(2), grade: srGrade, explanation: getExplanation("sr") }] : []),
   ];
 
   if (scores.length === 0) {
