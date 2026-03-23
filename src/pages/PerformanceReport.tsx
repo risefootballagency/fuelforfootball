@@ -396,7 +396,9 @@ const PerformanceReport = () => {
     { key: "red", className: "bg-red-600" },
   ];
 
-  const filteredActions = actions.filter(a => {
+  const showDescriptions = analysis?.show_action_descriptions !== false;
+  const displayActions = hasTranslation ? actions.map(getTranslatedActionData) : actions;
+  const filteredActions = displayActions.filter(a => {
     if (filterTypes.length > 0) {
       const actionTypes = a.action_type.split(',').map(t => t.trim().toLowerCase());
       if (!filterTypes.some(ft => actionTypes.includes(ft))) return false;
