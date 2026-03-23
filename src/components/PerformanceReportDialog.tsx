@@ -65,6 +65,7 @@ interface AnalysisDetails {
   placeholder_per?: number | null;
   placeholder_sr?: number | null;
   translated_content?: { language: string; fields: Record<string, string> } | null;
+  show_action_descriptions?: boolean;
 }
 
 interface PerformanceReportDialogProps {
@@ -183,6 +184,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
         placeholder_per: (analysisResult.data as any).placeholder_per,
         placeholder_sr: (analysisResult.data as any).placeholder_sr,
         translated_content: (analysisResult.data as any).translated_content || null,
+        show_action_descriptions: (analysisResult.data as any).show_action_descriptions !== false,
       });
 
       if (actionsResult.error) throw actionsResult.error;
@@ -577,6 +579,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   ];
 
   // Filtered actions
+  const showDescriptions = analysis?.show_action_descriptions !== false;
   const displayActions = hasTranslation ? actions.map(getTranslatedActionData) : actions;
   const filteredActions = displayActions.filter(a => {
     if (filterTypes.length > 0) {
@@ -1092,8 +1095,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                             )}
                           </div>
                           <div className="font-medium text-xs mt-1 truncate">{toTitleCase(action.action_type)}</div>
-                          <div className="text-[10px] text-foreground/80">{action.action_description}</div>
-                          {action.notes && (
+                          {showDescriptions && <div className="text-[10px] text-foreground/80">{action.action_description}</div>}
+                          {showDescriptions && action.notes && (
                             <div className="text-[9px] text-muted-foreground italic mt-1 pt-1 border-t border-border/50 break-words">
                               {action.notes}
                             </div>
@@ -1110,8 +1113,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                             <th className="text-left py-2 px-2">#</th>
                             <th className="text-left py-2 px-2">{t(reportLanguage, "min_short")}</th>
                             <th className="text-left py-2 px-2">{t(reportLanguage, "type_label")}</th>
-                            <th className="text-left py-2 px-2">{t(reportLanguage, "description_label")}</th>
-                            <th className="text-left py-2 px-2">{t(reportLanguage, "notes_label")}</th>
+                            {showDescriptions && <th className="text-left py-2 px-2">{t(reportLanguage, "description_label")}</th>}
+                            {showDescriptions && <th className="text-left py-2 px-2">{t(reportLanguage, "notes_label")}</th>}
                             <th className="text-right py-2 px-2">{t(reportLanguage, "score_label")}</th>
                             <th className="text-center py-2 px-2">{t(reportLanguage, "clip_label")}</th>
                           </tr>
@@ -1122,8 +1125,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                               <td className="py-2 px-2">{action.action_number}</td>
                               <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
                               <td className="py-2 px-2">{toTitleCase(action.action_type)}</td>
-                              <td className="py-2 px-2">{action.action_description}</td>
-                              <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>
+                              {showDescriptions && <td className="py-2 px-2">{action.action_description}</td>}
+                              {showDescriptions && <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>}
                               <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>
                                 {action.action_score?.toFixed(5)}
                               </td>

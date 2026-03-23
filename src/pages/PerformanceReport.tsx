@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { HiddenScoresGrid } from "@/components/portal/HiddenScoresGrid";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,9 @@ import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
 import { toTitleCase } from "@/lib/titleCase";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { sortActionsByMinute } from "@/lib/actionSorting";
+import { t } from "@/lib/portalTranslations";
+import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 const formatMinute = (minute: number | null | undefined): string => {
   if (minute === null || minute === undefined) return "-";
@@ -64,10 +67,14 @@ interface AnalysisDetails {
   placeholder_minutes?: number | null;
   placeholder_per?: number | null;
   placeholder_sr?: number | null;
+  translated_content?: { language: string; fields: Record<string, string> } | null;
+  show_action_descriptions?: boolean;
 }
 
 const PerformanceReport = () => {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const isPortalView = searchParams.get("portal") === "true";
   const [loading, setLoading] = useState(true);
   const [analysis, setAnalysis] = useState<AnalysisDetails | null>(null);
   const [actions, setActions] = useState<PerformanceAction[]>([]);
@@ -95,6 +102,23 @@ const PerformanceReport = () => {
 
   const { getGradeForScore } = useFormGradeConfigs();
   const analysisId = slug ? extractAnalysisIdFromSlug(slug) : null;
+
+  // Language support
+  const livePortalLanguage = usePortalLanguage();
+  const reportLanguage = isPortalView
+    ? (livePortalLanguage || localStorage.getItem("portal_language_hint") || localStorage.getItem("preferred_language") || sessionStorage.getItem("ip_language_detected") || analysis?.translated_content?.language || "en")
+    : "en";
+  const reportContentLanguage = getReportLanguage(analysis?.translated_content, reportLanguage);
+  const portalLocale = getReportLocale(reportLanguage);
+  const tc = analysis?.translated_content;
+  const hasTranslation = hasTranslatedReportContent(tc) && reportContentLanguage === reportLanguage;
+  const tAction = (index: number, field: "type" | "description" | "notes", fallback: string) => hasTranslation ? getTranslatedActionField(tc, index, field, fallback) : fallback;
+  const getTranslatedActionData = (action: PerformanceAction) => ({
+    ...action,
+    action_type: toTitleCase(tAction(action.action_number - 1, "type", action.action_type)),
+    action_description: tAction(action.action_number - 1, "description", action.action_description),
+    notes: tAction(action.action_number - 1, "notes", action.notes || "") || null,
+  });
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -144,6 +168,8 @@ const PerformanceReport = () => {
         placeholder_minutes: (analysisResult.data as any).placeholder_minutes,
         placeholder_per: (analysisResult.data as any).placeholder_per,
         placeholder_sr: (analysisResult.data as any).placeholder_sr,
+        translated_content: (analysisResult.data as any).translated_content || null,
+        show_action_descriptions: (analysisResult.data as any).show_action_descriptions !== false,
       });
 
       if (actionsResult.error) throw actionsResult.error;
@@ -370,7 +396,9 @@ const PerformanceReport = () => {
     { key: "red", className: "bg-red-600" },
   ];
 
-  const filteredActions = actions.filter(a => {
+  const showDescriptions = analysis?.show_action_descriptions !== false;
+  const displayActions = hasTranslation ? actions.map(getTranslatedActionData) : actions;
+  const filteredActions = displayActions.filter(a => {
     if (filterTypes.length > 0) {
       const actionTypes = a.action_type.split(',').map(t => t.trim().toLowerCase());
       if (!filterTypes.some(ft => actionTypes.includes(ft))) return false;
@@ -397,7 +425,7 @@ const PerformanceReport = () => {
       <div className="min-h-screen bg-background">
         {!isAuthenticated && <Header />}
         <main className="container mx-auto px-4 py-8">
-          <Card><CardContent className="pt-6"><p className="text-center text-muted-foreground">Performance report not found</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-center text-muted-foreground">{t(reportLanguage, "report_not_found")}</p></CardContent></Card>
         </main>
         {!isAuthenticated && <Footer />}
       </div>
@@ -415,11 +443,11 @@ const PerformanceReport = () => {
       <main className="container mx-auto px-3 md:px-4 py-4 md:py-8">
         {/* Sticky header bar */}
         <div className="sticky top-0 z-10 bg-background border-b mb-4 py-2 flex items-center justify-between gap-2 print:hidden">
-          <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">Performance Report</h2>
+          <h2 className="text-base md:text-xl font-bebas uppercase tracking-wider truncate">{t(reportLanguage, "performance_report")}</h2>
           <div className="flex gap-1 md:gap-2 flex-shrink-0">
             <Button onClick={handleSaveAsWebp} variant="default" size="sm" className="px-2 md:px-3" disabled={savingImage || loading}>
               <ImageIcon className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">{savingImage ? 'Saving...' : 'Save'}</span>
+              <span className="hidden md:inline">{savingImage ? t(reportLanguage, "saving_label") : t(reportLanguage, "save_label")}</span>
             </Button>
           </div>
         </div>
@@ -432,24 +460,21 @@ const PerformanceReport = () => {
               placeholderMinutes={analysis.placeholder_minutes}
               placeholderPer={analysis.placeholder_per}
               placeholderSr={analysis.placeholder_sr}
-              t={(lang, key) => {
-                const map: Record<string, string> = { raw_score: "Raw Score", mins_short: "Mins", placeholder_stats_not_set: "Placeholder stats are not set yet." };
-                return map[key] || key;
-              }}
-              reportLanguage="en"
+              t={t}
+              reportLanguage={reportLanguage}
             />
-            <div className="bg-muted/50 rounded-lg p-6 max-w-sm mx-auto">
-              <p className="text-sm font-medium">This report is locked</p>
-              <p className="text-xs text-muted-foreground mt-1">Contact us to unlock the full performance breakdown.</p>
-            </div>
+             <div className="bg-muted/50 rounded-lg p-6 max-w-sm mx-auto">
+               <p className="text-sm font-medium">{t(reportLanguage, "report_locked")}</p>
+               <p className="text-xs text-muted-foreground mt-1">{t(reportLanguage, "contact_to_unlock_report")}</p>
+             </div>
           </div>
         ) : (
         <div className="relative">
         {!isAuthenticated && analysis.visibility_status === "draft" && (
           <div className="absolute inset-0 z-20 backdrop-blur-md bg-white/40 dark:bg-black/40 rounded-lg flex items-center justify-center">
             <div className="text-center p-6 bg-background/90 rounded-xl border shadow-lg max-w-xs">
-              <p className="font-semibold text-sm">Report In Progress</p>
-              <p className="text-xs text-muted-foreground mt-1">This report is still being prepared. Check back soon.</p>
+              <p className="font-semibold text-sm">{t(reportLanguage, "report_in_progress")}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t(reportLanguage, "report_in_progress_message")}</p>
             </div>
           </div>
         )}
@@ -760,8 +785,8 @@ const PerformanceReport = () => {
                         )}
                       </div>
                       <div className="font-medium text-xs mt-1 truncate">{toTitleCase(action.action_type)}</div>
-                      <div className="text-[10px] text-foreground/80 line-clamp-2">{action.action_description}</div>
-                      {action.notes && (
+                      {showDescriptions && <div className="text-[10px] text-foreground/80 line-clamp-2">{action.action_description}</div>}
+                      {showDescriptions && action.notes && (
                         <div className="text-[9px] text-muted-foreground italic mt-1 pt-1 border-t border-border/50 truncate">{action.notes}</div>
                       )}
                     </div>
@@ -774,12 +799,12 @@ const PerformanceReport = () => {
                     <thead>
                       <tr className="border-b">
                         <th className="text-left py-2 px-2">#</th>
-                        <th className="text-left py-2 px-2">Min</th>
-                        <th className="text-left py-2 px-2">Type</th>
-                        <th className="text-left py-2 px-2">Description</th>
-                        <th className="text-left py-2 px-2">Notes</th>
-                        <th className="text-right py-2 px-2">Score</th>
-                        <th className="text-center py-2 px-2">Clip</th>
+                        <th className="text-left py-2 px-2">{t(reportLanguage, "min_short")}</th>
+                        <th className="text-left py-2 px-2">{t(reportLanguage, "type_label")}</th>
+                        {showDescriptions && <th className="text-left py-2 px-2">{t(reportLanguage, "description_label")}</th>}
+                        {showDescriptions && <th className="text-left py-2 px-2">{t(reportLanguage, "notes_label")}</th>}
+                        <th className="text-right py-2 px-2">{t(reportLanguage, "score_label")}</th>
+                        <th className="text-center py-2 px-2">{t(reportLanguage, "clip_label")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -788,8 +813,8 @@ const PerformanceReport = () => {
                           <td className="py-2 px-2">{action.action_number}</td>
                           <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
                           <td className="py-2 px-2">{toTitleCase(action.action_type)}</td>
-                          <td className="py-2 px-2">{action.action_description}</td>
-                          <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>
+                          {showDescriptions && <td className="py-2 px-2">{action.action_description}</td>}
+                          {showDescriptions && <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>}
                           <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>{action.action_score?.toFixed(5)}</td>
                           <td className="py-2 px-2 text-center">
                             {action.video_url ? (
