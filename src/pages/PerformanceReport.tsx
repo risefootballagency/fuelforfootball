@@ -438,10 +438,10 @@ const PerformanceReport = () => {
               }}
               reportLanguage="en"
             />
-            <div className="bg-muted/50 rounded-lg p-6 max-w-sm mx-auto">
-              <p className="text-sm font-medium">This report is locked</p>
-              <p className="text-xs text-muted-foreground mt-1">Contact us to unlock the full performance breakdown.</p>
-            </div>
+             <div className="bg-muted/50 rounded-lg p-6 max-w-sm mx-auto">
+               <p className="text-sm font-medium">{t(reportLanguage, "report_locked")}</p>
+               <p className="text-xs text-muted-foreground mt-1">{t(reportLanguage, "contact_to_unlock_report")}</p>
+             </div>
           </div>
         ) : (
         <div className="relative">
