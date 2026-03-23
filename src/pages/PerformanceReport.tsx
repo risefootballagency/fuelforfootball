@@ -425,7 +425,7 @@ const PerformanceReport = () => {
       <div className="min-h-screen bg-background">
         {!isAuthenticated && <Header />}
         <main className="container mx-auto px-4 py-8">
-          <Card><CardContent className="pt-6"><p className="text-center text-muted-foreground">Performance report not found</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-center text-muted-foreground">{t(reportLanguage, "report_not_found")}</p></CardContent></Card>
         </main>
         {!isAuthenticated && <Footer />}
       </div>
