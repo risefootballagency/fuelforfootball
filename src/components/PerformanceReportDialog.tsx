@@ -579,6 +579,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   ];
 
   // Filtered actions
+  const showDescriptions = analysis?.show_action_descriptions !== false;
   const displayActions = hasTranslation ? actions.map(getTranslatedActionData) : actions;
   const filteredActions = displayActions.filter(a => {
     if (filterTypes.length > 0) {
