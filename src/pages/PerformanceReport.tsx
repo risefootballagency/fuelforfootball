@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { HiddenScoresGrid } from "@/components/portal/HiddenScoresGrid";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,9 @@ import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
 import { toTitleCase } from "@/lib/titleCase";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { sortActionsByMinute } from "@/lib/actionSorting";
+import { t } from "@/lib/portalTranslations";
+import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
+import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 const formatMinute = (minute: number | null | undefined): string => {
   if (minute === null || minute === undefined) return "-";
