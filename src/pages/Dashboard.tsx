@@ -139,7 +139,11 @@ const Dashboard = () => {
   const [portalSettings, setPortalSettings] = useState<any>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [updates, setUpdates] = useState<Update[]>([]);
-  const [activeTab, setActiveTab] = useState("hub");
+  const [activeTab, setActiveTab] = useState(() => {
+    const demoSection = sessionStorage.getItem("demo_portal_section");
+    if (demoSection) return demoSection;
+    return "hub";
+  });
   const [activeAnalysisTab, setActiveAnalysisTab] = useState("performance");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [visibleClipsCount, setVisibleClipsCount] = useState(10); // Show 10 clips initially
@@ -772,9 +776,11 @@ const Dashboard = () => {
   }, [navigate]);
 
   // Track portal tab views for staff notifications (match RISE: only fire when on analysis tab)
+  // Skip in demo mode
   useEffect(() => {
     if (!playerData?.name || !playerData?.id) return;
     if (activeTab !== "analysis") return;
+    if (sessionStorage.getItem("demo_portal_mode") === "true") return;
 
     const subType = activeAnalysisTab === "performance" ? "portal_performance_view" : "portal_analysis_view";
     const label = activeAnalysisTab === "performance" ? "Performance Reports" : "Analysis";

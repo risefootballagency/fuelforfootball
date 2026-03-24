@@ -1,0 +1,1 @@
+UPDATE public.players SET name = 'Cristiano Ronaldo', club = 'Al-Nassr' WHERE id = 'e3ae5dcd-0a67-4d49-bf04-879040c4b8c3';
