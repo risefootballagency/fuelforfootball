@@ -1,5 +1,5 @@
 export interface ServiceExampleRoute {
-  section: "hub" | "analysis" | "physical";
+  section: "hub" | "analysis" | "physical" | "nutrition";
   analysisTab?: "performance" | "video";
   reportHint?: string;
 }
@@ -25,12 +25,18 @@ const PROGRAMMING_SERVICE_IDS = new Set([
   "cf818317-35c5-4493-a5f2-ea8b1195e2f6", // SPS Programming
   "03b07768-16ed-4065-bd39-53d7a3c4caf3", // Conditioning Programming
   "da5c0f4d-25a7-422a-b4ac-2a109197e8a8", // Technical Programming
+  "bb08fb97-78c3-4837-9436-1e7c1ca82e61", // SPS bundle
+]);
+
+const NUTRITION_SERVICE_IDS = new Set([
   "1a6257cb-09a9-47e9-a9fc-488d0b6a6144", // Nutrition Programming
   "4ed1cfe9-054a-4a2e-9ce9-0616dd483792", // Nutrition Programming & Recipes
+]);
+
+const HUB_PROGRAMME_SERVICE_IDS = new Set([
   "f72c2653-1a78-4309-a3f6-ee64dcce65ac", // Elite Performance Programme
   "62b28c75-8dc8-4339-bca3-3f8fd50229d7", // Pro Performance Programme
   "294b3278-896d-4db9-b9ab-7973faaa0ab8", // Youth Development Programme
-  "bb08fb97-78c3-4837-9436-1e7c1ca82e61", // SPS bundle
 ]);
 
 const includesAny = (source: string, terms: string[]) => terms.some((term) => source.includes(term));
@@ -39,6 +45,59 @@ export const getServiceExampleRoute = ({ id, name, category }: ServiceExampleRou
   const normalizedName = (name || "").toLowerCase();
   const normalizedCategory = (category || "").toLowerCase();
   const serviceId = id || "";
+
+  const isHubProgrammeService =
+    HUB_PROGRAMME_SERVICE_IDS.has(serviceId) ||
+    includesAny(normalizedName, ["elite performance programme", "pro performance programme", "youth development"]);
+
+  if (isHubProgrammeService) {
+    return { section: "hub" };
+  }
+
+  const isNutritionService =
+    NUTRITION_SERVICE_IDS.has(serviceId) ||
+    includesAny(normalizedCategory, ["nutrition"]) ||
+    includesAny(normalizedName, ["nutrition"]);
+
+  if (isNutritionService) {
+    return { section: "nutrition" };
+  }
+
+  const isPostMatchService =
+    serviceId === "a370d65d-4c68-4c88-a077-7a57e2829cd6" ||
+    includesAny(normalizedName, ["post-match", "post match"]);
+
+  if (isPostMatchService) {
+    return { section: "analysis", analysisTab: "video", reportHint: "post-match" };
+  }
+
+  const isPreMatchService =
+    serviceId === "6c369b05-d410-4955-98e6-20a936019079" ||
+    includesAny(normalizedName, ["pre-match", "pre match"]);
+
+  if (isPreMatchService) {
+    return { section: "analysis", analysisTab: "video", reportHint: "pre-match" };
+  }
+
+  const isPreAndPostService =
+    serviceId === "853b38f5-27f3-4482-9ad2-99c10983e988" ||
+    includesAny(normalizedName, ["pre & post", "pre and post"]);
+
+  if (isPreAndPostService) {
+    return { section: "analysis", analysisTab: "video" };
+  }
+
+  const isActionReportService =
+    serviceId === "3108440d-8e99-4f4d-b185-eed118dd7225" ||
+    includesAny(normalizedName, ["action report", "action reports", "r90"]);
+
+  if (isActionReportService) {
+    return {
+      section: "analysis",
+      analysisTab: "performance",
+      reportHint: "getafe",
+    };
+  }
 
   const isDataOrAnalysisService =
     DATA_SERVICE_IDS.has(serviceId) ||
@@ -49,7 +108,7 @@ export const getServiceExampleRoute = ({ id, name, category }: ServiceExampleRou
     return {
       section: "analysis",
       analysisTab: "performance",
-      reportHint: "barcelona leg 2",
+      reportHint: includesAny(normalizedName, ["efficiency"]) ? undefined : "barcelona leg 2",
     };
   }
 
