@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { createAnalysisSlug } from "@/lib/urlHelpers";
 import { t, normalizePortalLanguage } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedReportField } from "@/lib/reportTranslations";
-import { getDemoDate } from "@/lib/demoDate";
+import { getDemoDate, isDemoMode } from "@/lib/demoDate";
 
 interface FeedItem {
   id: string;
@@ -101,17 +101,29 @@ export const NewsFeed = ({ playerId, playerName, portalLanguage, onNavigateToAna
     setReadItems(getReadItems());
   }, []);
 
-  // Auto-select first unread item
+  // In demo mode: mark all items read except the most recent, then select the first
   React.useEffect(() => {
-    if (items.length > 0 && !selectedItem) {
-      const firstUnread = items.find(item => !readItems.has(item.id));
-      if (firstUnread) {
-        setSelectedItem(firstUnread);
-        markAsRead(firstUnread.id);
-        setReadItems(prev => new Set([...prev, firstUnread.id]));
-      } else {
-        setSelectedItem(items[0]);
-      }
+    if (items.length === 0 || selectedItem) return;
+
+    if (isDemoMode()) {
+      // First item (most recent) stays unread, rest are marked read
+      const demoRead = new Set<string>();
+      items.slice(1).forEach(item => {
+        demoRead.add(item.id);
+        markAsRead(item.id);
+      });
+      setReadItems(demoRead);
+      setSelectedItem(items[0]);
+      return;
+    }
+
+    const firstUnread = items.find(item => !readItems.has(item.id));
+    if (firstUnread) {
+      setSelectedItem(firstUnread);
+      markAsRead(firstUnread.id);
+      setReadItems(prev => new Set([...prev, firstUnread.id]));
+    } else {
+      setSelectedItem(items[0]);
     }
   }, [items]);
 
