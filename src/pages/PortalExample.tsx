@@ -36,23 +36,32 @@ export const PortalExample = ({ isEmbedded = false, initialSection, serviceConte
   useEffect(() => {
     // Store existing email to restore later
     previousEmail.current = localStorage.getItem("player_email");
-    
-    // Set demo email so Dashboard thinks we're logged in
+
+    // Set demo auth/session keys in both storages for maximum resilience
     localStorage.setItem("player_email", DEMO_PLAYER_EMAIL);
-    sessionStorage.setItem("demo_portal_email", DEMO_PLAYER_EMAIL);
-    sessionStorage.setItem("demo_portal_player_id", DEMO_PLAYER_ID);
-    // Flag demo mode so Dashboard can detect it
+    sessionStorage.setItem("player_email", DEMO_PLAYER_EMAIL);
+
+    localStorage.setItem("demo_portal_mode", "true");
     sessionStorage.setItem("demo_portal_mode", "true");
+
+    localStorage.setItem("demo_portal_email", DEMO_PLAYER_EMAIL);
+    sessionStorage.setItem("demo_portal_email", DEMO_PLAYER_EMAIL);
+    localStorage.setItem("demo_portal_player_id", DEMO_PLAYER_ID);
+    sessionStorage.setItem("demo_portal_player_id", DEMO_PLAYER_ID);
+
     if (section) {
       sessionStorage.setItem("demo_portal_section", section);
+      localStorage.setItem("demo_portal_section", section);
     }
     if (analysisTab) {
       sessionStorage.setItem("demo_portal_analysis_tab", analysisTab);
+      localStorage.setItem("demo_portal_analysis_tab", analysisTab);
     }
     if (reportHint) {
       sessionStorage.setItem("demo_portal_report_hint", reportHint);
+      localStorage.setItem("demo_portal_report_hint", reportHint);
     }
-    
+
     setReady(true);
 
     return () => {
@@ -62,11 +71,17 @@ export const PortalExample = ({ isEmbedded = false, initialSection, serviceConte
       } else {
         localStorage.removeItem("player_email");
       }
+      localStorage.removeItem("demo_portal_mode");
       sessionStorage.removeItem("demo_portal_mode");
+      localStorage.removeItem("demo_portal_section");
       sessionStorage.removeItem("demo_portal_section");
+      localStorage.removeItem("demo_portal_analysis_tab");
       sessionStorage.removeItem("demo_portal_analysis_tab");
+      localStorage.removeItem("demo_portal_report_hint");
       sessionStorage.removeItem("demo_portal_report_hint");
+      localStorage.removeItem("demo_portal_email");
       sessionStorage.removeItem("demo_portal_email");
+      localStorage.removeItem("demo_portal_player_id");
       sessionStorage.removeItem("demo_portal_player_id");
     };
   }, [section, analysisTab, reportHint]);

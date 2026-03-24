@@ -1,0 +1,142 @@
+import { useState, useRef, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { ChevronDown } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface ScoreDropdownProps {
+  value: string | number;
+  onChange: (value: string) => void;
+  className?: string;
+  inputClassName?: string;
+  disabled?: boolean;
+  dropUp?: boolean;
+}
+
+let cachedScores: { value: string; count: number }[] | null = null;
+let fetchPromise: Promise<void> | null = null;
+
+async function loadAllScores() {
+  if (cachedScores) return;
+  if (fetchPromise) {
+    await fetchPromise;
+    return;
+  }
+
+  fetchPromise = (async () => {
+    const freq: Record<string, number> = {};
+    const PAGE_SIZE = 1000;
+    let from = 0;
+    let keepGoing = true;
+
+    while (keepGoing) {
+      const { data, error } = await supabase
+        .from("performance_report_actions")
+        .select("action_score")
+        .not("action_score", "is", null)
+        .range(from, from + PAGE_SIZE - 1);
+
+      if (error || !data) break;
+
+      data.forEach((row: { action_score: number | null }) => {
+        if (row.action_score == null) return;
+        const key = String(parseFloat(Number(row.action_score).toFixed(5)));
+        freq[key] = (freq[key] || 0) + 1;
+      });
+
+      if (data.length < PAGE_SIZE) keepGoing = false;
+      from += PAGE_SIZE;
+    }
+
+    cachedScores = Object.entries(freq)
+      .sort((a, b) => b[1] - a[1])
+      .map(([value, count]) => ({ value, count }));
+  })();
+
+  await fetchPromise;
+}
+
+export const ScoreDropdown = ({
+  value,
+  onChange,
+  className = "",
+  inputClassName = "",
+  disabled = false,
+  dropUp = false,
+}: ScoreDropdownProps) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [allScores, setAllScores] = useState<{ value: string; count: number }[]>(cachedScores || []);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    loadAllScores().then(() => {
+      if (cachedScores) setAllScores(cachedScores);
+    });
+  }, []);
+
+  const inputValue = String(value ?? "");
+  const filteredScores = inputValue.trim()
+    ? allScores.filter(
+        (score) =>
+          score.value.startsWith(inputValue) ||
+          score.value.startsWith(inputValue.replace(/^-?0?\.?/, ""))
+      )
+    : allScores;
+
+  const visibleScores = filteredScores.slice(0, 30);
+
+  return (
+    <div className={`relative ${className}`}>
+      <div className="relative">
+        <Input
+          ref={inputRef}
+          type="number"
+          step="0.00001"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onFocus={() => setDropdownOpen(true)}
+          onBlur={() => setTimeout(() => setDropdownOpen(false), 200)}
+          placeholder="Score"
+          disabled={disabled}
+          className={`pr-6 ${inputClassName}`}
+        />
+        <button
+          type="button"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            setDropdownOpen(!dropdownOpen);
+            inputRef.current?.focus();
+          }}
+        >
+          <ChevronDown className="h-3 w-3" />
+        </button>
+      </div>
+
+      {dropdownOpen && visibleScores.length > 0 && (
+        <div
+          className={`absolute z-50 w-36 max-h-48 overflow-y-auto rounded-md border bg-popover p-1 shadow-md ${
+            dropUp ? "bottom-full mb-1" : "top-full mt-1"
+          }`}
+        >
+          {visibleScores.map((score) => (
+            <button
+              key={score.value}
+              type="button"
+              className={`w-full text-left px-2 py-1.5 text-xs font-mono rounded hover:bg-accent flex justify-between items-center ${
+                String(value) === score.value ? "bg-primary/20 text-primary font-semibold" : ""
+              }`}
+              onMouseDown={(event) => {
+                event.preventDefault();
+                onChange(score.value);
+                setDropdownOpen(false);
+              }}
+            >
+              <span>{score.value}</span>
+              <span className="text-[10px] text-muted-foreground ml-2">×{score.count}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
