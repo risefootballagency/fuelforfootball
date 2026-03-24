@@ -2086,8 +2086,9 @@ const Dashboard = () => {
                                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                                 const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                                 
+                                if (diffDays < 0) return t(portalLang, "just_now");
                                 if (diffDays === 0) {
-                                  if (diffHours === 0) return t(portalLang, "just_now");
+                                  if (diffHours <= 0) return t(portalLang, "just_now");
                                   if (diffHours === 1) return t(portalLang, "one_hour_ago");
                                   return `${diffHours} ${t(portalLang, "hours_ago")}`;
                                 }
