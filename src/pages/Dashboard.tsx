@@ -772,9 +772,11 @@ const Dashboard = () => {
   }, [navigate]);
 
   // Track portal tab views for staff notifications (match RISE: only fire when on analysis tab)
+  // Skip in demo mode
   useEffect(() => {
     if (!playerData?.name || !playerData?.id) return;
     if (activeTab !== "analysis") return;
+    if (sessionStorage.getItem("demo_portal_mode") === "true") return;
 
     const subType = activeAnalysisTab === "performance" ? "portal_performance_view" : "portal_analysis_view";
     const label = activeAnalysisTab === "performance" ? "Performance Reports" : "Analysis";
