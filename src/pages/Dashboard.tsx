@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, Trophy, TrendingUp, Eye, EyeOff, ChevronUp, ChevronDown as ChevronDownIcon, List, RefreshCw, CheckCircle2, WifiOff, Bell, BarChart3, ChevronLeft, LineChart, Video, Database, Users, Search, Compass, Layers, Brain, FolderOpen, Activity, Apple, ShoppingBag } from "lucide-react";
 import { ClipNameEditor } from "@/components/ClipNameEditor";
 import { addDays, format, parseISO, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
+import { getDemoDate } from "@/lib/demoDate";
 import { SEO } from "@/components/SEO";
 import { AnimatePresence, motion } from "framer-motion";
 import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
