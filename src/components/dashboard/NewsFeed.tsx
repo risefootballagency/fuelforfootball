@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { createAnalysisSlug } from "@/lib/urlHelpers";
 import { t, normalizePortalLanguage } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedReportField } from "@/lib/reportTranslations";
+import { getDemoDate } from "@/lib/demoDate";
 
 interface FeedItem {
   id: string;
@@ -74,7 +75,7 @@ export const NewsFeed = ({ playerId, playerName, portalLanguage, onNavigateToAna
 
   const formatRelative = (value: string) => {
     const target = new Date(value);
-    const now = new Date();
+    const now = getDemoDate();
     const diffMs = target.getTime() - now.getTime();
     const hours = Math.round(diffMs / (1000 * 60 * 60));
     const days = Math.round(diffMs / (1000 * 60 * 60 * 24));

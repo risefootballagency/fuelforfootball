@@ -17,6 +17,7 @@ import { NewsFeed } from "./NewsFeed";
 import { ParallaxHero } from "@/components/portal/ParallaxHero";
 import { ProgressSummary } from "@/components/portal/ProgressSummary";
 import { checkAndFireConfetti } from "@/lib/confetti";
+import { getDemoDate, getDemoDateISO } from "@/lib/demoDate";
 
 // Helper: fetches next fixture for player's club and renders ParallaxHero with countdown
 const ParallaxHeroWithFixture = ({ playerData, marketingImages, imageFocalPoints }: { playerData: any; marketingImages: string[]; imageFocalPoints: string[] }) => {
@@ -28,7 +29,7 @@ const ParallaxHeroWithFixture = ({ playerData, marketingImages, imageFocalPoints
       const club = playerData?.current_club || playerData?.club;
       const playerId = playerData?.id;
       if (!club && !playerId) return;
-      const today = new Date().toISOString().split("T")[0];
+      const today = getDemoDateISO();
 
       // Method 1: Check player_fixtures table first (most reliable)
       if (playerId) {
@@ -399,7 +400,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   const currentSchedule = React.useMemo(() => {
     if (!currentProgram?.weekly_schedules) return null;
     
-    const today = new Date();
+    const today = getDemoDate();
     
     const matchingSchedule = currentProgram.weekly_schedules.find((schedule: any) => {
       if (!schedule.week_start_date) return false;
@@ -417,7 +418,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   
   // Create a rolling 7-day array starting from today
   const rolling7Days = React.useMemo(() => {
-    const today = new Date();
+    const today = getDemoDate();
     const days = [];
     
     for (let i = 0; i < 7; i++) {
@@ -548,7 +549,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                   className="p-2 md:p-4 flex flex-col items-center justify-center rounded-lg bg-accent text-black"
                 >
                   <div className="text-center">
-                    <div className="text-sm md:text-2xl font-bold mb-1 text-black">{format(new Date(), 'd')}<sup className="text-[8px] md:text-sm">th</sup></div>
+                    <div className="text-sm md:text-2xl font-bold mb-1 text-black">{format(getDemoDate(), 'd')}<sup className="text-[8px] md:text-sm">th</sup></div>
                     <div className="text-[8px] md:text-sm font-medium italic text-black">Today</div>
                   </div>
                 </div>

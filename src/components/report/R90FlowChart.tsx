@@ -113,14 +113,14 @@ export const R90FlowChart = ({ actions, minutesPlayed, language = "en" }: R90Flo
               }}
               labelFormatter={(label) => `${t(language, "min_short")} ${label}`}
             />
-            <ReferenceLine y={1} stroke="hsl(var(--primary))" strokeDasharray="4 4" strokeWidth={1} />
+            <ReferenceLine y={1} stroke="hsl(var(--accent))" strokeDasharray="4 4" strokeWidth={1} />
             <Line
               type="monotone"
               dataKey="r90"
-              stroke="hsl(var(--primary))"
+              stroke="hsl(var(--accent))"
               strokeWidth={2.5}
-              dot={{ r: 4, fill: "hsl(var(--primary))", strokeWidth: 2, stroke: "hsl(var(--background))" }}
-              activeDot={{ r: 6, fill: "hsl(var(--primary))" }}
+              dot={{ r: 4, fill: "hsl(var(--accent))", strokeWidth: 2, stroke: "hsl(var(--background))" }}
+              activeDot={{ r: 6, fill: "hsl(var(--accent))" }}
             />
           </LineChart>
         </ResponsiveContainer>
