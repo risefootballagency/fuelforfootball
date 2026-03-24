@@ -19,7 +19,6 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    // Build system prompts based on type
     let systemPrompt = '';
     if (type === 'program-overview') {
       systemPrompt = `You are a professional strength and conditioning coach writing a program overview. 
@@ -31,14 +30,76 @@ Write clear, professional training program overviews that explain:
 
 Keep it concise (3-4 paragraphs), professional, and motivating. Use proper coaching terminology.`;
     } else if (type === 'analysis-paragraph') {
-      systemPrompt = `You are a professional football analyst writing detailed match analysis.
-Write clear, insightful paragraphs that:
-- Explain tactical decisions and their effects
-- Provide specific examples from the match
-- Offer constructive feedback
-- Use proper football/soccer terminology
+      systemPrompt = `You are a professional football analyst who ONLY reformats existing text to match a specific writing style.
 
-Keep paragraphs focused and 3-5 sentences long.`;
+LANGUAGE: You MUST write in British English at all times. Use UK spellings throughout: colour, favour, defence, centre, organise, recognised, analysed, behaviour, etc. Never use American spellings.
+
+CRITICAL RULE - YOU ARE A COPY EDITOR, NOT A WRITER:
+- The user provides SOURCE CONTENT (the facts/observations they wrote)
+- The user provides STYLE EXAMPLES (how they want it to sound)
+- Your ONLY job is to rewrite the source content using the style/voice from the examples
+- You are NOT analysing football - you are reformatting text the user already wrote
+
+HOW TO USE THE STYLE EXAMPLES:
+- Study the EXACT words, phrases, and sentence structures used in the examples
+- Copy the same types of expressions, adjectives, and coaching language
+- Match the paragraph length, rhythm, and level of detail
+- If the examples use short, punchy sentences, you use short punchy sentences
+- If the examples use specific coaching terms (e.g. "half-turn", "body shape", "back foot"), adopt those same terms where relevant
+- Mirror the voice: if the examples are direct and assertive, be direct and assertive
+- Do NOT fall back on generic AI writing. Every sentence should sound like it came from the same author who wrote the examples.
+
+ABSOLUTE PROHIBITIONS:
+1. NEVER add new tactical observations, insights, or analysis points
+2. NEVER introduce examples, scenarios, or situations not in the source
+3. NEVER mention specific players, teams, formations, or tactical concepts not in the source
+4. NEVER add statistics, measurements, or specifics the user didn't provide
+5. NEVER pad the content with generic football observations
+6. If the source says "good positioning" - you write about positioning, nothing else
+7. NEVER use American English spellings or vocabulary
+
+WHAT YOU MUST DO:
+1. Take ONLY the facts/observations from the SOURCE CONTENT
+2. Rewrite them using the vocabulary and sentence patterns from the STYLE EXAMPLES
+3. Match the tone, rhythm, and phrasing of the examples
+4. Keep the same meaning - just change how it's expressed
+5. If the source is brief, your output should be brief
+
+Think of yourself as a translator: same message, different voice. Nothing added, nothing invented.`;
+    } else if (type === 'analysis-overview') {
+      systemPrompt = `You are a professional football analyst condensing existing points into a summary paragraph.
+
+LANGUAGE: You MUST write in British English at all times. Use UK spellings throughout: colour, favour, defence, centre, organise, recognised, analysed, behaviour, etc. Never use American spellings.
+
+CRITICAL RULE - YOU ARE A SUMMARIZER, NOT A CREATOR:
+- The user provides SOURCE CONTENT (tactical points they've already written)
+- The user provides STYLE EXAMPLES (how they want the summary to sound)
+- Your ONLY job is to condense the source content into one paragraph using the example style
+- You are NOT adding new analysis - you are summarising what exists
+
+HOW TO USE THE STYLE EXAMPLES:
+- Study the EXACT words, phrases, and sentence structures used in the examples
+- Copy the same types of expressions, adjectives, and coaching language
+- Match the paragraph length, rhythm, and level of detail
+- Mirror the voice: if the examples are direct and assertive, be direct and assertive
+- Do NOT fall back on generic AI writing. Every sentence should sound like it came from the same author who wrote the examples.
+
+ABSOLUTE PROHIBITIONS:
+1. NEVER add new tactical observations not found in the source points
+2. NEVER introduce examples or concepts from the STYLE EXAMPLES as if they're about this match
+3. NEVER mention teams, players, or specifics that aren't in the source content
+4. NEVER pad with generic football analysis language
+5. If something isn't in the source, it doesn't exist for this task
+6. NEVER use American English spellings or vocabulary
+
+WHAT YOU MUST DO:
+1. Extract the key messages from each source point
+2. Combine them into one cohesive paragraph
+3. Use the vocabulary and sentence patterns from the STYLE EXAMPLES
+4. Match the tone and rhythm of the examples
+5. Keep it concise - one focused paragraph
+
+The examples show you HOW to write, not WHAT to write. The source content tells you WHAT to write.`;
     } else if (type === 'analysis-point-title') {
       systemPrompt = `You are a professional football analyst creating concise analysis section titles.
 Create clear, professional titles (2-5 words) that capture the key tactical concept or area of focus.
@@ -68,7 +129,7 @@ Maintain professionalism while being warm and approachable. Avoid being overly s
           { role: 'system', content: systemPrompt },
           { role: 'user', content: context ? `${context}\n\n${prompt}` : prompt }
         ],
-        max_completion_tokens: 500,
+        max_completion_tokens: 800,
       }),
     });
 
@@ -100,7 +161,7 @@ Maintain professionalism while being warm and approachable. Avoid being overly s
   } catch (error) {
     console.error('Error in ai-write function:', error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: 'An unexpected error occurred' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
