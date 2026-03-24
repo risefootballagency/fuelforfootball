@@ -156,7 +156,11 @@ const Dashboard = () => {
     if (demoSection) return demoSection;
     return "hub";
   });
-  const [activeAnalysisTab, setActiveAnalysisTab] = useState("performance");
+  const [activeAnalysisTab, setActiveAnalysisTab] = useState(() => {
+    const stored = sessionStorage.getItem("demo_portal_analysis_tab") || localStorage.getItem("demo_portal_analysis_tab");
+    if (stored === "video") return "video-reports";
+    return stored || "performance";
+  });
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [visibleClipsCount, setVisibleClipsCount] = useState(10); // Show 10 clips initially
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -197,6 +201,11 @@ const Dashboard = () => {
   const { getGradeBoundaries: getDynamicGradeBoundaries, getGradeForScore, hasThresholds } = useFormGradeConfigs();
 
   const checkNutritionPrograms = async (playerId: string) => {
+    if (isDemoPortalMode()) {
+      setHasNutritionPrograms(true);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from("coaching_programmes" as any)
@@ -1687,26 +1696,65 @@ const Dashboard = () => {
     if (!email) return;
     
     try {
-      // First get the player ID from email
-      const { data: playerData, error: playerError } = await supabase
+      const isDemoMode = isDemoPortalMode();
+      const normalizedEmail = (email || "").toLowerCase().trim();
+
+      let { data: playerData, error: playerError } = await supabase
         .from("players")
         .select("id")
-        .eq("email", email)
+        .ilike("email", normalizedEmail)
         .maybeSingle();
+
+      if ((!playerData || playerError) && isDemoMode) {
+        const demoPlayerId = sessionStorage.getItem("demo_portal_player_id") || DEMO_PLAYER_ID;
+        const { data: fallbackPlayer, error: fallbackError } = await supabase
+          .from("players")
+          .select("id")
+          .eq("id", demoPlayerId)
+          .maybeSingle();
+
+        if (!fallbackError && fallbackPlayer) {
+          playerData = fallbackPlayer;
+          playerError = null;
+        } else {
+          const { data: localFallbackPlayer, error: localFallbackError } = await localSupabase
+            .from("players")
+            .select("id")
+            .eq("id", demoPlayerId)
+            .maybeSingle();
+
+          if (!localFallbackError && localFallbackPlayer) {
+            playerData = localFallbackPlayer;
+            playerError = null;
+          }
+        }
+      }
 
       if (playerError) throw playerError;
       if (!playerData) return;
 
-      // Fetch their programs
-      const { data: programsData, error: programsError } = await supabase
-        .from("player_programs")
-        .select("*")
-        .eq("player_id", playerData.id)
-        .order("created_at", { ascending: false });
+      const [sharedProgramsResult, localProgramsResult] = await Promise.all([
+        supabase
+          .from("player_programs")
+          .select("*")
+          .eq("player_id", playerData.id)
+          .order("created_at", { ascending: false }),
+        localSupabase
+          .from("player_programs")
+          .select("*")
+          .eq("player_id", playerData.id)
+          .order("created_at", { ascending: false }),
+      ]);
 
-      if (programsError) throw programsError;
-      
-      // Normalize program data to ensure arrays exist
+      const programsData =
+        (sharedProgramsResult.data && sharedProgramsResult.data.length > 0)
+          ? sharedProgramsResult.data
+          : (localProgramsResult.data || []);
+
+      if (sharedProgramsResult.error && localProgramsResult.error) {
+        throw sharedProgramsResult.error;
+      }
+
       const normalizedPrograms = (programsData || []).map(program => ({
         ...program,
         weekly_schedules: Array.isArray(program.weekly_schedules) ? program.weekly_schedules : [],
@@ -1721,8 +1769,8 @@ const Dashboard = () => {
       const currentProgram = normalizedPrograms?.find(p => p.is_current);
       if (currentProgram) {
         setSelectedProgramId(currentProgram.id);
-      } else if (programsData && programsData.length > 0) {
-        setSelectedProgramId(programsData[0].id);
+      } else if (normalizedPrograms.length > 0) {
+        setSelectedProgramId(normalizedPrograms[0].id);
       }
     } catch (error: any) {
       setPrograms([]);
