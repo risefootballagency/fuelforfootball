@@ -7,9 +7,7 @@ import fffLogo from "@/assets/fff_logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-
-// Joe Bloggs demo player ID for View Example feature
-const JOE_BLOGGS_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
+import { PortalExampleDialog } from "@/components/services/PortalExampleDialog";
 interface ServiceOption {
   name: string;
   price: number;
@@ -682,43 +680,16 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
         )}
       </AnimatePresence>
 
-      {/* View Example Overlay - Shows Joe Bloggs player hub */}
-      <AnimatePresence>
-        {showExamplePreview && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/90 flex flex-col"
-          >
-            {/* Close button */}
-            <button
-              onClick={() => setShowExamplePreview(false)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-background/90 hover:bg-background border border-border shadow-lg transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            
-            {/* Header */}
-            <div className="flex-shrink-0 bg-background/95 backdrop-blur-md border-b border-border/50 px-4 py-3">
-              <div className="flex items-center gap-3">
-                <Eye className="w-5 h-5 text-accent" />
-                <span className="font-bebas uppercase tracking-wider text-lg">Example Player Hub Preview</span>
-                <span className="text-muted-foreground text-sm">(Joe Bloggs - Demo Account)</span>
-              </div>
-            </div>
-            
-            {/* Iframe Container */}
-            <div className="flex-1 overflow-hidden">
-              <iframe
-                src={`/hub/${JOE_BLOGGS_PLAYER_ID}`}
-                className="w-full h-full border-0"
-                title="Player Hub Example"
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* View Example Dialog - Full Cristiano Ronaldo portal */}
+      <PortalExampleDialog
+        open={showExamplePreview}
+        onOpenChange={setShowExamplePreview}
+        initialSection={getExampleSectionForService(service.category)}
+        serviceContext={{
+          serviceName: service.name,
+          serviceId: service.id,
+        }}
+      />
     </motion.div>
   );
 };
