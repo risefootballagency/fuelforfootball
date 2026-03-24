@@ -39,6 +39,14 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showExamplePreview, setShowExamplePreview] = useState(false);
 
+  // Map service categories to relevant portal sections
+  const getExampleSectionForService = (category: string): string => {
+    const lower = category.toLowerCase();
+    if (lower.includes('analysis') || lower.includes('data') || lower.includes('tactical')) return 'analysis';
+    if (lower.includes('physical') || lower.includes('technical') || lower.includes('nutrition') || lower.includes('coaching')) return 'physical';
+    return 'hub';
+  };
+
   const options = service.options as ServiceOption[] | null;
   const hasOptions = options && Array.isArray(options) && options.length > 0;
   const activePrice = selectedOption?.price || service.price;
