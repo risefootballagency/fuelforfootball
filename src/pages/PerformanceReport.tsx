@@ -169,7 +169,12 @@ const PerformanceReport = () => {
         placeholder_per: (analysisResult.data as any).placeholder_per,
         placeholder_sr: (analysisResult.data as any).placeholder_sr,
         translated_content: (analysisResult.data as any).translated_content || null,
-        show_action_descriptions: (analysisResult.data as any).show_action_descriptions !== false,
+        show_action_descriptions:
+          (analysisResult.data as any).show_action_descriptions === false
+            ? false
+            : (analysisResult.data as any).show_descriptions === false
+            ? false
+            : true,
       });
 
       if (actionsResult.error) throw actionsResult.error;
