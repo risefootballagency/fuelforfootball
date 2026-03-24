@@ -66,6 +66,15 @@ const FFF_GOLD_DIM = 'hsl(47, 90%, 40%)';
 const DEMO_PLAYER_EMAIL = "bloggs@fuelforfootball.com";
 const DEMO_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
 
+const isDemoPortalMode = () => {
+  if (typeof window === "undefined") return false;
+  return (
+    sessionStorage.getItem("demo_portal_mode") === "true" ||
+    localStorage.getItem("demo_portal_mode") === "true" ||
+    window.location.pathname.includes("/portal-example")
+  );
+};
+
 interface Analysis {
   id: string;
   analysis_date: string;
@@ -783,7 +792,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!playerData?.name || !playerData?.id) return;
     if (activeTab !== "analysis") return;
-    if (sessionStorage.getItem("demo_portal_mode") === "true") return;
+    if (isDemoPortalMode()) return;
 
     const subType = activeAnalysisTab === "performance" ? "portal_performance_view" : "portal_analysis_view";
     const label = activeAnalysisTab === "performance" ? "Performance Reports" : "Analysis";
@@ -801,7 +810,7 @@ const Dashboard = () => {
   }, [activeTab, activeAnalysisTab, playerData?.name, playerData?.id]);
 
   useEffect(() => {
-    const isDemoMode = sessionStorage.getItem("demo_portal_mode") === "true";
+    const isDemoMode = isDemoPortalMode();
     if (!isDemoMode || demoReportAutoOpened) return;
 
     const reportHint = sessionStorage.getItem("demo_portal_report_hint");
@@ -837,7 +846,7 @@ const Dashboard = () => {
 
   const checkAuth = async () => {
     try {
-      const isDemoMode = sessionStorage.getItem("demo_portal_mode") === "true";
+      const isDemoMode = isDemoPortalMode();
       // Check both localStorage and sessionStorage for maximum persistence
       let playerEmail = localStorage.getItem("player_email");
       
@@ -859,6 +868,8 @@ const Dashboard = () => {
         playerEmail = sessionStorage.getItem("demo_portal_email") || DEMO_PLAYER_EMAIL;
         localStorage.setItem("player_email", playerEmail);
         sessionStorage.setItem("player_email", playerEmail);
+        localStorage.setItem("demo_portal_mode", "true");
+        sessionStorage.setItem("demo_portal_mode", "true");
       }
       
       if (!playerEmail) {
@@ -947,6 +958,22 @@ const Dashboard = () => {
             sessionStorage.setItem("player_email", fallbackPlayer.email);
             playerEmail = fallbackPlayer.email;
           }
+        } else {
+          const { data: localFallbackPlayer, error: localFallbackError } = await localSupabase
+            .from("players")
+            .select("id, portal_language, email")
+            .eq("id", demoPlayerId)
+            .maybeSingle();
+
+          if (!localFallbackError && localFallbackPlayer) {
+            player = localFallbackPlayer;
+            playerError = null;
+            if (localFallbackPlayer.email) {
+              localStorage.setItem("player_email", localFallbackPlayer.email);
+              sessionStorage.setItem("player_email", localFallbackPlayer.email);
+              playerEmail = localFallbackPlayer.email;
+            }
+          }
         }
       }
 
@@ -975,7 +1002,7 @@ const Dashboard = () => {
       checkNutritionPrograms(player.id);
     } catch (error) {
       console.error("Error loading data:", error);
-      const isDemoMode = sessionStorage.getItem("demo_portal_mode") === "true";
+      const isDemoMode = isDemoPortalMode();
       
       // If there's an error and we have stored auth, try offline cache
       const playerEmail = localStorage.getItem("player_email");
@@ -1002,7 +1029,7 @@ const Dashboard = () => {
     
     try {
       // First get the player ID and data from email
-      const isDemoMode = sessionStorage.getItem("demo_portal_mode") === "true";
+      const isDemoMode = isDemoPortalMode();
       const normalizedEmail = (email || "").toLowerCase().trim();
 
       let { data: playerData, error: playerError } = await supabase
