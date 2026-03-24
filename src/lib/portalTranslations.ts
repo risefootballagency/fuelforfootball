@@ -66,6 +66,8 @@ const extendedKeys: Record<string, string> = {
   zone_word: "Zone", avg_short: "Avg", view_clips: "View clips",
   no_zone_clips: "No clips found for this zone", zone_clips_title: "Zone",
   fullscreen: "Fullscreen",
+  match_timelapse: "Match Timelapse", press_play: "Press play to start",
+  zones: "zones",
   switch_to_at_a_glance: "Switch to at-a-glance view", switch_to_in_depth: "Switch to in-depth view",
   // Login + portal parity keys
   login_language_label: "Language",
