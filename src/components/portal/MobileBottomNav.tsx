@@ -3,46 +3,26 @@ import { TrendingUp, BarChart3, Calendar, MoreHorizontal } from "lucide-react";
 import { t } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
-interface TabConfig {
-  id: string;
-  labelKey: string;
-  icon: React.ComponentType<any>;
-}
-
 interface MobileBottomNavProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   onMoreClick: () => void;
-  hasAnalysis?: boolean;
-  hasProgramming?: boolean;
+  lang?: string | null;
 }
 
-const ALL_TABS: TabConfig[] = [
-  { id: "hub", labelKey: "hub", icon: TrendingUp },
-  { id: "analysis", labelKey: "analysis", icon: BarChart3 },
-  { id: "physical", labelKey: "programming", icon: Calendar },
-];
+export const MobileBottomNav = ({ activeTab, onTabChange, onMoreClick, lang: langProp }: MobileBottomNavProps) => {
+  const hookLang = usePortalLanguage();
+  const lang = langProp ?? hookLang;
 
-export const MobileBottomNav = ({
-  activeTab,
-  onTabChange,
-  onMoreClick,
-  hasAnalysis = true,
-  hasProgramming = true,
-}: MobileBottomNavProps) => {
-  const lang = usePortalLanguage();
-  
-  const tabs = ALL_TABS.filter(tab => {
-    if (tab.id === "analysis") return hasAnalysis;
-    if (tab.id === "physical") return hasProgramming;
-    return true;
-  });
-
-  const totalCols = tabs.length + 1;
+  const tabs = [
+    { id: "hub", label: t(lang, "hub"), icon: TrendingUp },
+    { id: "analysis", label: t(lang, "analysis"), icon: BarChart3 },
+    { id: "physical", label: t(lang, "programming"), icon: Calendar },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-md border-t border-border/50 safe-area-bottom">
-      <div className="grid h-16" style={{ gridTemplateColumns: `repeat(${totalCols}, 1fr)` }}>
+      <div className="grid grid-cols-4 h-16">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
@@ -50,7 +30,7 @@ export const MobileBottomNav = ({
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className="relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 group hover:bg-[hsl(47,100%,51%)]"
+              className="relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 group hover:bg-accent"
             >
               {isActive && (
                 <motion.div
@@ -62,7 +42,7 @@ export const MobileBottomNav = ({
               {isActive && (
                 <motion.div
                   layoutId="bottomNavGlow"
-                  className="absolute inset-0 rounded-lg bg-[hsl(47,100%,51%)]/20"
+                  className="absolute inset-0 rounded-lg bg-accent/20"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
@@ -75,16 +55,16 @@ export const MobileBottomNav = ({
                 />
               </motion.div>
               <span
-                className={`text-[9px] tracking-wider transition-colors duration-200 ${isActive ? 'text-white' : 'text-muted-foreground'} group-hover:text-[hsl(140,40%,20%)]`}
+                className={`text-[9px] font-bebas tracking-wider transition-colors duration-200 ${isActive ? 'text-white' : 'text-muted-foreground'} group-hover:text-[hsl(140,40%,20%)]`}
               >
-                {t(lang, tab.labelKey).toUpperCase()}
+                {tab.label}
               </span>
             </button>
           );
         })}
         <button
           onClick={onMoreClick}
-          className="relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 group hover:bg-[hsl(47,100%,51%)]"
+          className="relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 group hover:bg-accent"
         >
           <motion.div
             whileTap={{ rotate: 90 }}
@@ -92,7 +72,7 @@ export const MobileBottomNav = ({
           >
             <MoreHorizontal className="h-5 w-5 text-muted-foreground group-hover:text-[hsl(140,40%,20%)] transition-colors duration-200" />
           </motion.div>
-          <span className="text-[9px] tracking-wider text-muted-foreground group-hover:text-[hsl(140,40%,20%)] transition-colors duration-200">{t(lang, "more_label")}</span>
+          <span className="text-[9px] font-bebas tracking-wider text-muted-foreground group-hover:text-[hsl(140,40%,20%)] transition-colors duration-200">{t(lang, "more")}</span>
         </button>
       </div>
     </nav>

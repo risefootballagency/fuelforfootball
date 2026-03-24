@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, Trophy, TrendingUp, Eye, EyeOff, ChevronUp, ChevronDown as ChevronDownIcon, List, RefreshCw, CheckCircle2, WifiOff, Bell, BarChart3, ChevronLeft, LineChart, Video, Database, Users, Search, Compass, Layers, Brain, FolderOpen, Activity, Apple, ShoppingBag } from "lucide-react";
 import { ClipNameEditor } from "@/components/ClipNameEditor";
 import { addDays, format, parseISO, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
+import { getDemoDate } from "@/lib/demoDate";
 import { SEO } from "@/components/SEO";
 import { AnimatePresence, motion } from "framer-motion";
 import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
@@ -189,7 +190,7 @@ const Dashboard = () => {
   const [testNotes, setTestNotes] = useState('');
   const [testResults, setTestResults] = useState<any[]>([]);
   const [testHistoryOpen, setTestHistoryOpen] = useState(false);
-  const [selectedHistoryMonth, setSelectedHistoryMonth] = useState<string>(format(new Date(), 'yyyy-MM'));
+  const [selectedHistoryMonth, setSelectedHistoryMonth] = useState<string>(format(getDemoDate(), 'yyyy-MM'));
   const [savingTestResult, setSavingTestResult] = useState(false);
 
   // Initialize form grade configs from database
@@ -1742,7 +1743,7 @@ const Dashboard = () => {
       if (!data || data.length === 0) return;
 
       // Use current date as seed for consistent daily selection
-      const today = new Date();
+      const today = getDemoDate();
       const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
       const index = dayOfYear % data.length;
       
@@ -2032,7 +2033,7 @@ const Dashboard = () => {
                             <p className="text-xs text-muted-foreground mt-1">{notif.subtitle}</p>
                             <p className="text-xs text-muted-foreground mt-1">
                               {(() => {
-                                const now = new Date();
+                                const now = getDemoDate();
                                 const diffMs = now.getTime() - notif.date.getTime();
                                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                                 const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -3513,7 +3514,7 @@ const Dashboard = () => {
                                                       style={{ 
                                                         backgroundColor: week.week_start_date && (() => {
                                                           const weekStart = parseISO(week.week_start_date);
-                                                          const today = new Date();
+                                                          const today = getDemoDate();
                                                           const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 });
                                                           const currentWeekEnd = endOfWeek(today, { weekStartsOn: 1 });
                                                           const isCurrentWeek = isWithinInterval(weekStart, { start: currentWeekStart, end: currentWeekEnd });
@@ -5056,8 +5057,6 @@ const Dashboard = () => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
           setNavDropdownOpen(true);
         }}
-        hasAnalysis={true}
-        hasProgramming={true}
       />
 
       {/* Portal Music Player */}
