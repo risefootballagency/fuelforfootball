@@ -63,6 +63,8 @@ import { PortalMusicControls } from "@/components/portal/PortalMusicControls";
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
 const FFF_GOLD_DIM = 'hsl(47, 90%, 40%)';
+const DEMO_PLAYER_EMAIL = "bloggs@fuelforfootball.com";
+const DEMO_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
 
 interface Analysis {
   id: string;
@@ -169,6 +171,7 @@ const Dashboard = () => {
   // Performance Report Dialog state
   const [performanceReportDialogOpen, setPerformanceReportDialogOpen] = useState(false);
   const [selectedReportAnalysisId, setSelectedReportAnalysisId] = useState<string | null>(null);
+  const [demoReportAutoOpened, setDemoReportAutoOpened] = useState(false);
   
   // Testing states
   const [testingDialogOpen, setTestingDialogOpen] = useState(false);
@@ -797,8 +800,44 @@ const Dashboard = () => {
     });
   }, [activeTab, activeAnalysisTab, playerData?.name, playerData?.id]);
 
+  useEffect(() => {
+    const isDemoMode = sessionStorage.getItem("demo_portal_mode") === "true";
+    if (!isDemoMode || demoReportAutoOpened) return;
+
+    const reportHint = sessionStorage.getItem("demo_portal_report_hint");
+    if (!reportHint || analyses.length === 0) return;
+
+    const searchableAnalyses = analyses.filter((analysis) => !analysis.id.startsWith("tactical-"));
+    if (searchableAnalyses.length === 0) return;
+
+    const hintTokens = reportHint
+      .toLowerCase()
+      .split(/\s+/)
+      .map((token) => token.trim())
+      .filter(Boolean);
+
+    const matchedByHint = searchableAnalyses.find((analysis) => {
+      const haystack = `${analysis.opponent || ""} ${analysis.notes || ""}`.toLowerCase();
+      return hintTokens.every((token) => haystack.includes(token));
+    });
+
+    const fallbackBarcelona = searchableAnalyses.find((analysis) =>
+      (analysis.opponent || "").toLowerCase().includes("barcelona")
+    );
+
+    const targetReport = matchedByHint || fallbackBarcelona || searchableAnalyses[0];
+    if (!targetReport) return;
+
+    setActiveTab("analysis");
+    setActiveAnalysisTab("performance");
+    setSelectedReportAnalysisId(targetReport.id);
+    setPerformanceReportDialogOpen(true);
+    setDemoReportAutoOpened(true);
+  }, [analyses, demoReportAutoOpened]);
+
   const checkAuth = async () => {
     try {
+      const isDemoMode = sessionStorage.getItem("demo_portal_mode") === "true";
       // Check both localStorage and sessionStorage for maximum persistence
       let playerEmail = localStorage.getItem("player_email");
       
@@ -814,6 +853,12 @@ const Dashboard = () => {
             console.error("Could not restore to localStorage:", e);
           }
         }
+      }
+
+      if (!playerEmail && isDemoMode) {
+        playerEmail = sessionStorage.getItem("demo_portal_email") || DEMO_PLAYER_EMAIL;
+        localStorage.setItem("player_email", playerEmail);
+        sessionStorage.setItem("player_email", playerEmail);
       }
       
       if (!playerEmail) {
@@ -879,13 +924,38 @@ const Dashboard = () => {
       }
 
       // Online - verify with Supabase
-      const { data: player, error: playerError } = await supabase
+      const normalizedPlayerEmail = playerEmail.toLowerCase().trim();
+      let { data: player, error: playerError } = await supabase
         .from("players")
-        .select("id, portal_language")
-        .eq("email", playerEmail)
+        .select("id, portal_language, email")
+        .ilike("email", normalizedPlayerEmail)
         .maybeSingle();
 
+      if ((playerError || !player) && isDemoMode) {
+        const demoPlayerId = sessionStorage.getItem("demo_portal_player_id") || DEMO_PLAYER_ID;
+        const { data: fallbackPlayer, error: fallbackError } = await supabase
+          .from("players")
+          .select("id, portal_language, email")
+          .eq("id", demoPlayerId)
+          .maybeSingle();
+
+        if (!fallbackError && fallbackPlayer) {
+          player = fallbackPlayer;
+          playerError = null;
+          if (fallbackPlayer.email) {
+            localStorage.setItem("player_email", fallbackPlayer.email);
+            sessionStorage.setItem("player_email", fallbackPlayer.email);
+            playerEmail = fallbackPlayer.email;
+          }
+        }
+      }
+
       if (playerError || !player) {
+        if (isDemoMode) {
+          console.error("[Demo Portal] Could not resolve demo player", playerError);
+          return;
+        }
+
         // Email no longer valid, clear session and redirect
         localStorage.removeItem("player_email");
         navigate("/login");
@@ -905,6 +975,7 @@ const Dashboard = () => {
       checkNutritionPrograms(player.id);
     } catch (error) {
       console.error("Error loading data:", error);
+      const isDemoMode = sessionStorage.getItem("demo_portal_mode") === "true";
       
       // If there's an error and we have stored auth, try offline cache
       const playerEmail = localStorage.getItem("player_email");
@@ -918,7 +989,9 @@ const Dashboard = () => {
         }
       }
       
-      navigate("/login");
+      if (!isDemoMode) {
+        navigate("/login");
+      }
     } finally {
       setLoading(false);
     }
@@ -929,11 +1002,28 @@ const Dashboard = () => {
     
     try {
       // First get the player ID and data from email
-      const { data: playerData, error: playerError } = await supabase
+      const isDemoMode = sessionStorage.getItem("demo_portal_mode") === "true";
+      const normalizedEmail = (email || "").toLowerCase().trim();
+
+      let { data: playerData, error: playerError } = await supabase
         .from("players")
         .select("*")
-        .eq("email", email)
+        .ilike("email", normalizedEmail)
         .maybeSingle();
+
+      if ((!playerData || playerError) && isDemoMode) {
+        const demoPlayerId = sessionStorage.getItem("demo_portal_player_id") || DEMO_PLAYER_ID;
+        const { data: fallbackPlayer, error: fallbackError } = await supabase
+          .from("players")
+          .select("*")
+          .eq("id", demoPlayerId)
+          .maybeSingle();
+
+        if (!fallbackError && fallbackPlayer) {
+          playerData = fallbackPlayer;
+          playerError = null;
+        }
+      }
 
       if (playerError) throw playerError;
       if (!playerData) {
