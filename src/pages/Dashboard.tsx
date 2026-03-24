@@ -5056,8 +5056,6 @@ const Dashboard = () => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
           setNavDropdownOpen(true);
         }}
-        hasAnalysis={true}
-        hasProgramming={true}
       />
 
       {/* Portal Music Player */}
