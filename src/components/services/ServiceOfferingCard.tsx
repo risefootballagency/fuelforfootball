@@ -16,7 +16,17 @@ interface ServiceOfferingCardProps {
   example?: string;
   reverse?: boolean;
   onWhatsIncluded?: () => void;
+  exampleSection?: string;
 }
+
+// Map service categories/names to portal sections
+const getServiceExampleSection = (title: string): string => {
+  const lower = title.toLowerCase();
+  if (lower.includes('analysis') || lower.includes('report') || lower.includes('data') || lower.includes('efficiency') || lower.includes('action report')) return 'analysis';
+  if (lower.includes('sps') || lower.includes('strength') || lower.includes('speed') || lower.includes('conditioning') || lower.includes('physical') || lower.includes('programme') || lower.includes('nutrition')) return 'physical';
+  if (lower.includes('elite') || lower.includes('pro performance') || lower.includes('mentorship') || lower.includes('consultation')) return 'hub';
+  return 'hub';
+};
 
 export const ServiceOfferingCard = ({
   title,
@@ -30,8 +40,11 @@ export const ServiceOfferingCard = ({
   example,
   reverse = false,
   onWhatsIncluded,
+  exampleSection,
 }: ServiceOfferingCardProps) => {
   const [portalExampleOpen, setPortalExampleOpen] = useState(false);
+
+  const section = exampleSection || getServiceExampleSection(title);
 
   // Default placeholder if no media
   const placeholderImage = "https://static.wixstatic.com/media/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png/v1/fill/w_386,h_386,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c4f4b1_2caac0dc6395432482b5aba3d86c5766~mv2.png";
@@ -146,6 +159,11 @@ export const ServiceOfferingCard = ({
       <PortalExampleDialog
         open={portalExampleOpen}
         onOpenChange={setPortalExampleOpen}
+        initialSection={section}
+        serviceContext={{
+          serviceName: title,
+          serviceId: productId,
+        }}
       />
     </>
   );
