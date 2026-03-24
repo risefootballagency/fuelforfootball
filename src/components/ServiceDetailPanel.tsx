@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { PortalExampleDialog } from "@/components/services/PortalExampleDialog";
+import { getServiceExampleRoute } from "@/lib/serviceExampleRouting";
 interface ServiceOption {
   name: string;
   price: number;
@@ -39,13 +40,15 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showExamplePreview, setShowExamplePreview] = useState(false);
 
-  // Map service categories to relevant portal sections
-  const getExampleSectionForService = (category: string): string => {
-    const lower = category.toLowerCase();
-    if (lower.includes('analysis') || lower.includes('data') || lower.includes('tactical')) return 'analysis';
-    if (lower.includes('physical') || lower.includes('technical') || lower.includes('nutrition') || lower.includes('coaching')) return 'physical';
-    return 'hub';
-  };
+  const exampleRoute = useMemo(
+    () =>
+      getServiceExampleRoute({
+        id: service.id,
+        name: service.name,
+        category: service.category,
+      }),
+    [service.id, service.name, service.category]
+  );
 
   const options = service.options as ServiceOption[] | null;
   const hasOptions = options && Array.isArray(options) && options.length > 0;
@@ -692,10 +695,12 @@ export const ServiceDetailPanel = <T extends { id: string; name: string; categor
       <PortalExampleDialog
         open={showExamplePreview}
         onOpenChange={setShowExamplePreview}
-        initialSection={getExampleSectionForService(service.category)}
+        initialSection={exampleRoute.section}
         serviceContext={{
           serviceName: service.name,
           serviceId: service.id,
+          analysisTab: exampleRoute.analysisTab,
+          reportHint: exampleRoute.reportHint,
         }}
       />
     </motion.div>

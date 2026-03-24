@@ -74,13 +74,17 @@ function coerceNumber(value: unknown): number | null {
 
 function extractStatsFromNode(node: unknown, target: Record<string, number>) {
   if (!node) return;
+
   if (Array.isArray(node)) {
     for (const item of node) extractStatsFromNode(item, target);
     return;
   }
+
   if (typeof node !== 'object') return;
+
   const obj = node as Record<string, any>;
 
+  // Pattern: { name: "Key passes", value: 3 }
   const label = obj.name || obj.label || obj.title || obj.statName;
   const value = obj.value ?? obj.statValue ?? obj.totalValue;
   if (typeof label === 'string') {
@@ -93,6 +97,7 @@ function extractStatsFromNode(node: unknown, target: Record<string, number>) {
 
   for (const [key, raw] of Object.entries(obj)) {
     const mappedKey = tryMapStatKey(key);
+
     if (mappedKey) {
       const directValue = coerceNumber(raw);
       if (directValue !== null) {
@@ -104,6 +109,7 @@ function extractStatsFromNode(node: unknown, target: Record<string, number>) {
         }
       }
     }
+
     if (raw && typeof raw === 'object') {
       extractStatsFromNode(raw, target);
     }
@@ -122,11 +128,20 @@ function extractPlayersFromEmbeddedData(html: string): SofaPlayerStats {
   if (!nextDataMatch) return players;
 
   let root: any;
-  try { root = JSON.parse(nextDataMatch[1]); } catch { return players; }
+  try {
+    root = JSON.parse(nextDataMatch[1]);
+  } catch {
+    return players;
+  }
 
   const walk = (node: unknown, inheritedTeam?: string) => {
     if (!node) return;
-    if (Array.isArray(node)) { for (const item of node) walk(item, inheritedTeam); return; }
+
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item, inheritedTeam);
+      return;
+    }
+
     if (typeof node !== 'object') return;
     const obj = node as Record<string, any>;
 
@@ -139,19 +154,31 @@ function extractPlayersFromEmbeddedData(html: string): SofaPlayerStats {
       (typeof obj.player === 'object' && obj.player && typeof obj.player.name === 'string' ? obj.player.name : undefined) ||
       (typeof obj.name === 'string' ? obj.name : undefined);
 
-    const statsSeed = obj.statistics || obj.stats || obj.playerStatistics ||
-      (obj.player && obj.player.statistics ? obj.player.statistics : null) || obj;
+    const statsSeed =
+      obj.statistics ||
+      obj.stats ||
+      obj.playerStatistics ||
+      (obj.player && obj.player.statistics ? obj.player.statistics : null) ||
+      obj;
 
     if (candidateName && isLikelyPlayerName(candidateName)) {
       const extracted: Record<string, number> = {};
       extractStatsFromNode(statsSeed, extracted);
-      if (Object.keys(extracted).length >= 2) {
-        players[candidateName] = { team: possibleTeam || 'Unknown', ...players[candidateName], ...extracted };
+
+      const statCount = Object.keys(extracted).length;
+      if (statCount >= 2) {
+        players[candidateName] = {
+          team: possibleTeam || 'Unknown',
+          ...players[candidateName],
+          ...extracted,
+        };
       }
     }
 
     for (const value of Object.values(obj)) {
-      if (value && typeof value === 'object') walk(value, possibleTeam);
+      if (value && typeof value === 'object') {
+        walk(value, possibleTeam);
+      }
     }
   };
 
@@ -161,8 +188,11 @@ function extractPlayersFromEmbeddedData(html: string): SofaPlayerStats {
 
 function extractEmbeddedContent(html: string): string {
   const chunks: string[] = [];
+
   const nextDataMatch = html.match(/<script\s+id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i);
-  if (nextDataMatch) chunks.push(`NEXT_DATA JSON:\n${nextDataMatch[1].substring(0, 25000)}`);
+  if (nextDataMatch) {
+    chunks.push(`NEXT_DATA JSON:\n${nextDataMatch[1].substring(0, 25000)}`);
+  }
 
   const jsonLdRegex = /<script\s+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi;
   let ldMatch: RegExpExecArray | null;
@@ -207,45 +237,61 @@ Content:\n${content}`;
       model: 'google/gemini-3-flash-preview',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0,
-      tools: [{
-        type: 'function',
-        function: {
-          name: 'report_player_stats',
-          description: 'Return extracted player match statistics',
-          parameters: {
-            type: 'object',
-            properties: {
-              players: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string' }, team: { type: 'string' },
-                    goals: { type: 'number' }, assists: { type: 'number' },
-                    totalShots: { type: 'number' }, shotsOnTarget: { type: 'number' },
-                    keyPasses: { type: 'number' }, accuratePasses: { type: 'number' },
-                    totalPasses: { type: 'number' }, passAccuracy: { type: 'number' },
-                    successfulDribbles: { type: 'number' }, totalDuels: { type: 'number' },
-                    duelsWon: { type: 'number' }, aerialDuelsWon: { type: 'number' },
-                    totalAerialDuels: { type: 'number' }, tackles: { type: 'number' },
-                    interceptions: { type: 'number' }, clearances: { type: 'number' },
-                    accurateCrosses: { type: 'number' }, totalCrosses: { type: 'number' },
-                    accurateLongBalls: { type: 'number' }, totalLongBalls: { type: 'number' },
-                    foulsDrawn: { type: 'number' }, touches: { type: 'number' },
-                    expectedGoals: { type: 'number' }, expectedAssists: { type: 'number' },
-                    progressivePasses: { type: 'number' }, minutesPlayed: { type: 'number' },
-                    rating: { type: 'number' },
+      tools: [
+        {
+          type: 'function',
+          function: {
+            name: 'report_player_stats',
+            description: 'Return extracted player match statistics',
+            parameters: {
+              type: 'object',
+              properties: {
+                players: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string' },
+                      team: { type: 'string' },
+                      goals: { type: 'number' },
+                      assists: { type: 'number' },
+                      totalShots: { type: 'number' },
+                      shotsOnTarget: { type: 'number' },
+                      keyPasses: { type: 'number' },
+                      accuratePasses: { type: 'number' },
+                      totalPasses: { type: 'number' },
+                      passAccuracy: { type: 'number' },
+                      successfulDribbles: { type: 'number' },
+                      totalDuels: { type: 'number' },
+                      duelsWon: { type: 'number' },
+                      aerialDuelsWon: { type: 'number' },
+                      totalAerialDuels: { type: 'number' },
+                      tackles: { type: 'number' },
+                      interceptions: { type: 'number' },
+                      clearances: { type: 'number' },
+                      accurateCrosses: { type: 'number' },
+                      totalCrosses: { type: 'number' },
+                      accurateLongBalls: { type: 'number' },
+                      totalLongBalls: { type: 'number' },
+                      foulsDrawn: { type: 'number' },
+                      touches: { type: 'number' },
+                      expectedGoals: { type: 'number' },
+                      expectedAssists: { type: 'number' },
+                      progressivePasses: { type: 'number' },
+                      minutesPlayed: { type: 'number' },
+                      rating: { type: 'number' },
+                    },
+                    required: ['name', 'team'],
+                    additionalProperties: false,
                   },
-                  required: ['name', 'team'],
-                  additionalProperties: false,
                 },
               },
+              required: ['players'],
+              additionalProperties: false,
             },
-            required: ['players'],
-            additionalProperties: false,
           },
         },
-      }],
+      ],
       tool_choice: { type: 'function', function: { name: 'report_player_stats' } },
     }),
   });
@@ -267,14 +313,17 @@ Content:\n${content}`;
   for (const player of parsedArgs.players || []) {
     if (!player?.name) continue;
     const cleaned: Record<string, any> = { team: player.team || 'Unknown' };
+
     for (const key of SOFASCORE_STAT_KEYS) {
       const num = coerceNumber(player[key]);
       if (num !== null) cleaned[key] = num;
     }
+
     if (Object.keys(cleaned).filter(k => k !== 'team').length >= 2) {
       result[player.name] = cleaned;
     }
   }
+
   return result;
 }
 
@@ -287,42 +336,67 @@ async function parseSofaScoreUrl(url: string, LOVABLE_API_KEY: string): Promise<
     },
   });
 
-  if (!pageResponse.ok) throw new Error(`Failed to fetch SofaScore page: ${pageResponse.status}`);
+  if (!pageResponse.ok) {
+    throw new Error(`Failed to fetch SofaScore page: ${pageResponse.status}`);
+  }
+
   const html = await pageResponse.text();
 
+  // 1) Deterministic extraction from embedded JSON first
   const structuredPlayers = extractPlayersFromEmbeddedData(html);
-  if (Object.keys(structuredPlayers).length > 0) return structuredPlayers;
+  const structuredCount = Object.keys(structuredPlayers).length;
 
+  if (structuredCount > 0) {
+    return structuredPlayers;
+  }
+
+  // 2) AI fallback using embedded data + visible text
   const embeddedContent = extractEmbeddedContent(html);
   const aiPlayers = await parseSofaScoreWithAI(url, embeddedContent, LOVABLE_API_KEY);
 
   if (Object.keys(aiPlayers).length === 0) {
     throw new Error('No player statistics found on SofaScore page. The match may not have detailed stats available yet.');
   }
+
   return aiPlayers;
 }
 
 function mapSofaScoreStats(stats: Record<string, any>): Record<string, number> {
   const mapped: Record<string, number> = {};
+
   const mapping: Record<string, string> = {
-    goals: 'goals_per90', assists: 'assists_per90',
-    totalShots: 'total_shots_per90', shotsOnTarget: 'shots_on_target_per90',
-    keyPasses: 'key_passes_per90', accuratePasses: 'accurate_passes_per90',
-    totalPasses: 'passes_total', passAccuracy: 'pass_accuracy_pct',
-    successfulDribbles: 'successful_dribbles_per90', totalDuels: 'duels_total',
-    duelsWon: 'duels_won_per90', aerialDuelsWon: 'aerials_won_per90',
-    totalAerialDuels: 'aerials_total', tackles: 'tackles_won_per90',
-    interceptions: 'interceptions_per90', clearances: 'clearances_per90',
-    accurateCrosses: 'accurate_crosses_per90', totalCrosses: 'crosses_total',
-    accurateLongBalls: 'accurate_long_balls_per90', totalLongBalls: 'long_balls_total',
-    foulsDrawn: 'fouls_drawn_per90', touches: 'touches',
-    expectedGoals: 'npxg_per90', expectedAssists: 'xa_per90',
+    goals: 'goals_per90',
+    assists: 'assists_per90',
+    totalShots: 'total_shots_per90',
+    shotsOnTarget: 'shots_on_target_per90',
+    keyPasses: 'key_passes_per90',
+    accuratePasses: 'accurate_passes_per90',
+    totalPasses: 'passes_total',
+    passAccuracy: 'pass_accuracy_pct',
+    successfulDribbles: 'successful_dribbles_per90',
+    totalDuels: 'duels_total',
+    duelsWon: 'duels_won_per90',
+    aerialDuelsWon: 'aerials_won_per90',
+    totalAerialDuels: 'aerials_total',
+    tackles: 'tackles_won_per90',
+    interceptions: 'interceptions_per90',
+    clearances: 'clearances_per90',
+    accurateCrosses: 'accurate_crosses_per90',
+    totalCrosses: 'crosses_total',
+    accurateLongBalls: 'accurate_long_balls_per90',
+    totalLongBalls: 'long_balls_total',
+    foulsDrawn: 'fouls_drawn_per90',
+    touches: 'touches',
+    expectedGoals: 'npxg_per90',
+    expectedAssists: 'xa_per90',
     progressivePasses: 'progressive_passes_per90',
   };
+
   for (const [sofaKey, fixtureKey] of Object.entries(mapping)) {
     const value = coerceNumber(stats[sofaKey]);
     if (value !== null) mapped[fixtureKey] = value;
   }
+
   return mapped;
 }
 
@@ -333,7 +407,10 @@ async function parseHtmlWithAI(url: string, LOVABLE_API_KEY: string) {
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     },
   });
-  if (!pageResponse.ok) throw new Error(`Failed to fetch page: ${pageResponse.status}`);
+
+  if (!pageResponse.ok) {
+    throw new Error(`Failed to fetch page: ${pageResponse.status}`);
+  }
 
   const html = await pageResponse.text();
   const textContent = html
@@ -379,7 +456,9 @@ If you cannot find a particular stat, omit it. Return ONLY valid JSON, no explan
     }),
   });
 
-  if (!aiResponse.ok) throw new Error('AI extraction failed');
+  if (!aiResponse.ok) {
+    throw new Error('AI extraction failed');
+  }
 
   const aiData = await aiResponse.json();
   const rawContent = aiData.choices?.[0]?.message?.content || '';
@@ -388,16 +467,26 @@ If you cannot find a particular stat, omit it. Return ONLY valid JSON, no explan
 }
 
 const FBREF_MAPPING: Record<string, string> = {
-  goals: 'goals_per90', assists: 'assists_per90',
-  shots_on_target: 'shots_on_target_per90', shots: 'total_shots_per90',
-  progressive_passes: 'progressive_passes_per90', key_passes: 'key_passes_per90',
-  dribbles_completed: 'successful_dribbles_per90', progressive_carries: 'progressive_carries_per90',
-  carries_into_final_third: 'carries_into_final_3rd_per90', touches_in_box: 'touches_in_opp_box_per90',
-  fouls_won: 'fouls_drawn_per90', tackles_won: 'tackles_won_per90',
-  aerial_duels_won: 'aerials_won_per90', duels_won: 'duels_won_per90',
-  clearances: 'clearances_per90', interceptions: 'interceptions_per90',
-  crosses_completed: 'accurate_crosses_per90', long_passes_completed: 'accurate_long_balls_per90',
-  npxg: 'npxg_per90', xa: 'xa_per90',
+  goals: 'goals_per90',
+  assists: 'assists_per90',
+  shots_on_target: 'shots_on_target_per90',
+  shots: 'total_shots_per90',
+  progressive_passes: 'progressive_passes_per90',
+  key_passes: 'key_passes_per90',
+  dribbles_completed: 'successful_dribbles_per90',
+  progressive_carries: 'progressive_carries_per90',
+  carries_into_final_third: 'carries_into_final_3rd_per90',
+  touches_in_box: 'touches_in_opp_box_per90',
+  fouls_won: 'fouls_drawn_per90',
+  tackles_won: 'tackles_won_per90',
+  aerial_duels_won: 'aerials_won_per90',
+  duels_won: 'duels_won_per90',
+  clearances: 'clearances_per90',
+  interceptions: 'interceptions_per90',
+  crosses_completed: 'accurate_crosses_per90',
+  long_passes_completed: 'accurate_long_balls_per90',
+  npxg: 'npxg_per90',
+  xa: 'xa_per90',
 };
 
 Deno.serve(async (req) => {
@@ -432,28 +521,42 @@ Deno.serve(async (req) => {
       for (const [name, rawStats] of Object.entries(playerStats)) {
         const stats = mapSofaScoreStats(rawStats);
         if (Object.keys(stats).length > 0) {
-          allMapped[name] = { stats, team: rawStats.team || 'Unknown' };
+          allMapped[name] = {
+            stats,
+            team: rawStats.team || 'Unknown',
+          };
         }
       }
 
       const playerNames = Object.keys(allMapped);
-      if (playerNames.length === 0) throw new Error('No mappable SofaScore stats were found for players on this page.');
+      if (playerNames.length === 0) {
+        throw new Error('No mappable SofaScore stats were found for players on this page.');
+      }
 
       if (playerNames.length === 1) {
         const name = playerNames[0];
         return new Response(JSON.stringify({
-          fixtureStats: allMapped[name].stats, unmapped: {},
-          playerName: name, source: 'SofaScore',
+          fixtureStats: allMapped[name].stats,
+          unmapped: {},
+          playerName: name,
+          source: 'SofaScore',
           statsCount: Object.keys(allMapped[name].stats).length,
-        }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       return new Response(JSON.stringify({
-        multiplePlayersAvailable: true, players: allMapped, source: 'SofaScore',
-      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        multiplePlayersAvailable: true,
+        players: allMapped,
+        source: 'SofaScore',
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const stats = await parseHtmlWithAI(url, LOVABLE_API_KEY);
+
     const fixtureStats: Record<string, number> = {};
     const unmapped: Record<string, number> = {};
 
@@ -461,16 +564,23 @@ Deno.serve(async (req) => {
       if (key === 'player_name' || key === 'source') continue;
       const numVal = coerceNumber(value);
       if (numVal === null) continue;
-      if (FBREF_MAPPING[key]) fixtureStats[FBREF_MAPPING[key]] = numVal;
-      else unmapped[key] = numVal;
+
+      if (FBREF_MAPPING[key]) {
+        fixtureStats[FBREF_MAPPING[key]] = numVal;
+      } else {
+        unmapped[key] = numVal;
+      }
     }
 
     return new Response(JSON.stringify({
-      fixtureStats, unmapped,
+      fixtureStats,
+      unmapped,
       playerName: stats.player_name || null,
       source: isFBRef ? 'FBRef' : (stats.source || new URL(url).hostname),
       statsCount: Object.keys(fixtureStats).length + Object.keys(unmapped).length,
-    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (err: any) {
     console.error('parse-stats-url error:', err);

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { formatScoreWithFrequency } from "@/lib/utils";
 import { canonicalActionType } from "@/lib/playerActionFrequency";
+import { ScoreDropdown } from "./ScoreDropdown";
 import type { RecordedStat } from "./ActionStatRecorder";
+import { useVideoPreloader } from "@/hooks/useVideoPreloader";
 
 interface PerformanceAction {
   id?: string;
@@ -73,6 +75,18 @@ export const VideoActionEditor = ({
   const [typePopoverOpen, setTypePopoverOpen] = useState(false);
   const [descPopoverOpen, setDescPopoverOpen] = useState(false);
 
+  const safePos = clippedIndices.length ? Math.min(currentPos, clippedIndices.length - 1) : 0;
+  const clipVideoUrls = useMemo(
+    () => clippedIndices.map(({ action }) => action.video_url).filter((url): url is string => Boolean(url)),
+    [clippedIndices]
+  );
+
+  const { preloadNextVideos, preloadVideo } = useVideoPreloader({
+    videos: clipVideoUrls,
+    preloadCount: 2,
+    enabled: open && clipVideoUrls.length > 1,
+  });
+
   useEffect(() => {
     if (open) {
       setCurrentPos(0);
@@ -81,9 +95,16 @@ export const VideoActionEditor = ({
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!open || clipVideoUrls.length === 0 || safePos >= clipVideoUrls.length) return;
+    preloadNextVideos(safePos);
+
+    const nextUrl = clipVideoUrls[safePos + 1];
+    if (nextUrl) preloadVideo(nextUrl);
+  }, [open, clipVideoUrls, safePos, preloadNextVideos, preloadVideo]);
+
   if (!clippedIndices.length) return null;
 
-  const safePos = Math.min(currentPos, clippedIndices.length - 1);
   const { action: current, index: realIndex } = clippedIndices[safePos];
 
   const handlePrev = () => {
@@ -128,8 +149,19 @@ export const VideoActionEditor = ({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-56 p-2 z-[300]" align="start">
-                <ScrollArea className="max-h-60">
-                  <div className="space-y-0.5">
+               <div className="flex flex-col max-h-[70vh]">
+                  <button
+                    type="button"
+                    className="flex items-center justify-center py-1 hover:bg-accent rounded transition-colors shrink-0"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      const el = document.getElementById('jump-to-list');
+                      if (el) el.scrollBy({ top: -100, behavior: 'smooth' });
+                    }}
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5 rotate-90 text-muted-foreground" />
+                  </button>
+                  <div id="jump-to-list" className="overflow-y-auto flex-1 space-y-0.5">
                     {clippedIndices.map(({ action, index }, pos) => (
                       <button
                         key={index}
@@ -146,7 +178,18 @@ export const VideoActionEditor = ({
                       </button>
                     ))}
                   </div>
-                </ScrollArea>
+                  <button
+                    type="button"
+                    className="flex items-center justify-center py-1 hover:bg-accent rounded transition-colors shrink-0"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      const el = document.getElementById('jump-to-list');
+                      if (el) el.scrollBy({ top: 100, behavior: 'smooth' });
+                    }}
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5 -rotate-90 text-muted-foreground" />
+                  </button>
+                </div>
               </PopoverContent>
             </Popover>
           </div>
@@ -188,9 +231,27 @@ export const VideoActionEditor = ({
             preload="auto"
             crossOrigin="anonymous"
             controls
+            loop
+            playsInline
             className="w-full h-full object-contain"
             onCanPlay={(e) => e.currentTarget.play().catch(() => {})}
           />
+
+          {/* Prefetch next 2 clip videos for instant loading */}
+          {[1, 2].map(offset => {
+            const nextIdx = safePos + offset;
+            const nextUrl = nextIdx < clippedIndices.length ? clippedIndices[nextIdx].action.video_url : null;
+            if (!nextUrl) return null;
+            return (
+              <link
+                key={`prefetch-${nextUrl}`}
+                rel="preload"
+                href={nextUrl}
+                as="video"
+                crossOrigin="anonymous"
+              />
+            );
+          })}
 
           <button
             onClick={handleNext}
@@ -283,16 +344,13 @@ export const VideoActionEditor = ({
                   </div>
                 )}
               </div>
-              <div className="w-20 md:w-24">
-                <Input
-                  type="number"
-                  step="0.00001"
-                  value={current.action_score}
-                  onChange={(e) => updateAction(realIndex, "action_score", e.target.value)}
-                  placeholder="Score"
-                  className="h-7 md:h-8 text-xs md:text-sm border-[hsl(43,49%,61%)]/50 focus-visible:ring-[hsl(43,49%,61%)]/30"
-                />
-              </div>
+              <ScoreDropdown
+                value={current.action_score}
+                onChange={(val) => updateAction(realIndex, "action_score", val)}
+                className="w-20 md:w-24"
+                inputClassName="h-7 md:h-8 text-xs md:text-sm border-[hsl(43,49%,61%)]/50 focus-visible:ring-[hsl(43,49%,61%)]/30"
+                dropUp
+              />
               <div className="flex items-center gap-1 md:gap-1.5 ml-auto">
                 <Input
                   value={searchFilter}
@@ -331,7 +389,7 @@ export const VideoActionEditor = ({
                   className="h-7 md:h-8 text-xs md:text-sm"
                 />
                 {descPopoverOpen && current.action_type && getDescriptionsForType(current.action_type).length > 0 && (
-                  <div className="absolute z-50 mt-1 w-full max-h-40 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
+                  <div className="absolute z-50 bottom-full mb-1 w-full max-h-40 overflow-y-auto rounded-md border bg-popover p-1 shadow-md">
                     {getDescriptionsForType(current.action_type)
                       .filter(desc => !current.action_description || desc.toLowerCase().includes(current.action_description.toLowerCase()))
                       .slice(0, 10)
