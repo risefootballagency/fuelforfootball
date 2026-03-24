@@ -16,6 +16,8 @@ interface PortalExampleDialogProps {
   serviceContext?: {
     serviceName: string;
     serviceId?: string;
+    analysisTab?: "performance" | "video";
+    reportHint?: string;
   };
 }
 
