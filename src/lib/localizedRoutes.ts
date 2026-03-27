@@ -2,6 +2,18 @@
 // Format: { englishPath: { languageCode: localizedPath } }
 
 export const routeTranslations: Record<string, Record<string, string>> = {
+  '/role-selector': {
+    en: '/role-selector',
+    es: '/seleccionar-rol',
+    pt: '/selecionar-funcao',
+    fr: '/selecteur-de-role',
+    de: '/rollenauswahl',
+    it: '/selettore-ruolo',
+    pl: '/wybor-roli',
+    cs: '/vyber-role',
+    ru: '/vybor-roli',
+    tr: '/rol-secici',
+  },
   '/players': {
     en: '/players',
     es: '/jugadoras',
