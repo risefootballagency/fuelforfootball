@@ -488,19 +488,19 @@ const PerformanceReport = () => {
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Player</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "player_label")}</p>
                 <p className="font-bold text-sm md:text-base truncate">{analysis.player_name}</p>
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Date</p>
-                <p className="font-bold text-sm md:text-base">{new Date(analysis.analysis_date).toLocaleDateString('en-GB')}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "date")}</p>
+                <p className="font-bold text-sm md:text-base">{new Date(analysis.analysis_date).toLocaleDateString(getReportLocale(reportLanguage))}</p>
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Opponent</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "opponent")}</p>
                 <p className="font-bold text-sm md:text-base truncate">{analysis.opponent || "N/A"}</p>
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Result</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "result")}</p>
                 <p className="font-bold text-sm md:text-base">{analysis.result || "N/A"}</p>
               </div>
             </div>
@@ -510,11 +510,11 @@ const PerformanceReport = () => {
               <Button
                 variant="default"
                 size="sm"
-                className="bg-risegold hover:bg-risegold/90 text-black font-semibold flex items-center gap-2 w-fit"
+                className="bg-accent hover:bg-accent/90 text-black font-semibold flex items-center gap-2 w-fit"
                 onClick={() => setShowClippedActions(true)}
               >
                 <Play className="h-4 w-4" />
-                {`${actions.filter(a => a.video_url).length} Clips`}
+                {`${actions.filter(a => a.video_url).length} ${t(reportLanguage, "clips_label")}`}
               </Button>
             )}
           </div>
