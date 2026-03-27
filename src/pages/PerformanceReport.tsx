@@ -107,7 +107,7 @@ const PerformanceReport = () => {
   const livePortalLanguage = usePortalLanguage();
   const reportLanguage = isPortalView
     ? (livePortalLanguage || localStorage.getItem("portal_language_hint") || localStorage.getItem("preferred_language") || sessionStorage.getItem("ip_language_detected") || analysis?.translated_content?.language || "en")
-    : "en";
+    : (analysis?.translated_content?.language || "en");
   const reportContentLanguage = getReportLanguage(analysis?.translated_content, reportLanguage);
   const portalLocale = getReportLocale(reportLanguage);
   const tc = analysis?.translated_content;
@@ -440,7 +440,7 @@ const PerformanceReport = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={`${analysis.player_name} vs ${analysis.opponent} - Performance Report | RISE Football`}
+        title={`${analysis.player_name} vs ${analysis.opponent} - ${t(reportLanguage, "performance_report")} | Fuel for Football`}
         description={`Detailed performance analysis for ${analysis.player_name} against ${analysis.opponent}. R90 Score: ${analysis.r90_score?.toFixed(2) || 'N/A'}.`}
       />
       {!isAuthenticated && <div className="print:hidden"><Header /></div>}
@@ -488,19 +488,19 @@ const PerformanceReport = () => {
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Player</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "player_label")}</p>
                 <p className="font-bold text-sm md:text-base truncate">{analysis.player_name}</p>
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Date</p>
-                <p className="font-bold text-sm md:text-base">{new Date(analysis.analysis_date).toLocaleDateString('en-GB')}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "date")}</p>
+                <p className="font-bold text-sm md:text-base">{new Date(analysis.analysis_date).toLocaleDateString(getReportLocale(reportLanguage))}</p>
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Opponent</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "opponent")}</p>
                 <p className="font-bold text-sm md:text-base truncate">{analysis.opponent || "N/A"}</p>
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Result</p>
+                <p className="text-xs md:text-sm text-muted-foreground">{t(reportLanguage, "result")}</p>
                 <p className="font-bold text-sm md:text-base">{analysis.result || "N/A"}</p>
               </div>
             </div>
@@ -510,11 +510,11 @@ const PerformanceReport = () => {
               <Button
                 variant="default"
                 size="sm"
-                className="bg-risegold hover:bg-risegold/90 text-black font-semibold flex items-center gap-2 w-fit"
+                className="bg-accent hover:bg-accent/90 text-black font-semibold flex items-center gap-2 w-fit"
                 onClick={() => setShowClippedActions(true)}
               >
                 <Play className="h-4 w-4" />
-                {`${actions.filter(a => a.video_url).length} Clips`}
+                {`${actions.filter(a => a.video_url).length} ${t(reportLanguage, "clips_label")}`}
               </Button>
             )}
           </div>
@@ -523,37 +523,37 @@ const PerformanceReport = () => {
           {actions.length > 0 && (
             <div className="flex flex-wrap gap-2">
               <Button variant={showR90Flow ? "default" : "outline"} size="sm" onClick={() => { setShowR90Flow(!showR90Flow); setShowHeatmap(false); }} className="text-xs">
-                <TrendingUp className="h-3.5 w-3.5 mr-1.5" />R90 Flow
+                <TrendingUp className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "r90_flow")}
               </Button>
               <Button variant={showHeatmap ? "default" : "outline"} size="sm" onClick={() => { setShowHeatmap(!showHeatmap); setShowR90Flow(false); setShowChanceCreation(false); setShowPitchHeatmap(false); }} className="text-xs">
-                <BarChart3 className="h-3.5 w-3.5 mr-1.5" />Period Grade Map
+                <BarChart3 className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "period_grade_map")}
               </Button>
               {actions.some(a => a.zone || (a.zone_details && a.zone_details.length > 0)) && (
                 <>
                   <Button variant={showPitchHeatmap ? "default" : "outline"} size="sm" onClick={() => { setShowPitchHeatmap(!showPitchHeatmap); setShowZonePerformance(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); }} className="text-xs">
-                    <MapPin className="h-3.5 w-3.5 mr-1.5" />Pitch Heatmap
+                    <MapPin className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "pitch_heatmap")}
                   </Button>
                   <Button variant={showZonePerformance ? "default" : "outline"} size="sm" onClick={() => { setShowZonePerformance(!showZonePerformance); setShowPitchHeatmap(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); }} className="text-xs">
-                    <Grid3X3 className="h-3.5 w-3.5 mr-1.5" />Zone Performance
+                    <Grid3X3 className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "zone_performance")}
                   </Button>
                 </>
               )}
               {analysis.striker_stats && ['crossing_movement_xC', 'movement_in_behind_xC', 'movement_down_side_xC', 'triple_threat_xC', 'movement_to_feet_xC'].some(k => (analysis.striker_stats as any)?.[k] > 0) && (
                 <Button variant="outline" size="sm" onClick={() => { setShowChanceCreation(!showChanceCreation); setShowR90Flow(false); setShowHeatmap(false); }} className="text-xs">
-                  <TrendingUp className="h-3.5 w-3.5 mr-1.5" />Chance Creation Flow
+                  <TrendingUp className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "chance_creation_flow")}
                 </Button>
               )}
               {actions.filter(a => a.video_url).length > 0 && (
                 <>
                   <Button variant="outline" size="sm" onClick={() => { setRankedMode("chronological"); setShowRankedPlayer(true); }} className="text-xs">
-                    <Film className="h-3.5 w-3.5 mr-1.5" />Full Match Video
+                    <Film className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "full_match_video")}
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => { setRankedMode("ranked"); setShowRankedPlayer(true); }} className="text-xs">
-                    <Award className="h-3.5 w-3.5 mr-1.5" />Ranked Actions
+                    <Award className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "ranked_actions")}
                   </Button>
                   {actions.some(a => a.video_url && a.notes) && (
                     <Button variant="outline" size="sm" onClick={() => { setRankedMode("noted"); setShowRankedPlayer(true); }} className="text-xs">
-                      <MessageSquareText className="h-3.5 w-3.5 mr-1.5" />Noted Actions
+                      <MessageSquareText className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "noted_actions")}
                     </Button>
                   )}
                 </>
@@ -563,33 +563,33 @@ const PerformanceReport = () => {
 
           {/* R90 Flow Chart */}
           {showR90Flow && analysis.minutes_played && (
-            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} /></CardContent></Card>
+            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} /></CardContent></Card>
           )}
 
           {/* Action Heatmap */}
           {showHeatmap && analysis.minutes_played && (
-            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} /></CardContent></Card>
+            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} /></CardContent></Card>
           )}
 
           {/* Pitch Heatmap */}
           {showPitchHeatmap && (
-            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><PitchHeatmap actions={actions} /></CardContent></Card>
+            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><PitchHeatmap actions={actions} language={reportLanguage} /></CardContent></Card>
           )}
 
           {/* Zone Performance */}
           {showZonePerformance && (
-            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ZonePerformance actions={actions} /></CardContent></Card>
+            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ZonePerformance actions={displayActions} language={reportLanguage} /></CardContent></Card>
           )}
 
           {/* Chance Creation Flow */}
           {showChanceCreation && analysis.striker_stats && (
-            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} /></CardContent></Card>
+            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} language={reportLanguage} /></CardContent></Card>
           )}
 
           {/* Key Stats */}
           <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
             <div className="text-center p-2">
-              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
+              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "raw_score")}</p>
               <p className="text-base md:text-2xl font-bold">
                 {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
               </p>
@@ -611,7 +611,7 @@ const PerformanceReport = () => {
               </p>
             </div>
             <div className="text-center p-2">
-              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
+              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "mins_short")}</p>
               <p className="text-base md:text-2xl font-bold">{analysis.minutes_played ?? "N/A"}</p>
             </div>
           </div>
@@ -646,7 +646,7 @@ const PerformanceReport = () => {
           {advancedStats.length > 0 && (
             <Card className="overflow-hidden">
               <CardHeader className="py-1.5 md:py-2">
-                <CardTitle className="text-sm md:text-lg">Match Statistics</CardTitle>
+                <CardTitle className="text-sm md:text-lg">{t(reportLanguage, "match_statistics")}</CardTitle>
               </CardHeader>
               <CardContent className="p-2 md:p-4">
                 <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
@@ -682,7 +682,7 @@ const PerformanceReport = () => {
               <CardHeader className="py-1.5 md:py-2 bg-primary/5">
                 <CardTitle className="text-sm md:text-lg flex items-center gap-2">
                   <Calculator className="h-4 w-4 text-primary" />
-                  <span className="text-primary">Calculated Ratios</span>
+                  <span className="text-primary">{t(reportLanguage, "calculated_ratios")}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-2 md:p-4">
@@ -707,7 +707,7 @@ const PerformanceReport = () => {
           {analysis.performance_overview && (
             <Card className="overflow-hidden">
               <CardHeader className="py-1.5 md:py-2">
-                <CardTitle className="text-sm md:text-lg">Overview</CardTitle>
+                <CardTitle className="text-sm md:text-lg">{t(reportLanguage, "overview")}</CardTitle>
               </CardHeader>
               <CardContent className="p-2 md:p-4">
                 <p className="text-muted-foreground whitespace-pre-wrap text-center text-xs md:text-sm">{analysis.performance_overview}</p>
@@ -721,11 +721,11 @@ const PerformanceReport = () => {
               <CardHeader className="py-1.5 md:py-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm md:text-lg">
-                    Actions ({hasActiveFilters ? `${filteredActions.length}/${actions.length}` : actions.length})
+                    {t(reportLanguage, "actions_label")} ({hasActiveFilters ? `${filteredActions.length}/${actions.length}` : actions.length})
                   </CardTitle>
                   <div className="flex items-center gap-2">
                     {hasActiveFilters && (
-                      <button onClick={() => { setFilterTypes([]); setFilterRating(null); setFilterHasNotes(false); }} className="text-[10px] text-muted-foreground hover:text-foreground underline">Clear filters</button>
+                      <button onClick={() => { setFilterTypes([]); setFilterRating(null); setFilterHasNotes(false); }} className="text-[10px] text-muted-foreground hover:text-foreground underline">{t(reportLanguage, "clear_filters")}</button>
                     )}
                     <button onClick={() => setShowActionFilters(!showActionFilters)} className={`p-1.5 rounded transition-colors ${hasActiveFilters ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
                       <Filter className="h-4 w-4" />
@@ -765,7 +765,7 @@ const PerformanceReport = () => {
                     {hasActiveFilters && filteredActions.some(a => a.video_url) && (
                       <div className="pt-2 border-t border-border/30">
                         <Button variant="default" size="sm" className="bg-gold hover:bg-gold/90 text-black font-semibold text-xs w-full" onClick={() => setShowFilteredPlayer(true)}>
-                          <Play className="h-3.5 w-3.5 mr-1.5" />Watch Selected ({filteredActions.filter(a => a.video_url).length})
+                          <Play className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "watch_selected")} ({filteredActions.filter(a => a.video_url).length})
                         </Button>
                       </div>
                     )}
@@ -784,7 +784,7 @@ const PerformanceReport = () => {
                           <span className={`text-xs font-bold ${getActionScoreColor(action.action_score)}`}>{action.action_score?.toFixed(3)}</span>
                         </div>
                         {action.video_url && (
-                          <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }} className="text-risegold hover:text-risegold/80 p-0.5 flex-shrink-0">
+                          <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }} className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0">
                             <Video className="h-3.5 w-3.5" />
                           </button>
                         )}
@@ -823,7 +823,7 @@ const PerformanceReport = () => {
                           <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>{action.action_score?.toFixed(5)}</td>
                           <td className="py-2 px-2 text-center">
                             {action.video_url ? (
-                              <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }} className="text-risegold hover:text-risegold/80 p-1">
+                              <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }} className="text-accent hover:text-accent/80 p-1">
                                 <Video className="h-4 w-4" />
                               </button>
                             ) : <span className="text-muted-foreground">-</span>}
@@ -858,6 +858,7 @@ const PerformanceReport = () => {
         open={showClippedActions}
         onOpenChange={setShowClippedActions}
         clips={actions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
+        language={reportLanguage}
       />
 
       {/* Ranked/Full Match Video Player */}
@@ -865,6 +866,7 @@ const PerformanceReport = () => {
         open={showRankedPlayer}
         onOpenChange={setShowRankedPlayer}
         mode={rankedMode}
+        language={reportLanguage}
         clips={actions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, action_score: a.action_score, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
       />
 
@@ -873,6 +875,7 @@ const PerformanceReport = () => {
         open={showFilteredPlayer}
         onOpenChange={setShowFilteredPlayer}
         mode="chronological"
+        language={reportLanguage}
         clips={filteredActions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, action_score: a.action_score, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
       />
 

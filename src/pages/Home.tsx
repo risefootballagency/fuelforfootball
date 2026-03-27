@@ -37,10 +37,10 @@ const Home = () => {
     );
   }
   
-  // Default to Landing page
+  // Default to PlayersIntro page
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Landing />
+      <PlayersIntro />
     </Suspense>
   );
 };

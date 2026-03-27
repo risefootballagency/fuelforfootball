@@ -137,6 +137,7 @@ const App = () => {
                   <Routes location={displayLocation}>
                     <Route path="/" element={<Home />} />
                     <Route path="/intro" element={<Intro />} />
+                    {createLocalizedRoutes('/role-selector', <Landing />)}
                     
                     {/* Localized routes */}
                     {createLocalizedRoutes('/clubs', <Clubs />)}
