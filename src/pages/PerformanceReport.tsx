@@ -107,7 +107,7 @@ const PerformanceReport = () => {
   const livePortalLanguage = usePortalLanguage();
   const reportLanguage = isPortalView
     ? (livePortalLanguage || localStorage.getItem("portal_language_hint") || localStorage.getItem("preferred_language") || sessionStorage.getItem("ip_language_detected") || analysis?.translated_content?.language || "en")
-    : "en";
+    : (analysis?.translated_content?.language || "en");
   const reportContentLanguage = getReportLanguage(analysis?.translated_content, reportLanguage);
   const portalLocale = getReportLocale(reportLanguage);
   const tc = analysis?.translated_content;
@@ -440,7 +440,7 @@ const PerformanceReport = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title={`${analysis.player_name} vs ${analysis.opponent} - Performance Report | RISE Football`}
+        title={`${analysis.player_name} vs ${analysis.opponent} - ${t(reportLanguage, "performance_report")} | Fuel for Football`}
         description={`Detailed performance analysis for ${analysis.player_name} against ${analysis.opponent}. R90 Score: ${analysis.r90_score?.toFixed(2) || 'N/A'}.`}
       />
       {!isAuthenticated && <div className="print:hidden"><Header /></div>}
