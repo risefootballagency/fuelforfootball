@@ -589,7 +589,7 @@ const PerformanceReport = () => {
           {/* Key Stats */}
           <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
             <div className="text-center p-2">
-              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Raw Score</p>
+              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "raw_score")}</p>
               <p className="text-base md:text-2xl font-bold">
                 {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
               </p>
@@ -611,7 +611,7 @@ const PerformanceReport = () => {
               </p>
             </div>
             <div className="text-center p-2">
-              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">Mins</p>
+              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "mins_short")}</p>
               <p className="text-base md:text-2xl font-bold">{analysis.minutes_played ?? "N/A"}</p>
             </div>
           </div>
@@ -646,7 +646,7 @@ const PerformanceReport = () => {
           {advancedStats.length > 0 && (
             <Card className="overflow-hidden">
               <CardHeader className="py-1.5 md:py-2">
-                <CardTitle className="text-sm md:text-lg">Match Statistics</CardTitle>
+                <CardTitle className="text-sm md:text-lg">{t(reportLanguage, "match_statistics")}</CardTitle>
               </CardHeader>
               <CardContent className="p-2 md:p-4">
                 <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
@@ -707,7 +707,7 @@ const PerformanceReport = () => {
           {analysis.performance_overview && (
             <Card className="overflow-hidden">
               <CardHeader className="py-1.5 md:py-2">
-                <CardTitle className="text-sm md:text-lg">Overview</CardTitle>
+                <CardTitle className="text-sm md:text-lg">{t(reportLanguage, "overview")}</CardTitle>
               </CardHeader>
               <CardContent className="p-2 md:p-4">
                 <p className="text-muted-foreground whitespace-pre-wrap text-center text-xs md:text-sm">{analysis.performance_overview}</p>
@@ -721,11 +721,11 @@ const PerformanceReport = () => {
               <CardHeader className="py-1.5 md:py-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm md:text-lg">
-                    Actions ({hasActiveFilters ? `${filteredActions.length}/${actions.length}` : actions.length})
+                    {t(reportLanguage, "actions_label")} ({hasActiveFilters ? `${filteredActions.length}/${actions.length}` : actions.length})
                   </CardTitle>
                   <div className="flex items-center gap-2">
                     {hasActiveFilters && (
-                      <button onClick={() => { setFilterTypes([]); setFilterRating(null); setFilterHasNotes(false); }} className="text-[10px] text-muted-foreground hover:text-foreground underline">Clear filters</button>
+                      <button onClick={() => { setFilterTypes([]); setFilterRating(null); setFilterHasNotes(false); }} className="text-[10px] text-muted-foreground hover:text-foreground underline">{t(reportLanguage, "clear_filters")}</button>
                     )}
                     <button onClick={() => setShowActionFilters(!showActionFilters)} className={`p-1.5 rounded transition-colors ${hasActiveFilters ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground'}`}>
                       <Filter className="h-4 w-4" />
@@ -765,7 +765,7 @@ const PerformanceReport = () => {
                     {hasActiveFilters && filteredActions.some(a => a.video_url) && (
                       <div className="pt-2 border-t border-border/30">
                         <Button variant="default" size="sm" className="bg-gold hover:bg-gold/90 text-black font-semibold text-xs w-full" onClick={() => setShowFilteredPlayer(true)}>
-                          <Play className="h-3.5 w-3.5 mr-1.5" />Watch Selected ({filteredActions.filter(a => a.video_url).length})
+                          <Play className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "watch_selected")} ({filteredActions.filter(a => a.video_url).length})
                         </Button>
                       </div>
                     )}
