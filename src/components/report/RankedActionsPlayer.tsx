@@ -1,9 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, SkipForward, SkipBack } from "lucide-react";
+import { X, SkipForward, SkipBack, Play, Pause, Loader2, ChevronUp, ChevronDown } from "lucide-react";
 import { t } from "@/lib/portalTranslations";
 import { sortReportActionsChronologically } from "@/lib/reportActionHelpers";
+import { useSharedClipPlayer, type SharedClipPlayerState } from "@/hooks/useSharedClipPlayer";
+import { toast } from "sonner";
+import { toTitleCase } from "@/lib/titleCase";
 import { ReadOnlyAnnotationOverlay } from "@/components/portal/ReadOnlyAnnotationOverlay";
 
 interface Clip {
@@ -15,6 +18,8 @@ interface Clip {
   video_url: string;
   minute: number;
   notes?: string | null;
+  clip_start?: number | null;
+  clip_end?: number | null;
   clip_annotations?: any[] | null;
 }
 
@@ -24,49 +29,116 @@ interface RankedActionsPlayerProps {
   clips: Clip[];
   mode: "chronological" | "ranked" | "noted";
   language?: string;
+  player?: SharedClipPlayerState;
 }
 
-export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language = "en" }: RankedActionsPlayerProps) => {
+const categoriseAction = (type: string): string => {
+  const lower = (type || '').toLowerCase();
+  const keyPatterns: Record<string, string[]> = {
+    'Key Actions': ['goal', 'assist', 'key pass', 'penalty', 'big chance', 'chance created'],
+    'Offensive': ['shot', 'cross', 'dribble', 'pass', 'carry', 'through ball', 'progressive', 'touch', 'ball retention', 'chance', 'attacking', 'offensive', 'forward'],
+    'Defensive': ['tackle', 'interception', 'clearance', 'block', 'header', 'recovery', 'regain', 'defensive', 'press', 'duel'],
+  };
+  for (const [cat, patterns] of Object.entries(keyPatterns)) {
+    if (patterns.some(p => lower.includes(p))) return cat;
+  }
+  return 'Other';
+};
+
+export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language = "en", player: providedPlayer }: RankedActionsPlayerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const [swipeY, setSwipeY] = useState(0);
   const [swiping, setSwiping] = useState(false);
   const touchStartY = useRef(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [showClipList, setShowClipList] = useState(true);
+  const clipListRef = useRef<HTMLDivElement>(null);
+  const standaloneVideoRef = useRef<HTMLVideoElement>(null);
+
+  const localPlayer = useSharedClipPlayer();
+  const player = providedPlayer ?? localPlayer;
 
   const filteredClips = mode === "noted" ? clips.filter((clip) => clip.notes) : clips;
   const sortedClips = mode === "ranked"
-    ? [...filteredClips].sort((a, b) => b.action_score - a.action_score)
-    : sortReportActionsChronologically(filteredClips);
+    ? [...filteredClips]
+        .filter((clip) => !!clip.video_url)
+        .sort((a, b) => b.action_score - a.action_score)
+    : sortReportActionsChronologically(filteredClips).filter((clip) => !!clip.video_url);
+
+  const categorisedClips = useMemo(() => {
+    const categories: Record<string, typeof sortedClips> = {};
+    for (const clip of sortedClips) {
+      const types = clip.action_type.split(',').map(t => t.trim());
+      const cat = categoriseAction(types[0] || clip.action_type);
+      if (!categories[cat]) categories[cat] = [];
+      categories[cat].push(clip);
+    }
+    return categories;
+  }, [sortedClips]);
 
   const current = sortedClips[currentIndex];
+  const hasTimeRange = current?.clip_start != null && current?.clip_end != null && current.clip_end > current.clip_start;
+  const isStandaloneClip = !!current?.video_url && !hasTimeRange;
+
+  const playClipFn = player.playClip;
+  const stopFn = player.stop;
+  const clipError = player.clipError;
 
   useEffect(() => {
-    setCurrentIndex(0);
-  }, [open, mode]);
-
-  const handleNext = () => {
-    if (currentIndex < sortedClips.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
+    if (open) {
+      if (sortedClips.length === 0) {
+        toast.error("No valid clips available.");
+        onOpenChange(false);
+        return;
+      }
+      setCurrentIndex(0);
+    } else {
+      stopFn();
     }
-  };
+  }, [open, mode, onOpenChange, stopFn, sortedClips.length]);
 
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
+  useEffect(() => {
+    if (!open || !current) return;
+    if (hasTimeRange) {
+      playClipFn({
+        videoUrl: current.video_url,
+        clipStart: current.clip_start!,
+        clipEnd: current.clip_end!,
+      });
     }
-  };
+  }, [open, current, hasTimeRange, playClipFn]);
 
-  const handleVideoEnd = () => {
-    if (mode === "noted") return;
-    if (currentIndex < sortedClips.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      setTimeout(() => {
-        videoRef.current?.play().catch(() => {});
-      }, 100);
+  useEffect(() => {
+    if (!open || !clipError) return;
+    toast.error(clipError);
+    onOpenChange(false);
+  }, [open, clipError, onOpenChange]);
+
+  useEffect(() => {
+    if (!hasTimeRange) return;
+    if (player.progress >= 1 && !player.isPlaying && mode !== "noted") {
+      if (currentIndex < sortedClips.length - 1) {
+        setCurrentIndex(prev => prev + 1);
+      }
     }
-  };
+  }, [player.progress, player.isPlaying, hasTimeRange, currentIndex, sortedClips.length, mode]);
+
+  // Scroll active clip into view
+  useEffect(() => {
+    if (!clipListRef.current) return;
+    const activeEl = clipListRef.current.querySelector('[data-active="true"]');
+    if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [currentIndex]);
+
+  const handleNext = () => { if (currentIndex < sortedClips.length - 1) setCurrentIndex(prev => prev + 1); };
+  const handlePrev = () => { if (currentIndex > 0) setCurrentIndex(prev => prev - 1); };
+
+  const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current || !hasTimeRange) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    player.seekToRatio(ratio);
+  }, [hasTimeRange, player]);
 
   const formatMinute = (minute: number) => {
     const minPart = Math.floor(minute);
@@ -90,29 +162,20 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
 
   if (!current) return null;
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-    setSwiping(true);
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; setSwiping(true); };
+  const handleTouchMove = (e: React.TouchEvent) => { if (!swiping) return; setSwipeY(Math.max(0, e.touches[0].clientY - touchStartY.current)); };
+  const handleTouchEnd = () => { if (swipeY > 120) onOpenChange(false); setSwipeY(0); setSwiping(false); };
+
+  const jumpToClip = (clipId: string) => {
+    const idx = sortedClips.findIndex(c => c.id === clipId);
+    if (idx >= 0) setCurrentIndex(idx);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!swiping) return;
-    const delta = e.touches[0].clientY - touchStartY.current;
-    setSwipeY(Math.max(0, delta));
-  };
-
-  const handleTouchEnd = () => {
-    if (swipeY > 120) {
-      onOpenChange(false);
-    }
-    setSwipeY(0);
-    setSwiping(false);
-  };
+  const categoryOrder = ['Key Actions', 'Offensive', 'Defensive', 'Other'];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        ref={containerRef}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -125,7 +188,7 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
       >
         <DialogTitle className="sr-only">{getModeLabel()}</DialogTitle>
 
-        <div className="flex items-center justify-between px-4 py-3 bg-black/80 border-b border-border/30 shrink-0">
+        <div className="flex items-center justify-between px-4 py-2 bg-black/80 border-b border-border/30 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <span className="text-accent font-bold text-sm">{getModeLabel()}</span>
             <span className="text-xs text-white/60">{currentIndex + 1} / {sortedClips.length}</span>
@@ -135,39 +198,8 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
           </Button>
         </div>
 
-        <div className="flex-1 relative flex items-center justify-center bg-black min-h-0">
-          <video
-            ref={videoRef}
-            key={current.video_url}
-            src={current.video_url}
-            preload="auto"
-            crossOrigin="anonymous"
-            controls
-            className="w-full h-full object-contain"
-            onCanPlay={(e) => {
-              if (isPlaying) e.currentTarget.play().catch(() => {});
-            }}
-            onEnded={handleVideoEnd}
-          />
-          {current.clip_annotations && current.clip_annotations.length > 0 && (
-            <ReadOnlyAnnotationOverlay
-              elements={current.clip_annotations}
-              videoRef={videoRef as React.RefObject<HTMLVideoElement>}
-            />
-          )}
-          {sortedClips[currentIndex + 1] && (
-            <video
-              key={`prefetch-${sortedClips[currentIndex + 1].video_url}`}
-              src={sortedClips[currentIndex + 1].video_url}
-              preload="auto"
-              crossOrigin="anonymous"
-              muted
-              style={{ display: "none" }}
-            />
-          )}
-        </div>
-
-        <div className="px-4 py-2 bg-black/90 border-t border-border/30 shrink-0">
+        {/* Controls - above video */}
+        <div className="px-4 py-2 bg-black/90 border-b border-border/30 shrink-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
@@ -177,21 +209,144 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
                   {current.action_score != null ? `${current.action_score >= 0 ? "+" : ""}${current.action_score.toFixed(3)}` : "—"}
                 </span>
               </div>
-              <p className="text-white/60 text-xs mt-0.5">{current.action_type}: {current.action_description}</p>
-              {current.notes && (
-                <p className="text-accent text-[10px] italic mt-1">📝 {current.notes}</p>
-              )}
+              <p className="text-white/60 text-xs mt-0.5 truncate">{toTitleCase(current.action_type)}: {current.action_description}</p>
             </div>
-            <div className="flex gap-1 flex-shrink-0">
+            <div className="flex gap-1 flex-shrink-0 items-center">
               <Button variant="ghost" size="sm" onClick={handlePrev} disabled={currentIndex === 0} className="text-white/60 hover:text-white h-8 w-8 p-0">
                 <SkipBack className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={isStandaloneClip ? undefined : player.togglePlayPause}>
+                {player.isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </Button>
               <Button variant="ghost" size="sm" onClick={handleNext} disabled={currentIndex === sortedClips.length - 1} className="text-white/60 hover:text-white h-8 w-8 p-0">
                 <SkipForward className="h-4 w-4" />
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1 ml-2"
+                onClick={() => setShowClipList(!showClipList)}
+              >
+                {showClipList ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
+          {current.notes && (
+            <p className="text-accent text-xs italic leading-relaxed mt-1">📝 {current.notes}</p>
+          )}
         </div>
+
+        <div className="flex-1 relative flex items-center justify-center bg-black min-h-0">
+          {isStandaloneClip && (
+            <video
+              ref={standaloneVideoRef}
+              key={current.id}
+              src={current.video_url}
+              className="w-full h-full object-contain cursor-pointer"
+              preload="auto"
+              crossOrigin="anonymous"
+              muted
+              playsInline
+              autoPlay
+              controls={false}
+              onClick={(e) => {
+                const vid = e.currentTarget;
+                vid.paused ? vid.play().catch(() => {}) : vid.pause();
+              }}
+            />
+          )}
+          {hasTimeRange && (
+            <>
+              <video
+                ref={player.videoRefCallback}
+                preload="metadata"
+                crossOrigin="anonymous"
+                className={`w-full h-full object-contain cursor-pointer transition-opacity ${player.isClipReady ? 'opacity-100' : 'opacity-0'}`}
+                onClick={player.togglePlayPause}
+                controls={false}
+              />
+              {!player.isClipReady && !player.clipError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black">
+                  <div className="flex items-center gap-2 text-sm text-white/80">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading clip…
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+          {current.clip_annotations && current.clip_annotations.length > 0 && (
+            <ReadOnlyAnnotationOverlay
+              elements={current.clip_annotations}
+              videoRef={(hasTimeRange ? player.videoRef : standaloneVideoRef) as React.RefObject<HTMLVideoElement>}
+            />
+          )}
+        </div>
+
+        {/* Progress bar */}
+        {hasTimeRange && player.isClipReady && (
+          <div className="px-4 py-1 bg-black/90 shrink-0">
+            <div
+              ref={progressBarRef}
+              className="w-full h-1.5 bg-white/20 rounded cursor-pointer"
+              onClick={handleProgressClick}
+            >
+              <div className="h-full bg-primary rounded" style={{ width: `${player.progress * 100}%` }} />
+            </div>
+          </div>
+        )}
+
+        {/* Clip list table categorised */}
+        {showClipList && (
+          <div ref={clipListRef} className="bg-black/95 border-t border-border/30 overflow-y-auto shrink-0 max-h-[35vh]">
+            {mode === "ranked" ? (
+              sortedClips.map(clip => (
+                <button
+                  key={clip.id}
+                  data-active={clip.id === current.id}
+                  onClick={() => jumpToClip(clip.id)}
+                  className={`w-full text-left px-4 py-2 flex items-center gap-3 text-xs transition-colors border-b border-border/10 ${
+                    clip.id === current.id ? 'bg-primary/20 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="font-bold text-white/50 w-6 text-center">#{clip.action_number}</span>
+                  <span className="text-white/50 w-10">{formatMinute(clip.minute)}'</span>
+                  <span className="flex-1 truncate">{toTitleCase(clip.action_type)}</span>
+                  <span className={`text-xs font-bold ${getScoreColor(clip.action_score)}`}>
+                    {clip.action_score >= 0 ? "+" : ""}{clip.action_score.toFixed(3)}
+                  </span>
+                  {clip.id === current.id && <span className="text-primary text-[10px] font-bold">▶</span>}
+                </button>
+              ))
+            ) : (
+              categoryOrder.filter(cat => categorisedClips[cat]?.length).map(cat => (
+                <div key={cat}>
+                  <div className="sticky top-0 bg-black/90 px-4 py-1.5 text-[10px] uppercase tracking-wider text-primary font-semibold border-b border-border/20">
+                    {cat} ({categorisedClips[cat].length})
+                  </div>
+                  {categorisedClips[cat].map(clip => (
+                    <button
+                      key={clip.id}
+                      data-active={clip.id === current.id}
+                      onClick={() => jumpToClip(clip.id)}
+                      className={`w-full text-left px-4 py-2 flex items-center gap-3 text-xs transition-colors border-b border-border/10 ${
+                        clip.id === current.id ? 'bg-primary/20 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <span className="font-bold text-white/50 w-6 text-center">#{clip.action_number}</span>
+                      <span className="text-white/50 w-10">{formatMinute(clip.minute)}'</span>
+                      <span className="flex-1 truncate">{toTitleCase(clip.action_type)}</span>
+                      <span className={`text-xs font-bold ${getScoreColor(clip.action_score)}`}>
+                        {clip.action_score >= 0 ? "+" : ""}{clip.action_score.toFixed(3)}
+                      </span>
+                      {clip.id === current.id && <span className="text-primary text-[10px] font-bold">▶</span>}
+                    </button>
+                  ))}
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
