@@ -26,6 +26,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { sortActionsByMinute } from "@/lib/actionSorting";
 import { t } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
+import { categoriseActionTypes, CATEGORY_ORDER } from "@/lib/actionCategorisation";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 const formatMinute = (minute: number | null | undefined): string => {
