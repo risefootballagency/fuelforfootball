@@ -1138,7 +1138,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                               <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
                               <td className="py-2 px-2">{toTitleCase(action.action_type)}</td>
                               {showDescriptions && <td className="py-2 px-2">{action.action_description}</td>}
-                              {showDescriptions && <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>}
+                              {showDescriptions && <td className="py-2 px-2 text-accent italic">{action.notes || "-"}</td>}
                               <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>
                                 {action.action_score?.toFixed(5)}
                               </td>
