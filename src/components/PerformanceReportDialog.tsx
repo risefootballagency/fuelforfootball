@@ -18,6 +18,7 @@ import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
 import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toTitleCase } from "@/lib/titleCase";
+import { categoriseActionTypes, CATEGORY_ORDER } from "@/lib/actionCategorisation";
 import { sortActionsByMinute } from "@/lib/actionSorting";
 import { t, normalizePortalLanguage, translateStatLabel } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
