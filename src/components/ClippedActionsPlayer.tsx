@@ -1,9 +1,12 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, SkipBack, SkipForward, Play, Pause } from 'lucide-react';
+import { X, SkipBack, SkipForward, Play, Pause, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import { t } from '@/lib/portalTranslations';
 import { sortReportActionsChronologically } from '@/lib/reportActionHelpers';
+import { useSharedClipPlayer, type SharedClipPlayerState } from '@/hooks/useSharedClipPlayer';
+import { toast } from 'sonner';
+import { toTitleCase } from '@/lib/titleCase';
 
 interface ClipAction {
   id: string;
@@ -13,6 +16,8 @@ interface ClipAction {
   video_url: string;
   minute: number;
   notes?: string | null;
+  clip_start?: number | null;
+  clip_end?: number | null;
 }
 
 interface ClippedActionsPlayerProps {
@@ -21,7 +26,23 @@ interface ClippedActionsPlayerProps {
   clips: ClipAction[];
   language?: string;
   title?: string;
+  player?: SharedClipPlayerState;
 }
+
+const normaliseType = (t: string) => t.trim().toLowerCase().replace(/\s+/g, ' ');
+
+const categoriseAction = (type: string): string => {
+  const lower = (type || '').toLowerCase();
+  const keyPatterns: Record<string, string[]> = {
+    'Key Actions': ['goal', 'assist', 'key pass', 'penalty', 'big chance', 'chance created'],
+    'Offensive': ['shot', 'cross', 'dribble', 'pass', 'carry', 'through ball', 'progressive', 'touch', 'ball retention', 'chance', 'attacking', 'offensive', 'forward'],
+    'Defensive': ['tackle', 'interception', 'clearance', 'block', 'header', 'recovery', 'regain', 'defensive', 'press', 'duel'],
+  };
+  for (const [cat, patterns] of Object.entries(keyPatterns)) {
+    if (patterns.some(p => lower.includes(p))) return cat;
+  }
+  return 'Other';
+};
 
 export const ClippedActionsPlayer = ({
   open,
@@ -29,77 +50,128 @@ export const ClippedActionsPlayer = ({
   clips,
   language = "en",
   title,
+  player: providedPlayer,
 }: ClippedActionsPlayerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const [swipeY, setSwipeY] = useState(0);
   const [swiping, setSwiping] = useState(false);
   const touchStartY = useRef(0);
+  const [showClipList, setShowClipList] = useState(true);
+  const clipListRef = useRef<HTMLDivElement>(null);
 
-  const sortedClips = useMemo(() => sortReportActionsChronologically(clips), [clips]);
+  const localPlayer = useSharedClipPlayer();
+  const player = providedPlayer ?? localPlayer;
+
+  const sortedClips = useMemo(
+    () => sortReportActionsChronologically(clips).filter((clip) => !!clip.video_url),
+    [clips]
+  );
+
+  // Deduplicate + categorise
+  const categorisedClips = useMemo(() => {
+    const seen = new Map<string, number>();
+    const deduped: typeof sortedClips = [];
+    for (const clip of sortedClips) {
+      const key = normaliseType(clip.action_type);
+      if (!seen.has(key) || seen.get(key) !== clip.action_number) {
+        deduped.push(clip);
+        seen.set(key, clip.action_number);
+      }
+    }
+
+    const categories: Record<string, typeof sortedClips> = {};
+    for (const clip of deduped) {
+      const types = clip.action_type.split(',').map(t => t.trim());
+      const cat = categoriseAction(types[0] || clip.action_type);
+      if (!categories[cat]) categories[cat] = [];
+      categories[cat].push(clip);
+    }
+    return categories;
+  }, [sortedClips]);
+
   const currentClip = sortedClips[currentIndex];
+  const hasTimeRange = currentClip?.clip_start != null && currentClip?.clip_end != null && currentClip.clip_end > currentClip.clip_start;
+  const isStandaloneClip = !!currentClip?.video_url && !hasTimeRange;
+
+  const playClipFn = player.playClip;
+  const stopFn = player.stop;
+  const clipError = player.clipError;
 
   useEffect(() => {
     if (open) {
-      setCurrentIndex(0);
-      setIsPlaying(true);
-    }
-  }, [open]);
-
-  const handleVideoEnded = () => {
-    if (currentIndex < sortedClips.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      setIsPlaying(false);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
-  };
-
-  const handleNext = () => {
-    if (currentIndex < clips.length - 1) setCurrentIndex(prev => prev + 1);
-  };
-
-  const togglePlayPause = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
+      if (sortedClips.length === 0) {
+        toast.error('No valid clips available.');
+        onOpenChange(false);
+        return;
       }
-      setIsPlaying(!isPlaying);
+      setCurrentIndex(0);
+    } else {
+      stopFn();
     }
-  };
+  }, [open, onOpenChange, stopFn, sortedClips.length]);
 
-  const nextClip = sortedClips[currentIndex + 1] ?? null;
+  useEffect(() => {
+    if (!open || !currentClip) return;
+    if (hasTimeRange) {
+      playClipFn({
+        videoUrl: currentClip.video_url,
+        clipStart: currentClip.clip_start!,
+        clipEnd: currentClip.clip_end!,
+      });
+    }
+  }, [open, currentClip, hasTimeRange, playClipFn]);
+
+  useEffect(() => {
+    if (!open || !clipError) return;
+    toast.error(clipError);
+    onOpenChange(false);
+  }, [open, clipError, onOpenChange]);
+
+  useEffect(() => {
+    if (!hasTimeRange || !player.isPlaying) return;
+    if (player.progress >= 1 && !player.isPlaying) {
+      if (currentIndex < sortedClips.length - 1) {
+        setCurrentIndex(prev => prev + 1);
+      }
+    }
+  }, [player.progress, player.isPlaying, hasTimeRange, currentIndex, sortedClips.length]);
+
+  // Scroll active clip into view
+  useEffect(() => {
+    if (!clipListRef.current) return;
+    const activeEl = clipListRef.current.querySelector('[data-active="true"]');
+    if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [currentIndex]);
+
+  const handlePrevious = () => { if (currentIndex > 0) setCurrentIndex(prev => prev - 1); };
+  const handleNext = () => { if (currentIndex < sortedClips.length - 1) setCurrentIndex(prev => prev + 1); };
+
+  const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current || !hasTimeRange) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    player.seekToRatio(ratio);
+  }, [hasTimeRange, player]);
 
   if (!currentClip) return null;
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-    setSwiping(true);
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!swiping) return;
-    const delta = e.touches[0].clientY - touchStartY.current;
-    setSwipeY(Math.max(0, delta));
-  };
-  const handleTouchEnd = () => {
-    if (swipeY > 120) {
-      onOpenChange(false);
-    }
-    setSwipeY(0);
-    setSwiping(false);
-  };
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; setSwiping(true); };
+  const handleTouchMove = (e: React.TouchEvent) => { if (!swiping) return; setSwipeY(Math.max(0, e.touches[0].clientY - touchStartY.current)); };
+  const handleTouchEnd = () => { if (swipeY > 120) onOpenChange(false); setSwipeY(0); setSwiping(false); };
 
   const formatMinute = (minute: number) => {
     const minPart = Math.floor(minute);
     const secPart = Math.round((minute - minPart) * 100);
     return `${minPart}.${secPart.toString().padStart(2, '0')}`;
   };
+
+  const jumpToClip = (clipId: string) => {
+    const idx = sortedClips.findIndex(c => c.id === clipId);
+    if (idx >= 0) setCurrentIndex(idx);
+  };
+
+  const categoryOrder = ['Key Actions', 'Offensive', 'Defensive', 'Other'];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -112,14 +184,14 @@ export const ClippedActionsPlayer = ({
         <DialogTitle className="sr-only">{t(language, "full_match_video")}</DialogTitle>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-black/80 border-b border-border/30 shrink-0">
+        <div className="flex items-center justify-between px-4 py-2 bg-black/80 border-b border-border/30 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs font-bold">
               {currentIndex + 1}/{sortedClips.length}
             </span>
             <div className="min-w-0">
-              <div className="text-white text-sm font-semibold truncate">{title || currentClip.action_type}</div>
-              <div className="text-white/70 text-xs truncate">{formatMinute(currentClip.minute)}' • {currentClip.action_type}</div>
+              <div className="text-white text-sm font-semibold truncate">{title || toTitleCase(currentClip.action_type)}</div>
+              <div className="text-white/70 text-xs truncate">{formatMinute(currentClip.minute)}' • {toTitleCase(currentClip.action_type)}</div>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="text-white hover:text-white hover:bg-white/20 h-10 w-10 min-w-[40px]">
@@ -127,31 +199,70 @@ export const ClippedActionsPlayer = ({
           </Button>
         </div>
 
+        {/* Controls - above video */}
+        <div className="bg-black/90 border-b border-border/30 px-4 py-2 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={handlePrevious} disabled={currentIndex === 0}>
+              <SkipBack className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-10 w-10" onClick={isStandaloneClip ? undefined : player.togglePlayPause}>
+              {player.isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+            </Button>
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={handleNext} disabled={currentIndex === sortedClips.length - 1}>
+              <SkipForward className="h-5 w-5" />
+            </Button>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1"
+            onClick={() => setShowClipList(!showClipList)}
+          >
+            {showClipList ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            Clips
+          </Button>
+        </div>
+
         {/* Video */}
         <div className="flex-1 relative flex items-center justify-center bg-black min-h-0">
-          <video
-            ref={videoRef}
-            key={currentClip.video_url}
-            src={currentClip.video_url}
-            className="w-full h-full object-contain"
-            preload="auto"
-            crossOrigin="anonymous"
-            muted
-            playsInline
-            onCanPlay={(e) => { if (isPlaying) e.currentTarget.play().catch(() => {}); }}
-            onEnded={handleVideoEnded}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-          />
-          {nextClip && (
+          {isStandaloneClip && (
             <video
-              key={`prefetch-${nextClip.video_url}`}
-              src={nextClip.video_url}
+              key={currentClip.id}
+              src={currentClip.video_url}
+              className="w-full h-full object-contain cursor-pointer"
               preload="auto"
               crossOrigin="anonymous"
               muted
-              style={{ display: 'none' }}
+              playsInline
+              autoPlay
+              controls={false}
+              onClick={(e) => {
+                const vid = e.currentTarget;
+                vid.paused ? vid.play().catch(() => {}) : vid.pause();
+              }}
             />
+          )}
+          {hasTimeRange && (
+            <>
+              <video
+                ref={player.videoRefCallback}
+                className={`w-full h-full object-contain cursor-pointer transition-opacity ${player.isClipReady ? 'opacity-100' : 'opacity-0'}`}
+                preload="metadata"
+                crossOrigin="anonymous"
+                muted
+                playsInline
+                onClick={player.togglePlayPause}
+                controls={false}
+              />
+              {!player.isClipReady && !player.clipError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black">
+                  <div className="flex items-center gap-2 text-sm text-white/80">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading clip…
+                  </div>
+                </div>
+              )}
+            </>
           )}
           {/* Description overlay */}
           <div className="absolute bottom-4 left-4 right-4 bg-black/70 text-white text-xs px-3 py-2 rounded max-w-[80%]">
@@ -162,37 +273,50 @@ export const ClippedActionsPlayer = ({
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="bg-black/90 border-t border-border/30 px-4 py-2 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={handlePrevious} disabled={currentIndex === 0}>
-              <SkipBack className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-10 w-10" onClick={togglePlayPause}>
-              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-            </Button>
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={handleNext} disabled={currentIndex === sortedClips.length - 1}>
-              <SkipForward className="h-5 w-5" />
-            </Button>
+        {/* Progress bar */}
+        {hasTimeRange && player.isClipReady && (
+          <div className="px-4 py-1 bg-black/90 shrink-0">
+            <div
+              ref={progressBarRef}
+              className="w-full h-1.5 bg-white/20 rounded cursor-pointer"
+              onClick={handleProgressClick}
+            >
+              <div className="h-full bg-primary rounded" style={{ width: `${player.progress * 100}%` }} />
+            </div>
           </div>
+        )}
 
-          {/* Clip selector */}
-          <div className="flex gap-1.5 overflow-x-auto max-w-[50%]">
-            {sortedClips.map((clip, index) => (
-              <button
-                key={clip.id}
-                onClick={() => setCurrentIndex(index)}
-                className={`flex-shrink-0 px-2.5 py-1.5 rounded text-xs transition-colors ${
-                  index === currentIndex
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-white/10 text-white/80 hover:bg-white/20'
-                }`}
-              >
-                #{clip.action_number}
-              </button>
+        {/* Clip list table */}
+        {showClipList && (
+          <div ref={clipListRef} className="bg-black/95 border-t border-border/30 overflow-y-auto shrink-0 max-h-[35vh]">
+            {categoryOrder.filter(cat => categorisedClips[cat]?.length).map(cat => (
+              <div key={cat}>
+                <div className="sticky top-0 bg-black/90 px-4 py-1.5 text-[10px] uppercase tracking-wider text-primary font-semibold border-b border-border/20">
+                  {cat} ({categorisedClips[cat].length})
+                </div>
+                {categorisedClips[cat].map(clip => (
+                  <button
+                    key={clip.id}
+                    data-active={clip.id === currentClip.id}
+                    onClick={() => jumpToClip(clip.id)}
+                    className={`w-full text-left px-4 py-2 flex items-center gap-3 text-xs transition-colors border-b border-border/10 ${
+                      clip.id === currentClip.id
+                        ? 'bg-primary/20 text-white'
+                        : 'text-white/70 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <span className="font-bold text-white/50 w-6 text-center">#{clip.action_number}</span>
+                    <span className="text-white/50 w-10">{formatMinute(clip.minute)}'</span>
+                    <span className="flex-1 truncate">{toTitleCase(clip.action_type)}</span>
+                    {clip.id === currentClip.id && (
+                      <span className="text-primary text-[10px] font-bold">▶</span>
+                    )}
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );

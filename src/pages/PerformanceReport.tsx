@@ -26,6 +26,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { sortActionsByMinute } from "@/lib/actionSorting";
 import { t } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
+import { categoriseActionTypes, CATEGORY_ORDER } from "@/lib/actionCategorisation";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 const formatMinute = (minute: number | null | undefined): string => {
@@ -378,10 +379,9 @@ const PerformanceReport = () => {
   const advancedStats = getAdvancedStats();
   const calculatedStats = getCalculatedStats();
 
-  // Get unique action types (split by comma)
-  const allActionTypes = Array.from(new Set(
-    actions.flatMap(a => a.action_type.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))
-  )).sort();
+  // Get unique action types (split by comma), deduplicated and categorised
+  const rawActionTypes = actions.flatMap(a => a.action_type.split(',').map(t => t.trim().toLowerCase()).filter(Boolean));
+  const { categories: actionCategories, allDeduped: allActionTypes } = categoriseActionTypes(rawActionTypes);
 
   const getRatingBucket = (score: number): string => {
     if (score >= 0.15) return "dark-green";
@@ -734,14 +734,21 @@ const PerformanceReport = () => {
                 </div>
                 {showActionFilters && (
                   <div className="mt-3 space-y-3 border-t pt-3">
-                    <div>
+                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">Action Type</p>
-                      <div className="flex flex-wrap gap-1">
-                        {allActionTypes.map(type => (
-                          <button key={type} onClick={() => setFilterTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])}
-                            className={`px-2 py-0.5 rounded text-[10px] transition-colors border ${filterTypes.includes(type) ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/30 text-foreground/70 border-border hover:bg-muted/50'}`}>
-                            {toTitleCase(type)}
-                          </button>
+                      <div className="space-y-2">
+                        {CATEGORY_ORDER.filter(cat => actionCategories[cat]?.length).map(cat => (
+                          <div key={cat}>
+                            <p className="text-[9px] uppercase tracking-wider text-muted-foreground/60 mb-1">{cat}</p>
+                            <div className="flex flex-wrap gap-1">
+                              {actionCategories[cat].map(type => (
+                                <button key={type} onClick={() => setFilterTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])}
+                                  className={`px-2 py-0.5 rounded text-[10px] transition-colors border ${filterTypes.includes(type) ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/30 text-foreground/70 border-border hover:bg-muted/50'}`}>
+                                  {toTitleCase(type)}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -790,9 +797,9 @@ const PerformanceReport = () => {
                         )}
                       </div>
                       <div className="font-medium text-xs mt-1 truncate">{toTitleCase(action.action_type)}</div>
-                      {showDescriptions && <div className="text-[10px] text-foreground/80 line-clamp-2">{action.action_description}</div>}
+                      {showDescriptions && <div className="text-[10px] text-foreground/80">{action.action_description}</div>}
                       {showDescriptions && action.notes && (
-                        <div className="text-[9px] text-muted-foreground italic mt-1 pt-1 border-t border-border/50 truncate">{action.notes}</div>
+                        <div className="text-[9px] text-accent italic mt-1 pt-1 border-t border-border/50 break-words">{action.notes}</div>
                       )}
                     </div>
                   ))}
@@ -819,7 +826,7 @@ const PerformanceReport = () => {
                           <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
                           <td className="py-2 px-2">{toTitleCase(action.action_type)}</td>
                           {showDescriptions && <td className="py-2 px-2">{action.action_description}</td>}
-                          {showDescriptions && <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>}
+                          {showDescriptions && <td className="py-2 px-2 text-accent italic">{action.notes || "-"}</td>}
                           <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>{action.action_score?.toFixed(5)}</td>
                           <td className="py-2 px-2 text-center">
                             {action.video_url ? (

@@ -18,6 +18,7 @@ import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
 import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { toTitleCase } from "@/lib/titleCase";
+import { categoriseActionTypes, CATEGORY_ORDER } from "@/lib/actionCategorisation";
 import { sortActionsByMinute } from "@/lib/actionSorting";
 import { t, normalizePortalLanguage, translateStatLabel } from "@/lib/portalTranslations";
 import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
@@ -559,10 +560,9 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const advancedStats = getAdvancedStats();
   const calculatedStats = getCalculatedStats();
 
-  // Get unique action types (split by comma)
-  const allActionTypes = Array.from(new Set(
-    actions.flatMap(a => (a.action_type || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean))
-  )).sort();
+  // Get unique action types (split by comma), deduplicated and categorised
+  const rawActionTypes = actions.flatMap(a => (a.action_type || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean));
+  const { categories: actionCategories, allDeduped: allActionTypes } = categoriseActionTypes(rawActionTypes);
 
   // Rating colour buckets
   const getRatingBucket = (score: number): string => {
@@ -1009,19 +1009,26 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                         {/* Filter by action type */}
                         <div>
                           <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5">{t(reportLanguage, "action_type_label")}</p>
-                          <div className="flex flex-wrap gap-1">
-                            {allActionTypes.map(type => (
-                              <button
-                                key={type}
-                                onClick={() => setFilterTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])}
-                                className={`px-2 py-0.5 rounded text-[10px] transition-colors border ${
-                                  filterTypes.includes(type)
-                                    ? 'bg-primary text-primary-foreground border-primary'
-                                    : 'bg-muted/30 text-foreground/70 border-border hover:bg-muted/50'
-                                }`}
-                              >
-                                {toTitleCase(type)}
-                              </button>
+                          <div className="space-y-2">
+                            {CATEGORY_ORDER.filter(cat => actionCategories[cat]?.length).map(cat => (
+                              <div key={cat}>
+                                <p className="text-[9px] uppercase tracking-wider text-muted-foreground/60 mb-1">{cat}</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {actionCategories[cat].map(type => (
+                                    <button
+                                      key={type}
+                                      onClick={() => setFilterTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])}
+                                      className={`px-2 py-0.5 rounded text-[10px] transition-colors border ${
+                                        filterTypes.includes(type)
+                                          ? 'bg-primary text-primary-foreground border-primary'
+                                          : 'bg-muted/30 text-foreground/70 border-border hover:bg-muted/50'
+                                      }`}
+                                    >
+                                      {toTitleCase(type)}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -1093,7 +1100,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                                   setSelectedVideoUrl(action.video_url!);
                                   setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
                                 }}
-                                className="text-risegold hover:text-risegold/80 p-0.5 flex-shrink-0"
+                                className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0"
                               >
                                 <Video className="h-3.5 w-3.5" />
                               </button>
@@ -1102,7 +1109,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                           <div className="font-medium text-xs mt-1 truncate">{toTitleCase(action.action_type)}</div>
                           {showDescriptions && <div className="text-[10px] text-foreground/80">{action.action_description}</div>}
                           {showDescriptions && action.notes && (
-                            <div className="text-[9px] text-muted-foreground italic mt-1 pt-1 border-t border-border/50 break-words">
+                            <div className="text-[9px] text-accent italic mt-1 pt-1 border-t border-border/50 break-words">
                               {action.notes}
                             </div>
                           )}
@@ -1131,7 +1138,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                               <td className="py-2 px-2">{formatMinute(action.minute)}'</td>
                               <td className="py-2 px-2">{toTitleCase(action.action_type)}</td>
                               {showDescriptions && <td className="py-2 px-2">{action.action_description}</td>}
-                              {showDescriptions && <td className="py-2 px-2 text-muted-foreground">{action.notes || "-"}</td>}
+                              {showDescriptions && <td className="py-2 px-2 text-accent italic">{action.notes || "-"}</td>}
                               <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>
                                 {action.action_score?.toFixed(5)}
                               </td>
@@ -1142,7 +1149,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                                       setSelectedVideoUrl(action.video_url!);
                                       setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
                                     }}
-                                    className="text-risegold hover:text-risegold/80 p-1"
+                                    className="text-accent hover:text-accent/80 p-1"
                                   >
                                     <Video className="h-4 w-4" />
                                   </button>

@@ -1,14 +1,20 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, Maximize } from 'lucide-react';
-import { useRef, useEffect } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { X, Play, Pause, Loader2 } from 'lucide-react';
+import { useRef, useEffect, useCallback, useState } from 'react';
+import { t } from '@/lib/portalTranslations';
+import { useSharedClipPlayer, type SharedClipPlayerState } from '@/hooks/useSharedClipPlayer';
+import { toast } from 'sonner';
 
 interface ActionVideoPopupProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   videoUrl: string;
   actionTitle?: string;
+  language?: string;
+  clipStart?: number | null;
+  clipEnd?: number | null;
+  player?: SharedClipPlayerState;
 }
 
 export const ActionVideoPopup = ({
@@ -16,52 +22,89 @@ export const ActionVideoPopup = ({
   onOpenChange,
   videoUrl,
   actionTitle,
+  language = 'en',
+  clipStart,
+  clipEnd,
+  player: providedPlayer,
 }: ActionVideoPopupProps) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const isMobile = useIsMobile();
+  const localPlayer = useSharedClipPlayer();
+  const player = providedPlayer ?? localPlayer;
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const standaloneVideoRef = useRef<HTMLVideoElement>(null);
+  const hasClipWindow = clipStart != null && clipEnd != null && clipEnd > clipStart;
+  const isStandaloneClip = !!videoUrl && !hasClipWindow;
+
+  const [standaloneReady, setStandaloneReady] = useState(false);
+  const [standalonePlaying, setStandalonePlaying] = useState(false);
+
+  const playClipFn = player.playClip;
+  const stopFn = player.stop;
+  const clipError = player.clipError;
 
   useEffect(() => {
-    if (open && videoRef.current) {
-      const timer = setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.requestFullscreen?.().catch(() => {
-            (videoRef.current as any)?.webkitEnterFullscreen?.();
-          });
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
+    if (!open || videoUrl) return;
+    toast.error('Clip unavailable. Full match playback has been blocked.');
+    onOpenChange(false);
+  }, [open, videoUrl, onOpenChange]);
 
-  const handleFullscreen = () => {
-    if (videoRef.current) {
-      if (videoRef.current.requestFullscreen) {
-        videoRef.current.requestFullscreen();
-      } else if ((videoRef.current as any).webkitEnterFullscreen) {
-        (videoRef.current as any).webkitEnterFullscreen();
-      }
+  useEffect(() => {
+    if (!open || !clipError || isStandaloneClip) return;
+    toast.error(clipError);
+    onOpenChange(false);
+  }, [open, clipError, onOpenChange, isStandaloneClip]);
+
+  useEffect(() => {
+    if (!open || !videoUrl || !hasClipWindow) return;
+    playClipFn({ videoUrl, clipStart: clipStart!, clipEnd: clipEnd! });
+  }, [open, videoUrl, clipStart, clipEnd, hasClipWindow, playClipFn]);
+
+  useEffect(() => {
+    if (!open || !isStandaloneClip) return;
+    setStandaloneReady(false);
+    setStandalonePlaying(false);
+  }, [open, isStandaloneClip, videoUrl]);
+
+  useEffect(() => {
+    if (!open || !isStandaloneClip || !standaloneReady) return;
+    const vid = standaloneVideoRef.current;
+    if (vid) {
+      vid.play().then(() => setStandalonePlaying(true)).catch(() => {});
+    }
+  }, [open, isStandaloneClip, standaloneReady]);
+
+  useEffect(() => {
+    if (open) return;
+    stopFn();
+    const vid = standaloneVideoRef.current;
+    if (vid) vid.pause();
+    setStandalonePlaying(false);
+    setStandaloneReady(false);
+  }, [open, stopFn]);
+
+  const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current || !hasClipWindow) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    player.seekToRatio(ratio);
+  }, [hasClipWindow, player]);
+
+  const toggleStandalonePlayPause = () => {
+    const vid = standaloneVideoRef.current;
+    if (!vid) return;
+    if (vid.paused) {
+      vid.play().then(() => setStandalonePlaying(true)).catch(() => {});
+    } else {
+      vid.pause();
+      setStandalonePlaying(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className={isMobile
-          ? "fixed inset-0 !left-0 !top-0 !translate-x-0 !translate-y-0 w-screen h-screen max-w-none max-h-none p-0 bg-black border-0 rounded-none flex flex-col overflow-hidden z-[220] data-[state=open]:!animate-none data-[state=closed]:!animate-none [&>button:last-child]:hidden"
-          : "max-w-3xl p-0 overflow-hidden bg-black [&>button:last-child]:hidden"
-        }
-      >
-        <div className={`relative ${isMobile ? 'flex-1' : ''}`}>
+      <DialogContent className="w-[95vw] max-w-5xl p-0 overflow-hidden bg-black [&>button:last-child]:hidden">
+        <DialogTitle className="sr-only">{actionTitle || t(language, 'fullscreen')}</DialogTitle>
+        <div className="relative">
           <div className="absolute top-2 right-2 z-10 flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="bg-black/50 hover:bg-black/70 text-white"
-              onClick={handleFullscreen}
-              title="Fullscreen"
-            >
-              <Maximize className="h-4 w-4" />
-            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -76,18 +119,86 @@ export const ActionVideoPopup = ({
               {actionTitle}
             </div>
           )}
-          <video
-            ref={videoRef}
-            key={videoUrl}
-            src={videoUrl}
-            className={isMobile ? 'w-full h-full object-contain' : 'w-full max-h-[80vh] object-contain'}
-            preload="auto"
-            crossOrigin="anonymous"
-            muted
-            loop
-            playsInline
-            onCanPlay={(e) => e.currentTarget.play().catch(() => {})}
-          />
+
+          {/* Standalone clip: simple video element */}
+          {isStandaloneClip && (
+            <>
+              <video
+                ref={standaloneVideoRef}
+                src={videoUrl}
+                className={`w-full max-h-[80vh] object-contain cursor-pointer transition-opacity ${standaloneReady ? 'opacity-100' : 'opacity-0'}`}
+                preload="auto"
+                crossOrigin="anonymous"
+                muted
+                playsInline
+                onClick={toggleStandalonePlayPause}
+                onCanPlay={() => setStandaloneReady(true)}
+                controls={false}
+                loop={false}
+              />
+              {!standaloneReady && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black">
+                  <div className="flex items-center gap-2 text-sm text-white/80">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading clip…
+                  </div>
+                </div>
+              )}
+              {standaloneReady && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={toggleStandalonePlayPause}>
+                      {standalonePlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Clipped video: shared player */}
+          {hasClipWindow && (
+            <>
+              <video
+                ref={player.videoRefCallback}
+                className={`w-full max-h-[80vh] object-contain cursor-pointer transition-opacity ${player.isClipReady ? 'opacity-100' : 'opacity-0'}`}
+                preload="metadata"
+                crossOrigin="anonymous"
+                muted
+                playsInline
+                onClick={player.togglePlayPause}
+                controls={false}
+                loop={false}
+              />
+              {!player.isClipReady && !player.clipError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black">
+                  <div className="flex items-center gap-2 text-sm text-white/80">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading clip…
+                  </div>
+                </div>
+              )}
+              {player.isClipReady && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-3 py-2">
+                  <div
+                    ref={progressBarRef}
+                    className="w-full h-1.5 bg-white/20 rounded cursor-pointer mb-2"
+                    onClick={handleProgressClick}
+                  >
+                    <div
+                      className="h-full bg-primary rounded"
+                      style={{ width: `${player.progress * 100}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 h-8 w-8" onClick={player.togglePlayPause}>
+                      {player.isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
