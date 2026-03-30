@@ -555,7 +555,8 @@ const AnalysisHeader = ({
   isPostMatch = false,
   onSave,
   isSaving = false,
-  playerTeam
+  playerTeam,
+  linkedR90,
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -569,7 +570,8 @@ const AnalysisHeader = ({
   isPostMatch?: boolean;
   onSave?: () => void;
   isSaving?: boolean;
-  playerTeam?: string | null; // Now expects "home" or "away"
+  playerTeam?: string | null;
+  linkedR90?: number | null;
 }) => {
   const navigate = useNavigate();
   
