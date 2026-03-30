@@ -639,21 +639,24 @@ const AnalysisHeader = ({
           <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge - shows when linked report exists, links only if live */}
+        {/* R90 Score badge - same size as back button, links only if live */}
         {linkedReportId && (
-          <div 
-            className={`absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border rounded-md px-3 py-1.5 flex items-center gap-1.5 ${isReportLive && linkedReportId ? 'cursor-pointer hover:bg-black/70 transition-colors' : ''}`}
-            style={{ borderColor: r90Color }}
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => {
               if (isReportLive && linkedReportId) {
                 navigate(`/portal/report/${linkedReportId}`);
               }
             }}
+            className={`absolute right-4 md:right-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 h-8 py-1.5 px-3 text-xs z-20 transition-colors ${isReportLive ? 'cursor-pointer hover:bg-black/70' : 'cursor-default'}`}
+            style={{ borderColor: r90Color }}
+            hoverEffect={true}
           >
-            <span className="font-bebas uppercase tracking-wider" style={{ color: r90Color }}>
+            <span className="font-bebas uppercase tracking-wider text-sm" style={{ color: r90Color }}>
               <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-sm" />
             </span>
-          </div>
+          </Button>
         )}
         
         <div className="relative flex items-center justify-center py-2">
