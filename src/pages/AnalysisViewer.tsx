@@ -1016,7 +1016,7 @@ const AnnotatedPointVideo = ({
       )}
       <button
         onClick={handleFullscreen}
-        className="absolute right-4 bottom-4 z-20 md:right-5 md:bottom-5 bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors"
+        className="absolute right-4 bottom-4 z-20 md:right-5 md:bottom-5 bg-black/50 backdrop-blur-sm rounded-full w-9 h-9 flex items-center justify-center hover:bg-black/70 transition-colors"
       >
         <Maximize className="w-4 h-4 text-white" />
       </button>
