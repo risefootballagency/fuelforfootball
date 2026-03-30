@@ -1143,29 +1143,35 @@ const AnalysisViewer = () => {
       
       console.log("Player name resolved:", playerName);
       
-      // Fetch linked R90 score from performance reports
+      // Fetch linked R90 score and report ID from performance reports
       let linkedR90: number | null = null;
+      let linkedReportId: string | null = null;
+      let linkedReportVisibility: string | null = null;
       // Try via linked_video_analysis_ids (analysis linked to a performance report)
       const { data: linkedReport } = await supabase
         .from("player_analysis")
-        .select("r90_score")
+        .select("id, r90_score, visibility_status")
         .eq("analysis_writer_id", analysisId)
         .not("r90_score", "is", null)
         .maybeSingle();
       if (linkedReport?.r90_score) {
         linkedR90 = linkedReport.r90_score;
+        linkedReportId = linkedReport.id;
+        linkedReportVisibility = (linkedReport as any).visibility_status || 'live';
       }
       // Fallback: check by fixture_id
       if (!linkedR90 && data.fixture_id) {
         const { data: fixtureReport } = await supabase
           .from("player_analysis")
-          .select("r90_score")
+          .select("id, r90_score, visibility_status")
           .eq("fixture_id", data.fixture_id)
           .not("r90_score", "is", null)
           .limit(1)
           .maybeSingle();
         if (fixtureReport?.r90_score) {
           linkedR90 = fixtureReport.r90_score;
+          linkedReportId = fixtureReport.id;
+          linkedReportVisibility = (fixtureReport as any).visibility_status || 'live';
         }
       }
 
