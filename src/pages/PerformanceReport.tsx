@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { useFormGradeConfigs } from "@/hooks/useFormGradeConfigs";
-import { Download, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, MessageSquareText, Filter, X, ImageIcon, MapPin, Grid3X3 } from "lucide-react";
+import { Download, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, MessageSquareText, Filter, X, ImageIcon, MapPin, Grid3X3, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { extractAnalysisIdFromSlug } from "@/lib/urlHelpers";
 import { SEO } from "@/components/SEO";
@@ -21,6 +21,7 @@ import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { ChanceCreationFlow } from "@/components/report/ChanceCreationFlow";
 import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
+import { MatchTimelapse } from "@/components/report/MatchTimelapse";
 import { toTitleCase } from "@/lib/titleCase";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { sortActionsByMinute } from "@/lib/actionSorting";
@@ -93,6 +94,7 @@ const PerformanceReport = () => {
   const [showRankedPlayer, setShowRankedPlayer] = useState(false);
   const [showPitchHeatmap, setShowPitchHeatmap] = useState(false);
   const [showZonePerformance, setShowZonePerformance] = useState(false);
+  const [showTimelapse, setShowTimelapse] = useState(false);
   const [rankedMode, setRankedMode] = useState<"chronological" | "ranked" | "noted">("chronological");
   const [showClippedActions, setShowClippedActions] = useState(false);
   const [showFilteredPlayer, setShowFilteredPlayer] = useState(false);
@@ -533,8 +535,11 @@ const PerformanceReport = () => {
                   <Button variant={showPitchHeatmap ? "default" : "outline"} size="sm" onClick={() => { setShowPitchHeatmap(!showPitchHeatmap); setShowZonePerformance(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); }} className="text-xs">
                     <MapPin className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "pitch_heatmap")}
                   </Button>
-                  <Button variant={showZonePerformance ? "default" : "outline"} size="sm" onClick={() => { setShowZonePerformance(!showZonePerformance); setShowPitchHeatmap(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); }} className="text-xs">
+                  <Button variant={showZonePerformance ? "default" : "outline"} size="sm" onClick={() => { setShowZonePerformance(!showZonePerformance); setShowPitchHeatmap(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); setShowTimelapse(false); }} className="text-xs">
                     <Grid3X3 className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "zone_performance")}
+                  </Button>
+                  <Button variant={showTimelapse ? "default" : "outline"} size="sm" onClick={() => { setShowTimelapse(!showTimelapse); setShowZonePerformance(false); setShowPitchHeatmap(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); }} className="text-xs">
+                    <Timer className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "match_timelapse")}
                   </Button>
                 </>
               )}
@@ -581,7 +586,11 @@ const PerformanceReport = () => {
             <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ZonePerformance actions={displayActions} language={reportLanguage} /></CardContent></Card>
           )}
 
-          {/* Chance Creation Flow */}
+          {/* Match Timelapse */}
+          {showTimelapse && (
+            <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><MatchTimelapse actions={actions} language={reportLanguage} /></CardContent></Card>
+          )}
+
           {showChanceCreation && analysis.striker_stats && (
             <Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} language={reportLanguage} /></CardContent></Card>
           )}

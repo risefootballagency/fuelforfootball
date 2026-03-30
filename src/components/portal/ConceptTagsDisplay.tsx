@@ -72,7 +72,7 @@ export const ConceptTagsDisplay = ({ conceptTagIds }: ConceptTagsDisplayProps) =
             key={concept.id}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors hover:brightness-110"
             style={{
-              backgroundColor: 'rgba(253, 198, 27, 0.15)',
+              backgroundColor: 'hsl(140, 40%, 20%)',
               color: BRAND_GOLD,
               border: `1.5px solid rgba(253, 198, 27, 0.4)`,
             }}

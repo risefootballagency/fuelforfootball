@@ -59,12 +59,16 @@ export const R90RatingsViewer = ({ open, onOpenChange, initialCategory, searchTe
   const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set());
   const [searchFilter, setSearchFilter] = useState('');
 
-  // Update category when initialCategory changes
+  // Reset when dialog opens - start with Offensive expanded
   useEffect(() => {
-    if (initialCategory && open) {
-      setSelectedCategory(initialCategory);
+    if (open) {
+      setSelectedCategory('all');
+      setSearchFilter('');
+      setExpandedCategories(new Set(['Offensive']));
+      setExpandedSubcategories(new Set());
+      setExpandedRatings(new Set());
     }
-  }, [initialCategory, open]);
+  }, [open]);
 
   // Prefill search and auto-expand when prefilledSearch is provided
   useEffect(() => {
