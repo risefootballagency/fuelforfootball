@@ -1200,6 +1200,8 @@ const AnalysisViewer = () => {
         points: Array.isArray(data.points) ? data.points : [],
         fixture_id: data.fixture_id || null,
         linked_r90: linkedR90,
+        linked_report_id: linkedReportId,
+        linked_report_visibility: linkedReportVisibility,
         visibility_status: status,
         estimated_ready_at: data.estimated_ready_at || null,
       };
