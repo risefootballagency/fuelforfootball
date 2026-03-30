@@ -92,6 +92,7 @@ export type Database = {
           translated_content: Json | null
           updated_at: string
           video_url: string | null
+          visibility_status: string | null
           writer_user_id: string | null
         }
         Insert: {
@@ -141,6 +142,7 @@ export type Database = {
           translated_content?: Json | null
           updated_at?: string
           video_url?: string | null
+          visibility_status?: string | null
           writer_user_id?: string | null
         }
         Update: {
@@ -190,6 +192,7 @@ export type Database = {
           translated_content?: Json | null
           updated_at?: string
           video_url?: string | null
+          visibility_status?: string | null
           writer_user_id?: string | null
         }
         Relationships: [
@@ -2214,6 +2217,7 @@ export type Database = {
           striker_stats: Json | null
           updated_at: string
           video_url: string | null
+          visibility_status: string | null
         }
         Insert: {
           analysis_date: string
@@ -2234,6 +2238,7 @@ export type Database = {
           striker_stats?: Json | null
           updated_at?: string
           video_url?: string | null
+          visibility_status?: string | null
         }
         Update: {
           analysis_date?: string
@@ -2254,6 +2259,7 @@ export type Database = {
           striker_stats?: Json | null
           updated_at?: string
           video_url?: string | null
+          visibility_status?: string | null
         }
         Relationships: [
           {
