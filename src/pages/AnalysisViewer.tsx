@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen, FileEdit, EyeOff, Clock3, Maximize } from "lucide-react";
+import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen, FileEdit, EyeOff, Clock3, Maximize, Link2 } from "lucide-react";
 import { ConceptTagsDisplay } from "@/components/portal/ConceptTagsDisplay";
 import { AudioPlaybackButton } from "@/components/AudioPlaybackButton";
 import { toast } from "sonner";
@@ -639,21 +639,24 @@ const AnalysisHeader = ({
           <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge - shows when linked report exists, links only if live */}
+        {/* R90 Score badge - same size as back button, links only if live */}
         {linkedReportId && (
-          <div 
-            className={`absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border rounded-md px-3 py-1.5 flex items-center gap-1.5 ${isReportLive && linkedReportId ? 'cursor-pointer hover:bg-black/70 transition-colors' : ''}`}
-            style={{ borderColor: r90Color }}
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => {
               if (isReportLive && linkedReportId) {
                 navigate(`/portal/report/${linkedReportId}`);
               }
             }}
+            className={`absolute right-4 md:right-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 h-8 py-1.5 px-3 text-xs z-20 transition-colors ${isReportLive ? 'cursor-pointer hover:bg-black/70' : 'cursor-default'}`}
+            style={{ borderColor: r90Color }}
+            hoverEffect={true}
           >
-            <span className="font-bebas uppercase tracking-wider" style={{ color: r90Color }}>
+            <span className="font-bebas uppercase tracking-wider text-sm" style={{ color: r90Color }}>
               <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-sm" />
             </span>
-          </div>
+          </Button>
         )}
         
         <div className="relative flex items-center justify-center py-2">
@@ -1200,7 +1203,7 @@ const AnalysisViewer = () => {
       // Try via analysis_writer_id (report links to this analysis)
       const { data: linkedReport } = await supabase
         .from("player_analysis")
-        .select("id, r90_score, visibility_status")
+        .select("id, r90_score, visibility_status, minutes_played")
         .eq("analysis_writer_id", analysisId)
         .maybeSingle();
       if (linkedReport) {
@@ -1213,7 +1216,7 @@ const AnalysisViewer = () => {
       if (!linkedReportId) {
         const { data: linkedByIds } = await supabase
           .from("player_analysis")
-          .select("id, r90_score, visibility_status")
+          .select("id, r90_score, visibility_status, minutes_played")
           .contains("linked_video_analysis_ids", [analysisId])
           .limit(1)
           .maybeSingle();
@@ -1228,7 +1231,7 @@ const AnalysisViewer = () => {
       if (!linkedReportId && data.fixture_id) {
         const { data: fixtureReport } = await supabase
           .from("player_analysis")
-          .select("id, r90_score, visibility_status")
+          .select("id, r90_score, visibility_status, minutes_played")
           .eq("fixture_id", data.fixture_id)
           .limit(1)
           .maybeSingle();
@@ -1236,6 +1239,24 @@ const AnalysisViewer = () => {
           linkedR90 = fixtureReport.r90_score ?? null;
           linkedReportId = fixtureReport.id;
           linkedReportVisibility = (fixtureReport as any).visibility_status || 'live';
+        }
+      }
+      
+      // If r90_score is null but we have a linked report, compute from actions
+      if (linkedR90 == null && linkedReportId) {
+        const { data: reportData } = await supabase
+          .from("player_analysis")
+          .select("minutes_played")
+          .eq("id", linkedReportId)
+          .maybeSingle();
+        const mp = reportData?.minutes_played ?? null;
+        const { data: actions } = await supabase
+          .from("performance_report_actions")
+          .select("action_score")
+          .eq("analysis_id", linkedReportId);
+        if (actions && actions.length > 0 && mp && mp > 0) {
+          const totalScore = actions.reduce((sum: number, a: any) => sum + (a.action_score || 0), 0);
+          linkedR90 = (totalScore / mp) * 90;
         }
       }
 
@@ -2453,7 +2474,7 @@ const AnalysisViewer = () => {
         
         {/* Back to Top Button - INSTANT scroll */}
         <motion.div 
-          className="flex justify-center py-8"
+          className="flex flex-col items-center gap-3 py-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -2469,6 +2490,23 @@ const AnalysisViewer = () => {
           >
             <ArrowLeft className="w-4 h-4 mr-2 rotate-90" />
             Back to Top
+          </Button>
+          
+          {/* Share link button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await navigator.clipboard.writeText(window.location.href);
+              const { toast } = await import("sonner");
+              toast.success("Link copied to clipboard");
+            }}
+            className="text-xs opacity-60 hover:opacity-100 transition-opacity"
+            style={{ color: BRAND.gold }}
+            hoverEffect={false}
+          >
+            <Link2 className="w-3.5 h-3.5 mr-1.5" />
+            Share Analysis
           </Button>
         </motion.div>
       </main>
