@@ -164,10 +164,10 @@ export const NewsFeed = ({ playerId, playerName, portalLanguage, onNavigateToAna
         // Tagged analyses (pre-match, post-match, concepts)
         const { data: tags } = await sharedSupabase
           .from("analysis_player_tags")
-          .select("analysis_id, created_at, analyses(id, title, analysis_type, home_team, away_team)")
+          .select("analysis_id, created_at, analyses(id, title, analysis_type, home_team, away_team, visibility_status)")
           .eq("player_id", playerId)
           .order("created_at", { ascending: false })
-          .limit(5);
+          .limit(10);
 
         tags?.forEach(tag => {
           const a = (tag as any).analyses;
