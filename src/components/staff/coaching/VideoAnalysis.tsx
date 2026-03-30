@@ -153,20 +153,49 @@ export const VideoAnalysis = () => {
   const fetchVideos = async () => {
     const { data } = await supabase
       .from("video_analyses")
-      .select("*")
+      .select("id, title, video_url, player_id, match_date, opponent, auto_delete_at, created_at, match_minute_offset, second_half_offset, second_half_video_time, part_number, group_id, total_parts")
       .order("created_at", { ascending: false });
 
     if (data) {
       setVideos(data.map(v => ({
         ...v,
-        annotations: (v.annotations as any as Annotation[]) || [],
-        clips: (v.clips as any as Clip[]) || [],
+        annotations: [],
+        clips: [],
         match_minute_offset: Number(v.match_minute_offset) || 0,
-        second_half_offset: null,
-        second_half_video_time: null,
+        second_half_offset: v.second_half_offset != null ? Number(v.second_half_offset) : null,
+        second_half_video_time: v.second_half_video_time != null ? Number(v.second_half_video_time) : null,
       })));
     }
     setLoading(false);
+  };
+
+  /** Lazy-load annotations and clips for a single video when selected */
+  const [detailLoading, setDetailLoading] = useState(false);
+  const loadVideoDetail = async (videoId: string) => {
+    setDetailLoading(true);
+    try {
+      const { data } = await supabase
+        .from("video_analyses")
+        .select("annotations, clips")
+        .eq("id", videoId)
+        .single();
+      if (data) {
+        setVideos(prev => prev.map(v => v.id === videoId ? {
+          ...v,
+          annotations: (data.annotations as any as Annotation[]) || [],
+          clips: (data.clips as any as Clip[]) || [],
+        } : v));
+        // Also update selectedVideo if it matches
+        setSelectedVideo(prev => prev && prev.id === videoId ? {
+          ...prev,
+          annotations: (data.annotations as any as Annotation[]) || [],
+          clips: (data.clips as any as Clip[]) || [],
+        } : prev);
+      }
+    } catch (err) {
+      console.error("Failed to load video detail:", err);
+    }
+    setDetailLoading(false);
   };
 
   const fetchPlayers = async () => {
