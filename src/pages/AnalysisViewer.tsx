@@ -604,7 +604,7 @@ const AnalysisHeader = ({
   };
 
   const r90Color = linkedR90 != null ? getR90Color(linkedR90) : BRAND.gold;
-  const isReportLive = linkedReportVisibility === 'live' || linkedReportVisibility === null;
+  const isReportLive = linkedReportVisibility === 'live';
   
   return (
     <motion.div 
