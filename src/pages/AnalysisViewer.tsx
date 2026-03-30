@@ -639,7 +639,7 @@ const AnalysisHeader = ({
           <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge - same size as back button, links only if live */}
+        {/* R90 Score badge - identical size to back button, links only if live */}
         {linkedReportId && (
           <Button
             variant="outline"
@@ -650,12 +650,10 @@ const AnalysisHeader = ({
               }
             }}
             className={`absolute right-4 md:right-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 h-8 py-1.5 px-3 text-xs z-20 transition-colors ${isReportLive ? 'cursor-pointer hover:bg-black/70' : 'cursor-default'}`}
-            style={{ borderColor: r90Color }}
+            style={{ borderColor: r90Color, color: r90Color }}
             hoverEffect={true}
           >
-            <span className="font-bebas uppercase tracking-wider text-sm" style={{ color: r90Color }}>
-              <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-sm" />
-            </span>
+            <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-xs" />
           </Button>
         )}
         
@@ -1242,8 +1240,8 @@ const AnalysisViewer = () => {
         }
       }
       
-      // If r90_score is null but we have a linked report, compute from actions
-      if (linkedR90 == null && linkedReportId) {
+      // If r90_score is null or 0 but we have a linked report, compute from actions
+      if (!linkedR90 && linkedReportId) {
         const { data: reportData } = await supabase
           .from("player_analysis")
           .select("minutes_played")
@@ -2501,8 +2499,19 @@ const AnalysisViewer = () => {
               const { toast } = await import("sonner");
               toast.success("Link copied to clipboard");
             }}
-            className="text-xs opacity-60 hover:opacity-100 transition-opacity"
-            style={{ color: BRAND.gold }}
+            className="text-xs transition-colors rounded-full px-3 py-1.5"
+            style={{ 
+              backgroundColor: BRAND.darkGreen, 
+              color: BRAND.gold,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = BRAND.gold;
+              e.currentTarget.style.color = BRAND.darkGreen;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = BRAND.darkGreen;
+              e.currentTarget.style.color = BRAND.gold;
+            }}
             hoverEffect={false}
           >
             <Link2 className="w-3.5 h-3.5 mr-1.5" />
