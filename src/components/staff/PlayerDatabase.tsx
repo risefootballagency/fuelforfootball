@@ -203,6 +203,7 @@ export const PlayerDatabase = () => {
   const [nationFilter, setNationFilter] = useState<string>('all');
   const [dobFrom, setDobFrom] = useState('');
   const [dobTo, setDobTo] = useState('');
+  const [birthdayFilterOffset, setBirthdayFilterOffset] = useState<number | null>(null);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerData | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
