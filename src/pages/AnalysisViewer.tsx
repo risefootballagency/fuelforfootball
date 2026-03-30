@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen, FileEdit, EyeOff, Clock3 } from "lucide-react";
+import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen, FileEdit, EyeOff, Clock3, Maximize } from "lucide-react";
 import { ConceptTagsDisplay } from "@/components/portal/ConceptTagsDisplay";
 import { AudioPlaybackButton } from "@/components/AudioPlaybackButton";
 import { toast } from "sonner";
@@ -604,7 +604,7 @@ const AnalysisHeader = ({
   };
 
   const r90Color = linkedR90 != null ? getR90Color(linkedR90) : BRAND.gold;
-  const isReportLive = linkedReportVisibility === 'live' || linkedReportVisibility === null;
+  const isReportLive = linkedReportVisibility === 'live';
   
   return (
     <motion.div 
@@ -639,7 +639,7 @@ const AnalysisHeader = ({
           <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge - links to report if live, colored by grade */}
+        {/* R90 Score badge - links to report only if live, colored by grade */}
         {linkedR90 != null && (
           <div 
             className={`absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border rounded-md px-3 py-1.5 flex items-center gap-1.5 ${isReportLive && linkedReportId ? 'cursor-pointer hover:bg-black/70 transition-colors' : ''}`}
@@ -650,10 +650,9 @@ const AnalysisHeader = ({
               }
             }}
           >
-            <span className="text-[10px] uppercase tracking-wider font-bebas hover-text-wrapper" style={{ color: r90Color }}>
-              <HoverText text="R90" className="text-[10px]" />
+            <span className="font-bebas uppercase tracking-wider" style={{ color: r90Color }}>
+              <HoverText text={`R90 ${linkedR90.toFixed(2)}`} className="text-sm" />
             </span>
-            <span className="text-sm font-bold" style={{ color: r90Color }}>{linkedR90.toFixed(2)}</span>
           </div>
         )}
         
@@ -991,8 +990,20 @@ const AnnotatedPointVideo = ({
       }
     : undefined;
 
+  const videoContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleFullscreen = () => {
+    const container = videoContainerRef.current;
+    if (!container) return;
+    const videoEl = container.querySelector('video');
+    if (videoEl) {
+      if (videoEl.requestFullscreen) videoEl.requestFullscreen();
+      else if ((videoEl as any).webkitEnterFullscreen) (videoEl as any).webkitEnterFullscreen();
+    }
+  };
+
   return (
-    <div className="relative overflow-hidden rounded-lg border-2 shadow-md" style={{ borderColor: BRAND.cardBorder }}>
+    <div ref={videoContainerRef} className="relative overflow-hidden rounded-lg border-2 shadow-md" style={{ borderColor: BRAND.cardBorder }}>
       <div style={hasCrop ? { overflow: 'hidden' } : undefined}>
         <div style={cropShiftStyle}>
           <ReadOnlyAnnotationPlayback videoUrl={url} annotationProjectId={annotationId} />
@@ -1003,6 +1014,12 @@ const AnnotatedPointVideo = ({
           <AudioPlaybackButton audioUrl={audioUrl} />
         </div>
       )}
+      <button
+        onClick={handleFullscreen}
+        className="absolute right-4 bottom-4 z-20 md:right-5 md:bottom-5 bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors"
+      >
+        <Maximize className="w-4 h-4 text-white" />
+      </button>
     </div>
   );
 };
@@ -1583,7 +1600,7 @@ const AnalysisViewer = () => {
                         </svg>
                         
                         {/* Player name positioned centered on the arch */}
-                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ paddingTop: '30px' }}>
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
                           <div 
                             className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
                             style={{
@@ -2049,7 +2066,7 @@ const AnalysisViewer = () => {
                         </svg>
                         
                         {/* Player name centered on the arch */}
-                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ paddingTop: '30px' }}>
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
                           <div 
                             className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
                             style={{
