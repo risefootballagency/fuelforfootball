@@ -61,6 +61,8 @@ interface Analysis {
   player_name: string | null;
   fixture_id: string | null;
   linked_r90?: number | null;
+  linked_report_id?: string | null;
+  linked_report_visibility?: string | null;
   visibility_status?: "draft" | "hidden" | "live" | null;
   estimated_ready_at?: string | null;
 }
@@ -559,6 +561,8 @@ const AnalysisHeader = ({
   isSaving = false,
   playerTeam,
   linkedR90,
+  linkedReportId,
+  linkedReportVisibility,
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -574,12 +578,33 @@ const AnalysisHeader = ({
   isSaving?: boolean;
   playerTeam?: string | null;
   linkedR90?: number | null;
+  linkedReportId?: string | null;
+  linkedReportVisibility?: string | null;
 }) => {
   const navigate = useNavigate();
   
   // Determine which team is the player's team based on explicit selection
   const isHomePlayerTeam = playerTeam === 'home';
   const isAwayPlayerTeam = playerTeam === 'away';
+
+  // Get R90 grade color from the grade color system
+  const getR90Color = (score: number): string => {
+    if (score < 0) return 'hsl(0, 84%, 30%)';
+    if (score < 0.2) return 'hsl(0, 84%, 45%)';
+    if (score < 0.4) return 'hsl(0, 84%, 60%)';
+    if (score < 0.6) return 'hsl(25, 75%, 45%)';
+    if (score < 0.8) return 'hsl(40, 85%, 50%)';
+    if (score < 1.0) return 'hsl(60, 70%, 50%)';
+    if (score < 1.2) return 'hsl(142, 76%, 36%)';
+    if (score < 1.4) return 'hsl(142, 70%, 40%)';
+    if (score < 1.6) return 'hsl(142, 65%, 45%)';
+    if (score < 1.8) return 'hsl(142, 70%, 50%)';
+    if (score < 2.2) return 'hsl(142, 76%, 55%)';
+    return 'hsl(43, 96%, 56%)';
+  };
+
+  const r90Color = linkedR90 != null ? getR90Color(linkedR90) : BRAND.gold;
+  const isReportLive = linkedReportVisibility === 'live' || linkedReportVisibility === null;
   
   return (
     <motion.div 
@@ -588,8 +613,6 @@ const AnalysisHeader = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Top gold border removed as requested */}
-      
       {/* Top section - COMPACT, with buttons integrated */}
       <div 
         className="relative py-2 px-3"
@@ -604,22 +627,33 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button */}
+        {/* Back button - hover changes text to FFF yellow */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-4 md:left-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white h-8 py-1.5 px-3 text-xs z-20"
+          className="absolute left-4 md:left-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white h-8 py-1.5 px-3 text-xs z-20 group/back transition-colors"
+          style={{ ['--hover-color' as any]: BRAND.gold }}
         >
-          <ArrowLeft className="w-3 h-3 mr-1" />
-          Back
+          <ArrowLeft className="w-3 h-3 mr-1 group-hover/back:text-[#fdc61b] transition-colors" />
+          <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge */}
+        {/* R90 Score badge - links to report if live, colored by grade */}
         {linkedR90 != null && (
-          <div className="absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border border-white/30 rounded-md px-3 py-1.5 flex items-center gap-1.5">
-            <span className="text-[10px] text-white/70 uppercase tracking-wider font-bebas">R90</span>
-            <span className="text-sm font-bold" style={{ color: BRAND.gold }}>{linkedR90.toFixed(2)}</span>
+          <div 
+            className={`absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border rounded-md px-3 py-1.5 flex items-center gap-1.5 ${isReportLive && linkedReportId ? 'cursor-pointer hover:bg-black/70 transition-colors' : ''}`}
+            style={{ borderColor: r90Color }}
+            onClick={() => {
+              if (isReportLive && linkedReportId) {
+                navigate(`/portal/report/${linkedReportId}`);
+              }
+            }}
+          >
+            <span className="text-[10px] uppercase tracking-wider font-bebas hover-text-wrapper" style={{ color: r90Color }}>
+              <HoverText text="R90" className="text-[10px]" />
+            </span>
+            <span className="text-sm font-bold" style={{ color: r90Color }}>{linkedR90.toFixed(2)}</span>
           </div>
         )}
         
@@ -1141,29 +1175,35 @@ const AnalysisViewer = () => {
       
       console.log("Player name resolved:", playerName);
       
-      // Fetch linked R90 score from performance reports
+      // Fetch linked R90 score and report ID from performance reports
       let linkedR90: number | null = null;
+      let linkedReportId: string | null = null;
+      let linkedReportVisibility: string | null = null;
       // Try via linked_video_analysis_ids (analysis linked to a performance report)
       const { data: linkedReport } = await supabase
         .from("player_analysis")
-        .select("r90_score")
+        .select("id, r90_score, visibility_status")
         .eq("analysis_writer_id", analysisId)
         .not("r90_score", "is", null)
         .maybeSingle();
       if (linkedReport?.r90_score) {
         linkedR90 = linkedReport.r90_score;
+        linkedReportId = linkedReport.id;
+        linkedReportVisibility = (linkedReport as any).visibility_status || 'live';
       }
       // Fallback: check by fixture_id
       if (!linkedR90 && data.fixture_id) {
         const { data: fixtureReport } = await supabase
           .from("player_analysis")
-          .select("r90_score")
+          .select("id, r90_score, visibility_status")
           .eq("fixture_id", data.fixture_id)
           .not("r90_score", "is", null)
           .limit(1)
           .maybeSingle();
         if (fixtureReport?.r90_score) {
           linkedR90 = fixtureReport.r90_score;
+          linkedReportId = fixtureReport.id;
+          linkedReportVisibility = (fixtureReport as any).visibility_status || 'live';
         }
       }
 
@@ -1192,6 +1232,8 @@ const AnalysisViewer = () => {
         points: Array.isArray(data.points) ? data.points : [],
         fixture_id: data.fixture_id || null,
         linked_r90: linkedR90,
+        linked_report_id: linkedReportId,
+        linked_report_visibility: linkedReportVisibility,
         visibility_status: status,
         estimated_ready_at: data.estimated_ready_at || null,
       };
@@ -1328,6 +1370,8 @@ const AnalysisViewer = () => {
               isPostMatch={isPostMatch}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
+              linkedReportId={analysis.linked_report_id}
+              linkedReportVisibility={analysis.linked_report_visibility}
             />
           )}
           {/* Blurred preview with overlay */}
@@ -1378,6 +1422,8 @@ const AnalysisViewer = () => {
               isPostMatch={isPostMatch}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
+              linkedReportId={analysis.linked_report_id}
+              linkedReportVisibility={analysis.linked_report_visibility}
             />
           )}
           <div className="flex items-center justify-center py-20">
@@ -1473,13 +1519,15 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
+              linkedReportId={analysis.linked_report_id}
+              linkedReportVisibility={analysis.linked_report_visibility}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - arch directly on bottom of image */}
             {(analysis.player_image_url || analysis.match_image_url) && (
               <ScrollReveal className="w-full">
                 <div 
-                  className="relative w-full overflow-hidden"
+                  className="relative w-full overflow-hidden z-20"
                   style={{
                     backgroundImage: `url('/analysis-page-bg.png')`,
                     backgroundSize: 'cover',
@@ -1940,13 +1988,15 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
+              linkedReportId={analysis.linked_report_id}
+              linkedReportVisibility={analysis.linked_report_visibility}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - same as pre-match */}
             {(analysis.player_image_url || analysis.match_image_url) && (
               <ScrollReveal className="w-full">
                 <div 
-                  className="relative w-full overflow-hidden"
+                  className="relative w-full overflow-hidden z-20"
                   style={{
                     backgroundImage: `url('/analysis-page-bg.png')`,
                     backgroundSize: 'cover',
@@ -2250,10 +2300,10 @@ const AnalysisViewer = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => navigate(-1)}
-                  className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white"
+                  className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white group/back transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
+                  <ArrowLeft className="w-4 h-4 mr-2 group-hover/back:text-[#fdc61b] transition-colors" />
+                  <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
                 </Button>
               </div>
             </motion.div>
