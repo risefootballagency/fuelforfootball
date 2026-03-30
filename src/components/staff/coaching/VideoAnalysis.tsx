@@ -724,19 +724,19 @@ export const VideoAnalysis = () => {
       const { data: existing } = await supabase.from("performance_report_actions").select("action_number").eq("analysis_id", selectedReportId).order("action_number", { ascending: false }).limit(1);
       let nextNumber = (existing?.[0]?.action_number || 0) + 1;
       const actionsToInsert = [];
-      for (const [i, clip] of selectedVideo.clips.entries()) {
-        let clipUrl: string | null = null;
-        try { clipUrl = await extractClipFile(selectedVideo.video_url, clip.id, clip.start, clip.end); }
-        catch (err) { console.error('Clip extraction failed, using fragment URL:', err); clipUrl = `${selectedVideo.video_url}#t=${clip.start},${clip.end}`; }
+      const sourceVideoUrl = selectedVideo.video_url.split("#")[0];
+      for (const clip of selectedVideo.clips) {
         const annotations = getClipAnnotations(clip.id);
         actionsToInsert.push({
-          analysis_id: selectedReportId, action_number: nextNumber + i,
+          analysis_id: selectedReportId, action_number: nextNumber,
           minute: getMatchMinute(clip.start, selectedVideo.match_minute_offset),
           action_type: clip.action_type || "other", action_description: clip.action_description || "",
-          notes: clip.notes || null, video_url: clipUrl,
+          notes: clip.notes || null, video_url: sourceVideoUrl,
+          clip_start: clip.start, clip_end: clip.end,
           video_analysis_id: selectedVideo.id, clip_id: clip.id, is_successful: true,
           ...(annotations ? { clip_annotations: annotations } : {}),
         });
+        nextNumber++;
       }
       const { error } = await supabase.from("performance_report_actions").insert(actionsToInsert);
       if (error) throw error;
