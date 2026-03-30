@@ -304,6 +304,7 @@ export const AnalysisMatchDetails = ({
                     }
                   }}
                 />
+              </div>
               <div>
                 <Label>Kick-off Time</Label>
                 <Input
