@@ -1203,7 +1203,7 @@ const AnalysisViewer = () => {
       // Try via analysis_writer_id (report links to this analysis)
       const { data: linkedReport } = await supabase
         .from("player_analysis")
-        .select("id, r90_score, visibility_status")
+        .select("id, r90_score, visibility_status, minutes_played")
         .eq("analysis_writer_id", analysisId)
         .maybeSingle();
       if (linkedReport) {
@@ -1216,7 +1216,7 @@ const AnalysisViewer = () => {
       if (!linkedReportId) {
         const { data: linkedByIds } = await supabase
           .from("player_analysis")
-          .select("id, r90_score, visibility_status")
+          .select("id, r90_score, visibility_status, minutes_played")
           .contains("linked_video_analysis_ids", [analysisId])
           .limit(1)
           .maybeSingle();
@@ -1231,7 +1231,7 @@ const AnalysisViewer = () => {
       if (!linkedReportId && data.fixture_id) {
         const { data: fixtureReport } = await supabase
           .from("player_analysis")
-          .select("id, r90_score, visibility_status")
+          .select("id, r90_score, visibility_status, minutes_played")
           .eq("fixture_id", data.fixture_id)
           .limit(1)
           .maybeSingle();
@@ -1239,6 +1239,20 @@ const AnalysisViewer = () => {
           linkedR90 = fixtureReport.r90_score ?? null;
           linkedReportId = fixtureReport.id;
           linkedReportVisibility = (fixtureReport as any).visibility_status || 'live';
+        }
+      }
+      
+      // If r90_score is null but we have a linked report, compute from actions
+      if (linkedR90 == null && linkedReportId) {
+        const foundReport = linkedReport || null;
+        const mp = (foundReport as any)?.minutes_played ?? null;
+        const { data: actions } = await supabase
+          .from("performance_report_actions")
+          .select("action_score")
+          .eq("analysis_id", linkedReportId);
+        if (actions && actions.length > 0 && mp && mp > 0) {
+          const totalScore = actions.reduce((sum: number, a: any) => sum + (a.action_score || 0), 0);
+          linkedR90 = (totalScore / mp) * 90;
         }
       }
 
