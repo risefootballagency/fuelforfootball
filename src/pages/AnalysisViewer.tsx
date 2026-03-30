@@ -1167,6 +1167,10 @@ const AnalysisViewer = () => {
         }
       }
 
+      const status = ["live", "draft", "hidden"].includes(String((data as any).visibility_status || "").toLowerCase())
+        ? (String((data as any).visibility_status).toLowerCase() as "live" | "draft" | "hidden")
+        : "live";
+
       const parsedAnalysis: Analysis = {
         ...data,
         player_name: playerName,
@@ -1188,6 +1192,8 @@ const AnalysisViewer = () => {
         points: Array.isArray(data.points) ? data.points : [],
         fixture_id: data.fixture_id || null,
         linked_r90: linkedR90,
+        visibility_status: status,
+        estimated_ready_at: data.estimated_ready_at || null,
       };
 
       setAnalysis(parsedAnalysis);
