@@ -1988,6 +1988,8 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
+              linkedReportId={analysis.linked_report_id}
+              linkedReportVisibility={analysis.linked_report_visibility}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - same as pre-match */}
