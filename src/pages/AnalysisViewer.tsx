@@ -639,7 +639,7 @@ const AnalysisHeader = ({
           <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge - same size as back button, links only if live */}
+        {/* R90 Score badge - identical size to back button, links only if live */}
         {linkedReportId && (
           <Button
             variant="outline"
@@ -650,12 +650,10 @@ const AnalysisHeader = ({
               }
             }}
             className={`absolute right-4 md:right-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 h-8 py-1.5 px-3 text-xs z-20 transition-colors ${isReportLive ? 'cursor-pointer hover:bg-black/70' : 'cursor-default'}`}
-            style={{ borderColor: r90Color }}
+            style={{ borderColor: r90Color, color: r90Color }}
             hoverEffect={true}
           >
-            <span className="font-bebas uppercase tracking-wider text-sm" style={{ color: r90Color }}>
-              <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-sm" />
-            </span>
+            <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-xs" />
           </Button>
         )}
         
