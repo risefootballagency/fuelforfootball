@@ -1582,7 +1582,7 @@ const AnalysisViewer = () => {
                         </svg>
                         
                         {/* Player name positioned centered on the arch */}
-                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ paddingTop: '30px' }}>
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
                           <div 
                             className="relative overflow-hidden rounded-full px-8 md:px-12 py-2 md:py-3"
                             style={{
