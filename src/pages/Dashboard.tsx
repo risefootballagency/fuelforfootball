@@ -1228,7 +1228,8 @@ const Dashboard = () => {
       const { data: allTacticalAnalyses, error: tacticalError } = await supabase
         .from("analyses")
         .select("*")
-        .in("analysis_type", ["pre-match", "post-match"]);
+        .in("analysis_type", ["pre-match", "post-match"])
+        .or("visibility_status.is.null,visibility_status.eq.live");
 
       console.log('[Portal Debug] Tactical analyses (pre/post-match):', allTacticalAnalyses?.length || 0, tacticalError ? `Error: ${tacticalError.message}` : 'OK');
       if (allTacticalAnalyses && allTacticalAnalyses.length > 0) {
