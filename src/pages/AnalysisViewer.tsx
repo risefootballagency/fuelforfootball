@@ -61,6 +61,8 @@ interface Analysis {
   player_name: string | null;
   fixture_id: string | null;
   linked_r90?: number | null;
+  visibility_status?: "draft" | "hidden" | "live" | null;
+  estimated_ready_at?: string | null;
 }
 
 // Brand colors - GLOBAL TOKENS
