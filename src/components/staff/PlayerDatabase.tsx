@@ -685,6 +685,7 @@ export const PlayerDatabase = () => {
           {positionFilter.map(p => <Badge key={p} variant="secondary" className="text-[10px]">{p}</Badge>)}
           {sourceFilter.map(s => <Badge key={s} variant="secondary" className="text-[10px]">{s === 'scouting' ? 'Scout' : s === 'youth_outreach' ? 'Youth' : 'Pro'}</Badge>)}
           {(dobFrom || dobTo) && <Badge variant="secondary" className="text-[10px]">DOB filtered</Badge>}
+          {birthdayFilterOffset !== null && <Badge variant="secondary" className="text-[10px]">🎂 Birthday</Badge>}
           <button onClick={clearAllFilters} className="text-[10px] text-muted-foreground hover:text-foreground ml-1">Clear</button>
         </div>
       )}
