@@ -1422,6 +1422,8 @@ const AnalysisViewer = () => {
               isPostMatch={isPostMatch}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
+              linkedReportId={analysis.linked_report_id}
+              linkedReportVisibility={analysis.linked_report_visibility}
             />
           )}
           <div className="flex items-center justify-center py-20">
