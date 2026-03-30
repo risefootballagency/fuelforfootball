@@ -164,14 +164,17 @@ export const NewsFeed = ({ playerId, playerName, portalLanguage, onNavigateToAna
         // Tagged analyses (pre-match, post-match, concepts)
         const { data: tags } = await sharedSupabase
           .from("analysis_player_tags")
-          .select("analysis_id, created_at, analyses(id, title, analysis_type, home_team, away_team)")
+          .select("analysis_id, created_at, analyses(id, title, analysis_type, home_team, away_team, visibility_status)")
           .eq("player_id", playerId)
           .order("created_at", { ascending: false })
-          .limit(5);
+          .limit(10);
 
         tags?.forEach(tag => {
           const a = (tag as any).analyses;
           if (!a) return;
+          // Skip draft and hidden analyses from the newsfeed
+          const vis = String(a.visibility_status || "live").toLowerCase();
+          if (vis === "draft" || vis === "hidden") return;
           const typeLabel = a.analysis_type === "pre-match"
             ? t(portalLanguage, "pre_match")
             : a.analysis_type === "post-match"

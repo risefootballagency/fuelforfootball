@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen } from "lucide-react";
+import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen, FileEdit, EyeOff, Clock3 } from "lucide-react";
 import { ConceptTagsDisplay } from "@/components/portal/ConceptTagsDisplay";
 import { AudioPlaybackButton } from "@/components/AudioPlaybackButton";
 import { toast } from "sonner";
@@ -61,6 +61,8 @@ interface Analysis {
   player_name: string | null;
   fixture_id: string | null;
   linked_r90?: number | null;
+  visibility_status?: "draft" | "hidden" | "live" | null;
+  estimated_ready_at?: string | null;
 }
 
 // Brand colors - GLOBAL TOKENS
@@ -1165,6 +1167,10 @@ const AnalysisViewer = () => {
         }
       }
 
+      const status = ["live", "draft", "hidden"].includes(String((data as any).visibility_status || "").toLowerCase())
+        ? (String((data as any).visibility_status).toLowerCase() as "live" | "draft" | "hidden")
+        : "live";
+
       const parsedAnalysis: Analysis = {
         ...data,
         player_name: playerName,
@@ -1186,6 +1192,8 @@ const AnalysisViewer = () => {
         points: Array.isArray(data.points) ? data.points : [],
         fixture_id: data.fixture_id || null,
         linked_r90: linkedR90,
+        visibility_status: status,
+        estimated_ready_at: data.estimated_ready_at || null,
       };
 
       setAnalysis(parsedAnalysis);
@@ -1292,9 +1300,97 @@ const AnalysisViewer = () => {
     );
   }
 
+  const visibilityStatus = analysis.visibility_status || "live";
   const isPreMatch = analysis.analysis_type === "pre-match";
   const isPostMatch = analysis.analysis_type === "post-match";
   const isConcept = analysis.analysis_type === "concept";
+
+  // Draft: Show blurred content with "Coming Soon" overlay
+  if (visibilityStatus === "draft") {
+    return (
+      <div 
+        className="min-h-screen relative"
+        style={{ backgroundColor: BRAND.darkGreen }}
+      >
+        <div className="relative mx-auto" style={{ maxWidth: '210mm' }}>
+          {/* Header still shows */}
+          {(isPreMatch || isPostMatch) && (
+            <AnalysisHeader
+              homeTeam={analysis.home_team}
+              awayTeam={analysis.away_team}
+              homeLogo={analysis.home_team_logo}
+              awayLogo={analysis.away_team_logo}
+              homeBgColor={analysis.home_team_bg_color}
+              awayBgColor={analysis.away_team_bg_color}
+              homeScore={isPostMatch ? analysis.home_score : undefined}
+              awayScore={isPostMatch ? analysis.away_score : undefined}
+              matchDate={analysis.match_date}
+              isPostMatch={isPostMatch}
+              playerTeam={analysis.player_team}
+              linkedR90={analysis.linked_r90}
+            />
+          )}
+          {/* Blurred preview with overlay */}
+          <div className="relative">
+            <div className="filter blur-lg opacity-30 pointer-events-none p-8">
+              <div className="h-32 rounded-lg mb-4" style={{ backgroundColor: BRAND.contentBg }} />
+              <div className="h-48 rounded-lg mb-4" style={{ backgroundColor: BRAND.contentBg }} />
+              <div className="h-24 rounded-lg" style={{ backgroundColor: BRAND.contentBg }} />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div className="text-center p-8 rounded-xl" style={{ backgroundColor: 'rgba(5,34,8,0.95)', border: `2px solid ${BRAND.gold}` }}>
+                <FileEdit className="w-12 h-12 mx-auto mb-4" style={{ color: BRAND.gold }} />
+                <h2 className="text-2xl font-bebas uppercase tracking-widest text-white mb-2">Coming Soon</h2>
+                <p className="text-white/70 text-sm mb-4">This analysis is being prepared for you.</p>
+                {analysis.estimated_ready_at && (
+                  <div className="flex items-center justify-center gap-2 text-sm" style={{ color: BRAND.gold }}>
+                    <Clock3 className="w-4 h-4" />
+                    <span>Expected by {new Date(analysis.estimated_ready_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Hidden: Show only header, no content
+  if (visibilityStatus === "hidden") {
+    return (
+      <div 
+        className="min-h-screen relative"
+        style={{ backgroundColor: BRAND.darkGreen }}
+      >
+        <div className="relative mx-auto" style={{ maxWidth: '210mm' }}>
+          {(isPreMatch || isPostMatch) && (
+            <AnalysisHeader
+              homeTeam={analysis.home_team}
+              awayTeam={analysis.away_team}
+              homeLogo={analysis.home_team_logo}
+              awayLogo={analysis.away_team_logo}
+              homeBgColor={analysis.home_team_bg_color}
+              awayBgColor={analysis.away_team_bg_color}
+              homeScore={isPostMatch ? analysis.home_score : undefined}
+              awayScore={isPostMatch ? analysis.away_score : undefined}
+              matchDate={analysis.match_date}
+              isPostMatch={isPostMatch}
+              playerTeam={analysis.player_team}
+              linkedR90={analysis.linked_r90}
+            />
+          )}
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center p-8 rounded-xl" style={{ backgroundColor: 'rgba(5,34,8,0.95)', border: `2px solid ${BRAND.gold}` }}>
+              <EyeOff className="w-12 h-12 mx-auto mb-4" style={{ color: BRAND.gold }} />
+              <h2 className="text-2xl font-bebas uppercase tracking-widest text-white mb-2">Analysis Locked</h2>
+              <p className="text-white/70 text-sm">Contact us to unlock the full analysis.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Build quick nav sections based on available content
   const navSections = [];
