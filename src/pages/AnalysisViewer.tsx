@@ -990,8 +990,20 @@ const AnnotatedPointVideo = ({
       }
     : undefined;
 
+  const videoContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleFullscreen = () => {
+    const container = videoContainerRef.current;
+    if (!container) return;
+    const videoEl = container.querySelector('video');
+    if (videoEl) {
+      if (videoEl.requestFullscreen) videoEl.requestFullscreen();
+      else if ((videoEl as any).webkitEnterFullscreen) (videoEl as any).webkitEnterFullscreen();
+    }
+  };
+
   return (
-    <div className="relative overflow-hidden rounded-lg border-2 shadow-md" style={{ borderColor: BRAND.cardBorder }}>
+    <div ref={videoContainerRef} className="relative overflow-hidden rounded-lg border-2 shadow-md" style={{ borderColor: BRAND.cardBorder }}>
       <div style={hasCrop ? { overflow: 'hidden' } : undefined}>
         <div style={cropShiftStyle}>
           <ReadOnlyAnnotationPlayback videoUrl={url} annotationProjectId={annotationId} />
@@ -1002,6 +1014,12 @@ const AnnotatedPointVideo = ({
           <AudioPlaybackButton audioUrl={audioUrl} />
         </div>
       )}
+      <button
+        onClick={handleFullscreen}
+        className="absolute right-4 bottom-4 z-20 md:right-5 md:bottom-5 bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors"
+      >
+        <Maximize className="w-4 h-4 text-white" />
+      </button>
     </div>
   );
 };
