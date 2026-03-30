@@ -2300,10 +2300,10 @@ const AnalysisViewer = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => navigate(-1)}
-                  className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white"
+                  className="bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white group/back transition-colors"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
+                  <ArrowLeft className="w-4 h-4 mr-2 group-hover/back:text-[#fdc61b] transition-colors" />
+                  <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
                 </Button>
               </div>
             </motion.div>
