@@ -2501,8 +2501,19 @@ const AnalysisViewer = () => {
               const { toast } = await import("sonner");
               toast.success("Link copied to clipboard");
             }}
-            className="text-xs opacity-60 hover:opacity-100 transition-opacity"
-            style={{ color: BRAND.gold }}
+            className="text-xs transition-colors rounded-full px-3 py-1.5"
+            style={{ 
+              backgroundColor: BRAND.darkGreen, 
+              color: BRAND.gold,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = BRAND.gold;
+              e.currentTarget.style.color = BRAND.darkGreen;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = BRAND.darkGreen;
+              e.currentTarget.style.color = BRAND.gold;
+            }}
             hoverEffect={false}
           >
             <Link2 className="w-3.5 h-3.5 mr-1.5" />
