@@ -92,10 +92,8 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
   return (
     <button
       onClick={toggle}
-      className="flex items-center justify-center gap-1.5 rounded-full transition-all hover:scale-110 active:scale-95"
+      className="flex items-center justify-center gap-1.5 rounded-full transition-all hover:scale-110 active:scale-95 w-9 h-9"
       style={{
-        width: 40,
-        height: 40,
         backgroundColor: isPlaying ? BRAND_GOLD : "rgba(0,0,0,0.6)",
         color: isPlaying ? "#000" : BRAND_GOLD,
         backdropFilter: "blur(4px)",

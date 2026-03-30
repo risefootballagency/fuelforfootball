@@ -59,6 +59,28 @@ type SortField = 'player_name' | 'age' | 'position' | 'nationality' | 'current_c
 type SortDirection = 'asc' | 'desc';
 
 const ITEMS_PER_PAGE = 50;
+const UPCOMING_BIRTHDAY_DAYS = 7;
+
+const getMonthDayFromDob = (dateOfBirth: string | null) => {
+  if (!dateOfBirth) return null;
+  const parts = dateOfBirth.split('T')[0].split('-');
+  if (parts.length < 3) return null;
+  return { month: parseInt(parts[1], 10), day: parseInt(parts[2], 10) };
+};
+
+const isBirthdayOnOffset = (dateOfBirth: string | null, offset: number) => {
+  const dob = getMonthDayFromDob(dateOfBirth);
+  if (!dob) return false;
+  const target = new Date();
+  target.setDate(target.getDate() + offset);
+  return dob.month === target.getMonth() + 1 && dob.day === target.getDate();
+};
+
+const getUpcomingBirthdayLabel = (offset: number, date: Date) => {
+  if (offset === 0) return 'Today';
+  if (offset === 1) return 'Tomorrow';
+  return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+};
 
 const POSITION_ORDER: Record<string, number> = {
   'GK': 1, 'Goalkeeper': 1,
@@ -181,6 +203,7 @@ export const PlayerDatabase = () => {
   const [nationFilter, setNationFilter] = useState<string>('all');
   const [dobFrom, setDobFrom] = useState('');
   const [dobTo, setDobTo] = useState('');
+  const [birthdayFilterOffset, setBirthdayFilterOffset] = useState<number | null>(null);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerData | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -357,6 +380,7 @@ export const PlayerDatabase = () => {
       if (nationFilter !== 'all' && player.nationality !== nationFilter) return false;
       if (positionFilter.length > 0 && (!player.position || !positionFilter.includes(player.position))) return false;
       if (sourceFilter.length > 0 && !sourceFilter.includes(player.source)) return false;
+      if (birthdayFilterOffset !== null && !isBirthdayOnOffset(player.date_of_birth, birthdayFilterOffset)) return false;
       return true;
     });
 
@@ -378,16 +402,16 @@ export const PlayerDatabase = () => {
       return sortDirection === 'asc' ? comparison : -comparison;
     });
     return result;
-  }, [players, searchQuery, ageFilter, nationFilter, positionFilter, sourceFilter, dobFrom, dobTo, sortField, sortDirection]);
+  }, [players, searchQuery, ageFilter, nationFilter, positionFilter, sourceFilter, dobFrom, dobTo, birthdayFilterOffset, sortField, sortDirection]);
 
   const visiblePlayers = filteredAndSortedPlayers.slice(0, visibleCount);
   const hasMore = visibleCount < filteredAndSortedPlayers.length;
 
   const clearAllFilters = () => {
-    setSearchQuery(''); setAgeFilter('all'); setNationFilter('all'); setPositionFilter([]); setSourceFilter([]); setDobFrom(''); setDobTo('');
+    setSearchQuery(''); setAgeFilter('all'); setNationFilter('all'); setPositionFilter([]); setSourceFilter([]); setDobFrom(''); setDobTo(''); setBirthdayFilterOffset(null);
   };
 
-  const hasActiveFilters = searchQuery || ageFilter !== 'all' || nationFilter !== 'all' || positionFilter.length > 0 || sourceFilter.length > 0 || dobFrom || dobTo;
+  const hasActiveFilters = searchQuery || ageFilter !== 'all' || nationFilter !== 'all' || positionFilter.length > 0 || sourceFilter.length > 0 || dobFrom || dobTo || birthdayFilterOffset !== null;
 
   const openPlayerDetail = (player: PlayerData) => {
     setSelectedPlayer(player);
@@ -624,6 +648,28 @@ export const PlayerDatabase = () => {
         />
       </div>
 
+      {/* Birthdays next 7 days */}
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-medium">Birthdays next 7 days</p>
+        <div className="flex flex-wrap gap-1">
+          {Array.from({ length: UPCOMING_BIRTHDAY_DAYS }).map((_, offset) => {
+            const date = new Date();
+            date.setDate(date.getDate() + offset);
+            const count = players.filter(p => isBirthdayOnOffset(p.date_of_birth, offset)).length;
+            const isActive = birthdayFilterOffset === offset;
+            return (
+              <button
+                key={offset}
+                onClick={() => setBirthdayFilterOffset(isActive ? null : offset)}
+                className={`text-[10px] px-2 py-1 border rounded transition-colors ${isActive ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted/50'}`}
+              >
+                {getUpcomingBirthdayLabel(offset, date)} {count > 0 && <span className="font-bold">({count})</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Search */}
       <StaffSearchInput
         value={searchQuery}
@@ -639,6 +685,7 @@ export const PlayerDatabase = () => {
           {positionFilter.map(p => <Badge key={p} variant="secondary" className="text-[10px]">{p}</Badge>)}
           {sourceFilter.map(s => <Badge key={s} variant="secondary" className="text-[10px]">{s === 'scouting' ? 'Scout' : s === 'youth_outreach' ? 'Youth' : 'Pro'}</Badge>)}
           {(dobFrom || dobTo) && <Badge variant="secondary" className="text-[10px]">DOB filtered</Badge>}
+          {birthdayFilterOffset !== null && <Badge variant="secondary" className="text-[10px]">🎂 Birthday</Badge>}
           <button onClick={clearAllFilters} className="text-[10px] text-muted-foreground hover:text-foreground ml-1">Clear</button>
         </div>
       )}

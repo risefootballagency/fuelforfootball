@@ -639,8 +639,8 @@ const AnalysisHeader = ({
           <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge - links to report only if live, colored by grade */}
-        {linkedR90 != null && (
+        {/* R90 Score badge - shows when linked report exists, links only if live */}
+        {linkedReportId && (
           <div 
             className={`absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border rounded-md px-3 py-1.5 flex items-center gap-1.5 ${isReportLive && linkedReportId ? 'cursor-pointer hover:bg-black/70 transition-colors' : ''}`}
             style={{ borderColor: r90Color }}
@@ -651,7 +651,7 @@ const AnalysisHeader = ({
             }}
           >
             <span className="font-bebas uppercase tracking-wider" style={{ color: r90Color }}>
-              <HoverText text={`R90 ${linkedR90.toFixed(2)}`} className="text-sm" />
+              <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-sm" />
             </span>
           </div>
         )}
@@ -1016,7 +1016,7 @@ const AnnotatedPointVideo = ({
       )}
       <button
         onClick={handleFullscreen}
-        className="absolute right-4 bottom-4 z-20 md:right-5 md:bottom-5 bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/70 transition-colors"
+        className="absolute right-4 bottom-4 z-20 md:right-5 md:bottom-5 bg-black/50 backdrop-blur-sm rounded-full w-9 h-9 flex items-center justify-center hover:bg-black/70 transition-colors"
       >
         <Maximize className="w-4 h-4 text-white" />
       </button>
@@ -1196,29 +1196,44 @@ const AnalysisViewer = () => {
       let linkedR90: number | null = null;
       let linkedReportId: string | null = null;
       let linkedReportVisibility: string | null = null;
-      // Try via linked_video_analysis_ids (analysis linked to a performance report)
+      
+      // Try via analysis_writer_id (report links to this analysis)
       const { data: linkedReport } = await supabase
         .from("player_analysis")
         .select("id, r90_score, visibility_status")
         .eq("analysis_writer_id", analysisId)
-        .not("r90_score", "is", null)
         .maybeSingle();
-      if (linkedReport?.r90_score) {
-        linkedR90 = linkedReport.r90_score;
+      if (linkedReport) {
+        linkedR90 = linkedReport.r90_score ?? null;
         linkedReportId = linkedReport.id;
         linkedReportVisibility = (linkedReport as any).visibility_status || 'live';
       }
+      
+      // Fallback: check by linked_video_analysis_ids containing this analysis
+      if (!linkedReportId) {
+        const { data: linkedByIds } = await supabase
+          .from("player_analysis")
+          .select("id, r90_score, visibility_status")
+          .contains("linked_video_analysis_ids", [analysisId])
+          .limit(1)
+          .maybeSingle();
+        if (linkedByIds) {
+          linkedR90 = linkedByIds.r90_score ?? null;
+          linkedReportId = linkedByIds.id;
+          linkedReportVisibility = (linkedByIds as any).visibility_status || 'live';
+        }
+      }
+      
       // Fallback: check by fixture_id
-      if (!linkedR90 && data.fixture_id) {
+      if (!linkedReportId && data.fixture_id) {
         const { data: fixtureReport } = await supabase
           .from("player_analysis")
           .select("id, r90_score, visibility_status")
           .eq("fixture_id", data.fixture_id)
-          .not("r90_score", "is", null)
           .limit(1)
           .maybeSingle();
-        if (fixtureReport?.r90_score) {
-          linkedR90 = fixtureReport.r90_score;
+        if (fixtureReport) {
+          linkedR90 = fixtureReport.r90_score ?? null;
           linkedReportId = fixtureReport.id;
           linkedReportVisibility = (fixtureReport as any).visibility_status || 'live';
         }

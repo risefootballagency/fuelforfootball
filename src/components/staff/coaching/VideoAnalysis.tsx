@@ -153,20 +153,49 @@ export const VideoAnalysis = () => {
   const fetchVideos = async () => {
     const { data } = await supabase
       .from("video_analyses")
-      .select("*")
+      .select("id, title, video_url, player_id, match_date, opponent, auto_delete_at, created_at, match_minute_offset, second_half_offset, second_half_video_time, part_number, group_id, total_parts")
       .order("created_at", { ascending: false });
 
     if (data) {
       setVideos(data.map(v => ({
         ...v,
-        annotations: (v.annotations as any as Annotation[]) || [],
-        clips: (v.clips as any as Clip[]) || [],
+        annotations: [],
+        clips: [],
         match_minute_offset: Number(v.match_minute_offset) || 0,
-        second_half_offset: null,
-        second_half_video_time: null,
+        second_half_offset: v.second_half_offset != null ? Number(v.second_half_offset) : null,
+        second_half_video_time: v.second_half_video_time != null ? Number(v.second_half_video_time) : null,
       })));
     }
     setLoading(false);
+  };
+
+  /** Lazy-load annotations and clips for a single video when selected */
+  const [detailLoading, setDetailLoading] = useState(false);
+  const loadVideoDetail = async (videoId: string) => {
+    setDetailLoading(true);
+    try {
+      const { data } = await supabase
+        .from("video_analyses")
+        .select("annotations, clips")
+        .eq("id", videoId)
+        .single();
+      if (data) {
+        setVideos(prev => prev.map(v => v.id === videoId ? {
+          ...v,
+          annotations: (data.annotations as any as Annotation[]) || [],
+          clips: (data.clips as any as Clip[]) || [],
+        } : v));
+        // Also update selectedVideo if it matches
+        setSelectedVideo(prev => prev && prev.id === videoId ? {
+          ...prev,
+          annotations: (data.annotations as any as Annotation[]) || [],
+          clips: (data.clips as any as Clip[]) || [],
+        } : prev);
+      }
+    } catch (err) {
+      console.error("Failed to load video detail:", err);
+    }
+    setDetailLoading(false);
   };
 
   const fetchPlayers = async () => {
@@ -695,19 +724,19 @@ export const VideoAnalysis = () => {
       const { data: existing } = await supabase.from("performance_report_actions").select("action_number").eq("analysis_id", selectedReportId).order("action_number", { ascending: false }).limit(1);
       let nextNumber = (existing?.[0]?.action_number || 0) + 1;
       const actionsToInsert = [];
-      for (const [i, clip] of selectedVideo.clips.entries()) {
-        let clipUrl: string | null = null;
-        try { clipUrl = await extractClipFile(selectedVideo.video_url, clip.id, clip.start, clip.end); }
-        catch (err) { console.error('Clip extraction failed, using fragment URL:', err); clipUrl = `${selectedVideo.video_url}#t=${clip.start},${clip.end}`; }
+      const sourceVideoUrl = selectedVideo.video_url.split("#")[0];
+      for (const clip of selectedVideo.clips) {
         const annotations = getClipAnnotations(clip.id);
         actionsToInsert.push({
-          analysis_id: selectedReportId, action_number: nextNumber + i,
+          analysis_id: selectedReportId, action_number: nextNumber,
           minute: getMatchMinute(clip.start, selectedVideo.match_minute_offset),
           action_type: clip.action_type || "other", action_description: clip.action_description || "",
-          notes: clip.notes || null, video_url: clipUrl,
+          notes: clip.notes || null, video_url: sourceVideoUrl,
+          clip_start: clip.start, clip_end: clip.end,
           video_analysis_id: selectedVideo.id, clip_id: clip.id, is_successful: true,
           ...(annotations ? { clip_annotations: annotations } : {}),
         });
+        nextNumber++;
       }
       const { error } = await supabase.from("performance_report_actions").insert(actionsToInsert);
       if (error) throw error;
@@ -1149,7 +1178,7 @@ export const VideoAnalysis = () => {
             {videos.map(video => {
               const expiry = daysUntilExpiry(video.auto_delete_at);
               return (
-                <div key={video.id} onClick={() => setSelectedVideo(video)} className="p-4 rounded-lg border cursor-pointer hover:bg-muted/30 transition-colors">
+                <div key={video.id} onClick={() => { setSelectedVideo(video); loadVideoDetail(video.id); }} className="p-4 rounded-lg border cursor-pointer hover:bg-muted/30 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-sm truncate">{video.title}</p>

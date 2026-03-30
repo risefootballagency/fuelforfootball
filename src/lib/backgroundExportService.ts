@@ -3,9 +3,12 @@
  *
  * Runs clip-to-report exports outside the component tree so they survive
  * section navigation. Components subscribe to progress updates via callbacks.
+ *
+ * Instead of trimming clips into separate files, we store the source video URL
+ * along with clip_start/clip_end times. The player components seek to the right
+ * position, so the full video only needs to load once.
  */
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
-import { trimAndUploadClip } from "@/lib/clientClipExtractor";
 import { toast } from "sonner";
 
 export interface ExportJob {
@@ -22,8 +25,11 @@ export interface ExportJob {
     notes?: string | null;
     action_score?: number;
     zone_details?: { zone: number; sub?: number; direction?: "forward" | "backward" }[];
+    minute?: string;
   }>;
   matchMinuteOffset?: number;
+  secondHalfOffset?: number | null;
+  secondHalfVideoTime?: number | null;
   getClipAnnotations?: (clipId: string) => any;
 }
 
@@ -60,11 +66,31 @@ export function isExportRunning(): boolean {
   return running;
 }
 
-function getMatchMinute(clipStart: number, offset?: number): string {
-  const totalSeconds = clipStart + (offset || 0);
-  const mins = Math.floor(Math.max(0, totalSeconds) / 60);
-  const secs = Math.floor(Math.max(0, totalSeconds) % 60);
-  return `${mins}.${secs.toString().padStart(2, "0")}`;
+function getEffectiveOffset(
+  videoSeconds: number,
+  matchMinuteOffset?: number,
+  secondHalfOffset?: number | null,
+  secondHalfVideoTime?: number | null
+): number {
+  if (secondHalfVideoTime != null && secondHalfOffset != null && videoSeconds >= secondHalfVideoTime) {
+    return secondHalfOffset;
+  }
+  return matchMinuteOffset || 0;
+}
+
+/** Format minute with seconds rounded to nearest 5, matching VideoAnalysis display */
+function getMatchMinute(
+  clipStart: number,
+  matchMinuteOffset?: number,
+  secondHalfOffset?: number | null,
+  secondHalfVideoTime?: number | null
+): string {
+  const offset = getEffectiveOffset(clipStart, matchMinuteOffset, secondHalfOffset, secondHalfVideoTime);
+  const matchSeconds = Math.max(0, clipStart + offset);
+  const mins = Math.floor(matchSeconds / 60);
+  const rawSecs = Math.floor(matchSeconds % 60);
+  const roundedSecs = Math.floor(rawSecs / 5) * 5;
+  return `${mins}.${roundedSecs.toString().padStart(2, "0")}`;
 }
 
 export async function startExportJob(job: ExportJob): Promise<void> {
@@ -89,6 +115,7 @@ export async function startExportJob(job: ExportJob): Promise<void> {
   notify(progress);
 
   try {
+    // Fetch existing actions for dedup
     const { data: existingActions } = await supabase
       .from("performance_report_actions")
       .select("clip_id, action_number")
@@ -103,6 +130,9 @@ export async function startExportJob(job: ExportJob): Promise<void> {
     let success = 0;
     let skipped = 0;
 
+    // Clean source URL (strip any existing #t= fragments)
+    const sourceVideoUrl = job.videoUrl.split("#")[0];
+
     for (let i = 0; i < job.clips.length; i++) {
       const clip = job.clips[i];
       progress.current = i + 1;
@@ -115,30 +145,25 @@ export async function startExportJob(job: ExportJob): Promise<void> {
       }
 
       try {
-        let clipUrl: string;
-        try {
-          clipUrl = await trimAndUploadClip(job.videoUrl, clip.id, clip.start, clip.end);
-        } catch {
-          clipUrl = `${job.videoUrl}#t=${clip.start},${clip.end}`;
-        }
-
         const annotations = job.getClipAnnotations?.(clip.id);
 
         const insertRow: any = {
-            analysis_id: job.reportId,
-            action_number: nextNumber,
-            minute: getMatchMinute(clip.start, job.matchMinuteOffset),
-            action_type: clip.action_type || "",
-            action_description: clip.action_description || "",
-            notes: clip.notes || null,
-            video_url: clipUrl,
-            video_analysis_id: job.videoId,
-            clip_id: clip.id,
-            is_successful: true,
-            ...(annotations ? { clip_annotations: annotations } : {}),
-            ...(clip.zone_details?.length ? { zone_details: clip.zone_details, zone: clip.zone_details[0].zone } : {}),
-          };
-          if (clip.action_score != null) insertRow.action_score = clip.action_score;
+          analysis_id: job.reportId,
+          action_number: nextNumber,
+          minute: clip.minute || getMatchMinute(clip.start, job.matchMinuteOffset, job.secondHalfOffset, job.secondHalfVideoTime),
+          action_type: clip.action_type || "",
+          action_description: clip.action_description || "",
+          notes: clip.notes || null,
+          video_url: sourceVideoUrl,
+          clip_start: clip.start,
+          clip_end: clip.end,
+          video_analysis_id: job.videoId,
+          clip_id: clip.id,
+          is_successful: true,
+          ...(annotations ? { clip_annotations: annotations } : {}),
+          ...(clip.zone_details?.length ? { zone_details: clip.zone_details, zone: clip.zone_details[0].zone } : {}),
+        };
+        if (clip.action_score != null) insertRow.action_score = clip.action_score;
 
         const { error } = await supabase
           .from("performance_report_actions")
