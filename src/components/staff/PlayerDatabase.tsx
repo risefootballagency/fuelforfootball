@@ -380,6 +380,7 @@ export const PlayerDatabase = () => {
       if (nationFilter !== 'all' && player.nationality !== nationFilter) return false;
       if (positionFilter.length > 0 && (!player.position || !positionFilter.includes(player.position))) return false;
       if (sourceFilter.length > 0 && !sourceFilter.includes(player.source)) return false;
+      if (birthdayFilterOffset !== null && !isBirthdayOnOffset(player.date_of_birth, birthdayFilterOffset)) return false;
       return true;
     });
 
