@@ -1658,9 +1658,29 @@ export const CreatePerformanceReportDialog = ({
                 }}
               />
             </div>
+            {/* Match Date (editable, syncs to fixture) */}
+            {selectedFixtureId && (
+              <div className="mt-2">
+                <Label className="text-xs">Match Date</Label>
+                <Input
+                  type="date"
+                  value={fixtures.find(f => f.id === selectedFixtureId)?.match_date || ''}
+                  onChange={async (e) => {
+                    const newDate = e.target.value;
+                    if (!newDate) return;
+                    const { error } = await supabase.from("fixtures").update({ match_date: newDate }).eq("id", selectedFixtureId);
+                    if (error) { toast.error("Failed to update date"); return; }
+                    // Also update analyses linked to this fixture
+                    await supabase.from("analyses").update({ match_date: newDate }).eq("fixture_id", selectedFixtureId);
+                    await supabase.from("player_analysis").update({ analysis_date: newDate } as any).eq("fixture_id", selectedFixtureId);
+                    setFixtures(prev => prev.map(f => f.id === selectedFixtureId ? { ...f, match_date: newDate } : f));
+                    toast.success("Date updated across all linked records");
+                  }}
+                  className="h-8 text-sm"
+                />
+              </div>
+            )}
           </div>
-
-          {/* Key Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="r90">R90 Score (Auto-calculated)</Label>

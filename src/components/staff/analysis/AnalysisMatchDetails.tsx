@@ -1,3 +1,5 @@
+import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -291,7 +293,16 @@ export const AnalysisMatchDetails = ({
                 <Input
                   type="date"
                   value={formData.match_date || ""}
-                  onChange={(e) => setFormData({ ...formData, match_date: e.target.value })}
+                  onChange={async (e) => {
+                    const newDate = e.target.value;
+                    setFormData({ ...formData, match_date: newDate });
+                    // Propagate date to linked fixture and all related records
+                    if (formData.fixture_id && newDate) {
+                      await supabase.from("fixtures").update({ match_date: newDate }).eq("id", formData.fixture_id);
+                      await supabase.from("player_analysis").update({ analysis_date: newDate } as any).eq("fixture_id", formData.fixture_id);
+                      toast.success("Date updated across all linked records");
+                    }
+                  }}
                 />
               </div>
               <div>

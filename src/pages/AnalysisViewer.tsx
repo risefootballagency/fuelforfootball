@@ -59,6 +59,8 @@ interface Analysis {
   points: any;
   video_url: string | null;
   player_name: string | null;
+  fixture_id: string | null;
+  linked_r90?: number | null;
 }
 
 // Brand colors - GLOBAL TOKENS
@@ -553,7 +555,8 @@ const AnalysisHeader = ({
   isPostMatch = false,
   onSave,
   isSaving = false,
-  playerTeam
+  playerTeam,
+  linkedR90,
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -567,7 +570,8 @@ const AnalysisHeader = ({
   isPostMatch?: boolean;
   onSave?: () => void;
   isSaving?: boolean;
-  playerTeam?: string | null; // Now expects "home" or "away"
+  playerTeam?: string | null;
+  linkedR90?: number | null;
 }) => {
   const navigate = useNavigate();
   
@@ -598,7 +602,7 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - consistent dimensions with Save button */}
+        {/* Back button */}
         <Button
           variant="outline"
           size="sm"
@@ -609,7 +613,13 @@ const AnalysisHeader = ({
           Back
         </Button>
         
-        {/* Save button removed for now */}
+        {/* R90 Score badge */}
+        {linkedR90 != null && (
+          <div className="absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border border-white/30 rounded-md px-3 py-1.5 flex items-center gap-1.5">
+            <span className="text-[10px] text-white/70 uppercase tracking-wider font-bebas">R90</span>
+            <span className="text-sm font-bold" style={{ color: BRAND.gold }}>{linkedR90.toFixed(2)}</span>
+          </div>
+        )}
         
         <div className="relative flex items-center justify-center py-2">
           <img 
@@ -1129,6 +1139,32 @@ const AnalysisViewer = () => {
       
       console.log("Player name resolved:", playerName);
       
+      // Fetch linked R90 score from performance reports
+      let linkedR90: number | null = null;
+      // Try via linked_video_analysis_ids (analysis linked to a performance report)
+      const { data: linkedReport } = await supabase
+        .from("player_analysis")
+        .select("r90_score")
+        .eq("analysis_writer_id", analysisId)
+        .not("r90_score", "is", null)
+        .maybeSingle();
+      if (linkedReport?.r90_score) {
+        linkedR90 = linkedReport.r90_score;
+      }
+      // Fallback: check by fixture_id
+      if (!linkedR90 && data.fixture_id) {
+        const { data: fixtureReport } = await supabase
+          .from("player_analysis")
+          .select("r90_score")
+          .eq("fixture_id", data.fixture_id)
+          .not("r90_score", "is", null)
+          .limit(1)
+          .maybeSingle();
+        if (fixtureReport?.r90_score) {
+          linkedR90 = fixtureReport.r90_score;
+        }
+      }
+
       const parsedAnalysis: Analysis = {
         ...data,
         player_name: playerName,
@@ -1147,7 +1183,9 @@ const AnalysisViewer = () => {
         kit_stripe_style: data.kit_stripe_style || 'none',
         player_team: data.player_team || null,
         matchups: Array.isArray(data.matchups) ? data.matchups : [],
-        points: Array.isArray(data.points) ? data.points : []
+        points: Array.isArray(data.points) ? data.points : [],
+        fixture_id: data.fixture_id || null,
+        linked_r90: linkedR90,
       };
 
       setAnalysis(parsedAnalysis);
@@ -1338,6 +1376,7 @@ const AnalysisViewer = () => {
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
               playerTeam={analysis.player_team}
+              linkedR90={analysis.linked_r90}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - arch directly on bottom of image */}
@@ -1804,6 +1843,7 @@ const AnalysisViewer = () => {
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
               playerTeam={analysis.player_team}
+              linkedR90={analysis.linked_r90}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - same as pre-match */}
