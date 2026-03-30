@@ -1376,6 +1376,7 @@ const AnalysisViewer = () => {
               onSave={handleSaveAsPdf}
               isSaving={isSaving}
               playerTeam={analysis.player_team}
+              linkedR90={analysis.linked_r90}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - arch directly on bottom of image */}
