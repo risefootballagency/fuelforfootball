@@ -1329,7 +1329,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                 ? 'opacity-100 ring-2 ring-primary' 
                 : 'opacity-40 hover:opacity-70'
             } ${autoSelectedFromUrl && selectedPlayerId === player.id ? 'animate-pulse' : ''}`}
-            title={player.name}
+            title={`${player.name} — ${player.position || ''} ${player.club ? '• ' + player.club : ''}`}
           >
             <Avatar className="w-14 h-14">
               <AvatarImage src={player.image_url || undefined} alt={player.name} className="object-cover" />
