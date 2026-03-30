@@ -600,7 +600,7 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button - consistent dimensions with Save button */}
+        {/* Back button */}
         <Button
           variant="outline"
           size="sm"
@@ -611,7 +611,13 @@ const AnalysisHeader = ({
           Back
         </Button>
         
-        {/* Save button removed for now */}
+        {/* R90 Score badge */}
+        {analysis.linked_r90 != null && (
+          <div className="absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border border-white/30 rounded-md px-3 py-1.5 flex items-center gap-1.5">
+            <span className="text-[10px] text-white/70 uppercase tracking-wider font-bebas">R90</span>
+            <span className="text-sm font-bold" style={{ color: BRAND.gold }}>{analysis.linked_r90.toFixed(2)}</span>
+          </div>
+        )}
         
         <div className="relative flex items-center justify-center py-2">
           <img 
