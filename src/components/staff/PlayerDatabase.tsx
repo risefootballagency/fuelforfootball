@@ -408,7 +408,7 @@ export const PlayerDatabase = () => {
   const hasMore = visibleCount < filteredAndSortedPlayers.length;
 
   const clearAllFilters = () => {
-    setSearchQuery(''); setAgeFilter('all'); setNationFilter('all'); setPositionFilter([]); setSourceFilter([]); setDobFrom(''); setDobTo('');
+    setSearchQuery(''); setAgeFilter('all'); setNationFilter('all'); setPositionFilter([]); setSourceFilter([]); setDobFrom(''); setDobTo(''); setBirthdayFilterOffset(null);
   };
 
   const hasActiveFilters = searchQuery || ageFilter !== 'all' || nationFilter !== 'all' || positionFilter.length > 0 || sourceFilter.length > 0 || dobFrom || dobTo;
