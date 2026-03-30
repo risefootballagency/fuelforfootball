@@ -614,10 +614,10 @@ const AnalysisHeader = ({
         </Button>
         
         {/* R90 Score badge */}
-        {analysis.linked_r90 != null && (
+        {linkedR90 != null && (
           <div className="absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border border-white/30 rounded-md px-3 py-1.5 flex items-center gap-1.5">
             <span className="text-[10px] text-white/70 uppercase tracking-wider font-bebas">R90</span>
-            <span className="text-sm font-bold" style={{ color: BRAND.gold }}>{analysis.linked_r90.toFixed(2)}</span>
+            <span className="text-sm font-bold" style={{ color: BRAND.gold }}>{linkedR90.toFixed(2)}</span>
           </div>
         )}
         
