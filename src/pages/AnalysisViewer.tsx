@@ -1527,7 +1527,7 @@ const AnalysisViewer = () => {
             {(analysis.player_image_url || analysis.match_image_url) && (
               <ScrollReveal className="w-full">
                 <div 
-                  className="relative w-full overflow-hidden"
+                  className="relative w-full overflow-hidden z-20"
                   style={{
                     backgroundImage: `url('/analysis-page-bg.png')`,
                     backgroundSize: 'cover',
