@@ -59,6 +59,28 @@ type SortField = 'player_name' | 'age' | 'position' | 'nationality' | 'current_c
 type SortDirection = 'asc' | 'desc';
 
 const ITEMS_PER_PAGE = 50;
+const UPCOMING_BIRTHDAY_DAYS = 7;
+
+const getMonthDayFromDob = (dateOfBirth: string | null) => {
+  if (!dateOfBirth) return null;
+  const parts = dateOfBirth.split('T')[0].split('-');
+  if (parts.length < 3) return null;
+  return { month: parseInt(parts[1], 10), day: parseInt(parts[2], 10) };
+};
+
+const isBirthdayOnOffset = (dateOfBirth: string | null, offset: number) => {
+  const dob = getMonthDayFromDob(dateOfBirth);
+  if (!dob) return false;
+  const target = new Date();
+  target.setDate(target.getDate() + offset);
+  return dob.month === target.getMonth() + 1 && dob.day === target.getDate();
+};
+
+const getUpcomingBirthdayLabel = (offset: number, date: Date) => {
+  if (offset === 0) return 'Today';
+  if (offset === 1) return 'Tomorrow';
+  return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+};
 
 const POSITION_ORDER: Record<string, number> = {
   'GK': 1, 'Goalkeeper': 1,
