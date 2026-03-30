@@ -2456,7 +2456,7 @@ const AnalysisViewer = () => {
         
         {/* Back to Top Button - INSTANT scroll */}
         <motion.div 
-          className="flex justify-center py-8"
+          className="flex flex-col items-center gap-3 py-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -2472,6 +2472,23 @@ const AnalysisViewer = () => {
           >
             <ArrowLeft className="w-4 h-4 mr-2 rotate-90" />
             Back to Top
+          </Button>
+          
+          {/* Share link button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              const { toast } = require("sonner");
+              toast.success("Link copied to clipboard");
+            }}
+            className="text-xs opacity-60 hover:opacity-100 transition-opacity"
+            style={{ color: BRAND.gold }}
+            hoverEffect={false}
+          >
+            <Link2 className="w-3.5 h-3.5 mr-1.5" />
+            Share Analysis
           </Button>
         </motion.div>
       </main>
