@@ -1131,6 +1131,32 @@ const AnalysisViewer = () => {
       
       console.log("Player name resolved:", playerName);
       
+      // Fetch linked R90 score from performance reports
+      let linkedR90: number | null = null;
+      // Try via linked_video_analysis_ids (analysis linked to a performance report)
+      const { data: linkedReport } = await supabase
+        .from("player_analysis")
+        .select("r90_score")
+        .eq("analysis_writer_id", analysisId)
+        .not("r90_score", "is", null)
+        .maybeSingle();
+      if (linkedReport?.r90_score) {
+        linkedR90 = linkedReport.r90_score;
+      }
+      // Fallback: check by fixture_id
+      if (!linkedR90 && data.fixture_id) {
+        const { data: fixtureReport } = await supabase
+          .from("player_analysis")
+          .select("r90_score")
+          .eq("fixture_id", data.fixture_id)
+          .not("r90_score", "is", null)
+          .limit(1)
+          .maybeSingle();
+        if (fixtureReport?.r90_score) {
+          linkedR90 = fixtureReport.r90_score;
+        }
+      }
+
       const parsedAnalysis: Analysis = {
         ...data,
         player_name: playerName,
@@ -1149,7 +1175,9 @@ const AnalysisViewer = () => {
         kit_stripe_style: data.kit_stripe_style || 'none',
         player_team: data.player_team || null,
         matchups: Array.isArray(data.matchups) ? data.matchups : [],
-        points: Array.isArray(data.points) ? data.points : []
+        points: Array.isArray(data.points) ? data.points : [],
+        fixture_id: data.fixture_id || null,
+        linked_r90: linkedR90,
       };
 
       setAnalysis(parsedAnalysis);
