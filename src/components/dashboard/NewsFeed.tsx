@@ -172,6 +172,9 @@ export const NewsFeed = ({ playerId, playerName, portalLanguage, onNavigateToAna
         tags?.forEach(tag => {
           const a = (tag as any).analyses;
           if (!a) return;
+          // Skip draft and hidden analyses from the newsfeed
+          const vis = String(a.visibility_status || "live").toLowerCase();
+          if (vis === "draft" || vis === "hidden") return;
           const typeLabel = a.analysis_type === "pre-match"
             ? t(portalLanguage, "pre_match")
             : a.analysis_type === "post-match"
