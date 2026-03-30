@@ -411,7 +411,7 @@ export const PlayerDatabase = () => {
     setSearchQuery(''); setAgeFilter('all'); setNationFilter('all'); setPositionFilter([]); setSourceFilter([]); setDobFrom(''); setDobTo(''); setBirthdayFilterOffset(null);
   };
 
-  const hasActiveFilters = searchQuery || ageFilter !== 'all' || nationFilter !== 'all' || positionFilter.length > 0 || sourceFilter.length > 0 || dobFrom || dobTo;
+  const hasActiveFilters = searchQuery || ageFilter !== 'all' || nationFilter !== 'all' || positionFilter.length > 0 || sourceFilter.length > 0 || dobFrom || dobTo || birthdayFilterOffset !== null;
 
   const openPlayerDetail = (player: PlayerData) => {
     setSelectedPlayer(player);
