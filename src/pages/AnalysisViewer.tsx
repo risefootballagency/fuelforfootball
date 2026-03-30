@@ -59,6 +59,8 @@ interface Analysis {
   points: any;
   video_url: string | null;
   player_name: string | null;
+  fixture_id: string | null;
+  linked_r90?: number | null;
 }
 
 // Brand colors - GLOBAL TOKENS
