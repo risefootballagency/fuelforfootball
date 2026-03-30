@@ -561,6 +561,8 @@ const AnalysisHeader = ({
   isSaving = false,
   playerTeam,
   linkedR90,
+  linkedReportId,
+  linkedReportVisibility,
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -576,12 +578,33 @@ const AnalysisHeader = ({
   isSaving?: boolean;
   playerTeam?: string | null;
   linkedR90?: number | null;
+  linkedReportId?: string | null;
+  linkedReportVisibility?: string | null;
 }) => {
   const navigate = useNavigate();
   
   // Determine which team is the player's team based on explicit selection
   const isHomePlayerTeam = playerTeam === 'home';
   const isAwayPlayerTeam = playerTeam === 'away';
+
+  // Get R90 grade color from the grade color system
+  const getR90Color = (score: number): string => {
+    if (score < 0) return 'hsl(0, 84%, 30%)';
+    if (score < 0.2) return 'hsl(0, 84%, 45%)';
+    if (score < 0.4) return 'hsl(0, 84%, 60%)';
+    if (score < 0.6) return 'hsl(25, 75%, 45%)';
+    if (score < 0.8) return 'hsl(40, 85%, 50%)';
+    if (score < 1.0) return 'hsl(60, 70%, 50%)';
+    if (score < 1.2) return 'hsl(142, 76%, 36%)';
+    if (score < 1.4) return 'hsl(142, 70%, 40%)';
+    if (score < 1.6) return 'hsl(142, 65%, 45%)';
+    if (score < 1.8) return 'hsl(142, 70%, 50%)';
+    if (score < 2.2) return 'hsl(142, 76%, 55%)';
+    return 'hsl(43, 96%, 56%)';
+  };
+
+  const r90Color = linkedR90 != null ? getR90Color(linkedR90) : BRAND.gold;
+  const isReportLive = linkedReportVisibility === 'live' || linkedReportVisibility === null;
   
   return (
     <motion.div 
@@ -590,8 +613,6 @@ const AnalysisHeader = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Top gold border removed as requested */}
-      
       {/* Top section - COMPACT, with buttons integrated */}
       <div 
         className="relative py-2 px-3"
@@ -606,22 +627,33 @@ const AnalysisHeader = ({
         {/* Bottom fade gradient */}
         <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
         
-        {/* Back button */}
+        {/* Back button - hover changes text to FFF yellow */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(-1)}
-          className="absolute left-4 md:left-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white h-8 py-1.5 px-3 text-xs z-20"
+          className="absolute left-4 md:left-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 hover:bg-black/70 text-white h-8 py-1.5 px-3 text-xs z-20 group/back transition-colors"
+          style={{ ['--hover-color' as any]: BRAND.gold }}
         >
-          <ArrowLeft className="w-3 h-3 mr-1" />
-          Back
+          <ArrowLeft className="w-3 h-3 mr-1 group-hover/back:text-[#fdc61b] transition-colors" />
+          <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge */}
+        {/* R90 Score badge - links to report if live, colored by grade */}
         {linkedR90 != null && (
-          <div className="absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border border-white/30 rounded-md px-3 py-1.5 flex items-center gap-1.5">
-            <span className="text-[10px] text-white/70 uppercase tracking-wider font-bebas">R90</span>
-            <span className="text-sm font-bold" style={{ color: BRAND.gold }}>{linkedR90.toFixed(2)}</span>
+          <div 
+            className={`absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border rounded-md px-3 py-1.5 flex items-center gap-1.5 ${isReportLive && linkedReportId ? 'cursor-pointer hover:bg-black/70 transition-colors' : ''}`}
+            style={{ borderColor: r90Color }}
+            onClick={() => {
+              if (isReportLive && linkedReportId) {
+                navigate(`/portal/report/${linkedReportId}`);
+              }
+            }}
+          >
+            <span className="text-[10px] uppercase tracking-wider font-bebas hover-text-wrapper" style={{ color: r90Color }}>
+              <HoverText text="R90" className="text-[10px]" />
+            </span>
+            <span className="text-sm font-bold" style={{ color: r90Color }}>{linkedR90.toFixed(2)}</span>
           </div>
         )}
         
