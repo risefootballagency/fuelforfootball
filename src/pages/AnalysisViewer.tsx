@@ -639,8 +639,8 @@ const AnalysisHeader = ({
           <span className="group-hover/back:text-[#fdc61b] transition-colors">Back</span>
         </Button>
         
-        {/* R90 Score badge - links to report only if live, colored by grade */}
-        {linkedR90 != null && (
+        {/* R90 Score badge - shows when linked report exists, links only if live */}
+        {linkedReportId && (
           <div 
             className={`absolute right-4 md:right-8 top-4 z-20 bg-black/50 backdrop-blur-sm border rounded-md px-3 py-1.5 flex items-center gap-1.5 ${isReportLive && linkedReportId ? 'cursor-pointer hover:bg-black/70 transition-colors' : ''}`}
             style={{ borderColor: r90Color }}
@@ -651,7 +651,7 @@ const AnalysisHeader = ({
             }}
           >
             <span className="font-bebas uppercase tracking-wider" style={{ color: r90Color }}>
-              <HoverText text={`R90 ${linkedR90.toFixed(2)}`} className="text-sm" />
+              <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-sm" />
             </span>
           </div>
         )}
