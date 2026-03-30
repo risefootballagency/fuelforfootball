@@ -21,6 +21,7 @@ import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
 import { ChanceCreationFlow } from "@/components/report/ChanceCreationFlow";
 import { RankedActionsPlayer } from "@/components/report/RankedActionsPlayer";
+import { MatchTimelapse } from "@/components/report/MatchTimelapse";
 import { toTitleCase } from "@/lib/titleCase";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { sortActionsByMinute } from "@/lib/actionSorting";
