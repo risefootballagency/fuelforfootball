@@ -1178,7 +1178,7 @@ export const VideoAnalysis = () => {
             {videos.map(video => {
               const expiry = daysUntilExpiry(video.auto_delete_at);
               return (
-                <div key={video.id} onClick={() => setSelectedVideo(video)} className="p-4 rounded-lg border cursor-pointer hover:bg-muted/30 transition-colors">
+                <div key={video.id} onClick={() => { setSelectedVideo(video); loadVideoDetail(video.id); }} className="p-4 rounded-lg border cursor-pointer hover:bg-muted/30 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-sm truncate">{video.title}</p>
