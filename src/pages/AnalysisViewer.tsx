@@ -1196,29 +1196,44 @@ const AnalysisViewer = () => {
       let linkedR90: number | null = null;
       let linkedReportId: string | null = null;
       let linkedReportVisibility: string | null = null;
-      // Try via linked_video_analysis_ids (analysis linked to a performance report)
+      
+      // Try via analysis_writer_id (report links to this analysis)
       const { data: linkedReport } = await supabase
         .from("player_analysis")
         .select("id, r90_score, visibility_status")
         .eq("analysis_writer_id", analysisId)
-        .not("r90_score", "is", null)
         .maybeSingle();
-      if (linkedReport?.r90_score) {
-        linkedR90 = linkedReport.r90_score;
+      if (linkedReport) {
+        linkedR90 = linkedReport.r90_score ?? null;
         linkedReportId = linkedReport.id;
         linkedReportVisibility = (linkedReport as any).visibility_status || 'live';
       }
+      
+      // Fallback: check by linked_video_analysis_ids containing this analysis
+      if (!linkedReportId) {
+        const { data: linkedByIds } = await supabase
+          .from("player_analysis")
+          .select("id, r90_score, visibility_status")
+          .contains("linked_video_analysis_ids", [analysisId])
+          .limit(1)
+          .maybeSingle();
+        if (linkedByIds) {
+          linkedR90 = linkedByIds.r90_score ?? null;
+          linkedReportId = linkedByIds.id;
+          linkedReportVisibility = (linkedByIds as any).visibility_status || 'live';
+        }
+      }
+      
       // Fallback: check by fixture_id
-      if (!linkedR90 && data.fixture_id) {
+      if (!linkedReportId && data.fixture_id) {
         const { data: fixtureReport } = await supabase
           .from("player_analysis")
           .select("id, r90_score, visibility_status")
           .eq("fixture_id", data.fixture_id)
-          .not("r90_score", "is", null)
           .limit(1)
           .maybeSingle();
-        if (fixtureReport?.r90_score) {
-          linkedR90 = fixtureReport.r90_score;
+        if (fixtureReport) {
+          linkedR90 = fixtureReport.r90_score ?? null;
           linkedReportId = fixtureReport.id;
           linkedReportVisibility = (fixtureReport as any).visibility_status || 'live';
         }
