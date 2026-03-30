@@ -648,6 +648,28 @@ export const PlayerDatabase = () => {
         />
       </div>
 
+      {/* Birthdays next 7 days */}
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-medium">Birthdays next 7 days</p>
+        <div className="flex flex-wrap gap-1">
+          {Array.from({ length: UPCOMING_BIRTHDAY_DAYS }).map((_, offset) => {
+            const date = new Date();
+            date.setDate(date.getDate() + offset);
+            const count = players.filter(p => isBirthdayOnOffset(p.date_of_birth, offset)).length;
+            const isActive = birthdayFilterOffset === offset;
+            return (
+              <button
+                key={offset}
+                onClick={() => setBirthdayFilterOffset(isActive ? null : offset)}
+                className={`text-[10px] px-2 py-1 border rounded transition-colors ${isActive ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted/50'}`}
+              >
+                {getUpcomingBirthdayLabel(offset, date)} {count > 0 && <span className="font-bold">({count})</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Search */}
       <StaffSearchInput
         value={searchQuery}
