@@ -2492,9 +2492,9 @@ const AnalysisViewer = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-              const { toast } = require("sonner");
+            onClick={async () => {
+              await navigator.clipboard.writeText(window.location.href);
+              const { toast } = await import("sonner");
               toast.success("Link copied to clipboard");
             }}
             className="text-xs opacity-60 hover:opacity-100 transition-opacity"
