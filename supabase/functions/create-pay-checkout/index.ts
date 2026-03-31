@@ -15,26 +15,35 @@ serve(async (req) => {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
-    const { title, amount, currency, description, payLinkId } = await req.json();
+    const { title, amount, currency, description, payLinkId, paymentType, recurringInterval } = await req.json();
     if (!title || !amount) throw new Error("Title and amount are required");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
+    const isSubscription = paymentType === "subscription";
+    const interval = recurringInterval || "month";
+
+    const priceData: any = {
+      currency: (currency || "GBP").toLowerCase(),
+      product_data: {
+        name: title,
+        description: description || undefined,
+      },
+      unit_amount: Math.round(amount * 100),
+    };
+
+    if (isSubscription) {
+      priceData.recurring = { interval };
+    }
+
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price_data: {
-            currency: (currency || "GBP").toLowerCase(),
-            product_data: {
-              name: title,
-              description: description || undefined,
-            },
-            unit_amount: Math.round(amount * 100),
-          },
+          price_data: priceData,
           quantity: 1,
         },
       ],
-      mode: "payment",
+      mode: isSubscription ? "subscription" : "payment",
       success_url: `${req.headers.get("origin") || "https://fuelforfootball.lovable.app"}/pay/${payLinkId || "success"}?status=success`,
       cancel_url: `${req.headers.get("origin") || "https://fuelforfootball.lovable.app"}/pay/${payLinkId || "cancelled"}`,
       metadata: { pay_link_id: payLinkId || "" },
