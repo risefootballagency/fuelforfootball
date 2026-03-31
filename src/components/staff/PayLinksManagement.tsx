@@ -41,6 +41,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     currency: 'GBP',
     description: '',
     expires_at: '',
+    payment_type: 'one_off' as string,
+    recurring_interval: 'month' as string,
   });
 
   useEffect(() => {
