@@ -1,83 +1,46 @@
 
 
-# Sync Recent RISE Football Changes (Last 7 Days)
+# Fix R90 Score on Analysis Viewer + Fix Subscription Pay Links
 
-Based on the RISE Football conversation history (Mar 11-15), here are all the changes that need to be synced to this project.
+## Problem 1: R90 showing 0.00 for hidden reports
+The code fetches `r90_score` from `player_analysis` but the shared database query only selects `r90_score`. For hidden reports, the R90 score IS stored in `r90_score` — the problem is the fallback logic at line 1244 triggers when `linkedR90 === null`, but the Sarpsborg report likely has `r90_score = 0` (not null) stored, and the fallback never fires. Or the query itself is failing silently.
 
-## Changes Summary
+**Root cause**: The code queries the shared DB via `sharedSupabase` but the fallback calculation also uses `supabase` (shared). The issue is likely that the `r90_score` column stores 0 for hidden reports where the score hasn't been "published" yet, while the actual score of 1.97 must be computed from actions. The `linkedR90 === null` check skips the fallback when the stored value is `0`.
 
-### 1. New Files to Create
+**Fix**: Change the fallback condition from `linkedR90 === null` to `!linkedR90` (falsy check — catches both null and 0), so it always computes from actions when there's no meaningful stored score.
 
-**`src/components/report/MatchTimelapse.tsx`** — Full match timelapse component with SVG pitch, animated zone trail, continuous MM:SS clock with variable speed playback (fast-forward gaps, normal speed during actions), vertical timeline with action markers.
+**File**: `src/pages/AnalysisViewer.tsx` line 1244
 
-**`src/lib/reportActionHelpers.ts`** — Utility for chronological action sorting (`sortReportActionsChronologically`), zone filtering (`filterActionsByZone`, `actionMatchesZone`, `actionMatchesSubZone`). Used by MatchTimelapse, R90FlowChart, RankedActionsPlayer, ZonePerformance.
+## Problem 2: Subscription pay links not working
 
-### 2. Report Components to Update (sync from RISE)
+Multiple issues:
 
-**`src/components/report/R90FlowChart.tsx`** — Add import of `sortReportActionsChronologically` from reportActionHelpers; use it for chart data sorting.
+### 2a. `create-pay-link` edge function creates Stripe payment links correctly for subscriptions (recurring price), but `Serg Monthly` has `stripe_payment_link_url = NULL` — meaning the Stripe link was never generated or failed.
 
-**`src/components/report/RankedActionsPlayer.tsx`** — Add `sortReportActionsChronologically` import; add `X` close icon import; add `[&>button.absolute]:hidden` to DialogContent to fix duplicate X icons; add language prop usage.
+**Fix**: Add a "Regenerate" button flow and ensure existing subscription pay links can regenerate their Stripe links. On the staff UI, when a subscription link has no Stripe URL, clicking Generate should pass the correct `paymentType: 'subscription'`.
 
-**`src/components/report/ZonePerformance.tsx`** — Replace inline video player with `onSelectZone` callback prop; add clickable zone buttons for zone-to-video filtering; remove embedded RankedActionsPlayer/clip logic.
+### 2b. `create-pay-checkout` edge function (fallback when no Stripe link exists) hardcodes `mode: "payment"` — it doesn't support subscriptions at all.
 
-**`src/components/report/PitchHeatmap.tsx`** — Update heatmap color gradient for better red-density differentiation (green→yellow→red scale with clearer hot zones).
+**Fix**: Update `create-pay-checkout` to accept `paymentType` and `recurringInterval`. When `paymentType === 'subscription'`, use `mode: "subscription"` and set `price_data.recurring`.
 
-**`src/components/report/ActionHeatmap.tsx`** — Add language prop; use `t()` for all labels.
+### 2c. `PayLink.tsx` doesn't pass `payment_type` or `recurring_interval` to `PortalPaymentMethods`, so the component can't distinguish subscriptions.
 
-**`src/components/report/ChanceCreationFlow.tsx`** — Add language prop; use `t()` for labels.
+**Fix**: 
+- Update `PayLink.tsx` interface to include `payment_type` and `recurring_interval`
+- Pass these to `PortalPaymentMethods` as new props
+- Update `PortalPaymentMethods` to pass `paymentType` and `recurringInterval` to `create-pay-checkout`
+- Update button text: "Subscribe £200.00/mo" instead of "Pay £200.00 by Card"
+- Update the Badge from "Payment Request" to "Subscription" for recurring links
+- Update PayPal link text and bank transfer instructions accordingly
 
-**`src/components/ClippedActionsPlayer.tsx`** — Add `[&>button.absolute]:hidden` to fix duplicate X icons; add language prop support.
+### 2d. The `Serg Monthly` record has no Stripe link — need to generate one.
 
-### 3. Performance Report Pages (major sync)
+**Fix**: The staff can click "Generate" on the existing record. Ensure the edge function `create-pay-link` correctly handles this (it already does based on the code).
 
-**`src/pages/PerformanceReport.tsx`** — Add MatchTimelapse import and toggle; add `filterActionsByZone` import; add zone player state/handlers; add translation support via `reportTranslations` helpers; add Timer icon import; wire `onSelectZone` to ZonePerformance for zone-specific video popups.
+## Files to modify
 
-**`src/components/PerformanceReportDialog.tsx`** — Same changes as above: MatchTimelapse, zone player, `filterActionsByZone`, translation helpers, draft `estimated_ready_at` visibility.
-
-### 4. Edge Functions to Sync
-
-**`supabase/functions/parse-stats-url/index.ts`** — Complete rewrite: deterministic `__NEXT_DATA__` JSON extraction, AI fallback with tool calling (structured output), expanded stat key aliases, 40K char context limit.
-
-**`supabase/functions/suggest-fixture-stats/index.ts`** — Add `normaliseFixtureSuggestions` validation layer, pass zone evidence, arithmetic constraint enforcement, model upgrade to `gemini-3-flash-preview`.
-
-**`supabase/functions/ai-write/index.ts`** — Updated prompts enforcing British English, improved style example instructions for analysis-paragraph and analysis-overview types.
-
-### 5. UI Component Updates
-
-**`src/components/ui/textarea.tsx`** — Add `spellCheck` attribute globally.
-
-**`src/components/staff/VideoActionEditor.tsx`** — Description dropdown opens upward (`bottom-full mb-1`); jump-to list gets scroll arrow buttons at top/bottom.
-
-**`src/components/staff/R90RatingsViewer.tsx`** — Default expand "Offensive" category on open; sort "Offensive" to top; add `prefilledSearch` prop.
-
-**`src/components/staff/XGPitchMap.tsx`** — Rebuilt with research-based 12x9 xG grid, interactive tooltips, box zoom toggle.
-
-### 6. Translation Expansion
-
-**`src/lib/portalTranslations.ts`** — Add ~40 new translation keys across all 10 languages for report UI (match_timelapse, press_play, zone_word, view_clips, save_label, share_label, etc.).
-
-### 7. Error Reporting (main.tsx)
-
-**`src/main.tsx`** — Add monkey-patch of `toast.error` to include a "Report" button that inserts error details into `staff_notification_events` table. Requires importing `toast` from sonner and `supabase` client.
-
-### 8. Not synced (RISE-specific only)
-
-- Visitor Diagnostics page (RISE-specific debugging tool)
-- Birthday notification cron job fix (RISE-specific infrastructure)
-- PWA scope guard in main.tsx (RISE-specific, this project has its own approach)
-
-## Implementation Order
-
-1. Create new utility files (reportActionHelpers.ts)
-2. Create MatchTimelapse component
-3. Update report sub-components (R90FlowChart, RankedActionsPlayer, ZonePerformance, PitchHeatmap, ActionHeatmap, ChanceCreationFlow, ClippedActionsPlayer)
-4. Update portalTranslations.ts with new keys
-5. Update textarea.tsx (spellCheck)
-6. Sync edge functions (parse-stats-url, suggest-fixture-stats, ai-write)
-7. Update PerformanceReport.tsx and PerformanceReportDialog.tsx
-8. Update staff components (VideoActionEditor, R90RatingsViewer, XGPitchMap)
-9. Add error reporting to main.tsx
-
-## Branding Note
-All RISE-specific references (e.g. `text-risegold`) will be adapted to this project's equivalent colour tokens.
+1. **`src/pages/AnalysisViewer.tsx`** — Change R90 fallback from `=== null` to `!linkedR90`
+2. **`supabase/functions/create-pay-checkout/index.ts`** — Add subscription mode support
+3. **`src/pages/PayLink.tsx`** — Add `payment_type`, `recurring_interval` to interface and pass to PortalPaymentMethods
+4. **`src/components/portal/PortalPaymentMethods.tsx`** — Accept `paymentType`/`recurringInterval` props, adapt text and checkout call
 
