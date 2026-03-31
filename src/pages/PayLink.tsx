@@ -15,6 +15,8 @@ interface PayLink {
   description: string | null;
   status: string;
   stripe_payment_link_url: string | null;
+  payment_type: string | null;
+  recurring_interval: string | null;
 }
 
 export default function PayLink() {
