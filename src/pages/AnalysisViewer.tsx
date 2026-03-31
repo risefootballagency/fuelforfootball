@@ -1240,8 +1240,8 @@ const AnalysisViewer = () => {
         }
       }
       
-      // If r90_score is null or 0 but we have a linked report, compute from actions
-      if (!linkedR90 && linkedReportId) {
+      // If r90_score is null (not 0 - 0 could be valid) but we have a linked report, compute from actions
+      if (linkedR90 === null && linkedReportId) {
         const { data: reportData } = await supabase
           .from("player_analysis")
           .select("minutes_played")
@@ -1254,7 +1254,7 @@ const AnalysisViewer = () => {
           .eq("analysis_id", linkedReportId);
         if (actions && actions.length > 0 && mp && mp > 0) {
           const totalScore = actions.reduce((sum: number, a: any) => sum + (a.action_score || 0), 0);
-          linkedR90 = (totalScore / mp) * 90;
+          linkedR90 = parseFloat(((totalScore / mp) * 90).toFixed(2));
         }
       }
 

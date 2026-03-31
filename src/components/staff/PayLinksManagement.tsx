@@ -24,6 +24,8 @@ interface PayLink {
   expires_at: string | null;
   stripe_payment_link_url: string | null;
   stripe_payment_link_id: string | null;
+  payment_type: string | null;
+  recurring_interval: string | null;
   created_at: string;
 }
 
