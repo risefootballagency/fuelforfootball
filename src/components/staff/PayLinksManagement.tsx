@@ -263,9 +263,16 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">
-                        £{payLink.amount.toFixed(2)} {payLink.currency !== 'GBP' && payLink.currency}
+                        £{payLink.amount.toFixed(2)}{payLink.payment_type === 'subscription' ? `/${payLink.recurring_interval === 'week' ? 'wk' : payLink.recurring_interval === 'year' ? 'yr' : 'mo'}` : ''} {payLink.currency !== 'GBP' && payLink.currency}
                       </TableCell>
-                      <TableCell>{getStatusBadge(payLink.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          {getStatusBadge(payLink.status)}
+                          {payLink.payment_type === 'subscription' && (
+                            <Badge variant="outline" className="bg-blue-500/20 text-blue-500 text-[10px]">Sub</Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         {payLink.stripe_payment_link_url ? (
                           <div className="flex items-center gap-1">
