@@ -174,6 +174,8 @@ export default function PayLink() {
             payLinkId={payLink.id}
             title={payLink.title}
             description={payLink.description || undefined}
+            paymentType={payLink.payment_type || undefined}
+            recurringInterval={payLink.recurring_interval || undefined}
           />
         </div>
       </div>
