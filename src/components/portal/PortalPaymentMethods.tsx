@@ -149,7 +149,7 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
               disabled={loadingCheckout}
             >
               {loadingCheckout ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CreditCard className="h-4 w-4 mr-2" />}
-              {loadingCheckout ? "Creating secure checkout..." : `Pay ${formattedAmount || ''} by Card`}
+              {loadingCheckout ? "Creating secure checkout..." : isSubscription ? `Subscribe ${formattedAmount || ''}${intervalSuffix} by Card` : `Pay ${formattedAmount || ''} by Card`}
               {!loadingCheckout && <ArrowRight className="h-4 w-4 ml-auto" />}
             </Button>
           </div>
