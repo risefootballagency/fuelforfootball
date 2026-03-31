@@ -373,6 +373,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                           amount: payLink.amount,
                           currency: payLink.currency,
                           description: payLink.description,
+                          payment_type: payLink.payment_type,
+                          recurring_interval: payLink.recurring_interval,
                         })}
                         disabled={creatingStripeLink}
                       >
