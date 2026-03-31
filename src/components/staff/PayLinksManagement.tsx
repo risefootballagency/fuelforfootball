@@ -72,6 +72,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       currency: formData.currency,
       description: formData.description || null,
       expires_at: formData.expires_at || null,
+      payment_type: formData.payment_type,
+      recurring_interval: formData.payment_type === 'subscription' ? formData.recurring_interval : null,
       status: 'active',
     };
 
