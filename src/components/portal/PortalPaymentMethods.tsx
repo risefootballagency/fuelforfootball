@@ -101,7 +101,7 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
     setLoadingCheckout(true);
     try {
       const { data, error } = await invokeEdgeFunction<{ url: string }>("create-pay-checkout", {
-        body: { title: title || "Payment", amount, currency: currencyCode, description, payLinkId },
+        body: { title: title || "Payment", amount, currency: currencyCode, description, payLinkId, paymentType: paymentType || 'one_off', recurringInterval: recurringInterval || 'month' },
       });
       if (error) throw error;
       if (data?.url) window.open(data.url, "_blank");
