@@ -440,6 +440,31 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Payment Type</Label>
+                <Select value={formData.payment_type} onValueChange={(v) => setFormData(prev => ({ ...prev, payment_type: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="one_off">One-Off</SelectItem>
+                    <SelectItem value="subscription">Subscription</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {formData.payment_type === 'subscription' && (
+                <div>
+                  <Label>Interval</Label>
+                  <Select value={formData.recurring_interval} onValueChange={(v) => setFormData(prev => ({ ...prev, recurring_interval: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="week">Weekly</SelectItem>
+                      <SelectItem value="month">Monthly</SelectItem>
+                      <SelectItem value="year">Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
             <div>
               <Label>Description</Label>
               <Textarea
