@@ -172,6 +172,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         currency: payLink.currency,
         description: payLink.description || '',
         expires_at: payLink.expires_at ? payLink.expires_at.split('T')[0] : '',
+        payment_type: payLink.payment_type || 'one_off',
+        recurring_interval: payLink.recurring_interval || 'month',
       });
     } else {
       resetForm();
