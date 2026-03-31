@@ -131,7 +131,7 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
               onClick={() => window.open(paypalUrl, "_blank")}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Pay {formattedAmount || ''} with PayPal
+              {isSubscription ? `Subscribe ${formattedAmount || ''}${intervalSuffix} with PayPal` : `Pay ${formattedAmount || ''} with PayPal`}
               <ArrowRight className="h-4 w-4 ml-auto" />
             </Button>
           </div>
