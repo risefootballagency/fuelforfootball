@@ -24,6 +24,8 @@ interface PayLink {
   expires_at: string | null;
   stripe_payment_link_url: string | null;
   stripe_payment_link_id: string | null;
+  payment_type: string | null;
+  recurring_interval: string | null;
   created_at: string;
 }
 
@@ -39,6 +41,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     currency: 'GBP',
     description: '',
     expires_at: '',
+    payment_type: 'one_off' as string,
+    recurring_interval: 'month' as string,
   });
 
   useEffect(() => {
@@ -68,6 +72,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       currency: formData.currency,
       description: formData.description || null,
       expires_at: formData.expires_at || null,
+      payment_type: formData.payment_type,
+      recurring_interval: formData.payment_type === 'subscription' ? formData.recurring_interval : null,
       status: 'active',
     };
 
@@ -107,7 +113,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     fetchPayLinks();
   };
 
-  const createStripePaymentLink = async (payLinkId: string, data: { title: string; amount: number; currency: string; description: string | null }) => {
+  const createStripePaymentLink = async (payLinkId: string, data: { title: string; amount: number; currency: string; description: string | null; payment_type?: string | null; recurring_interval?: string | null }) => {
     setCreatingStripeLink(true);
     try {
       const { data: result, error } = await invokeEdgeFunction('create-pay-link', {
@@ -117,6 +123,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           amount: data.amount,
           currency: data.currency,
           description: data.description,
+          paymentType: data.payment_type || 'one_off',
+          recurringInterval: data.payment_type === 'subscription' ? (data.recurring_interval || 'month') : undefined,
         },
       });
 
@@ -154,6 +162,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       currency: 'GBP',
       description: '',
       expires_at: '',
+      payment_type: 'one_off',
+      recurring_interval: 'month',
     });
   };
 
@@ -166,6 +176,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         currency: payLink.currency,
         description: payLink.description || '',
         expires_at: payLink.expires_at ? payLink.expires_at.split('T')[0] : '',
+        payment_type: payLink.payment_type || 'one_off',
+        recurring_interval: payLink.recurring_interval || 'month',
       });
     } else {
       resetForm();
@@ -251,9 +263,16 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">
-                        £{payLink.amount.toFixed(2)} {payLink.currency !== 'GBP' && payLink.currency}
+                        £{payLink.amount.toFixed(2)}{payLink.payment_type === 'subscription' ? `/${payLink.recurring_interval === 'week' ? 'wk' : payLink.recurring_interval === 'year' ? 'yr' : 'mo'}` : ''} {payLink.currency !== 'GBP' && payLink.currency}
                       </TableCell>
-                      <TableCell>{getStatusBadge(payLink.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          {getStatusBadge(payLink.status)}
+                          {payLink.payment_type === 'subscription' && (
+                            <Badge variant="outline" className="bg-blue-500/20 text-blue-500 text-[10px]">Sub</Badge>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         {payLink.stripe_payment_link_url ? (
                           <div className="flex items-center gap-1">
@@ -281,6 +300,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                               amount: payLink.amount,
                               currency: payLink.currency,
                               description: payLink.description,
+                              payment_type: payLink.payment_type,
+                              recurring_interval: payLink.recurring_interval,
                             })}
                             disabled={creatingStripeLink}
                           >
@@ -359,6 +380,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                           amount: payLink.amount,
                           currency: payLink.currency,
                           description: payLink.description,
+                          payment_type: payLink.payment_type,
+                          recurring_interval: payLink.recurring_interval,
                         })}
                         disabled={creatingStripeLink}
                       >
@@ -424,6 +447,31 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Payment Type</Label>
+                <Select value={formData.payment_type} onValueChange={(v) => setFormData(prev => ({ ...prev, payment_type: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="one_off">One-Off</SelectItem>
+                    <SelectItem value="subscription">Subscription</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {formData.payment_type === 'subscription' && (
+                <div>
+                  <Label>Interval</Label>
+                  <Select value={formData.recurring_interval} onValueChange={(v) => setFormData(prev => ({ ...prev, recurring_interval: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="week">Weekly</SelectItem>
+                      <SelectItem value="month">Monthly</SelectItem>
+                      <SelectItem value="year">Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
             <div>
               <Label>Description</Label>
               <Textarea
