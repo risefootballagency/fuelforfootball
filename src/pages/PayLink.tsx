@@ -15,6 +15,8 @@ interface PayLink {
   description: string | null;
   status: string;
   stripe_payment_link_url: string | null;
+  payment_type: string | null;
+  recurring_interval: string | null;
 }
 
 export default function PayLink() {
@@ -143,13 +145,18 @@ export default function PayLink() {
         <Card className="bg-card/50 border-border/50">
           <CardHeader className="text-center pb-2">
             <Badge className="mx-auto mb-2 bg-accent/20 text-accent border-accent/30">
-              Payment Request
+              {payLink.payment_type === 'subscription' ? 'Subscription' : 'Payment Request'}
             </Badge>
             <CardTitle className="text-2xl text-foreground">{payLink.title}</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-4xl font-bold text-accent mb-4">
               {formatCurrency(payLink.amount, payLink.currency)}
+              {payLink.payment_type === 'subscription' && (
+                <span className="text-lg text-muted-foreground font-normal">
+                  /{payLink.recurring_interval === 'week' ? 'wk' : payLink.recurring_interval === 'year' ? 'yr' : 'mo'}
+                </span>
+              )}
             </p>
             {payLink.description && (
               <p className="text-muted-foreground">{payLink.description}</p>
@@ -167,6 +174,8 @@ export default function PayLink() {
             payLinkId={payLink.id}
             title={payLink.title}
             description={payLink.description || undefined}
+            paymentType={payLink.payment_type || undefined}
+            recurringInterval={payLink.recurring_interval || undefined}
           />
         </div>
       </div>

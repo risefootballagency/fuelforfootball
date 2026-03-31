@@ -15,6 +15,8 @@ interface PortalPaymentMethodsProps {
   payLinkId?: string;
   title?: string;
   description?: string;
+  paymentType?: string;
+  recurringInterval?: string;
 }
 
 type PaymentMethod = "paypal" | "card" | "bank" | "international" | null;
@@ -50,7 +52,9 @@ const METHODS = [
   },
 ];
 
-export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, payLinkId, title, description }: PortalPaymentMethodsProps) => {
+export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, payLinkId, title, description, paymentType, recurringInterval }: PortalPaymentMethodsProps) => {
+  const isSubscription = paymentType === 'subscription';
+  const intervalSuffix = recurringInterval === 'week' ? '/wk' : recurringInterval === 'year' ? '/yr' : '/mo';
   const currencyCode = (currency || 'GBP').toUpperCase();
   const formattedAmount = amount ? new Intl.NumberFormat("en-GB", { style: "currency", currency: currencyCode }).format(amount) : null;
   const [selected, setSelected] = useState<PaymentMethod>(null);
@@ -97,7 +101,7 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
     setLoadingCheckout(true);
     try {
       const { data, error } = await invokeEdgeFunction<{ url: string }>("create-pay-checkout", {
-        body: { title: title || "Payment", amount, currency: currencyCode, description, payLinkId },
+        body: { title: title || "Payment", amount, currency: currencyCode, description, payLinkId, paymentType: paymentType || 'one_off', recurringInterval: recurringInterval || 'month' },
       });
       if (error) throw error;
       if (data?.url) window.open(data.url, "_blank");
@@ -127,7 +131,7 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
               onClick={() => window.open(paypalUrl, "_blank")}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Pay {formattedAmount || ''} with PayPal
+              {isSubscription ? `Subscribe ${formattedAmount || ''}${intervalSuffix} with PayPal` : `Pay ${formattedAmount || ''} with PayPal`}
               <ArrowRight className="h-4 w-4 ml-auto" />
             </Button>
           </div>
@@ -145,7 +149,7 @@ export const PortalPaymentMethods = ({ amount, currency, stripePaymentLinkUrl, p
               disabled={loadingCheckout}
             >
               {loadingCheckout ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CreditCard className="h-4 w-4 mr-2" />}
-              {loadingCheckout ? "Creating secure checkout..." : `Pay ${formattedAmount || ''} by Card`}
+              {loadingCheckout ? "Creating secure checkout..." : isSubscription ? `Subscribe ${formattedAmount || ''}${intervalSuffix} by Card` : `Pay ${formattedAmount || ''} by Card`}
               {!loadingCheckout && <ArrowRight className="h-4 w-4 ml-auto" />}
             </Button>
           </div>

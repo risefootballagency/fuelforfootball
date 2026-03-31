@@ -1240,8 +1240,8 @@ const AnalysisViewer = () => {
         }
       }
       
-      // If r90_score is null (not 0 - 0 could be valid) but we have a linked report, compute from actions
-      if (linkedR90 === null && linkedReportId) {
+      // If r90_score is null or 0 (hidden reports may store 0), compute from actions
+      if (!linkedR90 && linkedReportId) {
         const { data: reportData } = await supabase
           .from("player_analysis")
           .select("minutes_played")
