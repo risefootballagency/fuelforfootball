@@ -1199,27 +1199,29 @@ const AnalysisViewer = () => {
       let linkedReportVisibility: string | null = null;
       
       // Try via analysis_writer_id (report links to this analysis)
+      const reportSelect = "id, r90_score, visibility_status, minutes_played, placeholder_raw_score, placeholder_minutes";
+      
       const { data: linkedReport } = await supabase
         .from("player_analysis")
-        .select("id, r90_score, visibility_status, minutes_played")
+        .select(reportSelect)
         .eq("analysis_writer_id", analysisId)
         .maybeSingle();
       if (linkedReport) {
-        linkedR90 = linkedReport.r90_score ?? null;
         linkedReportId = linkedReport.id;
         linkedReportVisibility = (linkedReport as any).visibility_status || 'live';
       }
       
       // Fallback: check by linked_video_analysis_ids containing this analysis
+      let foundReport: any = linkedReport;
       if (!linkedReportId) {
         const { data: linkedByIds } = await supabase
           .from("player_analysis")
-          .select("id, r90_score, visibility_status, minutes_played")
+          .select(reportSelect)
           .contains("linked_video_analysis_ids", [analysisId])
           .limit(1)
           .maybeSingle();
         if (linkedByIds) {
-          linkedR90 = linkedByIds.r90_score ?? null;
+          foundReport = linkedByIds;
           linkedReportId = linkedByIds.id;
           linkedReportVisibility = (linkedByIds as any).visibility_status || 'live';
         }
@@ -1229,32 +1231,26 @@ const AnalysisViewer = () => {
       if (!linkedReportId && data.fixture_id) {
         const { data: fixtureReport } = await supabase
           .from("player_analysis")
-          .select("id, r90_score, visibility_status, minutes_played")
+          .select(reportSelect)
           .eq("fixture_id", data.fixture_id)
           .limit(1)
           .maybeSingle();
         if (fixtureReport) {
-          linkedR90 = fixtureReport.r90_score ?? null;
+          foundReport = fixtureReport;
           linkedReportId = fixtureReport.id;
           linkedReportVisibility = (fixtureReport as any).visibility_status || 'live';
         }
       }
       
-      // If r90_score is null or 0 (hidden reports may store 0), compute from actions
-      if (!linkedR90 && linkedReportId) {
-        const { data: reportData } = await supabase
-          .from("player_analysis")
-          .select("minutes_played")
-          .eq("id", linkedReportId)
-          .maybeSingle();
-        const mp = reportData?.minutes_played ?? null;
-        const { data: actions } = await supabase
-          .from("performance_report_actions")
-          .select("action_score")
-          .eq("analysis_id", linkedReportId);
-        if (actions && actions.length > 0 && mp && mp > 0) {
-          const totalScore = actions.reduce((sum: number, a: any) => sum + (a.action_score || 0), 0);
-          linkedR90 = parseFloat(((totalScore / mp) * 90).toFixed(2));
+      // Determine R90 score: for hidden reports use placeholder scores, otherwise use r90_score
+      if (foundReport) {
+        const vis = (foundReport.visibility_status || 'live').toLowerCase();
+        const pRaw = (foundReport as any).placeholder_raw_score;
+        const pMin = (foundReport as any).placeholder_minutes;
+        if (vis === 'hidden' && pRaw != null && pMin && pMin > 0) {
+          linkedR90 = parseFloat(((pRaw / pMin) * 90).toFixed(2));
+        } else {
+          linkedR90 = foundReport.r90_score ?? null;
         }
       }
 
