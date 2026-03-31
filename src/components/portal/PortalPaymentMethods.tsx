@@ -15,6 +15,8 @@ interface PortalPaymentMethodsProps {
   payLinkId?: string;
   title?: string;
   description?: string;
+  paymentType?: string;
+  recurringInterval?: string;
 }
 
 type PaymentMethod = "paypal" | "card" | "bank" | "international" | null;
