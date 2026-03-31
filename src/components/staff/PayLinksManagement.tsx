@@ -113,7 +113,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     fetchPayLinks();
   };
 
-  const createStripePaymentLink = async (payLinkId: string, data: { title: string; amount: number; currency: string; description: string | null }) => {
+  const createStripePaymentLink = async (payLinkId: string, data: { title: string; amount: number; currency: string; description: string | null; payment_type?: string | null; recurring_interval?: string | null }) => {
     setCreatingStripeLink(true);
     try {
       const { data: result, error } = await invokeEdgeFunction('create-pay-link', {
@@ -123,6 +123,8 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           amount: data.amount,
           currency: data.currency,
           description: data.description,
+          paymentType: data.payment_type || 'one_off',
+          recurringInterval: data.payment_type === 'subscription' ? (data.recurring_interval || 'month') : undefined,
         },
       });
 
