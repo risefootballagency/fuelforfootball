@@ -202,20 +202,22 @@ interface KitProps {
   number: string;
 }
 
+let kitIdCounter = 0;
 const PlayerKit = ({ primaryColor, secondaryColor, collarColor, numberColor = 'white', stripeStyle = 'thick', number }: KitProps) => {
   const collar = collarColor || secondaryColor;
   const showNumber = number && number !== '0' && number.trim() !== '';
+  const [uid] = React.useState(() => `kit-${++kitIdCounter}`);
   
   return (
     <svg width="50" height="60" viewBox="0 0 100 120" className="drop-shadow-lg">
       <defs>
         {/* Pattern for thin stripes */}
-        <pattern id={`thinStripes-${number}`} patternUnits="userSpaceOnUse" width="6" height="120">
+        <pattern id={`thinStripes-${uid}`} patternUnits="userSpaceOnUse" width="6" height="120">
           <rect width="3" height="120" fill={primaryColor} />
           <rect x="3" width="3" height="120" fill={secondaryColor} />
         </pattern>
         {/* Pattern for thick stripes */}
-        <pattern id={`thickStripes-${number}`} patternUnits="userSpaceOnUse" width="16" height="120">
+        <pattern id={`thickStripes-${uid}`} patternUnits="userSpaceOnUse" width="16" height="120">
           <rect width="8" height="120" fill={primaryColor} />
           <rect x="8" width="8" height="120" fill={secondaryColor} />
         </pattern>
