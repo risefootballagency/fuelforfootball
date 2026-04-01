@@ -565,6 +565,7 @@ const AnalysisHeader = ({
   linkedR90,
   linkedReportId,
   linkedReportVisibility,
+  linkedReportSlug,
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
