@@ -73,6 +73,27 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
 
   const { cleanUrl, clipStart, clipEnd } = useMemo(() => parseClipFragment(videoUrl), [videoUrl]);
 
+  // Auto-play when scrolling into view, pause when scrolling away
+  useEffect(() => {
+    const video = videoRef.current;
+    const container = containerRef.current;
+    if (!video || !container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
   // Load annotation project
   useEffect(() => {
     if (preloadedElements) {
