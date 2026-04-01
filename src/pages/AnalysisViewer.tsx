@@ -64,6 +64,7 @@ interface Analysis {
   linked_r90?: number | null;
   linked_report_id?: string | null;
   linked_report_visibility?: string | null;
+  linked_report_slug?: string | null;
   visibility_status?: "draft" | "hidden" | "live" | null;
   estimated_ready_at?: string | null;
 }
