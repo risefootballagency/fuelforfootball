@@ -226,8 +226,8 @@ const PlayerKit = ({ primaryColor, secondaryColor, collarColor, numberColor = 'w
       {/* Main shirt body - THINNER proportions */}
       <path 
         d="M30 28 L25 38 L25 95 L35 100 L65 100 L75 95 L75 38 L70 28 L62 24 L58 28 L42 28 L38 24 Z" 
-        fill={stripeStyle === 'thin' ? `url(#thinStripes-${number})` : 
-              stripeStyle === 'thick' ? `url(#thickStripes-${number})` :
+        fill={stripeStyle === 'thin' ? `url(#thinStripes-${uid})` : 
+              stripeStyle === 'thick' ? `url(#thickStripes-${uid})` :
               stripeStyle === 'halves' ? primaryColor : primaryColor}
         stroke={secondaryColor} 
         strokeWidth="2"
