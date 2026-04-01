@@ -1829,7 +1829,7 @@ const AnalysisViewer = () => {
 
             {/* Scheme Section */}
             {(analysis.scheme_title || analysis.selected_scheme) && (
-              <ExpandableSection title={analysis.scheme_title || "Tactical Scheme"} id={SECTION_IDS.scheme} forceOpen={isSaving}>
+              <ExpandableSection title="Scheme" id={SECTION_IDS.scheme} forceOpen={isSaving}>
                 <div className="space-y-4 md:space-y-6">
                   {analysis.scheme_paragraph_1 && (
                     <TextReveal>
