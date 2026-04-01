@@ -202,20 +202,22 @@ interface KitProps {
   number: string;
 }
 
+let kitIdCounter = 0;
 const PlayerKit = ({ primaryColor, secondaryColor, collarColor, numberColor = 'white', stripeStyle = 'thick', number }: KitProps) => {
   const collar = collarColor || secondaryColor;
   const showNumber = number && number !== '0' && number.trim() !== '';
+  const [uid] = useState(() => `kit-${++kitIdCounter}`);
   
   return (
     <svg width="50" height="60" viewBox="0 0 100 120" className="drop-shadow-lg">
       <defs>
         {/* Pattern for thin stripes */}
-        <pattern id={`thinStripes-${number}`} patternUnits="userSpaceOnUse" width="6" height="120">
+        <pattern id={`thinStripes-${uid}`} patternUnits="userSpaceOnUse" width="6" height="120">
           <rect width="3" height="120" fill={primaryColor} />
           <rect x="3" width="3" height="120" fill={secondaryColor} />
         </pattern>
         {/* Pattern for thick stripes */}
-        <pattern id={`thickStripes-${number}`} patternUnits="userSpaceOnUse" width="16" height="120">
+        <pattern id={`thickStripes-${uid}`} patternUnits="userSpaceOnUse" width="16" height="120">
           <rect width="8" height="120" fill={primaryColor} />
           <rect x="8" width="8" height="120" fill={secondaryColor} />
         </pattern>
@@ -224,8 +226,8 @@ const PlayerKit = ({ primaryColor, secondaryColor, collarColor, numberColor = 'w
       {/* Main shirt body - THINNER proportions */}
       <path 
         d="M30 28 L25 38 L25 95 L35 100 L65 100 L75 95 L75 38 L70 28 L62 24 L58 28 L42 28 L38 24 Z" 
-        fill={stripeStyle === 'thin' ? `url(#thinStripes-${number})` : 
-              stripeStyle === 'thick' ? `url(#thickStripes-${number})` :
+        fill={stripeStyle === 'thin' ? `url(#thinStripes-${uid})` : 
+              stripeStyle === 'thick' ? `url(#thickStripes-${uid})` :
               stripeStyle === 'halves' ? primaryColor : primaryColor}
         stroke={secondaryColor} 
         strokeWidth="2"
@@ -1764,7 +1766,7 @@ const AnalysisViewer = () => {
                 transparentContent
                 forceOpen={isSaving}
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 gap-4 md:gap-6">
                   {analysis.matchups.map((matchup: any, index: number) => (
                     <TextReveal key={index} delay={index * 0.15}>
                       <div 
@@ -1785,7 +1787,7 @@ const AnalysisViewer = () => {
                               <img
                                 src={matchup.image_url}
                                 alt={matchup.name}
-                                className="w-full h-full object-cover object-top"
+                                className="w-full h-full object-cover object-bottom"
                                 style={{ minHeight: '100%' }}
                               />
                             ) : (
