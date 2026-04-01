@@ -434,6 +434,30 @@ export const AnalysisMatchDetails = ({
               </div>
             </div>
 
+            {/* Player Name - stored directly on analysis for display */}
+            <div>
+              <Label>Player Name (for display)</Label>
+              <Input
+                value={formData.player_name || ""}
+                onChange={(e) => setFormData({ ...formData, player_name: e.target.value })}
+                placeholder="Enter player's full name (e.g. JAROSLAV SVOBODA)..."
+              />
+              <p className="text-xs text-muted-foreground mt-1">This name will appear below the player image</p>
+            </div>
+
+            <div>
+              <Label>Player Image (Optional)</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleImageUpload(e, "player_image_url")}
+                disabled={uploadingImage}
+              />
+              {formData.player_image_url && (
+                <img src={formData.player_image_url} alt="Player" className="mt-2 max-w-xs" />
+              )}
+            </div>
+
             {/* Match Image for pre-match */}
             <div>
               <Label className="flex items-center gap-2">
