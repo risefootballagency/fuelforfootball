@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { findClubCountry } from "@/lib/clubNameUtils";
+import { calculateAge } from "@/lib/ageUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
