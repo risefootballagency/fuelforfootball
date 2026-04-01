@@ -1787,7 +1787,7 @@ const AnalysisViewer = () => {
                               <img
                                 src={matchup.image_url}
                                 alt={matchup.name}
-                                className="w-full h-full object-cover object-top"
+                                className="w-full h-full object-cover object-bottom"
                                 style={{ minHeight: '100%' }}
                               />
                             ) : (
