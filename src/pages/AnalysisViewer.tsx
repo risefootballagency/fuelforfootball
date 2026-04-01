@@ -206,7 +206,7 @@ let kitIdCounter = 0;
 const PlayerKit = ({ primaryColor, secondaryColor, collarColor, numberColor = 'white', stripeStyle = 'thick', number }: KitProps) => {
   const collar = collarColor || secondaryColor;
   const showNumber = number && number !== '0' && number.trim() !== '';
-  const [uid] = React.useState(() => `kit-${++kitIdCounter}`);
+  const [uid] = useState(() => `kit-${++kitIdCounter}`);
   
   return (
     <svg width="50" height="60" viewBox="0 0 100 120" className="drop-shadow-lg">
