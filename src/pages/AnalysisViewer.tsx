@@ -1431,8 +1431,9 @@ const AnalysisViewer = () => {
               isPostMatch={isPostMatch}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
-              linkedReportId={analysis.linked_report_id}
-              linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportId={analysis.linked_report_id}
+               linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportSlug={analysis.linked_report_slug}
             />
           )}
           {/* Blurred preview with overlay */}
