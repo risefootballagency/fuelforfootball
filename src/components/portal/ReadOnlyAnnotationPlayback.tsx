@@ -14,6 +14,7 @@ interface Props {
   annotationProjectId?: string;
   preloadedElements?: AnnotationElement[];
   className?: string;
+  disableFreeze?: boolean;
 }
 
 function parseClipFragment(url: string): { cleanUrl: string; clipStart: number; clipEnd: number | null } {
