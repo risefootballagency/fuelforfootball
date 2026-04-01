@@ -3524,7 +3524,11 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                         id="dateOfBirth"
                         type="date"
                         value={formData.dateOfBirth}
-                        onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                         onChange={(e) => {
+                           const dob = e.target.value;
+                           const autoAge = calculateAge(dob);
+                           setFormData({ ...formData, dateOfBirth: dob, ...(autoAge !== null ? { age: autoAge } : {}) });
+                         }}
                       />
                     </div>
                   </div>
