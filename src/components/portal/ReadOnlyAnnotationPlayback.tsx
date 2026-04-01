@@ -52,7 +52,7 @@ const extractAnnotationElements = (klips: unknown): AnnotationElement[] => {
   return (klips as any[]).flatMap((klip: any) => (Array.isArray(klip?.elements) ? klip.elements : []));
 };
 
-export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, preloadedElements, className = "" }: Props) => {
+export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, preloadedElements, className = "", disableFreeze = false }: Props) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [elements, setElements] = useState<AnnotationElement[]>([]);
