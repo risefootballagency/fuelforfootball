@@ -1292,6 +1292,7 @@ const AnalysisViewer = () => {
         linked_r90: linkedR90,
         linked_report_id: linkedReportId,
         linked_report_visibility: linkedReportVisibility,
+        linked_report_slug: linkedReportSlug,
         visibility_status: status,
         estimated_ready_at: data.estimated_ready_at || null,
       };
