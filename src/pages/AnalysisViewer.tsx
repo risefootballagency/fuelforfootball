@@ -583,6 +583,7 @@ const AnalysisHeader = ({
   linkedR90?: number | null;
   linkedReportId?: string | null;
   linkedReportVisibility?: string | null;
+  linkedReportSlug?: string | null;
 }) => {
   const navigate = useNavigate();
   
