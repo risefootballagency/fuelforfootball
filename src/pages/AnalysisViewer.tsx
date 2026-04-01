@@ -1878,7 +1878,7 @@ const AnalysisViewer = () => {
                                 textShadow: '0 2px 10px rgba(0,0,0,0.5)'
                               }}
                             >
-                              {analysis.selected_scheme}
+                              SCHEME
                             </span>
                           </div>
                         </div>
