@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { createPerformanceReportSlug } from "@/lib/urlHelpers";
 import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen, FileEdit, EyeOff, Clock3, Maximize, Link2 } from "lucide-react";
 import { ConceptTagsDisplay } from "@/components/portal/ConceptTagsDisplay";
 import { AudioPlaybackButton } from "@/components/AudioPlaybackButton";
