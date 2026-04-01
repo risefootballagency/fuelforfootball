@@ -1924,7 +1924,7 @@ const AnalysisViewer = () => {
                                     collarColor={analysis.kit_collar_color || undefined}
                                     numberColor={analysis.kit_number_color || 'white'}
                                     stripeStyle={(analysis.kit_stripe_style as any) || 'thick'}
-                                    number={player.number || '0'}
+                                    number={player.shirt_number || player.number || ''}
                                   />
                                 </div>
                                 {/* Cooler player name UI with more pop - adjusted margin for larger kits */}
