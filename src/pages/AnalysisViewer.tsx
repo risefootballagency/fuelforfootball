@@ -1201,7 +1201,7 @@ const AnalysisViewer = () => {
       let linkedReportVisibility: string | null = null;
       
       // Try via analysis_writer_id (report links to this analysis)
-      const reportSelect = "id, r90_score, visibility_status, minutes_played, placeholder_raw_score, placeholder_minutes";
+      const reportSelect = "id, r90_score, visibility_status, minutes_played, placeholder_raw_score, placeholder_minutes, player_id, opponent, players(name)";
       
       const { data: linkedReport } = await supabase
         .from("player_analysis")
