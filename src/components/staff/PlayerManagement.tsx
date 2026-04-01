@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { findClubCountry } from "@/lib/clubNameUtils";
+import { calculateAge } from "@/lib/ageUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -965,7 +966,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           club: formData.club || null,
           club_logo: finalClubLogoUrl || null,
           league: formData.league || null,
-          age: formData.age,
+          age: formData.dateOfBirth ? (calculateAge(formData.dateOfBirth) ?? formData.age) : formData.age,
           nationality: formData.nationality,
           bio: bioJSON,
           image_url: finalImageUrl || null,
@@ -1119,7 +1120,7 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           club: formData.club || null,
           club_logo: finalClubLogoUrl || null,
           league: formData.league || null,
-          age: formData.age,
+          age: formData.dateOfBirth ? (calculateAge(formData.dateOfBirth) ?? formData.age) : formData.age,
           nationality: formData.nationality,
           bio: bioJSON,
           image_url: finalImageUrl || null,
@@ -3523,7 +3524,11 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                         id="dateOfBirth"
                         type="date"
                         value={formData.dateOfBirth}
-                        onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                         onChange={(e) => {
+                           const dob = e.target.value;
+                           const autoAge = calculateAge(dob);
+                           setFormData({ ...formData, dateOfBirth: dob, ...(autoAge !== null ? { age: autoAge } : {}) });
+                         }}
                       />
                     </div>
                   </div>

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { createPerformanceReportSlug } from "@/lib/urlHelpers";
 import { ArrowLeft, ChevronDown, Play, Plus, Minus, Download, BookOpen, FileEdit, EyeOff, Clock3, Maximize, Link2 } from "lucide-react";
 import { ConceptTagsDisplay } from "@/components/portal/ConceptTagsDisplay";
 import { AudioPlaybackButton } from "@/components/AudioPlaybackButton";
@@ -63,6 +64,7 @@ interface Analysis {
   linked_r90?: number | null;
   linked_report_id?: string | null;
   linked_report_visibility?: string | null;
+  linked_report_slug?: string | null;
   visibility_status?: "draft" | "hidden" | "live" | null;
   estimated_ready_at?: string | null;
 }
@@ -563,6 +565,7 @@ const AnalysisHeader = ({
   linkedR90,
   linkedReportId,
   linkedReportVisibility,
+  linkedReportSlug,
 }: { 
   homeTeam: string | null;
   awayTeam: string | null;
@@ -580,6 +583,7 @@ const AnalysisHeader = ({
   linkedR90?: number | null;
   linkedReportId?: string | null;
   linkedReportVisibility?: string | null;
+  linkedReportSlug?: string | null;
 }) => {
   const navigate = useNavigate();
   
@@ -644,10 +648,10 @@ const AnalysisHeader = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              if (isReportLive && linkedReportId) {
-                navigate(`/portal/report/${linkedReportId}`);
-              }
+             onClick={() => {
+               if (isReportLive && linkedReportId && linkedReportSlug) {
+                 window.open(linkedReportSlug, '_blank');
+               }
             }}
             className={`absolute right-4 md:right-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 h-8 py-1.5 px-3 text-xs z-20 transition-colors ${isReportLive ? 'cursor-pointer hover:bg-black/70' : 'cursor-default'}`}
             style={{ borderColor: r90Color, color: r90Color }}
@@ -1199,7 +1203,7 @@ const AnalysisViewer = () => {
       let linkedReportVisibility: string | null = null;
       
       // Try via analysis_writer_id (report links to this analysis)
-      const reportSelect = "id, r90_score, visibility_status, minutes_played, placeholder_raw_score, placeholder_minutes";
+      const reportSelect = "id, r90_score, visibility_status, minutes_played, placeholder_raw_score, placeholder_minutes, player_id, opponent, players(name)";
       
       const { data: linkedReport } = await supabase
         .from("player_analysis")
@@ -1243,6 +1247,7 @@ const AnalysisViewer = () => {
       }
       
       // Determine R90 score: for hidden reports use placeholder scores, otherwise use r90_score
+      let linkedReportSlug: string | null = null;
       if (foundReport) {
         const vis = (foundReport.visibility_status || 'live').toLowerCase();
         const pRaw = (foundReport as any).placeholder_raw_score;
@@ -1251,6 +1256,14 @@ const AnalysisViewer = () => {
           linkedR90 = parseFloat(((pRaw / pMin) * 90).toFixed(2));
         } else {
           linkedR90 = foundReport.r90_score ?? null;
+        }
+        // Build slug for R90 link
+        const reportPlayerName = (foundReport as any).players?.name || playerName || '';
+        const reportOpponent = (foundReport as any).opponent || '';
+        if (reportPlayerName && reportOpponent) {
+          linkedReportSlug = createPerformanceReportSlug(reportPlayerName, reportOpponent, foundReport.id);
+        } else {
+          linkedReportSlug = `/performance-report/${foundReport.id}`;
         }
       }
 
@@ -1281,6 +1294,7 @@ const AnalysisViewer = () => {
         linked_r90: linkedR90,
         linked_report_id: linkedReportId,
         linked_report_visibility: linkedReportVisibility,
+        linked_report_slug: linkedReportSlug,
         visibility_status: status,
         estimated_ready_at: data.estimated_ready_at || null,
       };
@@ -1417,8 +1431,9 @@ const AnalysisViewer = () => {
               isPostMatch={isPostMatch}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
-              linkedReportId={analysis.linked_report_id}
-              linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportId={analysis.linked_report_id}
+               linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportSlug={analysis.linked_report_slug}
             />
           )}
           {/* Blurred preview with overlay */}
@@ -1469,8 +1484,9 @@ const AnalysisViewer = () => {
               isPostMatch={isPostMatch}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
-              linkedReportId={analysis.linked_report_id}
-              linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportId={analysis.linked_report_id}
+               linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportSlug={analysis.linked_report_slug}
             />
           )}
           <div className="flex items-center justify-center py-20">
@@ -1566,8 +1582,9 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
-              linkedReportId={analysis.linked_report_id}
-              linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportId={analysis.linked_report_id}
+               linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportSlug={analysis.linked_report_slug}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - arch directly on bottom of image */}
@@ -1930,7 +1947,7 @@ const AnalysisViewer = () => {
                                       textShadow: '0 0 10px rgba(253,198,27,0.5)'
                                     }}
                                   >
-                                    {player.surname || player.position}
+                                    {player.surname || player.name || player.position}
                                   </span>
                                 </div>
                               </div>
@@ -2035,8 +2052,9 @@ const AnalysisViewer = () => {
               isSaving={isSaving}
               playerTeam={analysis.player_team}
               linkedR90={analysis.linked_r90}
-              linkedReportId={analysis.linked_report_id}
-              linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportId={analysis.linked_report_id}
+               linkedReportVisibility={analysis.linked_report_visibility}
+               linkedReportSlug={analysis.linked_report_slug}
             />
 
             {/* Player/Match Image with Premium Gold Arch Frame - same as pre-match */}
