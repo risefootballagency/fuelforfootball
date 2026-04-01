@@ -1766,7 +1766,7 @@ const AnalysisViewer = () => {
                 transparentContent
                 forceOpen={isSaving}
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 gap-4 md:gap-6">
                   {analysis.matchups.map((matchup: any, index: number) => (
                     <TextReveal key={index} delay={index * 0.15}>
                       <div 
