@@ -14,6 +14,7 @@ interface Props {
   annotationProjectId?: string;
   preloadedElements?: AnnotationElement[];
   className?: string;
+  disableFreeze?: boolean;
 }
 
 function parseClipFragment(url: string): { cleanUrl: string; clipStart: number; clipEnd: number | null } {
@@ -51,7 +52,7 @@ const extractAnnotationElements = (klips: unknown): AnnotationElement[] => {
   return (klips as any[]).flatMap((klip: any) => (Array.isArray(klip?.elements) ? klip.elements : []));
 };
 
-export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, preloadedElements, className = "" }: Props) => {
+export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, preloadedElements, className = "", disableFreeze = false }: Props) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [elements, setElements] = useState<AnnotationElement[]>([]);
@@ -249,15 +250,13 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
       const computed = computeVisibleElements(elements as AnnotationElement[], relTime, { forceOpacity: null });
 
       // Check for new annotations that haven't triggered a freeze yet
-      if (!video.paused && computed.length > 0) {
+      if (!disableFreeze && !video.paused && computed.length > 0) {
         const newElements = computed.filter(el => {
           return !triggeredTimesRef.current.has(el.id) &&
                  el.appearAt > lastFreezeTriggerTimeRef.current;
         });
 
         if (newElements.length > 0) {
-          // Gate by the latest logical trigger point in the current visible batch,
-          // not just the paused playhead time.
           lastFreezeTriggerTimeRef.current = Math.max(relTime, ...computed.map(el => el.appearAt));
           newElements.forEach(el => triggeredTimesRef.current.add(el.id));
           startFreezeRef.current(computed, video);

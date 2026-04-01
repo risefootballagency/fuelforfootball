@@ -1862,11 +1862,14 @@ const PlayerManagement = ({ isAdmin }: { isAdmin: boolean }) => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          const loginUrl = `${window.location.origin}/login`;
-                          navigator.clipboard.writeText(loginUrl);
-                          toast.success("Login URL copied to clipboard");
+                          const loginUrl = `${window.location.origin}/portal?staff_login=${encodeURIComponent(selectedPlayer!.email!)}`;
+                          navigator.clipboard.writeText(loginUrl).then(() => {
+                            toast.success("Login link copied to clipboard");
+                          }).catch(() => {
+                            toast.error("Failed to copy link");
+                          });
                         }}
-                        className="h-8 md:h-9 text-xs md:text-sm px-2"
+                        className="h-8 w-8 md:h-9 md:w-9 p-0 shrink-0"
                         title="Copy direct login link for this player"
                       >
                         <Link2 className="w-3 h-3 md:w-4 md:h-4" />

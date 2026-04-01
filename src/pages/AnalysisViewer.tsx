@@ -1013,7 +1013,7 @@ const AnnotatedPointVideo = ({
     <div ref={videoContainerRef} className="relative overflow-hidden rounded-lg border-2 shadow-md" style={{ borderColor: BRAND.cardBorder }}>
       <div style={hasCrop ? { overflow: 'hidden' } : undefined}>
         <div style={cropShiftStyle}>
-          <ReadOnlyAnnotationPlayback videoUrl={url} annotationProjectId={annotationId} />
+          <ReadOnlyAnnotationPlayback videoUrl={url} annotationProjectId={annotationId} disableFreeze />
         </div>
       </div>
       {audioUrl && (
@@ -1782,13 +1782,12 @@ const AnalysisViewer = () => {
                         {/* Horizontal layout with smaller image on left, more space for text */}
                         <div className="relative flex min-h-[180px]">
                           {/* Player image - reduced width to give more space to text */}
-                          <div className="w-24 md:w-28 lg:w-32 flex-shrink-0 self-stretch">
+                          <div className="w-24 md:w-28 lg:w-32 flex-shrink-0 self-stretch flex items-end">
                             {matchup.image_url ? (
                               <img
                                 src={matchup.image_url}
                                 alt={matchup.name}
-                                className="w-full h-full object-cover object-bottom"
-                                style={{ minHeight: '100%' }}
+                                className="w-full object-cover object-bottom"
                               />
                             ) : (
                               <div className="w-full h-full bg-black/60 flex items-center justify-center text-white/50 text-xs min-h-[180px]">
@@ -1830,7 +1829,7 @@ const AnalysisViewer = () => {
 
             {/* Scheme Section */}
             {(analysis.scheme_title || analysis.selected_scheme) && (
-              <ExpandableSection title={analysis.scheme_title || "Tactical Scheme"} id={SECTION_IDS.scheme} forceOpen={isSaving}>
+              <ExpandableSection title="Scheme" id={SECTION_IDS.scheme} forceOpen={isSaving}>
                 <div className="space-y-4 md:space-y-6">
                   {analysis.scheme_paragraph_1 && (
                     <TextReveal>
@@ -1879,7 +1878,7 @@ const AnalysisViewer = () => {
                                 textShadow: '0 2px 10px rgba(0,0,0,0.5)'
                               }}
                             >
-                              {analysis.selected_scheme}
+                              SCHEME
                             </span>
                           </div>
                         </div>
@@ -1925,7 +1924,7 @@ const AnalysisViewer = () => {
                                     collarColor={analysis.kit_collar_color || undefined}
                                     numberColor={analysis.kit_number_color || 'white'}
                                     stripeStyle={(analysis.kit_stripe_style as any) || 'thick'}
-                                    number={player.number || '0'}
+                                    number={player.shirt_number || player.number || ''}
                                   />
                                 </div>
                                 {/* Cooler player name UI with more pop - adjusted margin for larger kits */}
