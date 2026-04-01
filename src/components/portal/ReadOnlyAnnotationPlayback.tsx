@@ -695,8 +695,14 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
         muted
         playsInline
         crossOrigin="anonymous"
-        className="w-full"
+        className="w-full cursor-pointer"
         style={{ display: 'block', width: '100%', height: 'auto', objectFit: 'fill' }}
+        onClick={() => {
+          const v = videoRef.current;
+          if (!v) return;
+          if (v.paused) v.play().catch(() => {});
+          else v.pause();
+        }}
       />
       {hasAnnotations && renderedVisibleEls.length > 0 && (
         <svg
