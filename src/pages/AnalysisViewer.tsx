@@ -648,9 +648,9 @@ const AnalysisHeader = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-               if (isReportLive && linkedReportId && analysis?.linked_report_slug) {
-                 window.open(analysis.linked_report_slug, '_blank');
+             onClick={() => {
+               if (isReportLive && linkedReportId && linkedReportSlug) {
+                 window.open(linkedReportSlug, '_blank');
                }
             }}
             className={`absolute right-4 md:right-8 top-4 bg-black/50 backdrop-blur-sm border-white/30 h-8 py-1.5 px-3 text-xs z-20 transition-colors ${isReportLive ? 'cursor-pointer hover:bg-black/70' : 'cursor-default'}`}
