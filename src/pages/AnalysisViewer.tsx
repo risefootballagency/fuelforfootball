@@ -1942,7 +1942,7 @@ const AnalysisViewer = () => {
                                       textShadow: '0 0 10px rgba(253,198,27,0.5)'
                                     }}
                                   >
-                                    {player.surname || player.position}
+                                    {player.surname || player.name || player.position}
                                   </span>
                                 </div>
                               </div>
