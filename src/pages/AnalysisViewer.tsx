@@ -1782,13 +1782,12 @@ const AnalysisViewer = () => {
                         {/* Horizontal layout with smaller image on left, more space for text */}
                         <div className="relative flex min-h-[180px]">
                           {/* Player image - reduced width to give more space to text */}
-                          <div className="w-24 md:w-28 lg:w-32 flex-shrink-0 self-stretch">
+                          <div className="w-24 md:w-28 lg:w-32 flex-shrink-0 self-stretch flex items-end">
                             {matchup.image_url ? (
                               <img
                                 src={matchup.image_url}
                                 alt={matchup.name}
-                                className="w-full h-full object-cover object-bottom"
-                                style={{ minHeight: '100%' }}
+                                className="w-full object-cover object-bottom"
                               />
                             ) : (
                               <div className="w-full h-full bg-black/60 flex items-center justify-center text-white/50 text-xs min-h-[180px]">
