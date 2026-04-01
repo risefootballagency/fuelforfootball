@@ -1245,6 +1245,7 @@ const AnalysisViewer = () => {
       }
       
       // Determine R90 score: for hidden reports use placeholder scores, otherwise use r90_score
+      let linkedReportSlug: string | null = null;
       if (foundReport) {
         const vis = (foundReport.visibility_status || 'live').toLowerCase();
         const pRaw = (foundReport as any).placeholder_raw_score;
@@ -1253,6 +1254,14 @@ const AnalysisViewer = () => {
           linkedR90 = parseFloat(((pRaw / pMin) * 90).toFixed(2));
         } else {
           linkedR90 = foundReport.r90_score ?? null;
+        }
+        // Build slug for R90 link
+        const reportPlayerName = (foundReport as any).players?.name || playerName || '';
+        const reportOpponent = (foundReport as any).opponent || '';
+        if (reportPlayerName && reportOpponent) {
+          linkedReportSlug = createPerformanceReportSlug(reportPlayerName, reportOpponent, foundReport.id);
+        } else {
+          linkedReportSlug = `/performance-report/${foundReport.id}`;
         }
       }
 
