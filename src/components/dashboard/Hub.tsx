@@ -461,7 +461,42 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   };
 
   // Prepare R90 chart data
+  const [clippedAnalysis, setClippedAnalysis] = React.useState<PlayerAnalysis | null>(null);
+  const [clippedClips, setClippedClips] = React.useState<any[]>([]);
+
+  const handleClippedClick = React.useCallback(async (analysis: PlayerAnalysis) => {
+    try {
+      const { data } = await sharedSupabase
+        .from('performance_report_actions')
+        .select('id, action_number, action_type, action_description, video_url, minute, notes, clip_start, clip_end')
+        .eq('analysis_id', analysis.id)
+        .not('video_url', 'is', null)
+        .order('action_number', { ascending: true });
+
+      const clips = (data || []).map((a: any) => ({
+        id: a.id,
+        action_number: a.action_number,
+        action_type: a.action_type,
+        action_description: a.action_description || '',
+        video_url: a.video_url,
+        minute: a.minute || 0,
+        notes: a.notes,
+        clip_start: a.clip_start,
+        clip_end: a.clip_end,
+      }));
+
+      if (clips.length === 0) return;
+      setClippedClips(clips);
+      setClippedAnalysis(analysis);
+    } catch {
+      // silently fail
+    }
+  }, []);
+
   const getEffectiveR90 = (a: PlayerAnalysis): number | null => {
+    const isDraft = String(a.visibility_status || "").toLowerCase() === "draft";
+    const isClipped = String(a.visibility_status || "").toLowerCase() === "clipped";
+    if (isDraft || isClipped) return null;
     if (a.visibility_status === "hidden" && a.placeholder_raw_score != null && a.placeholder_minutes) {
       return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
     }
