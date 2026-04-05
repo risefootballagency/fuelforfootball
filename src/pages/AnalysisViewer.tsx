@@ -609,7 +609,8 @@ const AnalysisHeader = ({
     return 'hsl(43, 96%, 56%)';
   };
 
-  const r90Color = linkedR90 != null ? getR90Color(linkedR90) : BRAND.gold;
+  const isDraftOrClipped = linkedReportVisibility === 'draft' || linkedReportVisibility === 'clipped';
+  const r90Color = isDraftOrClipped ? '#71717a' : (linkedR90 != null ? getR90Color(linkedR90) : BRAND.gold);
   const isReportLive = linkedReportVisibility === 'live';
   
   return (
