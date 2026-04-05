@@ -1024,6 +1024,14 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
         isPortalView={true}
       />
 
+      {/* Clipped Actions Player from Hub */}
+      <ClippedActionsPlayer
+        open={!!clippedAnalysis}
+        onOpenChange={(open) => { if (!open) { setClippedAnalysis(null); setClippedClips([]); } }}
+        clips={clippedClips}
+        title={clippedAnalysis ? `${clippedAnalysis.opponent || 'Match'} Clips` : ''}
+      />
+
       {/* Quick Stats Comparison - before aphorism */}
       {playerData?.id && (
         <QuickStatsComparison
