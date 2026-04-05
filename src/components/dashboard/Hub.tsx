@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye, Check, Play } from "lucide-react";
 import { ClippedActionsPlayer } from "@/components/ClippedActionsPlayer";
-import { sharedSupabase as supabaseShared } from "@/integrations/supabase/sharedClient";
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { format, parseISO, isWithinInterval, addDays } from "date-fns";
 import { motion } from "framer-motion";
