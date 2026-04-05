@@ -660,7 +660,7 @@ const AnalysisHeader = ({
             style={{ borderColor: r90Color, color: r90Color }}
             hoverEffect={true}
           >
-            <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-xs" />
+            <HoverText text={isDraftOrClipped ? 'R90 ?' : (linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90')} className="text-xs" />
           </Button>
         )}
         
