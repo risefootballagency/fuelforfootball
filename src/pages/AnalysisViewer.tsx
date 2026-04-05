@@ -609,7 +609,8 @@ const AnalysisHeader = ({
     return 'hsl(43, 96%, 56%)';
   };
 
-  const r90Color = linkedR90 != null ? getR90Color(linkedR90) : BRAND.gold;
+  const isDraftOrClipped = linkedReportVisibility === 'draft' || linkedReportVisibility === 'clipped';
+  const r90Color = isDraftOrClipped ? '#71717a' : (linkedR90 != null ? getR90Color(linkedR90) : BRAND.gold);
   const isReportLive = linkedReportVisibility === 'live';
   
   return (
@@ -659,7 +660,7 @@ const AnalysisHeader = ({
             style={{ borderColor: r90Color, color: r90Color }}
             hoverEffect={true}
           >
-            <HoverText text={linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90'} className="text-xs" />
+            <HoverText text={isDraftOrClipped ? 'R90 ?' : (linkedR90 != null ? `R90 ${linkedR90.toFixed(2)}` : 'R90')} className="text-xs" />
           </Button>
         )}
         

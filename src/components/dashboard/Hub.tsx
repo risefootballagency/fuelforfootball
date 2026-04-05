@@ -2,7 +2,9 @@ import * as React from "react";
 import { t, translateServiceName } from "@/lib/portalTranslations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye, Check } from "lucide-react";
+import { Calendar, TrendingUp, ArrowRight, Trophy, X, Eye, Check, Play } from "lucide-react";
+import { ClippedActionsPlayer } from "@/components/ClippedActionsPlayer";
+
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { format, parseISO, isWithinInterval, addDays } from "date-fns";
 import { motion } from "framer-motion";
@@ -140,8 +142,8 @@ interface PlayerAnalysis {
   visibility_status?: string;
   placeholder_raw_score?: number | null;
   placeholder_minutes?: number | null;
+  video_url?: string | null;
 }
-
 interface UpgradeOffer {
   name: string;
   price: string;
@@ -459,7 +461,42 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   };
 
   // Prepare R90 chart data
+  const [clippedAnalysis, setClippedAnalysis] = React.useState<PlayerAnalysis | null>(null);
+  const [clippedClips, setClippedClips] = React.useState<any[]>([]);
+
+  const handleClippedClick = React.useCallback(async (analysis: PlayerAnalysis) => {
+    try {
+      const { data } = await sharedSupabase
+        .from('performance_report_actions')
+        .select('id, action_number, action_type, action_description, video_url, minute, notes, clip_start, clip_end')
+        .eq('analysis_id', analysis.id)
+        .not('video_url', 'is', null)
+        .order('action_number', { ascending: true });
+
+      const clips = (data || []).map((a: any) => ({
+        id: a.id,
+        action_number: a.action_number,
+        action_type: a.action_type,
+        action_description: a.action_description || '',
+        video_url: a.video_url,
+        minute: a.minute || 0,
+        notes: a.notes,
+        clip_start: a.clip_start,
+        clip_end: a.clip_end,
+      }));
+
+      if (clips.length === 0) return;
+      setClippedClips(clips);
+      setClippedAnalysis(analysis);
+    } catch {
+      // silently fail
+    }
+  }, []);
+
   const getEffectiveR90 = (a: PlayerAnalysis): number | null => {
+    const isDraft = String(a.visibility_status || "").toLowerCase() === "draft";
+    const isClipped = String(a.visibility_status || "").toLowerCase() === "clipped";
+    if (isDraft || isClipped) return null;
     if (a.visibility_status === "hidden" && a.placeholder_raw_score != null && a.placeholder_minutes) {
       return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
     }
@@ -921,8 +958,44 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                             </Button>
                           );
                         })()}
+                        {/* Full Game Clips button */}
+                        {analysis.video_url && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-0 h-8 w-8 bg-black text-accent border border-accent hover:bg-accent hover:text-black rounded flex items-center justify-center"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedReportId(analysis.id);
+                              setReportDialogOpen(true);
+                            }}
+                            title="Watch Full Game Clips"
+                          >
+                            <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><polygon points="5,3 19,12 5,21" /></svg>
+                          </Button>
+                        )}
                         {(() => {
+                          const isDraft = String(analysis.visibility_status || "").toLowerCase() === "draft";
+                          const isClipped = String(analysis.visibility_status || "").toLowerCase() === "clipped";
                           const effectiveR90 = getEffectiveR90(analysis);
+                          if (isDraft) {
+                            return (
+                              <div className="px-3 py-1 rounded text-white/60 text-sm font-bold bg-zinc-700 border-2 border-zinc-600">
+                                R90: ?
+                              </div>
+                            );
+                          }
+                          if (isClipped) {
+                            return (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleClippedClick(analysis); }}
+                                className="px-3 py-1 rounded text-white/60 text-sm font-bold bg-zinc-700 border-2 border-zinc-600 hover:border-accent/60 transition-colors cursor-pointer"
+                                title="Click to view clips"
+                              >
+                                R90: ?
+                              </button>
+                            );
+                          }
                           if (effectiveR90 == null) return null;
                           return (
                             <div 
@@ -949,6 +1022,14 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
         onOpenChange={setReportDialogOpen}
         analysisId={selectedReportId}
         isPortalView={true}
+      />
+
+      {/* Clipped Actions Player from Hub */}
+      <ClippedActionsPlayer
+        open={!!clippedAnalysis}
+        onOpenChange={(open) => { if (!open) { setClippedAnalysis(null); setClippedClips([]); } }}
+        clips={clippedClips}
+        title={clippedAnalysis ? `${clippedAnalysis.opponent || 'Match'} Clips` : ''}
       />
 
       {/* Quick Stats Comparison - before aphorism */}
