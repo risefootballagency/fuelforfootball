@@ -308,7 +308,21 @@ export const AthleteCentre = () => {
     setResumedSession(session);
   };
 
-  const handleSaveFocuses = async () => {
+  const handleMatchFlowSessionChange = (openSections: Record<string, boolean>, inlineReport: InlineReportState | null) => {
+    if (!selectedPlayer || !currentPlayer) return;
+    saveSession({
+      playerId: selectedPlayer,
+      playerName: currentPlayer.name,
+      mainTab,
+      openSections,
+      inlineReport: inlineReport ? {
+        playerId: inlineReport.playerId,
+        playerName: inlineReport.playerName,
+        analysisId: inlineReport.analysisId,
+      } : undefined,
+    });
+  };
+
     if (!selectedPlayer) return;
     setSaving(true);
     toast.success("Development focuses saved");
