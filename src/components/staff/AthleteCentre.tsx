@@ -323,6 +323,7 @@ export const AthleteCentre = () => {
     });
   };
 
+  const handleSaveFocuses = async () => {
     if (!selectedPlayer) return;
     setSaving(true);
     toast.success("Development focuses saved");
