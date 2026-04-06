@@ -628,7 +628,7 @@ export const PlayerList = ({ isAdmin }: { isAdmin: boolean }) => {
                 <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
