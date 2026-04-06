@@ -277,6 +277,26 @@ export const AthleteCentre = () => {
 
   const currentPlayer = players.find(p => p.id === selectedPlayer);
 
+  const recentPlayers = useMemo(() => {
+    const ids = getRecentPlayerIds();
+    return ids.map(id => players.find(p => p.id === id)).filter(Boolean) as Player[];
+  }, [players, selectedPlayer]);
+
+  const handleSelectPlayer = (val: string) => {
+    setSelectedPlayer(val);
+    localStorage.setItem('athleteCentre_lastPlayer', val);
+    addRecentPlayer(val);
+    setResumedSession(null);
+  };
+
+  const handleResumeSession = (session: SessionState) => {
+    setSelectedPlayer(session.playerId);
+    localStorage.setItem('athleteCentre_lastPlayer', session.playerId);
+    addRecentPlayer(session.playerId);
+    setMainTab(session.mainTab || "matchflow");
+    setResumedSession(session);
+  };
+
   const handleSaveFocuses = async () => {
     if (!selectedPlayer) return;
     setSaving(true);
@@ -310,10 +330,20 @@ export const AthleteCentre = () => {
 
   return (
     <div className="space-y-4">
+      {/* Resume Banner */}
+      <SessionResumeBanner onResume={handleResumeSession} />
+
+      {/* Recent Players */}
+      <RecentPlayersBar
+        recentPlayers={recentPlayers}
+        selectedPlayerId={selectedPlayer}
+        onSelect={handleSelectPlayer}
+      />
+
       {/* Player Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex-1">
-          <Select value={selectedPlayer || ""} onValueChange={(val) => { setSelectedPlayer(val); localStorage.setItem('athleteCentre_lastPlayer', val); }}>
+          <Select value={selectedPlayer || ""} onValueChange={handleSelectPlayer}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a player..." />
             </SelectTrigger>
