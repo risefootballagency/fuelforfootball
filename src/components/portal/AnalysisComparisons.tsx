@@ -275,6 +275,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
             portalMetrics={portalMetrics}
             hasPortalData={hasPortalData}
             comparisonPlayers={comparisonPlayers}
+            position={playerData?.position}
           />
         </TabsContent>
 
