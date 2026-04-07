@@ -78,9 +78,12 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
         .order('analysis_date', { ascending: false })
         .limit(20);
       if (data) {
-        // Only use live reports for comparisons
-        const liveData = (data as any[]).filter(a => !a.visibility_status || a.visibility_status === 'live');
-        setFixtureAnalyses(liveData.map(a => ({
+        // Use live and hidden reports for comparisons (exclude draft/clipped)
+        const usableData = (data as any[]).filter(a => {
+          const status = String(a.visibility_status || '').toLowerCase();
+          return !status || status === 'live' || status === 'hidden';
+        });
+        setFixtureAnalyses(usableData.map(a => ({
           ...a,
           r90_score: a.r90_score ?? 0,
           fixture_stats: (a.fixture_stats as Record<string, number>) || {},

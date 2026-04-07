@@ -26,6 +26,8 @@ interface Analysis {
   striker_stats?: any;
   fixture_stats?: any;
   visibility_status?: string;
+  placeholder_raw_score?: number | null;
+  placeholder_minutes?: number | null;
 }
 
 interface Props {
@@ -64,6 +66,16 @@ const getStatValue = (analysis: Analysis, key: string): number | null => {
   return null;
 };
 
+const getEffectiveR90 = (a: Analysis): number | null => {
+  const status = String(a.visibility_status || '').toLowerCase();
+  if (status === 'draft' || status === 'clipped') return null;
+  if (status === 'hidden' && a.placeholder_raw_score != null && a.placeholder_minutes) {
+    return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
+  }
+  if (status === 'hidden') return null;
+  return a.r90_score;
+};
+
 export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
   const lang = usePortalLanguage();
   const posCategories = getMetricCategoriesForPosition(playerData?.position);
@@ -95,7 +107,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     if (selectedAnalyses.length === 0) return {};
     const result: Record<string, number> = {};
 
-    const r90Values = selectedAnalyses.filter(a => a.r90_score != null).map(a => a.r90_score);
+    const r90Values = selectedAnalyses.map(a => getEffectiveR90(a)).filter((v): v is number => v != null);
     if (r90Values.length > 0) result.r90 = r90Values.reduce((s, v) => s + v, 0) / r90Values.length;
 
     const mins = selectedAnalyses.filter(a => a.minutes_played != null).map(a => a.minutes_played!);
@@ -121,15 +133,16 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
 
   const r90BarData = useMemo(() => {
     return selectedAnalyses
-      .filter(a => a.r90_score != null)
+      .filter(a => getEffectiveR90(a) != null)
       .sort((a, b) => a.analysis_date.localeCompare(b.analysis_date))
       .map(a => {
         const isHiddenOrDraft = ['hidden', 'draft', 'clipped'].includes(String(a.visibility_status || '').toLowerCase());
+        const effectiveScore = getEffectiveR90(a)!;
         return {
           name: isHiddenOrDraft
             ? new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
             : (a.opponent || new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })),
-          r90: Number(a.r90_score.toFixed(2)),
+          r90: Number(effectiveScore.toFixed(2)),
         };
       });
   }, [selectedAnalyses]);
@@ -333,13 +346,17 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
                 </TableCell>
                 <TableCell className="text-sm">{a.minutes_played ?? '-'}</TableCell>
                 <TableCell>
-                  {a.r90_score != null ? (
-                    <span className="font-bold text-sm" style={{ color: getR90Color(a.r90_score) }}>
-                      {a.r90_score.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span className="font-bold text-sm text-zinc-500">?</span>
-                  )}
+                  {(() => {
+                    const effectiveR90 = getEffectiveR90(a);
+                    if (effectiveR90 != null) {
+                      return (
+                        <span className="font-bold text-sm" style={{ color: getR90Color(effectiveR90) }}>
+                          {effectiveR90.toFixed(2)}
+                        </span>
+                      );
+                    }
+                    return <span className="font-bold text-sm text-zinc-500">?</span>;
+                  })()}
                 </TableCell>
                 {currentMetrics.map(m => {
                   const val = getStatValue(a, m.key);
