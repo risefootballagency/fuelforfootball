@@ -1,9 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
-import { sharedSupabase } from "@/integrations/supabase/sharedClient";
-import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Users } from "lucide-react";
+import { useMemo } from "react";
+import { Users } from "lucide-react";
 import { t, translateMetricLabel } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
+import { getMetricsForPosition } from "@/components/staff/ComparisonPlayerData";
 
 interface Props {
   playerName: string;
@@ -12,19 +11,8 @@ interface Props {
   comparisonPlayers: any[];
   selectedPlayerIds: string[];
   formWindow: number;
+  position?: string;
 }
-
-const METRIC_LABELS: Record<string, string> = {
-  r90_score: "R90",
-  xG_adj_per90: "xG /90",
-  xA_adj_per90: "xA /90",
-  progressive_passes_adj_per90: "Prog. Passes",
-  progressive_carries_adj_per90: "Prog. Carries",
-  duels_won_pct: "Duels Won %",
-  pass_accuracy_pct: "Pass Acc %",
-  tackles_won_per90: "Tackles /90",
-  interceptions_per90: "Int /90",
-};
 
 const getCellColor = (val: number, best: number, worst: number) => {
   if (best === worst) return "hsl(var(--muted))";
@@ -35,28 +23,19 @@ const getCellColor = (val: number, best: number, worst: number) => {
   return "hsl(0, 60%, 50%, 0.15)";
 };
 
-export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalData, comparisonPlayers }: Props) => {
+export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalData, comparisonPlayers, selectedPlayerIds, position }: Props) => {
   const lang = usePortalLanguage();
-  const [loading, setLoading] = useState(true);
-  const [players, setPlayers] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const { data } = await sharedSupabase
-          .from("comparison_players" as any)
-          .select("*");
-        setPlayers(data || []);
-      } catch {
-        // Table may not exist
-      }
-      setLoading(false);
-    };
-    fetch();
-  }, []);
+  const positionMetrics = useMemo(() => getMetricsForPosition(position), [position]);
+  const metricLabels = useMemo(
+    () => Object.fromEntries(positionMetrics.map(metric => [metric.key, metric.label])) as Record<string, string>,
+    [positionMetrics]
+  );
 
   const allPlayers = useMemo(() => {
     const result: { name: string; metrics: Record<string, number> }[] = [];
+    const filteredComparisonPlayers = selectedPlayerIds.length > 0
+      ? comparisonPlayers.filter(player => selectedPlayerIds.includes(player.id))
+      : comparisonPlayers;
 
     if (hasPortalData && portalMetrics) {
       const cleaned: Record<string, number> = {};
@@ -66,22 +45,18 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
       result.push({ name: playerName, metrics: cleaned });
     }
 
-    players.forEach(p => {
+    filteredComparisonPlayers.forEach(p => {
       result.push({ name: p.name, metrics: p.metrics || {} });
     });
 
     return result;
-  }, [players, playerName, portalMetrics, hasPortalData]);
+  }, [comparisonPlayers, selectedPlayerIds, playerName, portalMetrics, hasPortalData]);
 
   const metricKeys = useMemo(() => {
-    return Object.keys(METRIC_LABELS).filter(key =>
+    return positionMetrics.map(metric => metric.key).filter(key =>
       allPlayers.some(p => typeof p.metrics[key] === "number")
     );
-  }, [allPlayers]);
-
-  if (loading) {
-    return <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
-  }
+  }, [allPlayers, positionMetrics]);
 
   if (allPlayers.length < 2) {
     return (
@@ -118,7 +93,7 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
             return (
               <tr key={key} className="border-t border-border/30">
                 <td className="p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10 whitespace-nowrap">
-                  {translateMetricLabel(lang, key, METRIC_LABELS[key] || key)}
+                  {translateMetricLabel(lang, key, metricLabels[key] || key)}
                 </td>
                 {allPlayers.map((p, i) => {
                   const val = p.metrics[key];

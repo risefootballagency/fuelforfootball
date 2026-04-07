@@ -22,6 +22,23 @@ import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 
 const RadarChart3D = lazy(() => import("@/components/portal/RadarChart3D").then(m => ({ default: m.RadarChart3D })));
 
+const hasRecordedStats = (analysis: Analysis) => {
+  const stats = analysis.fixture_stats || analysis.striker_stats;
+  return !!stats && Object.keys(stats).length > 0;
+};
+
+const getComparableMetricValue = (analysis: Analysis, key: string) => {
+  const raw = analysis.fixture_stats?.[key] ?? analysis.striker_stats?.[key];
+  if (raw == null || raw === "") return 0;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : 0;
+};
+
+const getComparableMetricAverage = (items: Analysis[], key: string) => {
+  if (items.length === 0) return null;
+  return items.reduce((sum, analysis) => sum + getComparableMetricValue(analysis, key), 0) / items.length;
+};
+
 interface Analysis {
   id: string;
   analysis_date: string;
@@ -60,7 +77,6 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [formWindow, setFormWindow] = useState<number>(5);
   const [subTab, setSubTab] = useState<string>("scatter");
-  const [fixtureAnalyses, setFixtureAnalyses] = useState<Analysis[]>([]);
   const [selectedMetricKey, setSelectedMetricKey] = useState<string>(posMetrics[0]?.key || 'goals_per90');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState("");
@@ -68,37 +84,31 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
   const playerPosition = playerData?.position || '';
   const playerName = playerData?.name || 'You';
 
+  const fixtureAnalyses = useMemo(() => {
+    return [...analyses]
+      .filter(a => !String(a.id).startsWith('tactical-'))
+      .filter(a => String((a as any).visibility_status || '').toLowerCase() !== 'draft')
+      .filter(hasRecordedStats)
+      .sort((a, b) => b.analysis_date.localeCompare(a.analysis_date));
+  }, [analyses]);
+
   useEffect(() => {
-    const fetchFixtureData = async () => {
-      if (!playerData?.id) return;
-      const { data } = await sharedSupabase
-        .from('player_analysis' as any)
-        .select('id, analysis_date, r90_score, minutes_played, opponent, fixture_stats, visibility_status')
-        .eq('player_id', playerData.id)
-        .order('analysis_date', { ascending: false })
-        .limit(20);
-      if (data) {
-        // Use live and hidden reports for comparisons (exclude draft/clipped)
-        const usableData = (data as any[]).filter(a => {
-          const status = String(a.visibility_status || '').toLowerCase();
-          return !status || status === 'live' || status === 'hidden';
-        });
-        setFixtureAnalyses(usableData.map(a => ({
-          ...a,
-          r90_score: a.r90_score ?? 0,
-          fixture_stats: (a.fixture_stats as Record<string, number>) || {},
-        })));
-      }
-    };
-    fetchFixtureData();
-  }, [playerData?.id]);
+    if (!posMetrics.some(metric => metric.key === selectedMetricKey)) {
+      setSelectedMetricKey(posMetrics[0]?.key || 'goals_per90');
+    }
+  }, [posMetrics, selectedMetricKey]);
 
   useEffect(() => {
     const fetchComps = async () => {
+      const positionVariants = Array.from(new Set([playerPosition, playerPosition.toUpperCase()].filter(Boolean)));
+      if (positionVariants.length === 0) {
+        setComparisonPlayers([]);
+        return;
+      }
       const { data } = await sharedSupabase
         .from('comparison_players' as any)
         .select('*')
-        .eq('position', playerPosition)
+        .in('position', positionVariants)
         .order('name');
       if (data) setComparisonPlayers((data as any[]).map(p => ({ ...p, metrics: (p.metrics || {}) as Record<string, number> })));
     };
@@ -146,13 +156,10 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
     const windowAnalyses = fixtureAnalyses.slice(0, formWindow);
     const result: Record<string, number | null> = {};
     posMetrics.forEach(m => {
-      const vals = windowAnalyses
-        .map(a => a.fixture_stats?.[m.key])
-        .filter((v): v is number => v != null && !isNaN(v));
-      result[m.key] = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+      result[m.key] = getComparableMetricAverage(windowAnalyses, m.key);
     });
     return result;
-  }, [fixtureAnalyses, formWindow]);
+  }, [fixtureAnalyses, formWindow, posMetrics]);
 
   const hasPortalData = Object.values(portalMetrics).some(v => v != null);
 
@@ -503,6 +510,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
             comparisonPlayers={comparisonPlayers}
             selectedPlayerIds={selectedPlayerIds}
             formWindow={formWindow}
+            position={playerData?.position}
           />
         </TabsContent>
         {/* Goals Tab */}

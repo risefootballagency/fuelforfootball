@@ -79,7 +79,7 @@ const isDemoPortalMode = () => {
 interface Analysis {
   id: string;
   analysis_date: string;
-  r90_score: number;
+  r90_score: number | null;
   pdf_url: string | null;
   video_url: string | null;
   notes: string | null;
@@ -93,6 +93,8 @@ interface Analysis {
   fixture_id?: string | null;
   tagged_analyses?: any[];
   visibility_status?: string;
+  placeholder_raw_score?: number | null;
+  placeholder_minutes?: number | null;
 }
 
 interface PlayerProgram {
@@ -201,6 +203,15 @@ const Dashboard = () => {
 
   // Initialize form grade configs from database
   const { getGradeBoundaries: getDynamicGradeBoundaries, getGradeForScore, hasThresholds } = useFormGradeConfigs();
+
+  const getEffectiveR90 = (analysis: Analysis): number | null => {
+    const status = String(analysis.visibility_status || '').toLowerCase();
+    if (status === 'draft' || status === 'clipped') return null;
+    if (status === 'hidden' && analysis.placeholder_raw_score != null && analysis.placeholder_minutes && analysis.placeholder_minutes > 0) {
+      return (analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90;
+    }
+    return analysis.r90_score;
+  };
 
   const checkNutritionPrograms = async (playerId: string) => {
     if (isDemoPortalMode()) {
@@ -2402,7 +2413,12 @@ const Dashboard = () => {
                         <div className="py-8"></div>
                       ) : (
                         <div className="space-y-3">
-                          {analyses.map((analysis) => (
+                          {analyses.map((analysis) => {
+                            const status = String(analysis.visibility_status || '').toLowerCase();
+                            const effectiveR90 = getEffectiveR90(analysis);
+                            const isMaskedR90 = status === 'draft' || status === 'clipped' || effectiveR90 == null;
+
+                            return (
                             <div 
                               key={analysis.id} 
                               className="border rounded-lg p-3 hover:border-primary transition-colors bg-card"
@@ -2431,17 +2447,18 @@ const Dashboard = () => {
 
                               {/* Line 2: Buttons */}
                               <div className="flex items-center gap-2 flex-wrap">
-                                {analysis.r90_score !== null && analysis.r90_score !== undefined && (
-                                  <button
-                                    onClick={() => {
-                                      setSelectedReportAnalysisId(analysis.id);
-                                      setPerformanceReportDialogOpen(true);
-                                    }}
-                                    className={`${getR90Color(analysis.r90_score)} text-white px-3 py-1.5 rounded text-sm font-bold hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer`}
-                                  >
-                                    R90: {analysis.r90_score.toFixed(2)}
-                                  </button>
-                                )}
+                                <button
+                                  onClick={() => {
+                                    setSelectedReportAnalysisId(analysis.id);
+                                    setPerformanceReportDialogOpen(true);
+                                  }}
+                                  className={isMaskedR90
+                                    ? "px-3 py-1.5 rounded text-sm font-bold bg-zinc-700 border border-zinc-600 text-zinc-300 transition-all cursor-pointer"
+                                    : `${getR90Color(effectiveR90!)} text-white px-3 py-1.5 rounded text-sm font-bold hover:bg-accent hover:text-accent-foreground transition-all cursor-pointer`
+                                  }
+                                >
+                                  {isMaskedR90 ? 'R90: ?' : `R90: ${effectiveR90!.toFixed(2)}`}
+                                </button>
                                 
                                 {analysis.analysis_writer_data && (
                                   <Button 
@@ -2504,7 +2521,7 @@ const Dashboard = () => {
                                 )}
                               </div>
                             </div>
-                          ))}
+                          )})}
                         </div>
                       )}
                       

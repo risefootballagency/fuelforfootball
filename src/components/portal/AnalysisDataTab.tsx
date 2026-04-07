@@ -95,6 +95,18 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     });
   };
 
+  useEffect(() => {
+    if (analyses.length > 0 && selectedIds.size === 0) {
+      setSelectedIds(new Set(analyses.map(a => a.id)));
+    }
+  }, [analyses, selectedIds.size]);
+
+  useEffect(() => {
+    if (posCategories.length > 0 && !posCategories.some(category => category.category === activeStatCategory)) {
+      setActiveStatCategory(posCategories[0].category);
+    }
+  }, [posCategories, activeStatCategory]);
+
   const selectAll = () => setSelectedIds(new Set(analyses.map(a => a.id)));
 
   const selectedAnalyses = analyses.filter(a => selectedIds.has(a.id));
