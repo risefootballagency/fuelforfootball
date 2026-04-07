@@ -26,6 +26,8 @@ interface Analysis {
   striker_stats?: any;
   fixture_stats?: any;
   visibility_status?: string;
+  placeholder_raw_score?: number | null;
+  placeholder_minutes?: number | null;
 }
 
 interface Props {
@@ -62,6 +64,16 @@ const getStatValue = (analysis: Analysis, key: string): number | null => {
     return Number(analysis.striker_stats[key]);
   }
   return null;
+};
+
+const getEffectiveR90 = (a: Analysis): number | null => {
+  const status = String(a.visibility_status || '').toLowerCase();
+  if (status === 'draft' || status === 'clipped') return null;
+  if (status === 'hidden' && a.placeholder_raw_score != null && a.placeholder_minutes) {
+    return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
+  }
+  if (status === 'hidden') return null;
+  return a.r90_score;
 };
 
 export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
