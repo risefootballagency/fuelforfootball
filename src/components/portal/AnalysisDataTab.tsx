@@ -25,6 +25,7 @@ interface Analysis {
   result: string | null;
   striker_stats?: any;
   fixture_stats?: any;
+  visibility_status?: string;
 }
 
 interface Props {
@@ -122,10 +123,15 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     return selectedAnalyses
       .filter(a => a.r90_score != null)
       .sort((a, b) => a.analysis_date.localeCompare(b.analysis_date))
-      .map(a => ({
-        name: a.opponent || new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
-        r90: a.r90_score,
-      }));
+      .map(a => {
+        const isHiddenOrDraft = ['hidden', 'draft', 'clipped'].includes(String(a.visibility_status || '').toLowerCase());
+        return {
+          name: isHiddenOrDraft
+            ? new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
+            : (a.opponent || new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })),
+          r90: Number(a.r90_score.toFixed(2)),
+        };
+      });
   }, [selectedAnalyses]);
 
   const radarData = useMemo(() => {
@@ -322,14 +328,18 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
                   />
                 </TableCell>
                 <TableCell className="text-sm">{new Date(a.analysis_date).toLocaleDateString('en-GB')}</TableCell>
-                <TableCell className="text-sm font-medium">{a.opponent || '-'}</TableCell>
+                <TableCell className="text-sm font-medium">
+                  {['hidden', 'draft', 'clipped'].includes(String(a.visibility_status || '').toLowerCase()) ? '-' : (a.opponent || '-')}
+                </TableCell>
                 <TableCell className="text-sm">{a.minutes_played ?? '-'}</TableCell>
                 <TableCell>
                   {a.r90_score != null ? (
                     <span className="font-bold text-sm" style={{ color: getR90Color(a.r90_score) }}>
                       {a.r90_score.toFixed(2)}
                     </span>
-                  ) : '-'}
+                  ) : (
+                    <span className="font-bold text-sm text-zinc-500">?</span>
+                  )}
                 </TableCell>
                 {currentMetrics.map(m => {
                   const val = getStatValue(a, m.key);
