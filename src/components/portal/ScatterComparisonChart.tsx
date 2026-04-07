@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ALL_METRICS, METRIC_CATEGORIES } from "@/components/staff/ComparisonPlayerData";
+import { ALL_METRICS, METRIC_CATEGORIES, getMetricCategoriesForPosition, getMetricsForPosition } from "@/components/staff/ComparisonPlayerData";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { t, translateMetricLabel, translateMetricCategory } from "@/lib/portalTranslations";
@@ -22,6 +22,7 @@ interface Props {
   portalMetrics: Record<string, number | null>;
   hasPortalData: boolean;
   comparisonPlayers: ComparisonPlayer[];
+  position?: string;
 }
 
 const PORTAL_COLOUR = "hsl(47, 100%, 51%)";
@@ -42,15 +43,20 @@ export const ScatterComparisonChart = ({
   portalMetrics,
   hasPortalData,
   comparisonPlayers,
+  position,
 }: Props) => {
   const lang = usePortalLanguage();
-  const [xMetric, setXMetric] = useState("goals_per90");
-  const [yMetric, setYMetric] = useState("xa_per90");
+  const posCategories = getMetricCategoriesForPosition(position);
+  const posMetrics = getMetricsForPosition(position);
+  const defaultX = posMetrics[0]?.key || "goals_per90";
+  const defaultY = posMetrics.length > 1 ? posMetrics[1].key : defaultX;
+  const [xMetric, setXMetric] = useState(defaultX);
+  const [yMetric, setYMetric] = useState(defaultY);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
-  const xMeta = ALL_METRICS.find(m => m.key === xMetric);
-  const yMeta = ALL_METRICS.find(m => m.key === yMetric);
+  const xMeta = posMetrics.find(m => m.key === xMetric);
+  const yMeta = posMetrics.find(m => m.key === yMetric);
 
   const points = useMemo(() => {
     const pts: PointData[] = [];
@@ -133,7 +139,7 @@ export const ScatterComparisonChart = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {METRIC_CATEGORIES.map(cat => (
+              {posCategories.map(cat => (
                 <div key={cat.category}>
                   <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                   {cat.metrics.map(m => (
@@ -151,7 +157,7 @@ export const ScatterComparisonChart = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {METRIC_CATEGORIES.map(cat => (
+              {posCategories.map(cat => (
                 <div key={cat.category}>
                   <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                   {cat.metrics.map(m => (
