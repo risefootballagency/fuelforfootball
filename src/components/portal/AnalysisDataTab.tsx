@@ -65,8 +65,10 @@ const getStatValue = (analysis: Analysis, key: string): number | null => {
 
 export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
   const lang = usePortalLanguage();
+  const posCategories = getMetricCategoriesForPosition(playerData?.position);
+  const posMetrics = getMetricsForPosition(playerData?.position);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(analyses.map(a => a.id)));
-  const [activeStatCategory, setActiveStatCategory] = useState("Shooting");
+  const [activeStatCategory, setActiveStatCategory] = useState(posCategories[0]?.category || "Shooting");
   const [editingCell, setEditingCell] = useState<{ analysisId: string; metricKey: string } | null>(null);
   const [editValue, setEditValue] = useState("");
   const [seasonZoneActions, setSeasonZoneActions] = useState<Array<{ action_number: number; action_score: number; zone?: number | null; zone_details?: { zone: number; sub?: number }[] | null }>>([]);
@@ -85,8 +87,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
   const selectedAnalyses = analyses.filter(a => selectedIds.has(a.id));
 
   const currentMetrics = useMemo(() => {
-    return METRIC_CATEGORIES.find(c => c.category === activeStatCategory)?.metrics || [];
-  }, [activeStatCategory]);
+    return posCategories.find(c => c.category === activeStatCategory)?.metrics || [];
+  }, [activeStatCategory, posCategories]);
 
   const seasonAverages = useMemo(() => {
     if (selectedAnalyses.length === 0) return {};
@@ -98,7 +100,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     const mins = selectedAnalyses.filter(a => a.minutes_played != null).map(a => a.minutes_played!);
     if (mins.length > 0) result.totalMinutes = mins.reduce((s, v) => s + v, 0);
 
-    ALL_METRICS.forEach(m => {
+    posMetrics.forEach(m => {
       const values = selectedAnalyses
         .map(a => getStatValue(a, m.key))
         .filter((v): v is number => v != null);
