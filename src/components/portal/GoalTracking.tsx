@@ -25,6 +25,8 @@ interface PlayerGoal {
 
 export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTrackingProps) => {
   const lang = usePortalLanguage();
+  const posCategories = getMetricCategoriesForPosition(playerData?.position);
+  const posMetrics = getMetricsForPosition(playerData?.position);
   const [goals, setGoals] = useState<PlayerGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -52,7 +54,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
   const currentAverages = useMemo(() => {
     const windowAnalyses = fixtureAnalyses.slice(0, formWindow);
     const result: Record<string, number | null> = {};
-    ALL_METRICS.forEach(m => {
+    posMetrics.forEach(m => {
       const vals = windowAnalyses
         .map(a => a.fixture_stats?.[m.key])
         .filter((v): v is number => v != null && !isNaN(v));
@@ -117,7 +119,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
             <SelectValue placeholder={t(lang, "select_metric")} />
           </SelectTrigger>
           <SelectContent>
-            {METRIC_CATEGORIES.map(cat => (
+            {posCategories.map(cat => (
               <div key={cat.category}>
                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                 {cat.metrics.filter(m => !usedMetrics.includes(m.key)).map(m => (
@@ -152,7 +154,7 @@ export const GoalTracking = ({ playerData, fixtureAnalyses, formWindow }: GoalTr
       ) : (
         <div className="space-y-4">
           {goals.map(goal => {
-            const metric = ALL_METRICS.find(m => m.key === goal.metric_key);
+            const metric = posMetrics.find(m => m.key === goal.metric_key);
             const current = currentAverages[goal.metric_key];
             const isPercentage = goal.metric_key.endsWith('_pct');
             const progress = current != null && goal.target_value > 0
