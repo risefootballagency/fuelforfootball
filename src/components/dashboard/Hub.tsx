@@ -242,6 +242,20 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     
     const data = payload[0].payload;
     const stats = data.strikerStats;
+    const advancedStats = stats ? [
+      { label: 'xG (adj)', value: stats.xG_adj_per90 },
+      { label: 'xA (adj)', value: stats.xA_adj_per90 },
+      { label: 'xGChain', value: stats.xGChain_per90 },
+      { label: 'Regains (adj)', value: stats.regains_adj_per90 },
+      { label: 'Interceptions', value: stats.interceptions_per90 },
+      { label: 'Progressive Passes (adj)', value: stats.progressive_passes_adj_per90 },
+      { label: 'Turnovers (adj)', value: stats.turnovers_adj_per90 },
+      { label: 'Movement In Behind xC', value: stats.movement_in_behind_xC_per90 },
+      { label: 'Movement To Feet xC', value: stats.movement_to_feet_xC_per90 },
+      { label: 'Crossing Movement xC', value: stats.crossing_movement_xC_per90 },
+    ].filter((item): item is { label: string; value: number } => (
+      typeof item.value === 'number' && Number.isFinite(item.value) && Math.abs(item.value) > 0.0001
+    )) : [];
     
     return (
       <div 
@@ -256,43 +270,19 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
           <X className="h-4 w-4" />
         </button>
         <div className="space-y-2 pr-6">
-          <div className="font-bold text-white text-base mb-1">{data.result} {data.opponent}</div>
+          <div className="font-bold text-white text-base mb-1">
+            {data.opponent || "Unknown"}
+            {data.result ? ` (${data.result})` : ''}
+          </div>
           {data.minutesPlayed && (
             <div className="text-xs text-white/60">{t(portalLanguage, "minutes_played")}: {data.minutesPlayed}</div>
           )}
-          {stats && (
+          {advancedStats.length > 0 && (
             <div className="space-y-1 pt-2 border-t border-white/20">
               <div className="text-xs font-semibold text-white/80">{t(portalLanguage, "advanced_stats_per_90")}:</div>
-              {stats.xG_adj_per90 !== undefined && (
-                <div className="text-xs text-white/70">xG (adj): {stats.xG_adj_per90.toFixed(2)}</div>
-              )}
-              {stats.xA_adj_per90 !== undefined && (
-                <div className="text-xs text-white/70">xA (adj): {stats.xA_adj_per90.toFixed(2)}</div>
-              )}
-              {stats.xGChain_per90 !== undefined && (
-                <div className="text-xs text-white/70">xGChain: {stats.xGChain_per90.toFixed(2)}</div>
-              )}
-              {stats.regains_adj_per90 !== undefined && (
-                <div className="text-xs text-white/70">Regains (adj): {stats.regains_adj_per90.toFixed(2)}</div>
-              )}
-              {stats.interceptions_per90 !== undefined && (
-                <div className="text-xs text-white/70">Interceptions: {stats.interceptions_per90.toFixed(2)}</div>
-              )}
-              {stats.progressive_passes_adj_per90 !== undefined && (
-                <div className="text-xs text-white/70">Progressive Passes (adj): {stats.progressive_passes_adj_per90.toFixed(2)}</div>
-              )}
-              {stats.turnovers_adj_per90 !== undefined && (
-                <div className="text-xs text-white/70">Turnovers (adj): {stats.turnovers_adj_per90.toFixed(2)}</div>
-              )}
-              {stats.movement_in_behind_xC_per90 !== undefined && (
-                <div className="text-xs text-white/70">Movement In Behind xC: {stats.movement_in_behind_xC_per90.toFixed(2)}</div>
-              )}
-              {stats.movement_to_feet_xC_per90 !== undefined && (
-                <div className="text-xs text-white/70">Movement To Feet xC: {stats.movement_to_feet_xC_per90.toFixed(2)}</div>
-              )}
-              {stats.crossing_movement_xC_per90 !== undefined && (
-                <div className="text-xs text-white/70">Crossing Movement xC: {stats.crossing_movement_xC_per90.toFixed(2)}</div>
-              )}
+              {advancedStats.map((item) => (
+                <div key={item.label} className="text-xs text-white/70">{item.label}: {item.value.toFixed(2)}</div>
+              ))}
             </div>
           )}
         </div>
@@ -508,10 +498,10 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     .sort((a, b) => new Date(a.analysis_date).getTime() - new Date(b.analysis_date).getTime())
     .slice(-5)
     .map(a => ({
+      label: a.opponent || new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }),
       opponent: a.opponent || "Unknown",
       score: getEffectiveR90(a)!,
       result: a.result || "",
-      displayLabel: `${a.opponent || "Unknown"}${a.result ? ` (${a.result})` : ""}`,
       analysisId: a.id,
       minutesPlayed: a.minutes_played,
       strikerStats: a.striker_stats
@@ -538,7 +528,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     return "hsl(36, 100%, 50%)";
   };
 
-  const recentAnalyses = analyses
+  const recentAnalyses = [...analyses]
     .sort((a, b) => new Date(b.analysis_date).getTime() - new Date(a.analysis_date).getTime())
     .slice(0, 5);
 
@@ -695,30 +685,12 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                   <BarChart data={chartData} margin={{ top: 40, bottom: 0, left: 0, right: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis
-                      dataKey="opponent"
+                      dataKey="label"
                       stroke="hsl(var(--muted-foreground))"
                       fontSize={10}
-                      height={60}
+                      height={52}
                       interval={0}
-                      tick={(props) => {
-                        const { x, y, payload } = props;
-                        const data = chartData.find(d => d.opponent === payload.value);
-                        return (
-                          <g transform={`translate(${x},${y})`}>
-                            <text 
-                              x={0} 
-                              y={0} 
-                              dy={16} 
-                              textAnchor="middle" 
-                              fill="white"
-                              fontSize={12}
-                              fontWeight="bold"
-                            >
-                              {data?.result || ''}
-                            </text>
-                          </g>
-                        );
-                      }}
+                      tickLine={false}
                     />
                     <YAxis 
                       stroke="hsl(var(--muted-foreground))"
@@ -817,32 +789,6 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                           );
                         }}
                       />
-                      <LabelList 
-                        dataKey="opponent" 
-                        position="top"
-                        content={(props: any) => {
-                          const { x, y, width, value, index } = props;
-                          if (!x || y === undefined || !width) return null;
-                          const delay = index * 0.25;
-                          return (
-                            <text
-                              x={x + width / 2}
-                              y={y - 5}
-                              fill="hsl(var(--muted-foreground))"
-                              textAnchor="middle"
-                              dominantBaseline="baseline"
-                              fontSize="10"
-                              fontWeight="600"
-                              style={{
-                                opacity: 1,
-                                animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none'
-                              }}
-                            >
-                              {value || ''}
-                            </text>
-                          );
-                        }}
-                      />
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
@@ -923,7 +869,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                               </Button>
                               {preMatch.estimated_ready_at && preMatch.visibility_status !== 'live' && (
                                 <span className="text-[9px] text-muted-foreground whitespace-nowrap">
-                                  {new Date(preMatch.estimated_ready_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })} {new Date(preMatch.estimated_ready_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                  Expected ready by {new Date(preMatch.estimated_ready_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })} {new Date(preMatch.estimated_ready_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               )}
                             </div>

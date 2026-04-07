@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALL_METRICS, METRIC_CATEGORIES, getMetricCategoriesForPosition, getMetricsForPosition } from "@/components/staff/ComparisonPlayerData";
 import { AnimatePresence, motion } from "framer-motion";
@@ -54,6 +54,13 @@ export const ScatterComparisonChart = ({
   const [yMetric, setYMetric] = useState(defaultY);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    setXMetric(defaultX);
+    setYMetric(defaultY);
+    setHoveredIdx(null);
+    setSelectedIdx(null);
+  }, [defaultX, defaultY]);
 
   const xMeta = posMetrics.find(m => m.key === xMetric);
   const yMeta = posMetrics.find(m => m.key === yMetric);
