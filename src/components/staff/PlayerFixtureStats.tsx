@@ -62,7 +62,7 @@ export const PlayerFixtureStats = ({ playerId, playerName, position }: Props) =>
 
   const averages = useMemo(() => {
     const result: Record<string, number | null> = {};
-    ALL_METRICS.forEach(m => { const vals = analyses.map(a => (editedStats[a.id] || a.fixture_stats)?.[m.key]).filter((v): v is number => v != null && !isNaN(v)); result[m.key] = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null; });
+    posMetrics.forEach(m => { const vals = analyses.map(a => (editedStats[a.id] || a.fixture_stats)?.[m.key]).filter((v): v is number => v != null && !isNaN(v)); result[m.key] = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null; });
     return result;
   }, [analyses, editedStats]);
 
@@ -78,8 +78,8 @@ export const PlayerFixtureStats = ({ playerId, playerName, position }: Props) =>
         {analyses.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">No performance reports found for this player.</p> : (
           <>
             <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-              <TabsList className="mx-3 md:mx-0 grid grid-cols-4 gap-1 mb-4">{METRIC_CATEGORIES.map(cat => <TabsTrigger key={cat.category} value={cat.category} className="text-xs">{cat.category}</TabsTrigger>)}</TabsList>
-              {METRIC_CATEGORIES.map(cat => (
+              <TabsList className="mx-3 md:mx-0 grid gap-1 mb-4" style={{ gridTemplateColumns: `repeat(${posCategories.length}, 1fr)` }}>{posCategories.map(cat => <TabsTrigger key={cat.category} value={cat.category} className="text-xs">{cat.category}</TabsTrigger>)}</TabsList>
+              {posCategories.map(cat => (
                 <TabsContent key={cat.category} value={cat.category} className="mt-0"><div className="overflow-x-auto"><Table>
                   <TableHeader><TableRow><TableHead className="sticky left-0 bg-background z-10 min-w-[120px]">Fixture</TableHead><TableHead className="min-w-[60px] text-center">Mins</TableHead><TableHead className="min-w-[60px] text-center">R90</TableHead>{cat.metrics.map(m => <TableHead key={m.key} className="min-w-[90px] text-center text-xs">{m.label}</TableHead>)}<TableHead className="min-w-[60px]"></TableHead></TableRow></TableHeader>
                   <TableBody>
