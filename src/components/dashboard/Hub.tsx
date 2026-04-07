@@ -1016,7 +1016,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                       </div>
                     </div>
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
