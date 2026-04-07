@@ -838,7 +838,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                               {value || ''}
                             </text>
                           );
-                        }
+                        }}
                       />
                     </Bar>
                   </BarChart>
