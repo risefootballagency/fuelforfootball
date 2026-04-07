@@ -74,7 +74,7 @@ const getXGOpacity = (value: number): number => {
   return 0.7;
 };
 
-export const XGPitchMap = () => {
+export const XGPitchMap = ({ compact }: { compact?: boolean } = {}) => {
   const [zoomed, setZoomed] = useState(false);
   const displayGrid = zoomed ? XG_GRID.slice(0, 7) : XG_GRID;
   const displayLabels = zoomed ? ROW_LABELS.slice(0, 7) : ROW_LABELS;
