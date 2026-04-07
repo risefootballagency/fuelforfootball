@@ -494,12 +494,9 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   }, []);
 
   const getEffectiveR90 = (a: PlayerAnalysis): number | null => {
-    const isDraft = String(a.visibility_status || "").toLowerCase() === "draft";
-    const isClipped = String(a.visibility_status || "").toLowerCase() === "clipped";
-    if (isDraft || isClipped) return null;
-    if (a.visibility_status === "hidden" && a.placeholder_raw_score != null && a.placeholder_minutes) {
-      return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
-    }
+    const status = String(a.visibility_status || "").toLowerCase();
+    if (status === "draft" || status === "clipped") return null;
+    // For hidden reports, the r90_score on player_analysis IS the hidden score
     return a.r90_score;
   };
 
@@ -818,31 +815,30 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                         }}
                       />
                       <LabelList 
-                        dataKey="score" 
+                        dataKey="opponent" 
                         position="top"
                         content={(props: any) => {
                           const { x, y, width, value, index } = props;
-                          if (!x || y === undefined || !width || value === undefined) return null;
+                          if (!x || y === undefined || !width) return null;
                           const delay = index * 0.25;
-                          const gradeInfo = getR90Grade(value);
                           return (
                             <text
                               x={x + width / 2}
                               y={y - 5}
-                              fill={gradeInfo.color}
+                              fill="hsl(var(--muted-foreground))"
                               textAnchor="middle"
                               dominantBaseline="baseline"
-                              fontSize="18"
-                              fontWeight="700"
+                              fontSize="10"
+                              fontWeight="600"
                               style={{
                                 opacity: 1,
                                 animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none'
                               }}
                             >
-                              {gradeInfo.grade}
+                              {value || ''}
                             </text>
                           );
-                        }}
+                        }
                       />
                     </Bar>
                   </BarChart>
@@ -907,20 +903,27 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                             : (analysis as any).tagged_analyses?.find((ta: any) => ta.analysis_type === 'pre-match');
                           if (!preMatch) return null;
                           return (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="p-0 h-8 w-auto px-2 bg-black text-white border border-white hover:bg-accent hover:text-black rounded font-bold text-[10px] flex items-center gap-1"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const slug = createAnalysisSlug(preMatch.home_team || '', preMatch.away_team || '', preMatch.id);
-                                navigate(slug);
-                              }}
-                              title="View Pre-Match Analysis"
-                            >
-                              <Eye className="h-3 w-3" />
-                              PRE
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="p-0 h-8 w-auto px-2 bg-black text-white border border-white hover:bg-accent hover:text-black rounded font-bold text-[10px] flex items-center gap-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const slug = createAnalysisSlug(preMatch.home_team || '', preMatch.away_team || '', preMatch.id);
+                                  navigate(slug);
+                                }}
+                                title="View Pre-Match Analysis"
+                              >
+                                <Eye className="h-3 w-3" />
+                                PRE
+                              </Button>
+                              {preMatch.estimated_ready_at && preMatch.visibility_status !== 'live' && (
+                                <span className="text-[9px] text-muted-foreground whitespace-nowrap">
+                                  {new Date(preMatch.estimated_ready_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })} {new Date(preMatch.estimated_ready_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              )}
+                            </div>
                           );
                         })()}
                         {/* Post-match analysis button */}
