@@ -1232,6 +1232,25 @@ const Dashboard = () => {
         })
       );
 
+      // Enrich analyses with fixture_stats from shared DB
+      const analysisIds = analysesWithXGChain.map(a => a.id);
+      if (analysisIds.length > 0) {
+        try {
+          const { data: sharedData } = await sharedSupabase
+            .from('player_analysis' as any)
+            .select('id, fixture_stats')
+            .in('id', analysisIds);
+          if (sharedData) {
+            const fsMap = new Map<string, any>();
+            (sharedData as any[]).forEach(s => { if (s.fixture_stats) fsMap.set(s.id, s.fixture_stats); });
+            analysesWithXGChain.forEach(a => {
+              const fs = fsMap.get(a.id);
+              if (fs) (a as any).fixture_stats = fs;
+            });
+          }
+        } catch { /* silently continue */ }
+      }
+
       // Start with analysesWithXGChain
       let mergedAnalyses = [...analysesWithXGChain] as Analysis[];
       // Track attached tactical analysis IDs across ALL merge passes to prevent duplicates
