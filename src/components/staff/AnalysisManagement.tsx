@@ -68,7 +68,7 @@ interface Analysis {
   explanation?: string | null;
   points?: any[];
   video_url?: string | null;
-  visibility_status?: "draft" | "hidden" | "live" | null;
+  visibility_status?: "draft" | "hidden" | "live" | "clipped" | null;
   estimated_ready_at?: string | null;
   created_at: string;
   player_name?: string | null;
@@ -1513,10 +1513,12 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
                 <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
                   analysis.visibility_status === "draft"
                     ? "bg-yellow-500/20 text-yellow-400"
+                    : analysis.visibility_status === "clipped"
+                    ? "bg-blue-500/20 text-blue-400"
                     : "bg-red-500/20 text-red-400"
                 }`}>
                   {analysis.visibility_status === "draft" ? <FileEdit className="w-2.5 h-2.5" /> : <EyeOff className="w-2.5 h-2.5" />}
-                  {analysis.visibility_status === "draft" ? "Draft" : "Hidden"}
+                  {analysis.visibility_status === "draft" ? "Draft" : analysis.visibility_status === "clipped" ? "Clipped" : "Hidden"}
                 </span>
               )}
             </div>

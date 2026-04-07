@@ -5,7 +5,7 @@ import { BarChart3, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { AnimatePresence, motion } from "framer-motion";
-import { ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
+import { ALL_METRICS, getMetricsForPosition } from "@/components/staff/ComparisonPlayerData";
 import { t, translateMetricLabel } from "@/lib/portalTranslations";
 
 interface QuickStatsComparisonProps {
@@ -17,11 +17,7 @@ interface QuickStatsComparisonProps {
   portalLanguage?: string;
 }
 
-// Use ALL_METRICS as the single source of truth for comparable stats
-const COMPARABLE_STATS = ALL_METRICS.map(m => ({
-  label: m.label,
-  key: m.key,
-}));
+// Comparable stats will be resolved per-position inside the component
 
 const surname = (name: string) => {
   const parts = name.trim().split(" ");
@@ -36,6 +32,7 @@ const getStatValue = (analysis: any, key: string): number | null => {
 };
 
 export const QuickStatsComparison = ({ playerId, playerName, playerPosition, analyses, onSeeAll, portalLanguage = "en" }: QuickStatsComparisonProps) => {
+  const COMPARABLE_STATS = React.useMemo(() => getMetricsForPosition(playerPosition).map(m => ({ label: m.label, key: m.key })), [playerPosition]);
   const [loading, setLoading] = React.useState(true);
   const [chartData, setChartData] = React.useState<{ name: string; value: number }[] | null>(null);
   const [statLabel, setStatLabel] = React.useState("");

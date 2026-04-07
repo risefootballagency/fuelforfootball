@@ -7,17 +7,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
-import { METRIC_CATEGORIES, ALL_METRICS } from "./ComparisonPlayerData";
+import { METRIC_CATEGORIES, ALL_METRICS, getMetricCategoriesForPosition, getMetricsForPosition } from "./ComparisonPlayerData";
 
 interface FixtureAnalysis { id: string; analysis_date: string; opponent: string | null; minutes_played: number | null; r90_score: number | null; fixture_stats: Record<string, number>; }
-interface Props { playerId: string; playerName: string; isAdmin?: boolean; }
+interface Props { playerId: string; playerName: string; isAdmin?: boolean; position?: string; }
 
-export const PlayerFixtureStats = ({ playerId, playerName }: Props) => {
+export const PlayerFixtureStats = ({ playerId, playerName, position }: Props) => {
+  const posCategories = getMetricCategoriesForPosition(position);
+  const posMetrics = getMetricsForPosition(position);
   const [analyses, setAnalyses] = useState<FixtureAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [editedStats, setEditedStats] = useState<Record<string, Record<string, number>>>({});
-  const [activeCategory, setActiveCategory] = useState("Shooting");
+  const [activeCategory, setActiveCategory] = useState(posCategories[0]?.category || "Shooting");
 
   useEffect(() => { fetchAnalyses(); }, [playerId]);
 
@@ -60,7 +62,7 @@ export const PlayerFixtureStats = ({ playerId, playerName }: Props) => {
 
   const averages = useMemo(() => {
     const result: Record<string, number | null> = {};
-    ALL_METRICS.forEach(m => { const vals = analyses.map(a => (editedStats[a.id] || a.fixture_stats)?.[m.key]).filter((v): v is number => v != null && !isNaN(v)); result[m.key] = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null; });
+    posMetrics.forEach(m => { const vals = analyses.map(a => (editedStats[a.id] || a.fixture_stats)?.[m.key]).filter((v): v is number => v != null && !isNaN(v)); result[m.key] = vals.length > 0 ? vals.reduce((s, v) => s + v, 0) / vals.length : null; });
     return result;
   }, [analyses, editedStats]);
 
@@ -76,8 +78,8 @@ export const PlayerFixtureStats = ({ playerId, playerName }: Props) => {
         {analyses.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">No performance reports found for this player.</p> : (
           <>
             <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-              <TabsList className="mx-3 md:mx-0 grid grid-cols-4 gap-1 mb-4">{METRIC_CATEGORIES.map(cat => <TabsTrigger key={cat.category} value={cat.category} className="text-xs">{cat.category}</TabsTrigger>)}</TabsList>
-              {METRIC_CATEGORIES.map(cat => (
+              <TabsList className="mx-3 md:mx-0 grid gap-1 mb-4" style={{ gridTemplateColumns: `repeat(${posCategories.length}, 1fr)` }}>{posCategories.map(cat => <TabsTrigger key={cat.category} value={cat.category} className="text-xs">{cat.category}</TabsTrigger>)}</TabsList>
+              {posCategories.map(cat => (
                 <TabsContent key={cat.category} value={cat.category} className="mt-0"><div className="overflow-x-auto"><Table>
                   <TableHeader><TableRow><TableHead className="sticky left-0 bg-background z-10 min-w-[120px]">Fixture</TableHead><TableHead className="min-w-[60px] text-center">Mins</TableHead><TableHead className="min-w-[60px] text-center">R90</TableHead>{cat.metrics.map(m => <TableHead key={m.key} className="min-w-[90px] text-center text-xs">{m.label}</TableHead>)}<TableHead className="min-w-[60px]"></TableHead></TableRow></TableHeader>
                   <TableBody>

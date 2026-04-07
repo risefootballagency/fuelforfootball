@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
 import { User, Calendar, MapPin, Trophy, Pencil, Check, X } from "lucide-react";
-import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
+import { METRIC_CATEGORIES, ALL_METRICS, getMetricCategoriesForPosition, getMetricsForPosition } from "@/components/staff/ComparisonPlayerData";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { PitchHeatmap } from "@/components/report/PitchHeatmap";
 import { ZonePerformance } from "@/components/report/ZonePerformance";
@@ -65,8 +65,10 @@ const getStatValue = (analysis: Analysis, key: string): number | null => {
 
 export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
   const lang = usePortalLanguage();
+  const posCategories = getMetricCategoriesForPosition(playerData?.position);
+  const posMetrics = getMetricsForPosition(playerData?.position);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(analyses.map(a => a.id)));
-  const [activeStatCategory, setActiveStatCategory] = useState("Shooting");
+  const [activeStatCategory, setActiveStatCategory] = useState(posCategories[0]?.category || "Shooting");
   const [editingCell, setEditingCell] = useState<{ analysisId: string; metricKey: string } | null>(null);
   const [editValue, setEditValue] = useState("");
   const [seasonZoneActions, setSeasonZoneActions] = useState<Array<{ action_number: number; action_score: number; zone?: number | null; zone_details?: { zone: number; sub?: number }[] | null }>>([]);
@@ -85,8 +87,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
   const selectedAnalyses = analyses.filter(a => selectedIds.has(a.id));
 
   const currentMetrics = useMemo(() => {
-    return METRIC_CATEGORIES.find(c => c.category === activeStatCategory)?.metrics || [];
-  }, [activeStatCategory]);
+    return posCategories.find(c => c.category === activeStatCategory)?.metrics || [];
+  }, [activeStatCategory, posCategories]);
 
   const seasonAverages = useMemo(() => {
     if (selectedAnalyses.length === 0) return {};
@@ -98,7 +100,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     const mins = selectedAnalyses.filter(a => a.minutes_played != null).map(a => a.minutes_played!);
     if (mins.length > 0) result.totalMinutes = mins.reduce((s, v) => s + v, 0);
 
-    ALL_METRICS.forEach(m => {
+    posMetrics.forEach(m => {
       const values = selectedAnalyses
         .map(a => getStatValue(a, m.key))
         .filter((v): v is number => v != null);
@@ -259,7 +261,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
         </div>
 
         {(() => {
-          const availableStats = ALL_METRICS.filter(m => seasonAverages[m.key] != null);
+          const availableStats = posMetrics.filter(m => seasonAverages[m.key] != null);
           if (availableStats.length === 0) return null;
           return (
             <div className="mt-4 pt-4 border-t">
@@ -285,8 +287,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
         </div>
 
         <Tabs value={activeStatCategory} onValueChange={setActiveStatCategory} className="mb-4">
-          <TabsList className="grid grid-cols-4 gap-1">
-             {METRIC_CATEGORIES.map(cat => (
+          <TabsList className={`grid gap-1`} style={{ gridTemplateColumns: `repeat(${posCategories.length}, 1fr)` }}>
+             {posCategories.map(cat => (
               <TabsTrigger key={cat.category} value={cat.category} className="text-xs">
                 {translateMetricCategory(lang, cat.category)}
               </TabsTrigger>

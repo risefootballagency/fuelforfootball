@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Users, BarChart3, Target, Box, Crosshair, ChevronsUpDown, X, UserPlus, ScatterChart } from "lucide-react";
-import { METRIC_CATEGORIES, ALL_METRICS } from "@/components/staff/ComparisonPlayerData";
+import { METRIC_CATEGORIES, ALL_METRICS, getMetricCategoriesForPosition, getMetricsForPosition } from "@/components/staff/ComparisonPlayerData";
 import { GoalTracking } from "@/components/portal/GoalTracking";
 import { ScoutingComparisonMatrix } from "@/components/portal/ScoutingComparisonMatrix";
 import { ScatterComparisonChart } from "@/components/portal/ScatterComparisonChart";
@@ -54,12 +54,14 @@ interface Props {
 
 export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) => {
   const lang = usePortalLanguage();
+  const posCategories = getMetricCategoriesForPosition(playerData?.position);
+  const posMetrics = getMetricsForPosition(playerData?.position);
   const [comparisonPlayers, setComparisonPlayers] = useState<ComparisonPlayer[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [formWindow, setFormWindow] = useState<number>(5);
   const [subTab, setSubTab] = useState<string>("scatter");
   const [fixtureAnalyses, setFixtureAnalyses] = useState<Analysis[]>([]);
-  const [selectedMetricKey, setSelectedMetricKey] = useState<string>('goals_per90');
+  const [selectedMetricKey, setSelectedMetricKey] = useState<string>(posMetrics[0]?.key || 'goals_per90');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState("");
 
@@ -138,7 +140,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
   const portalMetrics = useMemo(() => {
     const windowAnalyses = fixtureAnalyses.slice(0, formWindow);
     const result: Record<string, number | null> = {};
-    ALL_METRICS.forEach(m => {
+    posMetrics.forEach(m => {
       const vals = windowAnalyses
         .map(a => a.fixture_stats?.[m.key])
         .filter((v): v is number => v != null && !isNaN(v));
@@ -149,7 +151,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
 
   const hasPortalData = Object.values(portalMetrics).some(v => v != null);
 
-  const selectedMetric = ALL_METRICS.find(m => m.key === selectedMetricKey);
+  const selectedMetric = posMetrics.find(m => m.key === selectedMetricKey);
   const barData = useMemo(() => {
     if (!selectedMetric) return [];
     const items: { name: string; value: number; colour: string }[] = [];
@@ -273,6 +275,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
             portalMetrics={portalMetrics}
             hasPortalData={hasPortalData}
             comparisonPlayers={comparisonPlayers}
+            position={playerData?.position}
           />
         </TabsContent>
 
@@ -283,7 +286,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
               <RadarChart3D
                 playerName={playerName}
                 metrics={(() => {
-                  const radarMetrics = ALL_METRICS
+                  const radarMetrics = posMetrics
                     .filter(m => portalMetrics[m.key] != null)
                     .slice(0, 8)
                     .map(m => {
@@ -312,7 +315,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
             </p>
           ) : (
             <div className="space-y-6">
-              {METRIC_CATEGORIES.map(cat => {
+              {posCategories.map(cat => {
                 const metricsWithValues = cat.metrics.filter(m => portalMetrics[m.key] != null);
                 if (metricsWithValues.length === 0) return null;
 
@@ -369,7 +372,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                     {METRIC_CATEGORIES.map(cat => (
+                     {posCategories.map(cat => (
                         <div key={cat.category}>
                           <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{translateMetricCategory(lang, cat.category)}</div>
                           {cat.metrics.map(m => (
@@ -420,7 +423,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
               </div>
 
               {/* Comparison Table by Category */}
-              {METRIC_CATEGORIES.map(cat => {
+              {posCategories.map(cat => {
                 const catMetrics = cat.metrics.filter(m =>
                   (hasPortalData && portalMetrics[m.key] != null) ||
                   selectedComps.some(cp => cp.metrics[m.key] != null)
