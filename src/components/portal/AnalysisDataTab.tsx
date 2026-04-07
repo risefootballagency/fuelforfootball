@@ -133,15 +133,16 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
 
   const r90BarData = useMemo(() => {
     return selectedAnalyses
-      .filter(a => a.r90_score != null)
+      .filter(a => getEffectiveR90(a) != null)
       .sort((a, b) => a.analysis_date.localeCompare(b.analysis_date))
       .map(a => {
         const isHiddenOrDraft = ['hidden', 'draft', 'clipped'].includes(String(a.visibility_status || '').toLowerCase());
+        const effectiveScore = getEffectiveR90(a)!;
         return {
           name: isHiddenOrDraft
             ? new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
             : (a.opponent || new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })),
-          r90: Number(a.r90_score.toFixed(2)),
+          r90: Number(effectiveScore.toFixed(2)),
         };
       });
   }, [selectedAnalyses]);
@@ -345,13 +346,17 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
                 </TableCell>
                 <TableCell className="text-sm">{a.minutes_played ?? '-'}</TableCell>
                 <TableCell>
-                  {a.r90_score != null ? (
-                    <span className="font-bold text-sm" style={{ color: getR90Color(a.r90_score) }}>
-                      {a.r90_score.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span className="font-bold text-sm text-zinc-500">?</span>
-                  )}
+                  {(() => {
+                    const effectiveR90 = getEffectiveR90(a);
+                    if (effectiveR90 != null) {
+                      return (
+                        <span className="font-bold text-sm" style={{ color: getR90Color(effectiveR90) }}>
+                          {effectiveR90.toFixed(2)}
+                        </span>
+                      );
+                    }
+                    return <span className="font-bold text-sm text-zinc-500">?</span>;
+                  })()}
                 </TableCell>
                 {currentMetrics.map(m => {
                   const val = getStatValue(a, m.key);
