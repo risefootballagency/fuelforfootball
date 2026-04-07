@@ -68,7 +68,7 @@ interface Analysis {
   explanation?: string | null;
   points?: any[];
   video_url?: string | null;
-  visibility_status?: "draft" | "hidden" | "live" | null;
+  visibility_status?: "draft" | "hidden" | "live" | "clipped" | null;
   estimated_ready_at?: string | null;
   created_at: string;
   player_name?: string | null;
