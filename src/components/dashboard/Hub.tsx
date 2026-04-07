@@ -876,20 +876,27 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
             </CardHeader>
             <CardContent className="container mx-auto px-4 pt-3 pb-2">
               <div className="space-y-3">
-                {recentAnalyses.map((analysis) => (
+                {recentAnalyses.map((analysis) => {
+                  const isFutureGame = new Date(analysis.analysis_date) > new Date();
+                  return (
                   <button
                     key={analysis.id}
                     onClick={() => {
-                      setSelectedReportId(analysis.id);
-                      setReportDialogOpen(true);
+                      if (!isFutureGame) {
+                        setSelectedReportId(analysis.id);
+                        setReportDialogOpen(true);
+                      }
                     }}
-                    className="w-full text-left block border-l-2 border-accent pl-3 pt-0 pb-2 hover:bg-accent/5 transition-colors rounded"
+                    className={`w-full text-left block border-l-2 pl-3 pt-0 pb-2 hover:bg-accent/5 transition-colors rounded ${
+                      isFutureGame ? 'border-[hsl(140,50%,55%)]' : 'border-accent'
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <div className="font-medium text-sm">{analysis.opponent}</div>
                         <div className="text-xs text-muted-foreground">
                           {format(new Date(analysis.analysis_date), "MMM dd, yyyy")}
+                          {isFutureGame && <span className="ml-1 text-[hsl(140,50%,55%)] font-medium">· Upcoming</span>}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
