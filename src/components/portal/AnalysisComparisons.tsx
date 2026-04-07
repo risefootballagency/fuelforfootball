@@ -54,12 +54,14 @@ interface Props {
 
 export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) => {
   const lang = usePortalLanguage();
+  const posCategories = getMetricCategoriesForPosition(playerData?.position);
+  const posMetrics = getMetricsForPosition(playerData?.position);
   const [comparisonPlayers, setComparisonPlayers] = useState<ComparisonPlayer[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
   const [formWindow, setFormWindow] = useState<number>(5);
   const [subTab, setSubTab] = useState<string>("scatter");
   const [fixtureAnalyses, setFixtureAnalyses] = useState<Analysis[]>([]);
-  const [selectedMetricKey, setSelectedMetricKey] = useState<string>('goals_per90');
+  const [selectedMetricKey, setSelectedMetricKey] = useState<string>(posMetrics[0]?.key || 'goals_per90');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState("");
 
