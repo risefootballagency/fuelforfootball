@@ -496,7 +496,10 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   const getEffectiveR90 = (a: PlayerAnalysis): number | null => {
     const status = String(a.visibility_status || "").toLowerCase();
     if (status === "draft" || status === "clipped") return null;
-    // For hidden reports, the r90_score on player_analysis IS the hidden score
+    if (status === "hidden" && a.placeholder_raw_score != null && a.placeholder_minutes) {
+      return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
+    }
+    if (status === "hidden") return null; // hidden with no placeholder data
     return a.r90_score;
   };
 
