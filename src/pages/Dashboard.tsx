@@ -89,8 +89,10 @@ interface Analysis {
   analysis_writer_id?: string | null;
   analysis_writer_data?: any;
   striker_stats?: any;
+  fixture_stats?: Record<string, number>;
   fixture_id?: string | null;
   tagged_analyses?: any[];
+  visibility_status?: string;
 }
 
 interface PlayerProgram {
