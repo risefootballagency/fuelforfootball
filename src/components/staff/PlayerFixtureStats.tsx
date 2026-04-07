@@ -7,17 +7,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
-import { METRIC_CATEGORIES, ALL_METRICS } from "./ComparisonPlayerData";
+import { METRIC_CATEGORIES, ALL_METRICS, getMetricCategoriesForPosition, getMetricsForPosition } from "./ComparisonPlayerData";
 
 interface FixtureAnalysis { id: string; analysis_date: string; opponent: string | null; minutes_played: number | null; r90_score: number | null; fixture_stats: Record<string, number>; }
-interface Props { playerId: string; playerName: string; isAdmin?: boolean; }
+interface Props { playerId: string; playerName: string; isAdmin?: boolean; position?: string; }
 
-export const PlayerFixtureStats = ({ playerId, playerName }: Props) => {
+export const PlayerFixtureStats = ({ playerId, playerName, position }: Props) => {
+  const posCategories = getMetricCategoriesForPosition(position);
+  const posMetrics = getMetricsForPosition(position);
   const [analyses, setAnalyses] = useState<FixtureAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [editedStats, setEditedStats] = useState<Record<string, Record<string, number>>>({});
-  const [activeCategory, setActiveCategory] = useState("Shooting");
+  const [activeCategory, setActiveCategory] = useState(posCategories[0]?.category || "Shooting");
 
   useEffect(() => { fetchAnalyses(); }, [playerId]);
 
