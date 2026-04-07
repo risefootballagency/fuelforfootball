@@ -261,7 +261,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
         </div>
 
         {(() => {
-          const availableStats = ALL_METRICS.filter(m => seasonAverages[m.key] != null);
+          const availableStats = posMetrics.filter(m => seasonAverages[m.key] != null);
           if (availableStats.length === 0) return null;
           return (
             <div className="mt-4 pt-4 border-t">
@@ -287,8 +287,8 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
         </div>
 
         <Tabs value={activeStatCategory} onValueChange={setActiveStatCategory} className="mb-4">
-          <TabsList className="grid grid-cols-4 gap-1">
-             {METRIC_CATEGORIES.map(cat => (
+          <TabsList className={`grid gap-1`} style={{ gridTemplateColumns: `repeat(${posCategories.length}, 1fr)` }}>
+             {posCategories.map(cat => (
               <TabsTrigger key={cat.category} value={cat.category} className="text-xs">
                 {translateMetricCategory(lang, cat.category)}
               </TabsTrigger>
