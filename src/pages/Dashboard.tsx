@@ -2794,7 +2794,7 @@ const Dashboard = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="container mx-auto px-4">
-                      <AnalysisDataTab analyses={analyses.filter(a => !a.id.startsWith('tactical-') && a.r90_score != null)} playerData={playerData} />
+                      <AnalysisDataTab analyses={analyses.filter(a => !a.id.startsWith('tactical-') && (a.r90_score != null || (a as any).placeholder_raw_score != null))} playerData={playerData} />
                     </CardContent>
                   </Card>
                 </TabsContent>
