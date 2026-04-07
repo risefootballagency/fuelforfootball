@@ -107,7 +107,7 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
     if (selectedAnalyses.length === 0) return {};
     const result: Record<string, number> = {};
 
-    const r90Values = selectedAnalyses.filter(a => a.r90_score != null).map(a => a.r90_score);
+    const r90Values = selectedAnalyses.map(a => getEffectiveR90(a)).filter((v): v is number => v != null);
     if (r90Values.length > 0) result.r90 = r90Values.reduce((s, v) => s + v, 0) / r90Values.length;
 
     const mins = selectedAnalyses.filter(a => a.minutes_played != null).map(a => a.minutes_played!);
