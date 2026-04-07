@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { METRIC_CATEGORIES } from "./ComparisonPlayerData";
+import { METRIC_CATEGORIES, GK_METRIC_CATEGORIES, getMetricCategoriesForPosition } from "./ComparisonPlayerData";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
@@ -62,10 +62,12 @@ interface FixtureStatsEditorProps {
   actions?: PerformanceActionForAI[];
   previousFixtureStats?: Record<string, number>;
   onAddToMatchStats?: (fixtureKey: string, label: string, value: number) => void;
+  position?: string;
 }
 
-export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previousFixtureStats, onAddToMatchStats }: FixtureStatsEditorProps) => {
-  const [activeCategory, setActiveCategory] = useState("Shooting");
+export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previousFixtureStats, onAddToMatchStats, position }: FixtureStatsEditorProps) => {
+  const categories = getMetricCategoriesForPosition(position);
+  const [activeCategory, setActiveCategory] = useState(categories[0]?.category || "Shooting");
   const [aiSuggestions, setAiSuggestions] = useState<Record<string, AISuggestion>>({});
   const [aiLoading, setAiLoading] = useState(false);
   const [urlInput, setUrlInput] = useState("");
@@ -106,7 +108,7 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
 
     setAiLoading(true);
     try {
-      const allMetrics = METRIC_CATEGORIES.flatMap(cat =>
+      const allMetrics = categories.flatMap(cat =>
         cat.metrics.map(m => ({ key: m.key, label: m.label }))
       );
 
@@ -273,15 +275,15 @@ export const FixtureStatsEditor = ({ fixtureStats, onStatsChange, actions, previ
       )}
 
       <Tabs value={activeCategory} onValueChange={setActiveCategory}>
-        <TabsList className="grid grid-cols-4 gap-1">
-          {METRIC_CATEGORIES.map(cat => (
+        <TabsList className={`grid gap-1`} style={{ gridTemplateColumns: `repeat(${categories.length}, 1fr)` }}>
+          {categories.map(cat => (
             <TabsTrigger key={cat.category} value={cat.category} className="text-xs">
               {cat.category}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {METRIC_CATEGORIES.map(cat => (
+        {categories.map(cat => (
           <TabsContent key={cat.category} value={cat.category} className="mt-3">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {cat.metrics.map(m => {
