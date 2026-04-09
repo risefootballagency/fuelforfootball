@@ -149,12 +149,12 @@ export const AnalysisDataTab = ({ analyses, playerData, embedded }: Props) => {
       .sort((a, b) => a.analysis_date.localeCompare(b.analysis_date))
       .map(a => {
         const isHiddenOrDraft = ['hidden', 'draft', 'clipped'].includes(String(a.visibility_status || '').toLowerCase());
-        const effectiveScore = getEffectiveR90(a)!;
+        const effectiveScore = getEffectiveR90(a);
         return {
           name: isHiddenOrDraft
             ? new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
             : (a.opponent || new Date(a.analysis_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })),
-          r90: Number(effectiveScore.toFixed(2)),
+          r90: effectiveScore != null ? Number(effectiveScore.toFixed(2)) : 0,
         };
       });
   }, [selectedAnalyses]);
