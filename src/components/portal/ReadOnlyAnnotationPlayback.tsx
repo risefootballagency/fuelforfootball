@@ -2,6 +2,7 @@ import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { computeVisibleElements, type ComputedAnnotationElement } from "@/lib/annotationRenderUtils";
 import type { AnnotationElement } from "@/components/staff/annotations/AnnotationProjects";
 import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 
 /**
  * Shared read-only annotation playback component.
@@ -14,6 +15,7 @@ interface Props {
   preloadedElements?: AnnotationElement[];
   className?: string;
   disableFreeze?: boolean;
+  visibilityTargetRef?: React.RefObject<HTMLElement>;
 }
 
 function parseClipFragment(url: string): { cleanUrl: string; clipStart: number; clipEnd: number | null } {
@@ -51,7 +53,16 @@ const extractAnnotationElements = (klips: unknown): AnnotationElement[] => {
   return (klips as any[]).flatMap((klip: any) => (Array.isArray(klip?.elements) ? klip.elements : []));
 };
 
-export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, preloadedElements, className = "", disableFreeze = false }: Props) => {
+let currentlyPlayingReadOnlyVideo: HTMLVideoElement | null = null;
+
+export const ReadOnlyAnnotationPlayback = ({
+  videoUrl,
+  annotationProjectId,
+  preloadedElements,
+  className = "",
+  disableFreeze = false,
+  visibilityTargetRef,
+}: Props) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [elements, setElements] = useState<AnnotationElement[]>([]);
@@ -76,12 +87,41 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
   // Auto-play when scrolling into view, pause when scrolling away
   useEffect(() => {
     const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
+    const observerTarget = visibilityTargetRef?.current ?? containerRef.current;
+    if (!video) return;
+
+    const handlePlay = () => {
+      if (currentlyPlayingReadOnlyVideo && currentlyPlayingReadOnlyVideo !== video) {
+        currentlyPlayingReadOnlyVideo.pause();
+      }
+      currentlyPlayingReadOnlyVideo = video;
+    };
+
+    const handleStop = () => {
+      if (currentlyPlayingReadOnlyVideo === video) {
+        currentlyPlayingReadOnlyVideo = null;
+      }
+    };
+
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handleStop);
+    video.addEventListener('ended', handleStop);
+
+    if (!observerTarget) {
+      return () => {
+        video.removeEventListener('play', handlePlay);
+        video.removeEventListener('pause', handleStop);
+        video.removeEventListener('ended', handleStop);
+        if (currentlyPlayingReadOnlyVideo === video) currentlyPlayingReadOnlyVideo = null;
+      };
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          if (currentlyPlayingReadOnlyVideo && currentlyPlayingReadOnlyVideo !== video) {
+            currentlyPlayingReadOnlyVideo.pause();
+          }
           video.play().catch(() => {});
         } else {
           video.pause();
@@ -90,9 +130,15 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
       { threshold: 0.3 }
     );
 
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, []);
+    observer.observe(observerTarget);
+    return () => {
+      observer.disconnect();
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handleStop);
+      video.removeEventListener('ended', handleStop);
+      if (currentlyPlayingReadOnlyVideo === video) currentlyPlayingReadOnlyVideo = null;
+    };
+  }, [visibilityTargetRef]);
 
   // Load annotation project
   useEffect(() => {
@@ -100,15 +146,41 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
       setElements(preloadedElements);
       return;
     }
-    if (!annotationProjectId) { setElements([]); return; }
-    supabase
-      .from("annotation_projects")
-      .select("klips")
-      .eq("id", annotationProjectId)
-      .maybeSingle()
-      .then(({ data }) => {
-        setElements(extractAnnotationElements(data?.klips));
-      });
+
+    if (!annotationProjectId) {
+      setElements([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadFromClient = async (client: typeof supabase) => {
+      try {
+        const { data } = await client
+          .from("annotation_projects")
+          .select("klips")
+          .eq("id", annotationProjectId)
+          .maybeSingle();
+
+        return extractAnnotationElements(data?.klips);
+      } catch {
+        return [];
+      }
+    };
+
+    Promise.allSettled([
+      loadFromClient(sharedSupabase),
+      loadFromClient(supabase),
+    ]).then(([sharedResult, localResult]) => {
+      if (cancelled) return;
+      const sharedEls = sharedResult.status === 'fulfilled' ? sharedResult.value : [];
+      const localEls = localResult.status === 'fulfilled' ? localResult.value : [];
+      setElements(sharedEls.length > 0 ? sharedEls : localEls);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [annotationProjectId, preloadedElements]);
 
   useEffect(() => {
