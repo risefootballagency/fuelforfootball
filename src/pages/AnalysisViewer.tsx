@@ -1014,7 +1014,12 @@ const AnnotatedPointVideo = ({
     <div ref={videoContainerRef} className="relative overflow-hidden rounded-lg border-2 shadow-md" style={{ borderColor: BRAND.cardBorder }}>
       <div style={hasCrop ? { overflow: 'hidden' } : undefined}>
         <div style={cropShiftStyle}>
-          <ReadOnlyAnnotationPlayback videoUrl={url} annotationProjectId={annotationId} disableFreeze />
+          <ReadOnlyAnnotationPlayback
+            videoUrl={url}
+            annotationProjectId={annotationId}
+            disableFreeze
+            visibilityTargetRef={videoContainerRef}
+          />
         </div>
       </div>
       {audioUrl && (
