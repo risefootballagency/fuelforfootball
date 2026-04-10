@@ -1,8 +1,7 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { computeVisibleElements, type ComputedAnnotationElement } from "@/lib/annotationRenderUtils";
 import type { AnnotationElement } from "@/components/staff/annotations/AnnotationProjects";
-import { supabase as localSupabase } from "@/integrations/supabase/client";
-import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Shared read-only annotation playback component.
@@ -101,35 +100,15 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
       setElements(preloadedElements);
       return;
     }
-
-    if (!annotationProjectId) {
-      setElements([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadFromClient = async (client: typeof localSupabase) => {
-      const { data } = await client
-        .from("annotation_projects")
-        .select("klips")
-        .eq("id", annotationProjectId)
-        .maybeSingle();
-
-      return extractAnnotationElements(data?.klips);
-    };
-
-    Promise.all([
-      loadFromClient(sharedSupabase),
-      loadFromClient(localSupabase),
-    ]).then(([sharedEls, localEls]) => {
-      if (cancelled) return;
-      setElements(sharedEls.length > 0 ? sharedEls : localEls);
-    });
-
-    return () => {
-      cancelled = true;
-    };
+    if (!annotationProjectId) { setElements([]); return; }
+    supabase
+      .from("annotation_projects")
+      .select("klips")
+      .eq("id", annotationProjectId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setElements(extractAnnotationElements(data?.klips));
+      });
   }, [annotationProjectId, preloadedElements]);
 
   useEffect(() => {
@@ -257,6 +236,8 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
         });
 
         if (newElements.length > 0) {
+          // Gate by the latest logical trigger point in the current visible batch,
+          // not just the paused playhead time.
           lastFreezeTriggerTimeRef.current = Math.max(relTime, ...computed.map(el => el.appearAt));
           newElements.forEach(el => triggeredTimesRef.current.add(el.id));
           startFreezeRef.current(computed, video);
@@ -273,7 +254,7 @@ export const ReadOnlyAnnotationPlayback = ({ videoUrl, annotationProjectId, prel
     return () => {
       cancelAnimationFrame(rafRef.current);
     };
-  }, [elements, clipStart]);
+  }, [elements, clipStart, disableFreeze]);
 
   // Cleanup timers on unmount
   useEffect(() => {
