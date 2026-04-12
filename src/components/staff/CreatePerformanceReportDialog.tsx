@@ -176,6 +176,8 @@ export const CreatePerformanceReportDialog = ({
   const [showStrikerStats, setShowStrikerStats] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [playerClub, setPlayerClub] = useState<string>("");
+  const [clubLogoUrl, setClubLogoUrl] = useState<string>("");
+  const [oppositionColor, setOppositionColor] = useState<string>("");
   const [playerPosition, setPlayerPosition] = useState<string>("");
   const [availableStats, setAvailableStats] = useState<Array<{id: string; stat_name: string; stat_key: string; description: string | null}>>([]);
   const [selectedStatKeys, setSelectedStatKeys] = useState<string[]>([]);
@@ -633,12 +635,13 @@ export const CreatePerformanceReportDialog = ({
     try {
       const { data, error } = await supabase
         .from("players")
-        .select("club, position")
+        .select("club, position, club_logo")
         .eq("id", playerId)
         .single();
 
       if (error) throw error;
       setPlayerClub(data?.club || "");
+      if (data?.club_logo && !clubLogoUrl) setClubLogoUrl(data.club_logo);
       setPlayerPosition(data?.position || "");
       
       // Fetch all stats for the add dialog
@@ -790,6 +793,8 @@ export const CreatePerformanceReportDialog = ({
       setPlaceholderPer((analysisData as any).placeholder_per?.toString() || "");
       setPlaceholderSr((analysisData as any).placeholder_sr?.toString() || "");
       setFixtureStats((analysisData.fixture_stats as Record<string, number>) || {});
+      setClubLogoUrl((analysisData as any).club_logo_url || "");
+      setOppositionColor((analysisData as any).opposition_color || "");
       
       // Re-derive opponent from fixture data to reflect any changes to fixture
       // (fixture team names may have been edited since report was saved)
@@ -1334,6 +1339,8 @@ export const CreatePerformanceReportDialog = ({
             placeholder_minutes: visibilityStatus === "hidden" && placeholderMinutes ? parseInt(placeholderMinutes) : null,
             placeholder_per: visibilityStatus === "hidden" && placeholderPer ? parseFloat(placeholderPer) : null,
             placeholder_sr: visibilityStatus === "hidden" && placeholderSr ? parseFloat(placeholderSr) : null,
+            club_logo_url: clubLogoUrl || null,
+            opposition_color: oppositionColor || null,
           } as any)
           .eq("id", analysisId);
 
@@ -1400,6 +1407,8 @@ export const CreatePerformanceReportDialog = ({
             placeholder_minutes: visibilityStatus === "hidden" && placeholderMinutes ? parseInt(placeholderMinutes) : null,
             placeholder_per: visibilityStatus === "hidden" && placeholderPer ? parseFloat(placeholderPer) : null,
             placeholder_sr: visibilityStatus === "hidden" && placeholderSr ? parseFloat(placeholderSr) : null,
+            club_logo_url: clubLogoUrl || null,
+            opposition_color: oppositionColor || null,
           } as any)
           .select()
           .single();
