@@ -48,3 +48,53 @@ export const getPlaybackMode = (action: {
   if (isStandaloneTrimmedClip(action.video_url)) return 'standalone';
   return 'blocked';
 };
+
+/**
+ * Structured playback instruction for any component that needs to play a clip.
+ */
+export type PlaybackInstruction =
+  | { mode: 'standalone'; src: string }
+  | { mode: 'clipped'; src: string; clipStart: number; clipEnd: number }
+  | { mode: 'blocked' };
+
+export const getPlaybackInstruction = (action: {
+  video_url?: string | null;
+  clip_start?: number | null;
+  clip_end?: number | null;
+}): PlaybackInstruction => {
+  if (!action.video_url) return { mode: 'blocked' };
+
+  if (isStandaloneTrimmedClip(action.video_url)) {
+    return { mode: 'standalone', src: action.video_url };
+  }
+
+  const hasBounds = action.clip_start != null && action.clip_end != null
+    && action.clip_end > action.clip_start;
+  if (hasBounds) {
+    return { mode: 'clipped', src: action.video_url, clipStart: action.clip_start!, clipEnd: action.clip_end! };
+  }
+
+  if (isFullMatchUrl(action.video_url)) return { mode: 'blocked' };
+
+  return { mode: 'standalone', src: action.video_url };
+};
+
+/**
+ * Resolve the correct playback URL for edit-mode components.
+ * @deprecated Use getPlaybackInstruction instead for strict boundary enforcement
+ */
+export const getEditPlaybackUrl = (action: {
+  video_url?: string | null;
+  clip_start?: number | null;
+  clip_end?: number | null;
+}): string | null => {
+  if (!action.video_url) return null;
+  if (isStandaloneTrimmedClip(action.video_url)) return action.video_url;
+  const hasBounds = action.clip_start != null && action.clip_end != null
+    && action.clip_end > action.clip_start;
+  if (hasBounds && isFullMatchUrl(action.video_url)) {
+    return `${action.video_url}#t=${action.clip_start},${action.clip_end}`;
+  }
+  if (isFullMatchUrl(action.video_url)) return null;
+  return action.video_url;
+};
