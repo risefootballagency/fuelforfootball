@@ -5,6 +5,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { t } from '@/lib/portalTranslations';
 import { useSharedClipPlayer, type SharedClipPlayerState } from '@/hooks/useSharedClipPlayer';
 import { toast } from 'sonner';
+import { ReadOnlyAnnotationOverlay } from '@/components/portal/ReadOnlyAnnotationOverlay';
 
 interface ActionVideoPopupProps {
   open: boolean;
@@ -14,6 +15,7 @@ interface ActionVideoPopupProps {
   language?: string;
   clipStart?: number | null;
   clipEnd?: number | null;
+  annotations?: any[] | null;
   player?: SharedClipPlayerState;
 }
 
@@ -25,6 +27,7 @@ export const ActionVideoPopup = ({
   language = 'en',
   clipStart,
   clipEnd,
+  annotations,
   player: providedPlayer,
 }: ActionVideoPopupProps) => {
   const localPlayer = useSharedClipPlayer();
@@ -198,6 +201,13 @@ export const ActionVideoPopup = ({
                 </div>
               )}
             </>
+          )}
+          {annotations && annotations.length > 0 && (
+            <ReadOnlyAnnotationOverlay
+              elements={annotations}
+              videoRef={(hasClipWindow ? player.videoRef : standaloneVideoRef) as React.RefObject<HTMLVideoElement>}
+              clipStart={hasClipWindow ? (clipStart ?? 0) : 0}
+            />
           )}
         </div>
       </DialogContent>

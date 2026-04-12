@@ -7,6 +7,13 @@ interface Props {
   clipStart?: number;
 }
 
+interface OverlayBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 const getDashArray = (pattern?: string, sw?: number): string | undefined => {
   const w = sw || 3;
   switch (pattern) {
@@ -31,7 +38,86 @@ const getContrastColor = (hex: string): string => {
  *  Rendering now matches AnnotationCanvas / ReadOnlyAnnotationPlayback exactly. */
 export const ReadOnlyAnnotationOverlay = ({ elements, videoRef, clipStart = 0 }: Props) => {
   const [visibleEls, setVisibleEls] = useState<ComputedAnnotationElement[]>([]);
+  const [overlayBox, setOverlayBox] = useState<OverlayBox | null>(null);
   const rafRef = useRef<number>(0);
+
+  const updateOverlayBox = useRef(() => {
+    const video = videoRef.current;
+    const container = video?.parentElement as HTMLElement | null;
+
+    if (!video || !container) {
+      setOverlayBox(null);
+      return;
+    }
+
+    const videoRect = video.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    if (videoRect.width <= 0 || videoRect.height <= 0 || containerRect.width <= 0 || containerRect.height <= 0) {
+      setOverlayBox(null);
+      return;
+    }
+
+    const nextBox = {
+      left: Math.max(0, videoRect.left - containerRect.left),
+      top: Math.max(0, videoRect.top - containerRect.top),
+      width: videoRect.width,
+      height: videoRect.height,
+    };
+
+    setOverlayBox((current) => {
+      if (
+        current &&
+        Math.abs(current.left - nextBox.left) < 0.5 &&
+        Math.abs(current.top - nextBox.top) < 0.5 &&
+        Math.abs(current.width - nextBox.width) < 0.5 &&
+        Math.abs(current.height - nextBox.height) < 0.5
+      ) {
+        return current;
+      }
+
+      return nextBox;
+    });
+  });
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const container = video?.parentElement as HTMLElement | null;
+
+    if (!video || !container) return;
+
+    const scheduleUpdate = () => {
+      requestAnimationFrame(updateOverlayBox.current);
+    };
+
+    scheduleUpdate();
+
+    const resizeObserver = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(scheduleUpdate)
+      : null;
+
+    resizeObserver?.observe(container);
+    resizeObserver?.observe(video);
+
+    const videoEvents: Array<keyof HTMLMediaElementEventMap> = [
+      "loadedmetadata",
+      "loadeddata",
+      "canplay",
+      "play",
+      "pause",
+    ];
+
+    videoEvents.forEach((eventName) => video.addEventListener(eventName, scheduleUpdate));
+    window.addEventListener("resize", scheduleUpdate);
+    document.addEventListener("fullscreenchange", scheduleUpdate);
+
+    return () => {
+      resizeObserver?.disconnect();
+      videoEvents.forEach((eventName) => video.removeEventListener(eventName, scheduleUpdate));
+      window.removeEventListener("resize", scheduleUpdate);
+      document.removeEventListener("fullscreenchange", scheduleUpdate);
+    };
+  }, [videoRef]);
 
   useEffect(() => {
     if (!elements || elements.length === 0) return;
@@ -41,7 +127,8 @@ export const ReadOnlyAnnotationOverlay = ({ elements, videoRef, clipStart = 0 }:
     const tick = () => {
       const time = video.currentTime;
       const clipStartTime = (video as any).__clipStartTime;
-      const relTime = clipStart + (time - (clipStartTime != null ? clipStartTime : time));
+      const effectiveClipStart = clipStartTime != null ? clipStartTime : clipStart;
+      const relTime = Math.max(0, time - effectiveClipStart);
       const visible = computeVisibleElements(elements, relTime, { forceOpacity: 1 });
       setVisibleEls(visible);
       rafRef.current = requestAnimationFrame(tick);
@@ -51,7 +138,14 @@ export const ReadOnlyAnnotationOverlay = ({ elements, videoRef, clipStart = 0 }:
     return () => cancelAnimationFrame(rafRef.current);
   }, [elements, videoRef, clipStart]);
 
-  if (visibleEls.length === 0) return null;
+  if (visibleEls.length === 0 || !overlayBox) return null;
+
+  const overlayStyle = {
+    left: `${overlayBox.left}px`,
+    top: `${overlayBox.top}px`,
+    width: `${overlayBox.width}px`,
+    height: `${overlayBox.height}px`,
+  };
 
   const renderElement = (el: ComputedAnnotationElement) => {
     const x = el.computedX;
@@ -454,13 +548,10 @@ export const ReadOnlyAnnotationOverlay = ({ elements, videoRef, clipStart = 0 }:
   };
 
   return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      style={{ objectFit: 'fill' }}
-    >
-      {visibleEls.map(renderElement)}
-    </svg>
+    <div className="absolute pointer-events-none" style={overlayStyle}>
+      <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {visibleEls.map(renderElement)}
+      </svg>
+    </div>
   );
 };

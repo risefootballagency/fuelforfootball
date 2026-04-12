@@ -8,6 +8,7 @@ import { useSharedClipPlayer, type SharedClipPlayerState } from '@/hooks/useShar
 import { toast } from 'sonner';
 import { toTitleCase } from '@/lib/titleCase';
 import { isFullMatchUrl } from '@/lib/clipVideoUtils';
+import { ReadOnlyAnnotationOverlay } from '@/components/portal/ReadOnlyAnnotationOverlay';
 
 interface ClipAction {
   id: string;
@@ -19,6 +20,7 @@ interface ClipAction {
   notes?: string | null;
   clip_start?: number | null;
   clip_end?: number | null;
+  clip_annotations?: any[] | null;
 }
 
 interface ClippedActionsPlayerProps {
@@ -60,6 +62,7 @@ export const ClippedActionsPlayer = ({
   const touchStartY = useRef(0);
   const [showClipList, setShowClipList] = useState(true);
   const clipListRef = useRef<HTMLDivElement>(null);
+  const standaloneVideoRef = useRef<HTMLVideoElement>(null);
 
   const localPlayer = useSharedClipPlayer();
   const player = providedPlayer ?? localPlayer;
@@ -228,6 +231,7 @@ export const ClippedActionsPlayer = ({
         <div className="flex-1 relative flex items-center justify-center bg-black min-h-0">
           {isStandaloneClip && (
             <video
+              ref={standaloneVideoRef}
               key={currentClip.id}
               src={currentClip.video_url}
               className="w-full h-full object-contain cursor-pointer"
@@ -264,6 +268,13 @@ export const ClippedActionsPlayer = ({
                 </div>
               )}
             </>
+          )}
+          {currentClip.clip_annotations && currentClip.clip_annotations.length > 0 && (
+            <ReadOnlyAnnotationOverlay
+              elements={currentClip.clip_annotations}
+              videoRef={(hasTimeRange ? player.videoRef : standaloneVideoRef) as React.RefObject<HTMLVideoElement>}
+              clipStart={hasTimeRange ? (currentClip.clip_start ?? 0) : 0}
+            />
           )}
           {/* Description overlay */}
           <div className="absolute bottom-4 left-4 right-4 bg-black/70 text-white text-xs px-3 py-2 rounded max-w-[80%]">
