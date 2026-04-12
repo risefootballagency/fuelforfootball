@@ -2471,6 +2471,22 @@ export const CreatePerformanceReportDialog = ({
                 <Plus className="h-4 w-4 mr-2" />
                 Add Action
               </Button>
+              {/* Club Logo & Opposition Color */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Club Logo URL</Label>
+                  <Input value={clubLogoUrl} onChange={(e) => setClubLogoUrl(e.target.value)} placeholder="Auto from player" className="text-xs" />
+                  {clubLogoUrl && <img src={clubLogoUrl} alt="" className="h-6 w-6 object-contain" />}
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Opposition Colour</Label>
+                  <div className="flex gap-2">
+                    <Input value={oppositionColor} onChange={(e) => setOppositionColor(e.target.value)} placeholder="#FF0000" className="text-xs flex-1" />
+                    <input type="color" value={oppositionColor || "#000000"} onChange={(e) => setOppositionColor(e.target.value)} className="w-8 h-8 rounded border cursor-pointer" />
+                  </div>
+                </div>
+              </div>
+
               <VisibilityStatusButton
                 value={visibilityStatus}
                 onChange={setVisibilityStatus}
