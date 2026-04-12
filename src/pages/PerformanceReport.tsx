@@ -46,6 +46,9 @@ interface PerformanceAction {
   action_description: string;
   notes: string | null;
   video_url?: string | null;
+  clip_start?: number | null;
+  clip_end?: number | null;
+  clip_annotations?: any[] | null;
   zone?: number | null;
   zone_details?: any[] | null;
 }
@@ -87,6 +90,7 @@ const PerformanceReport = () => {
   // Video/player states
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
+  const [selectedVideoAction, setSelectedVideoAction] = useState<PerformanceAction | null>(null);
   const [showR90Flow, setShowR90Flow] = useState(false);
   const [showR90Info, setShowR90Info] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
@@ -800,7 +804,7 @@ const PerformanceReport = () => {
                           <span className={`text-xs font-bold ${getActionScoreColor(action.action_score)}`}>{action.action_score?.toFixed(3)}</span>
                         </div>
                         {action.video_url && (
-                          <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }} className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0">
+                          <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); setSelectedVideoAction(action); }} className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0">
                             <Video className="h-3.5 w-3.5" />
                           </button>
                         )}
@@ -839,7 +843,7 @@ const PerformanceReport = () => {
                           <td className={`py-2 px-2 text-right ${getActionScoreColor(action.action_score)}`}>{action.action_score?.toFixed(5)}</td>
                           <td className="py-2 px-2 text-center">
                             {action.video_url ? (
-                              <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); }} className="text-accent hover:text-accent/80 p-1">
+                              <button onClick={() => { setSelectedVideoUrl(action.video_url!); setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`); setSelectedVideoAction(action); }} className="text-accent hover:text-accent/80 p-1">
                                 <Video className="h-4 w-4" />
                               </button>
                             ) : <span className="text-muted-foreground">-</span>}
@@ -863,9 +867,12 @@ const PerformanceReport = () => {
       {selectedVideoUrl && (
         <ActionVideoPopup
           open={!!selectedVideoUrl}
-          onOpenChange={(open) => { if (!open) { setSelectedVideoUrl(null); setSelectedVideoTitle(""); } }}
+          onOpenChange={(open) => { if (!open) { setSelectedVideoUrl(null); setSelectedVideoTitle(""); setSelectedVideoAction(null); } }}
           videoUrl={selectedVideoUrl}
           actionTitle={selectedVideoTitle}
+          clipStart={selectedVideoAction?.clip_start ?? null}
+          clipEnd={selectedVideoAction?.clip_end ?? null}
+          annotations={selectedVideoAction?.clip_annotations ?? null}
         />
       )}
 
@@ -873,7 +880,7 @@ const PerformanceReport = () => {
       <ClippedActionsPlayer
         open={showClippedActions}
         onOpenChange={setShowClippedActions}
-        clips={actions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
+        clips={actions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, video_url: a.video_url!, minute: a.minute, notes: a.notes, clip_start: a.clip_start, clip_end: a.clip_end, clip_annotations: a.clip_annotations }))}
         language={reportLanguage}
       />
 
@@ -883,7 +890,7 @@ const PerformanceReport = () => {
         onOpenChange={setShowRankedPlayer}
         mode={rankedMode}
         language={reportLanguage}
-        clips={actions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, action_score: a.action_score, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
+        clips={actions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, action_score: a.action_score, video_url: a.video_url!, minute: a.minute, notes: a.notes, clip_start: a.clip_start, clip_end: a.clip_end, clip_annotations: a.clip_annotations }))}
       />
 
       {/* Filtered Video Player */}
@@ -892,7 +899,7 @@ const PerformanceReport = () => {
         onOpenChange={setShowFilteredPlayer}
         mode="chronological"
         language={reportLanguage}
-        clips={filteredActions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, action_score: a.action_score, video_url: a.video_url!, minute: a.minute, notes: a.notes }))}
+        clips={filteredActions.filter(a => a.video_url).map(a => ({ id: a.id, action_number: a.action_number, action_type: a.action_type, action_description: a.action_description, action_score: a.action_score, video_url: a.video_url!, minute: a.minute, notes: a.notes, clip_start: a.clip_start, clip_end: a.clip_end, clip_annotations: a.clip_annotations }))}
       />
 
       {/* R90 Info Dialog */}

@@ -279,6 +279,7 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
             <ReadOnlyAnnotationOverlay
               elements={current.clip_annotations}
               videoRef={(hasTimeRange ? player.videoRef : standaloneVideoRef) as React.RefObject<HTMLVideoElement>}
+              clipStart={hasTimeRange ? (current.clip_start ?? 0) : 0}
             />
           )}
         </div>

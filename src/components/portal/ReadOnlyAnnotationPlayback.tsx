@@ -18,6 +18,13 @@ interface Props {
   visibilityTargetRef?: React.RefObject<HTMLElement>;
 }
 
+interface OverlayBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 function parseClipFragment(url: string): { cleanUrl: string; clipStart: number; clipEnd: number | null } {
   const match = url.match(/#t=([\d.]+)(?:,([\d.]+))?$/);
   if (!match) return { cleanUrl: url, clipStart: 0, clipEnd: null };
@@ -70,6 +77,7 @@ export const ReadOnlyAnnotationPlayback = ({
   const [freezeActive, setFreezeActive] = useState(false);
   const [freezeFrameUrl, setFreezeFrameUrl] = useState<string | null>(null);
   const [freezePhase, setFreezePhase] = useState<'idle' | 'showing' | 'fading'>('idle');
+  const [overlayBox, setOverlayBox] = useState<OverlayBox | null>(null);
 
   // Use refs to avoid RAF dependency on state
   const freezeActiveRef = useRef(false);
@@ -83,6 +91,84 @@ export const ReadOnlyAnnotationPlayback = ({
   const internalLoopRef = useRef(false);
 
   const { cleanUrl, clipStart, clipEnd } = useMemo(() => parseClipFragment(videoUrl), [videoUrl]);
+
+  const updateOverlayBox = useCallback(() => {
+    const video = videoRef.current;
+    const container = containerRef.current;
+
+    if (!video || !container) {
+      setOverlayBox(null);
+      return;
+    }
+
+    const videoRect = video.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    if (videoRect.width <= 0 || videoRect.height <= 0 || containerRect.width <= 0 || containerRect.height <= 0) {
+      setOverlayBox(null);
+      return;
+    }
+
+    const nextBox = {
+      left: Math.max(0, videoRect.left - containerRect.left),
+      top: Math.max(0, videoRect.top - containerRect.top),
+      width: videoRect.width,
+      height: videoRect.height,
+    };
+
+    setOverlayBox((current) => {
+      if (
+        current &&
+        Math.abs(current.left - nextBox.left) < 0.5 &&
+        Math.abs(current.top - nextBox.top) < 0.5 &&
+        Math.abs(current.width - nextBox.width) < 0.5 &&
+        Math.abs(current.height - nextBox.height) < 0.5
+      ) {
+        return current;
+      }
+
+      return nextBox;
+    });
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const container = containerRef.current;
+
+    if (!video || !container) return;
+
+    const scheduleUpdate = () => {
+      requestAnimationFrame(updateOverlayBox);
+    };
+
+    scheduleUpdate();
+
+    const resizeObserver = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(scheduleUpdate)
+      : null;
+
+    resizeObserver?.observe(container);
+    resizeObserver?.observe(video);
+
+    const videoEvents: Array<keyof HTMLMediaElementEventMap> = [
+      "loadedmetadata",
+      "loadeddata",
+      "canplay",
+      "play",
+      "pause",
+    ];
+
+    videoEvents.forEach((eventName) => video.addEventListener(eventName, scheduleUpdate));
+    window.addEventListener("resize", scheduleUpdate);
+    document.addEventListener("fullscreenchange", scheduleUpdate);
+
+    return () => {
+      resizeObserver?.disconnect();
+      videoEvents.forEach((eventName) => video.removeEventListener(eventName, scheduleUpdate));
+      window.removeEventListener("resize", scheduleUpdate);
+      document.removeEventListener("fullscreenchange", scheduleUpdate);
+    };
+  }, [cleanUrl, updateOverlayBox]);
 
   // Auto-play when scrolling into view, pause when scrolling away
   useEffect(() => {
@@ -746,19 +832,29 @@ export const ReadOnlyAnnotationPlayback = ({
   const renderedVisibleEls = freezeActive
     ? visibleEls
     : visibleEls.filter((el) => !triggeredTimesRef.current.has(el.id));
+  const overlayStyle = overlayBox
+    ? {
+        left: `${overlayBox.left}px`,
+        top: `${overlayBox.top}px`,
+        width: `${overlayBox.width}px`,
+        height: `${overlayBox.height}px`,
+      }
+    : undefined;
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      {freezeActive && freezeFrameUrl && (
-        <img
-          src={freezeFrameUrl}
-          className="absolute inset-0 w-full h-full object-fill z-[1]"
-          alt=""
-          style={{
-            opacity: freezePhase === 'fading' ? 0 : 1,
-            transition: 'opacity 0.4s ease-out',
-          }}
-        />
+      {freezeActive && freezeFrameUrl && overlayStyle && (
+        <div className="absolute overflow-hidden pointer-events-none z-[1]" style={overlayStyle}>
+          <img
+            src={freezeFrameUrl}
+            className="w-full h-full"
+            alt=""
+            style={{
+              opacity: freezePhase === 'fading' ? 0 : 1,
+              transition: 'opacity 0.4s ease-out',
+            }}
+          />
+        </div>
       )}
       <video
         ref={videoRef}
@@ -769,7 +865,7 @@ export const ReadOnlyAnnotationPlayback = ({
         playsInline
         crossOrigin="anonymous"
         className="w-full cursor-pointer"
-        style={{ display: 'block', width: '100%', height: 'auto', objectFit: 'fill' }}
+        style={{ display: 'block', width: '100%', height: 'auto' }}
         onClick={() => {
           const v = videoRef.current;
           if (!v) return;
@@ -777,20 +873,20 @@ export const ReadOnlyAnnotationPlayback = ({
           else v.pause();
         }}
       />
-      {hasAnnotations && renderedVisibleEls.length > 0 && (
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
+      {hasAnnotations && renderedVisibleEls.length > 0 && overlayStyle && (
+        <div
+          className="absolute pointer-events-none"
           style={{
-            objectFit: 'fill',
+            ...overlayStyle,
             zIndex: 2,
             opacity: freezePhase === 'fading' ? 0 : 1,
             transition: freezePhase === 'fading' ? 'opacity 0.4s ease-out' : 'none',
           }}
         >
-          {renderedVisibleEls.map(renderElement)}
-        </svg>
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            {renderedVisibleEls.map(renderElement)}
+          </svg>
+        </div>
       )}
     </div>
   );
