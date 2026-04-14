@@ -58,15 +58,16 @@ const Cart = () => {
     });
 
     try {
-      // For now, checkout the first item (multi-item checkout requires more complex Stripe setup)
-      // TODO: Implement multi-item checkout with Stripe
-      const firstItem = items[0];
+      const cartItems = items.map(item => ({
+        serviceId: item.serviceId,
+        selectedOption: item.selectedOption,
+        quantity: item.quantity,
+        paymentMode: 'payment',
+      }));
       
       const { data, error } = await invokeEdgeFunction('create-service-checkout', {
         body: {
-          serviceId: firstItem.serviceId,
-          selectedOption: firstItem.selectedOption,
-          paymentMode: 'payment',
+          items: cartItems,
         },
       });
 
