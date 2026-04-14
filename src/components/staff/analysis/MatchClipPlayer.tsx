@@ -452,6 +452,7 @@ export const MatchClipPlayer = ({ analysisId, playerName, opponent, onClose }: M
                       onToolUsed={handleToolUsed}
                       linkSource={linkSource}
                       setLinkSource={setLinkSource}
+                      videoRef={videoRef}
                     />
                   </div>
                 )}
