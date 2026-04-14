@@ -7,7 +7,7 @@ import { sortReportActionsChronologically } from "@/lib/reportActionHelpers";
 import { useSharedClipPlayer, type SharedClipPlayerState } from "@/hooks/useSharedClipPlayer";
 import { toast } from "sonner";
 import { toTitleCase } from "@/lib/titleCase";
-import { ReadOnlyAnnotationOverlay } from "@/components/portal/ReadOnlyAnnotationOverlay";
+import { isFullMatchUrl } from "@/lib/clipVideoUtils";
 
 interface Clip {
   id: string;
@@ -20,7 +20,6 @@ interface Clip {
   notes?: string | null;
   clip_start?: number | null;
   clip_end?: number | null;
-  clip_annotations?: any[] | null;
 }
 
 interface RankedActionsPlayerProps {
@@ -53,7 +52,6 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
   const touchStartY = useRef(0);
   const [showClipList, setShowClipList] = useState(true);
   const clipListRef = useRef<HTMLDivElement>(null);
-  const standaloneVideoRef = useRef<HTMLVideoElement>(null);
 
   const localPlayer = useSharedClipPlayer();
   const player = providedPlayer ?? localPlayer;
@@ -68,8 +66,9 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
   const categorisedClips = useMemo(() => {
     const categories: Record<string, typeof sortedClips> = {};
     for (const clip of sortedClips) {
-      const types = clip.action_type.split(',').map(t => t.trim());
-      const cat = categoriseAction(types[0] || clip.action_type);
+      const rawType = clip.action_type || 'Other';
+      const types = rawType.split(',').map(t => t.trim());
+      const cat = categoriseAction(types[0] || rawType);
       if (!categories[cat]) categories[cat] = [];
       categories[cat].push(clip);
     }
@@ -78,7 +77,7 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
 
   const current = sortedClips[currentIndex];
   const hasTimeRange = current?.clip_start != null && current?.clip_end != null && current.clip_end > current.clip_start;
-  const isStandaloneClip = !!current?.video_url && !hasTimeRange;
+  const isStandaloneClip = !!current?.video_url && !hasTimeRange && !isFullMatchUrl(current.video_url);
 
   const playClipFn = player.playClip;
   const stopFn = player.stop;

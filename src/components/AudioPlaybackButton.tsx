@@ -1,15 +1,12 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Volume2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface AudioPlaybackButtonProps {
   audioUrl: string;
 }
 
-const BRAND_GOLD = "#fdc61b";
-const BRAND_DARK_GREEN = "#052208";
-
-// Global registry for stopping other audio players
+// Global registry so only one commentary track plays at a time
 let currentlyPlayingButton: (() => void) | null = null;
 
 export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
@@ -40,42 +37,42 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
     setIsPlaying(false);
   }, []);
 
-  const toggle = useCallback(() => {
+  const handleToggle = useCallback(() => {
     if (isPlaying) {
       stopPlayback();
       if (currentlyPlayingButton === stopPlayback) currentlyPlayingButton = null;
-    } else {
-      // Stop any other playing audio
-      if (currentlyPlayingButton) currentlyPlayingButton();
+      return;
+    }
 
-      const audio = new Audio(audioUrl);
-      audio.crossOrigin = "anonymous";
-      
-      // Boost volume using Web Audio API gain node
-      try {
-        const ctx = new AudioContext();
-        const source = ctx.createMediaElementSource(audio);
-        const gain = ctx.createGain();
-        gain.gain.value = 2.5; // 2.5x volume boost
-        source.connect(gain);
-        gain.connect(ctx.destination);
-        audioCtxRef.current = ctx;
-      } catch {
-        // Fallback: just play without boost
-        audio.volume = 1;
-      }
-      
-      audio.onended = () => {
-        setIsPlaying(false);
-        audioRef.current = null;
-        if (currentlyPlayingButton === stopPlayback) currentlyPlayingButton = null;
-      };
-      audio.play().catch(() => setIsPlaying(false));
+    if (currentlyPlayingButton) currentlyPlayingButton();
+
+    const audio = new Audio(audioUrl);
+    audio.crossOrigin = "anonymous";
+
+    try {
+      const ctx = new AudioContext();
+      const source = ctx.createMediaElementSource(audio);
+      const gain = ctx.createGain();
+      gain.gain.value = 2.2;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      audioCtxRef.current = ctx;
+    } catch {
+      audio.volume = 1;
+    }
+
+    audio.onended = () => {
+      setIsPlaying(false);
+      audioRef.current = null;
+      if (currentlyPlayingButton === stopPlayback) currentlyPlayingButton = null;
+    };
+
+    audio.play().then(() => {
       audioRef.current = audio;
       setIsPlaying(true);
       currentlyPlayingButton = stopPlayback;
-    }
-  }, [isPlaying, audioUrl, stopPlayback]);
+    }).catch(() => setIsPlaying(false));
+  }, [audioUrl, isPlaying, stopPlayback]);
 
   const barVariants = {
     playing: (i: number) => ({
@@ -91,30 +88,32 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
 
   return (
     <button
-      onClick={toggle}
-      className="flex items-center justify-center gap-1.5 rounded-full transition-all hover:scale-110 active:scale-95 w-9 h-9"
+      onClick={handleToggle}
+      className="flex items-center justify-center gap-1.5 rounded-full backdrop-blur-sm transition-all hover:scale-110 active:scale-95"
       style={{
-        backgroundColor: isPlaying ? BRAND_GOLD : "rgba(0,0,0,0.6)",
-        color: isPlaying ? "#000" : BRAND_GOLD,
-        backdropFilter: "blur(4px)",
+        width: 40,
+        height: 40,
+        backgroundColor: isPlaying ? 'hsl(var(--primary))' : 'hsl(var(--background) / 0.7)',
+        color: isPlaying ? 'hsl(var(--primary-foreground))' : 'hsl(var(--primary))',
+        border: '2px solid hsl(var(--primary))',
       }}
-      title={isPlaying ? "Stop" : "Listen"}
+      title={isPlaying ? "Stop audio" : "Listen"}
     >
       {isPlaying ? (
-        <div className="flex items-end gap-[2px] h-3">
+        <div className="flex h-3 items-end gap-[2px]">
           {[0, 1, 2, 3].map((i) => (
             <motion.div
               key={i}
               custom={i}
               variants={barVariants}
               animate="playing"
-              className="w-[2.5px] rounded-full origin-bottom"
-              style={{ height: "100%", backgroundColor: BRAND_DARK_GREEN }}
+              className="w-[2.5px] origin-bottom rounded-full bg-primary-foreground"
+              style={{ height: '100%' }}
             />
           ))}
         </div>
       ) : (
-        <Volume2 className="w-5 h-5" />
+        <Volume2 className="h-5 w-5" />
       )}
     </button>
   );
