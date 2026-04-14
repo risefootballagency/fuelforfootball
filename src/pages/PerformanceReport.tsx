@@ -614,35 +614,6 @@ const PerformanceReport = () => {
             </Card>
           )}
 
-          {/* Key Stats */}
-          <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 rounded-lg" style={{ backgroundColor: 'hsl(160, 40%, 95%)' }}>
-            <div className="text-center p-2">
-              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "raw_score")}</p>
-              <p className="text-base md:text-2xl font-bold">
-                {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
-              </p>
-            </div>
-            <div className="text-center rounded-lg p-2 md:p-4 relative" style={{ backgroundColor: 'hsl(160, 45%, 40%)', color: 'white' }}>
-              <div className="flex items-center justify-center gap-1 mb-0.5 md:mb-1">
-                <p className="text-[10px] md:text-sm opacity-90">R90</p>
-                <button onClick={() => setShowR90Info(true)} className="opacity-50 hover:opacity-100 transition-opacity" title="How is R90 calculated?">
-                  <HelpCircle className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                </button>
-              </div>
-              <p className="text-lg md:text-3xl font-bold">
-                {analysis.r90_score !== null
-                  ? analysis.r90_score.toFixed(2)
-                  : analysis.minutes_played && actions.length > 0
-                    ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2)
-                    : "N/A"
-                }
-              </p>
-            </div>
-            <div className="text-center p-2">
-              <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "mins_short")}</p>
-              <p className="text-base md:text-2xl font-bold">{analysis.minutes_played ?? "N/A"}</p>
-            </div>
-          </div>
 
           {/* PER & SR Cards (if available) */}
           {(analysis.placeholder_per != null || analysis.placeholder_sr != null) && (
