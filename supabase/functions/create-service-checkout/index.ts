@@ -29,42 +29,24 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const { serviceId, selectedOption, customerEmail, customerName, paymentMode, recurringInterval, intervalCount } = await req.json();
-    logStep("Request body", { serviceId, selectedOption, paymentMode, recurringInterval, intervalCount });
-
-    if (!serviceId) throw new Error("Service ID is required");
-
-    // Fetch service details
-    const { data: service, error: serviceError } = await supabaseClient
-      .from('service_catalog')
-      .select('*')
-      .eq('id', serviceId)
-      .single();
-
-    if (serviceError || !service) {
-      logStep("Service not found", { error: serviceError });
-      throw new Error("Service not found");
-    }
-    logStep("Service found", { name: service.name, price: service.price });
-
-    // Calculate final price based on selected option
-    let finalPrice = service.price;
-    let optionName = null;
+    const body = await req.json();
     
-    if (selectedOption && service.options) {
-      const options = Array.isArray(service.options) ? service.options : [];
-      const option = options.find((o: any) => o.name === selectedOption);
-      if (option) {
-        finalPrice = service.price + (option.surcharge || 0);
-        optionName = option.name;
-        logStep("Option selected", { optionName, surcharge: option.surcharge, finalPrice });
-      }
-    }
+    // Support both single-item (legacy) and multi-item cart
+    const items: { serviceId: string; selectedOption?: string | null; quantity?: number; paymentMode?: string; recurringInterval?: string; intervalCount?: number }[] = 
+      body.items || [{ serviceId: body.serviceId, selectedOption: body.selectedOption, quantity: 1, paymentMode: body.paymentMode, recurringInterval: body.recurringInterval, intervalCount: body.intervalCount }];
+
+    const customerEmail = body.customerEmail;
+    const customerName = body.customerName;
+    const embeddedMode = body.embedded === true;
+
+    logStep("Request items", { count: items.length, embeddedMode });
+
+    if (items.length === 0 || !items[0].serviceId) throw new Error("At least one service item is required");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     // Check for existing customer if email provided
-    let customerId;
+    let customerId: string | undefined;
     const email = customerEmail || undefined;
     
     if (email) {
@@ -75,105 +57,140 @@ serve(async (req) => {
       }
     }
 
-    // Determine if this is a subscription
-    const isSubscription = paymentMode === 'subscription';
-    
-    // Create product with image
-    logStep("Creating Stripe product for service");
-    
-    const productName = optionName 
-      ? `${service.name} - ${optionName}` 
-      : service.name;
-    
-    // Build product params with optional image
-    const productParams: Stripe.ProductCreateParams = {
-      name: productName,
-      description: service.description?.replace(/<[^>]*>/g, '').substring(0, 500) || undefined,
-    };
-    
-    // Add image if available (Stripe requires absolute HTTPS URL)
-    if (service.image_url) {
-      // Handle relative URLs by converting to absolute
-      let imageUrl = service.image_url;
-      if (imageUrl.startsWith('/')) {
-        imageUrl = `https://fuelforfootball.com${imageUrl}`;
-      } else if (!imageUrl.startsWith('http')) {
-        imageUrl = `https://fuelforfootball.com/${imageUrl}`;
+    // Determine if any item is a subscription
+    const hasSubscription = items.some(i => i.paymentMode === 'subscription');
+
+    // Fetch all services
+    const serviceIds = [...new Set(items.map(i => i.serviceId))];
+    const { data: services, error: servicesError } = await supabaseClient
+      .from('service_catalog')
+      .select('*')
+      .in('id', serviceIds);
+
+    if (servicesError || !services?.length) {
+      logStep("Services not found", { error: servicesError });
+      throw new Error("One or more services not found");
+    }
+    logStep("Services found", { count: services.length });
+
+    const serviceMap = new Map(services.map(s => [s.id, s]));
+
+    // Build line items
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+    const metadataItems: string[] = [];
+
+    for (const item of items) {
+      const service = serviceMap.get(item.serviceId);
+      if (!service) throw new Error(`Service ${item.serviceId} not found`);
+
+      let finalPrice = service.price;
+      let optionName: string | null = null;
+
+      if (item.selectedOption && service.options) {
+        const options = Array.isArray(service.options) ? service.options : [];
+        const option = options.find((o: any) => o.name === item.selectedOption);
+        if (option) {
+          finalPrice = service.price + (option.surcharge || 0);
+          optionName = option.name;
+        }
       }
-      productParams.images = [imageUrl];
-      logStep("Adding product image", { imageUrl });
-    }
-    
-    const product = await stripe.products.create(productParams);
-    logStep("Product created", { productId: product.id, hasImage: !!productParams.images });
 
-    // Create price - convert pounds to pence
-    const priceAmount = Math.round(finalPrice * 100);
-    
-    // Build price params
-    const priceParams: Stripe.PriceCreateParams = {
-      product: product.id,
-      unit_amount: priceAmount,
-      currency: 'gbp',
-    };
+      const isSubscription = item.paymentMode === 'subscription';
+      const productName = optionName ? `${service.name} - ${optionName}` : service.name;
 
-    // Add recurring config for subscriptions
-    if (isSubscription && recurringInterval) {
-      priceParams.recurring = {
-        interval: recurringInterval as Stripe.PriceCreateParams.Recurring.Interval,
-        interval_count: intervalCount || 1,
+      const productParams: Stripe.ProductCreateParams = {
+        name: productName,
+        description: service.description?.replace(/<[^>]*>/g, '').substring(0, 500) || undefined,
       };
-      logStep("Creating subscription price", { interval: recurringInterval, intervalCount: intervalCount || 1 });
-    }
 
-    const price = await stripe.prices.create(priceParams);
-    logStep("Price created", { priceId: price.id, amount: priceAmount, isSubscription });
+      if (service.image_url) {
+        let imageUrl = service.image_url;
+        if (imageUrl.startsWith('/')) imageUrl = `https://fuelforfootball.com${imageUrl}`;
+        else if (!imageUrl.startsWith('http')) imageUrl = `https://fuelforfootball.com/${imageUrl}`;
+        productParams.images = [imageUrl];
+      }
+
+      const product = await stripe.products.create(productParams);
+
+      const priceParams: Stripe.PriceCreateParams = {
+        product: product.id,
+        unit_amount: Math.round(finalPrice * 100),
+        currency: 'gbp',
+      };
+
+      if (isSubscription && item.recurringInterval) {
+        priceParams.recurring = {
+          interval: item.recurringInterval as Stripe.PriceCreateParams.Recurring.Interval,
+          interval_count: item.intervalCount || 1,
+        };
+      }
+
+      const price = await stripe.prices.create(priceParams);
+
+      lineItems.push({
+        price: price.id,
+        quantity: item.quantity || 1,
+      });
+
+      metadataItems.push(`${productName} x${item.quantity || 1}`);
+    }
 
     const origin = req.headers.get("origin") || "https://fuelforfootball.com";
 
-    // Create checkout session
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : email,
-      line_items: [
-        {
-          price: price.id,
-          quantity: 1,
-        },
-      ],
-      mode: isSubscription ? 'subscription' : 'payment',
+      line_items: lineItems,
+      mode: hasSubscription ? 'subscription' : 'payment',
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/services`,
       metadata: {
-        service_id: serviceId,
-        service_name: service.name,
-        selected_option: optionName || '',
-        is_subscription: isSubscription ? 'true' : 'false',
+        items_summary: metadataItems.join(', ').substring(0, 500),
       },
     };
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
-    logStep("Checkout session created", { sessionId: session.id, url: session.url, mode: sessionParams.mode });
+    // For embedded checkout, use ui_mode
+    if (embeddedMode) {
+      sessionParams.ui_mode = 'embedded';
+      sessionParams.return_url = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
+      delete sessionParams.success_url;
+      delete sessionParams.cancel_url;
+    }
 
-    // Create order record
+    const session = await stripe.checkout.sessions.create(sessionParams);
+    logStep("Checkout session created", { sessionId: session.id, mode: sessionParams.mode, embedded: embeddedMode });
+
+    // Create order record for first item (simplified)
+    const firstItem = items[0];
+    const firstService = serviceMap.get(firstItem.serviceId);
     const { error: orderError } = await supabaseClient
       .from('service_orders')
       .insert({
-        service_id: serviceId,
+        service_id: firstItem.serviceId,
         customer_email: email || 'guest@checkout.com',
         customer_name: customerName || null,
-        amount: finalPrice,
+        amount: items.reduce((sum, i) => {
+          const s = serviceMap.get(i.serviceId);
+          return sum + (s ? s.price * (i.quantity || 1) : 0);
+        }, 0),
         currency: 'GBP',
         status: 'pending',
         stripe_session_id: session.id,
-        selected_option: optionName,
+        selected_option: firstItem.selectedOption || null,
       });
 
     if (orderError) {
       logStep("Order creation warning", { error: orderError.message });
     }
 
-    return new Response(JSON.stringify({ url: session.url, sessionId: session.id }), {
+    const response: any = { sessionId: session.id };
+    if (embeddedMode) {
+      response.clientSecret = session.client_secret;
+    } else {
+      response.url = session.url;
+    }
+
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
