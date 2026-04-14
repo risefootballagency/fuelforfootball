@@ -496,9 +496,9 @@ const PerformanceReport = () => {
         <div ref={contentRef} className="space-y-2 md:space-y-3 bg-background p-2 md:p-4 rounded-lg overflow-x-hidden">
           {/* Opposition Color Strip with Club Logo */}
           {analysis.opposition_color && (
-            <div className="relative w-full h-8 md:h-10 rounded-t-lg flex items-center justify-center" style={{ backgroundColor: analysis.opposition_color }}>
+            <div className="relative w-full h-10 md:h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: analysis.opposition_color }}>
               {analysis.club_logo_url && (
-                <img src={analysis.club_logo_url} alt="Club logo" className="h-6 md:h-8 w-auto object-contain drop-shadow-lg" />
+                <img src={analysis.club_logo_url} alt="Club logo" crossOrigin="anonymous" className="h-7 md:h-9 w-auto object-contain drop-shadow-lg" />
               )}
             </div>
           )}
