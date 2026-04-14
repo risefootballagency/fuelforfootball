@@ -238,7 +238,6 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
         <div className="flex-1 relative flex items-center justify-center bg-black min-h-0">
           {isStandaloneClip && (
             <video
-              ref={standaloneVideoRef}
               key={current.id}
               src={current.video_url}
               className="w-full h-full object-contain cursor-pointer"
@@ -273,13 +272,6 @@ export const RankedActionsPlayer = ({ open, onOpenChange, clips, mode, language 
                 </div>
               )}
             </>
-          )}
-          {current.clip_annotations && current.clip_annotations.length > 0 && (
-            <ReadOnlyAnnotationOverlay
-              elements={current.clip_annotations}
-              videoRef={(hasTimeRange ? player.videoRef : standaloneVideoRef) as React.RefObject<HTMLVideoElement>}
-              clipStart={hasTimeRange ? (current.clip_start ?? 0) : 0}
-            />
           )}
         </div>
 
