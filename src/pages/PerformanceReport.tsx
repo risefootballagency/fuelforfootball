@@ -101,6 +101,7 @@ const PerformanceReport = () => {
   const [showPitchHeatmap, setShowPitchHeatmap] = useState(false);
   const [showZonePerformance, setShowZonePerformance] = useState(false);
   const [showTimelapse, setShowTimelapse] = useState(false);
+  const [showMatchStats, setShowMatchStats] = useState(false);
   const [rankedMode, setRankedMode] = useState<"chronological" | "ranked" | "noted">("chronological");
   const [showClippedActions, setShowClippedActions] = useState(false);
   const [showFilteredPlayer, setShowFilteredPlayer] = useState(false);
