@@ -926,7 +926,7 @@ const PerformanceReport = () => {
             </p>
             <div className="space-y-3">
               <h3 className="font-semibold text-sm">Calculation</h3>
-              <div className="rounded-lg p-3 space-y-2 text-sm" style={{ backgroundColor: 'hsl(160, 40%, 95%)' }}>
+              <div className="rounded-lg p-3 space-y-2 text-sm bg-accent/20">
                 <p><strong>Raw Score</strong> = sum of all action scores in the match</p>
                 <p><strong>R90</strong> = (Raw Score / Minutes Played) x 90</p>
               </div>
