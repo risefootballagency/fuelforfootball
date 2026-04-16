@@ -846,9 +846,9 @@ export const ReadOnlyAnnotationPlayback = ({
   };
 
   const hasAnnotations = elements.length > 0;
-  const renderedVisibleEls = freezeActive
-    ? visibleEls
-    : visibleEls.filter((el) => !triggeredTimesRef.current.has(el.id));
+  // Always render whatever computeVisibleElements says is visible right now
+  // (consumed-during-freeze IDs are already filtered out in the RAF loop).
+  const renderedVisibleEls = visibleEls;
   const overlayStyle = overlayBox
     ? {
         left: `${overlayBox.left}px`,
