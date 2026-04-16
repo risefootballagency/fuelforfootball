@@ -900,7 +900,7 @@ export const ReadOnlyAnnotationPlayback = ({
             transition: freezePhase === 'fading' ? 'opacity 0.4s ease-out' : 'none',
           }}
         >
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg key={loopCycleKey} className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             {renderedVisibleEls.map(renderElement)}
           </svg>
         </div>
