@@ -401,7 +401,9 @@ export const ReadOnlyAnnotationPlayback = ({
       }
 
       const relTime = video.currentTime - clipStart;
-      const computed = computeVisibleElements(elements as AnnotationElement[], relTime, { forceOpacity: null });
+      const computedRaw = computeVisibleElements(elements as AnnotationElement[], relTime, { forceOpacity: null });
+      // Filter out anything already shown during a freeze in this loop cycle.
+      const computed = computedRaw.filter(el => !consumedIdsRef.current.has(el.id));
 
       // Check for new annotations that haven't triggered a freeze yet
       if (!disableFreeze && !video.paused && computed.length > 0) {
@@ -411,8 +413,6 @@ export const ReadOnlyAnnotationPlayback = ({
         });
 
         if (newElements.length > 0) {
-          // Gate by the latest logical trigger point in the current visible batch,
-          // not just the paused playhead time.
           lastFreezeTriggerTimeRef.current = Math.max(relTime, ...computed.map(el => el.appearAt));
           newElements.forEach(el => triggeredTimesRef.current.add(el.id));
           startFreezeRef.current(computed, video);
