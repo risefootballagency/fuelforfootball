@@ -78,6 +78,12 @@ export const ReadOnlyAnnotationPlayback = ({
   const [freezeFrameUrl, setFreezeFrameUrl] = useState<string | null>(null);
   const [freezePhase, setFreezePhase] = useState<'idle' | 'showing' | 'fading'>('idle');
   const [overlayBox, setOverlayBox] = useState<OverlayBox | null>(null);
+  // Loop cycle key — increments on every backward jump to force SVG remount
+  // so all SVG <animate> elements restart cleanly each replay.
+  const [loopCycleKey, setLoopCycleKey] = useState(0);
+  // IDs of annotations already shown during a freeze in the current loop cycle.
+  // After the freeze fades out we MUST NOT show them again until the next loop.
+  const consumedIdsRef = useRef<Set<string>>(new Set());
 
   // Use refs to avoid RAF dependency on state
   const freezeActiveRef = useRef(false);
@@ -294,12 +300,15 @@ export const ReadOnlyAnnotationPlayback = ({
       const now = video.currentTime;
       const loopedNaturally = video.loop && video.duration > 0 && lastTimeRef.current > Math.max(video.duration - 1, 0) && now < 1;
 
-      // Reset trigger history on genuine backward seeks only, not on automatic loops or freeze resume.
+      // Reset trigger history on backward seeks (loop, seek, clip restart) — clears consumed IDs and remounts SVG.
       if (!freezeActiveRef.current && lastTimeRef.current > 0 && now < lastTimeRef.current - 0.5) {
         if (!internalLoopRef.current && !loopedNaturally) {
           triggeredTimesRef.current.clear();
           lastFreezeTriggerTimeRef.current = -1;
         }
+        // Always clear consumed IDs and remount SVG on any backward jump (including natural loops)
+        consumedIdsRef.current.clear();
+        setLoopCycleKey(k => k + 1);
       }
 
       internalLoopRef.current = false;
