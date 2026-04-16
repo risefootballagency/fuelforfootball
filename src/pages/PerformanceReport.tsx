@@ -503,11 +503,19 @@ const PerformanceReport = () => {
           </div>
         )}
         <div ref={contentRef} className="space-y-2 md:space-y-3 bg-background p-2 md:p-4 rounded-lg overflow-x-hidden">
-          {/* Opposition Color Strip with Club Logo */}
-          {analysis.opposition_color && (
-            <div className="relative w-full h-10 md:h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: analysis.opposition_color }}>
+          {/* Opposition Color Strip with Club Logo — render if EITHER colour or logo is present */}
+          {(analysis.opposition_color || analysis.club_logo_url) && (
+            <div
+              className="relative w-full h-10 md:h-12 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: analysis.opposition_color || 'hsl(var(--muted))' }}
+            >
               {analysis.club_logo_url && (
-                <img src={analysis.club_logo_url} alt="Club logo" crossOrigin="anonymous" className="h-7 md:h-9 w-auto object-contain drop-shadow-lg" />
+                <img
+                  src={analysis.club_logo_url}
+                  alt="Club logo"
+                  crossOrigin="anonymous"
+                  className="h-7 md:h-9 w-auto object-contain drop-shadow-lg"
+                />
               )}
             </div>
           )}
@@ -551,15 +559,15 @@ const PerformanceReport = () => {
             )}
           </div>
 
-          {/* Key Stats */}
-          <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
+          {/* Key Stats — cyan-green palette per FFF brand */}
+          <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-[hsl(160,40%,95%)]/30 rounded-lg">
             <div className="text-center p-2">
               <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "raw_score")}</p>
               <p className="text-base md:text-2xl font-bold">
                 {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
               </p>
             </div>
-            <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4 relative">
+            <div className="text-center bg-[hsl(160,55%,38%)] text-white rounded-lg p-2 md:p-4 relative">
               <div className="flex items-center justify-center gap-1 mb-0.5 md:mb-1">
                 <p className="text-[10px] md:text-sm opacity-90">R90</p>
                 <button onClick={() => setShowR90Info(true)} className="opacity-50 hover:opacity-100 transition-opacity" title="How is R90 calculated?">
@@ -932,7 +940,7 @@ const PerformanceReport = () => {
             </p>
             <div className="space-y-3">
               <h3 className="font-semibold text-sm">Calculation</h3>
-              <div className="rounded-lg p-3 space-y-2 text-sm bg-accent/20">
+              <div className="rounded-lg p-3 space-y-2 text-sm bg-[hsl(160,40%,95%)]/30">
                 <p><strong>Raw Score</strong> = sum of all action scores in the match</p>
                 <p><strong>R90</strong> = (Raw Score / Minutes Played) x 90</p>
               </div>
