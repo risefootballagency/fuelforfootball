@@ -20,6 +20,7 @@ import { ParallaxHero } from "@/components/portal/ParallaxHero";
 import { ProgressSummary } from "@/components/portal/ProgressSummary";
 import { checkAndFireConfetti } from "@/lib/confetti";
 import { getDemoDate, getDemoDateISO } from "@/lib/demoDate";
+import grassDayBg from "@/assets/grass-day-bg.png";
 
 // Helper: fetches next fixture for player's club and renders ParallaxHero with countdown
 const ParallaxHeroWithFixture = ({ playerData, marketingImages, imageFocalPoints }: { playerData: any; marketingImages: string[]; imageFocalPoints: string[] }) => {
