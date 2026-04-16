@@ -39,7 +39,9 @@ const getContrastColor = (hex: string): string => {
 export const ReadOnlyAnnotationOverlay = ({ elements, videoRef, clipStart = 0 }: Props) => {
   const [visibleEls, setVisibleEls] = useState<ComputedAnnotationElement[]>([]);
   const [overlayBox, setOverlayBox] = useState<OverlayBox | null>(null);
+  const [loopKey, setLoopKey] = useState(0);
   const rafRef = useRef<number>(0);
+  const prevTimeRef = useRef<number>(0);
 
   const updateOverlayBox = useRef(() => {
     const video = videoRef.current;
@@ -129,6 +131,13 @@ export const ReadOnlyAnnotationOverlay = ({ elements, videoRef, clipStart = 0 }:
       const clipStartTime = (video as any).__clipStartTime;
       const effectiveClipStart = clipStartTime != null ? clipStartTime : clipStart;
       const relTime = Math.max(0, time - effectiveClipStart);
+
+      // Detect loop: currentTime jumped backwards significantly — remount SVG so <animate> restarts
+      if (prevTimeRef.current > 0 && time < prevTimeRef.current - 0.5) {
+        setLoopKey(k => k + 1);
+      }
+      prevTimeRef.current = time;
+
       const visible = computeVisibleElements(elements, relTime, { forceOpacity: 1 });
       setVisibleEls(visible);
       rafRef.current = requestAnimationFrame(tick);
@@ -549,7 +558,7 @@ export const ReadOnlyAnnotationOverlay = ({ elements, videoRef, clipStart = 0 }:
 
   return (
     <div className="absolute pointer-events-none" style={overlayStyle}>
-      <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <svg key={loopKey} className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
         {visibleEls.map(renderElement)}
       </svg>
     </div>

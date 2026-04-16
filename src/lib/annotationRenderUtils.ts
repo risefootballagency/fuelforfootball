@@ -19,6 +19,8 @@ export interface ComputedAnnotationElement extends AnnotationElement {
 export interface ComputeConfig {
   includeHidden?: boolean;
   forceOpacity?: number | null;
+  /** Element IDs that should skip the animateIn fade (already revealed earlier in this loop cycle) */
+  skipAnimateInIds?: Set<string>;
 }
 
 // ── Pure keyframe interpolation ──
@@ -70,7 +72,8 @@ export function computeVisibleElements(
     const start = el.appearAt;
     const end = el.duration !== undefined ? start + el.duration : Infinity;
 
-    const isVisible = time >= start - 0.05 && time < end;
+    // Strict timing — no pre-tolerance — prevents drift on moving/keyframed annotations
+    const isVisible = time >= start && time < end;
 
     if (!isVisible && !config?.includeHidden) continue;
 
@@ -92,7 +95,9 @@ export function computeVisibleElements(
         }
       }
 
-      if (el.animateIn && el.animateIn > 0) {
+      // Apply animateIn (skipped if this element was already revealed earlier in this loop cycle)
+      const skipIn = config?.skipAnimateInIds?.has(el.id) === true;
+      if (!skipIn && el.animateIn && el.animateIn > 0) {
         const elapsed = time - el.appearAt;
         if (elapsed >= 0 && elapsed < el.animateIn) {
           const progress = Math.max(0, Math.min(1, elapsed / el.animateIn));
