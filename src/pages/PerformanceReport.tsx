@@ -275,16 +275,22 @@ const PerformanceReport = () => {
     }
   };
 
-  // Format stat key to readable label using config lookup
+  // Format stat key to readable label using config lookup.
+  // Strips gk_/GK_ prefixes BEFORE config lookup so e.g. "gk_goals_conceded" → "Goals Conceded".
   const formatStatLabel = (key: string): string => {
-    let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
-    if (config) return config.name;
-    const keyLower = key.toLowerCase();
-    config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
-    if (config) return config.name;
-    // Strip gk_ prefix for goalkeeper stats
-    const displayKey = key.startsWith('gk_') ? key.slice(3) : key;
-    return toTitleCase(displayKey.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim());
+    const stripped = key.replace(/^gk[_-]?/i, '');
+    // Try config lookup with stripped key first, then raw key — case-insensitive
+    let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) =>
+      c.key === stripped || c.key.toLowerCase() === stripped.toLowerCase()
+    );
+    if (!config) {
+      config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) =>
+        c.key === key || c.key.toLowerCase() === key.toLowerCase()
+      );
+    }
+    // Sanitise any "Gk " prefix that may exist in config names
+    if (config) return toTitleCase(config.name.replace(/^Gk\s+/i, ''));
+    return toTitleCase(stripped.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim());
   };
 
   // Get advanced stats from striker_stats, excluding internal fields
