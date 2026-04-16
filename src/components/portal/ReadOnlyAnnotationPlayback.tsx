@@ -354,7 +354,9 @@ export const ReadOnlyAnnotationPlayback = ({
     freezeActiveRef.current = true;
     setFreezeActive(true);
     setFreezePhase('showing');
-    setVisibleEls(computed);
+    // During the freeze every triggered annotation is fully visible — bypass animateIn fades.
+    const frozen = computed.map(el => ({ ...el, computedOpacity: 1 }));
+    setVisibleEls(frozen);
 
     // Schedule resume
     if (freezeTimerRef.current) clearTimeout(freezeTimerRef.current);
@@ -362,11 +364,17 @@ export const ReadOnlyAnnotationPlayback = ({
 
     freezeTimerRef.current = setTimeout(() => {
       setFreezePhase('fading');
+      // Mark these elements as consumed for this loop — once playback
+      // resumes they MUST NOT render again until the next loop cycle.
+      computed.forEach(el => consumedIdsRef.current.add(el.id));
       fadeTimerRef.current = setTimeout(() => {
         setFreezeFrameUrl(null);
         freezeActiveRef.current = false;
         setFreezeActive(false);
         setFreezePhase('idle');
+        // Clear visibleEls so resumed playback starts blank — the main RAF
+        // loop will only repopulate with non-consumed annotations.
+        setVisibleEls([]);
         if (video.currentTime < (video.duration || 0)) {
           video.play().catch(() => {});
         }
