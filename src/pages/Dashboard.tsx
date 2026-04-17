@@ -48,6 +48,7 @@ import { PlayerTransferHub } from "@/components/player/TransferHub";
 import { CognisanceSection } from "@/components/portal/CognisanceSection";
 import { AnalysisDataTab } from "@/components/portal/AnalysisDataTab";
 import { AnalysisVideoReports } from "@/components/portal/AnalysisVideoReports";
+import { fetchFixtureLogosByDate, type FixtureLogoEntry } from "@/lib/fixtureLogos";
 import { AnalysisComparisons } from "@/components/portal/AnalysisComparisons";
 import { GoalTracking } from "@/components/portal/GoalTracking";
 import { InjuryLog } from "@/components/portal/InjuryLog";
@@ -185,6 +186,7 @@ const Dashboard = () => {
   const [hasNutritionPrograms, setHasNutritionPrograms] = useState(false);
   const [showAnalysisSub, setShowAnalysisSub] = useState(false);
   const [navDropdownOpen, setNavDropdownOpen] = useState(false);
+  const [fixtureLogosByDate, setFixtureLogosByDate] = useState<Map<string, FixtureLogoEntry>>(new Map());
   
   // Performance Report Dialog state
   const [performanceReportDialogOpen, setPerformanceReportDialogOpen] = useState(false);
