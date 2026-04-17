@@ -19,6 +19,7 @@ import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
 import { t, translateMetricLabel, translateMetricCategory } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
+import { getStatValue as sharedGetStatValue } from "@/lib/statAggregation";
 
 const RadarChart3D = lazy(() => import("@/components/portal/RadarChart3D").then(m => ({ default: m.RadarChart3D })));
 
@@ -28,16 +29,19 @@ const hasRecordedStats = (analysis: Analysis) => {
 };
 
 const getComparableMetricValue = (analysis: Analysis, key: string) => {
-  const raw = analysis.fixture_stats?.[key] ?? analysis.striker_stats?.[key];
-  if (raw == null || raw === "") return 0;
-  const value = Number(raw);
-  return Number.isFinite(value) ? value : 0;
+  const v = sharedGetStatValue(analysis, key);
+  return v == null || isNaN(v) ? null : v;
 };
 
-const getComparableMetricAverage = (items: Analysis[], key: string) => {
+const getComparableMetricAverage = (items: Analysis[], key: string): number | null => {
   if (items.length === 0) return null;
-  return items.reduce((sum, analysis) => sum + getComparableMetricValue(analysis, key), 0) / items.length;
+  // Exclude rows missing the metric so older fixtures don't drag GK averages to 0
+  const vals = items.map((a) => getComparableMetricValue(a, key)).filter((v): v is number => v != null);
+  if (vals.length === 0) return null;
+  return vals.reduce((s, v) => s + v, 0) / vals.length;
 };
+
+
 
 interface Analysis {
   id: string;
@@ -349,14 +353,12 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                               <span className="text-sm">{translateMetricLabel(lang, m.key, m.label)}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}</span>
                               <div className="flex items-center gap-3">
                                 <span className="text-sm text-muted-foreground">{value.toFixed(2)}{m.key.endsWith('_pct') ? '%' : ''}</span>
-                                <span className="text-lg font-bold text-primary w-12 text-right">{pct}%</span>
+                                <span className="text-lg font-bold text-accent w-12 text-right">{pct}%</span>
                               </div>
                             </div>
                             <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                               <div
-                                className={`h-full rounded-full transition-all duration-700 ${
-                                  pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'
-                                }`}
+                                className="h-full rounded-full transition-all duration-700 bg-accent"
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
