@@ -831,41 +831,106 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                 </div>
               </div>
 
-              {/* Advanced Stats */}
+              {/* Advanced Stats - collapsible */}
               {advancedStats.length > 0 && (
                 <Card className="overflow-hidden">
-                  <CardHeader className="py-1.5 md:py-2">
-                    <CardTitle className="text-sm md:text-lg">{t(reportLanguage, "match_statistics")}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-2 md:p-4">
-                    <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
-                      {advancedStats.map((stat) => {
-                        const isGoals = stat.key === 'goals';
-                        const goalsValue = isGoals ? (stat.isPaired ? stat.successful : stat.value) : 0;
-                        const hasGoalBorder = isGoals && typeof goalsValue === 'number' && goalsValue >= 1;
-                        return (
-                        <div key={stat.key} className={`text-center p-1.5 md:p-3 bg-accent/10 rounded ${hasGoalBorder ? 'ring-2 ring-gold' : ''}`}>
-                          <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5" title={formatStatLabel(stat.key)}>{formatStatLabel(stat.key)}</p>
-                          {stat.isPaired ? (
-                            <>
-                              <p className="text-sm md:text-lg font-bold">{stat.percentage}%</p>
-                              <p className="text-[9px] md:text-xs text-muted-foreground">{stat.successful}/{stat.attempted}</p>
-                            </>
-                          ) : (
-                            <p className="text-sm md:text-lg font-bold">{stat.value}</p>
-                          )}
-                          {stat.per90Value !== undefined && (
-                            <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5">
-                              p90: {stat.per90Value}
-                            </p>
-                          )}
-                        </div>
-                        );
-                      })}
+                  <CardHeader className="py-1.5 md:py-2 cursor-pointer" onClick={() => setShowMatchStats(!showMatchStats)}>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm md:text-lg">{t(reportLanguage, "match_statistics")}</CardTitle>
+                      {showMatchStats ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                     </div>
-                  </CardContent>
+                  </CardHeader>
+                  {showMatchStats && (
+                    <CardContent className="p-2 md:p-4">
+                      <div className="grid grid-cols-3 gap-1 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
+                        {advancedStats.map((stat) => {
+                          const isGoals = stat.key === 'goals';
+                          const goalsValue = isGoals ? (stat.isPaired ? stat.successful : stat.value) : 0;
+                          const hasGoalBorder = isGoals && typeof goalsValue === 'number' && goalsValue >= 1;
+                          return (
+                          <div key={stat.key} className={`text-center p-1.5 md:p-3 bg-accent/10 rounded ${hasGoalBorder ? 'ring-2 ring-gold' : ''}`}>
+                            <p className="text-[9px] md:text-xs text-muted-foreground mb-0.5" title={formatStatLabel(stat.key)}>{formatStatLabel(stat.key)}</p>
+                            {stat.isPaired ? (
+                              <>
+                                <p className="text-sm md:text-lg font-bold">{stat.percentage}%</p>
+                                <p className="text-[9px] md:text-xs text-muted-foreground">{stat.successful}/{stat.attempted}</p>
+                              </>
+                            ) : (
+                              <p className="text-sm md:text-lg font-bold">{stat.value}</p>
+                            )}
+                            {stat.per90Value !== undefined && (
+                              <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5">
+                                p90: {stat.per90Value}
+                              </p>
+                            )}
+                          </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  )}
                 </Card>
               )}
+
+              {/* Graphics Buttons Row - between stats and overview (RISE order) */}
+              {actions.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={showR90Flow ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { setShowR90Flow(!showR90Flow); setShowHeatmap(false); setShowPitchHeatmap(false); setShowChanceCreation(false); setShowShotMap(false); setShowTimelapse(false); setShowZonePerformance(false); }}
+                    className="text-xs"
+                  >
+                    <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+                    {t(reportLanguage, "r90_flow")}
+                  </Button>
+                  <Button
+                    variant={showHeatmap ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { setShowHeatmap(!showHeatmap); setShowR90Flow(false); setShowPitchHeatmap(false); setShowChanceCreation(false); setShowShotMap(false); setShowTimelapse(false); setShowZonePerformance(false); }}
+                    className="text-xs"
+                  >
+                    <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
+                    {t(reportLanguage, "period_grade_map")}
+                  </Button>
+                  {hasShotMapData(actions) && (
+                    <Button
+                      variant={showShotMap ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => { setShowShotMap(!showShotMap); setShowR90Flow(false); setShowHeatmap(false); setShowPitchHeatmap(false); setShowZonePerformance(false); setShowTimelapse(false); setShowChanceCreation(false); }}
+                      className="text-xs"
+                    >
+                      <Crosshair className="h-3.5 w-3.5 mr-1.5" />Shot Map
+                    </Button>
+                  )}
+                  {actions.some(a => a.zone || (a.zone_details && a.zone_details.length > 0)) && (
+                    <>
+                      <Button variant={showPitchHeatmap ? "default" : "outline"} size="sm" onClick={() => { setShowPitchHeatmap(!showPitchHeatmap); setShowZonePerformance(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); setShowShotMap(false); setShowTimelapse(false); }} className="text-xs">
+                        <MapPin className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "pitch_heatmap")}
+                      </Button>
+                      <Button variant={showZonePerformance ? "default" : "outline"} size="sm" onClick={() => { setShowZonePerformance(!showZonePerformance); setShowPitchHeatmap(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); setShowTimelapse(false); setShowShotMap(false); }} className="text-xs">
+                        <Grid3X3 className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "zone_performance")}
+                      </Button>
+                      <Button variant={showTimelapse ? "default" : "outline"} size="sm" onClick={() => { setShowTimelapse(!showTimelapse); setShowZonePerformance(false); setShowPitchHeatmap(false); setShowR90Flow(false); setShowHeatmap(false); setShowChanceCreation(false); setShowShotMap(false); }} className="text-xs">
+                        <Timer className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "match_timelapse")}
+                      </Button>
+                    </>
+                  )}
+                  {analysis.striker_stats && ['crossing_movement_xC', 'movement_in_behind_xC', 'movement_down_side_xC', 'triple_threat_xC', 'movement_to_feet_xC'].some(k => (analysis.striker_stats as any)?.[k] > 0) && (
+                    <Button variant={showChanceCreation ? "default" : "outline"} size="sm" onClick={() => { setShowChanceCreation(!showChanceCreation); setShowR90Flow(false); setShowHeatmap(false); setShowPitchHeatmap(false); setShowShotMap(false); }} className="text-xs">
+                      <TrendingUp className="h-3.5 w-3.5 mr-1.5" />{t(reportLanguage, "chance_creation_flow")}
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {showR90Flow && analysis.minutes_played && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} /></CardContent></Card>)}
+              {showHeatmap && analysis.minutes_played && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} /></CardContent></Card>)}
+              {showShotMap && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ShotMapGraphic actions={actions as any} /></CardContent></Card>)}
+              {showPitchHeatmap && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><PitchHeatmap actions={actions} language={reportLanguage} /></CardContent></Card>)}
+              {showZonePerformance && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ZonePerformance actions={displayActions} language={reportLanguage} /></CardContent></Card>)}
+              {showTimelapse && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><MatchTimelapse actions={actions} language={reportLanguage} /></CardContent></Card>)}
+              {showChanceCreation && analysis.striker_stats && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ChanceCreationFlow strikerStats={analysis.striker_stats as Record<string, any>} language={reportLanguage} /></CardContent></Card>)}
 
               {/* Auto-Calculated Ratios */}
               {calculatedStats.length > 0 && (
