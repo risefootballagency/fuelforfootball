@@ -28,9 +28,17 @@ const hasRecordedStats = (analysis: Analysis) => {
 };
 
 const getComparableMetricValue = (analysis: Analysis, key: string) => {
-  const raw = analysis.fixture_stats?.[key] ?? analysis.striker_stats?.[key];
-  if (raw == null || raw === "") return 0;
-  const value = Number(raw);
+  const v = sharedGetStatValue(analysis, key);
+  return v == null || isNaN(v) ? null : v;
+};
+
+const getComparableMetricAverage = (items: Analysis[], key: string): number | null => {
+  if (items.length === 0) return null;
+  // Exclude rows missing the metric so older fixtures don't drag GK averages to 0
+  const vals = items.map((a) => getComparableMetricValue(a, key)).filter((v): v is number => v != null);
+  if (vals.length === 0) return null;
+  return vals.reduce((s, v) => s + v, 0) / vals.length;
+};
   return Number.isFinite(value) ? value : 0;
 };
 
