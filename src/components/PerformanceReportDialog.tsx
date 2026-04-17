@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import { getR90Grade, getXGGrade, getXAGrade, getRegainsGrade, getInterceptionsGrade, getXGChainGrade, getProgressivePassesGrade, getPPTurnoversRatioGrade } from "@/lib/gradeCalculations";
-import { Download, X, ImageIcon, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, Link2, MessageSquareText, Filter, Lock, MapPin, Grid3X3, Timer } from "lucide-react";
+import { Download, X, ImageIcon, Video, Play, Calculator, TrendingUp, BarChart3, Film, Award, HelpCircle, Link2, MessageSquareText, Filter, Lock, MapPin, Grid3X3, Timer, ChevronDown, ChevronUp, Crosshair } from "lucide-react";
+import { ShotMapGraphic, hasShotMapData } from "@/components/report/ShotMapGraphic";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { ActionVideoPopup } from "@/components/ActionVideoPopup";
@@ -43,8 +44,11 @@ interface PerformanceAction {
   action_description: string;
   notes: string | null;
   video_url?: string | null;
+  clip_start?: number | null;
+  clip_end?: number | null;
   zone?: number | null;
   zone_details?: any | null;
+  recorded_stat?: unknown;
 }
 
 interface StrikerStats {
@@ -68,6 +72,8 @@ interface AnalysisDetails {
   placeholder_sr?: number | null;
   translated_content?: { language: string; fields: Record<string, string> } | null;
   show_action_descriptions?: boolean;
+  club_logo_url?: string | null;
+  opposition_color?: string | null;
 }
 
 interface PerformanceReportDialogProps {
@@ -95,6 +101,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const [showChanceCreation, setShowChanceCreation] = useState(false);
   const [showRankedPlayer, setShowRankedPlayer] = useState(false);
   const [rankedMode, setRankedMode] = useState<"chronological" | "ranked" | "noted">("chronological");
+  const [showShotMap, setShowShotMap] = useState(false);
+  const [showMatchStats, setShowMatchStats] = useState(false);
   const [showClippedActions, setShowClippedActions] = useState(false);
   const [showFilteredPlayer, setShowFilteredPlayer] = useState(false);
   const [showActionFilters, setShowActionFilters] = useState(false);
@@ -193,6 +201,8 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
             : (analysisResult.data as any).show_descriptions === false
             ? false
             : true,
+        club_logo_url: (analysisResult.data as any).club_logo_url || null,
+        opposition_color: (analysisResult.data as any).opposition_color || null,
       });
 
       if (actionsResult.error) throw actionsResult.error;
