@@ -750,17 +750,49 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                   </div>
                 </div>
                 
-                {/* Clipped Actions Button */}
+                {/* Video Options Row - directly below player info (RISE pattern) */}
                 {actions.filter(a => a.video_url).length > 0 && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="bg-accent hover:bg-accent/90 text-black font-semibold flex items-center gap-2"
-                    onClick={() => setShowClippedActions(true)}
-                  >
-                    <Play className="h-4 w-4" />
-                    {`${actions.filter(a => a.video_url).length} ${t(reportLanguage, "clips_label")}`}
-                  </Button>
+                  <div className="grid grid-cols-3 gap-1 md:gap-2">
+                    {actions.some(a => a.video_url && a.notes) ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-10 text-[11px] md:text-xs font-semibold px-1 md:px-3 truncate"
+                        onClick={() => { setRankedMode("noted"); setShowRankedPlayer(true); }}
+                      >
+                        <MessageSquareText className="hidden md:inline-block h-3.5 w-3.5 mr-1" />
+                        {t(reportLanguage, "noted_actions")}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="h-10 text-[11px] md:text-xs font-semibold px-1 md:px-3 truncate bg-accent hover:bg-accent/90 text-black"
+                        onClick={() => setShowClippedActions(true)}
+                      >
+                        <Play className="hidden md:inline-block h-3.5 w-3.5 mr-1" />
+                        {`${actions.filter(a => a.video_url).length} ${t(reportLanguage, "clips_label")}`}
+                      </Button>
+                    )}
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="h-10 text-[11px] md:text-xs font-semibold px-1 md:px-3 truncate bg-accent hover:bg-accent/90 text-black"
+                      onClick={() => { setRankedMode("chronological"); setShowRankedPlayer(true); }}
+                    >
+                      <Film className="hidden md:inline-block h-3.5 w-3.5 mr-1" />
+                      {t(reportLanguage, "full_match_video")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-10 text-[11px] md:text-xs font-semibold px-1 md:px-3 truncate"
+                      onClick={() => { setRankedMode("ranked"); setShowRankedPlayer(true); }}
+                    >
+                      <Award className="hidden md:inline-block h-3.5 w-3.5 mr-1" />
+                      {t(reportLanguage, "ranked_actions")}
+                    </Button>
+                  </div>
                 )}
               </div>
 
