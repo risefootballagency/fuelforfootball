@@ -219,6 +219,19 @@ const Dashboard = () => {
     return analysis.r90_score ?? null;
   };
 
+  // Auto-pull opposition club logos for fixture days (Programming schedule)
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const club = (playerData as any)?.club || (playerData as any)?.team || (playerData as any)?.current_club;
+      if (!club) return;
+      const map = await fetchFixtureLogosByDate((playerData as any)?.id, club);
+      if (!cancelled) setFixtureLogosByDate(map);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [(playerData as any)?.id, (playerData as any)?.club, (playerData as any)?.team, (playerData as any)?.current_club]);
+
   const checkNutritionPrograms = async (playerId: string) => {
     if (isDemoPortalMode()) {
       setHasNutritionPrograms(true);
