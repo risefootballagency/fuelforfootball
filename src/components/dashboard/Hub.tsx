@@ -21,6 +21,7 @@ import { ProgressSummary } from "@/components/portal/ProgressSummary";
 import { checkAndFireConfetti } from "@/lib/confetti";
 import { getDemoDate, getDemoDateISO } from "@/lib/demoDate";
 import grassDayBg from "@/assets/grass-day-bg.jpg";
+import { fetchFixtureLogosByDate, type FixtureLogoEntry } from "@/lib/fixtureLogos";
 
 // Helper: fetches next fixture for player's club and renders ParallaxHero with countdown
 const ParallaxHeroWithFixture = ({ playerData, marketingImages, imageFocalPoints }: { playerData: any; marketingImages: string[]; imageFocalPoints: string[] }) => {
@@ -202,7 +203,21 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   const [reportDialogOpen, setReportDialogOpen] = React.useState(false);
   const [selectedReportId, setSelectedReportId] = React.useState<string | null>(null);
   const [postMatchAnalyses, setPostMatchAnalyses] = React.useState<Map<string, { id: string; homeTeam: string; awayTeam: string }>>(new Map());
+  const [fixtureLogosByDate, setFixtureLogosByDate] = React.useState<Map<string, FixtureLogoEntry>>(new Map());
   const confettiFired = React.useRef(false);
+
+  // Pre-match opposition logos keyed by fixture date (auto schedule logos)
+  React.useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const club = playerData?.club || playerData?.team || playerData?.current_club;
+      if (!club) return;
+      const map = await fetchFixtureLogosByDate(playerData?.id, club);
+      if (!cancelled) setFixtureLogosByDate(map);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [playerData?.id, playerData?.club, playerData?.team, playerData?.current_club]);
 
   // Fire confetti on personal best R90
   React.useEffect(() => {
@@ -592,7 +607,10 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                   const teamSessionValue = currentSchedule[`${dayInfo.dayName}Team`] || '';
                   const colors = sessionValue ? getSessionColor(sessionValue) : { bg: 'hsl(0, 0%, 10%)', text: 'hsl(0, 0%, 100%)', hover: 'hsl(0, 0%, 15%)' };
                   const dayImageKey = `${dayInfo.dayName}Image`;
-                  const clubLogoUrl = currentSchedule[dayImageKey];
+                  const explicitLogo = currentSchedule[dayImageKey];
+                  const dateKey = format(dayInfo.date, 'yyyy-MM-dd');
+                  const fixtureLogo = fixtureLogosByDate.get(dateKey)?.oppositionLogo || null;
+                  const clubLogoUrl = explicitLogo || fixtureLogo;
                   
                   const isClickableSession = sessionValue && /^[A-H]$/i.test(sessionValue);
                   

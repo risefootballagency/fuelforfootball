@@ -48,6 +48,7 @@ import { PlayerTransferHub } from "@/components/player/TransferHub";
 import { CognisanceSection } from "@/components/portal/CognisanceSection";
 import { AnalysisDataTab } from "@/components/portal/AnalysisDataTab";
 import { AnalysisVideoReports } from "@/components/portal/AnalysisVideoReports";
+import { fetchFixtureLogosByDate, type FixtureLogoEntry } from "@/lib/fixtureLogos";
 import { AnalysisComparisons } from "@/components/portal/AnalysisComparisons";
 import { GoalTracking } from "@/components/portal/GoalTracking";
 import { InjuryLog } from "@/components/portal/InjuryLog";
@@ -185,6 +186,7 @@ const Dashboard = () => {
   const [hasNutritionPrograms, setHasNutritionPrograms] = useState(false);
   const [showAnalysisSub, setShowAnalysisSub] = useState(false);
   const [navDropdownOpen, setNavDropdownOpen] = useState(false);
+  const [fixtureLogosByDate, setFixtureLogosByDate] = useState<Map<string, FixtureLogoEntry>>(new Map());
   
   // Performance Report Dialog state
   const [performanceReportDialogOpen, setPerformanceReportDialogOpen] = useState(false);
@@ -207,11 +209,28 @@ const Dashboard = () => {
   const getEffectiveR90 = (analysis: Analysis): number | null => {
     const status = String(analysis.visibility_status || '').toLowerCase();
     if (status === 'draft' || status === 'clipped') return null;
-    if (status === 'hidden' && analysis.placeholder_raw_score != null && analysis.placeholder_minutes && analysis.placeholder_minutes > 0) {
-      return (analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90;
+    if (status === 'hidden') {
+      if ((analysis as any).placeholder_per != null) return Number((analysis as any).placeholder_per);
+      if (analysis.placeholder_raw_score != null && analysis.placeholder_minutes && analysis.placeholder_minutes > 0) {
+        return (analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90;
+      }
+      return null;
     }
-    return analysis.r90_score;
+    return analysis.r90_score ?? null;
   };
+
+  // Auto-pull opposition club logos for fixture days (Programming schedule)
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const club = (playerData as any)?.club || (playerData as any)?.team || (playerData as any)?.current_club;
+      if (!club) return;
+      const map = await fetchFixtureLogosByDate((playerData as any)?.id, club);
+      if (!cancelled) setFixtureLogosByDate(map);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [(playerData as any)?.id, (playerData as any)?.club, (playerData as any)?.team, (playerData as any)?.current_club]);
 
   const checkNutritionPrograms = async (playerId: string) => {
     if (isDemoPortalMode()) {
@@ -2187,7 +2206,7 @@ const Dashboard = () => {
                   <div className="space-y-2">
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowAnalysisSub(false); }}
-                      className="flex items-center gap-2 text-gold/70 hover:text-gold font-bebas uppercase text-sm px-2 py-1 transition-colors"
+                      className="flex items-center gap-2 text-white/70 hover:text-white font-bebas uppercase text-sm px-2 py-1 transition-colors"
                     >
                       <ChevronLeft className="h-4 w-4" />
                       Back
@@ -2215,8 +2234,8 @@ const Dashboard = () => {
                           }}
                           className={`flex flex-col items-center justify-center gap-1.5 cursor-pointer rounded-lg transition-all py-4 font-bebas uppercase text-xs sm:text-sm ${
                             activeTab === "analysis" && activeAnalysisTab === tab.value
-                              ? "bg-gold/20 text-gold border border-gold"
-                              : "text-gold/80 hover:text-gold hover:bg-gold/10"
+                              ? "bg-white/10 text-white border border-white"
+                              : "text-white/80 hover:text-white hover:bg-white/10"
                           }`}
                         >
                           {tab.icon}
@@ -2259,7 +2278,7 @@ const Dashboard = () => {
                         className={`flex flex-col items-center justify-center gap-2 cursor-pointer rounded-lg transition-all py-6 sm:py-8 ${
                           item.isHub
                             ? `font-bebas uppercase text-xl sm:text-2xl border-2 py-8 sm:py-10 ${activeTab === "hub" ? "bg-gold/20 text-gold border-gold" : "text-gold border-gold/30 hover:bg-gold/10 hover:border-gold/60"}`
-                            : `font-bebas uppercase text-sm sm:text-lg ${activeTab === item.tab || (item.isAnalysis && activeTab === "analysis") ? "bg-gold/20 text-gold border border-gold" : "text-gold/80 hover:text-gold hover:bg-gold/10"}`
+                            : `font-bebas uppercase text-sm sm:text-lg ${activeTab === item.tab || (item.isAnalysis && activeTab === "analysis") ? "bg-white/10 text-white border border-white" : "text-white/80 hover:text-white hover:bg-white/10"}`
                         }`}
                       >
                         {item.icon}
@@ -2929,7 +2948,7 @@ const Dashboard = () => {
                       {(() => {
                         // Get metric value based on selected metric
                         const getMetricValue = (analysis: any) => {
-                          if (selectedFormMetric === "r90") return analysis.r90_score;
+                          if (selectedFormMetric === "r90") return getEffectiveR90(analysis);
                           if (!analysis.striker_stats) return null;
                           
                           // Special case for progressive passes to turnovers ratio
@@ -3629,7 +3648,10 @@ const Dashboard = () => {
                                                     const weekDates = getWeekDates(week.week_start_date);
                                                     const dayDate = weekDates ? weekDates[day as keyof typeof weekDates] : null;
                                                     const dayImageKey = `${day}Image`; // Use camelCase for image field
-                                                    const clubLogoUrl = week[dayImageKey];
+                                                    const explicitLogo = week[dayImageKey];
+                                                    const dateKey = dayDate ? format(dayDate, 'yyyy-MM-dd') : null;
+                                                    const fixtureLogo = dateKey ? (fixtureLogosByDate.get(dateKey)?.oppositionLogo || null) : null;
+                                                    const clubLogoUrl = explicitLogo || fixtureLogo;
                                                     
                                                     return (
                                                       <div 

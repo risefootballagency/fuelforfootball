@@ -58,7 +58,7 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
     );
   }, [allPlayers, positionMetrics]);
 
-  if (allPlayers.length < 2) {
+  if (allPlayers.length === 0 || metricKeys.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground text-sm">
         <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -73,11 +73,11 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
   };
 
   return (
-    <div className="overflow-x-auto -mx-3">
-      <table className="w-full text-xs">
+    <div className="w-full max-w-full overflow-x-auto overflow-y-hidden -mx-3 px-3" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <table className="text-xs" style={{ minWidth: 'max-content' }}>
         <thead>
           <tr>
-            <th className="text-left p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10">{t(lang, "metric_label")}</th>
+            <th className="text-left p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10 min-w-[110px]">{t(lang, "metric_label")}</th>
             {allPlayers.map((p, i) => (
               <th key={i} className="p-2 text-center font-medium text-foreground min-w-[70px]">
                 {surname(p.name)}
@@ -92,7 +92,7 @@ export const ScoutingComparisonMatrix = ({ playerName, portalMetrics, hasPortalD
             const worst = Math.min(...vals);
             return (
               <tr key={key} className="border-t border-border/30">
-                <td className="p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10 whitespace-nowrap">
+                <td className="p-2 font-medium text-muted-foreground sticky left-0 bg-background z-10 whitespace-nowrap min-w-[110px]">
                   {translateMetricLabel(lang, key, metricLabels[key] || key)}
                 </td>
                 {allPlayers.map((p, i) => {

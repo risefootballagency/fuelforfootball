@@ -19,21 +19,30 @@ export const ProgressSummary = ({ playerId }: ProgressSummaryProps) => {
     const fetch = async () => {
       const { data: scores } = await sharedSupabase
         .from("player_analysis")
-        .select("r90_score, analysis_date, visibility_status, placeholder_raw_score, placeholder_minutes")
+        .select("r90_score, analysis_date, visibility_status, placeholder_raw_score, placeholder_minutes, placeholder_per")
         .eq("player_id", playerId)
-        .not("r90_score", "is", null)
         .order("analysis_date", { ascending: true })
-        .limit(10);
+        .limit(15);
 
       if (!scores || scores.length < 3) return;
 
-      const mapped = (scores as any[]).map((s) => {
-        let score = s.r90_score;
-        if (s.visibility_status === "hidden" && s.placeholder_raw_score != null && s.placeholder_minutes) {
-          score = (s.placeholder_raw_score / s.placeholder_minutes) * 90;
-        }
-        return { score, date: s.analysis_date };
-      });
+      const mapped = (scores as any[])
+        .map((s) => {
+          const status = String(s.visibility_status || "").toLowerCase();
+          if (status === "draft" || status === "clipped") return null;
+          let score: number | null = s.r90_score;
+          if (status === "hidden") {
+            if (s.placeholder_per != null) score = Number(s.placeholder_per);
+            else if (s.placeholder_raw_score != null && s.placeholder_minutes) {
+              score = (Number(s.placeholder_raw_score) / Number(s.placeholder_minutes)) * 90;
+            } else {
+              score = null;
+            }
+          }
+          return score == null ? null : { score, date: s.analysis_date };
+        })
+        .filter((x): x is { score: number; date: string } => x !== null)
+        .slice(-10);
 
       setData(mapped);
 

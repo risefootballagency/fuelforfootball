@@ -28,6 +28,7 @@ interface ActionReport {
   visibility_status?: string;
   placeholder_raw_score?: number | null;
   placeholder_minutes?: number | null;
+  placeholder_per?: number | null;
 }
 
 interface ActionReportsListProps {
@@ -93,6 +94,7 @@ export const ActionReportsList = ({ onCreateReport, onEditReport, defaultPlayerI
           visibility_status,
           placeholder_raw_score,
           placeholder_minutes,
+          placeholder_per,
           players!player_analysis_player_id_fkey (
             name,
             image_url
@@ -115,6 +117,7 @@ export const ActionReportsList = ({ onCreateReport, onEditReport, defaultPlayerI
         visibility_status: report.visibility_status || "draft",
         placeholder_raw_score: report.placeholder_raw_score,
         placeholder_minutes: report.placeholder_minutes,
+        placeholder_per: report.placeholder_per,
       }));
 
       setReports(formattedReports);
@@ -140,8 +143,12 @@ export const ActionReportsList = ({ onCreateReport, onEditReport, defaultPlayerI
   };
 
   const getEffectiveR90 = (report: ActionReport): number | null => {
-    if (report.visibility_status === "hidden" && report.placeholder_raw_score != null && report.placeholder_minutes) {
-      return (report.placeholder_raw_score / report.placeholder_minutes) * 90;
+    if (report.visibility_status === "hidden") {
+      if (report.placeholder_per != null) return Number(report.placeholder_per);
+      if (report.placeholder_raw_score != null && report.placeholder_minutes) {
+        return (report.placeholder_raw_score / report.placeholder_minutes) * 90;
+      }
+      return null;
     }
     return report.r90_score;
   };
