@@ -278,10 +278,10 @@ const PerformanceReport = () => {
   };
 
   // Format stat key to readable label using config lookup.
-  // Strips gk_/GK_ prefixes BEFORE config lookup so e.g. "gk_goals_conceded" → "Goals Conceded".
+  // Strips gk_/GK_/Gk_/Gk-/Gk space prefixes BEFORE config lookup so e.g.
+  // "gk_goals_conceded" → "Goals Conceded".
   const formatStatLabel = (key: string): string => {
-    const stripped = key.replace(/^gk[_-]?/i, '');
-    // Try config lookup with stripped key first, then raw key — case-insensitive
+    const stripped = key.replace(/^gk[_\-\s]*/i, '');
     let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) =>
       c.key === stripped || c.key.toLowerCase() === stripped.toLowerCase()
     );
@@ -290,7 +290,6 @@ const PerformanceReport = () => {
         c.key === key || c.key.toLowerCase() === key.toLowerCase()
       );
     }
-    // Sanitise any "Gk " prefix that may exist in config names
     if (config) return toTitleCase(config.name.replace(/^Gk\s+/i, ''));
     return toTitleCase(stripped.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim());
   };

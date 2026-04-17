@@ -307,33 +307,39 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
     }
   };
 
-  // Format stat key to readable label using config lookup, with portal translation
+  // Format stat key to readable label — strip GK prefixes BEFORE config lookup so e.g.
+  // "gk_goals_conceded" → "Goals Conceded". Forces Title Case for any fallback.
+  const toTitleCase = (s: string): string =>
+    s.replace(/\b\w/g, (c) => c.toUpperCase()).replace(/\s+/g, ' ').trim();
+
+  const cleanGkPrefix = (s: string): string => s.replace(/^gk[_\-\s]*/i, '').replace(/^Gk\s+/i, '');
+
   const formatStatLabel = (key: string): string => {
-    // Try exact match first
-    let config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key === key);
-    if (config) {
-      if (isPortalView && reportLanguage !== 'en') {
-        return translateStatLabel(reportLanguage, key, config.name);
-      }
-      return config.name;
+    const stripped = cleanGkPrefix(key);
+
+    // 1. Lookup using stripped key (case-insensitive)
+    let config = STAT_TYPE_CONFIGS.find(
+      (c: StatTypeConfig) => c.key === stripped || c.key.toLowerCase() === stripped.toLowerCase()
+    );
+    // 2. Fallback to raw key
+    if (!config) {
+      config = STAT_TYPE_CONFIGS.find(
+        (c: StatTypeConfig) => c.key === key || c.key.toLowerCase() === key.toLowerCase()
+      );
     }
-    
-    // Try lowercase match
-    const keyLower = key.toLowerCase();
-    config = STAT_TYPE_CONFIGS.find((c: StatTypeConfig) => c.key.toLowerCase() === keyLower);
+
     if (config) {
+      const cleanName = cleanGkPrefix(config.name);
       if (isPortalView && reportLanguage !== 'en') {
-        return translateStatLabel(reportLanguage, key, config.name);
+        return translateStatLabel(reportLanguage, key, cleanName);
       }
-      return config.name;
+      return cleanName;
     }
-    
-    // Fallback to formatted key
-    const fallback = key
-      .replace(/_/g, ' ')
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .trim();
+
+    // Fallback: format the stripped key into Title Case
+    const fallback = toTitleCase(
+      stripped.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()
+    );
     if (isPortalView && reportLanguage !== 'en') {
       return translateStatLabel(reportLanguage, key, fallback);
     }

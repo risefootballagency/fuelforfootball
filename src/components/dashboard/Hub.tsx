@@ -592,6 +592,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                   
                   const isClickableSession = sessionValue && /^[A-H]$/i.test(sessionValue);
                   
+                  const isEmpty = !sessionValue;
                   return (
                     <button
                       key={index}
@@ -599,7 +600,10 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                       disabled={!isClickableSession}
                       className="relative rounded-lg transition-all flex flex-col min-h-[80px] md:min-h-[100px] disabled:cursor-default overflow-hidden"
                       style={{
-                        backgroundColor: colors.bg,
+                        backgroundColor: isEmpty ? 'transparent' : colors.bg,
+                        backgroundImage: isEmpty ? `url(${grassDayBg})` : undefined,
+                        backgroundSize: isEmpty ? 'cover' : undefined,
+                        backgroundPosition: isEmpty ? 'center' : undefined,
                         color: colors.text,
                         cursor: isClickableSession ? 'pointer' : 'default',
                       }}
