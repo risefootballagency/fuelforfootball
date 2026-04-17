@@ -207,10 +207,14 @@ const Dashboard = () => {
   const getEffectiveR90 = (analysis: Analysis): number | null => {
     const status = String(analysis.visibility_status || '').toLowerCase();
     if (status === 'draft' || status === 'clipped') return null;
-    if (status === 'hidden' && analysis.placeholder_raw_score != null && analysis.placeholder_minutes && analysis.placeholder_minutes > 0) {
-      return (analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90;
+    if (status === 'hidden') {
+      if ((analysis as any).placeholder_per != null) return Number((analysis as any).placeholder_per);
+      if (analysis.placeholder_raw_score != null && analysis.placeholder_minutes && analysis.placeholder_minutes > 0) {
+        return (analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90;
+      }
+      return null;
     }
-    return analysis.r90_score;
+    return analysis.r90_score ?? null;
   };
 
   const checkNutritionPrograms = async (playerId: string) => {
@@ -2929,7 +2933,7 @@ const Dashboard = () => {
                       {(() => {
                         // Get metric value based on selected metric
                         const getMetricValue = (analysis: any) => {
-                          if (selectedFormMetric === "r90") return analysis.r90_score;
+                          if (selectedFormMetric === "r90") return getEffectiveR90(analysis);
                           if (!analysis.striker_stats) return null;
                           
                           // Special case for progressive passes to turnovers ratio
