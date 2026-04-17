@@ -3635,7 +3635,10 @@ const Dashboard = () => {
                                                     const weekDates = getWeekDates(week.week_start_date);
                                                     const dayDate = weekDates ? weekDates[day as keyof typeof weekDates] : null;
                                                     const dayImageKey = `${day}Image`; // Use camelCase for image field
-                                                    const clubLogoUrl = week[dayImageKey];
+                                                    const explicitLogo = week[dayImageKey];
+                                                    const dateKey = dayDate ? format(dayDate, 'yyyy-MM-dd') : null;
+                                                    const fixtureLogo = dateKey ? (fixtureLogosByDate.get(dateKey)?.oppositionLogo || null) : null;
+                                                    const clubLogoUrl = explicitLogo || fixtureLogo;
                                                     
                                                     return (
                                                       <div 
