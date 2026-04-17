@@ -19,6 +19,7 @@ import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
 import { t, translateMetricLabel, translateMetricCategory } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
+import { getStatValue as sharedGetStatValue } from "@/lib/statAggregation";
 
 const RadarChart3D = lazy(() => import("@/components/portal/RadarChart3D").then(m => ({ default: m.RadarChart3D })));
 
@@ -39,13 +40,8 @@ const getComparableMetricAverage = (items: Analysis[], key: string): number | nu
   if (vals.length === 0) return null;
   return vals.reduce((s, v) => s + v, 0) / vals.length;
 };
-  return Number.isFinite(value) ? value : 0;
-};
 
-const getComparableMetricAverage = (items: Analysis[], key: string) => {
-  if (items.length === 0) return null;
-  return items.reduce((sum, analysis) => sum + getComparableMetricValue(analysis, key), 0) / items.length;
-};
+
 
 interface Analysis {
   id: string;
