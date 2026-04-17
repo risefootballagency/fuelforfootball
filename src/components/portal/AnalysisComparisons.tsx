@@ -349,14 +349,12 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
                               <span className="text-sm">{translateMetricLabel(lang, m.key, m.label)}{m.key.endsWith('_pct') ? '' : ` ${t(lang, "per_game")}`}</span>
                               <div className="flex items-center gap-3">
                                 <span className="text-sm text-muted-foreground">{value.toFixed(2)}{m.key.endsWith('_pct') ? '%' : ''}</span>
-                                <span className="text-lg font-bold text-primary w-12 text-right">{pct}%</span>
+                                <span className="text-lg font-bold text-accent w-12 text-right">{pct}%</span>
                               </div>
                             </div>
                             <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                               <div
-                                className={`h-full rounded-full transition-all duration-700 ${
-                                  pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'
-                                }`}
+                                className="h-full rounded-full transition-all duration-700 bg-accent"
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
