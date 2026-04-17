@@ -79,7 +79,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
   const posMetrics = getMetricsForPosition(playerData?.position);
   const [comparisonPlayers, setComparisonPlayers] = useState<ComparisonPlayer[]>([]);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
-  const [formWindow, setFormWindow] = useState<number>(5);
+  const [formWindow, setFormWindow] = useState<number>(50);
   const [subTab, setSubTab] = useState<string>("scatter");
   const [selectedMetricKey, setSelectedMetricKey] = useState<string>(posMetrics[0]?.key || 'goals_per90');
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -185,7 +185,7 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
   return (
     <div className="space-y-6">
       {/* Form window selector */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <span className="text-sm font-medium">{t(lang, "form")}:</span>
         {[5, 10, 20].map(n => (
           <button
@@ -200,6 +200,16 @@ export const AnalysisComparisons = ({ analyses, playerData, embedded }: Props) =
             {t(lang, "last_n")} {n}
           </button>
         ))}
+        <button
+          onClick={() => setFormWindow(50)}
+          className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+            formWindow >= 50
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'border-border hover:bg-muted'
+          }`}
+        >
+          {t(lang, "all") || "All"}
+        </button>
       </div>
 
       {/* Searchable player picker */}

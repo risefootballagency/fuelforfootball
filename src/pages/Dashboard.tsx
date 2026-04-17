@@ -2191,7 +2191,7 @@ const Dashboard = () => {
                   <div className="space-y-2">
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowAnalysisSub(false); }}
-                      className="flex items-center gap-2 text-gold/70 hover:text-gold font-bebas uppercase text-sm px-2 py-1 transition-colors"
+                      className="flex items-center gap-2 text-white/70 hover:text-white font-bebas uppercase text-sm px-2 py-1 transition-colors"
                     >
                       <ChevronLeft className="h-4 w-4" />
                       Back
@@ -2219,8 +2219,8 @@ const Dashboard = () => {
                           }}
                           className={`flex flex-col items-center justify-center gap-1.5 cursor-pointer rounded-lg transition-all py-4 font-bebas uppercase text-xs sm:text-sm ${
                             activeTab === "analysis" && activeAnalysisTab === tab.value
-                              ? "bg-gold/20 text-gold border border-gold"
-                              : "text-gold/80 hover:text-gold hover:bg-gold/10"
+                              ? "bg-white/10 text-white border border-white"
+                              : "text-white/80 hover:text-white hover:bg-white/10"
                           }`}
                         >
                           {tab.icon}
@@ -2263,7 +2263,7 @@ const Dashboard = () => {
                         className={`flex flex-col items-center justify-center gap-2 cursor-pointer rounded-lg transition-all py-6 sm:py-8 ${
                           item.isHub
                             ? `font-bebas uppercase text-xl sm:text-2xl border-2 py-8 sm:py-10 ${activeTab === "hub" ? "bg-gold/20 text-gold border-gold" : "text-gold border-gold/30 hover:bg-gold/10 hover:border-gold/60"}`
-                            : `font-bebas uppercase text-sm sm:text-lg ${activeTab === item.tab || (item.isAnalysis && activeTab === "analysis") ? "bg-gold/20 text-gold border border-gold" : "text-gold/80 hover:text-gold hover:bg-gold/10"}`
+                            : `font-bebas uppercase text-sm sm:text-lg ${activeTab === item.tab || (item.isAnalysis && activeTab === "analysis") ? "bg-white/10 text-white border border-white" : "text-white/80 hover:text-white hover:bg-white/10"}`
                         }`}
                       >
                         {item.icon}
