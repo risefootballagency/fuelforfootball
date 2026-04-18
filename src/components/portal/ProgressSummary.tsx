@@ -32,8 +32,7 @@ export const ProgressSummary = ({ playerId }: ProgressSummaryProps) => {
           if (status === "draft" || status === "clipped") return null;
           let score: number | null = s.r90_score;
           if (status === "hidden") {
-            if (s.placeholder_per != null) score = Number(s.placeholder_per);
-            else if (s.placeholder_raw_score != null && s.placeholder_minutes) {
+            if (s.placeholder_raw_score != null && s.placeholder_minutes) {
               score = (Number(s.placeholder_raw_score) / Number(s.placeholder_minutes)) * 90;
             } else {
               score = null;
