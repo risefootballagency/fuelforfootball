@@ -1,6 +1,6 @@
-// CACHE VERSION - Updated automatically on each deploy via build process
+// CACHE VERSION - bumped on freeze-frame annotation rollout (2026-04-18)
 // Users will always get fresh HTML from network, cache is only for offline fallback
-const CACHE_VERSION = 'fff-v' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
+const CACHE_VERSION = 'fff-v' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-annotfreeze2';
 const CACHE_NAME = `${CACHE_VERSION}`;
 const ASSETS_CACHE = `${CACHE_VERSION}-assets`;
 

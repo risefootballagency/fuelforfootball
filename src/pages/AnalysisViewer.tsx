@@ -1003,10 +1003,17 @@ const AnnotatedPointVideo = ({
   const handleFullscreen = () => {
     const container = videoContainerRef.current;
     if (!container) return;
-    const videoEl = container.querySelector('video');
-    if (videoEl) {
-      if (videoEl.requestFullscreen) videoEl.requestFullscreen();
-      else if ((videoEl as any).webkitEnterFullscreen) (videoEl as any).webkitEnterFullscreen();
+    // Fullscreen the CONTAINER (not the bare <video>) so the SVG annotation
+    // overlay travels into fullscreen with the video. iOS Safari falls back
+    // to native video fullscreen which strips the overlay — accepted limitation.
+    if (container.requestFullscreen) {
+      container.requestFullscreen().catch(() => {
+        const videoEl = container.querySelector('video') as any;
+        if (videoEl?.webkitEnterFullscreen) videoEl.webkitEnterFullscreen();
+      });
+    } else {
+      const videoEl = container.querySelector('video') as any;
+      if (videoEl?.webkitEnterFullscreen) videoEl.webkitEnterFullscreen();
     }
   };
 

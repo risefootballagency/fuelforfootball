@@ -6,7 +6,7 @@ import { t } from '@/lib/portalTranslations';
 import { useSharedClipPlayer, type SharedClipPlayerState } from '@/hooks/useSharedClipPlayer';
 import { toast } from 'sonner';
 import { isFullMatchUrl } from '@/lib/clipVideoUtils';
-import { ReadOnlyAnnotationOverlay } from '@/components/portal/ReadOnlyAnnotationOverlay';
+import { ReadOnlyAnnotationPlayback } from '@/components/portal/ReadOnlyAnnotationPlayback';
 
 interface ActionVideoPopupProps {
   open: boolean;
@@ -135,8 +135,18 @@ export const ActionVideoPopup = ({
             </div>
           )}
 
-          {/* Standalone clip: simple video element */}
-          {isStandaloneClip && (
+          {/* Standalone clip with annotations: use ReadOnlyAnnotationPlayback (freeze-frame logic) */}
+          {isStandaloneClip && annotations && annotations.length > 0 && (
+            <div className="w-full max-h-[80vh]">
+              <ReadOnlyAnnotationPlayback
+                videoUrl={videoUrl}
+                preloadedElements={annotations as any}
+              />
+            </div>
+          )}
+
+          {/* Standalone clip without annotations: simple video element */}
+          {isStandaloneClip && (!annotations || annotations.length === 0) && (
             <>
               <video
                 ref={standaloneVideoRef}
@@ -213,13 +223,6 @@ export const ActionVideoPopup = ({
                 </div>
               )}
             </>
-          )}
-          {annotations && annotations.length > 0 && (
-            <ReadOnlyAnnotationOverlay
-              elements={annotations}
-              videoRef={(hasClipWindow ? player.videoRef : standaloneVideoRef) as React.RefObject<HTMLVideoElement>}
-              clipStart={hasClipWindow ? (clipStart ?? 0) : 0}
-            />
           )}
         </div>
       </DialogContent>
