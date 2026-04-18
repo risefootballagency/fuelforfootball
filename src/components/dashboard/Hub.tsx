@@ -503,8 +503,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     const status = String(a.visibility_status || "").toLowerCase();
     if (status === "draft" || status === "clipped") return null;
     if (status === "hidden") {
-      // Prefer manual placeholder values (hidden score override)
-      if ((a as any).placeholder_per != null) return Number((a as any).placeholder_per);
+      // R90 for hidden reports comes ONLY from raw_score / minutes.
+      // placeholder_per is the PER metric, not R90.
       if (a.placeholder_raw_score != null && a.placeholder_minutes) {
         return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
       }
