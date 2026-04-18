@@ -1094,9 +1094,10 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                             </div>
                             {action.video_url && (
                               <button
-                                onClick={() => {
+                                onClick={async () => {
                                   setSelectedVideoUrl(action.video_url!);
                                   setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
+                                  setSelectedAnnotations(await loadAnnotationElements(action.annotation_id));
                                 }}
                                 className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0"
                               >
@@ -1143,9 +1144,10 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                               <td className="py-2 px-2 text-center">
                                 {action.video_url ? (
                                   <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                       setSelectedVideoUrl(action.video_url!);
                                       setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
+                                      setSelectedAnnotations(await loadAnnotationElements(action.annotation_id));
                                     }}
                                     className="text-accent hover:text-accent/80 p-1"
                                   >
@@ -1177,10 +1179,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
             if (!open) {
               setSelectedVideoUrl(null);
               setSelectedVideoTitle("");
+              setSelectedAnnotations(null);
             }
           }}
           videoUrl={selectedVideoUrl}
           actionTitle={selectedVideoTitle}
+          annotations={selectedAnnotations}
         />
       )}
 
