@@ -44,6 +44,7 @@ interface PerformanceAction {
   action_description: string;
   notes: string | null;
   video_url?: string | null;
+  annotation_id?: string | null;
   clip_start?: number | null;
   clip_end?: number | null;
   zone?: number | null;
@@ -92,6 +93,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
+  const [selectedAnnotations, setSelectedAnnotations] = useState<any[] | null>(null);
   const [showR90Flow, setShowR90Flow] = useState(false);
   const [showR90Info, setShowR90Info] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
