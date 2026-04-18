@@ -210,7 +210,8 @@ const Dashboard = () => {
     const status = String(analysis.visibility_status || '').toLowerCase();
     if (status === 'draft' || status === 'clipped') return null;
     if (status === 'hidden') {
-      if ((analysis as any).placeholder_per != null) return Number((analysis as any).placeholder_per);
+      // R90 for hidden reports comes ONLY from raw_score / minutes.
+      // placeholder_per is the PER metric, not R90.
       if (analysis.placeholder_raw_score != null && analysis.placeholder_minutes && analysis.placeholder_minutes > 0) {
         return (analysis.placeholder_raw_score / analysis.placeholder_minutes) * 90;
       }

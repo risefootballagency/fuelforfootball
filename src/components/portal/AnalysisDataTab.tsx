@@ -65,9 +65,9 @@ const getStatValue = (analysis: Analysis, key: string): number | null => {
 const getEffectiveR90 = (a: Analysis): number | null => {
   const status = String(a.visibility_status || '').toLowerCase();
   if (status === 'draft' || status === 'clipped') return null;
-  // Hidden status: prefer manual placeholder values over auto r90 score
+  // Hidden status: R90 derives ONLY from raw_score/minutes.
+  // placeholder_per is the PER metric, not R90.
   if (status === 'hidden') {
-    if ((a as any).placeholder_per != null) return Number((a as any).placeholder_per);
     if (a.placeholder_raw_score != null && a.placeholder_minutes) {
       return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
     }
