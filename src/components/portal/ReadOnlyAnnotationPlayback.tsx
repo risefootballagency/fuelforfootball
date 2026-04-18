@@ -7,6 +7,9 @@ import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 /**
  * Shared read-only annotation playback component.
  * Mirrors the editor's rendering and freeze/pause behaviour exactly.
+ * Mirrors the RISE Football implementation — overlay uses absolute inset-0
+ * with aspect-video + objectFit:fill so the SVG box matches the video box
+ * without any geometry measurement.
  */
 
 interface Props {
@@ -14,15 +17,6 @@ interface Props {
   annotationProjectId?: string;
   preloadedElements?: AnnotationElement[];
   className?: string;
-  disableFreeze?: boolean;
-  visibilityTargetRef?: React.RefObject<HTMLElement>;
-}
-
-interface OverlayBox {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
 }
 
 function parseClipFragment(url: string): { cleanUrl: string; clipStart: number; clipEnd: number | null } {
@@ -60,15 +54,11 @@ const extractAnnotationElements = (klips: unknown): AnnotationElement[] => {
   return (klips as any[]).flatMap((klip: any) => (Array.isArray(klip?.elements) ? klip.elements : []));
 };
 
-let currentlyPlayingReadOnlyVideo: HTMLVideoElement | null = null;
-
 export const ReadOnlyAnnotationPlayback = ({
   videoUrl,
   annotationProjectId,
   preloadedElements,
   className = "",
-  disableFreeze = false,
-  visibilityTargetRef,
 }: Props) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -77,12 +67,17 @@ export const ReadOnlyAnnotationPlayback = ({
   const [freezeActive, setFreezeActive] = useState(false);
   const [freezeFrameUrl, setFreezeFrameUrl] = useState<string | null>(null);
   const [freezePhase, setFreezePhase] = useState<'idle' | 'showing' | 'fading'>('idle');
-  const [overlayBox, setOverlayBox] = useState<OverlayBox | null>(null);
   // Loop cycle key — increments on every backward jump to force SVG remount
   // so all SVG <animate> elements restart cleanly each replay.
   const [loopCycleKey, setLoopCycleKey] = useState(0);
-  // IDs of annotations already shown during a freeze in the current loop cycle.
-  // After the freeze fades out we MUST NOT show them again until the next loop.
+  // Defer attaching the video source until the element scrolls near the
+  // viewport. This lets pages with many embedded clips (e.g. AnalysisViewer)
+  // render their full layout first without competing for bandwidth on every
+  // video at once.
+  const [shouldLoad, setShouldLoad] = useState(false);
+  // IDs of annotations already shown during a freeze in the current loop
+  // cycle. After the freeze fades out we MUST NOT show them again until
+  // the next loop — they are a freeze-frame asset only.
   const consumedIdsRef = useRef<Set<string>>(new Set());
 
   // Use refs to avoid RAF dependency on state
@@ -98,151 +93,36 @@ export const ReadOnlyAnnotationPlayback = ({
 
   const { cleanUrl, clipStart, clipEnd } = useMemo(() => parseClipFragment(videoUrl), [videoUrl]);
 
-  const updateOverlayBox = useCallback(() => {
-    const video = videoRef.current;
-    const container = containerRef.current;
-
-    if (!video || !container) {
-      setOverlayBox(null);
+  // Lazy-load: only attach the video src once the container is within ~600px
+  // of the viewport. This keeps the page structure responsive while videos
+  // queue up in the background as the user scrolls.
+  useEffect(() => {
+    if (shouldLoad) return;
+    const node = containerRef.current;
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setShouldLoad(true);
       return;
     }
-
-    const videoRect = video.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-
-    if (videoRect.width <= 0 || videoRect.height <= 0 || containerRect.width <= 0 || containerRect.height <= 0) {
-      setOverlayBox(null);
-      return;
-    }
-
-    const nextBox = {
-      left: Math.max(0, videoRect.left - containerRect.left),
-      top: Math.max(0, videoRect.top - containerRect.top),
-      width: videoRect.width,
-      height: videoRect.height,
-    };
-
-    setOverlayBox((current) => {
-      if (
-        current &&
-        Math.abs(current.left - nextBox.left) < 0.5 &&
-        Math.abs(current.top - nextBox.top) < 0.5 &&
-        Math.abs(current.width - nextBox.width) < 0.5 &&
-        Math.abs(current.height - nextBox.height) < 0.5
-      ) {
-        return current;
-      }
-
-      return nextBox;
-    });
-  }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    const container = containerRef.current;
-
-    if (!video || !container) return;
-
-    const scheduleUpdate = () => {
-      requestAnimationFrame(updateOverlayBox);
-    };
-
-    scheduleUpdate();
-
-    const resizeObserver = typeof ResizeObserver !== "undefined"
-      ? new ResizeObserver(scheduleUpdate)
-      : null;
-
-    resizeObserver?.observe(container);
-    resizeObserver?.observe(video);
-
-    const videoEvents: Array<keyof HTMLMediaElementEventMap> = [
-      "loadedmetadata",
-      "loadeddata",
-      "canplay",
-      "play",
-      "pause",
-    ];
-
-    videoEvents.forEach((eventName) => video.addEventListener(eventName, scheduleUpdate));
-    window.addEventListener("resize", scheduleUpdate);
-    document.addEventListener("fullscreenchange", scheduleUpdate);
-
-    return () => {
-      resizeObserver?.disconnect();
-      videoEvents.forEach((eventName) => video.removeEventListener(eventName, scheduleUpdate));
-      window.removeEventListener("resize", scheduleUpdate);
-      document.removeEventListener("fullscreenchange", scheduleUpdate);
-    };
-  }, [cleanUrl, updateOverlayBox]);
-
-  // Auto-play when scrolling into view, pause when scrolling away
-  useEffect(() => {
-    const video = videoRef.current;
-    const observerTarget = visibilityTargetRef?.current ?? containerRef.current;
-    if (!video) return;
-
-    const handlePlay = () => {
-      if (currentlyPlayingReadOnlyVideo && currentlyPlayingReadOnlyVideo !== video) {
-        currentlyPlayingReadOnlyVideo.pause();
-      }
-      currentlyPlayingReadOnlyVideo = video;
-    };
-
-    const handleStop = () => {
-      if (currentlyPlayingReadOnlyVideo === video) {
-        currentlyPlayingReadOnlyVideo = null;
-      }
-    };
-
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handleStop);
-    video.addEventListener('ended', handleStop);
-
-    if (!observerTarget) {
-      return () => {
-        video.removeEventListener('play', handlePlay);
-        video.removeEventListener('pause', handleStop);
-        video.removeEventListener('ended', handleStop);
-        if (currentlyPlayingReadOnlyVideo === video) currentlyPlayingReadOnlyVideo = null;
-      };
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          if (currentlyPlayingReadOnlyVideo && currentlyPlayingReadOnlyVideo !== video) {
-            currentlyPlayingReadOnlyVideo.pause();
-          }
-          video.play().catch(() => {});
-        } else {
-          video.pause();
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries.some(e => e.isIntersecting)) {
+          setShouldLoad(true);
+          obs.disconnect();
         }
       },
-      { threshold: 0.3 }
+      { rootMargin: '600px 0px' }
     );
+    obs.observe(node);
+    return () => obs.disconnect();
+  }, [shouldLoad]);
 
-    observer.observe(observerTarget);
-    return () => {
-      observer.disconnect();
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handleStop);
-      video.removeEventListener('ended', handleStop);
-      if (currentlyPlayingReadOnlyVideo === video) currentlyPlayingReadOnlyVideo = null;
-    };
-  }, [visibilityTargetRef]);
-
-  // Load annotation project
+  // Load annotation project — dual-DB lookup (shared first, then local)
   useEffect(() => {
     if (preloadedElements) {
       setElements(preloadedElements);
       return;
     }
-
-    if (!annotationProjectId) {
-      setElements([]);
-      return;
-    }
+    if (!annotationProjectId) { setElements([]); return; }
 
     let cancelled = false;
 
@@ -253,7 +133,6 @@ export const ReadOnlyAnnotationPlayback = ({
           .select("klips")
           .eq("id", annotationProjectId)
           .maybeSingle();
-
         return extractAnnotationElements(data?.klips);
       } catch {
         return [];
@@ -270,9 +149,7 @@ export const ReadOnlyAnnotationPlayback = ({
       setElements(sharedEls.length > 0 ? sharedEls : localEls);
     });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [annotationProjectId, preloadedElements]);
 
   useEffect(() => {
@@ -298,16 +175,14 @@ export const ReadOnlyAnnotationPlayback = ({
       }
 
       const now = video.currentTime;
-      const loopedNaturally = video.loop && video.duration > 0 && lastTimeRef.current > Math.max(video.duration - 1, 0) && now < 1;
+      const prevTime = lastTimeRef.current;
 
-      // Reset trigger history on backward seeks (loop, seek, clip restart) — clears consumed IDs and remounts SVG.
-      if (!freezeActiveRef.current && lastTimeRef.current > 0 && now < lastTimeRef.current - 0.5) {
-        if (!internalLoopRef.current && !loopedNaturally) {
-          triggeredTimesRef.current.clear();
-          lastFreezeTriggerTimeRef.current = -1;
-        }
-        // Always clear consumed IDs and remount SVG on any backward jump (including natural loops)
+      // Detect any backward jump (loop, seek, clip restart) and reset triggers
+      if (!freezeActiveRef.current && prevTime > 0 && now < prevTime - 0.5) {
+        triggeredTimesRef.current.clear();
         consumedIdsRef.current.clear();
+        lastFreezeTriggerTimeRef.current = -1;
+        // Force SVG remount so <animate> nodes restart cleanly on every replay
         setLoopCycleKey(k => k + 1);
       }
 
@@ -354,7 +229,9 @@ export const ReadOnlyAnnotationPlayback = ({
     freezeActiveRef.current = true;
     setFreezeActive(true);
     setFreezePhase('showing');
-    // During the freeze every triggered annotation is fully visible — bypass animateIn fades.
+    // During the freeze we want every triggered annotation visible at full
+    // opacity. We pass forceOpacity:1 here so the SVG ignores animateIn/Out
+    // entrance fades during the pause.
     const frozen = computed.map(el => ({ ...el, computedOpacity: 1 }));
     setVisibleEls(frozen);
 
@@ -401,27 +278,39 @@ export const ReadOnlyAnnotationPlayback = ({
       }
 
       const relTime = video.currentTime - clipStart;
-      const computedRaw = computeVisibleElements(elements as AnnotationElement[], relTime, { forceOpacity: null });
+      const computedRaw = computeVisibleElements(elements as AnnotationElement[], relTime, {
+        forceOpacity: null,
+      });
       // Filter out anything already shown during a freeze in this loop cycle.
       const computed = computedRaw.filter(el => !consumedIdsRef.current.has(el.id));
 
-      // Check for new annotations that haven't triggered a freeze yet
-      if (!disableFreeze && !video.paused && computed.length > 0) {
-        const newElements = computed.filter(el => {
-          return !triggeredTimesRef.current.has(el.id) &&
-                 el.appearAt > lastFreezeTriggerTimeRef.current;
-        });
+      // Check for any annotation whose appearAt has been reached but has not
+      // yet triggered its own freeze. Each annotation triggers its OWN freeze
+      // on its OWN timestamp — we no longer use a "last trigger time" gate
+      // because that caused later annotations on the same clip to be swallowed.
+      if (!video.paused && computed.length > 0) {
+        const dueNow = computed.filter(el =>
+          relTime >= el.appearAt &&
+          !triggeredTimesRef.current.has(el.id) &&
+          !consumedIdsRef.current.has(el.id)
+        );
 
-        if (newElements.length > 0) {
-          lastFreezeTriggerTimeRef.current = Math.max(relTime, ...computed.map(el => el.appearAt));
-          newElements.forEach(el => triggeredTimesRef.current.add(el.id));
-          startFreezeRef.current(computed, video);
+        if (dueNow.length > 0) {
+          // Group annotations whose appearAt is within ~0.2s of the earliest
+          // due one so genuinely simultaneous markers freeze together, but
+          // separated ones each get their own freeze cycle.
+          const earliest = Math.min(...dueNow.map(el => el.appearAt));
+          const grouped = dueNow.filter(el => Math.abs(el.appearAt - earliest) < 0.2);
+          grouped.forEach(el => triggeredTimesRef.current.add(el.id));
+          startFreezeRef.current(grouped, video);
           rafRef.current = requestAnimationFrame(tick);
           return;
         }
       }
 
-      setVisibleEls(computed);
+      // Freeze-only contract: outside a freeze, never render annotation SVG.
+      // We still keep visibleEls in state for the freeze handler to consume.
+      setVisibleEls([]);
       rafRef.current = requestAnimationFrame(tick);
     };
 
@@ -429,7 +318,7 @@ export const ReadOnlyAnnotationPlayback = ({
     return () => {
       cancelAnimationFrame(rafRef.current);
     };
-  }, [elements, clipStart, disableFreeze]);
+  }, [elements, clipStart]);
 
   // Cleanup timers on unmount
   useEffect(() => {
@@ -471,6 +360,10 @@ export const ReadOnlyAnnotationPlayback = ({
         const adx = (el.x2 ?? x) - x;
         const ady = (el.y2 ?? y) - y;
         const arrowLen = Math.sqrt(adx * adx + ady * ady) || 1;
+        const trim = mw;
+        const trimRatio = Math.max(0, (arrowLen - trim) / arrowLen);
+        const tx2 = x + adx * trimRatio;
+        const ty2 = y + ady * trimRatio;
         return (
           <g key={el.id} opacity={opacity}>
             <defs>
@@ -478,7 +371,7 @@ export const ReadOnlyAnnotationPlayback = ({
                 <polygon points={`0 0, ${mw} ${mh / 2}, 0 ${mh}`} fill={el.color} />
               </marker>
             </defs>
-            <line x1={`${x}%`} y1={`${y}%`} x2={`${el.x2}%`} y2={`${el.y2}%`}
+            <line x1={`${x}%`} y1={`${y}%`} x2={`${tx2}%`} y2={`${ty2}%`}
               stroke={el.color} strokeWidth={el.strokeWidth} strokeLinecap="round" markerEnd={`url(#${mid})`}
               strokeDasharray={getDashArray(el.dashPattern, el.strokeWidth) || `${arrowLen}`}
             >
@@ -813,21 +706,59 @@ export const ReadOnlyAnnotationPlayback = ({
       }
 
       case 'magnifier': {
+        const zoom = el.zoomLevel || 1.5;
         const r = el.radius || 3;
+        const clipId = `ro-mag-clip-${el.id}`;
         const magCircPerim = 2 * Math.PI * r;
         const magDash = `${magCircPerim * 0.12} ${magCircPerim * 0.06}`;
+        const video = videoRef.current;
+
+        let dataUrl = '';
+        if (video && video.readyState >= 2) {
+          try {
+            const vw = video.videoWidth || 1;
+            const vh = video.videoHeight || 1;
+            const centreVX = (el.x / 100) * vw;
+            const centreVY = (el.y / 100) * vh;
+            const regionW = vw / zoom;
+            const regionH = vh / zoom;
+            const sx = Math.max(0, Math.min(vw - regionW, centreVX - regionW / 2));
+            const sy = Math.max(0, Math.min(vh - regionH, centreVY - regionH / 2));
+            const canvas = document.createElement('canvas');
+            const outSize = 256;
+            canvas.width = outSize;
+            canvas.height = outSize;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(video, sx, sy, regionW, regionH, 0, 0, outSize, outSize);
+              dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            }
+          } catch { /* cross-origin */ }
+        }
+
         return (
           <g key={el.id} opacity={opacity}>
+            <defs>
+              <clipPath id={clipId}>
+                <circle cx={`${x}%`} cy={`${y}%`} r={`${r}%`} />
+              </clipPath>
+            </defs>
+            {dataUrl && (
+              <image
+                href={dataUrl}
+                x={`${x - r}%`} y={`${y - r}%`}
+                width={`${r * 2}%`} height={`${r * 2}%`}
+                clipPath={`url(#${clipId})`}
+                preserveAspectRatio="xMidYMid slice"
+                style={{ pointerEvents: 'none' }}
+              />
+            )}
             <circle cx={`${x}%`} cy={`${y}%`} r={`${r}%`}
-              fill="rgba(0,0,0,0.3)" stroke="white" strokeWidth={0.8} strokeOpacity={0.9}
+              fill={dataUrl ? 'none' : 'rgba(0,0,0,0.3)'} stroke="white" strokeWidth={0.8} strokeOpacity={0.9}
               strokeDasharray={magDash}>
               <animate attributeName="r" from="0" to={`${r}%`} dur="0.3s" fill="freeze" />
               <animate attributeName="stroke-dashoffset" from={`${magCircPerim}`} to="0" dur="8s" repeatCount="indefinite" />
             </circle>
-            <text x={`${x}%`} y={`${(y || 0) - r - 0.8}%`}
-              fill="white" fontSize="1.2%" textAnchor="middle" opacity={0.6}>
-              🔍 {el.zoomLevel || 1.5}x
-            </text>
           </g>
         );
       }
@@ -846,64 +777,48 @@ export const ReadOnlyAnnotationPlayback = ({
   };
 
   const hasAnnotations = elements.length > 0;
-  // Always render whatever computeVisibleElements says is visible right now
-  // (consumed-during-freeze IDs are already filtered out in the RAF loop).
   const renderedVisibleEls = visibleEls;
-  const overlayStyle = overlayBox
-    ? {
-        left: `${overlayBox.left}px`,
-        top: `${overlayBox.top}px`,
-        width: `${overlayBox.width}px`,
-        height: `${overlayBox.height}px`,
-      }
-    : undefined;
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      {freezeActive && freezeFrameUrl && overlayStyle && (
-        <div className="absolute overflow-hidden pointer-events-none z-[1]" style={overlayStyle}>
-          <img
-            src={freezeFrameUrl}
-            className="w-full h-full"
-            alt=""
-            style={{
-              opacity: freezePhase === 'fading' ? 0 : 1,
-              transition: 'opacity 0.4s ease-out',
-            }}
-          />
-        </div>
+      {freezeActive && freezeFrameUrl && (
+        <img
+          src={freezeFrameUrl}
+          className="absolute inset-0 w-full h-full aspect-video object-fill z-[1]"
+          alt=""
+          style={{
+            opacity: freezePhase === 'fading' ? 0 : 1,
+            transition: 'opacity 0.4s ease-out',
+          }}
+        />
       )}
       <video
         ref={videoRef}
-        src={cleanUrl}
+        {...(shouldLoad ? { src: cleanUrl } : {})}
         autoPlay
         loop
         muted
         playsInline
         crossOrigin="anonymous"
-        className="w-full cursor-pointer"
-        style={{ display: 'block', width: '100%', height: 'auto' }}
-        onClick={() => {
-          const v = videoRef.current;
-          if (!v) return;
-          if (v.paused) v.play().catch(() => {});
-          else v.pause();
-        }}
+        preload={shouldLoad ? "auto" : "none"}
+        className="w-full aspect-video"
+        style={{ display: 'block', width: '100%', objectFit: 'fill', backgroundColor: '#000' }}
       />
-      {hasAnnotations && renderedVisibleEls.length > 0 && overlayStyle && (
-        <div
-          className="absolute pointer-events-none"
+      {hasAnnotations && renderedVisibleEls.length > 0 && (
+        <svg
+          key={loopCycleKey}
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
           style={{
-            ...overlayStyle,
+            objectFit: 'fill',
             zIndex: 2,
             opacity: freezePhase === 'fading' ? 0 : 1,
             transition: freezePhase === 'fading' ? 'opacity 0.4s ease-out' : 'none',
           }}
         >
-          <svg key={loopCycleKey} className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            {renderedVisibleEls.map(renderElement)}
-          </svg>
-        </div>
+          {renderedVisibleEls.map(renderElement)}
+        </svg>
       )}
     </div>
   );
