@@ -1047,8 +1047,8 @@ const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => 
           <AnnotatedPointVideo
             key={i}
             url={url}
-            annotationId={resolveAnnotationProjectId(resolveMappedValue<unknown>(point.annotation_ids, url, i))}
-            crop={resolveMappedValue<{ top: number; right: number; bottom: number; left: number }>(point.video_crops, url, i)}
+            annotationId={point.annotation_ids?.[url]}
+            crop={point.video_crops?.[url]}
             audioUrl={i === 0 ? audioUrl : undefined}
           />
         ))}
