@@ -215,9 +215,13 @@ export const ReadOnlyAnnotationPlayback = ({
     };
 
     video.addEventListener('loadedmetadata', onLoaded);
+    video.addEventListener('canplay', onCanPlay);
+    video.addEventListener('loadeddata', onCanPlay);
     video.addEventListener('timeupdate', onTimeUpdate);
     return () => {
       video.removeEventListener('loadedmetadata', onLoaded);
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('loadeddata', onCanPlay);
       video.removeEventListener('timeupdate', onTimeUpdate);
     };
   }, [clipStart, clipEnd]);
