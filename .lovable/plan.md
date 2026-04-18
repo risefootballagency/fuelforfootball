@@ -1,88 +1,57 @@
 
-Diagnosis
 
-The regression is now clear: the recent shared hidden-R90 logic is wrong.
+## Plan
 
-What happened:
-- `src/lib/r90Resolver.ts` now treats `placeholder_per` as the hidden R90 override.
-- But in this project, `placeholder_per` is the PER metric, not R90.
-- The editor and viewer still prove that:
-  - `CreatePerformanceReportDialog.tsx` saves `placeholder_per` as PER and `placeholder_sr` as SR.
-  - `HiddenScoresGrid.tsx` renders `placeholderPer` under a "PER" label, while hidden R90 is still calculated from `placeholder_raw_score / placeholder_minutes * 90`.
+### Issue 1 — Annotations not rendering on Analysis Viewer (CRITICAL)
 
-So the app currently has two conflicting meanings for the same field:
-- some places use `placeholder_per` as PER
-- newer resolver-based places use `placeholder_per` as hidden R90
+**Root cause** (verified by diffing `src/components/portal/ReadOnlyAnnotationPlayback.tsx` against the working RISE Football version):
 
-That is why hidden reports now show seemingly random R90 values and why different screens disagree.
+Our local file has two mechanisms that RISE does not have, and together they completely suppress annotation rendering:
 
-Implementation plan
+1. **`overlayBox` measurement gate** — our overlay only renders if `overlayStyle` (computed from `getBoundingClientRect()` on the video) is non-null. On first render, during cropped layout, or when the video is not yet measured, `overlayStyle` is `null` and the entire SVG is hidden. RISE simply uses `absolute inset-0 w-full h-full` with `aspect-video` and never measures.
 
-1. Fix the shared source of truth
-- Rewrite `src/lib/r90Resolver.ts` so hidden R90 is resolved only from:
-  - `placeholder_raw_score`
-  - `placeholder_minutes`
-- Do not use `placeholder_per` for R90 anywhere.
-- Keep draft/clipped as `null`, live as `r90_score`.
+2. **Freeze-only contract** — our RAF tick does `setVisibleEls([])` outside a freeze (line 283). Combined with `AnalysisViewer` passing `disableFreeze={true}`, the freeze branch never runs either, so `visibleEls` is always empty and nothing is ever rendered. RISE's RAF does `setVisibleEls(computed)` outside freeze, so annotations show during normal playback whenever they fall within their `appearAt..appearAt+duration` window.
 
-2. Replace the broken mixed logic everywhere hidden R90 appears
-Update all report-score surfaces to use the corrected resolver consistently:
-- `src/pages/Dashboard.tsx`
-- `src/components/dashboard/Hub.tsx`
-- `src/components/portal/AnalysisDataTab.tsx`
-- `src/components/portal/ProgressSummary.tsx`
-- `src/components/staff/analysis/ActionReportsList.tsx`
-- `src/pages/AnalysisViewer.tsx`
+Additional smaller deltas:
+- RISE passes the video `src` lazily (IntersectionObserver gate via `shouldLoad`) — keeps many embedded clips performant. We don't have this.
+- RISE uses `aspect-video` + `objectFit: fill` on both `<video>` and overlay so SVG always matches the video box geometry without measurement.
+- RISE's freeze frame `<img>` is `absolute inset-0` (not positioned by measured overlayBox).
 
-3. Audit remaining direct `r90_score` renderers
-Any place still reading raw `r90_score` for report display/listing/charting will be corrected if hidden reports can appear there. The main ones I identified:
-- `src/components/portal/AllReportsSection.tsx`
-- `src/components/dashboard/QuickStatsComparison.tsx`
-- `src/components/PlayerDataOverlay.tsx`
-- `src/components/staff/ScoutedPlayersSection.tsx`
-- any remaining Hub/Dashboard confetti/comparison logic still using raw `r90_score`
+`AnalysisViewer.tsx` `AnnotatedPointVideo` currently passes `disableFreeze` and `visibilityTargetRef` — props that don't exist on RISE and that interact badly with our broken local logic. RISE's caller is much simpler.
 
-4. Keep PER/SR separate and correct
-- `HiddenScoresGrid.tsx` should remain:
-  - R90 from raw/minutes
-  - PER from `placeholder_per`
-  - SR from `placeholder_sr`
-- Any live/hidden match-stat areas using PER/SR will keep those fields as PER/SR only.
+**Fix** — replace `src/components/portal/ReadOnlyAnnotationPlayback.tsx` with the RISE implementation (preserving our shared-DB fallback for `annotation_projects` lookup, since this project uses dual-DB and RISE doesn't):
 
-5. Align with RISE where appropriate
-- RISE uses raw/minutes for hidden R90 in the viewer and hub flows.
-- I will mirror that structure here, but also keep the newer shared resolver so this project has one correct hidden-R90 path instead of scattered copies.
+- Remove `overlayBox` / `updateOverlayBox` / ResizeObserver geometry measurement entirely.
+- Remove `disableFreeze` and `visibilityTargetRef` props from the component signature.
+- Restore RISE's RAF: `setVisibleEls(computed)` outside freeze (so annotations render during normal playback).
+- Restore RISE's lazy `shouldLoad` IntersectionObserver gate for the video `src` (helps the analysis viewer with many clips).
+- Restore RISE's `aspect-video` + `objectFit: fill` styling on `<video>`, `<svg>` and freeze `<img>` so SVG geometry trivially matches the video.
+- Keep our dual-DB lookup: try `sharedSupabase` then `supabase` for `annotation_projects.klips`.
+- Update `AnalysisViewer.tsx` `AnnotatedPointVideo` to drop `disableFreeze` and `visibilityTargetRef` (they no longer exist), matching RISE's much simpler caller.
 
-Technical notes
+Audit any other callers of `ReadOnlyAnnotationPlayback` for removed props (likely none, but I'll grep before committing).
 
-Current broken conflict:
-```text
-placeholder_raw_score + placeholder_minutes -> hidden R90
-placeholder_per -> PER
-placeholder_sr -> SR
+### Issue 2 — "Offensive (12)" sticky headers should be FFF Yellow, not dark green
 
-But current resolver incorrectly does:
-hidden R90 = placeholder_per first
-```
+The headers currently use `text-primary` (dark forest green) in three places:
 
-This explains the exact symptom:
-```text
-PER values are leaking into R90 displays
-while other screens still compute hidden R90 from raw/minutes
-```
+1. `src/components/report/RankedActionsPlayer.tsx:316` — Noted Reports + Full Match + Ranked Actions all share this player; this is the visible offender.
+2. `src/components/ClippedActionsPlayer.tsx:307` — same sticky header pattern in the clipped actions player.
+3. `src/components/staff/ActionTypeEditor.tsx:859` — staff editor category headers (smaller `h3`, but mentioned as "etc.").
 
-Verification after implementation
+**Fix** — change `text-primary` → `text-accent` (FFF Yellow per project tokens) on those three header lines. Leaves the `border-b border-border/20` and bg untouched.
 
-I will verify one hidden report end-to-end across:
-- portal Hub form bars
-- Dashboard form chart
-- Analysis data tables/charts
-- report cards/lists
-- analysis viewer linked R90 badge
-- hidden report viewer cards
+### Files to edit
 
-Success condition:
-- every hidden report shows the same R90 everywhere
-- that R90 matches `placeholder_raw_score / placeholder_minutes * 90`
-- PER and SR remain separate and unchanged
-- no hidden report falls back to raw auto `r90_score` unless it is actually live
+- `src/components/portal/ReadOnlyAnnotationPlayback.tsx` — rewrite to RISE structure + dual-DB lookup
+- `src/pages/AnalysisViewer.tsx` — drop `disableFreeze` / `visibilityTargetRef` from `AnnotatedPointVideo`
+- `src/components/report/RankedActionsPlayer.tsx` — `text-primary` → `text-accent` on category sticky header
+- `src/components/ClippedActionsPlayer.tsx` — `text-primary` → `text-accent` on category sticky header
+- `src/components/staff/ActionTypeEditor.tsx` — `text-primary` → `text-accent` on category h3
+
+### Verification (after switch to default mode)
+
+- Open an analysis viewer page with at least one point that has annotations on its clip → annotations now appear synced with playback (lines, arrows, circles, etc.).
+- Open noted/full-match/ranked player from a performance report → category headers ("Offensive (12)", "Defensive (8)", etc.) render in FFF yellow.
+- Open the staff Action Type Editor → category headers also render in FFF yellow.
+
