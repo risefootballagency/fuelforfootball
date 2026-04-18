@@ -1051,7 +1051,9 @@ export type Database = {
           notes: string | null
           package_size: number
           player_id: string
+          service_id: string | null
           started_at: string
+          title: string | null
           updated_at: string
         }
         Insert: {
@@ -1060,7 +1062,9 @@ export type Database = {
           notes?: string | null
           package_size?: number
           player_id: string
+          service_id?: string | null
           started_at?: string
+          title?: string | null
           updated_at?: string
         }
         Update: {
@@ -1069,7 +1073,9 @@ export type Database = {
           notes?: string | null
           package_size?: number
           player_id?: string
+          service_id?: string | null
           started_at?: string
+          title?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -2183,6 +2189,7 @@ export type Database = {
           action_score: number | null
           action_type: string | null
           analysis_id: string
+          annotation_id: string | null
           clip_id: string | null
           created_at: string | null
           id: string
@@ -2201,6 +2208,7 @@ export type Database = {
           action_score?: number | null
           action_type?: string | null
           analysis_id: string
+          annotation_id?: string | null
           clip_id?: string | null
           created_at?: string | null
           id?: string
@@ -2219,6 +2227,7 @@ export type Database = {
           action_score?: number | null
           action_type?: string | null
           analysis_id?: string
+          annotation_id?: string | null
           clip_id?: string | null
           created_at?: string | null
           id?: string
