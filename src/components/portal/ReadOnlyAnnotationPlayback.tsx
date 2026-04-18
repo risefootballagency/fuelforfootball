@@ -67,6 +67,9 @@ export const ReadOnlyAnnotationPlayback = ({
   const [freezeActive, setFreezeActive] = useState(false);
   const [freezeFrameUrl, setFreezeFrameUrl] = useState<string | null>(null);
   const [freezePhase, setFreezePhase] = useState<'idle' | 'showing' | 'fading'>('idle');
+  // Poster captured from the first frame so videos don't flash pure black
+  // while the file is still buffering.
+  const [posterUrl, setPosterUrl] = useState<string | null>(null);
   // Loop cycle key — increments on every backward jump to force SVG remount
   // so all SVG <animate> elements restart cleanly each replay.
   const [loopCycleKey, setLoopCycleKey] = useState(0);
@@ -90,6 +93,7 @@ export const ReadOnlyAnnotationPlayback = ({
   const lastTimeRef = useRef<number>(-1);
   const lastFreezeTriggerTimeRef = useRef<number>(-1);
   const internalLoopRef = useRef(false);
+  const posterCapturedRef = useRef(false);
 
   const { cleanUrl, clipStart, clipEnd } = useMemo(() => parseClipFragment(videoUrl), [videoUrl]);
 
@@ -166,6 +170,26 @@ export const ReadOnlyAnnotationPlayback = ({
 
     const onLoaded = () => {
       if (clipStart > 0) video.currentTime = clipStart;
+    };
+
+    // Capture a poster frame as soon as the first frame paints so the video
+    // box never shows pure black while autoplay/buffering kicks in.
+    const onCanPlay = () => {
+      if (posterCapturedRef.current) return;
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 360;
+        const ctx = canvas.getContext('2d');
+        if (ctx && canvas.width > 0 && canvas.height > 0) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          if (dataUrl && dataUrl.length > 100) {
+            setPosterUrl(dataUrl);
+            posterCapturedRef.current = true;
+          }
+        }
+      } catch { /* cross-origin — fall back to gradient bg */ }
     };
 
     const onTimeUpdate = () => {
