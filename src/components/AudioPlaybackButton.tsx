@@ -89,14 +89,7 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
   return (
     <button
       onClick={handleToggle}
-      className="flex items-center justify-center gap-1.5 rounded-full backdrop-blur-sm transition-all hover:scale-110 active:scale-95"
-      style={{
-        width: 40,
-        height: 40,
-        backgroundColor: isPlaying ? 'hsl(var(--primary))' : 'hsl(var(--background) / 0.7)',
-        color: isPlaying ? 'hsl(var(--primary-foreground))' : 'hsl(var(--primary))',
-        border: '2px solid hsl(var(--primary))',
-      }}
+      className="bg-black/50 backdrop-blur-sm rounded-full w-9 h-9 flex items-center justify-center hover:bg-black/70 transition-colors"
       title={isPlaying ? "Stop audio" : "Listen"}
     >
       {isPlaying ? (
@@ -107,13 +100,13 @@ export const AudioPlaybackButton = ({ audioUrl }: AudioPlaybackButtonProps) => {
               custom={i}
               variants={barVariants}
               animate="playing"
-              className="w-[2.5px] origin-bottom rounded-full bg-primary-foreground"
+              className="w-[2px] origin-bottom rounded-full bg-white"
               style={{ height: '100%' }}
             />
           ))}
         </div>
       ) : (
-        <Volume2 className="h-5 w-5" />
+        <Volume2 className="w-4 h-4 text-white" />
       )}
     </button>
   );
