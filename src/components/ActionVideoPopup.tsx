@@ -222,14 +222,6 @@ export const ActionVideoPopup = ({
                   </div>
                 </div>
               )}
-              {/* Clipped video annotations: overlay (kept for back-compat with shared player) */}
-              {annotations && annotations.length > 0 && (
-                <ReadOnlyAnnotationOverlayLazy
-                  elements={annotations}
-                  videoRef={player.videoRef as React.RefObject<HTMLVideoElement>}
-                  clipStart={clipStart ?? 0}
-                />
-              )}
             </>
           )}
         </div>
