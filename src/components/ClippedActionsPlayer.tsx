@@ -304,7 +304,7 @@ export const ClippedActionsPlayer = ({
           <div ref={clipListRef} className="bg-black/95 border-t border-border/30 overflow-y-auto shrink-0 max-h-[35vh]">
             {categoryOrder.filter(cat => categorisedClips[cat]?.length).map(cat => (
               <div key={cat}>
-                <div className="sticky top-0 bg-black/90 px-4 py-1.5 text-[10px] uppercase tracking-wider text-primary font-semibold border-b border-border/20">
+                <div className="sticky top-0 bg-black/90 px-4 py-1.5 text-[10px] uppercase tracking-wider text-accent font-semibold border-b border-border/20">
                   {cat} ({categorisedClips[cat].length})
                 </div>
                 {categorisedClips[cat].map(clip => (

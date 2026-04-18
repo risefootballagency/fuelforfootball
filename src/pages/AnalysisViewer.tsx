@@ -1017,8 +1017,6 @@ const AnnotatedPointVideo = ({
           <ReadOnlyAnnotationPlayback
             videoUrl={url}
             annotationProjectId={annotationId}
-            disableFreeze
-            visibilityTargetRef={videoContainerRef}
           />
         </div>
       </div>

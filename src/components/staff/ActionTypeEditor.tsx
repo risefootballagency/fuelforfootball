@@ -856,7 +856,7 @@ export const ActionTypeEditor = ({
                 <div className="p-3 space-y-1">
                   {categoriesToShow.map(([category, items]) => (
                     <div key={category}>
-                      <h3 className="text-xs font-semibold text-primary mb-1.5">{category} <span className="text-[10px] text-muted-foreground font-normal">({items.length})</span></h3>
+                      <h3 className="text-xs font-semibold text-accent mb-1.5">{category} <span className="text-[10px] text-muted-foreground font-normal">({items.length})</span></h3>
                       <div className="space-y-0.5 mb-3">
                         {items.map(({ action, index }) => (
                           <button key={index} className={`w-full text-left border rounded-lg px-3 py-2 flex items-center gap-2 text-xs ${selectedActionIndex === index ? "ring-1 ring-primary border-primary bg-primary/10" : "border-border/50 hover:bg-accent/50"}`} onClick={() => { selectAction(index); setMobileBottomView('details'); }}>
