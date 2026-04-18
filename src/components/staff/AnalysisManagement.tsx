@@ -26,6 +26,7 @@ import { AnalysisSchemeSection } from "./analysis/AnalysisSchemeSection";
 import { AnalysisPointsSection } from "./analysis/AnalysisPointsSection";
 import { AnalysisOverviewSection } from "./analysis/AnalysisOverviewSection";
 import { AnalysisQuickLink } from "./analysis/AnalysisQuickLink";
+import { FFFPackageHeader } from "./FFFPackageHeader";
 import { ActionReportsList } from "./analysis/ActionReportsList";
 
 type AnalysisType = "pre-match" | "post-match" | "concept";
@@ -1623,6 +1624,15 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
         </div>
 
         <div className="space-y-4">
+          {/* Fuel For Football package tracker — shows for any selected player */}
+          {selectedPlayerId && selectedPlayerId !== "none" && (
+            <FFFPackageHeader
+              playerId={selectedPlayerId}
+              currentAnalysisId={editingAnalysis?.id || null}
+              currentFixtureId={formData.fixture_id || null}
+            />
+          )}
+
           {/* Quick Link - only show when creating new analysis (not for concepts) */}
           {!editingAnalysis && !isConcept && (
             <AnalysisQuickLink
