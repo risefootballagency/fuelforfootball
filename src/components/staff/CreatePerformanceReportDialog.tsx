@@ -32,6 +32,7 @@ import { FixtureStatsEditor, UNIFIED_TO_FIXTURE_MAP, FIXTURE_TO_UNIFIED_MAP } fr
 import { InlineFixtureCreator } from "./InlineFixtureCreator";
 import { logActivity } from "@/lib/activityLogger";
 import { ReportLanguageSelector } from "./ReportLanguageSelector";
+import { FFFPackageHeader } from "./FFFPackageHeader";
 import { parseMinuteToSeconds } from "@/lib/actionSorting";
 import { ZonePitchSelector, type ZonePoint } from "@/components/report/ZonePitchSelector";
 import { fetchPlayerActionFrequencies, canonicalActionType } from "@/lib/playerActionFrequency";
@@ -2910,7 +2911,14 @@ export const CreatePerformanceReportDialog = ({
           </div>
 
           <h1 className="text-2xl font-bold mb-6">{analysisId ? 'Edit' : 'Create'} Performance Report - {playerName}</h1>
-          
+
+          <div className="mb-4">
+            <FFFPackageHeader
+              playerId={playerId}
+              currentPerformanceReportId={analysisId || null}
+            />
+          </div>
+
           {mainContent}
         </div>
         {additionalDialogs}
@@ -2928,6 +2936,13 @@ export const CreatePerformanceReportDialog = ({
             {languageSelector}
           </div>
         </DialogHeader>
+
+        <div className="mb-4">
+          <FFFPackageHeader
+            playerId={playerId}
+            currentPerformanceReportId={analysisId || null}
+          />
+        </div>
 
         {mainContent}
       </DialogContent>
