@@ -98,8 +98,8 @@ export const ReadOnlyAnnotationPlayback = ({
   const { cleanUrl, clipStart, clipEnd } = useMemo(() => parseClipFragment(videoUrl), [videoUrl]);
 
   // Lazy-load: only attach the video src once the container is within ~600px
-  // of the viewport. This keeps the page structure responsive while videos
-  // queue up in the background as the user scrolls.
+  // of the viewport. Includes a 1.5s safety timeout in case IntersectionObserver
+  // never fires (e.g. parent has negative margins / overflow-hidden geometry).
   useEffect(() => {
     if (shouldLoad) return;
     const node = containerRef.current;
@@ -117,10 +117,17 @@ export const ReadOnlyAnnotationPlayback = ({
       { rootMargin: '600px 0px' }
     );
     obs.observe(node);
-    return () => obs.disconnect();
+    const safetyTimer = window.setTimeout(() => {
+      setShouldLoad(true);
+      obs.disconnect();
+    }, 1500);
+    return () => {
+      obs.disconnect();
+      window.clearTimeout(safetyTimer);
+    };
   }, [shouldLoad]);
 
-  // Load annotation project — dual-DB lookup (shared first, then local)
+  // Load annotation project — sequential dual-DB lookup (shared first, fallback to local)
   useEffect(() => {
     if (preloadedElements) {
       setElements(preloadedElements);
@@ -143,15 +150,20 @@ export const ReadOnlyAnnotationPlayback = ({
       }
     };
 
-    Promise.allSettled([
-      loadFromClient(sharedSupabase),
-      loadFromClient(supabase),
-    ]).then(([sharedResult, localResult]) => {
+    (async () => {
+      const sharedEls = await loadFromClient(sharedSupabase);
       if (cancelled) return;
-      const sharedEls = sharedResult.status === 'fulfilled' ? sharedResult.value : [];
-      const localEls = localResult.status === 'fulfilled' ? localResult.value : [];
-      setElements(sharedEls.length > 0 ? sharedEls : localEls);
-    });
+      if (sharedEls.length > 0) {
+        setElements(sharedEls);
+        return;
+      }
+      const localEls = await loadFromClient(supabase);
+      if (cancelled) return;
+      if (localEls.length === 0) {
+        console.warn(`[ReadOnlyAnnotationPlayback] No annotation elements found for project ${annotationProjectId}`);
+      }
+      setElements(localEls);
+    })();
 
     return () => { cancelled = true; };
   }, [annotationProjectId, preloadedElements]);
@@ -829,7 +841,7 @@ export const ReadOnlyAnnotationPlayback = ({
         muted
         playsInline
         crossOrigin="anonymous"
-        preload={shouldLoad ? "auto" : "metadata"}
+        preload={shouldLoad ? "auto" : "none"}
         className="w-full aspect-video"
         style={{
           display: 'block',

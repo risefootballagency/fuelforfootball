@@ -1035,14 +1035,16 @@ const AnnotatedPointVideo = ({
   );
 };
 
-// Render video_urls array or singular video_url for a point, with optional crop
+// Render video_urls array or singular video_url for a point, with optional crop.
+// Mirrors RISE: flex column with -mx-4 md:-mx-6 directly (no extra wrapper),
+// so IntersectionObserver geometry stays clean and lazy-load fires reliably.
 const PointVideos = ({ point, audioUrl }: { point: any; audioUrl?: string }) => {
   const videoUrls: string[] = point.video_urls?.length > 0 ? point.video_urls : point.video_url ? [point.video_url] : [];
   if (videoUrls.length === 0) return null;
 
   return (
     <TextReveal delay={0.2}>
-      <div className="space-y-3 -mx-[24px] md:-mx-[40px]">
+      <div className="flex flex-col gap-4 -mx-4 md:-mx-6">
         {videoUrls.map((url: string, i: number) => (
           <AnnotatedPointVideo
             key={i}
