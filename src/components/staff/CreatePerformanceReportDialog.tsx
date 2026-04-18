@@ -116,6 +116,7 @@ interface PerformanceAction {
   action_description: string;
   notes: string;
   video_url?: string | null;
+  annotation_id?: string | null;
   recorded_stat?: RecordedStat | RecordedStat[] | null;
   zone?: number | null;
   zone_details?: ZonePoint[] | null;
@@ -1054,6 +1055,7 @@ export const CreatePerformanceReportDialog = ({
             action_description: action.action_description || "",
             notes: action.notes || "",
             video_url: action.video_url || null,
+            annotation_id: (action as any).annotation_id || null,
             recorded_stat: action.recorded_stat as unknown as RecordedStat | null,
             zone: action.zone || null,
             zone_details: (action as any).zone_details || null,
@@ -1137,6 +1139,7 @@ export const CreatePerformanceReportDialog = ({
             action_description: action.action_description || "",
             notes: action.notes || "",
             video_url: action.video_url || null,
+            annotation_id: (action as any).annotation_id || null,
             recorded_stat: action.recorded_stat as unknown as RecordedStat | null,
             zone: action.zone || null,
             zone_details: (action as any).zone_details || null,
@@ -1933,8 +1936,12 @@ export const CreatePerformanceReportDialog = ({
                         <ActionVideoUpload
                           actionId={action.id}
                           currentVideoUrl={action.video_url || null}
+                          annotationId={action.annotation_id || null}
                           onVideoUploaded={(videoUrl) => {
                             updateAction(index, 'video_url', videoUrl);
+                          }}
+                          onAnnotationSaved={(annotationId) => {
+                            updateAction(index, 'annotation_id' as any, annotationId);
                           }}
                           analysisId={analysisId}
                         />
@@ -2336,8 +2343,12 @@ export const CreatePerformanceReportDialog = ({
                           <ActionVideoUpload
                             actionId={action.id}
                             currentVideoUrl={action.video_url || null}
+                            annotationId={action.annotation_id || null}
                             onVideoUploaded={(videoUrl) => {
                               updateAction(index, 'video_url', videoUrl);
+                            }}
+                            onAnnotationSaved={(annotationId) => {
+                              updateAction(index, 'annotation_id' as any, annotationId);
                             }}
                             analysisId={analysisId}
                           />

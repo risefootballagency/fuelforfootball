@@ -44,6 +44,7 @@ interface PerformanceAction {
   action_description: string;
   notes: string | null;
   video_url?: string | null;
+  annotation_id?: string | null;
   clip_start?: number | null;
   clip_end?: number | null;
   zone?: number | null;
@@ -83,6 +84,22 @@ interface PerformanceReportDialogProps {
   isPortalView?: boolean;
 }
 
+// Load annotation elements for an action's clip popup
+const loadAnnotationElements = async (annotationId?: string | null): Promise<any[] | null> => {
+  if (!annotationId) return null;
+  try {
+    const { data } = await supabase
+      .from("annotation_projects")
+      .select("klips")
+      .eq("id", annotationId)
+      .maybeSingle();
+    if (!data?.klips || !Array.isArray(data.klips)) return null;
+    return (data.klips as any[]).flatMap((k: any) => k.elements || []);
+  } catch {
+    return null;
+  }
+};
+
 export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPortalView = false }: PerformanceReportDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisDetails | null>(null);
@@ -92,6 +109,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
   const contentRef = useRef<HTMLDivElement>(null);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
+  const [selectedAnnotations, setSelectedAnnotations] = useState<any[] | null>(null);
   const [showR90Flow, setShowR90Flow] = useState(false);
   const [showR90Info, setShowR90Info] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
@@ -1092,9 +1110,10 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                             </div>
                             {action.video_url && (
                               <button
-                                onClick={() => {
+                                onClick={async () => {
                                   setSelectedVideoUrl(action.video_url!);
                                   setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
+                                  setSelectedAnnotations(await loadAnnotationElements(action.annotation_id));
                                 }}
                                 className="text-accent hover:text-accent/80 p-0.5 flex-shrink-0"
                               >
@@ -1141,9 +1160,10 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                               <td className="py-2 px-2 text-center">
                                 {action.video_url ? (
                                   <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                       setSelectedVideoUrl(action.video_url!);
                                       setSelectedVideoTitle(`#${action.action_number} - ${action.action_type}`);
+                                      setSelectedAnnotations(await loadAnnotationElements(action.annotation_id));
                                     }}
                                     className="text-accent hover:text-accent/80 p-1"
                                   >
@@ -1175,10 +1195,12 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
             if (!open) {
               setSelectedVideoUrl(null);
               setSelectedVideoTitle("");
+              setSelectedAnnotations(null);
             }
           }}
           videoUrl={selectedVideoUrl}
           actionTitle={selectedVideoTitle}
+          annotations={selectedAnnotations}
         />
       )}
 

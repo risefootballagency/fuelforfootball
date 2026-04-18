@@ -1,9 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Video, Upload, X, Loader2, Film, Play } from 'lucide-react';
+import { Video, Upload, X, Loader2, Film, Play, PenLine } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { sharedSupabase as supabase } from '@/integrations/supabase/sharedClient';
+import { supabase as localSupabase } from '@/integrations/supabase/client';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { AnnotationEditor } from '@/components/staff/annotations/AnnotationEditor';
+import type { AnnotationProject } from '@/components/staff/annotations/AnnotationProjects';
+import { ReadOnlyAnnotationPlayback } from '@/components/portal/ReadOnlyAnnotationPlayback';
 import { toast } from 'sonner';
 
 interface LinkedClip {
@@ -23,6 +28,10 @@ interface ActionVideoUploadProps {
   onVideoUploaded: (videoUrl: string | null) => void;
   disabled?: boolean;
   analysisId?: string;
+  /** Existing annotation project id linked to this action's clip */
+  annotationId?: string | null;
+  /** Called when an annotation has been saved against this action */
+  onAnnotationSaved?: (annotationId: string | null) => void;
 }
 
 export const ActionVideoUpload = ({
@@ -31,6 +40,8 @@ export const ActionVideoUpload = ({
   onVideoUploaded,
   disabled = false,
   analysisId,
+  annotationId,
+  onAnnotationSaved,
 }: ActionVideoUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState('');
@@ -39,7 +50,34 @@ export const ActionVideoUpload = ({
   const [linkedClips, setLinkedClips] = useState<LinkedClip[]>([]);
   const [loadingClips, setLoadingClips] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [annotateOpen, setAnnotateOpen] = useState(false);
+  const [annotationProject, setAnnotationProject] = useState<AnnotationProject | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load existing annotation project when annotationId is provided
+  useEffect(() => {
+    if (!annotationId) {
+      setAnnotationProject(null);
+      return;
+    }
+    localSupabase
+      .from('annotation_projects')
+      .select('*')
+      .eq('id', annotationId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setAnnotationProject({
+            id: data.id,
+            name: data.name,
+            videoUrl: data.video_url,
+            videoName: data.video_name,
+            createdAt: data.created_at,
+            klips: Array.isArray(data.klips) ? (data.klips as any) : [],
+          });
+        }
+      });
+  }, [annotationId]);
 
   const fetchLinkedClips = async () => {
     if (!analysisId) return;
@@ -170,12 +208,14 @@ export const ActionVideoUpload = ({
     try {
       const { error } = await supabase
         .from('performance_report_actions')
-        .update({ video_url: null })
+        .update({ video_url: null, annotation_id: null } as any)
         .eq('id', actionId);
 
       if (error) throw error;
 
       onVideoUploaded(null);
+      onAnnotationSaved?.(null);
+      setAnnotationProject(null);
       toast.success('Video removed');
     } catch (error: any) {
       console.error('Error removing video:', error);
@@ -185,11 +225,65 @@ export const ActionVideoUpload = ({
     }
   };
 
+  const handleOpenAnnotate = () => {
+    if (!currentVideoUrl) return;
+    if (annotationProject) {
+      setAnnotateOpen(true);
+      return;
+    }
+    setAnnotationProject({
+      id: crypto.randomUUID(),
+      name: 'Action Clip Annotation',
+      videoUrl: currentVideoUrl,
+      videoName: `action-${actionId}`,
+      createdAt: new Date().toISOString(),
+      klips: [],
+    });
+    setAnnotateOpen(true);
+  };
+
+  const handleSaveAnnotation = async (proj: AnnotationProject) => {
+    try {
+      const { data: { user } } = await localSupabase.auth.getUser();
+      if (!user) {
+        toast.error('Must be logged in to save annotations');
+        return;
+      }
+
+      const { error: upsertErr } = await localSupabase
+        .from('annotation_projects')
+        .upsert({
+          id: proj.id,
+          name: proj.name,
+          video_url: proj.videoUrl,
+          video_name: proj.videoName,
+          klips: JSON.parse(JSON.stringify(proj.klips)),
+          user_id: user.id,
+        });
+      if (upsertErr) throw upsertErr;
+
+      // Link annotation to the action so the report renders it
+      const { error: linkErr } = await localSupabase
+        .from('performance_report_actions')
+        .update({ annotation_id: proj.id } as any)
+        .eq('id', actionId);
+      if (linkErr) throw linkErr;
+
+      setAnnotationProject(proj);
+      onAnnotationSaved?.(proj.id);
+      toast.success('Annotations saved');
+    } catch (err: any) {
+      toast.error('Failed to save annotations: ' + err.message);
+    }
+  };
+
   const fmtTime = (s: number) => {
     const mins = Math.floor(s / 60);
     const secs = Math.floor(s % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const hasAnnotation = !!annotationId || (annotationProject?.klips?.some((k: any) => k.elements?.length) ?? false);
 
   return (
     <>
@@ -213,6 +307,17 @@ export const ActionVideoUpload = ({
             <Video className="h-3 w-3" />
             Clip
           </button>
+          {!disabled && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-6 w-6 p-0 ${hasAnnotation ? 'text-accent' : 'text-muted-foreground hover:text-accent'}`}
+              onClick={handleOpenAnnotate}
+              title={hasAnnotation ? 'Edit annotations' : 'Add annotations'}
+            >
+              <span className="font-bold text-[11px] leading-none">A</span>
+            </Button>
+          )}
           {!disabled && (
             <Button
               variant="ghost"
@@ -274,16 +379,38 @@ export const ActionVideoUpload = ({
       )}
     </div>
 
-    {/* Video Preview Dialog */}
+    {/* Video Preview Dialog — shows annotations if attached */}
     <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
       <DialogContent className="max-w-4xl w-full p-2">
-        <video
-          src={currentVideoUrl || ''}
-          controls
-          autoPlay
-          muted
-          className="w-full rounded-lg"
-        />
+        {hasAnnotation && currentVideoUrl ? (
+          <ReadOnlyAnnotationPlayback
+            videoUrl={currentVideoUrl}
+            annotationProjectId={annotationId || annotationProject?.id}
+            className="w-full rounded-lg"
+          />
+        ) : (
+          <video
+            src={currentVideoUrl || ''}
+            controls
+            autoPlay
+            muted
+            className="w-full rounded-lg"
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+
+    {/* Annotation Editor — same setup as analysis editor */}
+    <Dialog open={annotateOpen} onOpenChange={(open) => { if (!open) setAnnotateOpen(false); }}>
+      <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 overflow-hidden">
+        <VisuallyHidden><DialogTitle>Annotate Action Clip</DialogTitle></VisuallyHidden>
+        {annotationProject && (
+          <AnnotationEditor
+            project={annotationProject}
+            onSave={handleSaveAnnotation}
+            onBack={() => setAnnotateOpen(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
 
