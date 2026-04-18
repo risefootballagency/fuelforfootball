@@ -823,14 +823,24 @@ export const ReadOnlyAnnotationPlayback = ({
       <video
         ref={videoRef}
         {...(shouldLoad ? { src: cleanUrl } : {})}
+        {...(posterUrl ? { poster: posterUrl } : {})}
         autoPlay
         loop
         muted
         playsInline
         crossOrigin="anonymous"
-        preload={shouldLoad ? "auto" : "none"}
+        preload={shouldLoad ? "auto" : "metadata"}
         className="w-full aspect-video"
-        style={{ display: 'block', width: '100%', objectFit: 'fill', backgroundColor: '#000' }}
+        style={{
+          display: 'block',
+          width: '100%',
+          objectFit: 'fill',
+          // Subtle dark gradient instead of pure black while the first frame
+          // is still buffering and no poster has been captured yet.
+          background: posterUrl
+            ? '#000'
+            : 'linear-gradient(135deg, #0a1f12 0%, #052208 50%, #021004 100%)',
+        }}
       />
       {hasAnnotations && renderedVisibleEls.length > 0 && (
         <svg
