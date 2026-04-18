@@ -84,6 +84,22 @@ interface PerformanceReportDialogProps {
   isPortalView?: boolean;
 }
 
+// Load annotation elements for an action's clip popup
+const loadAnnotationElements = async (annotationId?: string | null): Promise<any[] | null> => {
+  if (!annotationId) return null;
+  try {
+    const { data } = await supabase
+      .from("annotation_projects")
+      .select("klips")
+      .eq("id", annotationId)
+      .maybeSingle();
+    if (!data?.klips || !Array.isArray(data.klips)) return null;
+    return (data.klips as any[]).flatMap((k: any) => k.elements || []);
+  } catch {
+    return null;
+  }
+};
+
 export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPortalView = false }: PerformanceReportDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisDetails | null>(null);
