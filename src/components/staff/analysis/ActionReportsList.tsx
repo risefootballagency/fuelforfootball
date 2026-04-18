@@ -144,7 +144,8 @@ export const ActionReportsList = ({ onCreateReport, onEditReport, defaultPlayerI
 
   const getEffectiveR90 = (report: ActionReport): number | null => {
     if (report.visibility_status === "hidden") {
-      if (report.placeholder_per != null) return Number(report.placeholder_per);
+      // R90 for hidden reports comes ONLY from raw_score / minutes.
+      // placeholder_per is the PER metric, not R90.
       if (report.placeholder_raw_score != null && report.placeholder_minutes) {
         return (report.placeholder_raw_score / report.placeholder_minutes) * 90;
       }
