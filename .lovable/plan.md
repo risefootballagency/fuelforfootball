@@ -1,77 +1,88 @@
 
+Diagnosis
 
-# Payment Audit & RISE Football Sync Plan
+The regression is now clear: the recent shared hidden-R90 logic is wrong.
 
-## Part 1: Payment Infrastructure Audit
+What happened:
+- `src/lib/r90Resolver.ts` now treats `placeholder_per` as the hidden R90 override.
+- But in this project, `placeholder_per` is the PER metric, not R90.
+- The editor and viewer still prove that:
+  - `CreatePerformanceReportDialog.tsx` saves `placeholder_per` as PER and `placeholder_sr` as SR.
+  - `HiddenScoresGrid.tsx` renders `placeholderPer` under a "PER" label, while hidden R90 is still calculated from `placeholder_raw_score / placeholder_minutes * 90`.
 
-### Current State
-The payment setup is **functional but fragmented**:
-- **Pay Links** (`create-pay-checkout`, `create-pay-link`): Working for one-off and subscription payments via Stripe Checkout sessions that redirect externally. Bank transfer and PayPal options also available inline.
-- **Service Checkout** (`create-service-checkout`): Creates Stripe Checkout sessions for shop/service purchases, also redirects externally.
-- **Stripe Webhook** (`stripe-webhook`): Handles `checkout.session.completed` events to update order status and notify staff.
-- **Cart** (`Cart.tsx`): Uses `create-service-checkout` for the first item only — does NOT support multi-item carts properly.
+So the app currently has two conflicting meanings for the same field:
+- some places use `placeholder_per` as PER
+- newer resolver-based places use `placeholder_per` as hidden R90
 
-### Issues Identified
-1. **Cart only checks out the first item** — ignores additional items in the basket
-2. **All card payments redirect to Stripe's hosted checkout** — user leaves the site
-3. **No embedded/inline payment UI** — could use Stripe Elements for on-site card processing
-4. **No webhook secret configured** — webhook falls back to unverified parsing (security risk)
+That is why hidden reports now show seemingly random R90 values and why different screens disagree.
 
-### Improvements to Implement
-1. **Fix multi-item cart checkout** — modify `create-service-checkout` to accept an array of line items and create a single session with all cart products
-2. **Add Stripe Embedded Checkout** — use `@stripe/react-stripe-js` with `EmbeddedCheckoutProvider` so customers stay on-site for card payments instead of being redirected
-3. **Webhook hardening** — prompt user to set `STRIPE_WEBHOOK_SECRET` if missing
+Implementation plan
 
-## Part 2: RISE Football Feature Sync
+1. Fix the shared source of truth
+- Rewrite `src/lib/r90Resolver.ts` so hidden R90 is resolved only from:
+  - `placeholder_raw_score`
+  - `placeholder_minutes`
+- Do not use `placeholder_per` for R90 anywhere.
+- Keep draft/clipped as `null`, live as `r90_score`.
 
-### Missing Components to Port (with FFF branding)
-These components exist in RISE but are completely absent from FFF:
+2. Replace the broken mixed logic everywhere hidden R90 appears
+Update all report-score surfaces to use the corrected resolver consistently:
+- `src/pages/Dashboard.tsx`
+- `src/components/dashboard/Hub.tsx`
+- `src/components/portal/AnalysisDataTab.tsx`
+- `src/components/portal/ProgressSummary.tsx`
+- `src/components/staff/analysis/ActionReportsList.tsx`
+- `src/pages/AnalysisViewer.tsx`
 
-1. **`ScoreEditMode.tsx`** (680 lines) — Full-screen 2x2 video grid for rapid R90 scoring with central search, auto-advance, XG pitch map popups
-2. **`MatchClipPlayer.tsx`** (611 lines) — Full-screen match clip-by-clip player with repeat, skip, sort modes (match/score/type), annotation support
-3. **`SPSTimeline.tsx`** — Year-long visual calendar for SPS programs
-4. **`UsageSection.tsx`** (183 lines) — Admin usage dashboard showing AI/cloud consumption
-5. **`CorporationTaxSection.tsx`** (502 lines) — Corporation tax module with TinyTax export
+3. Audit remaining direct `r90_score` renderers
+Any place still reading raw `r90_score` for report display/listing/charting will be corrected if hidden reports can appear there. The main ones I identified:
+- `src/components/portal/AllReportsSection.tsx`
+- `src/components/dashboard/QuickStatsComparison.tsx`
+- `src/components/PlayerDataOverlay.tsx`
+- `src/components/staff/ScoutedPlayersSection.tsx`
+- any remaining Hub/Dashboard confetti/comparison logic still using raw `r90_score`
 
-### Missing Integration Points
-6. **`ActionReportsList.tsx`** — RISE has status subtabs (Draft/Clipped/Hidden/Live), Play button for MatchClipPlayer, Score Edit button. FFF version lacks all three.
-7. **Performance Report opposition strip** — FFF already has `club_logo_url` and `opposition_color` columns and basic rendering, but the RISE version has `crossOrigin="anonymous"` and slightly different styling (`h-10 md:h-12 rounded-lg` vs FFF's `h-8 md:h-10 rounded-t-lg`). Will align.
+4. Keep PER/SR separate and correct
+- `HiddenScoresGrid.tsx` should remain:
+  - R90 from raw/minutes
+  - PER from `placeholder_per`
+  - SR from `placeholder_sr`
+- Any live/hidden match-stat areas using PER/SR will keep those fields as PER/SR only.
 
-### Database Tables Needed
-- `corporation_tax_records` table for the Corporation Tax module
+5. Align with RISE where appropriate
+- RISE uses raw/minutes for hidden R90 in the viewer and hub flows.
+- I will mirror that structure here, but also keep the newer shared resolver so this project has one correct hidden-R90 path instead of scattered copies.
 
-## Implementation Steps
+Technical notes
 
-### Step 1: Fix multi-item cart checkout
-- Update `create-service-checkout` to accept `items[]` array
-- Update `Cart.tsx` to send all cart items
+Current broken conflict:
+```text
+placeholder_raw_score + placeholder_minutes -> hidden R90
+placeholder_per -> PER
+placeholder_sr -> SR
 
-### Step 2: Add Stripe Embedded Checkout
-- Install `@stripe/react-stripe-js` and `@stripe/stripe-js`
-- Create `EmbeddedCheckout.tsx` component
-- Update cart flow to embed checkout on-site instead of redirecting
+But current resolver incorrectly does:
+hidden R90 = placeholder_per first
+```
 
-### Step 3: Port ScoreEditMode
-- Copy from RISE with FFF branding (accent yellow instead of rise gold)
-- Integrate into `ActionReportsList.tsx` and `CreatePerformanceReportDialog.tsx`
+This explains the exact symptom:
+```text
+PER values are leaking into R90 displays
+while other screens still compute hidden R90 from raw/minutes
+```
 
-### Step 4: Port MatchClipPlayer
-- Copy from RISE with FFF branding
-- Add Play button to ActionReportsList
+Verification after implementation
 
-### Step 5: Port ActionReportsList subtabs
-- Add Draft/Clipped/Hidden/Live status tabs matching RISE implementation
+I will verify one hidden report end-to-end across:
+- portal Hub form bars
+- Dashboard form chart
+- Analysis data tables/charts
+- report cards/lists
+- analysis viewer linked R90 badge
+- hidden report viewer cards
 
-### Step 6: Port SPSTimeline, UsageSection, CorporationTaxSection
-- Copy components, create `corporation_tax_records` migration
-- Register in `Staff.tsx`
-
-### Step 7: Align opposition color strip
-- Update `PerformanceReport.tsx` strip to match RISE styling (`h-10 md:h-12 rounded-lg`, `crossOrigin="anonymous"`, `drop-shadow-lg`)
-
-## Technical Details
-- All RISE components use `supabase` client directly; FFF equivalents may need `sharedSupabase` for cross-site data
-- ScoreEditMode uses `createPortal(document.body)` for full-screen overlay — same approach for FFF
-- FFF accent color `hsl(var(--accent))` replaces RISE gold throughout
-- MatchClipPlayer includes `getPlaybackInstruction` from `clipVideoUtils` (already synced)
-
+Success condition:
+- every hidden report shows the same R90 everywhere
+- that R90 matches `placeholder_raw_score / placeholder_minutes * 90`
+- PER and SR remain separate and unchanged
+- no hidden report falls back to raw auto `r90_score` unless it is actually live
