@@ -3,7 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import {
   MousePointer2, Minus, MoveRight, Square, Circle,
   Sun, Pencil, UserCircle, Eraser, Eye, Ruler, Search, Link2, MapPin, CircleDot,
-  Redo2, Eclipse, ImagePlus
+  Redo2, Eclipse, ImagePlus, Crosshair
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -37,6 +37,7 @@ const tools: { id: AnnotationTool; icon: React.ComponentType<any>; label: string
   { id: 'distance', icon: Ruler, label: 'Measure distance', shortLabel: 'Dist', hotkey: 'R', group: 'effect' },
   { id: 'linked-line', icon: Link2, label: 'Connect elements', shortLabel: 'Link', hotkey: 'L', group: 'effect' },
   { id: 'image-layer', icon: ImagePlus, label: 'Keep image in front', shortLabel: 'Layer', hotkey: 'B', group: 'effect' },
+  { id: 'ai-track', icon: Crosshair, label: 'AI auto-track a player across the clip', shortLabel: 'Track', hotkey: 'A', group: 'effect' },
   { id: 'eraser', icon: Eraser, label: 'Remove element', shortLabel: 'Erase', hotkey: 'E', group: 'util' },
 ];
 

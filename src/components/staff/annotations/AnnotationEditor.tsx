@@ -29,7 +29,7 @@ export type AnnotationTool =
   | 'select' | 'line' | 'arrow' | 'curved-arrow' | 'rect' | 'circle'
   | 'spotlight' | 'player-marker' | 'eraser'
   | 'vision-cone' | 'distance' | 'magnifier' | 'linked-line'
-  | 'semi-circle' | 'point' | 'space-oval' | 'image-layer';
+  | 'semi-circle' | 'point' | 'space-oval' | 'image-layer' | 'ai-track';
 
 export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, autoPlay }: AnnotationEditorProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -643,6 +643,7 @@ export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, auto
         if (e.key === 'm') setActiveTool('magnifier');
         if (e.key === 'v') setActiveTool('vision-cone');
         if (e.key === 'b') setActiveTool('image-layer');
+        if (e.key === 'a') setActiveTool('ai-track');
         if (e.key === 'e') setActiveTool('eraser');
       }
     };
@@ -836,6 +837,7 @@ export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, auto
                     klipOffset={klipOffset}
                     onToolUsed={handleToolUsed}
                     isDrawingMode={drawingMode}
+                    onAiTrack={handleAiTrack}
                   />
                 </div>
               )}
