@@ -638,7 +638,7 @@ export const VideoAnalysis = () => {
       if (annotations) insertData.clip_annotations = annotations;
       const { error } = await supabase.from("performance_report_actions").insert(insertData);
       if (error) throw error;
-      toast.success("New action created with clip attached");
+      toast.success("New action created with clip attached", { duration: 15000 });
       setShowAttachDialog(false); setAttachClip(null);
     } catch (err: any) { toast.error(err.message || "Failed to create action"); }
   };
