@@ -29,7 +29,7 @@ export type AnnotationTool =
   | 'select' | 'line' | 'arrow' | 'curved-arrow' | 'rect' | 'circle'
   | 'spotlight' | 'player-marker' | 'eraser'
   | 'vision-cone' | 'distance' | 'magnifier' | 'linked-line'
-  | 'semi-circle' | 'point' | 'space-oval' | 'image-layer';
+  | 'semi-circle' | 'point' | 'space-oval' | 'image-layer' | 'ai-track';
 
 export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, autoPlay }: AnnotationEditorProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
