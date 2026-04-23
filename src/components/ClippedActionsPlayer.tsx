@@ -30,6 +30,11 @@ interface ClippedActionsPlayerProps {
   language?: string;
   title?: string;
   player?: SharedClipPlayerState;
+  showDownloads?: boolean;
+  onDownloadCurrent?: (clip: ClipAction) => void;
+  onDownloadAll?: (clips: ClipAction[]) => void;
+  onSaveToBest?: (clip: ClipAction) => void;
+  savingClipId?: string | null;
 }
 
 const normaliseType = (t: string) => (t || '').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -54,6 +59,11 @@ export const ClippedActionsPlayer = ({
   language = "en",
   title,
   player: providedPlayer,
+  showDownloads,
+  onDownloadCurrent,
+  onDownloadAll,
+  onSaveToBest,
+  savingClipId,
 }: ClippedActionsPlayerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const progressBarRef = useRef<HTMLDivElement>(null);
