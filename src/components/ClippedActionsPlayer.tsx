@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X, SkipBack, SkipForward, Play, Pause, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
+import { X, SkipBack, SkipForward, Play, Pause, Loader2, ChevronUp, ChevronDown, Download, DownloadCloud, Star } from 'lucide-react';
 import { t } from '@/lib/portalTranslations';
 import { sortReportActionsChronologically } from '@/lib/reportActionHelpers';
 import { useSharedClipPlayer, type SharedClipPlayerState } from '@/hooks/useSharedClipPlayer';
@@ -30,6 +30,11 @@ interface ClippedActionsPlayerProps {
   language?: string;
   title?: string;
   player?: SharedClipPlayerState;
+  showDownloads?: boolean;
+  onDownloadCurrent?: (clip: ClipAction) => void;
+  onDownloadAll?: (clips: ClipAction[]) => void;
+  onSaveToBest?: (clip: ClipAction) => void;
+  savingClipId?: string | null;
 }
 
 const normaliseType = (t: string) => (t || '').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -54,6 +59,11 @@ export const ClippedActionsPlayer = ({
   language = "en",
   title,
   player: providedPlayer,
+  showDownloads,
+  onDownloadCurrent,
+  onDownloadAll,
+  onSaveToBest,
+  savingClipId,
 }: ClippedActionsPlayerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -190,16 +200,24 @@ export const ClippedActionsPlayer = ({
 
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2 bg-black/80 border-b border-border/30 shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs font-bold">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded text-xs font-bold mt-0.5 shrink-0">
               {currentIndex + 1}/{sortedClips.length}
             </span>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="text-white text-sm font-semibold truncate">{title || toTitleCase(currentClip.action_type)}</div>
               <div className="text-white/70 text-xs truncate">{formatMinute(currentClip.minute)}' • {toTitleCase(currentClip.action_type)}</div>
+              {(currentClip.action_description || currentClip.notes) && (
+                <div className="mt-1 text-white/85 text-xs leading-snug">
+                  {currentClip.action_description && <p className="line-clamp-2">{currentClip.action_description}</p>}
+                  {currentClip.notes && (
+                    <p className="text-[10px] text-accent italic mt-0.5 line-clamp-2">📝 {currentClip.notes}</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="text-white hover:text-white hover:bg-white/20 h-10 w-10 min-w-[40px]">
+          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="text-white hover:text-white hover:bg-white/20 h-10 w-10 min-w-[40px] shrink-0">
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -217,15 +235,41 @@ export const ClippedActionsPlayer = ({
               <SkipForward className="h-5 w-5" />
             </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1"
-            onClick={() => setShowClipList(!showClipList)}
-          >
-            {showClipList ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-            Clips
-          </Button>
+          <div className="flex items-center gap-1">
+            {showDownloads && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1"
+                  onClick={() => onDownloadCurrent?.(currentClip)}
+                  title="Download this clip"
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline">This clip</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1"
+                  onClick={() => onDownloadAll?.(sortedClips)}
+                  title={`Download all ${sortedClips.length} clips`}
+                >
+                  <DownloadCloud className="h-4 w-4" />
+                  <span className="hidden sm:inline">All ({sortedClips.length})</span>
+                </Button>
+              </>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/70 hover:text-white hover:bg-white/20 text-xs gap-1"
+              onClick={() => setShowClipList(!showClipList)}
+            >
+              {showClipList ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+              Clips
+            </Button>
+          </div>
         </div>
 
         {/* Video */}
@@ -277,13 +321,6 @@ export const ClippedActionsPlayer = ({
               clipStart={hasTimeRange ? (currentClip.clip_start ?? 0) : 0}
             />
           )}
-          {/* Description overlay */}
-          <div className="absolute bottom-4 left-4 right-4 bg-black/70 text-white text-xs px-3 py-2 rounded max-w-[80%]">
-            <p>{currentClip.action_description}</p>
-            {currentClip.notes && (
-              <p className="text-[10px] text-accent italic mt-1">📝 {currentClip.notes}</p>
-            )}
-          </div>
         </div>
 
         {/* Progress bar */}
@@ -308,23 +345,50 @@ export const ClippedActionsPlayer = ({
                   {cat} ({categorisedClips[cat].length})
                 </div>
                 {categorisedClips[cat].map(clip => (
-                  <button
+                  <div
                     key={clip.id}
                     data-active={clip.id === currentClip.id}
-                    onClick={() => jumpToClip(clip.id)}
-                    className={`w-full text-left px-4 py-2 flex items-center gap-3 text-xs transition-colors border-b border-border/10 ${
+                    className={`w-full px-4 py-2 flex items-center gap-3 text-xs transition-colors border-b border-border/10 ${
                       clip.id === currentClip.id
                         ? 'bg-primary/20 text-white'
                         : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
-                    <span className="font-bold text-white/50 w-6 text-center">#{clip.action_number}</span>
-                    <span className="text-white/50 w-10">{formatMinute(clip.minute)}'</span>
-                    <span className="flex-1 truncate">{toTitleCase(clip.action_type)}</span>
-                    {clip.id === currentClip.id && (
-                      <span className="text-primary text-[10px] font-bold">▶</span>
+                    <button
+                      onClick={() => jumpToClip(clip.id)}
+                      className="flex-1 flex items-center gap-3 text-left"
+                    >
+                      <span className="font-bold text-white/50 w-6 text-center">#{clip.action_number}</span>
+                      <span className="text-white/50 w-10">{formatMinute(clip.minute)}'</span>
+                      <span className="flex-1 truncate">{toTitleCase(clip.action_type)}</span>
+                      {clip.id === currentClip.id && (
+                        <span className="text-primary text-[10px] font-bold">▶</span>
+                      )}
+                    </button>
+                    {onSaveToBest && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-white/50 hover:text-accent shrink-0"
+                        title="Save to Best Clips"
+                        disabled={savingClipId === clip.id}
+                        onClick={(e) => { e.stopPropagation(); onSaveToBest(clip); }}
+                      >
+                        {savingClipId === clip.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Star className="h-3 w-3" />}
+                      </Button>
                     )}
-                  </button>
+                    {showDownloads && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-white/50 hover:text-white shrink-0"
+                        title="Download clip"
+                        onClick={(e) => { e.stopPropagation(); onDownloadCurrent?.(clip); }}
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
                 ))}
               </div>
             ))}
