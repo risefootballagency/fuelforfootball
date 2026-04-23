@@ -321,13 +321,6 @@ export const ClippedActionsPlayer = ({
               clipStart={hasTimeRange ? (currentClip.clip_start ?? 0) : 0}
             />
           )}
-          {/* Description overlay */}
-          <div className="absolute bottom-4 left-4 right-4 bg-black/70 text-white text-xs px-3 py-2 rounded max-w-[80%]">
-            <p>{currentClip.action_description}</p>
-            {currentClip.notes && (
-              <p className="text-[10px] text-accent italic mt-1">📝 {currentClip.notes}</p>
-            )}
-          </div>
         </div>
 
         {/* Progress bar */}
