@@ -47,7 +47,7 @@ export const SiteVisitorsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const [visits, setVisits] = useState<SiteVisit[]>([]);
   const [loading, setLoading] = useState(false);
   const [pageFilter, setPageFilter] = useState<string>("all");
-  const [referrerFilter, setReferrerFilter] = useState<string>("instagram");
+  const [referrerFilter, setReferrerFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [uniquePaths, setUniquePaths] = useState<string[]>([]);
   const [selectedVisitor, setSelectedVisitor] = useState<string | null>(null);
@@ -241,12 +241,11 @@ export const SiteVisitorsManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   };
 
   const filteredVisits = visits.filter((visit) => {
-    // Filter out specific visitor IDs and Bedford, England location
+    // Filter out specific test visitor ID
     if (visit.visitor_id === "visitor_1761434517054_gd6h507zq") return false;
-    
+
     const location = formatLocation(visit.location);
-    if (location.includes("Bedford") && location.includes("England")) return false;
-    
+
     // Filter by referrer (Instagram, LinkedIn, Google, etc.)
     if (referrerFilter !== "all") {
       const referrer = (visit.referrer || "").toLowerCase();

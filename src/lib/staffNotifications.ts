@@ -21,17 +21,30 @@ export const insertStaffNotification = async ({
   dedupeKey?: string;
 }) => {
   try {
-    // Deduplicate: skip if a similar event exists within the last hour
+    // Deduplicate: skip if a similar event for the same dedupeKey exists within the last 5 minutes.
+    // (Previously 1h with no key match — far too aggressive, suppressed real distinct events.)
     if (dedupeKey) {
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const { data: existing } = await supabase
         .from("staff_notification_events")
-        .select("id")
+        .select("id, event_data")
         .eq("event_type", eventType)
-        .gte("created_at", oneHourAgo)
-        .limit(1);
+        .gte("created_at", fiveMinAgo)
+        .limit(50);
 
-      if (existing && existing.length > 0) {
+      const duplicate = (existing || []).some((row: any) => {
+        const ed = row?.event_data;
+        if (!ed || typeof ed !== "object") return false;
+        // Match against common id fields the caller may put in event_data
+        return (
+          ed.player_id === dedupeKey ||
+          ed.visitor_id === dedupeKey ||
+          ed.id === dedupeKey ||
+          ed.dedupe_key === dedupeKey
+        );
+      });
+
+      if (duplicate) {
         return;
       }
     }
