@@ -26,6 +26,7 @@ const EVENT_TYPES = [
   { id: "portal_login", label: "Portal Logins", icon: LogIn, description: "When a player logs into their portal", category: "Portal Activity" },
   { id: "portal_performance_view", label: "Performance Report Views", icon: BarChart3, description: "When a player views their performance reports", category: "Portal Activity" },
   { id: "portal_analysis_view", label: "Analysis Views", icon: FileSearch, description: "When a player views analysis content", category: "Portal Activity" },
+  { id: "analysis_public_view", label: "Public Analysis Views", icon: FileSearch, description: "When anyone (signed in or not) opens an analysis page", category: "Portal Activity" },
   { id: "portal_transfer_submission", label: "Transfer Hub Submissions", icon: Send, description: "When a player submits in their transfer hub", category: "Portal Activity" },
   { id: "portal_club_submission", label: "Club Submissions", icon: Building2, description: "When a player submits a club suggestion", category: "Portal Activity" },
   { id: "post_idea_new", label: "New Post Ideas", icon: Lightbulb, description: "When a new post idea is created", category: "Marketing" },

@@ -49,6 +49,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   portal_login: { label: "Portal Logins", icon: LogIn },
   portal_performance_view: { label: "Performance Views", icon: BarChart3 },
   portal_analysis_view: { label: "Analysis Views", icon: Search },
+  analysis_public_view: { label: "Public Analysis Views", icon: Search },
   portal_transfer_submission: { label: "Transfer Submissions", icon: Send },
   portal_club_submission: { label: "Club Suggestions", icon: Building2 },
   performance_improvement: { label: "Performance Improvements", icon: TrendingUp },
