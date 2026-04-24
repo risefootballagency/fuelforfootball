@@ -49,6 +49,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   portal_login: { label: "Portal Logins", icon: LogIn },
   portal_performance_view: { label: "Performance Views", icon: BarChart3 },
   portal_analysis_view: { label: "Analysis Views", icon: Search },
+  analysis_public_view: { label: "Public Analysis Views", icon: Search },
   portal_transfer_submission: { label: "Transfer Submissions", icon: Send },
   portal_club_submission: { label: "Club Suggestions", icon: Building2 },
   performance_improvement: { label: "Performance Improvements", icon: TrendingUp },
@@ -222,6 +223,7 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
       case "portal_login": return "Player Portal Login";
       case "portal_performance_view": return "Performance Report Viewed";
       case "portal_analysis_view": return "Analysis Viewed";
+      case "analysis_public_view": return "Public Analysis View";
       case "portal_transfer_submission": return "Transfer Hub Submission";
       case "portal_club_submission": return "Club Suggestion Submitted";
       case "performance_improvement": return "Performance Improvement";
@@ -270,6 +272,8 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
         return data?.player_name ? `${data.player_name} viewed their reports` : "Player viewed performance reports";
       case "portal_analysis_view":
         return data?.player_name ? `${data.player_name} viewed analysis` : "Player viewed analysis content";
+      case "analysis_public_view":
+        return data?.analysis_title ? `${data.analysis_title}` : "An analysis was viewed";
       case "portal_transfer_submission":
         return data?.player_name ? `${data.player_name} made a submission` : "New transfer hub submission";
       case "portal_club_submission":

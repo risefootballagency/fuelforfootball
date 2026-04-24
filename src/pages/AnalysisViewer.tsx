@@ -1143,6 +1143,35 @@ const AnalysisViewer = () => {
     }
   }, [analysisId]);
 
+  // Public analysis-view notification — fires for any visitor (signed in or not)
+  // once the analysis has loaded. Deduped per-analysis per-visitor for 5 min by staffNotifications.
+  useEffect(() => {
+    if (!analysis?.id) return;
+    if (analysis.visibility_status === 'draft' || analysis.visibility_status === 'hidden') return;
+    let visitorId = '';
+    try {
+      visitorId = localStorage.getItem('visitor_id') || '';
+    } catch {}
+    const matchTitle = analysis.title
+      || [analysis.home_team, analysis.away_team].filter(Boolean).join(' vs ')
+      || 'Analysis';
+    import('@/lib/staffNotifications').then(({ insertStaffNotification }) => {
+      insertStaffNotification({
+        eventType: 'analysis_public_view',
+        title: 'Analysis Viewed',
+        body: matchTitle,
+        eventData: {
+          analysis_id: analysis.id,
+          analysis_title: matchTitle,
+          analysis_type: analysis.analysis_type,
+          visitor_id: visitorId,
+          dedupe_key: `${analysis.id}:${visitorId}`,
+        },
+        dedupeKey: `${analysis.id}:${visitorId}`,
+      });
+    }).catch(() => {});
+  }, [analysis?.id]);
+
   const fetchAnalysis = async () => {
     setLoading(true);
     setCriticalAssetsReady(false);
