@@ -42,6 +42,14 @@ export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, auto
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(true);
   const [activeTool, setActiveTool] = useState<AnnotationTool>('select');
+  // Per-tool last colour map. Falls back to legacy single-key value, then default gold.
+  const [colourByTool, setColourByTool] = useState<Record<string, string>>(() => {
+    try {
+      const raw = localStorage.getItem('annotation-last-colour-by-tool');
+      if (raw) return JSON.parse(raw) || {};
+    } catch {}
+    return {};
+  });
   const [activeColor, setActiveColor] = useState(() => {
     try { return localStorage.getItem('annotation-last-colour') || '#C6A332'; } catch { return '#C6A332'; }
   });
@@ -53,11 +61,26 @@ export const AnnotationEditor = ({ project, onSave, onBack, clipConstraint, auto
   const handleSetActiveColor = useCallback((c: string) => {
     setActiveColor(c);
     try { localStorage.setItem('annotation-last-colour', c); } catch {}
-  }, []);
+    setColourByTool((prev) => {
+      const next = { ...prev, [activeTool]: c };
+      try { localStorage.setItem('annotation-last-colour-by-tool', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, [activeTool]);
   const handleSetStrokeWidth = useCallback((w: number) => {
     setStrokeWidth(w);
     try { localStorage.setItem('annotation-last-stroke', String(w)); } catch {}
   }, []);
+
+  // Restore last colour for the newly-active tool when switching tools
+  useEffect(() => {
+    const remembered = colourByTool[activeTool];
+    if (remembered && remembered !== activeColor) {
+      setActiveColor(remembered);
+      try { localStorage.setItem('annotation-last-colour', remembered); } catch {}
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTool]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [showPanel, setShowPanel] = useState(true);
