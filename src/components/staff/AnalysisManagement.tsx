@@ -1567,6 +1567,9 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleOpenDialog(type, analysis)}>
               <Pencil className="w-4 h-4" />
             </Button>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDuplicate(analysis)} title="Duplicate analysis">
+              <Copy className="w-4 h-4" />
+            </Button>
             {isAdmin && (
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDelete(analysis.id)}>
                 <Trash2 className="w-4 h-4" />
