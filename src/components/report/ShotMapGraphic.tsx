@@ -18,8 +18,17 @@ const OFF_TARGET_POSITIONS: Record<number, { x: number; y: number }> = {
 
 const GOAL_ZONES = new Set(Array.from({ length: 15 }, (_, i) => i + 1));
 
-// FFF accent yellow (hsl 47,100%,51%) ≈ #FFD60A used for "saved" instead of RISE gold
-const OUTCOME_COLORS: Record<string, string> = {
+// FFF Gold (hsl 47,100%,51%) ≈ #FFD60A. Outfield: goal celebrated in gold.
+// GK perspective: a save is the win (gold), a goal conceded is bad (red).
+const OUTFIELD_OUTCOME_COLORS: Record<string, string> = {
+  goal: "#FFD60A",
+  missed: "#ef4444",
+  saved: "#f97316",
+  blocked: "#eab308",
+  default: "#9ca3af",
+};
+
+const GK_OUTCOME_COLORS: Record<string, string> = {
   goal: "#ef4444",
   saved: "#FFD60A",
   missed: "#6b7280",
@@ -27,11 +36,11 @@ const OUTCOME_COLORS: Record<string, string> = {
   default: "#9ca3af",
 };
 
-const OUTCOME_LABELS: Array<{ label: string; key: string; color: string }> = [
-  { label: "Goal", key: "goal", color: OUTCOME_COLORS.goal },
-  { label: "Saved", key: "saved", color: OUTCOME_COLORS.saved },
-  { label: "Missed", key: "missed", color: OUTCOME_COLORS.missed },
-  { label: "Blocked", key: "blocked", color: OUTCOME_COLORS.blocked },
+const buildOutcomeLabels = (palette: Record<string, string>): Array<{ label: string; key: string; color: string }> => [
+  { label: "Goal", key: "goal", color: palette.goal },
+  { label: "Saved", key: "saved", color: palette.saved },
+  { label: "Missed", key: "missed", color: palette.missed },
+  { label: "Blocked", key: "blocked", color: palette.blocked },
 ];
 
 interface ShotMapCarrier {
