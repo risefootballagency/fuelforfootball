@@ -204,6 +204,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
   const [selectedReportId, setSelectedReportId] = React.useState<string | null>(null);
   const [postMatchAnalyses, setPostMatchAnalyses] = React.useState<Map<string, { id: string; homeTeam: string; awayTeam: string }>>(new Map());
   const [fixtureLogosByDate, setFixtureLogosByDate] = React.useState<Map<string, FixtureLogoEntry>>(new Map());
+  const [orphanPreMatchFixtures, setOrphanPreMatchFixtures] = React.useState<PlayerAnalysis[]>([]);
   const confettiFired = React.useRef(false);
 
   // Pre-match opposition logos keyed by fixture date (auto schedule logos)
