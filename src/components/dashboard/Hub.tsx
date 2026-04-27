@@ -937,11 +937,12 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
               <div className="space-y-3">
                 {recentAnalyses.map((analysis) => {
                   const isFutureGame = new Date(analysis.analysis_date) > new Date();
+                  const isOrphanFixture = String(analysis.id).startsWith('orphan-');
                   return (
                   <button
                     key={analysis.id}
                     onClick={() => {
-                      if (!isFutureGame) {
+                      if (!isFutureGame && !isOrphanFixture) {
                         setSelectedReportId(analysis.id);
                         setReportDialogOpen(true);
                       }
