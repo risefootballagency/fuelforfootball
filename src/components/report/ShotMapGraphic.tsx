@@ -115,8 +115,10 @@ const formatActionLabel = (action: ShotMapCarrier, shotMap: ShotMapData) => {
   return `${numberPrefix}${minuteLabel}${outcomeLabel}${scoreLabel}`;
 };
 
-export const ShotMapGraphic = ({ actions }: { actions: ShotMapCarrier[] }) => {
+export const ShotMapGraphic = ({ actions, isGoalkeeper = false }: { actions: ShotMapCarrier[]; isGoalkeeper?: boolean }) => {
   const [selectedShotId, setSelectedShotId] = useState<string | null>(null);
+  const OUTCOME_COLORS = isGoalkeeper ? GK_OUTCOME_COLORS : OUTFIELD_OUTCOME_COLORS;
+  const OUTCOME_LABELS = buildOutcomeLabels(OUTCOME_COLORS);
 
   const shotPoints = useMemo<ShotPoint[]>(() => {
     const stackMap = new Map<string, number>();
