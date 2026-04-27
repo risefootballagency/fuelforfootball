@@ -37,6 +37,10 @@ export const R90FlowChart = ({ actions, minutesPlayed, language = "en" }: R90Flo
     });
 
     const endMinute = Math.max(...actionPoints.map(a => a.minute));
+    // Delay plotting until 5 minutes after the first action so very small samples
+    // don't produce wild early R90 swings (e.g. an early action mapping to R90 ~90).
+    const firstActionMinute = Math.min(...actionPoints.map(a => a.minute));
+    const plotStartMinute = firstActionMinute + 5;
     const points: { minute: number; r90: number; rawScore: number; label: string }[] = [];
 
     const scoreAtMinute = new Map<number, { score: number; label: string }>();
@@ -48,6 +52,8 @@ export const R90FlowChart = ({ actions, minutesPlayed, language = "en" }: R90Flo
     for (let m = startMinute; m <= endMinute; m++) {
       const entry = scoreAtMinute.get(m);
       if (entry) runningScore = entry.score;
+
+      if (m < plotStartMinute) continue;
 
       const elapsed = m - startMinute;
       const r90 = elapsed > 0 ? (runningScore / elapsed) * 90 : 0;
