@@ -206,6 +206,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
         r90_score: analysisResult.data.r90_score,
         minutes_played: analysisResult.data.minutes_played,
         player_name: analysisResult.data.players?.name || "Unknown Player",
+        player_position: (analysisResult.data.players as any)?.position || null,
         striker_stats: analysisResult.data.striker_stats as StrikerStats | null,
         performance_overview: analysisResult.data.performance_overview,
         visibility_status: (analysisResult.data as any).visibility_status || "live",
