@@ -783,6 +783,7 @@ const Staff = () => {
     casestudies: ['messaging', 'conversations', 'case studies', 'outreach', 'examples'],
     recruitment: ['prospects', 'signings', 'targets', 'transfers'],
     expenses: ['costs', 'receipts', 'spending', 'reimbursement'],
+    staffpay: ['salary', 'wages', 'pay', 'earnings', 'payslip', 'commission', 'expenses', 'tax'],
     athletecentre: ['athlete', 'development', 'programming', 'periodisation'],
     nutrition: ['nutrition', 'diet', 'food', 'macros', 'calories', 'meal'],
     streams: ['stream', 'live', 'watch', 'channel', 'broadcast', 'tv'],
