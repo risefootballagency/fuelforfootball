@@ -63,7 +63,7 @@ import { SportscodeActionTypes } from "@/components/staff/SportscodeActionTypes"
 import { RecruitmentRulesTab } from "@/components/staff/RecruitmentRulesTab";
 import { PortalManagementAdmin } from "@/components/staff/PortalManagementAdmin";
 
-import { ExpensesManagement } from "@/components/staff/ExpensesManagement";
+import { StaffPay } from "@/components/staff/StaffPay";
 import { TaxRecordsManagement } from "@/components/staff/TaxRecordsManagement";
 import { BudgetsManagement } from "@/components/staff/BudgetsManagement";
 import { FinancialReports } from "@/components/staff/FinancialReports";
@@ -709,7 +709,7 @@ const Staff = () => {
           { id: 'invoices', title: 'Invoices', icon: FileCheck },
           { id: 'payments', title: 'Payments In/Out', icon: Receipt },
           { id: '_group_tracking', title: 'Tracking', isGroupLabel: true } as any,
-          { id: 'expenses', title: 'Expenses', icon: Calculator },
+          { id: 'staffpay', title: 'Staff Pay', icon: Calculator },
           { id: 'taxrecords', title: 'Tax Records', icon: FileSpreadsheet },
           { id: '_group_overview_fin', title: 'Overview', isGroupLabel: true } as any,
           { id: 'budgets', title: 'Budgets', icon: PiggyBank },
@@ -783,6 +783,7 @@ const Staff = () => {
     casestudies: ['messaging', 'conversations', 'case studies', 'outreach', 'examples'],
     recruitment: ['prospects', 'signings', 'targets', 'transfers'],
     expenses: ['costs', 'receipts', 'spending', 'reimbursement'],
+    staffpay: ['salary', 'wages', 'pay', 'earnings', 'payslip', 'commission', 'expenses', 'tax'],
     athletecentre: ['athlete', 'development', 'programming', 'periodisation'],
     nutrition: ['nutrition', 'diet', 'food', 'macros', 'calories', 'meal'],
     streams: ['stream', 'live', 'watch', 'channel', 'broadcast', 'tv'],
@@ -1281,7 +1282,7 @@ const Staff = () => {
                 {expandedSection === 'clubnetwork' && <ClubNetworkManagement />}
                 {expandedSection === 'invoices' && <InvoiceManagement isAdmin={isAdmin} />}
                 {expandedSection === 'payments' && <PaymentsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'expenses' && <ExpensesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'staffpay' && <StaffPay isAdmin={isAdmin} />}
                 {expandedSection === 'taxrecords' && <TaxRecordsManagement isAdmin={isAdmin} />}
                 {expandedSection === 'budgets' && <BudgetsManagement isAdmin={isAdmin} />}
                 {expandedSection === 'financialreports' && <FinancialReports isAdmin={isAdmin} />}

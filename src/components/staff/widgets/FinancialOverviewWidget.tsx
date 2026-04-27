@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, TrendingUp, TrendingDown, Wallet, Receipt, AlertCircle } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, Wallet, Receipt, AlertCircle, Users } from "lucide-react";
 
 interface FinancialSnapshot {
   totalReceived: number;
   totalOutstanding: number;
   totalOverdue: number;
   totalExpenses: number;
+  totalStaffCosts: number;
   currency: string;
 }
 
@@ -17,13 +18,15 @@ export const FinancialOverviewWidget = () => {
   useEffect(() => {
     const fetchFinancials = async () => {
       try {
-        const [invoicesRes, expensesRes] = await Promise.all([
+        const [invoicesRes, expensesRes, payslipsRes] = await Promise.all([
           supabase.from("invoices").select("amount, amount_paid, status, due_date, currency"),
           (supabase.from("expenses" as any).select("amount, reimbursed") as any),
+          ((supabase as any).from("staff_payslips").select("net_amount, status")),
         ]);
 
         const invoices = invoicesRes.data || [];
         const expenses = expensesRes.data || [];
+        const payslips = (payslipsRes.data as any[]) || [];
         const today = new Date();
 
         const totalReceived = invoices.reduce((sum: number, inv: any) => sum + Number(inv.amount_paid || 0), 0);
@@ -38,9 +41,13 @@ export const FinancialOverviewWidget = () => {
 
         const totalExpenses = expenses.reduce((sum: number, e: any) => sum + Number(e.amount), 0);
 
+        const totalStaffCosts = payslips
+          .filter(p => p.status === 'approved' || p.status === 'paid')
+          .reduce((sum: number, p: any) => sum + Number(p.net_amount || 0), 0);
+
         const currency = invoices.length > 0 ? (invoices[0].currency || "EUR") : "EUR";
 
-        setData({ totalReceived, totalOutstanding, totalOverdue, totalExpenses, currency });
+        setData({ totalReceived, totalOutstanding, totalOverdue, totalExpenses, totalStaffCosts, currency });
       } catch (err) {
         console.error("Error fetching financial overview:", err);
       } finally {
@@ -105,17 +112,25 @@ export const FinancialOverviewWidget = () => {
       borderClass: "border-blue-500/30",
     },
     {
+      label: "Staff Costs",
+      value: data.totalStaffCosts > 0 ? formatAmount(data.totalStaffCosts) : "—",
+      icon: Users,
+      colorClass: "text-purple-600",
+      bgClass: "from-purple-500/10 to-purple-600/10",
+      borderClass: "border-purple-500/30",
+    },
+    {
       label: "Net Position",
-      value: formatAmount(data.totalReceived - data.totalExpenses),
-      icon: data.totalReceived - data.totalExpenses >= 0 ? TrendingUp : TrendingDown,
-      colorClass: data.totalReceived - data.totalExpenses >= 0 ? "text-emerald-600" : "text-rose-600",
+      value: formatAmount(data.totalReceived - data.totalExpenses - data.totalStaffCosts),
+      icon: data.totalReceived - data.totalExpenses - data.totalStaffCosts >= 0 ? TrendingUp : TrendingDown,
+      colorClass: data.totalReceived - data.totalExpenses - data.totalStaffCosts >= 0 ? "text-emerald-600" : "text-rose-600",
       bgClass: "from-primary/20 to-primary/5",
       borderClass: "border-primary/40",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 h-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 h-full">
       {items.map((item) => (
         <div
           key={item.label}

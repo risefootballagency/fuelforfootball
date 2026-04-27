@@ -27,6 +27,7 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
   const [loading, setLoading] = useState(true);
   const [invoiceSummary, setInvoiceSummary] = useState<InvoiceSummary>({ total: 0, paid: 0, pending: 0, overdue: 0 });
   const [paymentSummary, setPaymentSummary] = useState<PaymentSummary>({ income: 0, expenses: 0, net: 0 });
+  const [staffCosts, setStaffCosts] = useState<{ approved: number; paid: number }>({ approved: 0, paid: 0 });
 
   useEffect(() => {
     fetchData();
@@ -66,6 +67,14 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
 
       const paymentExpenses = (payments || []).filter(p => p.type === 'out').reduce((sum, p) => sum + Number(p.amount), 0);
       const totalExpenses = paymentExpenses + ((expensesData as any[]) || []).reduce((sum: number, e: any) => sum + Number(e.amount), 0);
+
+      // Staff payslip costs (approved + paid net amounts)
+      const { data: payslips } = await (supabase as any)
+        .from('staff_payslips')
+        .select('net_amount, status');
+      const approved = (payslips || []).filter((p: any) => p.status === 'approved').reduce((s: number, p: any) => s + Number(p.net_amount || 0), 0);
+      const paidStaff = (payslips || []).filter((p: any) => p.status === 'paid').reduce((s: number, p: any) => s + Number(p.net_amount || 0), 0);
+      setStaffCosts({ approved, paid: paidStaff });
 
       setPaymentSummary({
         income: totalIncome,
@@ -161,6 +170,13 @@ export const FinancialReports = ({ isAdmin }: { isAdmin: boolean }) => {
                 title="Outstanding Invoices"
                 value={`£${invoiceSummary.pending.toLocaleString()}`}
                 icon={FileText}
+              />
+              <StatCard
+                title="Staff Costs (Paid)"
+                value={staffCosts.paid > 0 ? `£${staffCosts.paid.toLocaleString()}` : '—'}
+                icon={TrendingDown}
+                color="text-blue-500"
+                trend={staffCosts.approved > 0 ? `+ £${staffCosts.approved.toLocaleString()} approved` : undefined}
               />
             </div>
 

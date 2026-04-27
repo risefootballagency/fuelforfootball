@@ -4680,6 +4680,85 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_client_earnings: {
+        Row: {
+          amount_due: number
+          client_name: string
+          created_at: string
+          currency: string
+          earning_type: string
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          paid_out_at: string | null
+          percentage: number
+          period_month: string
+          player_id: string | null
+          received_at: string | null
+          staff_user_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_due?: number
+          client_name: string
+          created_at?: string
+          currency?: string
+          earning_type: string
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          paid_out_at?: string | null
+          percentage?: number
+          period_month: string
+          player_id?: string | null
+          received_at?: string | null
+          staff_user_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_due?: number
+          client_name?: string
+          created_at?: string
+          currency?: string
+          earning_type?: string
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          paid_out_at?: string | null
+          percentage?: number
+          period_month?: string
+          player_id?: string | null
+          received_at?: string | null
+          staff_user_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_client_earnings_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_client_earnings_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_client_earnings_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_documents: {
         Row: {
           content: string | null
@@ -4811,6 +4890,87 @@ export type Database = {
           event_type?: string
           id?: string
           role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      staff_pay_settings: {
+        Row: {
+          created_at: string
+          default_earning_type: string
+          default_tax_rate: number
+          preferred_currency: string
+          staff_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_earning_type?: string
+          default_tax_rate?: number
+          preferred_currency?: string
+          staff_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_earning_type?: string
+          default_tax_rate?: number
+          preferred_currency?: string
+          staff_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      staff_payslips: {
+        Row: {
+          admin_notes: string | null
+          approved_at: string | null
+          created_at: string
+          currency: string
+          gross_amount: number
+          id: string
+          net_amount: number
+          paid_at: string | null
+          period_month: string
+          staff_user_id: string
+          status: string
+          submitted_at: string | null
+          tax_estimate: number
+          tax_rate: number
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          approved_at?: string | null
+          created_at?: string
+          currency?: string
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          paid_at?: string | null
+          period_month: string
+          staff_user_id: string
+          status?: string
+          submitted_at?: string | null
+          tax_estimate?: number
+          tax_rate?: number
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          approved_at?: string | null
+          created_at?: string
+          currency?: string
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          paid_at?: string | null
+          period_month?: string
+          staff_user_id?: string
+          status?: string
+          submitted_at?: string | null
+          tax_estimate?: number
+          tax_rate?: number
           updated_at?: string
         }
         Relationships: []
