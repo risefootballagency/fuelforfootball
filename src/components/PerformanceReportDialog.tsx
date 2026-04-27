@@ -946,7 +946,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
 
               {showR90Flow && analysis.minutes_played && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} /></CardContent></Card>)}
               {showHeatmap && analysis.minutes_played && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} /></CardContent></Card>)}
-              {showShotMap && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ShotMapGraphic actions={actions as any} /></CardContent></Card>)}
+              {showShotMap && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ShotMapGraphic actions={actions as any} isGoalkeeper={/goal\s*keeper|goalkeeper|gk\b/i.test(analysis?.player_position || '')} /></CardContent></Card>)}
               {showPitchHeatmap && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><PitchHeatmap actions={actions} language={reportLanguage} /></CardContent></Card>)}
               {showZonePerformance && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ZonePerformance actions={displayActions} language={reportLanguage} /></CardContent></Card>)}
               {showTimelapse && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><MatchTimelapse actions={actions} language={reportLanguage} /></CardContent></Card>)}
