@@ -809,6 +809,26 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
     }
   };
 
+  const handleDuplicate = async (analysis: Analysis) => {
+    try {
+      const { id, created_at, updated_at, ...rest } = analysis as any;
+      const cloned = {
+        ...rest,
+        title: rest.title ? `${rest.title} (Copy)` : 'Untitled (Copy)',
+        visibility_status: 'draft',
+        fixture_id: null,
+      };
+      const { data, error } = await supabase.from('analyses').insert(cloned).select('id').single();
+      if (error) throw error;
+      toast.success('Analysis duplicated');
+      logActivity({ action: 'created', entityType: 'analysis', entityId: (data as any)?.id });
+      fetchAnalyses();
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to duplicate analysis');
+      console.error(error);
+    }
+  };
+
   const handleDeleteConcept = async (id: string) => {
     if (!confirm("Are you sure you want to delete this concept?")) return;
 
@@ -1546,6 +1566,9 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
             </Button>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleOpenDialog(type, analysis)}>
               <Pencil className="w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDuplicate(analysis)} title="Duplicate analysis">
+              <Copy className="w-4 h-4" />
             </Button>
             {isAdmin && (
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDelete(analysis.id)}>

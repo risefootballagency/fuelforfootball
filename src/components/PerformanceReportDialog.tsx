@@ -64,6 +64,7 @@ interface AnalysisDetails {
   r90_score: number | null;
   minutes_played: number | null;
   player_name: string;
+  player_position?: string | null;
   striker_stats?: StrikerStats | null;
   performance_overview?: string | null;
   visibility_status?: string;
@@ -184,7 +185,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
           .from("player_analysis")
           .select(`
             *,
-            players!inner (name)
+            players!inner (name, position)
           `)
           .eq("id", id)
           .single(),
@@ -205,6 +206,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
         r90_score: analysisResult.data.r90_score,
         minutes_played: analysisResult.data.minutes_played,
         player_name: analysisResult.data.players?.name || "Unknown Player",
+        player_position: (analysisResult.data.players as any)?.position || null,
         striker_stats: analysisResult.data.striker_stats as StrikerStats | null,
         performance_overview: analysisResult.data.performance_overview,
         visibility_status: (analysisResult.data as any).visibility_status || "live",
@@ -944,7 +946,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
 
               {showR90Flow && analysis.minutes_played && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><R90FlowChart actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} /></CardContent></Card>)}
               {showHeatmap && analysis.minutes_played && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ActionHeatmap actions={actions} minutesPlayed={analysis.minutes_played} language={reportLanguage} /></CardContent></Card>)}
-              {showShotMap && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ShotMapGraphic actions={actions as any} /></CardContent></Card>)}
+              {showShotMap && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ShotMapGraphic actions={actions as any} isGoalkeeper={/goal\s*keeper|goalkeeper|gk\b/i.test(analysis?.player_position || '')} /></CardContent></Card>)}
               {showPitchHeatmap && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><PitchHeatmap actions={actions} language={reportLanguage} /></CardContent></Card>)}
               {showZonePerformance && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><ZonePerformance actions={displayActions} language={reportLanguage} /></CardContent></Card>)}
               {showTimelapse && (<Card className="overflow-hidden"><CardContent className="p-3 md:p-6"><MatchTimelapse actions={actions} language={reportLanguage} /></CardContent></Card>)}
