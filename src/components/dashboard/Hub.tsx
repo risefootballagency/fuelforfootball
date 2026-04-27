@@ -621,9 +621,23 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     return "hsl(36, 100%, 50%)";
   };
 
-  const recentAnalyses = [...analyses]
-    .sort((a, b) => new Date(b.analysis_date).getTime() - new Date(a.analysis_date).getTime())
-    .slice(0, 5);
+  const recentAnalyses = (() => {
+    // Merge real analyses with orphan pre-match fixtures, dedupe by fixture_id
+    const seenFixtureIds = new Set<string>();
+    const combined: PlayerAnalysis[] = [];
+    for (const a of analyses) {
+      if (a.fixture_id) seenFixtureIds.add(a.fixture_id);
+      combined.push(a);
+    }
+    for (const o of orphanPreMatchFixtures) {
+      if (o.fixture_id && seenFixtureIds.has(o.fixture_id)) continue;
+      combined.push(o);
+      if (o.fixture_id) seenFixtureIds.add(o.fixture_id);
+    }
+    return combined
+      .sort((a, b) => new Date(b.analysis_date).getTime() - new Date(a.analysis_date).getTime())
+      .slice(0, 5);
+  })();
 
   return (
     <>
