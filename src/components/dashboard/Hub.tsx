@@ -253,6 +253,78 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     fetchPostMatchAnalyses();
   }, []);
 
+  // Fetch fixtures with pre-match analyses that don't yet have a player_analysis row
+  // so each separate fixture (even with same opponent name) appears distinctly on Hub
+  React.useEffect(() => {
+    const fetchOrphanPreMatchFixtures = async () => {
+      const club = playerData?.club || playerData?.team || playerData?.current_club;
+      if (!club) return;
+
+      // Fixture IDs already covered by player_analysis rows for this player
+      const coveredFixtureIds = new Set(
+        analyses.map((a: any) => a.fixture_id).filter(Boolean) as string[]
+      );
+
+      // Fetch upcoming + recent fixtures for the player's club
+      const today = new Date();
+      const horizonPast = new Date(today.getTime() - 1000 * 60 * 60 * 24 * 60).toISOString().slice(0, 10);
+      const horizonFuture = new Date(today.getTime() + 1000 * 60 * 60 * 24 * 90).toISOString().slice(0, 10);
+
+      const { data: fixtures } = await sharedSupabase
+        .from('fixtures')
+        .select('id, match_date, home_team, away_team')
+        .or(`home_team.eq.${club},away_team.eq.${club}`)
+        .gte('match_date', horizonPast)
+        .lte('match_date', horizonFuture);
+
+      if (!fixtures || fixtures.length === 0) {
+        setOrphanPreMatchFixtures([]);
+        return;
+      }
+
+      const orphanFixtureIds = fixtures
+        .map((f: any) => f.id)
+        .filter((id: string) => !coveredFixtureIds.has(id));
+
+      if (orphanFixtureIds.length === 0) {
+        setOrphanPreMatchFixtures([]);
+        return;
+      }
+
+      const { data: preMatches } = await sharedSupabase
+        .from('analyses')
+        .select('id, fixture_id, home_team, away_team, analysis_type, visibility_status, estimated_ready_at')
+        .eq('analysis_type', 'pre-match')
+        .in('fixture_id', orphanFixtureIds);
+
+      if (!preMatches || preMatches.length === 0) {
+        setOrphanPreMatchFixtures([]);
+        return;
+      }
+
+      const fixtureMap = new Map(fixtures.map((f: any) => [f.id, f]));
+      const synthesized: PlayerAnalysis[] = preMatches
+        .filter((pm: any) => pm.fixture_id && fixtureMap.has(pm.fixture_id))
+        .map((pm: any) => {
+          const fix: any = fixtureMap.get(pm.fixture_id);
+          const opponent = fix.home_team === club ? fix.away_team : fix.home_team;
+          return {
+            id: `orphan-${pm.fixture_id}`,
+            analysis_date: fix.match_date,
+            opponent,
+            r90_score: null as any,
+            result: '',
+            fixture_id: pm.fixture_id,
+            analysis_writer_data: pm,
+            tagged_analyses: [pm],
+          } as PlayerAnalysis;
+        });
+
+      setOrphanPreMatchFixtures(synthesized);
+    };
+    fetchOrphanPreMatchFixtures();
+  }, [analyses, playerData?.club, playerData?.team, playerData?.current_club]);
+
   // Custom Tooltip Component with close button
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload || !payload.length || !tooltipVisible) return null;
