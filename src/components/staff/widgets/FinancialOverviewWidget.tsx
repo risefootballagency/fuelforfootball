@@ -112,17 +112,25 @@ export const FinancialOverviewWidget = () => {
       borderClass: "border-blue-500/30",
     },
     {
+      label: "Staff Costs",
+      value: data.totalStaffCosts > 0 ? formatAmount(data.totalStaffCosts) : "—",
+      icon: Users,
+      colorClass: "text-purple-600",
+      bgClass: "from-purple-500/10 to-purple-600/10",
+      borderClass: "border-purple-500/30",
+    },
+    {
       label: "Net Position",
-      value: formatAmount(data.totalReceived - data.totalExpenses),
-      icon: data.totalReceived - data.totalExpenses >= 0 ? TrendingUp : TrendingDown,
-      colorClass: data.totalReceived - data.totalExpenses >= 0 ? "text-emerald-600" : "text-rose-600",
+      value: formatAmount(data.totalReceived - data.totalExpenses - data.totalStaffCosts),
+      icon: data.totalReceived - data.totalExpenses - data.totalStaffCosts >= 0 ? TrendingUp : TrendingDown,
+      colorClass: data.totalReceived - data.totalExpenses - data.totalStaffCosts >= 0 ? "text-emerald-600" : "text-rose-600",
       bgClass: "from-primary/20 to-primary/5",
       borderClass: "border-primary/40",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 h-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 h-full">
       {items.map((item) => (
         <div
           key={item.label}
