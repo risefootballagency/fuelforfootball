@@ -184,7 +184,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
           .from("player_analysis")
           .select(`
             *,
-            players!inner (name)
+            players!inner (name, position)
           `)
           .eq("id", id)
           .single(),
