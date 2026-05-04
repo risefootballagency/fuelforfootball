@@ -204,7 +204,7 @@ export const AnalysisOverviewSection = ({
               <p className="text-xs text-muted-foreground mb-1">
                 AI will summarize points content in the style of your overview examples
               </p>
-              <Textarea
+              <Textarea spellCheck={false}
                 value={formData.key_details || ""}
                 onChange={(e) => setFormData({ ...formData, key_details: e.target.value })}
                 placeholder="Key tactical information about the match..."
@@ -213,7 +213,7 @@ export const AnalysisOverviewSection = ({
 
             <div>
               <Label>Opposition Strengths</Label>
-              <Textarea
+              <Textarea spellCheck={false}
                 value={formData.opposition_strengths || ""}
                 onChange={(e) => setFormData({ ...formData, opposition_strengths: e.target.value })}
                 placeholder="• Strong aerial presence&#10;• Fast counter attacks&#10;• Set piece threat"
@@ -222,7 +222,7 @@ export const AnalysisOverviewSection = ({
 
             <div>
               <Label>Opposition Weaknesses</Label>
-              <Textarea
+              <Textarea spellCheck={false}
                 value={formData.opposition_weaknesses || ""}
                 onChange={(e) => setFormData({ ...formData, opposition_weaknesses: e.target.value })}
                 placeholder="• Weak on the left flank&#10;• Slow to transition&#10;• Vulnerable to through balls"
@@ -267,7 +267,7 @@ export const AnalysisOverviewSection = ({
                         </div>
                         <div>
                           <Label className="text-xs mb-1">Notes (brief intro to player)</Label>
-                          <Textarea
+                          <Textarea spellCheck={false}
                             placeholder="Brief introduction to this player..."
                             value={matchup.notes || ""}
                             onChange={(e) => updateMatchup(index, "notes", e.target.value)}
@@ -322,7 +322,7 @@ export const AnalysisOverviewSection = ({
               <p className="text-xs text-muted-foreground mb-1">
                 AI will summarize points content in the style of your overview examples
               </p>
-              <Textarea
+              <Textarea spellCheck={false}
                 value={formData.key_details || ""}
                 onChange={(e) => setFormData({ ...formData, key_details: e.target.value })}
               />
@@ -384,7 +384,7 @@ export const AnalysisOverviewSection = ({
             </div>
             <div>
               <Label>Explanation</Label>
-              <Textarea
+              <Textarea spellCheck={false}
                 value={formData.explanation || ""}
                 onChange={(e) => setFormData({ ...formData, explanation: e.target.value })}
                 placeholder="Detailed explanation of the concept..."
