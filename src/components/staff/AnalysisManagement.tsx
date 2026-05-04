@@ -1623,27 +1623,59 @@ export const AnalysisManagement = ({ isAdmin, currentUserId, isAnalystOnly = fal
               {editingAnalysis ? "Edit" : "New"} {isPreMatch ? "Pre-Match Analysis" : isPostMatch ? "Post-Match Analysis" : "Concept"}
             </h2>
           </div>
-          {currentUserId && editingAnalysis && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                try {
-                  const { error } = await supabase
-                    .from("analyses")
-                    .update({ writer_user_id: currentUserId })
-                    .eq("id", editingAnalysis.id);
-                  if (error) throw error;
-                  toast.success("Assigned to you");
-                } catch (err: any) {
-                  toast.error("Failed to assign");
-                  console.error(err);
-                }
-              }}
-            >
-              Assign to Me
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {editingAnalysis && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    const { data, error } = await supabase
+                      .from("analyses")
+                      .select("*")
+                      .eq("id", editingAnalysis.id)
+                      .maybeSingle();
+                    if (error) throw error;
+                    if (data) {
+                      const pointsWithIds = ((data as any).points || []).map((p: any) => ({
+                        ...p,
+                        _id: p._id || crypto.randomUUID(),
+                      }));
+                      setFormData({ ...data, points: pointsWithIds });
+                      setEditingAnalysis(data as any);
+                      toast.success("Refreshed");
+                    }
+                  } catch (err: any) {
+                    toast.error("Failed to refresh");
+                    console.error(err);
+                  }
+                }}
+              >
+                <RefreshCw className="w-4 h-4 mr-1" /> Refresh
+              </Button>
+            )}
+            {currentUserId && editingAnalysis && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    const { error } = await supabase
+                      .from("analyses")
+                      .update({ writer_user_id: currentUserId })
+                      .eq("id", editingAnalysis.id);
+                    if (error) throw error;
+                    toast.success("Assigned to you");
+                  } catch (err: any) {
+                    toast.error("Failed to assign");
+                    console.error(err);
+                  }
+                }}
+              >
+                Assign to Me
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">
