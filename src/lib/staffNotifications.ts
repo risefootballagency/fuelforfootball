@@ -53,7 +53,11 @@ export const insertStaffNotification = async ({
       event_type: eventType,
       title,
       body,
-      event_data: eventData || {},
+      event_data: {
+        ...(eventData || {}),
+        cross_site_source: 'fff',
+        cross_site_source_label: 'Fuel For Football',
+      },
     });
   } catch (err) {
     console.error("Staff notification insert failed:", err);
