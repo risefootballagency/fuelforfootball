@@ -757,7 +757,7 @@ const Dashboard = () => {
       const { data: players, error: playerError } = await supabase
         .from("players")
         .select("id, highlights")
-        .eq("email", playerEmail);
+        .ilike("email", playerEmail);
 
       if (playerError || !players || players.length === 0) {
         throw new Error("Failed to fetch player data");
@@ -1855,7 +1855,7 @@ const Dashboard = () => {
       const { data: playerData, error: playerError } = await supabase
         .from("players")
         .select("id")
-        .eq("email", email)
+        .ilike("email", email)
         .maybeSingle();
 
       if (playerError) throw playerError;
