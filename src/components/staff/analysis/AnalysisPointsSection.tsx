@@ -417,7 +417,7 @@ const SortablePointCard = ({
                   </Button>
                 )}
               </div>
-              <Input value={point.title} onChange={(e) => updatePoint(index, "title", e.target.value)} />
+              <Input spellCheck={false} value={point.title} onChange={(e) => updatePoint(index, "title", e.target.value)} />
             </div>
             <div>
               <div className="flex items-center justify-between">
@@ -429,7 +429,7 @@ const SortablePointCard = ({
                   </Button>
                 )}
               </div>
-              <Textarea value={point.paragraph_1} onChange={(e) => updatePoint(index, "paragraph_1", e.target.value)} />
+              <Textarea spellCheck={false} value={point.paragraph_1} onChange={(e) => updatePoint(index, "paragraph_1", e.target.value)} />
             </div>
             <div>
               <div className="flex items-center justify-between">
@@ -441,7 +441,7 @@ const SortablePointCard = ({
                   </Button>
                 )}
               </div>
-              <Textarea value={point.paragraph_2} onChange={(e) => updatePoint(index, "paragraph_2", e.target.value)} />
+              <Textarea spellCheck={false} value={point.paragraph_2} onChange={(e) => updatePoint(index, "paragraph_2", e.target.value)} />
             </div>
           </>
         )}
@@ -461,7 +461,7 @@ const SortablePointCard = ({
 
         <div>
           <Label>Images (Optional)</Label>
-          <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "point_image", index, true)} disabled={uploadingImage} />
+          <Input spellCheck={false} type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "point_image", index, true)} disabled={uploadingImage} />
           <div className="flex flex-wrap gap-2 sm:gap-4 mt-2">
             {point.images?.map((img, imgIndex) => (
               <div key={imgIndex} className="relative">
@@ -549,7 +549,7 @@ const SortablePointCard = ({
             </div>
           )}
 
-          <Input type="file" accept="video/*" onChange={(e) => handleVideoUploadForPoint(e, index)} disabled={uploadingImage} />
+          <Input spellCheck={false} type="file" accept="video/*" onChange={(e) => handleVideoUploadForPoint(e, index)} disabled={uploadingImage} />
           <Input
             placeholder="Or paste video URL and press Enter..."
             className="mt-2"
