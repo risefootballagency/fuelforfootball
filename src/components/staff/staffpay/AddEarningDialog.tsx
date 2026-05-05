@@ -142,6 +142,18 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
           <DialogTitle>{initial ? "Edit Earning" : "Add Client Earning"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
+          {isAdmin && (
+            <div>
+              <Label>Assign to Staff Member</Label>
+              <Select value={assignedStaffId} onValueChange={setAssignedStaffId}>
+                <SelectTrigger><SelectValue placeholder="Select staff" /></SelectTrigger>
+                <SelectContent>
+                  {staff.map(s => <SelectItem key={s.id} value={s.id}>{s.name}{s.email ? ` — ${s.email}` : ''}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground mt-1">Admins can log earnings on behalf of any staff member.</p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Client Name</Label>
