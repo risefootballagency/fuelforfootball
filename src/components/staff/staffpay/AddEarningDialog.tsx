@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useStaffList } from "./useStaffList";
 
 interface Props {
   open: boolean;
@@ -19,6 +20,7 @@ interface Props {
   defaultEarningType?: 'work_75' | 'commission_10' | 'manual';
   onSaved: () => void;
   initial?: any;
+  isAdmin?: boolean;
 }
 
 interface PlayerOpt { id: string; name: string; }
