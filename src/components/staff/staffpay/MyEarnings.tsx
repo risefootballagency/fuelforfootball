@@ -164,6 +164,7 @@ export const MyEarnings = ({ staffUserId, isAdmin }: Props) => {
         defaultEarningType={settings?.default_earning_type || 'work_75'}
         onSaved={load}
         initial={editing}
+        isAdmin={isAdmin}
       />
     </div>
   );
