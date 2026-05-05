@@ -8,6 +8,7 @@ import { PayslipTab } from "./staffpay/PayslipTab";
 
 const ExpensesManagement = lazy(() => import("./ExpensesManagement").then(m => ({ default: m.ExpensesManagement })));
 const AllStaffTab = lazy(() => import("./staffpay/AllStaffTab").then(m => ({ default: m.AllStaffTab })));
+const EarningsAnalytics = lazy(() => import("./staffpay/EarningsAnalytics").then(m => ({ default: m.EarningsAnalytics })));
 
 interface Props { isAdmin?: boolean; }
 
@@ -29,6 +30,7 @@ export const StaffPay = ({ isAdmin }: Props) => {
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="earnings">My Earnings</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="payslip">Payslip</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             {isAdmin && <TabsTrigger value="all">All Staff</TabsTrigger>}
@@ -36,6 +38,11 @@ export const StaffPay = ({ isAdmin }: Props) => {
 
           <TabsContent value="earnings" className="mt-4">
             {tab === 'earnings' && <MyEarnings staffUserId={user.id} isAdmin={isAdmin} />}
+          </TabsContent>
+          <TabsContent value="analytics" className="mt-4">
+            {tab === 'analytics' && (
+              <Suspense fallback={<Fallback />}><EarningsAnalytics staffUserId={user.id} isAdmin={isAdmin} /></Suspense>
+            )}
           </TabsContent>
           <TabsContent value="payslip" className="mt-4">
             {tab === 'payslip' && <PayslipTab staffUserId={user.id} staffEmail={user.email || undefined} />}

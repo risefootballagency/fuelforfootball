@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useStaffList } from "./useStaffList";
 
 interface Props {
   open: boolean;
@@ -19,14 +20,17 @@ interface Props {
   defaultEarningType?: 'work_75' | 'commission_10' | 'manual';
   onSaved: () => void;
   initial?: any;
+  isAdmin?: boolean;
 }
 
 interface PlayerOpt { id: string; name: string; }
 interface InvoiceOpt { id: string; invoice_number: string; amount: number; amount_paid: number | null; player_id: string; status: string; currency: string; }
 
-export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPeriod, defaultCurrency = 'GBP', defaultEarningType = 'work_75', onSaved, initial }: Props) => {
+export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPeriod, defaultCurrency = 'GBP', defaultEarningType = 'work_75', onSaved, initial, isAdmin }: Props) => {
+  const { staff } = useStaffList();
   const [players, setPlayers] = useState<PlayerOpt[]>([]);
   const [invoices, setInvoices] = useState<InvoiceOpt[]>([]);
+  const [assignedStaffId, setAssignedStaffId] = useState<string>(staffUserId);
   const [clientName, setClientName] = useState("");
   const [playerId, setPlayerId] = useState<string>("");
   const [invoiceId, setInvoiceId] = useState<string>("");
@@ -61,11 +65,13 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
       setCurrency(initial.currency || defaultCurrency);
       setPeriod(initial.period_month || defaultPeriod);
       setNotes(initial.notes || "");
+      setAssignedStaffId(initial.staff_user_id || staffUserId);
     } else {
       setClientName(""); setPlayerId(""); setInvoiceId("");
       setEarningType(defaultEarningType);
       setPercentage(defaultEarningType === 'commission_10' ? 10 : defaultEarningType === 'work_75' ? 75 : 0);
       setManualAmount(0); setInvoiceAmount(0); setCurrency(defaultCurrency); setPeriod(defaultPeriod); setNotes("");
+      setAssignedStaffId(staffUserId);
     }
   }, [open, initial, defaultEarningType, defaultCurrency, defaultPeriod]);
 
@@ -100,7 +106,7 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
     setSaving(true);
     try {
       const payload: any = {
-        staff_user_id: staffUserId,
+        staff_user_id: isAdmin ? assignedStaffId : staffUserId,
         client_name: clientName.trim(),
         player_id: playerId || null,
         invoice_id: invoiceId || null,
@@ -136,6 +142,18 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
           <DialogTitle>{initial ? "Edit Earning" : "Add Client Earning"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
+          {isAdmin && (
+            <div>
+              <Label>Assign to Staff Member</Label>
+              <Select value={assignedStaffId} onValueChange={setAssignedStaffId}>
+                <SelectTrigger><SelectValue placeholder="Select staff" /></SelectTrigger>
+                <SelectContent>
+                  {staff.map(s => <SelectItem key={s.id} value={s.id}>{s.name}{s.email ? ` — ${s.email}` : ''}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground mt-1">Admins can log earnings on behalf of any staff member.</p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Client Name</Label>
