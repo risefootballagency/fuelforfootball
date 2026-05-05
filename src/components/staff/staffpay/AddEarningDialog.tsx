@@ -65,11 +65,13 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
       setCurrency(initial.currency || defaultCurrency);
       setPeriod(initial.period_month || defaultPeriod);
       setNotes(initial.notes || "");
+      setAssignedStaffId(initial.staff_user_id || staffUserId);
     } else {
       setClientName(""); setPlayerId(""); setInvoiceId("");
       setEarningType(defaultEarningType);
       setPercentage(defaultEarningType === 'commission_10' ? 10 : defaultEarningType === 'work_75' ? 75 : 0);
       setManualAmount(0); setInvoiceAmount(0); setCurrency(defaultCurrency); setPeriod(defaultPeriod); setNotes("");
+      setAssignedStaffId(staffUserId);
     }
   }, [open, initial, defaultEarningType, defaultCurrency, defaultPeriod]);
 
