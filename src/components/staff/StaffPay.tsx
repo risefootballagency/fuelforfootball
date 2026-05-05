@@ -39,6 +39,11 @@ export const StaffPay = ({ isAdmin }: Props) => {
           <TabsContent value="earnings" className="mt-4">
             {tab === 'earnings' && <MyEarnings staffUserId={user.id} isAdmin={isAdmin} />}
           </TabsContent>
+          <TabsContent value="analytics" className="mt-4">
+            {tab === 'analytics' && (
+              <Suspense fallback={<Fallback />}><EarningsAnalytics staffUserId={user.id} isAdmin={isAdmin} /></Suspense>
+            )}
+          </TabsContent>
           <TabsContent value="payslip" className="mt-4">
             {tab === 'payslip' && <PayslipTab staffUserId={user.id} staffEmail={user.email || undefined} />}
           </TabsContent>
