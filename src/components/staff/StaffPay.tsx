@@ -30,6 +30,7 @@ export const StaffPay = ({ isAdmin }: Props) => {
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="earnings">My Earnings</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="payslip">Payslip</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             {isAdmin && <TabsTrigger value="all">All Staff</TabsTrigger>}
