@@ -8,6 +8,7 @@ import { PayslipTab } from "./staffpay/PayslipTab";
 
 const ExpensesManagement = lazy(() => import("./ExpensesManagement").then(m => ({ default: m.ExpensesManagement })));
 const AllStaffTab = lazy(() => import("./staffpay/AllStaffTab").then(m => ({ default: m.AllStaffTab })));
+const EarningsAnalytics = lazy(() => import("./staffpay/EarningsAnalytics").then(m => ({ default: m.EarningsAnalytics })));
 
 interface Props { isAdmin?: boolean; }
 
