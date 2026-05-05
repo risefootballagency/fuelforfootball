@@ -106,7 +106,7 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
     setSaving(true);
     try {
       const payload: any = {
-        staff_user_id: staffUserId,
+        staff_user_id: isAdmin ? assignedStaffId : staffUserId,
         client_name: clientName.trim(),
         player_id: playerId || null,
         invoice_id: invoiceId || null,
