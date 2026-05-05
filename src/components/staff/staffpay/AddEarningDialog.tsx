@@ -26,9 +26,11 @@ interface Props {
 interface PlayerOpt { id: string; name: string; }
 interface InvoiceOpt { id: string; invoice_number: string; amount: number; amount_paid: number | null; player_id: string; status: string; currency: string; }
 
-export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPeriod, defaultCurrency = 'GBP', defaultEarningType = 'work_75', onSaved, initial }: Props) => {
+export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPeriod, defaultCurrency = 'GBP', defaultEarningType = 'work_75', onSaved, initial, isAdmin }: Props) => {
+  const { staff } = useStaffList();
   const [players, setPlayers] = useState<PlayerOpt[]>([]);
   const [invoices, setInvoices] = useState<InvoiceOpt[]>([]);
+  const [assignedStaffId, setAssignedStaffId] = useState<string>(staffUserId);
   const [clientName, setClientName] = useState("");
   const [playerId, setPlayerId] = useState<string>("");
   const [invoiceId, setInvoiceId] = useState<string>("");
