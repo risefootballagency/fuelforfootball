@@ -28,7 +28,7 @@ export const PressReleasesSection = () => {
         .select("id, title, summary, content, published_date")
         .eq("published", true)
         .order("published_date", { ascending: false })
-        .limit(6) as { data: PressRelease[] | null; error: any };
+        .limit(12) as { data: PressRelease[] | null; error: any };
 
       if (!error && data) {
         setPressReleases(data);
@@ -78,39 +78,39 @@ export const PressReleasesSection = () => {
           </div>
         </ScrollReveal>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {pressReleases.map((release, index) => (
-            <ScrollReveal key={release.id} delay={index * 0.1}>
-              <Card 
-                className="group p-6 bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 cursor-pointer"
+            <ScrollReveal key={release.id} delay={index * 0.05}>
+              <Card
+                className="group h-full p-4 bg-card border border-border hover:border-primary/60 transition-all duration-300 hover:shadow-md hover:shadow-primary/10 cursor-pointer flex flex-col"
                 onClick={() => setSelectedRelease(release)}
               >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <FileText className="h-6 w-6 text-primary" />
+                <div className="flex items-start gap-3 mb-3 pb-3 border-b border-primary/15">
+                  <div className="p-2 bg-primary/10 rounded-md shrink-0">
+                    <FileText className="h-4 w-4 text-primary" />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-bebas text-xl uppercase tracking-wider group-hover:text-primary transition-colors line-clamp-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bebas text-base uppercase tracking-wider group-hover:text-primary transition-colors">
                       {release.title}
                     </h3>
                     {release.published_date && (
-                      <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
+                      <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
                         {format(new Date(release.published_date), "dd MMM yyyy")}
                       </div>
                     )}
                   </div>
                 </div>
-                
+
                 {release.summary && (
-                  <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+                  <p className="text-xs text-muted-foreground mb-3 flex-1">
                     {release.summary}
                   </p>
                 )}
-                
-                <div className="flex items-center gap-2 text-primary text-sm font-medium group-hover:gap-3 transition-all">
+
+                <div className="flex items-center gap-2 text-primary text-xs font-medium group-hover:gap-3 transition-all mt-auto">
                   {t("press.read_more", "Read More")}
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-3 w-3" />
                 </div>
               </Card>
             </ScrollReveal>
