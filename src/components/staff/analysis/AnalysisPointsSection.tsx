@@ -335,6 +335,7 @@ interface SortablePointCardProps {
   aiGenerating: boolean;
   performanceReportClips: PerformanceReportAction[];
   videoAnalysisClips: VideoAnalysisClip[];
+  analysisId?: string;
 }
 
 const SortablePointCard = ({
@@ -356,6 +357,7 @@ const SortablePointCard = ({
   aiGenerating,
   performanceReportClips,
   videoAnalysisClips,
+  analysisId,
 }: SortablePointCardProps) => {
   const {
     attributes,
@@ -608,6 +610,7 @@ const SortablePointCard = ({
                   pointIndex={index}
                   totalPoints={totalPoints}
                   existingAnnotationId={point.annotation_ids?.[url]}
+                  analysisId={analysisId}
                   existingCrop={point.video_crops?.[url]}
                   onMoveToPoint={(targetIdx) => onMoveVideoToPoint(index, vidIndex, targetIdx)}
                   onAnnotationSaved={(annotationId) => {
@@ -779,6 +782,7 @@ export const AnalysisPointsSection = ({
                 aiGenerating={aiGenerating}
                 performanceReportClips={performanceReportClips}
                 videoAnalysisClips={vaClips}
+                analysisId={analysisId}
               />
             ))}
           </SortableContext>
