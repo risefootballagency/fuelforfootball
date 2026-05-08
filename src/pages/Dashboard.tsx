@@ -1715,20 +1715,15 @@ const Dashboard = () => {
     let playerEmail = localStorage.getItem("player_email") || sessionStorage.getItem("player_email");
     if (!playerEmail) return;
 
+    const refetch = () => fetchAnalyses(playerEmail);
+
     const channel = supabase
       .channel('dashboard-analysis-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'player_analysis'
-        },
-        () => {
-          // Refetch analyses when any change occurs
-          fetchAnalyses(playerEmail);
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'player_analysis' }, refetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'analyses' }, refetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'analysis_player_tags' }, refetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'player_fixtures' }, refetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'fixtures' }, refetch)
       .subscribe();
 
     return () => {
