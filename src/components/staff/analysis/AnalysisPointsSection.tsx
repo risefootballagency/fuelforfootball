@@ -127,6 +127,7 @@ const VideoItem = ({
   onMoveToPoint,
   onAnnotationSaved,
   existingAnnotationId,
+  analysisId,
 }: {
   url: string;
   onRemove: () => void;
@@ -138,6 +139,7 @@ const VideoItem = ({
   onMoveToPoint: (targetPointIndex: number) => void;
   onAnnotationSaved?: (annotationProjectId: string) => void;
   existingAnnotationId?: string;
+  analysisId?: string;
 }) => {
   const [trimOpen, setTrimOpen] = useState(false);
   const [cropOpen, setCropOpen] = useState(false);
@@ -189,22 +191,53 @@ const VideoItem = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { toast.error("Must be logged in to save annotations"); return; }
 
-      const { error } = await supabase
+      const payload = {
+        id: proj.id,
+        name: proj.name,
+        video_url: proj.videoUrl,
+        video_name: proj.videoName,
+        klips: JSON.parse(JSON.stringify(proj.klips)),
+        user_id: user.id,
+      };
+
+      let { error } = await supabase
         .from("annotation_projects")
-        .upsert({
-          id: proj.id,
-          name: proj.name,
-          video_url: proj.videoUrl,
-          video_name: proj.videoName,
-          klips: JSON.parse(JSON.stringify(proj.klips)),
-          user_id: user.id,
-        });
+        .upsert(payload, { onConflict: 'id' });
+
+      // Race-condition fallback: if a duplicate-key slips through, fall back to UPDATE
+      if (error && (error as any).code === '23505') {
+        const { error: updErr } = await supabase
+          .from("annotation_projects")
+          .update({
+            name: payload.name,
+            video_url: payload.video_url,
+            video_name: payload.video_name,
+            klips: payload.klips,
+          })
+          .eq('id', payload.id);
+        error = updErr as any;
+      }
       if (error) throw error;
+
+      // Auto-persist link into analyses.points so reloading before manual save still keeps the annotation
+      if (analysisId) {
+        try {
+          const { data: row } = await supabase.from('analyses').select('points').eq('id', analysisId).maybeSingle();
+          const pts: any[] = Array.isArray((row as any)?.points) ? JSON.parse(JSON.stringify((row as any).points)) : [];
+          const target = pts[pointIndex];
+          if (target) {
+            target.annotation_ids = { ...(target.annotation_ids || {}), [url]: proj.id };
+            await supabase.from('analyses').update({ points: pts }).eq('id', analysisId);
+          }
+        } catch (persistErr) {
+          console.warn('analyses.points auto-persist failed:', persistErr);
+        }
+      }
 
       setAnnotationProject(proj);
       setAnnotationVersion(v => v + 1);
       onAnnotationSaved?.(proj.id);
-      toast.success("Annotations saved — remember to save the analysis to persist the link");
+      toast.success("Annotations saved");
     } catch (err: any) {
       toast.error("Failed to save annotations: " + err.message);
     }
@@ -302,6 +335,7 @@ interface SortablePointCardProps {
   aiGenerating: boolean;
   performanceReportClips: PerformanceReportAction[];
   videoAnalysisClips: VideoAnalysisClip[];
+  analysisId?: string;
 }
 
 const SortablePointCard = ({
@@ -323,6 +357,7 @@ const SortablePointCard = ({
   aiGenerating,
   performanceReportClips,
   videoAnalysisClips,
+  analysisId,
 }: SortablePointCardProps) => {
   const {
     attributes,
@@ -575,6 +610,7 @@ const SortablePointCard = ({
                   pointIndex={index}
                   totalPoints={totalPoints}
                   existingAnnotationId={point.annotation_ids?.[url]}
+                  analysisId={analysisId}
                   existingCrop={point.video_crops?.[url]}
                   onMoveToPoint={(targetIdx) => onMoveVideoToPoint(index, vidIndex, targetIdx)}
                   onAnnotationSaved={(annotationId) => {
@@ -746,6 +782,7 @@ export const AnalysisPointsSection = ({
                 aiGenerating={aiGenerating}
                 performanceReportClips={performanceReportClips}
                 videoAnalysisClips={vaClips}
+                analysisId={analysisId}
               />
             ))}
           </SortableContext>

@@ -748,6 +748,8 @@ export const ReadOnlyAnnotationPlayback = ({
       case 'magnifier': {
         const zoom = el.zoomLevel || 1.5;
         const r = el.radius || 3;
+        const panX = (el as any).panX || 0;
+        const panY = (el as any).panY || 0;
         const clipId = `ro-mag-clip-${el.id}`;
         const magCircPerim = 2 * Math.PI * r;
         const magDash = `${magCircPerim * 0.12} ${magCircPerim * 0.06}`;
@@ -758,10 +760,13 @@ export const ReadOnlyAnnotationPlayback = ({
           try {
             const vw = video.videoWidth || 1;
             const vh = video.videoHeight || 1;
-            const centreVX = (el.x / 100) * vw;
-            const centreVY = (el.y / 100) * vh;
-            const regionW = vw / zoom;
-            const regionH = vh / zoom;
+            const centreVX = ((el.x + panX) / 100) * vw;
+            const centreVY = ((el.y + panY) / 100) * vh;
+            const radiusPxW = (r / 100) * vw;
+            const radiusPxH = (r / 100) * vh;
+            // Sample lens-diameter region (matches editor math). Avoids "full image squashed in lens".
+            const regionW = Math.max(8, (radiusPxW * 2) / zoom);
+            const regionH = Math.max(8, (radiusPxH * 2) / zoom);
             const sx = Math.max(0, Math.min(vw - regionW, centreVX - regionW / 2));
             const sy = Math.max(0, Math.min(vh - regionH, centreVY - regionH / 2));
             const canvas = document.createElement('canvas');

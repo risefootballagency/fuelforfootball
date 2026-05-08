@@ -10,7 +10,7 @@ import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient
 import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
 import { toast } from "sonner";
-import { Plus, Trash2, Check, Edit, ChevronUp, ChevronDown, ArrowUp, ArrowDown, Database, Sparkles, Calendar } from "lucide-react";
+import { Plus, Trash2, Check, Edit, ChevronUp, ChevronDown, ArrowUp, ArrowDown, Database, Sparkles, Calendar, Copy } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -904,6 +904,49 @@ export const ProgrammingManagement = ({ isOpen, onClose, playerId, playerName, i
     }
   };
 
+  const duplicateProgram = async (programId: string) => {
+    setLoading(true);
+    try {
+      const { data: source, error: srcErr } = await supabase
+        .from('player_programs')
+        .select('*')
+        .eq('id', programId)
+        .single();
+      if (srcErr || !source) throw srcErr || new Error('Source program not found');
+
+      const { data: existingPrograms } = await supabase
+        .from('player_programs')
+        .select('display_order')
+        .eq('player_id', playerId)
+        .order('display_order', { ascending: false })
+        .limit(1);
+      const nextOrder = existingPrograms && existingPrograms.length > 0
+        ? (existingPrograms[0].display_order || 0) + 1
+        : 1;
+
+      const { id: _id, created_at: _ca, updated_at: _ua, ...rest } = source as any;
+      const payload: any = {
+        ...rest,
+        sessions: deepClone(source.sessions || {}),
+        weekly_schedules: deepClone(source.weekly_schedules || []),
+        program_name: `${source.program_name || 'Program'} (Copy)`,
+        is_current: false,
+        display_order: nextOrder,
+      };
+
+      const { error: insErr } = await supabase.from('player_programs').insert(payload);
+      if (insErr) throw insErr;
+
+      toast.success('Program duplicated');
+      loadPrograms();
+    } catch (error: any) {
+      console.error('Error duplicating program:', error);
+      toast.error(error?.message || 'Failed to duplicate program');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const updateField = (field: keyof ProgrammingData, value: any) => {
     setProgrammingData(prev => ({ ...prev, [field]: value }));
     setHasUnsavedChanges(true);
@@ -1774,6 +1817,15 @@ Phase Dates: ${programmingData.phaseDates || 'Not specified'}`;
                           >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => duplicateProgram(program.id)}
+                            disabled={loading}
+                            title="Duplicate program"
+                          >
+                            <Copy className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="destructive"
