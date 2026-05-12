@@ -25,7 +25,7 @@ import {
   type SpqGenderNorm,
   type SpqScaleScore,
 } from "@/lib/spqScoring";
-import { CoachingDatabase } from "@/components/staff/CoachingDatabase";
+
 import { MarkdownContent } from "@/utils/markdownRenderer";
 import { SpqSubmissionsTab } from "./SpqSubmissionsTab";
 
@@ -189,12 +189,8 @@ export const PsychologySection = () => {
       <Tabs defaultValue="spq">
         <TabsList>
           <TabsTrigger value="spq">SPQ</TabsTrigger>
-          <TabsTrigger value="sessions">Sessions</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
         </TabsList>
-        <TabsContent value="sessions" className="space-y-4">
-          <CoachingDatabase initialTable="psychological_sessions" />
-        </TabsContent>
         <TabsContent value="submissions" className="space-y-4">
           <SpqSubmissionsTab />
         </TabsContent>
