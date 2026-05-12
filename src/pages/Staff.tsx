@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from "react";
 import { ExportProgressFloat } from "@/components/staff/ExportProgressFloat";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -21,92 +21,98 @@ import {
 } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+// Eager: header chrome + always-mounted (hidden-div) sections + default landing
 import PlayerManagement from "@/components/staff/PlayerManagement";
-import { PlayerList } from "@/components/staff/PlayerList";
-import BlogManagement from "@/components/staff/BlogManagement";
-import DailyFuelManagement from "@/components/staff/DailyFuelManagement";
-import { CoachingDatabase } from "@/components/staff/CoachingDatabase";
-import { AnalysisManagement } from "@/components/staff/AnalysisManagement";
-import { FormSubmissionsManagement } from "@/components/staff/FormSubmissionsManagement";
-import { SiteVisitorsManagement } from "@/components/staff/SiteVisitorsManagement";
-import { InvoiceManagement } from "@/components/staff/InvoiceManagement";
-import { UpdatesManagement } from "@/components/staff/UpdatesManagement";
-import { StaffSchedule } from "@/components/staff/StaffSchedule";
 import { StaffOverview } from "@/components/staff/StaffOverview";
-import { GoalsTasksManagement } from "@/components/staff/GoalsTasksManagement";
-import { VisionBoardSection } from "@/components/staff/VisionBoardSection";
-import { FocusedTasksSection } from "@/components/staff/FocusedTasksSection";
 import { StaffNotificationsDropdown } from "@/components/staff/StaffNotificationsDropdown";
-import { StaffAvailabilityManagement } from "@/components/staff/StaffAvailabilityManagement";
-import { StaffSchedulesManagement } from "@/components/staff/StaffSchedulesManagement";
-import { MarketingManagement } from "@/components/staff/MarketingManagement";
-import { ContentCreator, MarketingIdeas } from "@/components/staff/marketing";
-import { RecruitmentManagement } from "@/components/staff/RecruitmentManagement";
-import { ScoutingCentreManagement } from "@/components/staff/ScoutingCentreManagement";
-import { PlayerDatabaseManagement } from "@/components/staff/PlayerDatabaseManagement";
-import { StaffAccountManagement } from "@/components/staff/StaffAccountManagement";
-import { PlayerPasswordManagement } from "@/components/staff/PlayerPasswordManagement";
-import ClubNetworkManagement from "@/components/staff/ClubNetworkManagement";
-import LegalManagement from "@/components/staff/LegalManagement";
-import { CaseStudyManagement } from "@/components/staff/CaseStudyManagement";
-import { LanguagesManagement } from "@/components/staff/LanguagesManagement";
-import { StreamsManagement } from "@/components/staff/StreamsManagement";
-import { DesignStudio } from "@/components/staff/DesignStudio";
-import { StaffPWAInstall } from "@/components/staff/StaffPWAInstall";
-import { StaffOfflineManager } from "@/components/staff/StaffOfflineManager";
-import { ServiceCatalogManagement } from "@/components/staff/ServiceCatalogManagement";
-import { ServiceStatsManager } from "@/components/staff/sales/ServiceStatsManager";
-import { StaffPushNotifications } from "@/components/staff/StaffPushNotifications";
-import { HighlightMaker } from "@/components/staff/HighlightMaker";
-import { HighlightCompiler } from "@/components/staff/HighlightCompiler";
-import { SportscodeActionTypes } from "@/components/staff/SportscodeActionTypes";
-import { RecruitmentRulesTab } from "@/components/staff/RecruitmentRulesTab";
-import { PortalManagementAdmin } from "@/components/staff/PortalManagementAdmin";
-
-import { StaffPay } from "@/components/staff/StaffPay";
-import { TaxRecordsManagement } from "@/components/staff/TaxRecordsManagement";
-import { BudgetsManagement } from "@/components/staff/BudgetsManagement";
-import { FinancialReports } from "@/components/staff/FinancialReports";
-import { PaymentsManagement } from "@/components/staff/PaymentsManagement";
-import { AthleteCentre } from "@/components/staff/AthleteCentre";
-import { CoachingAIChat } from "@/components/staff/coaching/CoachingAIChat";
-import { SalesManagement } from "@/components/staff/SalesManagement";
-import { ShopCatalogManagement } from "@/components/staff/ShopCatalogManagement";
-import { ContractSignature } from "@/components/staff/ContractSignature";
-import { VersionManager } from "@/lib/versionManager";
-import { RetentionTracker, SalesTracker, OutreachTracker, SalesHub, TimeManagement } from "@/components/staff/sales";
-import { JobsManagement } from "@/components/staff/JobsManagement";
-import { PartnersManagement } from "@/components/staff/PartnersManagement";
-import { MarketingTipsManagement } from "@/components/staff/MarketingTipsManagement";
-import { PressReleasesManagement } from "@/components/staff/PressReleasesManagement";
-import { DocsSection } from "@/components/staff/sections/DocsSection";
-import { SheetsSection } from "@/components/staff/sections/SheetsSection";
-import { ServiceAudit } from "@/components/staff/coaching/ServiceAudit";
-import { TransferHub } from "@/components/staff/TransferHub";
-import PageLoading from "@/components/PageLoading";
-import { SiteTextManagement } from "@/components/staff/SiteTextManagement";
-
-// New Rise-aligned imports
 import { AnnotationProjects } from "@/components/staff/annotations/AnnotationProjects";
 import { VideoAnalysis } from "@/components/staff/coaching/VideoAnalysis";
-import { TacticsBoard } from "@/components/staff/coaching/TacticsBoard";
-import { Meetings } from "@/components/staff/coaching/Meetings";
-import { CoachingDataSection } from "@/components/staff/CoachingDataSection";
-import { StrengthPowerSpeedSection } from "@/components/staff/programming/StrengthPowerSpeedSection";
-import { NutritionSection } from "@/components/staff/programming/NutritionSection";
-import { ActivityLog } from "@/components/staff/ActivityLog";
-import { DatabaseExport } from "@/components/staff/DatabaseExport";
-import { RequestsManagement } from "@/components/staff/RequestsManagement";
-import { PublicContentManagement } from "@/components/staff/PublicContentManagement";
-import { NotificationSettingsManagement } from "@/components/staff/NotificationSettingsManagement";
-import { StaffSMSNotifications } from "@/components/staff/StaffSMSNotifications";
+import { AnalysisManagement } from "@/components/staff/AnalysisManagement";
+import { VersionManager } from "@/lib/versionManager";
+import PageLoading from "@/components/PageLoading";
 import { KeyboardShortcutsDialog } from "@/components/staff/KeyboardShortcutsDialog";
-import { SalesDeck } from "@/components/staff/marketing/SalesDeck";
-import { VideoDownloaderSection } from "@/components/staff/VideoDownloaderSection";
-import { VideoCompressor } from "@/components/staff/VideoCompressor";
 import { MobileScrollButtons } from "@/components/staff/MobileScrollButtons";
 import { SectionGridPicker } from "@/components/staff/SectionGridPicker";
 import { StaffMusicPlayer } from "@/components/staff/StaffMusicPlayer";
+import { StaffPWAInstall } from "@/components/staff/StaffPWAInstall";
+import { StaffOfflineManager } from "@/components/staff/StaffOfflineManager";
+import { StaffPushNotifications } from "@/components/staff/StaffPushNotifications";
+import { StaffAvailabilityManagement } from "@/components/staff/StaffAvailabilityManagement";
+
+// Lazy-loaded section components — split into per-section bundles to keep the
+// initial Staff chunk small. Using namespace `S.` so JSX stays compact below.
+const S = {
+  PlayerList: lazy(() => import("@/components/staff/PlayerList").then(m => ({ default: m.PlayerList }))),
+  BlogManagement: lazy(() => import("@/components/staff/BlogManagement")),
+  DailyFuelManagement: lazy(() => import("@/components/staff/DailyFuelManagement")),
+  CoachingDatabase: lazy(() => import("@/components/staff/CoachingDatabase").then(m => ({ default: m.CoachingDatabase }))),
+  FormSubmissionsManagement: lazy(() => import("@/components/staff/FormSubmissionsManagement").then(m => ({ default: m.FormSubmissionsManagement }))),
+  SiteVisitorsManagement: lazy(() => import("@/components/staff/SiteVisitorsManagement").then(m => ({ default: m.SiteVisitorsManagement }))),
+  InvoiceManagement: lazy(() => import("@/components/staff/InvoiceManagement").then(m => ({ default: m.InvoiceManagement }))),
+  UpdatesManagement: lazy(() => import("@/components/staff/UpdatesManagement").then(m => ({ default: m.UpdatesManagement }))),
+  VisionBoardSection: lazy(() => import("@/components/staff/VisionBoardSection").then(m => ({ default: m.VisionBoardSection }))),
+  FocusedTasksSection: lazy(() => import("@/components/staff/FocusedTasksSection").then(m => ({ default: m.FocusedTasksSection }))),
+  StaffSchedulesManagement: lazy(() => import("@/components/staff/StaffSchedulesManagement").then(m => ({ default: m.StaffSchedulesManagement }))),
+  MarketingManagement: lazy(() => import("@/components/staff/MarketingManagement").then(m => ({ default: m.MarketingManagement }))),
+  ContentCreator: lazy(() => import("@/components/staff/marketing").then(m => ({ default: m.ContentCreator }))),
+  MarketingIdeas: lazy(() => import("@/components/staff/marketing").then(m => ({ default: m.MarketingIdeas }))),
+  RecruitmentManagement: lazy(() => import("@/components/staff/RecruitmentManagement").then(m => ({ default: m.RecruitmentManagement }))),
+  ScoutingCentreManagement: lazy(() => import("@/components/staff/ScoutingCentreManagement").then(m => ({ default: m.ScoutingCentreManagement }))),
+  PlayerDatabaseManagement: lazy(() => import("@/components/staff/PlayerDatabaseManagement").then(m => ({ default: m.PlayerDatabaseManagement }))),
+  StaffAccountManagement: lazy(() => import("@/components/staff/StaffAccountManagement").then(m => ({ default: m.StaffAccountManagement }))),
+  PlayerPasswordManagement: lazy(() => import("@/components/staff/PlayerPasswordManagement").then(m => ({ default: m.PlayerPasswordManagement }))),
+  ClubNetworkManagement: lazy(() => import("@/components/staff/ClubNetworkManagement")),
+  LegalManagement: lazy(() => import("@/components/staff/LegalManagement")),
+  CaseStudyManagement: lazy(() => import("@/components/staff/CaseStudyManagement").then(m => ({ default: m.CaseStudyManagement }))),
+  LanguagesManagement: lazy(() => import("@/components/staff/LanguagesManagement").then(m => ({ default: m.LanguagesManagement }))),
+  StreamsManagement: lazy(() => import("@/components/staff/StreamsManagement").then(m => ({ default: m.StreamsManagement }))),
+  DesignStudio: lazy(() => import("@/components/staff/DesignStudio").then(m => ({ default: m.DesignStudio }))),
+  ServiceCatalogManagement: lazy(() => import("@/components/staff/ServiceCatalogManagement").then(m => ({ default: m.ServiceCatalogManagement }))),
+  ServiceStatsManager: lazy(() => import("@/components/staff/sales/ServiceStatsManager").then(m => ({ default: m.ServiceStatsManager }))),
+  HighlightMaker: lazy(() => import("@/components/staff/HighlightMaker").then(m => ({ default: m.HighlightMaker }))),
+  HighlightCompiler: lazy(() => import("@/components/staff/HighlightCompiler").then(m => ({ default: m.HighlightCompiler }))),
+  SportscodeActionTypes: lazy(() => import("@/components/staff/SportscodeActionTypes").then(m => ({ default: m.SportscodeActionTypes }))),
+  RecruitmentRulesTab: lazy(() => import("@/components/staff/RecruitmentRulesTab").then(m => ({ default: m.RecruitmentRulesTab }))),
+  PortalManagementAdmin: lazy(() => import("@/components/staff/PortalManagementAdmin").then(m => ({ default: m.PortalManagementAdmin }))),
+  StaffPay: lazy(() => import("@/components/staff/StaffPay").then(m => ({ default: m.StaffPay }))),
+  TaxRecordsManagement: lazy(() => import("@/components/staff/TaxRecordsManagement").then(m => ({ default: m.TaxRecordsManagement }))),
+  BudgetsManagement: lazy(() => import("@/components/staff/BudgetsManagement").then(m => ({ default: m.BudgetsManagement }))),
+  FinancialReports: lazy(() => import("@/components/staff/FinancialReports").then(m => ({ default: m.FinancialReports }))),
+  PaymentsManagement: lazy(() => import("@/components/staff/PaymentsManagement").then(m => ({ default: m.PaymentsManagement }))),
+  AthleteCentre: lazy(() => import("@/components/staff/AthleteCentre").then(m => ({ default: m.AthleteCentre }))),
+  CoachingAIChat: lazy(() => import("@/components/staff/coaching/CoachingAIChat").then(m => ({ default: m.CoachingAIChat }))),
+  SalesManagement: lazy(() => import("@/components/staff/SalesManagement").then(m => ({ default: m.SalesManagement }))),
+  ShopCatalogManagement: lazy(() => import("@/components/staff/ShopCatalogManagement").then(m => ({ default: m.ShopCatalogManagement }))),
+  ContractSignature: lazy(() => import("@/components/staff/ContractSignature").then(m => ({ default: m.ContractSignature }))),
+  RetentionTracker: lazy(() => import("@/components/staff/sales").then(m => ({ default: m.RetentionTracker }))),
+  SalesTracker: lazy(() => import("@/components/staff/sales").then(m => ({ default: m.SalesTracker }))),
+  OutreachTracker: lazy(() => import("@/components/staff/sales").then(m => ({ default: m.OutreachTracker }))),
+  SalesHub: lazy(() => import("@/components/staff/sales").then(m => ({ default: m.SalesHub }))),
+  TimeManagement: lazy(() => import("@/components/staff/sales").then(m => ({ default: m.TimeManagement }))),
+  JobsManagement: lazy(() => import("@/components/staff/JobsManagement").then(m => ({ default: m.JobsManagement }))),
+  PartnersManagement: lazy(() => import("@/components/staff/PartnersManagement").then(m => ({ default: m.PartnersManagement }))),
+  MarketingTipsManagement: lazy(() => import("@/components/staff/MarketingTipsManagement").then(m => ({ default: m.MarketingTipsManagement }))),
+  PressReleasesManagement: lazy(() => import("@/components/staff/PressReleasesManagement").then(m => ({ default: m.PressReleasesManagement }))),
+  DocsSection: lazy(() => import("@/components/staff/sections/DocsSection").then(m => ({ default: m.DocsSection }))),
+  SheetsSection: lazy(() => import("@/components/staff/sections/SheetsSection").then(m => ({ default: m.SheetsSection }))),
+  ServiceAudit: lazy(() => import("@/components/staff/coaching/ServiceAudit").then(m => ({ default: m.ServiceAudit }))),
+  TransferHub: lazy(() => import("@/components/staff/TransferHub").then(m => ({ default: m.TransferHub }))),
+  SiteTextManagement: lazy(() => import("@/components/staff/SiteTextManagement").then(m => ({ default: m.SiteTextManagement }))),
+  TacticsBoard: lazy(() => import("@/components/staff/coaching/TacticsBoard").then(m => ({ default: m.TacticsBoard }))),
+  Meetings: lazy(() => import("@/components/staff/coaching/Meetings").then(m => ({ default: m.Meetings }))),
+  CoachingDataSection: lazy(() => import("@/components/staff/CoachingDataSection").then(m => ({ default: m.CoachingDataSection }))),
+  StrengthPowerSpeedSection: lazy(() => import("@/components/staff/programming/StrengthPowerSpeedSection").then(m => ({ default: m.StrengthPowerSpeedSection }))),
+  NutritionSection: lazy(() => import("@/components/staff/programming/NutritionSection").then(m => ({ default: m.NutritionSection }))),
+  ActivityLog: lazy(() => import("@/components/staff/ActivityLog").then(m => ({ default: m.ActivityLog }))),
+  DatabaseExport: lazy(() => import("@/components/staff/DatabaseExport").then(m => ({ default: m.DatabaseExport }))),
+  RequestsManagement: lazy(() => import("@/components/staff/RequestsManagement").then(m => ({ default: m.RequestsManagement }))),
+  PublicContentManagement: lazy(() => import("@/components/staff/PublicContentManagement").then(m => ({ default: m.PublicContentManagement }))),
+  NotificationSettingsManagement: lazy(() => import("@/components/staff/NotificationSettingsManagement").then(m => ({ default: m.NotificationSettingsManagement }))),
+  StaffSMSNotifications: lazy(() => import("@/components/staff/StaffSMSNotifications").then(m => ({ default: m.StaffSMSNotifications }))),
+  SalesDeck: lazy(() => import("@/components/staff/marketing/SalesDeck").then(m => ({ default: m.SalesDeck }))),
+  VideoDownloaderSection: lazy(() => import("@/components/staff/VideoDownloaderSection").then(m => ({ default: m.VideoDownloaderSection }))),
+  VideoCompressor: lazy(() => import("@/components/staff/VideoCompressor").then(m => ({ default: m.VideoCompressor }))),
+};
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
 import type { User } from "@supabase/supabase-js";
@@ -1223,6 +1229,7 @@ const Staff = () => {
             })()}
             <Card className="animate-in fade-in slide-in-from-top-4 duration-300">
               <CardContent className="pt-6">
+                <Suspense fallback={<div className="py-12 flex justify-center"><PageLoading /></div>}>
                 {expandedSection === 'overview' && <StaffOverview isAdmin={isAdmin} userId={user?.id} isMarketeer={isMarketeer} />}
                 {expandedSection === 'schedule' && (
                   <div className="space-y-6">
@@ -1233,88 +1240,89 @@ const Staff = () => {
                     <StaffAvailabilityManagement isAdmin={isAdmin} />
                   </div>
                 )}
-                {expandedSection === 'meetings' && <Meetings />}
-                {expandedSection === 'videocompressor' && <VideoCompressor />}
-                {expandedSection === 'visionboard' && <VisionBoardSection />}
-                {expandedSection === 'focusedtasks' && <FocusedTasksSection />}
-                {expandedSection === 'staffschedules' && <StaffSchedulesManagement />}
-                {expandedSection === 'docs' && <DocsSection />}
-                {expandedSection === 'sheets' && <SheetsSection />}
-                {expandedSection === 'designstudio' && <DesignStudio />}
+                {expandedSection === 'meetings' && <S.Meetings />}
+                {expandedSection === 'videocompressor' && <S.VideoCompressor />}
+                {expandedSection === 'visionboard' && <S.VisionBoardSection />}
+                {expandedSection === 'focusedtasks' && <S.FocusedTasksSection />}
+                {expandedSection === 'staffschedules' && <S.StaffSchedulesManagement />}
+                {expandedSection === 'docs' && <S.DocsSection />}
+                {expandedSection === 'sheets' && <S.SheetsSection />}
+                {expandedSection === 'designstudio' && <S.DesignStudio />}
                 <div className={expandedSection === 'annotations' ? '' : 'hidden'}><AnnotationProjects /></div>
                 <div className={expandedSection === 'videoanalysis' ? '' : 'hidden'}><VideoAnalysis /></div>
-                {expandedSection === 'streams' && <StreamsManagement />}
-                {expandedSection === 'playerlist' && <PlayerList isAdmin={isAdmin} />}
+                {expandedSection === 'streams' && <S.StreamsManagement />}
+                {expandedSection === 'playerlist' && <S.PlayerList isAdmin={isAdmin} />}
                 <div className={expandedSection === 'players' ? '' : 'hidden'}><PlayerManagement isAdmin={isAdmin} /></div>
-                {expandedSection === 'recruitment' && <RecruitmentManagement isAdmin={isAdmin} />}
-                {expandedSection === 'playerdatabase' && <PlayerDatabaseManagement isAdmin={isAdmin} />}
-                {expandedSection === 'scoutingcentre' && <ScoutingCentreManagement isAdmin={isAdmin} />}
-                {expandedSection === 'coaching' && <CoachingDatabase isAdmin={isAdmin} />}
-                {expandedSection === 'coachingchat' && <CoachingAIChat />}
-                {expandedSection === 'serviceaudit' && <ServiceAudit />}
-                {expandedSection === 'nutrition' && <NutritionSection />}
-                {expandedSection === 'sps' && <StrengthPowerSpeedSection />}
-                {expandedSection === 'coachingdata' && <CoachingDataSection />}
-                {expandedSection === 'videodownloader' && <VideoDownloaderSection />}
+                {expandedSection === 'recruitment' && <S.RecruitmentManagement isAdmin={isAdmin} />}
+                {expandedSection === 'playerdatabase' && <S.PlayerDatabaseManagement isAdmin={isAdmin} />}
+                {expandedSection === 'scoutingcentre' && <S.ScoutingCentreManagement isAdmin={isAdmin} />}
+                {expandedSection === 'coaching' && <S.CoachingDatabase isAdmin={isAdmin} />}
+                {expandedSection === 'coachingchat' && <S.CoachingAIChat />}
+                {expandedSection === 'serviceaudit' && <S.ServiceAudit />}
+                {expandedSection === 'nutrition' && <S.NutritionSection />}
+                {expandedSection === 'sps' && <S.StrengthPowerSpeedSection />}
+                {expandedSection === 'coachingdata' && <S.CoachingDataSection />}
+                {expandedSection === 'videodownloader' && <S.VideoDownloaderSection />}
                 <div className={expandedSection === 'analysis' ? '' : 'hidden'}><AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} /></div>
-                {expandedSection === 'athletecentre' && <AthleteCentre />}
-                {expandedSection === 'tacticsboard' && <TacticsBoard />}
-                {expandedSection === 'highlightmaker' && <HighlightMaker isAdmin={isAdmin} />}
-                {expandedSection === 'highlightcompiler' && <HighlightCompiler />}
-                {expandedSection === 'sportscodeactions' && <SportscodeActionTypes />}
-                {expandedSection === 'recruitmentrules' && <RecruitmentRulesTab isAdmin={isAdmin} />}
+                {expandedSection === 'athletecentre' && <S.AthleteCentre />}
+                {expandedSection === 'tacticsboard' && <S.TacticsBoard />}
+                {expandedSection === 'highlightmaker' && <S.HighlightMaker isAdmin={isAdmin} />}
+                {expandedSection === 'highlightcompiler' && <S.HighlightCompiler />}
+                {expandedSection === 'sportscodeactions' && <S.SportscodeActionTypes />}
+                {expandedSection === 'recruitmentrules' && <S.RecruitmentRulesTab isAdmin={isAdmin} />}
                 
-                {expandedSection === 'transferhub' && <TransferHub isAdmin={isAdmin} />}
-                {expandedSection === 'updates' && <UpdatesManagement isAdmin={isAdmin} />}
-                {expandedSection === 'requests' && <RequestsManagement />}
-                {expandedSection === 'marketing' && <MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
-                {expandedSection === 'contentcreator' && <ContentCreator />}
-                {expandedSection === 'publiccontent' && <PublicContentManagement />}
-                {expandedSection === 'salesdeck' && <SalesDeck />}
-                {expandedSection === 'marketingideas' && <MarketingIdeas />}
-                {expandedSection === 'marketingtips' && <MarketingTipsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'casestudies' && <CaseStudyManagement />}
-                {expandedSection === 'blog' && <BlogManagement isAdmin={isAdmin} />}
-                {expandedSection === 'dailyfuel' && <DailyFuelManagement isAdmin={isAdmin} />}
-                {expandedSection === 'pressreleases' && <PressReleasesManagement isAdmin={isAdmin} />}
-                {expandedSection === 'submissions' && <FormSubmissionsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'visitors' && <SiteVisitorsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'clubnetwork' && <ClubNetworkManagement />}
-                {expandedSection === 'invoices' && <InvoiceManagement isAdmin={isAdmin} />}
-                {expandedSection === 'payments' && <PaymentsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'staffpay' && <StaffPay isAdmin={isAdmin} />}
-                {expandedSection === 'taxrecords' && <TaxRecordsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'budgets' && <BudgetsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'financialreports' && <FinancialReports isAdmin={isAdmin} />}
-                {expandedSection === 'sales' && <SalesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'transferhub' && <S.TransferHub isAdmin={isAdmin} />}
+                {expandedSection === 'updates' && <S.UpdatesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'requests' && <S.RequestsManagement />}
+                {expandedSection === 'marketing' && <S.MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
+                {expandedSection === 'contentcreator' && <S.ContentCreator />}
+                {expandedSection === 'publiccontent' && <S.PublicContentManagement />}
+                {expandedSection === 'salesdeck' && <S.SalesDeck />}
+                {expandedSection === 'marketingideas' && <S.MarketingIdeas />}
+                {expandedSection === 'marketingtips' && <S.MarketingTipsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'casestudies' && <S.CaseStudyManagement />}
+                {expandedSection === 'blog' && <S.BlogManagement isAdmin={isAdmin} />}
+                {expandedSection === 'dailyfuel' && <S.DailyFuelManagement isAdmin={isAdmin} />}
+                {expandedSection === 'pressreleases' && <S.PressReleasesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'submissions' && <S.FormSubmissionsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'visitors' && <S.SiteVisitorsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'clubnetwork' && <S.ClubNetworkManagement />}
+                {expandedSection === 'invoices' && <S.InvoiceManagement isAdmin={isAdmin} />}
+                {expandedSection === 'payments' && <S.PaymentsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'staffpay' && <S.StaffPay isAdmin={isAdmin} />}
+                {expandedSection === 'taxrecords' && <S.TaxRecordsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'budgets' && <S.BudgetsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'financialreports' && <S.FinancialReports isAdmin={isAdmin} />}
+                {expandedSection === 'sales' && <S.SalesManagement isAdmin={isAdmin} />}
                 {expandedSection === 'catalogue' && (
                   <div className="space-y-6">
-                    <ServiceCatalogManagement isAdmin={isAdmin} />
-                    <ServiceStatsManager />
+                    <S.ServiceCatalogManagement isAdmin={isAdmin} />
+                    <S.ServiceStatsManager />
                   </div>
                 )}
-                {expandedSection === 'shopcatalogue' && <ShopCatalogManagement isAdmin={isAdmin} />}
-                {expandedSection === 'salestracker' && <SalesTracker />}
-                {expandedSection === 'retention' && <RetentionTracker />}
-                {expandedSection === 'outreach' && <OutreachTracker />}
-                {expandedSection === 'saleshub' && <SalesHub />}
-                {expandedSection === 'portalmanagement' && <PortalManagementAdmin />}
-                {expandedSection === 'legal' && <LegalManagement isAdmin={isAdmin} />}
-                {expandedSection === 'contracts' && <ContractSignature />}
-                {expandedSection === 'partners' && <PartnersManagement isAdmin={isAdmin} />}
-                {expandedSection === 'jobs' && <JobsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'sitetext' && <SiteTextManagement isAdmin={isAdmin} />}
-                {expandedSection === 'languages' && <LanguagesManagement isAdmin={isAdmin} />}
-                {expandedSection === 'notifications' && <NotificationSettingsManagement />}
-                {expandedSection === 'sms' && <StaffSMSNotifications userEmail={user?.email} />}
-                {expandedSection === 'passwords' && isAdmin && <PlayerPasswordManagement />}
-                {expandedSection === 'staffaccounts' && isAdmin && <StaffAccountManagement />}
-                {expandedSection === 'activitylog' && isAdmin && <ActivityLog />}
-                {expandedSection === 'dataexport' && isAdmin && <DatabaseExport />}
+                {expandedSection === 'shopcatalogue' && <S.ShopCatalogManagement isAdmin={isAdmin} />}
+                {expandedSection === 'salestracker' && <S.SalesTracker />}
+                {expandedSection === 'retention' && <S.RetentionTracker />}
+                {expandedSection === 'outreach' && <S.OutreachTracker />}
+                {expandedSection === 'saleshub' && <S.SalesHub />}
+                {expandedSection === 'portalmanagement' && <S.PortalManagementAdmin />}
+                {expandedSection === 'legal' && <S.LegalManagement isAdmin={isAdmin} />}
+                {expandedSection === 'contracts' && <S.ContractSignature />}
+                {expandedSection === 'partners' && <S.PartnersManagement isAdmin={isAdmin} />}
+                {expandedSection === 'jobs' && <S.JobsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'sitetext' && <S.SiteTextManagement isAdmin={isAdmin} />}
+                {expandedSection === 'languages' && <S.LanguagesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'notifications' && <S.NotificationSettingsManagement />}
+                {expandedSection === 'sms' && <S.StaffSMSNotifications userEmail={user?.email} />}
+                {expandedSection === 'passwords' && isAdmin && <S.PlayerPasswordManagement />}
+                {expandedSection === 'staffaccounts' && isAdmin && <S.StaffAccountManagement />}
+                {expandedSection === 'activitylog' && isAdmin && <S.ActivityLog />}
+                {expandedSection === 'dataexport' && isAdmin && <S.DatabaseExport />}
                 {expandedSection === 'pwainstall' && <StaffPWAInstall />}
                 {expandedSection === 'offlinemanager' && <StaffOfflineManager />}
                 {expandedSection === 'pushnotifications' && <StaffPushNotifications />}
-                {expandedSection === 'timemanagement' && <TimeManagement />}
+                {expandedSection === 'timemanagement' && <S.TimeManagement />}
+                </Suspense>
               </CardContent>
             </Card>
           </div>

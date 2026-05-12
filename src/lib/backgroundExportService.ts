@@ -38,7 +38,29 @@ export interface ExportProgress {
   current: number;
   total: number;
   statuses: Record<string, "pending" | "done" | "skipped" | "error">;
+  errors: Record<string, string>;
   finished: boolean;
+}
+
+/**
+ * Some legacy clips stored their `minute` as `mm:ss` (colon-separated). The DB
+ * column is numeric (`mm.ss`) so a colon value rejects insertion. Convert to
+ * the modern dot format, snapping seconds to the nearest 5 to match the live
+ * VideoAnalysis renderer.
+ */
+function normaliseMinute(value: unknown): string | undefined {
+  if (value == null) return undefined;
+  const raw = String(value).trim();
+  if (!raw) return undefined;
+  if (raw.includes(":")) {
+    const [m, s = "0"] = raw.split(":");
+    const mins = parseInt(m, 10);
+    const rawSecs = parseInt(s, 10);
+    if (!Number.isFinite(mins) || !Number.isFinite(rawSecs)) return raw.replace(":", ".");
+    const roundedSecs = Math.floor(rawSecs / 5) * 5;
+    return `${mins}.${roundedSecs.toString().padStart(2, "0")}`;
+  }
+  return raw;
 }
 
 type ProgressListener = (progress: ExportProgress) => void;
@@ -110,6 +132,7 @@ export async function startExportJob(job: ExportJob): Promise<void> {
     current: 0,
     total: job.clips.length,
     statuses: { ...statuses },
+    errors: {},
     finished: false,
   };
   notify(progress);
@@ -150,7 +173,7 @@ export async function startExportJob(job: ExportJob): Promise<void> {
         const insertRow: any = {
           analysis_id: job.reportId,
           action_number: nextNumber,
-          minute: clip.minute || getMatchMinute(clip.start, job.matchMinuteOffset, job.secondHalfOffset, job.secondHalfVideoTime),
+          minute: normaliseMinute(clip.minute) || getMatchMinute(clip.start, job.matchMinuteOffset, job.secondHalfOffset, job.secondHalfVideoTime),
           action_type: clip.action_type || "",
           action_description: clip.action_description || "",
           notes: clip.notes || null,
@@ -174,12 +197,14 @@ export async function startExportJob(job: ExportJob): Promise<void> {
         nextNumber++;
         success++;
         statuses[clip.id] = "done";
-      } catch (err) {
+      } catch (err: any) {
+        const message = err?.message || err?.error_description || String(err) || "Unknown error";
         console.error(`Failed to export clip ${clip.id}:`, err);
         statuses[clip.id] = "error";
+        progress.errors[clip.id] = message;
       }
 
-      notify({ ...progress, statuses: { ...statuses } });
+      notify({ ...progress, statuses: { ...statuses }, errors: { ...progress.errors } });
     }
 
     const parts = [`${success} exported`];
@@ -189,7 +214,7 @@ export async function startExportJob(job: ExportJob): Promise<void> {
     toast.error(err.message || "Export failed");
   } finally {
     progress.finished = true;
-    notify({ ...progress, statuses: { ...statuses }, finished: true });
+    notify({ ...progress, statuses: { ...statuses }, errors: { ...progress.errors }, finished: true });
     running = false;
     setTimeout(() => {
       if (activeJob?.finished) activeJob = null;
