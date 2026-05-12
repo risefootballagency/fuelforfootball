@@ -116,25 +116,38 @@ export const ExportProgressFloat = () => {
       {/* Clip list */}
       {!progress.finished && (
         <div className="max-h-32 overflow-y-auto space-y-0.5">
-          {Object.entries(progress.statuses).map(([id, status]) => (
-            <div key={id} className="flex items-center gap-1.5 text-[10px]">
-              <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${
-                status === "done" ? "bg-green-500" :
-                status === "skipped" ? "bg-yellow-500" :
-                status === "error" ? "bg-destructive" :
-                "bg-muted-foreground/30"
-              }`} />
-              <span className="truncate text-muted-foreground">{id.slice(0, 8)}...</span>
-              <span className={`ml-auto shrink-0 ${
-                status === "done" ? "text-green-600" :
-                status === "skipped" ? "text-yellow-600" :
-                status === "error" ? "text-destructive" :
-                "text-muted-foreground"
-              }`}>
-                {status === "done" ? "Done" : status === "skipped" ? "Skipped" : status === "error" ? "Failed" : "..."}
-              </span>
-            </div>
-          ))}
+          {Object.entries(progress.statuses).map(([id, status]) => {
+            const errMsg = progress.errors?.[id];
+            return (
+              <div key={id} className="flex items-center gap-1.5 text-[10px]">
+                <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${
+                  status === "done" ? "bg-green-500" :
+                  status === "skipped" ? "bg-yellow-500" :
+                  status === "error" ? "bg-destructive" :
+                  "bg-muted-foreground/30"
+                }`} />
+                <span
+                  className={`truncate ${status === "error" && errMsg ? "text-destructive cursor-pointer underline decoration-dotted" : "text-muted-foreground"}`}
+                  title={status === "error" && errMsg ? `${errMsg}\n\nClick to copy` : undefined}
+                  onClick={() => {
+                    if (status === "error" && errMsg) {
+                      navigator.clipboard?.writeText(`${id}: ${errMsg}`).catch(() => {});
+                    }
+                  }}
+                >
+                  {status === "error" && errMsg ? errMsg.slice(0, 32) : `${id.slice(0, 8)}...`}
+                </span>
+                <span className={`ml-auto shrink-0 ${
+                  status === "done" ? "text-green-600" :
+                  status === "skipped" ? "text-yellow-600" :
+                  status === "error" ? "text-destructive" :
+                  "text-muted-foreground"
+                }`}>
+                  {status === "done" ? "Done" : status === "skipped" ? "Skipped" : status === "error" ? "Failed" : "..."}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
