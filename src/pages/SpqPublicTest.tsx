@@ -93,7 +93,7 @@ const SpqPublicTest = () => {
       <main className="min-h-screen bg-background text-foreground">
         <section className="mx-auto max-w-2xl space-y-5 px-4 py-10">
           <div className="flex items-center gap-3">
-            <Brain className="h-7 w-7 text-primary" />
+            <Brain className="h-7 w-7 text-gold" />
             <h1 className="text-2xl font-semibold">SPQ Sport Performance Questionnaire</h1>
           </div>
           <Card><CardContent className="space-y-3 p-5 text-sm leading-relaxed">
@@ -142,7 +142,7 @@ const SpqPublicTest = () => {
                             });
                           }
                         }}
-                        className={`rounded-md border px-2 py-2 text-xs transition ${sel ? 'border-primary bg-primary/15 text-foreground font-semibold' : 'border-border bg-card hover:border-primary/50'}`}
+                        className={`rounded-md border px-2 py-2 text-xs transition ${sel ? 'border-transparent bg-accent text-accent-foreground font-semibold' : 'border-border bg-card hover:border-accent/50'}`}
                       >
                         <div className="leading-tight">{opt.label}</div>
                       </button>
@@ -195,7 +195,7 @@ const SpqPublicTest = () => {
     <main className="min-h-screen bg-background text-foreground">
       <section className="mx-auto max-w-4xl space-y-5 px-4 py-8">
         <div className="flex items-center gap-3">
-          <Brain className="h-7 w-7 text-primary" />
+          <Brain className="h-7 w-7 text-gold" />
           <h1 className="text-2xl font-semibold">{name || 'Your'} SPQ Results</h1>
         </div>
         <div ref={reportRef} className="space-y-5 bg-background p-1">
@@ -254,7 +254,7 @@ const SpqPublicTest = () => {
             {savingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}Save my report
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">Your responses have been saved. The Rise Football Agency staff team can review them with you on request.</p>
+        <p className="text-xs text-muted-foreground">Your responses have been saved. The Fuel For Football team can review them with you on request.</p>
       </section>
     </main>
   );
