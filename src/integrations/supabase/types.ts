@@ -3365,6 +3365,87 @@ export type Database = {
         }
         Relationships: []
       }
+      psychology_spq_reports: {
+        Row: {
+          age_band: string | null
+          created_at: string
+          created_by: string | null
+          factor_scores: Json | null
+          gender_norm: string
+          id: string
+          is_shared: boolean
+          parsed_answers: Json | null
+          pasted_answers: string | null
+          player_id: string | null
+          player_name: string
+          recommendations: string | null
+          report_summary: string | null
+          scale_scores: Json | null
+          share_slug: string
+          updated_at: string
+          visual_one_url: string | null
+          visual_three_url: string | null
+          visual_two_url: string | null
+        }
+        Insert: {
+          age_band?: string | null
+          created_at?: string
+          created_by?: string | null
+          factor_scores?: Json | null
+          gender_norm: string
+          id?: string
+          is_shared?: boolean
+          parsed_answers?: Json | null
+          pasted_answers?: string | null
+          player_id?: string | null
+          player_name: string
+          recommendations?: string | null
+          report_summary?: string | null
+          scale_scores?: Json | null
+          share_slug?: string
+          updated_at?: string
+          visual_one_url?: string | null
+          visual_three_url?: string | null
+          visual_two_url?: string | null
+        }
+        Update: {
+          age_band?: string | null
+          created_at?: string
+          created_by?: string | null
+          factor_scores?: Json | null
+          gender_norm?: string
+          id?: string
+          is_shared?: boolean
+          parsed_answers?: Json | null
+          pasted_answers?: string | null
+          player_id?: string | null
+          player_name?: string
+          recommendations?: string | null
+          report_summary?: string | null
+          scale_scores?: Json | null
+          share_slug?: string
+          updated_at?: string
+          visual_one_url?: string | null
+          visual_three_url?: string | null
+          visual_two_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psychology_spq_reports_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "psychology_spq_reports_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_config: {
         Row: {
           created_at: string | null
@@ -4593,6 +4674,82 @@ export type Database = {
         }
         Relationships: []
       }
+      spq_test_submissions: {
+        Row: {
+          age_band: string
+          created_at: string
+          factor_scores: Json
+          gender_norm: string
+          id: string
+          matched_player_id: string | null
+          responses: Json
+          saved_report_id: string | null
+          scale_scores: Json
+          submitter_email: string | null
+          submitter_name: string | null
+          visitor_city: string | null
+          visitor_country: string | null
+          visitor_ip: string | null
+          visitor_user_agent: string | null
+        }
+        Insert: {
+          age_band: string
+          created_at?: string
+          factor_scores: Json
+          gender_norm: string
+          id?: string
+          matched_player_id?: string | null
+          responses: Json
+          saved_report_id?: string | null
+          scale_scores: Json
+          submitter_email?: string | null
+          submitter_name?: string | null
+          visitor_city?: string | null
+          visitor_country?: string | null
+          visitor_ip?: string | null
+          visitor_user_agent?: string | null
+        }
+        Update: {
+          age_band?: string
+          created_at?: string
+          factor_scores?: Json
+          gender_norm?: string
+          id?: string
+          matched_player_id?: string | null
+          responses?: Json
+          saved_report_id?: string | null
+          scale_scores?: Json
+          submitter_email?: string | null
+          submitter_name?: string | null
+          visitor_city?: string | null
+          visitor_country?: string | null
+          visitor_ip?: string | null
+          visitor_user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spq_test_submissions_matched_player_id_fkey"
+            columns: ["matched_player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spq_test_submissions_matched_player_id_fkey"
+            columns: ["matched_player_id"]
+            isOneToOne: false
+            referencedRelation: "players_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spq_test_submissions_saved_report_id_fkey"
+            columns: ["saved_report_id"]
+            isOneToOne: false
+            referencedRelation: "psychology_spq_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_availability: {
         Row: {
           availability_date: string
@@ -5566,6 +5723,23 @@ export type Database = {
     }
     Functions: {
       get_player_name_by_email: { Args: { _email: string }; Returns: string }
+      get_shared_spq_report: {
+        Args: { _share_slug: string }
+        Returns: {
+          age_band: string
+          created_at: string
+          factor_scores: Json
+          gender_norm: string
+          id: string
+          player_name: string
+          recommendations: string
+          report_summary: string
+          scale_scores: Json
+          visual_one_url: string
+          visual_three_url: string
+          visual_two_url: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
