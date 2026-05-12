@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { differenceInYears, parseISO } from "date-fns";
 import { stenToRankOf100 } from "@/lib/spqScoring";
 
 const ord = (n: number) => { const s = ["th","st","nd","rd"]; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
@@ -25,7 +24,7 @@ type Submission = {
   created_at: string;
 };
 
-type Player = { id: string; name: string; position: string | null; date_of_birth: string | null };
+type Player = { id: string; name: string; position: string | null; age: number | null };
 
 const ageToBand = (age: number): string => {
   if (age <= 20) return "16-20";
@@ -47,10 +46,10 @@ export const SpqSubmissionsTab = () => {
     setLoading(true);
     const [{ data: s }, { data: p }] = await Promise.all([
       (supabase as any).from("spq_test_submissions").select("*").order("created_at", { ascending: false }),
-      supabase.from("players").select("id, name, position, date_of_birth"),
+      supabase.from("players").select("id, name, position, age"),
     ]);
-    setSubs(s || []);
-    setPlayers(p || []);
+    setSubs((s as any) || []);
+    setPlayers(((p as any) || []) as Player[]);
     setLoading(false);
   };
 
@@ -64,12 +63,8 @@ export const SpqSubmissionsTab = () => {
     if (candidates.length === 0) return null;
     if (candidates.length === 1) return candidates[0];
     // multiple — try age band match
-    const withDob = candidates.find(p => {
-      if (!p.date_of_birth) return false;
-      try { return ageToBand(differenceInYears(new Date(), parseISO(p.date_of_birth))) === sub.age_band; }
-      catch { return false; }
-    });
-    return withDob || candidates[0];
+    const withAge = candidates.find(p => p.age != null && ageToBand(p.age) === sub.age_band);
+    return withAge || candidates[0];
   };
 
   const linkPlayer = async (subId: string, playerId: string | null) => {
