@@ -1229,6 +1229,7 @@ const Staff = () => {
             })()}
             <Card className="animate-in fade-in slide-in-from-top-4 duration-300">
               <CardContent className="pt-6">
+                <Suspense fallback={<div className="py-12 flex justify-center"><PageLoading /></div>}>
                 {expandedSection === 'overview' && <StaffOverview isAdmin={isAdmin} userId={user?.id} isMarketeer={isMarketeer} />}
                 {expandedSection === 'schedule' && (
                   <div className="space-y-6">
@@ -1239,88 +1240,89 @@ const Staff = () => {
                     <StaffAvailabilityManagement isAdmin={isAdmin} />
                   </div>
                 )}
-                {expandedSection === 'meetings' && <Meetings />}
-                {expandedSection === 'videocompressor' && <VideoCompressor />}
-                {expandedSection === 'visionboard' && <VisionBoardSection />}
-                {expandedSection === 'focusedtasks' && <FocusedTasksSection />}
-                {expandedSection === 'staffschedules' && <StaffSchedulesManagement />}
-                {expandedSection === 'docs' && <DocsSection />}
-                {expandedSection === 'sheets' && <SheetsSection />}
-                {expandedSection === 'designstudio' && <DesignStudio />}
+                {expandedSection === 'meetings' && <S.Meetings />}
+                {expandedSection === 'videocompressor' && <S.VideoCompressor />}
+                {expandedSection === 'visionboard' && <S.VisionBoardSection />}
+                {expandedSection === 'focusedtasks' && <S.FocusedTasksSection />}
+                {expandedSection === 'staffschedules' && <S.StaffSchedulesManagement />}
+                {expandedSection === 'docs' && <S.DocsSection />}
+                {expandedSection === 'sheets' && <S.SheetsSection />}
+                {expandedSection === 'designstudio' && <S.DesignStudio />}
                 <div className={expandedSection === 'annotations' ? '' : 'hidden'}><AnnotationProjects /></div>
                 <div className={expandedSection === 'videoanalysis' ? '' : 'hidden'}><VideoAnalysis /></div>
-                {expandedSection === 'streams' && <StreamsManagement />}
-                {expandedSection === 'playerlist' && <PlayerList isAdmin={isAdmin} />}
+                {expandedSection === 'streams' && <S.StreamsManagement />}
+                {expandedSection === 'playerlist' && <S.PlayerList isAdmin={isAdmin} />}
                 <div className={expandedSection === 'players' ? '' : 'hidden'}><PlayerManagement isAdmin={isAdmin} /></div>
-                {expandedSection === 'recruitment' && <RecruitmentManagement isAdmin={isAdmin} />}
-                {expandedSection === 'playerdatabase' && <PlayerDatabaseManagement isAdmin={isAdmin} />}
-                {expandedSection === 'scoutingcentre' && <ScoutingCentreManagement isAdmin={isAdmin} />}
-                {expandedSection === 'coaching' && <CoachingDatabase isAdmin={isAdmin} />}
-                {expandedSection === 'coachingchat' && <CoachingAIChat />}
-                {expandedSection === 'serviceaudit' && <ServiceAudit />}
-                {expandedSection === 'nutrition' && <NutritionSection />}
-                {expandedSection === 'sps' && <StrengthPowerSpeedSection />}
-                {expandedSection === 'coachingdata' && <CoachingDataSection />}
-                {expandedSection === 'videodownloader' && <VideoDownloaderSection />}
+                {expandedSection === 'recruitment' && <S.RecruitmentManagement isAdmin={isAdmin} />}
+                {expandedSection === 'playerdatabase' && <S.PlayerDatabaseManagement isAdmin={isAdmin} />}
+                {expandedSection === 'scoutingcentre' && <S.ScoutingCentreManagement isAdmin={isAdmin} />}
+                {expandedSection === 'coaching' && <S.CoachingDatabase isAdmin={isAdmin} />}
+                {expandedSection === 'coachingchat' && <S.CoachingAIChat />}
+                {expandedSection === 'serviceaudit' && <S.ServiceAudit />}
+                {expandedSection === 'nutrition' && <S.NutritionSection />}
+                {expandedSection === 'sps' && <S.StrengthPowerSpeedSection />}
+                {expandedSection === 'coachingdata' && <S.CoachingDataSection />}
+                {expandedSection === 'videodownloader' && <S.VideoDownloaderSection />}
                 <div className={expandedSection === 'analysis' ? '' : 'hidden'}><AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} /></div>
-                {expandedSection === 'athletecentre' && <AthleteCentre />}
-                {expandedSection === 'tacticsboard' && <TacticsBoard />}
-                {expandedSection === 'highlightmaker' && <HighlightMaker isAdmin={isAdmin} />}
-                {expandedSection === 'highlightcompiler' && <HighlightCompiler />}
-                {expandedSection === 'sportscodeactions' && <SportscodeActionTypes />}
-                {expandedSection === 'recruitmentrules' && <RecruitmentRulesTab isAdmin={isAdmin} />}
+                {expandedSection === 'athletecentre' && <S.AthleteCentre />}
+                {expandedSection === 'tacticsboard' && <S.TacticsBoard />}
+                {expandedSection === 'highlightmaker' && <S.HighlightMaker isAdmin={isAdmin} />}
+                {expandedSection === 'highlightcompiler' && <S.HighlightCompiler />}
+                {expandedSection === 'sportscodeactions' && <S.SportscodeActionTypes />}
+                {expandedSection === 'recruitmentrules' && <S.RecruitmentRulesTab isAdmin={isAdmin} />}
                 
-                {expandedSection === 'transferhub' && <TransferHub isAdmin={isAdmin} />}
-                {expandedSection === 'updates' && <UpdatesManagement isAdmin={isAdmin} />}
-                {expandedSection === 'requests' && <RequestsManagement />}
-                {expandedSection === 'marketing' && <MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
-                {expandedSection === 'contentcreator' && <ContentCreator />}
-                {expandedSection === 'publiccontent' && <PublicContentManagement />}
-                {expandedSection === 'salesdeck' && <SalesDeck />}
-                {expandedSection === 'marketingideas' && <MarketingIdeas />}
-                {expandedSection === 'marketingtips' && <MarketingTipsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'casestudies' && <CaseStudyManagement />}
-                {expandedSection === 'blog' && <BlogManagement isAdmin={isAdmin} />}
-                {expandedSection === 'dailyfuel' && <DailyFuelManagement isAdmin={isAdmin} />}
-                {expandedSection === 'pressreleases' && <PressReleasesManagement isAdmin={isAdmin} />}
-                {expandedSection === 'submissions' && <FormSubmissionsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'visitors' && <SiteVisitorsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'clubnetwork' && <ClubNetworkManagement />}
-                {expandedSection === 'invoices' && <InvoiceManagement isAdmin={isAdmin} />}
-                {expandedSection === 'payments' && <PaymentsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'staffpay' && <StaffPay isAdmin={isAdmin} />}
-                {expandedSection === 'taxrecords' && <TaxRecordsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'budgets' && <BudgetsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'financialreports' && <FinancialReports isAdmin={isAdmin} />}
-                {expandedSection === 'sales' && <SalesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'transferhub' && <S.TransferHub isAdmin={isAdmin} />}
+                {expandedSection === 'updates' && <S.UpdatesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'requests' && <S.RequestsManagement />}
+                {expandedSection === 'marketing' && <S.MarketingManagement isAdmin={isAdmin} isMarketeer={isMarketeer} />}
+                {expandedSection === 'contentcreator' && <S.ContentCreator />}
+                {expandedSection === 'publiccontent' && <S.PublicContentManagement />}
+                {expandedSection === 'salesdeck' && <S.SalesDeck />}
+                {expandedSection === 'marketingideas' && <S.MarketingIdeas />}
+                {expandedSection === 'marketingtips' && <S.MarketingTipsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'casestudies' && <S.CaseStudyManagement />}
+                {expandedSection === 'blog' && <S.BlogManagement isAdmin={isAdmin} />}
+                {expandedSection === 'dailyfuel' && <S.DailyFuelManagement isAdmin={isAdmin} />}
+                {expandedSection === 'pressreleases' && <S.PressReleasesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'submissions' && <S.FormSubmissionsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'visitors' && <S.SiteVisitorsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'clubnetwork' && <S.ClubNetworkManagement />}
+                {expandedSection === 'invoices' && <S.InvoiceManagement isAdmin={isAdmin} />}
+                {expandedSection === 'payments' && <S.PaymentsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'staffpay' && <S.StaffPay isAdmin={isAdmin} />}
+                {expandedSection === 'taxrecords' && <S.TaxRecordsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'budgets' && <S.BudgetsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'financialreports' && <S.FinancialReports isAdmin={isAdmin} />}
+                {expandedSection === 'sales' && <S.SalesManagement isAdmin={isAdmin} />}
                 {expandedSection === 'catalogue' && (
                   <div className="space-y-6">
-                    <ServiceCatalogManagement isAdmin={isAdmin} />
-                    <ServiceStatsManager />
+                    <S.ServiceCatalogManagement isAdmin={isAdmin} />
+                    <S.ServiceStatsManager />
                   </div>
                 )}
-                {expandedSection === 'shopcatalogue' && <ShopCatalogManagement isAdmin={isAdmin} />}
-                {expandedSection === 'salestracker' && <SalesTracker />}
-                {expandedSection === 'retention' && <RetentionTracker />}
-                {expandedSection === 'outreach' && <OutreachTracker />}
-                {expandedSection === 'saleshub' && <SalesHub />}
-                {expandedSection === 'portalmanagement' && <PortalManagementAdmin />}
-                {expandedSection === 'legal' && <LegalManagement isAdmin={isAdmin} />}
-                {expandedSection === 'contracts' && <ContractSignature />}
-                {expandedSection === 'partners' && <PartnersManagement isAdmin={isAdmin} />}
-                {expandedSection === 'jobs' && <JobsManagement isAdmin={isAdmin} />}
-                {expandedSection === 'sitetext' && <SiteTextManagement isAdmin={isAdmin} />}
-                {expandedSection === 'languages' && <LanguagesManagement isAdmin={isAdmin} />}
-                {expandedSection === 'notifications' && <NotificationSettingsManagement />}
-                {expandedSection === 'sms' && <StaffSMSNotifications userEmail={user?.email} />}
-                {expandedSection === 'passwords' && isAdmin && <PlayerPasswordManagement />}
-                {expandedSection === 'staffaccounts' && isAdmin && <StaffAccountManagement />}
-                {expandedSection === 'activitylog' && isAdmin && <ActivityLog />}
-                {expandedSection === 'dataexport' && isAdmin && <DatabaseExport />}
+                {expandedSection === 'shopcatalogue' && <S.ShopCatalogManagement isAdmin={isAdmin} />}
+                {expandedSection === 'salestracker' && <S.SalesTracker />}
+                {expandedSection === 'retention' && <S.RetentionTracker />}
+                {expandedSection === 'outreach' && <S.OutreachTracker />}
+                {expandedSection === 'saleshub' && <S.SalesHub />}
+                {expandedSection === 'portalmanagement' && <S.PortalManagementAdmin />}
+                {expandedSection === 'legal' && <S.LegalManagement isAdmin={isAdmin} />}
+                {expandedSection === 'contracts' && <S.ContractSignature />}
+                {expandedSection === 'partners' && <S.PartnersManagement isAdmin={isAdmin} />}
+                {expandedSection === 'jobs' && <S.JobsManagement isAdmin={isAdmin} />}
+                {expandedSection === 'sitetext' && <S.SiteTextManagement isAdmin={isAdmin} />}
+                {expandedSection === 'languages' && <S.LanguagesManagement isAdmin={isAdmin} />}
+                {expandedSection === 'notifications' && <S.NotificationSettingsManagement />}
+                {expandedSection === 'sms' && <S.StaffSMSNotifications userEmail={user?.email} />}
+                {expandedSection === 'passwords' && isAdmin && <S.PlayerPasswordManagement />}
+                {expandedSection === 'staffaccounts' && isAdmin && <S.StaffAccountManagement />}
+                {expandedSection === 'activitylog' && isAdmin && <S.ActivityLog />}
+                {expandedSection === 'dataexport' && isAdmin && <S.DatabaseExport />}
                 {expandedSection === 'pwainstall' && <StaffPWAInstall />}
                 {expandedSection === 'offlinemanager' && <StaffOfflineManager />}
                 {expandedSection === 'pushnotifications' && <StaffPushNotifications />}
-                {expandedSection === 'timemanagement' && <TimeManagement />}
+                {expandedSection === 'timemanagement' && <S.TimeManagement />}
+                </Suspense>
               </CardContent>
             </Card>
           </div>
