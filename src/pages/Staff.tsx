@@ -103,6 +103,7 @@ const S = {
   CoachingDataSection: lazy(() => import("@/components/staff/CoachingDataSection").then(m => ({ default: m.CoachingDataSection }))),
   StrengthPowerSpeedSection: lazy(() => import("@/components/staff/programming/StrengthPowerSpeedSection").then(m => ({ default: m.StrengthPowerSpeedSection }))),
   NutritionSection: lazy(() => import("@/components/staff/programming/NutritionSection").then(m => ({ default: m.NutritionSection }))),
+  PsychologySection: lazy(() => import("@/components/staff/programming/PsychologySection").then(m => ({ default: m.PsychologySection }))),
   ActivityLog: lazy(() => import("@/components/staff/ActivityLog").then(m => ({ default: m.ActivityLog }))),
   DatabaseExport: lazy(() => import("@/components/staff/DatabaseExport").then(m => ({ default: m.DatabaseExport }))),
   RequestsManagement: lazy(() => import("@/components/staff/RequestsManagement").then(m => ({ default: m.RequestsManagement }))),
@@ -662,6 +663,7 @@ const Staff = () => {
           { id: '_group_programming', title: 'Programming', isGroupLabel: true } as any,
           { id: 'sps', title: 'Strength Power & Speed', icon: Dumbbell },
           { id: 'nutrition', title: 'Nutrition', icon: Apple },
+          { id: 'psychology', title: 'Psychology (SPQ)', icon: Brain },
         ]
       },
       {
@@ -1261,6 +1263,7 @@ const Staff = () => {
                 {expandedSection === 'serviceaudit' && <S.ServiceAudit />}
                 {expandedSection === 'nutrition' && <S.NutritionSection />}
                 {expandedSection === 'sps' && <S.StrengthPowerSpeedSection />}
+                {expandedSection === 'psychology' && <S.PsychologySection />}
                 {expandedSection === 'coachingdata' && <S.CoachingDataSection />}
                 {expandedSection === 'videodownloader' && <S.VideoDownloaderSection />}
                 <div className={expandedSection === 'analysis' ? '' : 'hidden'}><AnalysisManagement isAdmin={isAdmin} currentUserId={user?.id} isAnalystOnly={isAnalystOnly} /></div>

@@ -41,6 +41,8 @@ const Business = lazy(() => import("./pages/Business"));
 const Media = lazy(() => import("./pages/Media"));
 const DailyFuel = lazy(() => import("./pages/DailyFuel"));
 const PerformanceReport = lazy(() => import("./pages/PerformanceReport"));
+const SharedSpqReport = lazy(() => import("./pages/SharedSpqReport"));
+const SpqPublicTest = lazy(() => import("./pages/SpqPublicTest"));
 const ImportProgramCSV = lazy(() => import("./pages/ImportProgramCSV"));
 const ReplaceProgram = lazy(() => import("./pages/ReplaceProgram"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -181,6 +183,8 @@ const App = () => {
                     <Route path="/scout-portal" element={<ScoutPortal />} />
                     <Route path="/realise-potential" element={<RealisePotential />} />
                     <Route path="/performance-report/:slug" element={<PerformanceReport />} />
+                    <Route path="/spq-report/:slug" element={<SharedSpqReport />} />
+                    <Route path="/spq" element={<SpqPublicTest />} />
                     <Route path="/analysis/:slug" element={<AnalysisViewer />} />
                     <Route path="/import-program" element={<ImportProgramCSV />} />
                     <Route path="/replace-program" element={<ReplaceProgram />} />
