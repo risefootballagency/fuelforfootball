@@ -1,40 +1,46 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Check, BadgeCheck, Banknote } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Check, BadgeCheck, Banknote, Eye, EyeOff, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { insertStaffNotification } from "@/lib/staffNotifications";
+import { useStaffList } from "./useStaffList";
 
 const formatMoney = (n: number, c: string) => `${c === 'GBP' ? '£' : c === 'USD' ? '$' : '€'}${Number(n).toFixed(2)}`;
 
 export const AllStaffTab = () => {
+  const { staff, loading: staffLoading, setHidden } = useStaffList({ includeHidden: true });
   const [payslips, setPayslips] = useState<any[]>([]);
   const [earnings, setEarnings] = useState<any[]>([]);
-  const [users, setUsers] = useState<Record<string, { email: string; full_name?: string }>>({});
+  const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paymentForm, setPaymentForm] = useState({ staff_user_id: '', period_month: format(new Date(), 'yyyy-MM'), amount: '', currency: 'GBP', payment_method: 'bank_transfer', reference: '', notes: '', payment_date: new Date().toISOString().slice(0, 10) });
+
+  const users = useMemo(() => {
+    const map: Record<string, { email: string; full_name?: string; hidden?: boolean }> = {};
+    staff.forEach(s => { map[s.id] = { email: s.email, full_name: s.name, hidden: s.hidden }; });
+    return map;
+  }, [staff]);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [pRes, eRes] = await Promise.all([
+    const [pRes, eRes, payRes] = await Promise.all([
       (supabase as any).from('staff_payslips').select('*').order('submitted_at', { ascending: false, nullsFirst: false }).limit(200),
       (supabase as any).from('staff_client_earnings').select('*').order('created_at', { ascending: false }).limit(500),
+      (supabase as any).from('staff_payments').select('*').order('payment_date', { ascending: false }).limit(500),
     ]);
-    const ps = pRes.data || [];
-    const es = eRes.data || [];
-    setPayslips(ps);
-    setEarnings(es);
-    const ids = Array.from(new Set([...ps.map((r: any) => r.staff_user_id), ...es.map((r: any) => r.staff_user_id)]));
-    if (ids.length) {
-      const { data: profs } = await supabase.from('profiles').select('id,email,full_name').in('id', ids);
-      const map: any = {};
-      (profs || []).forEach((p: any) => { map[p.id] = { email: p.email, full_name: p.full_name }; });
-      setUsers(map);
-    }
+    setPayslips(pRes.data || []);
+    setEarnings(eRes.data || []);
+    setPayments(payRes.data || []);
     setLoading(false);
   }, []);
 
