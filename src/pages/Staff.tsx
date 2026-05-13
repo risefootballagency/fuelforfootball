@@ -1,4 +1,16 @@
-import { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, lazy as reactLazy, Suspense, type ComponentType } from "react";
+
+// Wrap React.lazy with a one-time retry to recover from transient dynamic
+// import failures (e.g. stale chunks after a deploy or flaky network). Without
+// this, a single failed module fetch blank-screens the whole Staff page.
+const lazy = <T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) =>
+  reactLazy(() =>
+    factory().catch(async (err) => {
+      console.warn("[lazy] import failed, retrying once", err);
+      await new Promise((r) => setTimeout(r, 400));
+      return factory();
+    })
+  );
 import { ExportProgressFloat } from "@/components/staff/ExportProgressFloat";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
