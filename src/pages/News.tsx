@@ -225,7 +225,7 @@ const News = () => {
           description: currentArticle.excerpt,
           image: currentArticle.image_url || undefined,
           datePublished: currentArticle.created_at,
-          dateModified: currentArticle.updated_at || currentArticle.created_at,
+          dateModified: currentArticle.created_at,
           author: { "@type": "Organization", name: "Fuel For Football" },
           publisher: { "@type": "Organization", name: "Fuel For Football", logo: { "@type": "ImageObject", url: "https://fuelforfootball.com/fff_logo.png" } },
         } : undefined}
