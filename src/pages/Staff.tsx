@@ -116,6 +116,7 @@ const S = {
 };
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase as localSupabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { Checkbox } from "@/components/ui/checkbox";
 
