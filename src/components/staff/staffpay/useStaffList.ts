@@ -40,9 +40,9 @@ export const useStaffList = (options: { includeHidden?: boolean } = {}) => {
         .select('staff_user_id,hidden')
         .in('staff_user_id', ids);
       if (!active) return;
-      const hiddenById = new Map((visibility || []).map((v: any) => [v.staff_user_id, !!v.hidden]));
+      const hiddenById = new Map<string, boolean>((visibility || []).map((v: any) => [v.staff_user_id, !!v.hidden]));
       const roleById = new Map((roles || []).map((r: any) => [r.user_id, r.role]));
-      const list = (profs || []).map((p: any) => ({
+      const list: StaffOpt[] = (profs || []).map((p: any) => ({
         id: p.id,
         email: p.email || '',
         name: p.full_name || p.email || p.id.slice(0, 8),
