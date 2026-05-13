@@ -3,6 +3,9 @@
 // shared sign-in when local signInWithPassword fails.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+const SHARED_SUPABASE_URL = "https://qwethimbtaamlhbajmal.supabase.co";
+const SHARED_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXRoaW1idGFhbWxoYmFqbWFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3ODQzNDMsImV4cCI6MjA3NjM2MDM0M30.FNM354bgxhdtM4F_KGbQQnJwX7-WngaX58kPvPYnUEY";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -34,6 +37,27 @@ Deno.serve(async (req) => {
     );
 
     const normalizedEmail = email.trim().toLowerCase();
+    const shared = createClient(SHARED_SUPABASE_URL, SHARED_SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data: sharedAuth, error: sharedAuthErr } = await shared.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    });
+    if (sharedAuthErr || !sharedAuth.user) {
+      return new Response(JSON.stringify({ error: "shared staff login could not be verified" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: sharedRoles, error: sharedRoleErr } = await shared
+      .from("user_roles").select("role").eq("user_id", sharedAuth.user.id);
+    if (sharedRoleErr) throw sharedRoleErr;
+    const sharedRole = (sharedRoles || []).find((r: any) => ALLOWED_ROLES.has(r.role))?.role;
+    if (!sharedRole) {
+      return new Response(JSON.stringify({ error: "shared account has no staff role" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Find user via auth admin listUsers (filter by email)
     const { data: list, error: listErr } = await supabase.auth.admin.listUsers({
@@ -57,6 +81,12 @@ Deno.serve(async (req) => {
         password, email_confirm: true,
       });
       if (updErr) throw updErr;
+      await supabase.from("staff_pay_identities").upsert({
+        shared_user_id: sharedAuth.user.id,
+        local_user_id: user.id,
+        email: normalizedEmail,
+        role: sharedRole,
+      }, { onConflict: "shared_user_id" });
       return new Response(JSON.stringify({ ok: true, action: "reset" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -86,6 +116,14 @@ Deno.serve(async (req) => {
       email: normalizedEmail, password, email_confirm: true,
     });
     if (createErr) throw createErr;
+    if (created.user?.id) {
+      await supabase.from("staff_pay_identities").upsert({
+        shared_user_id: sharedAuth.user.id,
+        local_user_id: created.user.id,
+        email: normalizedEmail,
+        role: sharedRole,
+      }, { onConflict: "shared_user_id" });
+    }
 
     return new Response(JSON.stringify({ ok: true, action: "created", user_id: created.user?.id }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
