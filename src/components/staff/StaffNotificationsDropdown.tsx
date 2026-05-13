@@ -194,22 +194,20 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
     });
   };
 
-  const markAsRead = async (notificationId: string) => {
-    const notification = notifications.find((n) => n.id === notificationId);
+  const markAsRead = async (key: string) => {
+    const notification = notifications.find((n) => n._key === key);
     if (!notification || notification.read_by?.includes(userId)) return;
 
     const updatedReadBy = [...(notification.read_by || []), userId];
 
-    const { error } = await supabase
+    const { error } = await clientFor(notification.source)
       .from("staff_notification_events")
       .update({ read_by: updatedReadBy })
-      .eq("id", notificationId);
+      .eq("id", notification.id);
 
     if (!error) {
       setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === notificationId ? { ...n, read_by: updatedReadBy } : n
-        )
+        prev.map((n) => (n._key === key ? { ...n, read_by: updatedReadBy } : n))
       );
     }
   };
@@ -225,19 +223,19 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
     );
 
     for (const notification of categoryNotifications) {
-      await markAsRead(notification.id);
+      await markAsRead(notification._key);
     }
   };
 
   const markAllAsRead = async () => {
-    const unreadIds = notifications
+    const unreadKeys = notifications
       .filter((n) => !n.read_by?.includes(userId))
-      .map((n) => n.id);
+      .map((n) => n._key);
 
-    if (unreadIds.length === 0) return;
+    if (unreadKeys.length === 0) return;
 
-    for (const id of unreadIds) {
-      await markAsRead(id);
+    for (const key of unreadKeys) {
+      await markAsRead(key);
     }
   };
 
