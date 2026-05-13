@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, Check, CheckCheck, ChevronDown, ChevronRight, Users, FileText, Film, ListMusic, Calendar, CheckSquare, Target, LogIn, BarChart3, Search, Send, Building2, TrendingUp, PenLine, GitCompare, Cake, ExternalLink } from "lucide-react";
+import { Bell, Check, CheckCheck, ChevronDown, ChevronRight, Users, FileText, Film, ListMusic, Calendar, CheckSquare, Target, LogIn, BarChart3, Search, Send, Building2, TrendingUp, PenLine, GitCompare, Cake, ExternalLink, AlertOctagon, Activity, MessageSquare, Pencil, UserPlus } from "lucide-react";
 import { ImprovementReportDialog } from "./ImprovementReportDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+
+const titleCaseFromEventType = (eventType: string): string =>
+  eventType.split(/[_-]/g).filter(Boolean).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(" ");
+
 
 interface Notification {
   id: string;
@@ -45,6 +49,8 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   calendar_event: { label: "Calendar Events", icon: Calendar },
   task_assigned: { label: "Tasks Assigned", icon: CheckSquare },
   task_completed: { label: "Tasks Completed", icon: CheckSquare },
+  task_reminder: { label: "Task Reminders", icon: Bell },
+  schedule_item_completed: { label: "Schedule Items Completed", icon: CheckSquare },
   goal_added: { label: "Goals Added", icon: Target },
   portal_login: { label: "Portal Logins", icon: LogIn },
   portal_performance_view: { label: "Performance Views", icon: BarChart3 },
@@ -54,20 +60,32 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   portal_club_submission: { label: "Club Suggestions", icon: Building2 },
   performance_improvement: { label: "Performance Improvements", icon: TrendingUp },
   contract_signed: { label: "Contracts Signed", icon: PenLine },
+  contract_event: { label: "Contract Events", icon: PenLine },
   comparison_request: { label: "Comparison Requests", icon: GitCompare },
   player_birthday: { label: "Player Birthdays", icon: Cake },
   player_turning_18: { label: "Player Birthdays", icon: Cake },
+  fixture_countdown: { label: "Upcoming Fixtures", icon: Calendar },
+  error_report: { label: "Error Reports", icon: AlertOctagon },
+  staff_activity: { label: "Staff Activity", icon: Activity },
+  message_sent: { label: "Messages Sent", icon: MessageSquare },
+  player_updated: { label: "Player Updates", icon: Pencil },
+  player_created: { label: "New Players", icon: UserPlus },
+  payslip_submitted: { label: "Payslips", icon: FileText },
+  payslip_approved: { label: "Payslips", icon: FileText },
+  payslip_paid: { label: "Payslips", icon: FileText },
 };
 
 export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdownProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [improvementReport, setImprovementReport] = useState<any>(null);
 
   const fetchNotifications = async () => {
     try {
+      setLoadError(null);
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -79,8 +97,9 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
 
       if (error) throw error;
       setNotifications(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching notifications:", error);
+      setLoadError(error?.message || "Could not load notifications. Try logging out and back in.");
     } finally {
       setLoading(false);
     }
@@ -124,7 +143,7 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
     notifications.forEach((notification) => {
       const rawType = notification.event_type;
       const eventType = MERGE_MAP[rawType] || rawType;
-      const config = CATEGORY_CONFIG[eventType] || { label: "Other", icon: Bell };
+      const config = CATEGORY_CONFIG[eventType] || { label: titleCaseFromEventType(eventType), icon: Bell };
 
       if (!groups.has(eventType)) {
         groups.set(eventType, {
@@ -350,6 +369,12 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
           {loading ? (
             <div className="p-4 text-center text-muted-foreground text-sm">
               Loading...
+            </div>
+          ) : loadError ? (
+            <div className="p-4 text-center text-destructive text-sm space-y-2">
+              <div>Could not load notifications.</div>
+              <div className="text-xs text-muted-foreground">{loadError}</div>
+              <Button size="sm" variant="outline" onClick={() => { setLoading(true); fetchNotifications(); }}>Retry</Button>
             </div>
           ) : categoryGroups.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground text-sm">

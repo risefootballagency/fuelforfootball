@@ -1,71 +1,47 @@
-## Goal
-Bring across the relevant work from RISE Football (Apr 25 – Apr 27, 2026, the most recent activity there) that has not yet been mirrored into Fuel For Football. Skipping anything tied to the **Representation page**, **page transitions / loaders**, **translations**, and **audio** since those are FFF-specific or already excluded.
+## Diagnosis
 
-## Audit summary (RISE → FFF)
-| RISE change | FFF status |
-|---|---|
-| Analysis duplicate button | ✅ already in FFF |
-| Spellcheck off in analysis editors | ✅ done |
-| Case-insensitive email lookups | ✅ done |
-| Fixture-first portal Performance logic (player_fixtures primary) | ✅ done |
-| Background video export — no full-match fallback on trim failure | ✅ done |
-| **Programming duplicate button** | ❌ missing |
-| **Magnifier annotation read-only math fix** | ❌ missing (still `vw / zoom`) |
-| **VideoAnalysis ↔ AnalysisPoints clip pipeline parity** (attach to point with trim, multi-link, "Currently linked" + unlink in export dialog) | ❌ missing |
-| **AnalysisPoints atomic upsert (race-condition fix for `annotation_projects_pkey`)** | ❌ missing |
-| **Annotation auto-persistence into `analyses.points` JSONB on save** | ❌ missing |
-| **`annotation_projects` RLS allow any authenticated staff to update/delete** | ❌ missing |
-| **Real-time subscriptions on portal extended** to `analysis_player_tags`, `analyses`, `player_fixtures`, `fixtures` | partial — verify |
-| **`AnalysisQuickLink` always saves `fixture_id`** when linking from a fixture | needs verify |
-| **Press Releases premium redesign** (denser 4-col grid, smaller logo placeholders, gold accents, 12/page) | ❌ missing — applies to `PressReleasesSection.tsx` / `Media.tsx` |
-| **Weekly content schedule recurring-task logic** (treat scheduled items as recurring, not "done forever") | ❌ to investigate in `StaffSchedulesManagement.tsx` |
+Two separate problems are happening:
 
-## Implementation plan
+1. **Notifications** are still using the local backend client in `StaffNotificationsDropdown`, while Staff authentication and most Staff data on this project use the shared Staff backend client. That mismatch means the logged-in Staff session is not consistently attached to notification reads/writes, so the dropdown can fail instantly even though notification records exist.
+2. **Staff Pay** is using the local backend client inside `StaffPay`, `MyEarnings`, `AddEarningDialog`, `PayslipTab`, `AllStaffTab`, and `useStaffList`, but the Staff page logs users in through the shared Staff backend. That is why Staff members do not show, and why adding earnings is blocked or confusing. The database currently only has one local profile/role anyway, so querying local roles cannot build the expected Staff list.
 
-### 1. Magnifier read-only fix
-- File: `src/components/portal/ReadOnlyAnnotationPlayback.tsx` (and `ReadOnlyAnnotationOverlay.tsx`)
-- Replace `regionW = vw / zoom` with lens-diameter math: `regionW = Math.max(8, (radiusPxW * 2) / zoom)` (and `regionH` similarly), mirroring the editor.
-- Honour `panX` / `panY` offsets.
+## Plan
 
-### 2. Annotation persistence + RLS
-- DB migration: relax `annotation_projects` UPDATE/DELETE RLS so any authenticated staff (not only the creator) can modify.
-- `src/components/staff/analysis/AnalysisPointsSection.tsx`:
-  - Replace select-then-insert save flow with atomic upsert (`onConflict: 'id'`) and fall back to `update` on `23505`.
-  - On annotation save, also patch the parent `analyses.points` JSONB so the link survives reloads. Drill `analysisId` through `SortablePointCard` → `VideoItem`.
+### 1. Fix notification loading and reporting
+- Change `StaffNotificationsDropdown` to use the same shared Staff backend client as the Staff page.
+- Change the global error-report action in `main.tsx` so reported errors go through the same client as Staff notifications, instead of disappearing into the wrong backend.
+- Keep the existing notification UI, but add a visible dropdown error state so it does not silently look empty when a request fails.
+- Bring across the safer RISE notification handling for unknown event types and recent event categories such as `error_report`, `staff_activity`, `message_sent`, `player_updated`, and `player_created`.
 
-### 3. Programming duplicate
-- File: `src/components/staff/ProgrammingManagement.tsx`
-- Add `Duplicate` button per program card; deep-clone `player_programs` row (sessions A–H, weekly schedules, notes), set `is_current = false`, increment `display_order`, append " (Copy)" to title.
+### 2. Fix Staff Pay data access
+- Move Staff Pay components to the shared Staff backend client so they use the active Staff session and shared `user_roles` / `profiles` data.
+- Update `useStaffList` so it loads all Staff/Admin/Analyst/Marketeer users from the shared Staff roles table, with loading and error feedback.
+- Make `AddEarningDialog` block saving only when an admin has no assigned Staff member selected, and show a clear message instead of a generic backend error.
+- Keep the existing earnings, payslip, and admin tabs intact, but ensure all reads/writes hit the same backend as Staff login.
 
-### 4. Video Analysis clip pipeline parity
-- File: `src/components/staff/coaching/VideoAnalysis.tsx`
-- Show paperclip when linked to either a Performance Report **or** an Analysis.
-- Attach-to-point flow: list analysis points; on attach, run `trimAndUploadClip` and push the trimmed URL into the point's `video_urls` array (no `#t=` fragments).
-- Export dialog: add "Currently linked" section listing both report and analysis links with individual unlink buttons.
-- Mirror in `AnalysisPointsSection.tsx` so adding a VA clip to a point uses `trimAndUploadClip`.
+### 3. Make Staff Pay more intuitive without changing the business rules
+- Add a compact explanatory header in Staff Pay: “Log client work -> mark received -> submit payslip -> admin pays out”.
+- In the Add Earning dialog, show loading/empty states for Staff members, players, and invoices.
+- Default admins to their own account if available, but allow assigning work to any Staff member.
+- Improve form validation messages for missing client, missing Staff member, and zero-value earnings.
 
-### 5. Portal real-time + fixture linking
-- Verify `src/pages/Dashboard.tsx` already subscribes to `analysis_player_tags`, `analyses`, `player_fixtures`, `fixtures`. Add any missing channels.
-- `src/components/staff/analysis/AnalysisQuickLink.tsx`: ensure `fixture_id` is saved when creating a link from the fixture list (not only date/opponent).
+### 4. Backend policy check after code alignment
+- Check the shared backend policies for `staff_notification_events`, Staff roles/profiles, and Staff Pay tables.
+- If any required shared access policies or Staff Pay tables are missing, add the minimal secure migration there: Staff can manage their own earnings/settings/payslips, admins can manage all, and Staff roles remain in `user_roles` only.
 
-### 6. Press Releases premium redesign
-- File: `src/components/PressReleasesSection.tsx` (and any list view in `Media.tsx`).
-- Move to denser 4-column layout, reduce logo placeholder height to `h-10`–`h-12` to avoid pixelation, add gold-accented borders/dividers, raise items per page from 9 → 12.
+### Files expected to change
+- `src/components/staff/StaffNotificationsDropdown.tsx`
+- `src/main.tsx`
+- `src/components/staff/StaffPay.tsx`
+- `src/components/staff/staffpay/useStaffList.ts`
+- `src/components/staff/staffpay/AddEarningDialog.tsx`
+- `src/components/staff/staffpay/MyEarnings.tsx`
+- `src/components/staff/staffpay/PayslipTab.tsx`
+- `src/components/staff/staffpay/AllStaffTab.tsx`
+- Possibly one backend migration if the shared Staff backend is missing the necessary Staff Pay access rules.
 
-### 7. Recurring weekly content schedule
-- Audit `src/components/staff/StaffSchedulesManagement.tsx` (and the "My Tasks" view) so weekly schedule items are treated as recurring instances per week instead of one-time completions. Completion state should be keyed by `task_id + week_start` rather than the underlying schedule row.
-
-## Out of scope
-- Representation page, intro sequence, audio, smoke overlays, page transitions, loaders, language map selector, translations migrations, 3D player effects.
-
-## Files likely touched
-- `src/components/portal/ReadOnlyAnnotationPlayback.tsx`, `ReadOnlyAnnotationOverlay.tsx`
-- `src/components/staff/analysis/AnalysisPointsSection.tsx`, `AnalysisQuickLink.tsx`
-- `src/components/staff/ProgrammingManagement.tsx`
-- `src/components/staff/coaching/VideoAnalysis.tsx`
-- `src/components/PressReleasesSection.tsx` (+ `Media.tsx`)
-- `src/components/staff/StaffSchedulesManagement.tsx`
-- `src/pages/Dashboard.tsx`
-- One Supabase migration for `annotation_projects` RLS
-
-Reply **"approve"** (or edit which numbered items to keep) and I'll execute.
+## Validation
+- Open Staff notifications and confirm the dropdown shows actual categories instead of an instant failure.
+- Trigger an error report and confirm it appears under notifications.
+- Open Staff Pay as admin and confirm Staff members populate.
+- Add a client earning and confirm it appears in My Earnings / All Staff without an RLS or empty-staff failure.

@@ -116,6 +116,7 @@ const S = {
 };
 
 import { sharedSupabase as supabase } from "@/integrations/supabase/sharedClient";
+import { supabase as localSupabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -490,6 +491,13 @@ const Staff = () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
       if (error) { toast.error(error.message); setLoading(false); return; }
       if (data.user) {
+        // Also sign into the local backend so notifications, Staff Pay and other
+        // local-DB features have an authenticated session for RLS.
+        try {
+          await localSupabase.auth.signInWithPassword({ email: normalizedEmail, password });
+        } catch (e) {
+          console.warn('[Staff] Local backend sign-in failed (notifications/Staff Pay may be limited):', e);
+        }
         if (rememberMe) {
           localStorage.setItem("staff_saved_email", normalizedEmail);
           localStorage.setItem("staff_remember_me", "true");
@@ -508,6 +516,7 @@ const Staff = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    try { await localSupabase.auth.signOut(); } catch {}
     setUser(null); setIsStaff(false); setIsAdmin(false); setIsActualStaff(false); setIsMarketeer(false); setIsAnalyst(false);
     setEmail(""); setPassword("");
     toast.success("Logged out");
