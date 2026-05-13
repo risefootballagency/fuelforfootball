@@ -148,7 +148,9 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
               <Select value={assignedStaffId} onValueChange={setAssignedStaffId}>
                 <SelectTrigger><SelectValue placeholder="Select staff" /></SelectTrigger>
                 <SelectContent>
-                  {staff.map(s => <SelectItem key={s.id} value={s.id}>{s.name}{s.email ? ` — ${s.email}` : ''}</SelectItem>)}
+                  {staff.length === 0 ? (
+                    <div className="px-3 py-2 text-xs text-muted-foreground">No staff accounts found. Create one in Staff Accounts first.</div>
+                  ) : staff.map(s => <SelectItem key={s.id} value={s.id}>{s.name}{s.email ? ` — ${s.email}` : ''}</SelectItem>)}
                 </SelectContent>
               </Select>
               <p className="text-[11px] text-muted-foreground mt-1">Admins can log earnings on behalf of any staff member.</p>
