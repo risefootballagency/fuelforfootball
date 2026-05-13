@@ -5078,6 +5078,78 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_pay_visibility: {
+        Row: {
+          created_at: string
+          hidden: boolean
+          hidden_reason: string | null
+          staff_user_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          hidden?: boolean
+          hidden_reason?: string | null
+          staff_user_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          hidden?: boolean
+          hidden_reason?: string | null
+          staff_user_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      staff_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string | null
+          period_month: string | null
+          reference: string | null
+          staff_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          period_month?: string | null
+          reference?: string | null
+          staff_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          period_month?: string | null
+          reference?: string | null
+          staff_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff_payslips: {
         Row: {
           admin_notes: string | null
