@@ -465,11 +465,11 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
 
                           return (
                             <div
-                              key={notification.id}
+                             key={notification._key}
                               className={`flex items-start gap-3 p-2.5 cursor-pointer rounded-md transition-colors ${
                                 !isRead ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/50"
                               }`}
-                              onClick={() => markAsRead(notification.id)}
+                              onClick={() => markAsRead(notification._key)}
                             >
                               <div className="flex-1 min-w-0">
                                 <p className={`text-sm ${!isRead ? "font-medium" : ""}`}>
