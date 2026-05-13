@@ -49,6 +49,8 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   calendar_event: { label: "Calendar Events", icon: Calendar },
   task_assigned: { label: "Tasks Assigned", icon: CheckSquare },
   task_completed: { label: "Tasks Completed", icon: CheckSquare },
+  task_reminder: { label: "Task Reminders", icon: Bell },
+  schedule_item_completed: { label: "Schedule Items Completed", icon: CheckSquare },
   goal_added: { label: "Goals Added", icon: Target },
   portal_login: { label: "Portal Logins", icon: LogIn },
   portal_performance_view: { label: "Performance Views", icon: BarChart3 },
@@ -58,9 +60,19 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
   portal_club_submission: { label: "Club Suggestions", icon: Building2 },
   performance_improvement: { label: "Performance Improvements", icon: TrendingUp },
   contract_signed: { label: "Contracts Signed", icon: PenLine },
+  contract_event: { label: "Contract Events", icon: PenLine },
   comparison_request: { label: "Comparison Requests", icon: GitCompare },
   player_birthday: { label: "Player Birthdays", icon: Cake },
   player_turning_18: { label: "Player Birthdays", icon: Cake },
+  fixture_countdown: { label: "Upcoming Fixtures", icon: Calendar },
+  error_report: { label: "Error Reports", icon: AlertOctagon },
+  staff_activity: { label: "Staff Activity", icon: Activity },
+  message_sent: { label: "Messages Sent", icon: MessageSquare },
+  player_updated: { label: "Player Updates", icon: Pencil },
+  player_created: { label: "New Players", icon: UserPlus },
+  payslip_submitted: { label: "Payslips", icon: FileText },
+  payslip_approved: { label: "Payslips", icon: FileText },
+  payslip_paid: { label: "Payslips", icon: FileText },
 };
 
 export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdownProps) => {
