@@ -504,25 +504,18 @@ const Staff = () => {
       if (error) { toast.error(error.message); setLoading(false); return; }
       if (data.user) {
         // Also sign into the local backend so notifications, Staff Pay and other
-        // local-DB features have an authenticated session for RLS. If the local
-        // password doesn't match (different auth backend), call the provisioning
-        // edge function to reset/create the local account, then retry once.
+        // local-DB features have an authenticated session for RLS. The provision
+        // call verifies the shared login and links the shared staff ID to the
+        // local auth ID, which is needed for Staff Pay records owned by shared accounts.
         try {
+          const { error: provErr } = await localSupabase.functions.invoke('staff-provision-local-session', {
+            body: { email: normalizedEmail, password },
+          });
+          if (provErr) console.warn('[Staff] Local provisioning failed:', provErr);
           const { error: localErr } = await localSupabase.auth.signInWithPassword({ email: normalizedEmail, password });
           if (localErr) {
-            console.warn('[Staff] Local sign-in failed, attempting provision:', localErr.message);
-            const { error: provErr } = await localSupabase.functions.invoke('staff-provision-local-session', {
-              body: { email: normalizedEmail, password },
-            });
-            if (provErr) {
-              console.warn('[Staff] Local provisioning failed:', provErr);
-            } else {
-              const retry = await localSupabase.auth.signInWithPassword({ email: normalizedEmail, password });
-              if (retry.error) {
-                console.warn('[Staff] Local retry sign-in failed:', retry.error.message);
-                toast.warning('Notifications/Staff Pay may be limited until you log out and back in');
-              }
-            }
+            console.warn('[Staff] Local sign-in failed:', localErr.message);
+            toast.warning('Notifications/Staff Pay may be limited until you log out and back in');
           }
         } catch (e) {
           console.warn('[Staff] Local backend sign-in flow errored:', e);
