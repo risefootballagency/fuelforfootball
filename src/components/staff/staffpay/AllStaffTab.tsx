@@ -167,7 +167,9 @@ export const AllStaffTab = () => {
       <TabsList>
         <TabsTrigger value="payslips">Payslips</TabsTrigger>
         <TabsTrigger value="ledger">Earnings Ledger</TabsTrigger>
+        <TabsTrigger value="payments">Payments Sent</TabsTrigger>
         <TabsTrigger value="staff">By Staff</TabsTrigger>
+        <TabsTrigger value="visibility">Visibility</TabsTrigger>
       </TabsList>
 
       <TabsContent value="payslips">
@@ -226,19 +228,36 @@ export const AllStaffTab = () => {
         </CardContent></Card>
       </TabsContent>
 
+      <TabsContent value="payments">
+        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-3">
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Log Staff Payment</CardTitle></CardHeader><CardContent className="space-y-3">
+            <div><Label>Staff Member</Label><Select value={paymentForm.staff_user_id} onValueChange={v => setPaymentForm(p => ({ ...p, staff_user_id: v }))}><SelectTrigger><SelectValue placeholder="Select staff" /></SelectTrigger><SelectContent>{visibleStaff.map(s => <SelectItem key={s.id} value={s.id}>{s.name}{s.email ? ` - ${s.email}` : ''}</SelectItem>)}</SelectContent></Select></div>
+            <div className="grid grid-cols-2 gap-2"><div><Label>Period</Label><Input type="month" value={paymentForm.period_month} onChange={e => setPaymentForm(p => ({ ...p, period_month: e.target.value }))} /></div><div><Label>Date Sent</Label><Input type="date" value={paymentForm.payment_date} onChange={e => setPaymentForm(p => ({ ...p, payment_date: e.target.value }))} /></div></div>
+            <div className="grid grid-cols-[1fr_90px] gap-2"><div><Label>Amount Sent</Label><Input type="number" step="0.01" value={paymentForm.amount} onChange={e => setPaymentForm(p => ({ ...p, amount: e.target.value }))} /></div><div><Label>Currency</Label><Select value={paymentForm.currency} onValueChange={v => setPaymentForm(p => ({ ...p, currency: v }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="GBP">GBP</SelectItem><SelectItem value="EUR">EUR</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div></div>
+            <div><Label>Method / Reference</Label><div className="grid grid-cols-2 gap-2"><Input value={paymentForm.payment_method} onChange={e => setPaymentForm(p => ({ ...p, payment_method: e.target.value }))} placeholder="Bank transfer" /><Input value={paymentForm.reference} onChange={e => setPaymentForm(p => ({ ...p, reference: e.target.value }))} placeholder="Reference" /></div></div>
+            <div><Label>Notes</Label><Textarea rows={2} value={paymentForm.notes} onChange={e => setPaymentForm(p => ({ ...p, notes: e.target.value }))} /></div>
+            <Button onClick={recordPayment} className="w-full"><Save className="w-4 h-4 mr-2" />Record Payment</Button>
+          </CardContent></Card>
+          <Card><CardContent className="p-0"><Table><TableHeader><TableRow><TableHead>Staff</TableHead><TableHead>Period</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Amount</TableHead><TableHead>Reference</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader><TableBody>{payments.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground p-6">No staff payments logged yet.</TableCell></TableRow>}{payments.map(p => <TableRow key={p.id}><TableCell>{users[p.staff_user_id]?.full_name || users[p.staff_user_id]?.email || '—'}</TableCell><TableCell className="font-mono text-xs">{p.period_month || '—'}</TableCell><TableCell className="text-xs">{p.payment_date ? format(new Date(p.payment_date), 'PP') : '—'}</TableCell><TableCell className="text-right font-mono">{formatMoney(Number(p.amount), p.currency)}</TableCell><TableCell className="text-xs">{p.reference || p.payment_method || '—'}</TableCell><TableCell className="text-right"><Button size="sm" variant="ghost" onClick={() => deletePayment(p.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button></TableCell></TableRow>)}</TableBody></Table></CardContent></Card>
+        </div>
+      </TabsContent>
+
       <TabsContent value="staff">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {Object.entries(totalsByStaff).map(([k, t]) => (
             <Card key={k}><CardHeader className="pb-2"><CardTitle className="text-sm">{t.staff}</CardTitle></CardHeader>
               <CardContent className="space-y-1 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">Gross (lifetime)</span><span className="font-mono">{formatMoney(t.gross, t.currency)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Net</span><span className="font-mono">{formatMoney(t.net, t.currency)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Owed</span><span className="font-mono">{formatMoney(t.owed, t.currency)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Sent</span><span className="font-mono">{formatMoney(t.sent, t.currency)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Outstanding</span><span className="font-mono text-amber-600">{formatMoney(t.outstanding, t.currency)}</span></div>
               </CardContent>
             </Card>
           ))}
           {Object.keys(totalsByStaff).length === 0 && <div className="text-sm text-muted-foreground">No data yet.</div>}
         </div>
+      </TabsContent>
+      <TabsContent value="visibility">
+        <Card><CardContent className="p-0"><Table><TableHeader><TableRow><TableHead>Staff</TableHead><TableHead>Email</TableHead><TableHead>Role</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Action</TableHead></TableRow></TableHeader><TableBody>{staff.map(s => <TableRow key={s.id}><TableCell className="font-medium">{s.name}</TableCell><TableCell className="text-xs">{s.email || '—'}</TableCell><TableCell><Badge variant="outline">{s.role || 'staff'}</Badge></TableCell><TableCell>{s.hidden ? <Badge variant="secondary">Hidden from FFF Staff Pay</Badge> : <Badge variant="outline">Visible</Badge>}</TableCell><TableCell className="text-right"><Button size="sm" variant="outline" onClick={async () => { try { await setHidden(s.id, !s.hidden); toast.success(s.hidden ? 'Staff member shown' : 'Staff member hidden'); } catch (err: any) { toast.error(err?.message || 'Could not update visibility'); } }}>{s.hidden ? <Eye className="w-4 h-4 mr-1" /> : <EyeOff className="w-4 h-4 mr-1" />}{s.hidden ? 'Show' : 'Hide'}</Button></TableCell></TableRow>)}</TableBody></Table></CardContent></Card>
       </TabsContent>
     </Tabs>
   );
