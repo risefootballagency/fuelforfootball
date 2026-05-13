@@ -370,6 +370,12 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
             <div className="p-4 text-center text-muted-foreground text-sm">
               Loading...
             </div>
+          ) : loadError ? (
+            <div className="p-4 text-center text-destructive text-sm space-y-2">
+              <div>Could not load notifications.</div>
+              <div className="text-xs text-muted-foreground">{loadError}</div>
+              <Button size="sm" variant="outline" onClick={() => { setLoading(true); fetchNotifications(); }}>Retry</Button>
+            </div>
           ) : categoryGroups.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground text-sm">
               No notifications in the last 7 days
