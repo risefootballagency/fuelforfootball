@@ -217,6 +217,18 @@ const News = () => {
         description={currentArticle ? currentArticle.excerpt : "Stay updated with the latest news from Fuel For Football and our talented roster of players."}
         image={currentArticle?.image_url || "/og-preview-news.png"}
         url={articleId ? `/news/${articleId}` : "/news"}
+        type={currentArticle ? "article" : "website"}
+        structuredData={currentArticle ? {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: currentArticle.title,
+          description: currentArticle.excerpt,
+          image: currentArticle.image_url || undefined,
+          datePublished: currentArticle.created_at,
+          dateModified: currentArticle.updated_at || currentArticle.created_at,
+          author: { "@type": "Organization", name: "Fuel For Football" },
+          publisher: { "@type": "Organization", name: "Fuel For Football", logo: { "@type": "ImageObject", url: "https://fuelforfootball.com/fff_logo.png" } },
+        } : undefined}
       />
       <Header />
       <div className="min-h-screen bg-background pt-32 md:pt-24 touch-pan-y overflow-x-hidden">
