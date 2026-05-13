@@ -90,47 +90,67 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
   const [improvementReport, setImprovementReport] = useState<any>(null);
 
   const fetchNotifications = async () => {
-    try {
-      setLoadError(null);
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    setLoadError(null);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const since = sevenDaysAgo.toISOString();
 
-      const { data, error } = await supabase
+    const fetchOne = (source: Source) =>
+      clientFor(source)
         .from("staff_notification_events")
         .select("*")
-        .gte("created_at", sevenDaysAgo.toISOString())
-        .order("created_at", { ascending: false });
+        .gte("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(500)
+        .then((res) => ({ source, ...res }));
 
-      if (error) throw error;
-      setNotifications(data || []);
-    } catch (error: any) {
-      console.error("Error fetching notifications:", error);
-      setLoadError(error?.message || "Could not load notifications. Try logging out and back in.");
-    } finally {
-      setLoading(false);
+    const [localRes, sharedRes] = await Promise.all([fetchOne("local"), fetchOne("shared")]);
+
+    const errors: string[] = [];
+    if (localRes.error) errors.push(`local: ${localRes.error.message}`);
+    if (sharedRes.error) errors.push(`shared: ${sharedRes.error.message}`);
+
+    const tag = (rows: any[] | null, source: Source): Notification[] =>
+      (rows || []).map((r) => ({ ...r, source, _key: `${source}:${r.id}` }));
+
+    const merged = [...tag(localRes.data, "local"), ...tag(sharedRes.data, "shared")];
+    // Dedupe by _key (defensive) and sort
+    const seen = new Set<string>();
+    const deduped = merged.filter((n) => (seen.has(n._key) ? false : (seen.add(n._key), true)));
+    deduped.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+
+    setNotifications(deduped);
+    if (errors.length && deduped.length === 0) {
+      setLoadError(errors.join(" | "));
+    } else if (errors.length) {
+      console.warn("[Notifications] partial failure:", errors);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchNotifications();
 
-    const channel = supabase
-      .channel("staff_notifications_dropdown")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "staff_notification_events",
-        },
-        (payload) => {
-          setNotifications((prev) => [payload.new as Notification, ...prev]);
-        }
-      )
-      .subscribe();
+    const subscribe = (source: Source) =>
+      clientFor(source)
+        .channel(`staff_notifications_dropdown_${source}`)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "staff_notification_events" },
+          (payload) => {
+            const row = payload.new as any;
+            const n: Notification = { ...row, source, _key: `${source}:${row.id}` };
+            setNotifications((prev) => (prev.some((p) => p._key === n._key) ? prev : [n, ...prev]));
+          }
+        )
+        .subscribe();
+
+    const localCh = subscribe("local");
+    const sharedCh = subscribe("shared");
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(localCh);
+      sharedSupabase.removeChannel(sharedCh);
     };
   }, []);
 
