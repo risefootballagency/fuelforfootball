@@ -13,6 +13,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
+
+type Source = "local" | "shared";
+const clientFor = (s: Source) => (s === "local" ? supabase : sharedSupabase);
 import { format } from "date-fns";
 
 const titleCaseFromEventType = (eventType: string): string =>
