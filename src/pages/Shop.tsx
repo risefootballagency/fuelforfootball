@@ -98,6 +98,27 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Shop | Fuel For Football"
+        description="E-books, templates, training plans and guides from Fuel For Football to fuel your performance."
+        url="/shop"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Fuel For Football Shop",
+          description: "Performance products, e-books, templates and guides.",
+          url: "https://fuelforfootball.com/shop",
+          mainEntity: {
+            "@type": "ItemList",
+            itemListElement: products.slice(0, 25).map((p, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              name: p.name,
+              image: p.image_url || undefined,
+            })),
+          },
+        }}
+      />
       <ShopHeader type="shop" />
 
       {/* Hero Section */}
