@@ -14,6 +14,18 @@ const corsHeaders = {
 
 const ALLOWED_ROLES = new Set(["admin", "staff", "marketeer", "analyst"]);
 
+const ensureLocalStaffAccess = async (supabase: any, userId: string, email: string, role: string) => {
+  await supabase.from("profiles").upsert({ id: userId, email }, { onConflict: "id" });
+  const { data: roles, error: rolesErr } = await supabase
+    .from("user_roles").select("id,role").eq("user_id", userId);
+  if (rolesErr) throw rolesErr;
+  const hasAllowed = (roles || []).some((r: any) => ALLOWED_ROLES.has(r.role));
+  if (!hasAllowed) {
+    const { error: roleErr } = await supabase.from("user_roles").insert({ user_id: userId, role });
+    if (roleErr) throw roleErr;
+  }
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -67,15 +79,7 @@ Deno.serve(async (req) => {
     let user = list.users.find((u) => (u.email || "").toLowerCase() === normalizedEmail) || null;
 
     if (user) {
-      // Confirm role permits staff access on this backend
-      const { data: roles } = await supabase
-        .from("user_roles").select("role").eq("user_id", user.id);
-      const hasRole = (roles || []).some((r: any) => ALLOWED_ROLES.has(r.role));
-      if (!hasRole) {
-        return new Response(JSON.stringify({ error: "no staff role on local backend" }), {
-          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      await ensureLocalStaffAccess(supabase, user.id, normalizedEmail, sharedRole);
       // Reset password to match shared
       const { error: updErr } = await supabase.auth.admin.updateUserById(user.id, {
         password, email_confirm: true,
@@ -92,31 +96,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // No local user yet — only auto-provision if a profile already exists
-    // (created by an admin via the Staff Accounts panel) and has an
-    // approved role. Otherwise refuse so we don't grant access broadly.
-    const { data: profile } = await supabase
-      .from("profiles").select("id").eq("email", normalizedEmail).maybeSingle();
-    if (!profile) {
-      return new Response(JSON.stringify({ error: "no local profile; ask an admin to provision your account" }), {
-        status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const { data: roles } = await supabase
-      .from("user_roles").select("role").eq("user_id", profile.id);
-    const hasRole = (roles || []).some((r: any) => ALLOWED_ROLES.has(r.role));
-    if (!hasRole) {
-      return new Response(JSON.stringify({ error: "profile has no staff role" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Create auth user with the same id as the profile when possible
+    // No local user yet - create one because the shared staff login has been verified.
     const { data: created, error: createErr } = await supabase.auth.admin.createUser({
       email: normalizedEmail, password, email_confirm: true,
     });
     if (createErr) throw createErr;
     if (created.user?.id) {
+      await ensureLocalStaffAccess(supabase, created.user.id, normalizedEmail, sharedRole);
       await supabase.from("staff_pay_identities").upsert({
         shared_user_id: sharedAuth.user.id,
         local_user_id: created.user.id,
