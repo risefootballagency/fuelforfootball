@@ -29,7 +29,7 @@ const Coaches = () => {
     <div className="min-h-screen bg-background" key="coaches-page">
       <SEO 
         title="For Coaches - The War Room | Fuel For Football"
-        description="Strategic support for coaching excellence. We serve as your tactical co-pilots, helping you make better decisions, develop winning strategies, and lead your team to success."
+        description="Strategic support for coaching excellence. Tactical co-pilots helping you make better decisions and develop winning strategies."
         image="/og-preview-coaches.png"
         url="/coaches"
       />

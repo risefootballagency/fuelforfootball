@@ -160,7 +160,7 @@ const Business = () => {
   return (
     <div className="min-h-screen bg-background" key="business-page">
       <SEO 
-        title="Business Solutions - Commercial Football Partnerships | Fuel For Football"
+        title="Business Partnerships | Fuel For Football"
         description="Partner with Fuel For Football for strategic commercial partnerships, sponsorship opportunities, and business development in professional football."
         image="/og-preview-business.png"
         url="/business"
