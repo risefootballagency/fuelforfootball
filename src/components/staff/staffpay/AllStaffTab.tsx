@@ -31,6 +31,14 @@ export const AllStaffTab = () => {
     return map;
   }, [staff]);
 
+  const visibleStaff = useMemo(() => staff.filter(s => !s.hidden), [staff]);
+
+  useEffect(() => {
+    if (!paymentForm.staff_user_id && visibleStaff[0]?.id) {
+      setPaymentForm(prev => ({ ...prev, staff_user_id: visibleStaff[0].id }));
+    }
+  }, [paymentForm.staff_user_id, visibleStaff]);
+
   const load = useCallback(async () => {
     setLoading(true);
     const [pRes, eRes, payRes] = await Promise.all([
@@ -85,17 +93,74 @@ export const AllStaffTab = () => {
     load();
   };
 
-  if (loading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-5 h-5 animate-spin" /></div>;
+  const recordPayment = async () => {
+    const amount = Number(paymentForm.amount);
+    if (!paymentForm.staff_user_id) { toast.error('Select a staff member'); return; }
+    if (amount <= 0) { toast.error('Enter a valid payment amount'); return; }
+    const staffName = users[paymentForm.staff_user_id]?.full_name || users[paymentForm.staff_user_id]?.email || 'Staff';
+    const { data: { user } } = await supabase.auth.getUser();
+    const payload = {
+      staff_user_id: paymentForm.staff_user_id,
+      period_month: paymentForm.period_month || null,
+      amount,
+      currency: paymentForm.currency,
+      payment_date: paymentForm.payment_date,
+      payment_method: paymentForm.payment_method || null,
+      reference: paymentForm.reference || null,
+      notes: paymentForm.notes || null,
+      created_by: user?.id || null,
+    };
+    const { error } = await (supabase as any).from('staff_payments').insert(payload);
+    if (error) { toast.error(error.message); return; }
+    await supabase.from('payments').insert({
+      type: 'out', amount, currency: paymentForm.currency,
+      description: `Staff payment ${staffName}${paymentForm.period_month ? ` (${paymentForm.period_month})` : ''}`,
+      payment_method: paymentForm.payment_method || 'staff_payment',
+      reference: paymentForm.reference || null,
+      payment_date: paymentForm.payment_date,
+    } as any);
+    const receivedForPeriod = earnings
+      .filter(e => e.staff_user_id === paymentForm.staff_user_id && e.period_month === paymentForm.period_month && e.status === 'received')
+      .reduce((sum, e) => sum + Number(e.amount_due || 0), 0);
+    if (paymentForm.period_month && amount >= receivedForPeriod && receivedForPeriod > 0) {
+      await (supabase as any).from('staff_client_earnings')
+        .update({ status: 'paid_out', paid_out_at: paymentForm.payment_date })
+        .eq('staff_user_id', paymentForm.staff_user_id)
+        .eq('period_month', paymentForm.period_month)
+        .eq('status', 'received');
+    }
+    toast.success('Staff payment recorded');
+    setPaymentForm(prev => ({ ...prev, amount: '', reference: '', notes: '' }));
+    load();
+  };
 
-  const totalsByStaff: Record<string, { staff: string; gross: number; net: number; outstanding: number; currency: string }> = {};
-  for (const ps of payslips) {
-    const k = ps.staff_user_id;
+  const deletePayment = async (id: string) => {
+    if (!confirm('Delete this staff payment record?')) return;
+    const { error } = await (supabase as any).from('staff_payments').delete().eq('id', id);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Staff payment deleted');
+    load();
+  };
+
+  if (loading || staffLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-5 h-5 animate-spin" /></div>;
+
+  const totalsByStaff: Record<string, { staff: string; owed: number; sent: number; outstanding: number; currency: string; hidden?: boolean }> = {};
+  for (const s of staff) totalsByStaff[s.id] = { staff: s.name, owed: 0, sent: 0, outstanding: 0, currency: 'GBP', hidden: s.hidden };
+  for (const e of earnings) {
+    const k = e.staff_user_id;
     const name = users[k]?.full_name || users[k]?.email || k.slice(0, 8);
-    if (!totalsByStaff[k]) totalsByStaff[k] = { staff: name, gross: 0, net: 0, outstanding: 0, currency: ps.currency };
-    totalsByStaff[k].gross += Number(ps.gross_amount);
-    totalsByStaff[k].net += Number(ps.net_amount);
-    if (ps.status !== 'paid') totalsByStaff[k].outstanding += Number(ps.net_amount);
+    if (!totalsByStaff[k]) totalsByStaff[k] = { staff: name, owed: 0, sent: 0, outstanding: 0, currency: e.currency, hidden: users[k]?.hidden };
+    totalsByStaff[k].owed += Number(e.amount_due || 0);
+    totalsByStaff[k].currency = e.currency || totalsByStaff[k].currency;
   }
+  for (const p of payments) {
+    const k = p.staff_user_id;
+    const name = users[k]?.full_name || users[k]?.email || k.slice(0, 8);
+    if (!totalsByStaff[k]) totalsByStaff[k] = { staff: name, owed: 0, sent: 0, outstanding: 0, currency: p.currency, hidden: users[k]?.hidden };
+    totalsByStaff[k].sent += Number(p.amount || 0);
+    totalsByStaff[k].currency = p.currency || totalsByStaff[k].currency;
+  }
+  Object.values(totalsByStaff).forEach(t => { t.outstanding = t.owed - t.sent; });
 
   return (
     <Tabs defaultValue="payslips">
