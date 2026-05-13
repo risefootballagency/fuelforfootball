@@ -7,6 +7,7 @@ import grassSmoky from "@/assets/grass-smoky-3.png";
 import { useImagePreloader } from "@/hooks/useImagePreloader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageMapSelector } from "@/components/LanguageMapSelector";
+import { SEO } from "@/components/SEO";
 
 const PlayersIntro = () => {
   const navigate = useNavigate();
@@ -22,6 +23,11 @@ const PlayersIntro = () => {
 
   return (
     <div className="h-screen bg-background flex flex-col relative overflow-hidden">
+      <SEO
+        title="For Players | Fuel For Football"
+        description="Choose your path with Fuel For Football: career development, representation and performance services for players."
+        url="/players-intro"
+      />
       {/* Background images grid - fade in when ready */}
       <motion.div 
         className="absolute inset-0 z-0"

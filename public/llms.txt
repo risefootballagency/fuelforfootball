@@ -1,0 +1,50 @@
+# Fuel For Football
+
+> Fuel For Football is a performance consultancy specialising in helping teams, coaches and players reach their true potential through analysis, programming and representation.
+
+## Pages
+
+- [Home](/): Overview of Fuel For Football's services and roster.
+- [Stars](/stars): Represented players and their profiles.
+- [News](/news): Latest news, transfers and player updates.
+- [About](/about): The story, team and mission behind Fuel For Football.
+- [Contact](/contact): Get in touch with the team.
+- [Between The Lines](/between-the-lines): Editorial articles on football performance.
+
+## For
+
+- [Players](/players): Career development and representation for footballers.
+- [Clubs](/clubs): Recruitment, scouting and squad optimisation.
+- [Coaches](/coaches): Tactical support and coaching tools.
+- [Scouts](/scouts): Scouting workflows and reports.
+- [Agents](/agents): Partner with our network on player representation.
+- [Business](/business): Commercial partnerships and sponsorships.
+- [Media](/media): Press, interviews and content access.
+
+## Services
+
+- [Services overview](/services): Full catalogue of performance services.
+- [Pro Performance](/pro-performance): Professional player support package.
+- [Elite Performance](/elite-performance): Top-tier performance package.
+- [Technical](/technical): Technical skill development.
+- [Tactical](/tactical): Tactical analysis and coaching.
+- [Mental](/mental): Mental performance coaching.
+- [Strength, Power & Speed](/sps): Physical performance programming.
+- [Conditioning](/conditioning): Conditioning and recovery.
+- [Nutrition](/nutrition): Nutrition planning for athletes.
+- [Analysis](/analysis): Match and player analysis services.
+- [Action Reports](/action-reports): Per-action performance reports.
+- [Efficiency Reports](/efficiency-reports): R90 efficiency reporting.
+- [Mentorship](/mentorship): One-to-one mentorship programs.
+- [Consultation](/consultation): Strategic football consultation.
+
+## Shop
+
+- [Shop](/shop): E-books, templates, training plans and guides.
+
+## Optional
+
+- [Jobs](/jobs): Current openings.
+- [Daily Fuel](/daily-fuel): Daily content drops.
+- [Privacy Policy](/privacy-policy)
+- [Terms of Service](/terms-of-service)

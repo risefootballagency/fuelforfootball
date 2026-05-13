@@ -54,8 +54,8 @@ const Clubs = () => {
   return (
     <div className="min-h-screen bg-[#0a3d0a]" key="clubs-page">
       <SEO 
-        title="For Clubs - Strategic Football Partnerships | Fuel For Football"
-        description="Work with Fuel For Football to strategise, recruit, and optimize your squad. Access our extensive network of talented players and expert player development programs."
+        title="For Clubs | Fuel For Football"
+        description="Strategise, recruit and optimise your squad with Fuel For Football's player network and expert development programs."
         image="/og-preview-clubs.png"
         url="/clubs"
       />

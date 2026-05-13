@@ -18,6 +18,7 @@ import { useIsPWA } from "@/hooks/useIsPWA";
 import { usePerformanceCheck } from "@/hooks/usePerformanceCheck";
 import { StaticLandingFallback } from "@/components/StaticLandingFallback";
 import fffLogo from "@/assets/fff_logo.png";
+import { SEO } from "@/components/SEO";
 
 // Inner component that uses the XRay context for full-page tracking
 function LandingContent() {
@@ -726,6 +727,11 @@ export default function Landing() {
 
   return (
     <XRayProvider>
+      <SEO
+        title="Fuel For Football | Football's Performance Consultancy"
+        description="Fuel For Football is a performance consultancy, specialising in helping teams, coaches and players reach their true potential."
+        url="/"
+      />
       <LandingContent />
     </XRayProvider>
   );
