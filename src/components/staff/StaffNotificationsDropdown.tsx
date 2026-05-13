@@ -31,6 +31,8 @@ interface Notification {
   event_data: any;
   created_at: string;
   read_by: string[];
+  source: Source;
+  _key: string; // `${source}:${id}` — stable React key + dedupe id
 }
 
 interface StaffNotificationsDropdownProps {
