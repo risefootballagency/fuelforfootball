@@ -78,12 +78,14 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: React.ElementType }
 export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdownProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [improvementReport, setImprovementReport] = useState<any>(null);
 
   const fetchNotifications = async () => {
     try {
+      setLoadError(null);
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -95,8 +97,9 @@ export const StaffNotificationsDropdown = ({ userId }: StaffNotificationsDropdow
 
       if (error) throw error;
       setNotifications(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching notifications:", error);
+      setLoadError(error?.message || "Could not load notifications. Try logging out and back in.");
     } finally {
       setLoading(false);
     }
