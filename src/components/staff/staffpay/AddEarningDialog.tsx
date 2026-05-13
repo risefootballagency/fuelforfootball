@@ -100,6 +100,12 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
 
   const filteredInvoices = playerId ? invoices.filter(i => i.player_id === playerId) : invoices;
 
+  const handleClientNameChange = (value: string) => {
+    setClientName(value);
+    const match = players.find(p => p.name.toLowerCase() === value.trim().toLowerCase());
+    setPlayerId(match?.id || "");
+  };
+
   const handleSave = async () => {
     if (!clientName.trim()) { toast.error("Client name is required"); return; }
     if (computedAmount <= 0) { toast.error("Amount must be greater than zero"); return; }
@@ -158,11 +164,20 @@ export const AddEarningDialog = ({ open, onOpenChange, staffUserId, defaultPerio
           )}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Client Name</Label>
-              <Input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="e.g. John Smith" />
+              <Label>Client / Player</Label>
+              <Input
+                value={clientName}
+                onChange={e => handleClientNameChange(e.target.value)}
+                placeholder="Type any name"
+                list="staff-pay-player-suggestions"
+              />
+              <datalist id="staff-pay-player-suggestions">
+                {players.map(p => <option key={p.id} value={p.name} />)}
+              </datalist>
+              <p className="text-[11px] text-muted-foreground mt-1">Pick a suggestion or leave your typed name as-is.</p>
             </div>
             <div>
-              <Label>Linked Player (optional)</Label>
+              <Label>Exact Player Link</Label>
               <Select value={playerId || "none"} onValueChange={v => { setPlayerId(v === "none" ? "" : v); const pl = players.find(p => p.id === v); if (pl) setClientName(pl.name); }}>
                 <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                 <SelectContent>

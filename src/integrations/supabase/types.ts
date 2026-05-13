@@ -5051,6 +5051,33 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_pay_identities: {
+        Row: {
+          created_at: string
+          email: string
+          local_user_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          shared_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          local_user_id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          shared_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          local_user_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          shared_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff_pay_settings: {
         Row: {
           created_at: string
@@ -5073,6 +5100,78 @@ export type Database = {
           default_earning_type?: string
           default_tax_rate?: number
           preferred_currency?: string
+          staff_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      staff_pay_visibility: {
+        Row: {
+          created_at: string
+          hidden: boolean
+          hidden_reason: string | null
+          staff_user_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          hidden?: boolean
+          hidden_reason?: string | null
+          staff_user_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          hidden?: boolean
+          hidden_reason?: string | null
+          staff_user_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      staff_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string | null
+          period_month: string | null
+          reference: string | null
+          staff_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          period_month?: string | null
+          reference?: string | null
+          staff_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          period_month?: string | null
+          reference?: string | null
           staff_user_id?: string
           updated_at?: string
         }
@@ -5747,6 +5846,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff_pay_self: { Args: { _staff_user_id: string }; Returns: boolean }
       setup_app_settings: { Args: never; Returns: undefined }
     }
     Enums: {
