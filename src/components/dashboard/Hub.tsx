@@ -618,7 +618,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     if (score >= 1.0 && score < 1.4) return "hsl(82, 84%, 67%)";
     if (score >= 1.4 && score < 1.8) return "hsl(142, 76%, 36%)";
     if (score >= 1.8 && score < 2.5) return "hsl(142, 72%, 29%)";
-    return "hsl(36, 100%, 50%)";
+    return "hsl(47, 100%, 51%)";
   };
 
   const recentAnalyses = (() => {
