@@ -14,7 +14,7 @@ const XC_ZONES = [
 ] as const;
 
 const getXCColor = (value: number): string => {
-  if (value >= 0.4) return 'hsl(43, 49%, 61%)';
+  if (value >= 0.4) return 'hsl(47, 100%, 51%)';
   if (value >= 0.25) return 'hsl(142, 72%, 29%)';
   if (value >= 0.15) return 'hsl(142, 76%, 36%)';
   if (value >= 0.08) return 'hsl(82, 84%, 67%)';
