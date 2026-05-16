@@ -455,7 +455,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingPayLink ? 'Edit' : 'Create'} Pay Link</DialogTitle>
+            <DialogTitle>{editingPayLink ? 'Edit' : 'Create'} {formData.is_invoice ? 'Invoice' : 'Pay Link'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
