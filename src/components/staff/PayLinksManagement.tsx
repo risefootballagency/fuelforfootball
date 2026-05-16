@@ -458,12 +458,52 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
             <DialogTitle>{editingPayLink ? 'Edit' : 'Create'} {formData.is_invoice ? 'Invoice' : 'Pay Link'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/40">
+              <input
+                id="is_invoice"
+                type="checkbox"
+                checked={formData.is_invoice}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_invoice: e.target.checked }))}
+                className="h-4 w-4 accent-primary"
+              />
+              <Label htmlFor="is_invoice" className="cursor-pointer mb-0">
+                Invoice a specific player (shows in their portal)
+              </Label>
+            </div>
+
+            {formData.is_invoice && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Player *</Label>
+                  <Select
+                    value={formData.player_id}
+                    onValueChange={(v) => setFormData(prev => ({ ...prev, player_id: v }))}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select player" /></SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {players.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Due Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.invoice_due_date}
+                    onChange={(e) => setFormData(prev => ({ ...prev, invoice_due_date: e.target.value }))}
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <Label>Title *</Label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="e.g. Consultation Fee"
+                placeholder={formData.is_invoice ? "e.g. October Coaching" : "e.g. Consultation Fee"}
                 required
               />
             </div>
