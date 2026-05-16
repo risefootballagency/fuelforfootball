@@ -60,7 +60,16 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
 
   useEffect(() => {
     fetchPayLinks();
+    fetchPlayers();
   }, []);
+
+  const fetchPlayers = async () => {
+    const { data } = await supabase
+      .from('players')
+      .select('id, name')
+      .order('name');
+    setPlayers((data || []) as PlayerOption[]);
+  };
 
   const fetchPayLinks = async () => {
     const { data, error } = await supabase
@@ -79,7 +88,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payLinkData = {
+    const payLinkData: any = {
       title: formData.title,
       amount: parseFloat(formData.amount),
       currency: formData.currency,
@@ -88,6 +97,9 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       payment_type: formData.payment_type,
       recurring_interval: formData.payment_type === 'subscription' ? formData.recurring_interval : null,
       status: 'active',
+      is_invoice: formData.is_invoice,
+      invoice_due_date: formData.is_invoice && formData.invoice_due_date ? formData.invoice_due_date : null,
+      player_id: formData.is_invoice && formData.player_id ? formData.player_id : null,
     };
 
     if (editingPayLink) {
@@ -100,8 +112,13 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         toast.error(`Error updating pay link: ${error.message}`);
         return;
       }
-      toast.success("Pay link updated");
+      toast.success(formData.is_invoice ? "Invoice updated" : "Pay link updated");
     } else {
+      if (formData.is_invoice && !formData.player_id) {
+        toast.error("Please select a player for the invoice");
+        return;
+      }
+
       const { data, error } = await supabase
         .from('pay_links')
         .insert([payLinkData])
@@ -118,7 +135,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         await createStripePaymentLink(data.id, payLinkData);
       }
 
-      toast.success("Pay link created");
+      toast.success(formData.is_invoice ? "Invoice sent to player" : "Pay link created");
     }
 
     setDialogOpen(false);
@@ -177,10 +194,13 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       expires_at: '',
       payment_type: 'one_off',
       recurring_interval: 'month',
+      is_invoice: false,
+      invoice_due_date: '',
+      player_id: '',
     });
   };
 
-  const openDialog = (payLink?: PayLink) => {
+  const openDialog = (payLink?: PayLink, defaults?: Partial<typeof formData>) => {
     if (payLink) {
       setEditingPayLink(payLink);
       setFormData({
@@ -191,9 +211,15 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         expires_at: payLink.expires_at ? payLink.expires_at.split('T')[0] : '',
         payment_type: payLink.payment_type || 'one_off',
         recurring_interval: payLink.recurring_interval || 'month',
+        is_invoice: !!payLink.is_invoice,
+        invoice_due_date: payLink.invoice_due_date || '',
+        player_id: payLink.player_id || '',
       });
     } else {
       resetForm();
+      if (defaults) {
+        setFormData(prev => ({ ...prev, ...defaults }));
+      }
     }
     setDialogOpen(true);
   };
