@@ -893,22 +893,43 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                           const { x, y, width, height, value, index } = props;
                           if (!x || !y || !width || !height || value === undefined) return null;
                           const delay = index * 0.25;
+                          const gradeInfo = getR90Grade(typeof value === 'number' ? value : null);
                           return (
-                            <text
-                              x={x + width / 2}
-                              y={y + height / 2}
-                              fill="#ffffff"
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fontSize="16"
-                              fontWeight="700"
-                              style={{
-                                opacity: 1,
-                                animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none'
-                              }}
-                            >
-                              {typeof value === 'number' ? value.toFixed(2) : value}
-                            </text>
+                            <g>
+                              {/* Grade letter above bar */}
+                              <text
+                                x={x + width / 2}
+                                y={y - 8}
+                                fill={gradeInfo.color}
+                                textAnchor="middle"
+                                dominantBaseline="alphabetic"
+                                fontSize="14"
+                                fontWeight="800"
+                                style={{
+                                  opacity: 1,
+                                  animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none',
+                                  textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+                                }}
+                              >
+                                {gradeInfo.grade}
+                              </text>
+                              {/* R90 score inside bar */}
+                              <text
+                                x={x + width / 2}
+                                y={y + height / 2}
+                                fill="#ffffff"
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fontSize="16"
+                                fontWeight="700"
+                                style={{
+                                  opacity: 1,
+                                  animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none'
+                                }}
+                              >
+                                {typeof value === 'number' ? value.toFixed(2) : value}
+                              </text>
+                            </g>
                           );
                         }}
                       />
