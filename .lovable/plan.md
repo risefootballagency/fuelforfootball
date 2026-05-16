@@ -1,62 +1,64 @@
-## Problem
+# Portal & Staff improvements
 
-The Staff notifications dropdown shows "0 notifications" even though the FFF backend currently has **7,726 notification events** (980 site visitors, 10 public analysis views, 3 error reports, etc. in the last 7 days). RLS, roles, and data are all fine.
+Six independent changes. Each can be reviewed/rolled back on its own.
 
-Two real root causes:
+## 1. Recolour top grades & R90 gold to FFF Yellow
 
-**1. Local auth session is not actually established.**
-Staff sign in with credentials that exist on the **shared** backend. The recent dual-login change calls `localSupabase.auth.signInWithPassword(...)` with the same password, but the local backend has its own independent auth. If the password hash on local doesn't match (very likely, since accounts were originally provisioned only on shared), local login silently fails and the dropdown's `select` runs as anonymous → RLS hides every row → "0 notifications". This is also why site visitors / error reports look empty.
+The "top grade" gold currently resolves to `hsl(43, 49%, 61%)` (a muted orange/khaki). Replace with FFF Yellow `hsl(47, 100%, 51%)` everywhere it's used as the highest-tier R90/grade colour.
 
-**2. Notifications are split across two backends.**
-- Written to **local** (FFF-only): `visitor`, `error_report`, `form_submission`, portal events, clip uploads, etc.
-- Written to **shared** (cross-site, both FFF and RISE): `performance_improvement` (`CreatePerformanceReportDialog` uses `sharedSupabase`) and similar cross-site events.
+Touch points:
+- `src/components/report/ActionHeatmap.tsx` — `getR90Color` top band.
+- `src/components/report/ChanceCreationFlow.tsx` — same scale.
+- Any other report/portal file using the same HSL literal (single sweep).
 
-The dropdown only queries local, so even after auth is fixed, performance-improvement notifications and other cross-site events will still be missing.
+Leave the lower colour bands alone.
 
-## Plan
+## 2. Fix duplicate "Pre-Match" for Matthias Pieklak on Hub
 
-### 1. Reliably establish a local auth session for staff
+Investigate `src/components/dashboard/Hub.tsx` — both `preMatchAnalysis` (latest analysis row) and `orphanPreMatchFixtures` (synthesised from fixtures) are rendered. When an analysis exists for the same fixture as the next orphan fixture, both paths fire and render twice.
 
-- Add an edge function `staff-provision-local-session` (service role on local backend) that:
-  - Looks up a profile by email on the local backend.
-  - If the email exists and `user_roles` has staff / admin / marketeer / analyst, resets the local password to match what the staff member just used on the shared login (`supabase.auth.admin.updateUserById`).
-  - If the email doesn't exist locally, creates the user with `createUser({ email_confirm: true })` and inserts the appropriate `user_roles` row mirrored from shared.
-  - Returns `{ ok: true }` so the client can retry `signInWithPassword`.
-- In `Staff.tsx → handleLogin`, after the shared login succeeds:
-  1. Try `localSupabase.auth.signInWithPassword`.
-  2. On `invalid_credentials` (or any auth error), call the provisioning function with the email + password, then retry the local sign-in once.
-  3. Surface a single toast if the local session still fails, but do not block shared login.
-- `handleLogout` already clears both — keep as is.
+Fix: deduplicate by fixture id/date before rendering — exclude any orphan fixture whose date matches `preMatchAnalysis.match_date` (or same opponent/date pair).
 
-### 2. Make the notifications dropdown read from both backends
+## 3. Add grade score back on Form chart (Hub)
 
-Refactor `StaffNotificationsDropdown.tsx`:
+Re-add the per-game grade number label that previously sat on the Form bars on the Hub. Source value from the same field used historically (`grade` / `r90_grade`). Render as a small label above each bar.
 
-- Fetch the last 7 days of `staff_notification_events` from **both** `localSupabase` and `sharedSupabase` in parallel.
-- Tag each row with its `source: 'local' | 'shared'`.
-- Merge into a single list, de-duplicate by `${source}:${id}`, sort by `created_at` desc.
-- `markAsRead` updates the row on the correct backend based on `source`.
-- Realtime: subscribe to inserts on both channels (`staff_notifications_dropdown_local`, `staff_notifications_dropdown_shared`) and prepend new rows with the right `source` tag.
-- Keep the existing error UI + Retry button; show per-source error if only one side fails (e.g. "Local feed failed - showing shared only").
+## 4. Performance report header colour match
 
-### 3. Keep site-only feeds local
+The colour shown behind the logo in the performance report header (driven by the report editor's chosen accent) should also paint the background of the Raw Score and Minutes blocks at the top, so the whole header reads as one connected band.
 
-- Site visitors (`visitor` events) and error reports remain **only** on the local backend, so they only ever show on FFF and never on RISE — exactly what the user asked for.
-- Performance improvements stay on shared so both FFF and RISE see them; the dropdown change above is what makes them visible on FFF again.
+File: `src/pages/PerformanceReport.tsx` (and the corresponding viewer section). Pass the same accent token used by the logo strip into the Raw Score/Mins tiles.
 
-### 4. Verify
+## 5. Invoices button + invoicing flow
 
-- After deploy, log in as staff:
-  - Notifications badge should reflect ~7,700 historical events (capped to 7-day window in UI).
-  - Site Visitors section should populate (~980 in last 7 days).
-  - Error reports created via the in-app reporter should appear within seconds (realtime).
-  - Manually trigger a performance improvement notification (shared) and confirm it shows alongside local ones.
+### UI (player portal)
+Next to the existing Notifications and Coach Availability buttons, add a third **Invoices** button. Only render when the player has at least one unpaid invoice. Style it slightly louder than the other two (FFF Yellow background, dark text, subtle pulse) so it draws attention.
 
-### Technical details
+Clicking opens a sheet listing each outstanding invoice with title, amount, due date, and a "Pay" CTA that uses the existing pay-link infrastructure.
 
-- Files touched:
-  - `supabase/functions/staff-provision-local-session/index.ts` (new, `verify_jwt = false`, uses `SUPABASE_SERVICE_ROLE_KEY`).
-  - `src/pages/Staff.tsx` (`handleLogin`).
-  - `src/components/staff/StaffNotificationsDropdown.tsx` (dual-source fetch, merge, dual realtime, source-aware mark-as-read).
-- No schema changes needed; existing RLS policies already cover `staff/admin/marketeer/analyst`.
-- Preserves the rule that visitor + internal-only events stay isolated to FFF's local DB.
+### Staff side
+In Staff → an existing player's profile, add an **Invoice Player** action that:
+- Creates a row in a new `player_invoices` table (id, player_id, title, amount, currency, pay_link_id, status, created_at, paid_at).
+- Generates a pay link via the existing `notify-pay-link` / pay-link creation flow and stores its id.
+- Shows it on the player's portal under the Invoices button.
+
+### Notifications on payment
+When the Stripe webhook (or existing pay-link completion handler) marks the invoice paid:
+- Insert a `staff_notification_events` row (`event_type: 'invoice_paid'`).
+- Send the existing notification email to `info@fuelforfootball.com` via `notify-pay-link` extended for invoice context (or a new small edge function `notify-invoice-paid`).
+
+## 6. Shader-based transitions (parity with RISE)
+
+Read how RISE Football wired the shader background into route transitions and port the same pattern here. We already have `src/components/ui/shader-animation.tsx`; the missing piece is using it as a route/page transition overlay similar to RISE.
+
+Plan: read RISE's transition wrapper, then add an equivalent `ShaderTransition` component used by `TransitionContext` / `PageTransition` in this project, with mobile fallback preserved (RISE constraint memory already covers this).
+
+---
+
+## Technical details
+
+- **Colour token**: add/reuse `--fff-yellow: 47 100% 51%` if not already in `index.css`; use that HSL directly in the report colour scales rather than hard-coded literals so future tweaks are one-line.
+- **Invoices schema**: new table `player_invoices` with RLS — players can `SELECT` their own (`player_id` mapped via existing player↔auth link), staff (`has_role(auth.uid(),'admin'|'staff')`) can do everything. Realtime enabled for the portal badge.
+- **Invoice pay flow**: reuse existing `pay_links` table where possible — `player_invoices.pay_link_id` references it; webhook handler that already marks pay links completed gets an extra branch to flip the linked invoice to `paid` and emit the staff notification + email.
+- **Hub dedupe**: filter `orphanPreMatchFixtures` against `preMatchAnalysis` before the render loop near `Hub.tsx:632`.
+- **Shader transitions**: cross-project read of RISE's transition implementation first; reuse our existing `ShaderAnimation` for the visual layer, keep mobile CSS-gradient fallback per existing memory.
