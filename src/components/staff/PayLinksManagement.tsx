@@ -244,12 +244,18 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Pay Links</h3>
+        <h3 className="text-lg font-semibold">Pay Links & Invoices</h3>
         {isAdmin && (
-          <Button size="sm" onClick={() => openDialog()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Pay Link
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => openDialog(undefined, { is_invoice: true })}>
+              <FileText className="h-4 w-4 mr-2" />
+              Invoice Player
+            </Button>
+            <Button size="sm" onClick={() => openDialog()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Pay Link
+            </Button>
+          </div>
         )}
       </div>
 
