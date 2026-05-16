@@ -2158,6 +2158,7 @@ const Dashboard = () => {
               <span className="hidden sm:inline">{t(portalLang, "coach_availability")}</span>
               <span className="sm:hidden">{t(portalLang, "availability")}</span>
             </Button>
+            <PlayerInvoicesButton playerId={playerData?.id} />
           </div>
         </div>
       </div>
