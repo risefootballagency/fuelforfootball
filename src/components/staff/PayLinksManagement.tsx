@@ -27,10 +27,20 @@ interface PayLink {
   payment_type: string | null;
   recurring_interval: string | null;
   created_at: string;
+  is_invoice?: boolean;
+  invoice_due_date?: string | null;
+  invoice_paid_at?: string | null;
+  player_id?: string | null;
+}
+
+interface PlayerOption {
+  id: string;
+  name: string;
 }
 
 export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const [payLinks, setPayLinks] = useState<PayLink[]>([]);
+  const [players, setPlayers] = useState<PlayerOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPayLink, setEditingPayLink] = useState<PayLink | null>(null);
@@ -43,6 +53,9 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     expires_at: '',
     payment_type: 'one_off' as string,
     recurring_interval: 'month' as string,
+    is_invoice: false,
+    invoice_due_date: '',
+    player_id: '',
   });
 
   useEffect(() => {
