@@ -623,16 +623,25 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
 
   const recentAnalyses = (() => {
     // Merge real analyses with orphan pre-match fixtures, dedupe by fixture_id
+    // AND by (opponent + date) to catch cases where a player_analysis row has no
+    // fixture_id but matches the same opponent on the same date as an orphan.
     const seenFixtureIds = new Set<string>();
+    const seenComposite = new Set<string>();
+    const compositeKey = (a: PlayerAnalysis) =>
+      `${(a.opponent || "").trim().toLowerCase()}|${(a.analysis_date || "").slice(0, 10)}`;
+
     const combined: PlayerAnalysis[] = [];
     for (const a of analyses) {
       if (a.fixture_id) seenFixtureIds.add(a.fixture_id);
+      seenComposite.add(compositeKey(a));
       combined.push(a);
     }
     for (const o of orphanPreMatchFixtures) {
       if (o.fixture_id && seenFixtureIds.has(o.fixture_id)) continue;
+      if (seenComposite.has(compositeKey(o))) continue;
       combined.push(o);
       if (o.fixture_id) seenFixtureIds.add(o.fixture_id);
+      seenComposite.add(compositeKey(o));
     }
     return combined
       .sort((a, b) => new Date(b.analysis_date).getTime() - new Date(a.analysis_date).getTime())
