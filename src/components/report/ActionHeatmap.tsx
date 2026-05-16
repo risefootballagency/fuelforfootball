@@ -16,7 +16,7 @@ interface ActionHeatmapProps {
 
 // R90 rating colour scale
 const getR90Color = (r90: number) => {
-  if (r90 >= 2.5) return "hsl(43, 49%, 61%)";
+  if (r90 >= 2.5) return "hsl(47, 100%, 51%)";
   if (r90 >= 1.8) return "hsl(142, 72%, 29%)";
   if (r90 >= 1.4) return "hsl(142, 76%, 36%)";
   if (r90 >= 1.0) return "hsl(82, 84%, 67%)";
