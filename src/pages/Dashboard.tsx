@@ -33,6 +33,7 @@ import { VersionManager } from "@/lib/versionManager";
 import { insertStaffNotification } from "@/lib/staffNotifications";
 import { Hub } from "@/components/dashboard/Hub";
 import { MobileBottomNav } from "@/components/portal/MobileBottomNav";
+import { PlayerInvoicesButton } from "@/components/portal/PlayerInvoicesButton";
 import { t } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, LabelList, ReferenceLine } from "recharts";
