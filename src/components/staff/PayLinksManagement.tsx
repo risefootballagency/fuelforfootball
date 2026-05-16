@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Copy, ExternalLink, Link2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, ExternalLink, Link2, Loader2, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 interface PayLink {
