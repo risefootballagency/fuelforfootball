@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Copy, ExternalLink, Link2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, ExternalLink, Link2, Loader2, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 interface PayLink {
@@ -27,10 +27,20 @@ interface PayLink {
   payment_type: string | null;
   recurring_interval: string | null;
   created_at: string;
+  is_invoice?: boolean;
+  invoice_due_date?: string | null;
+  invoice_paid_at?: string | null;
+  player_id?: string | null;
+}
+
+interface PlayerOption {
+  id: string;
+  name: string;
 }
 
 export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const [payLinks, setPayLinks] = useState<PayLink[]>([]);
+  const [players, setPlayers] = useState<PlayerOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPayLink, setEditingPayLink] = useState<PayLink | null>(null);
@@ -43,11 +53,23 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
     expires_at: '',
     payment_type: 'one_off' as string,
     recurring_interval: 'month' as string,
+    is_invoice: false,
+    invoice_due_date: '',
+    player_id: '',
   });
 
   useEffect(() => {
     fetchPayLinks();
+    fetchPlayers();
   }, []);
+
+  const fetchPlayers = async () => {
+    const { data } = await supabase
+      .from('players')
+      .select('id, name')
+      .order('name');
+    setPlayers((data || []) as PlayerOption[]);
+  };
 
   const fetchPayLinks = async () => {
     const { data, error } = await supabase
@@ -66,7 +88,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payLinkData = {
+    const payLinkData: any = {
       title: formData.title,
       amount: parseFloat(formData.amount),
       currency: formData.currency,
@@ -75,6 +97,9 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       payment_type: formData.payment_type,
       recurring_interval: formData.payment_type === 'subscription' ? formData.recurring_interval : null,
       status: 'active',
+      is_invoice: formData.is_invoice,
+      invoice_due_date: formData.is_invoice && formData.invoice_due_date ? formData.invoice_due_date : null,
+      player_id: formData.is_invoice && formData.player_id ? formData.player_id : null,
     };
 
     if (editingPayLink) {
@@ -87,8 +112,13 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         toast.error(`Error updating pay link: ${error.message}`);
         return;
       }
-      toast.success("Pay link updated");
+      toast.success(formData.is_invoice ? "Invoice updated" : "Pay link updated");
     } else {
+      if (formData.is_invoice && !formData.player_id) {
+        toast.error("Please select a player for the invoice");
+        return;
+      }
+
       const { data, error } = await supabase
         .from('pay_links')
         .insert([payLinkData])
@@ -105,7 +135,7 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         await createStripePaymentLink(data.id, payLinkData);
       }
 
-      toast.success("Pay link created");
+      toast.success(formData.is_invoice ? "Invoice sent to player" : "Pay link created");
     }
 
     setDialogOpen(false);
@@ -164,10 +194,13 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       expires_at: '',
       payment_type: 'one_off',
       recurring_interval: 'month',
+      is_invoice: false,
+      invoice_due_date: '',
+      player_id: '',
     });
   };
 
-  const openDialog = (payLink?: PayLink) => {
+  const openDialog = (payLink?: PayLink, defaults?: Partial<typeof formData>) => {
     if (payLink) {
       setEditingPayLink(payLink);
       setFormData({
@@ -178,9 +211,15 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
         expires_at: payLink.expires_at ? payLink.expires_at.split('T')[0] : '',
         payment_type: payLink.payment_type || 'one_off',
         recurring_interval: payLink.recurring_interval || 'month',
+        is_invoice: !!payLink.is_invoice,
+        invoice_due_date: payLink.invoice_due_date || '',
+        player_id: payLink.player_id || '',
       });
     } else {
       resetForm();
+      if (defaults) {
+        setFormData(prev => ({ ...prev, ...defaults }));
+      }
     }
     setDialogOpen(true);
   };
@@ -205,12 +244,18 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Pay Links</h3>
+        <h3 className="text-lg font-semibold">Pay Links & Invoices</h3>
         {isAdmin && (
-          <Button size="sm" onClick={() => openDialog()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Pay Link
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => openDialog(undefined, { is_invoice: true })}>
+              <FileText className="h-4 w-4 mr-2" />
+              Invoice Player
+            </Button>
+            <Button size="sm" onClick={() => openDialog()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Pay Link
+            </Button>
+          </div>
         )}
       </div>
 
@@ -410,15 +455,55 @@ export const PayLinksManagement = ({ isAdmin }: { isAdmin: boolean }) => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingPayLink ? 'Edit' : 'Create'} Pay Link</DialogTitle>
+            <DialogTitle>{editingPayLink ? 'Edit' : 'Create'} {formData.is_invoice ? 'Invoice' : 'Pay Link'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/40">
+              <input
+                id="is_invoice"
+                type="checkbox"
+                checked={formData.is_invoice}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_invoice: e.target.checked }))}
+                className="h-4 w-4 accent-primary"
+              />
+              <Label htmlFor="is_invoice" className="cursor-pointer mb-0">
+                Invoice a specific player (shows in their portal)
+              </Label>
+            </div>
+
+            {formData.is_invoice && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Player *</Label>
+                  <Select
+                    value={formData.player_id}
+                    onValueChange={(v) => setFormData(prev => ({ ...prev, player_id: v }))}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select player" /></SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {players.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Due Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.invoice_due_date}
+                    onChange={(e) => setFormData(prev => ({ ...prev, invoice_due_date: e.target.value }))}
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <Label>Title *</Label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="e.g. Consultation Fee"
+                placeholder={formData.is_invoice ? "e.g. October Coaching" : "e.g. Consultation Fee"}
                 required
               />
             </div>
