@@ -618,21 +618,30 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     if (score >= 1.0 && score < 1.4) return "hsl(82, 84%, 67%)";
     if (score >= 1.4 && score < 1.8) return "hsl(142, 76%, 36%)";
     if (score >= 1.8 && score < 2.5) return "hsl(142, 72%, 29%)";
-    return "hsl(36, 100%, 50%)";
+    return "hsl(47, 100%, 51%)";
   };
 
   const recentAnalyses = (() => {
     // Merge real analyses with orphan pre-match fixtures, dedupe by fixture_id
+    // AND by (opponent + date) to catch cases where a player_analysis row has no
+    // fixture_id but matches the same opponent on the same date as an orphan.
     const seenFixtureIds = new Set<string>();
+    const seenComposite = new Set<string>();
+    const compositeKey = (a: PlayerAnalysis) =>
+      `${(a.opponent || "").trim().toLowerCase()}|${(a.analysis_date || "").slice(0, 10)}`;
+
     const combined: PlayerAnalysis[] = [];
     for (const a of analyses) {
       if (a.fixture_id) seenFixtureIds.add(a.fixture_id);
+      seenComposite.add(compositeKey(a));
       combined.push(a);
     }
     for (const o of orphanPreMatchFixtures) {
       if (o.fixture_id && seenFixtureIds.has(o.fixture_id)) continue;
+      if (seenComposite.has(compositeKey(o))) continue;
       combined.push(o);
       if (o.fixture_id) seenFixtureIds.add(o.fixture_id);
+      seenComposite.add(compositeKey(o));
     }
     return combined
       .sort((a, b) => new Date(b.analysis_date).getTime() - new Date(a.analysis_date).getTime())
@@ -884,22 +893,43 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                           const { x, y, width, height, value, index } = props;
                           if (!x || !y || !width || !height || value === undefined) return null;
                           const delay = index * 0.25;
+                          const gradeInfo = getR90Grade(typeof value === 'number' ? value : null);
                           return (
-                            <text
-                              x={x + width / 2}
-                              y={y + height / 2}
-                              fill="#ffffff"
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fontSize="16"
-                              fontWeight="700"
-                              style={{
-                                opacity: 1,
-                                animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none'
-                              }}
-                            >
-                              {typeof value === 'number' ? value.toFixed(2) : value}
-                            </text>
+                            <g>
+                              {/* Grade letter above bar */}
+                              <text
+                                x={x + width / 2}
+                                y={y - 8}
+                                fill={gradeInfo.color}
+                                textAnchor="middle"
+                                dominantBaseline="alphabetic"
+                                fontSize="14"
+                                fontWeight="800"
+                                style={{
+                                  opacity: 1,
+                                  animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none',
+                                  textShadow: '0 1px 2px rgba(0,0,0,0.4)'
+                                }}
+                              >
+                                {gradeInfo.grade}
+                              </text>
+                              {/* R90 score inside bar */}
+                              <text
+                                x={x + width / 2}
+                                y={y + height / 2}
+                                fill="#ffffff"
+                                textAnchor="middle"
+                                dominantBaseline="middle"
+                                fontSize="16"
+                                fontWeight="700"
+                                style={{
+                                  opacity: 1,
+                                  animation: !hasAnimated.current ? `labelFadeIn 0.6s ease-out ${delay + 0.8}s forwards` : 'none'
+                                }}
+                              >
+                                {typeof value === 'number' ? value.toFixed(2) : value}
+                              </text>
+                            </g>
                           );
                         }}
                       />

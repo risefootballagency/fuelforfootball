@@ -2035,7 +2035,10 @@ export type Database = {
           expires_at: string | null
           id: string
           installment_count: number | null
+          invoice_due_date: string | null
           invoice_notes: string | null
+          invoice_paid_at: string | null
+          is_invoice: boolean
           payment_type: string | null
           player_id: string | null
           product_id: string | null
@@ -2057,7 +2060,10 @@ export type Database = {
           expires_at?: string | null
           id?: string
           installment_count?: number | null
+          invoice_due_date?: string | null
           invoice_notes?: string | null
+          invoice_paid_at?: string | null
+          is_invoice?: boolean
           payment_type?: string | null
           player_id?: string | null
           product_id?: string | null
@@ -2079,7 +2085,10 @@ export type Database = {
           expires_at?: string | null
           id?: string
           installment_count?: number | null
+          invoice_due_date?: string | null
           invoice_notes?: string | null
+          invoice_paid_at?: string | null
+          is_invoice?: boolean
           payment_type?: string | null
           player_id?: string | null
           product_id?: string | null

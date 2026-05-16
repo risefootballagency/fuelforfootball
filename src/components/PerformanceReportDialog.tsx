@@ -817,11 +817,26 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
               </div>
               {/* Graphics buttons + renders moved below match statistics (RISE order) */}
 
-              {/* Key Stats */}
-              <div className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 bg-accent/20 rounded-lg">
+              {/* Key Stats — Raw Score + Mins share opposition colour with the logo strip */}
+              <div
+                className="grid grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 rounded-lg"
+                style={
+                  analysis.opposition_color
+                    ? { backgroundColor: analysis.opposition_color }
+                    : undefined
+                }
+              >
                 <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "raw_score")}</p>
-                  <p className="text-base md:text-2xl font-bold">
+                  <p
+                    className="text-[10px] md:text-sm mb-0.5 md:mb-1"
+                    style={{ color: analysis.opposition_color ? 'rgba(255,255,255,0.85)' : undefined }}
+                  >
+                    {t(reportLanguage, "raw_score")}
+                  </p>
+                  <p
+                    className="text-base md:text-2xl font-bold"
+                    style={{ color: analysis.opposition_color ? '#ffffff' : undefined }}
+                  >
                     {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
                   </p>
                 </div>
@@ -846,8 +861,18 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                   </p>
                 </div>
                 <div className="text-center p-2">
-                  <p className="text-[10px] md:text-sm text-muted-foreground mb-0.5 md:mb-1">{t(reportLanguage, "mins_short")}</p>
-                  <p className="text-base md:text-2xl font-bold">{analysis.minutes_played ?? "N/A"}</p>
+                  <p
+                    className="text-[10px] md:text-sm mb-0.5 md:mb-1"
+                    style={{ color: analysis.opposition_color ? 'rgba(255,255,255,0.85)' : undefined }}
+                  >
+                    {t(reportLanguage, "mins_short")}
+                  </p>
+                  <p
+                    className="text-base md:text-2xl font-bold"
+                    style={{ color: analysis.opposition_color ? '#ffffff' : undefined }}
+                  >
+                    {analysis.minutes_played ?? "N/A"}
+                  </p>
                 </div>
               </div>
 
