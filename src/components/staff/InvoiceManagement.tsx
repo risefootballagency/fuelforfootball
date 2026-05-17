@@ -1020,22 +1020,14 @@ export const InvoiceManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="player_id">Player *</Label>
-              <Select
-                value={formData.player_id}
-                onValueChange={(value) => setFormData({ ...formData, player_id: value })}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select player" />
-                </SelectTrigger>
-                <SelectContent>
-                  {players.map((player) => (
-                    <SelectItem key={player.id} value={player.id}>
-                      {player.name} ({player.preferred_currency || 'GBP'})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <PlayerCombobox
+                players={players.map(p => ({ id: p.id, name: p.name }))}
+                value={formData.player_id || null}
+                onChange={(value) => setFormData({ ...formData, player_id: value })}
+                placeholder="Type to search player..."
+                groupedByStatus={false}
+                showAvatar={false}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
