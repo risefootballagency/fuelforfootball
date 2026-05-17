@@ -67,14 +67,14 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 96%;
 
     /* PRIMARY: FFF Brand Green #09380e */
-    --primary: 127 78% 13%;
+    --primary: 127 78% 10%;
     --primary-foreground: 0 0% 96%;
 
     /* TITLE TOKENS: Distinct from primary for independent branding control */
     /* Title text color - white/light */
     --title-text: 0 0% 96%;
-    /* Title background - FFF green for title bars */
-    --title-bg: 127 78% 13%;
+    /* Title background - darker FFF green for title bars */
+    --title-bg: 127 75% 10%;
 
     /* Secondary - slightly lighter green */
     --secondary: 127 60% 8%;
