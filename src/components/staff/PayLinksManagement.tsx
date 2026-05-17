@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
+import { ProductCombobox } from "./ProductCombobox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
