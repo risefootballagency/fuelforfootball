@@ -14,6 +14,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, FileText, Copy, Check, MoreHorizontal, CheckCircle, CreditCard, DollarSign } from "lucide-react";
 import { format } from "date-fns";
+import { PayLinksManagement } from "./PayLinksManagement";
+import { PlayerCombobox } from "./PlayerCombobox";
 
 interface Invoice {
   id: string;
