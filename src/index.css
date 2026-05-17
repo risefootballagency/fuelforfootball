@@ -1109,6 +1109,87 @@ a:hover .hover-text-letter-clone,
   transform: translateX(100%);
 }
 
+/* ===== STAFF PAGE PREMIUM VISUAL ENHANCEMENTS ===== */
+
+/* Staff card - premium dark green treatment */
+.staff-card {
+  @apply bg-card border border-border/60 rounded-lg overflow-hidden;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.staff-card:hover {
+  border-color: hsl(47 100% 51% / 0.2);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.35),
+    0 0 0 1px hsl(47 100% 51% / 0.08),
+    0 0 20px hsl(47 100% 51% / 0.03);
+}
+
+/* Staff section header - darker green with gold accent */
+.staff-section-header {
+  @apply relative overflow-hidden;
+  background-color: hsl(127 75% 10%);
+  background-image: url('/grass-smoky-3.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid hsl(47 100% 51% / 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.staff-section-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  pointer-events: none;
+}
+
+.staff-section-header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(47 100% 51% / 0.35) 50%,
+    transparent 100%
+  );
+}
+
+/* Staff tabs - premium pill styling */
+.staff-tabs-list {
+  @apply bg-secondary/50 p-1 gap-1;
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+.staff-tabs-list [data-state="active"] {
+  @apply bg-primary/80 text-primary-foreground shadow-sm;
+  border: 1px solid hsl(47 100% 51% / 0.2);
+}
+
+/* Staff data table row hover */
+.staff-table-row {
+  @apply transition-colors duration-150;
+}
+
+.staff-table-row:hover {
+  background-color: hsl(127 60% 8% / 0.5);
+}
+
 /* ===== SEMANTIC TITLE/TEXT UTILITY CLASSES =====
  * 
  * USAGE RULES:
