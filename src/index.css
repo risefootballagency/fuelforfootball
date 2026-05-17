@@ -67,14 +67,14 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 96%;
 
     /* PRIMARY: FFF Brand Green #09380e */
-    --primary: 127 78% 13%;
+    --primary: 127 78% 10%;
     --primary-foreground: 0 0% 96%;
 
     /* TITLE TOKENS: Distinct from primary for independent branding control */
     /* Title text color - white/light */
     --title-text: 0 0% 96%;
-    /* Title background - FFF green for title bars */
-    --title-bg: 127 78% 13%;
+    /* Title background - darker FFF green for title bars */
+    --title-bg: 127 75% 10%;
 
     /* Secondary - slightly lighter green */
     --secondary: 127 60% 8%;
@@ -97,10 +97,10 @@ All colors MUST be HSL.
     --radius: 0.625rem;
 
     /* FFF Brand Tokens - exact hex references */
-    --fff-green: 127 78% 13%;
-    --fff-green-dark: 127 78% 8%;
-    --fff-green-light: 127 60% 20%;
-    --fff-text-green: 127 78% 13%;
+    --fff-green: 127 75% 10%;
+    --fff-green-dark: 127 78% 6%;
+    --fff-green-light: 127 60% 18%;
+    --fff-text-green: 127 75% 10%;
 
     /* Background colors */
     --fff-dark: 127 78% 2%;
@@ -118,12 +118,12 @@ All colors MUST be HSL.
     --accent-gold: 47 100% 51%;
     --accent-gold-dim: 47 90% 40%;
 
-    /* Glossy green gradient for headers - using FFF brand green */
+    /* Glossy green gradient for headers - using darker FFF brand green */
     --glossy-green: linear-gradient(
       180deg,
-      hsl(127, 78%, 16%) 0%,
-      hsl(127, 78%, 13%) 40%,
-      hsl(127, 78%, 10%) 100%
+      hsl(127, 75%, 14%) 0%,
+      hsl(127, 75%, 10%) 40%,
+      hsl(127, 75%, 7%) 100%
     );
     --glossy-green-shine: linear-gradient(
       180deg,
@@ -135,13 +135,13 @@ All colors MUST be HSL.
     /* Legacy text tokens - mapped to new system */
     --text-primary: 0 0% 96%;
     --text-secondary: 0 0% 70%;
-    --light-green: 127 78% 13%;
-    --light-green-dim: 127 60% 10%;
+    --light-green: 127 75% 10%;
+    --light-green-dim: 127 60% 8%;
     --bg-dark: 127 78% 2%;
     --bg-card: 127 60% 5%;
 
     /* Dark UI elements */
-    --header-bg: 127 78% 13%;
+    --header-bg: 127 75% 10%;
     --footer-bg: 127 78% 2%;
     --table-bg: 127 60% 5%;
     --tab-bg: 127 50% 6%;
@@ -181,7 +181,7 @@ All colors MUST be HSL.
     --card-foreground: 0 0% 96%;
     --popover: 127 60% 6%;
     --popover-foreground: 0 0% 96%;
-    --primary: 127 78% 13%;
+    --primary: 127 78% 10%;
     --primary-foreground: 0 0% 96%;
     --secondary: 127 60% 8%;
     --secondary-foreground: 0 0% 96%;
@@ -199,7 +199,7 @@ All colors MUST be HSL.
     --chart-3: 47 90% 60%;
     --chart-4: 127 60% 30%;
     --chart-5: 0 0% 46%;
-    --sidebar: 127 78% 10%;
+    --sidebar: 127 75% 10%;
     --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: 47 100% 51%;
     --sidebar-primary-foreground: 127 78% 13%;
@@ -797,14 +797,15 @@ All colors MUST be HSL.
   .bg-gloss-background {
     background: linear-gradient(
       180deg,
-      hsl(120, 80%, 8%) 0%,
-      hsl(120, 80%, 5%) 50%,
-      hsl(120, 80%, 3%) 100%
+      hsl(127, 75%, 14%) 0%,
+      hsl(127, 75%, 10%) 50%,
+      hsl(127, 75%, 6%) 100%
     );
     position: relative;
-    box-shadow: 
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+      0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   .bg-glossy-green::before {
@@ -813,10 +814,10 @@ All colors MUST be HSL.
     inset: 0;
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.05) 30%,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.04) 30%,
       rgba(255, 255, 255, 0) 60%,
-      rgba(0, 0, 0, 0.15) 100%
+      rgba(0, 0, 0, 0.2) 100%
     );
     pointer-events: none;
   }
@@ -830,9 +831,9 @@ All colors MUST be HSL.
     height: 1px;
     background: linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 0.1) 100%
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 200, 5, 0.3) 50%,
+      rgba(255, 255, 255, 0.05) 100%
     );
   }
 
@@ -1106,6 +1107,87 @@ a:hover .hover-text-letter-clone,
 
 .btn-premium:hover::before {
   transform: translateX(100%);
+}
+
+/* ===== STAFF PAGE PREMIUM VISUAL ENHANCEMENTS ===== */
+
+/* Staff card - premium dark green treatment */
+.staff-card {
+  @apply bg-card border border-border/60 rounded-lg overflow-hidden;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.staff-card:hover {
+  border-color: hsl(47 100% 51% / 0.2);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.35),
+    0 0 0 1px hsl(47 100% 51% / 0.08),
+    0 0 20px hsl(47 100% 51% / 0.03);
+}
+
+/* Staff section header - darker green with gold accent */
+.staff-section-header {
+  @apply relative overflow-hidden;
+  background-color: hsl(127 75% 10%);
+  background-image: url('/grass-smoky-3.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid hsl(47 100% 51% / 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.staff-section-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  pointer-events: none;
+}
+
+.staff-section-header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(47 100% 51% / 0.35) 50%,
+    transparent 100%
+  );
+}
+
+/* Staff tabs - premium pill styling */
+.staff-tabs-list {
+  @apply bg-secondary/50 p-1 gap-1;
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+.staff-tabs-list [data-state="active"] {
+  @apply bg-primary/80 text-primary-foreground shadow-sm;
+  border: 1px solid hsl(47 100% 51% / 0.2);
+}
+
+/* Staff data table row hover */
+.staff-table-row {
+  @apply transition-colors duration-150;
+}
+
+.staff-table-row:hover {
+  background-color: hsl(127 60% 8% / 0.5);
 }
 
 /* ===== SEMANTIC TITLE/TEXT UTILITY CLASSES =====
