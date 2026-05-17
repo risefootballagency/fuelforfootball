@@ -502,12 +502,18 @@ export const InvoiceManagement = ({ isAdmin }: { isAdmin: boolean }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-        <h2 className="text-xl md:text-2xl font-bold">Invoice Management</h2>
+      {/* Rich invoice flow — sends invoices to player portals, supports line items, suggestions */}
+      <PayLinksManagement isAdmin={isAdmin} />
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 pt-6 border-t">
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold">Invoice Records (Finance)</h2>
+          <p className="text-xs text-muted-foreground">Historical invoice ledger for income tracking.</p>
+        </div>
         {isAdmin && (
           <Button size="sm" className="w-full sm:w-auto md:h-10" onClick={handleNewInvoice}>
             <Plus className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">New Invoice</span>
+            <span className="hidden sm:inline">New Ledger Entry</span>
             <span className="sm:hidden">New</span>
           </Button>
         )}
