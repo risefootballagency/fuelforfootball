@@ -97,10 +97,10 @@ All colors MUST be HSL.
     --radius: 0.625rem;
 
     /* FFF Brand Tokens - exact hex references */
-    --fff-green: 127 78% 13%;
-    --fff-green-dark: 127 78% 8%;
-    --fff-green-light: 127 60% 20%;
-    --fff-text-green: 127 78% 13%;
+    --fff-green: 127 75% 10%;
+    --fff-green-dark: 127 78% 6%;
+    --fff-green-light: 127 60% 18%;
+    --fff-text-green: 127 75% 10%;
 
     /* Background colors */
     --fff-dark: 127 78% 2%;
@@ -118,12 +118,12 @@ All colors MUST be HSL.
     --accent-gold: 47 100% 51%;
     --accent-gold-dim: 47 90% 40%;
 
-    /* Glossy green gradient for headers - using FFF brand green */
+    /* Glossy green gradient for headers - using darker FFF brand green */
     --glossy-green: linear-gradient(
       180deg,
-      hsl(127, 78%, 16%) 0%,
-      hsl(127, 78%, 13%) 40%,
-      hsl(127, 78%, 10%) 100%
+      hsl(127, 75%, 14%) 0%,
+      hsl(127, 75%, 10%) 40%,
+      hsl(127, 75%, 7%) 100%
     );
     --glossy-green-shine: linear-gradient(
       180deg,
@@ -135,13 +135,13 @@ All colors MUST be HSL.
     /* Legacy text tokens - mapped to new system */
     --text-primary: 0 0% 96%;
     --text-secondary: 0 0% 70%;
-    --light-green: 127 78% 13%;
-    --light-green-dim: 127 60% 10%;
+    --light-green: 127 75% 10%;
+    --light-green-dim: 127 60% 8%;
     --bg-dark: 127 78% 2%;
     --bg-card: 127 60% 5%;
 
     /* Dark UI elements */
-    --header-bg: 127 78% 13%;
+    --header-bg: 127 75% 10%;
     --footer-bg: 127 78% 2%;
     --table-bg: 127 60% 5%;
     --tab-bg: 127 50% 6%;
