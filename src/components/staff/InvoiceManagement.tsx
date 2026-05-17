@@ -14,6 +14,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, FileText, Copy, Check, MoreHorizontal, CheckCircle, CreditCard, DollarSign } from "lucide-react";
 import { format } from "date-fns";
+import { PayLinksManagement } from "./PayLinksManagement";
+import { PlayerCombobox } from "./PlayerCombobox";
 
 interface Invoice {
   id: string;
@@ -502,12 +504,18 @@ export const InvoiceManagement = ({ isAdmin }: { isAdmin: boolean }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-        <h2 className="text-xl md:text-2xl font-bold">Invoice Management</h2>
+      {/* Rich invoice flow — sends invoices to player portals, supports line items, suggestions */}
+      <PayLinksManagement isAdmin={isAdmin} />
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 pt-6 border-t">
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold">Invoice Records (Finance)</h2>
+          <p className="text-xs text-muted-foreground">Historical invoice ledger for income tracking.</p>
+        </div>
         {isAdmin && (
           <Button size="sm" className="w-full sm:w-auto md:h-10" onClick={handleNewInvoice}>
             <Plus className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">New Invoice</span>
+            <span className="hidden sm:inline">New Ledger Entry</span>
             <span className="sm:hidden">New</span>
           </Button>
         )}
@@ -1012,22 +1020,14 @@ export const InvoiceManagement = ({ isAdmin }: { isAdmin: boolean }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="player_id">Player *</Label>
-              <Select
-                value={formData.player_id}
-                onValueChange={(value) => setFormData({ ...formData, player_id: value })}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select player" />
-                </SelectTrigger>
-                <SelectContent>
-                  {players.map((player) => (
-                    <SelectItem key={player.id} value={player.id}>
-                      {player.name} ({player.preferred_currency || 'GBP'})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <PlayerCombobox
+                players={players.map(p => ({ id: p.id, name: p.name }))}
+                value={formData.player_id || null}
+                onChange={(value) => setFormData({ ...formData, player_id: value })}
+                placeholder="Type to search player..."
+                groupedByStatus={false}
+                showAvatar={false}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
