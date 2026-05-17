@@ -616,15 +616,12 @@ export const PayLinksManagement = ({ isAdmin, defaultIsInvoice = false }: { isAd
                   {lineItems.map((item, index) => (
                     <div key={index} className="grid grid-cols-12 gap-2 items-start">
                       <div className="col-span-12 md:col-span-4">
-                        <Select value={item.product_id || 'custom'} onValueChange={(v) => updateLineItem(index, 'product_id', v)}>
-                          <SelectTrigger className="h-9"><SelectValue placeholder="Product" /></SelectTrigger>
-                          <SelectContent className="max-h-72">
-                            <SelectItem value="custom">Custom item</SelectItem>
-                            {products.map(p => (
-                              <SelectItem key={p.id} value={p.id}>{p.name} — {sym}{Number(p.price).toFixed(2)}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <ProductCombobox
+                          products={products}
+                          value={item.product_id || 'custom'}
+                          onChange={(v) => updateLineItem(index, 'product_id', v)}
+                          currencySymbol={sym}
+                        />
                       </div>
                       <div className="col-span-12 md:col-span-3">
                         <Input
