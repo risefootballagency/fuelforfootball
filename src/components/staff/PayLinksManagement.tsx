@@ -83,11 +83,49 @@ export const PayLinksManagement = ({ isAdmin, defaultIsInvoice = false }: { isAd
   }, []);
 
   const fetchPlayers = async () => {
-    const { data } = await supabase
+    const [localRes, sharedRes] = await Promise.all([
+      supabase.from('players').select('id, name, position, image_url, club, representation_status').order('name'),
+      sharedSupabase.from('players').select('id, name, position, image_url, club, representation_status').order('name'),
+    ]);
+    const byId = new Map<string, PlayerOption>();
+    // Shared first, then local overrides so local data wins on collision
+    (sharedRes.data || []).forEach((p: any) => byId.set(p.id, p as PlayerOption));
+    (localRes.data || []).forEach((p: any) => byId.set(p.id, p as PlayerOption));
+    const merged = Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name));
+    setPlayers(merged);
+  };
+
+  // Ensures a player row exists in the local DB so FK constraints (pay_links.player_id → players.id)
+  // succeed when the staff invoices a player who currently only exists in the shared DB.
+  const ensureLocalPlayer = async (playerId: string): Promise<boolean> => {
+    const { data: existing } = await supabase.from('players').select('id').eq('id', playerId).maybeSingle();
+    if (existing) return true;
+    const { data: shared } = await sharedSupabase
       .from('players')
-      .select('id, name, position, image_url, club, representation_status')
-      .order('name');
-    setPlayers((data || []) as PlayerOption[]);
+      .select('id, name, position, age, nationality, image_url, club, representation_status, email')
+      .eq('id', playerId)
+      .maybeSingle();
+    if (!shared) return false;
+    const allowedStatuses = new Set(['represented', 'mandated', 'other']);
+    const repStatus = allowedStatuses.has((shared as any).representation_status)
+      ? (shared as any).representation_status
+      : 'other';
+    const { error } = await supabase.from('players').insert({
+      id: (shared as any).id,
+      name: (shared as any).name,
+      position: (shared as any).position || 'Unknown',
+      age: (shared as any).age ?? 0,
+      nationality: (shared as any).nationality || 'Unknown',
+      image_url: (shared as any).image_url,
+      club: (shared as any).club,
+      email: (shared as any).email,
+      representation_status: repStatus,
+    } as any);
+    if (error) {
+      toast.error(`Could not link player locally: ${error.message}`);
+      return false;
+    }
+    return true;
   };
 
   const fetchProducts = async () => {
