@@ -181,7 +181,7 @@ All colors MUST be HSL.
     --card-foreground: 0 0% 96%;
     --popover: 127 60% 6%;
     --popover-foreground: 0 0% 96%;
-    --primary: 127 78% 13%;
+    --primary: 127 78% 10%;
     --primary-foreground: 0 0% 96%;
     --secondary: 127 60% 8%;
     --secondary-foreground: 0 0% 96%;
@@ -199,7 +199,7 @@ All colors MUST be HSL.
     --chart-3: 47 90% 60%;
     --chart-4: 127 60% 30%;
     --chart-5: 0 0% 46%;
-    --sidebar: 127 78% 10%;
+    --sidebar: 127 75% 10%;
     --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: 47 100% 51%;
     --sidebar-primary-foreground: 127 78% 13%;
