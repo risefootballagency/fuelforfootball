@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { invokeEdgeFunction } from "@/lib/edgeFunctionHelper";
+import { ProductCombobox } from "./ProductCombobox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,11 +83,49 @@ export const PayLinksManagement = ({ isAdmin, defaultIsInvoice = false }: { isAd
   }, []);
 
   const fetchPlayers = async () => {
-    const { data } = await supabase
+    const [localRes, sharedRes] = await Promise.all([
+      supabase.from('players').select('id, name, position, image_url, club, representation_status').order('name'),
+      sharedSupabase.from('players').select('id, name, position, image_url, club, representation_status').order('name'),
+    ]);
+    const byId = new Map<string, PlayerOption>();
+    // Shared first, then local overrides so local data wins on collision
+    (sharedRes.data || []).forEach((p: any) => byId.set(p.id, p as PlayerOption));
+    (localRes.data || []).forEach((p: any) => byId.set(p.id, p as PlayerOption));
+    const merged = Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name));
+    setPlayers(merged);
+  };
+
+  // Ensures a player row exists in the local DB so FK constraints (pay_links.player_id → players.id)
+  // succeed when the staff invoices a player who currently only exists in the shared DB.
+  const ensureLocalPlayer = async (playerId: string): Promise<boolean> => {
+    const { data: existing } = await supabase.from('players').select('id').eq('id', playerId).maybeSingle();
+    if (existing) return true;
+    const { data: shared } = await sharedSupabase
       .from('players')
-      .select('id, name, position, image_url, club, representation_status')
-      .order('name');
-    setPlayers((data || []) as PlayerOption[]);
+      .select('id, name, position, age, nationality, image_url, club, representation_status, email')
+      .eq('id', playerId)
+      .maybeSingle();
+    if (!shared) return false;
+    const allowedStatuses = new Set(['represented', 'mandated', 'other']);
+    const repStatus = allowedStatuses.has((shared as any).representation_status)
+      ? (shared as any).representation_status
+      : 'other';
+    const { error } = await supabase.from('players').insert({
+      id: (shared as any).id,
+      name: (shared as any).name,
+      position: (shared as any).position || 'Unknown',
+      age: (shared as any).age ?? 0,
+      nationality: (shared as any).nationality || 'Unknown',
+      image_url: (shared as any).image_url,
+      club: (shared as any).club,
+      email: (shared as any).email,
+      representation_status: repStatus,
+    } as any);
+    if (error) {
+      toast.error(`Could not link player locally: ${error.message}`);
+      return false;
+    }
+    return true;
   };
 
   const fetchProducts = async () => {
@@ -152,6 +192,10 @@ export const PayLinksManagement = ({ isAdmin, defaultIsInvoice = false }: { isAd
     if (formData.is_invoice && !formData.player_id) {
       toast.error('Please select a player for the invoice');
       return;
+    }
+    if (formData.is_invoice && formData.player_id) {
+      const ok = await ensureLocalPlayer(formData.player_id);
+      if (!ok) return;
     }
     if (useLineItems && lineItems.some(i => !i.product_name.trim())) {
       toast.error('Each line item needs a name');
@@ -572,15 +616,12 @@ export const PayLinksManagement = ({ isAdmin, defaultIsInvoice = false }: { isAd
                   {lineItems.map((item, index) => (
                     <div key={index} className="grid grid-cols-12 gap-2 items-start">
                       <div className="col-span-12 md:col-span-4">
-                        <Select value={item.product_id || 'custom'} onValueChange={(v) => updateLineItem(index, 'product_id', v)}>
-                          <SelectTrigger className="h-9"><SelectValue placeholder="Product" /></SelectTrigger>
-                          <SelectContent className="max-h-72">
-                            <SelectItem value="custom">Custom item</SelectItem>
-                            {products.map(p => (
-                              <SelectItem key={p.id} value={p.id}>{p.name} — {sym}{Number(p.price).toFixed(2)}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <ProductCombobox
+                          products={products}
+                          value={item.product_id || 'custom'}
+                          onChange={(v) => updateLineItem(index, 'product_id', v)}
+                          currencySymbol={sym}
+                        />
                       </div>
                       <div className="col-span-12 md:col-span-3">
                         <Input
