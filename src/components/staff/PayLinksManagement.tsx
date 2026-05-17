@@ -193,6 +193,10 @@ export const PayLinksManagement = ({ isAdmin, defaultIsInvoice = false }: { isAd
       toast.error('Please select a player for the invoice');
       return;
     }
+    if (formData.is_invoice && formData.player_id) {
+      const ok = await ensureLocalPlayer(formData.player_id);
+      if (!ok) return;
+    }
     if (useLineItems && lineItems.some(i => !i.product_name.trim())) {
       toast.error('Each line item needs a name');
       return;
