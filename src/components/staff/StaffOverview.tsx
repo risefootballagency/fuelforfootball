@@ -28,6 +28,7 @@ import { QuickLinksWidget } from "./widgets/QuickLinksWidget";
 import { DocsWidget } from "./widgets/DocsWidget";
 import { SheetsWidget } from "./widgets/SheetsWidget";
 import { FinancialOverviewWidget } from "./widgets/FinancialOverviewWidget";
+import { VisionBoardWidget } from "./widgets/VisionBoardWidget";
 
 interface Goal {
   id: string;
@@ -55,6 +56,7 @@ interface WidgetConfig {
 
 const WIDGET_CONFIGS: WidgetConfig[] = [
   // Default visible
+  { id: "visionboard", title: "Vision Board", icon: Sparkles, defaultVisible: true },
   { id: "goals", title: "Quarter Goals", icon: Target, defaultVisible: true },
   { id: "todo", title: "To Do", icon: CheckSquare, defaultVisible: true },
   { id: "quicklinks", title: "Quick Links", icon: Link2, defaultVisible: true },
@@ -103,12 +105,13 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
 ];
 
 const DEFAULT_LAYOUTS: WidgetLayout[] = [
-  { id: "goals", row: 0, order: 0, widthPercent: 33, heightPx: 200 },
-  { id: "todo", row: 0, order: 1, widthPercent: 33, heightPx: 200 },
-  { id: "quicklinks", row: 0, order: 2, widthPercent: 34, heightPx: 200 },
-  { id: "financial", row: 1, order: 0, widthPercent: 100, heightPx: 200 },
-  { id: "schedule", row: 2, order: 0, widthPercent: 60, heightPx: 450 },
-  { id: "represented", row: 2, order: 1, widthPercent: 40, heightPx: 450 },
+  { id: "visionboard", row: 0, order: 0, widthPercent: 100, heightPx: 200 },
+  { id: "goals", row: 1, order: 0, widthPercent: 33, heightPx: 200 },
+  { id: "todo", row: 1, order: 1, widthPercent: 33, heightPx: 200 },
+  { id: "quicklinks", row: 1, order: 2, widthPercent: 34, heightPx: 200 },
+  { id: "financial", row: 2, order: 0, widthPercent: 100, heightPx: 200 },
+  { id: "schedule", row: 3, order: 0, widthPercent: 60, heightPx: 450 },
+  { id: "represented", row: 3, order: 1, widthPercent: 40, heightPx: 450 },
 ];
 
 const DEFAULT_HEIGHT_PX = 200;
@@ -125,6 +128,21 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
   const [newTaskInput, setNewTaskInput] = useState("");
   const [scheduleFullscreen, setScheduleFullscreen] = useState(false);
   const isMobile = useIsMobile();
+
+  // Hide financial widget for marketeer-only roles
+  const filteredWidgetConfigs = useMemo(() => {
+    if (isMarketeer && !isAdmin) {
+      return WIDGET_CONFIGS.filter(w => w.id !== 'financial');
+    }
+    return WIDGET_CONFIGS;
+  }, [isMarketeer, isAdmin]);
+
+  const filteredDefaultLayouts = useMemo(() => {
+    if (isMarketeer && !isAdmin) {
+      return DEFAULT_LAYOUTS.filter(l => l.id !== 'financial');
+    }
+    return DEFAULT_LAYOUTS;
+  }, [isMarketeer, isAdmin]);
 
   // Widget data hooks
   const scoutingData = useScoutingWidget();
@@ -155,12 +173,12 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
         if (parsed.visibleWidgets) setVisibleWidgets(parsed.visibleWidgets);
         if (parsed.layouts) setLayouts(parsed.layouts);
       } catch {
-        setVisibleWidgets(WIDGET_CONFIGS.filter(w => w.defaultVisible).map(w => w.id));
-        setLayouts(DEFAULT_LAYOUTS);
+        setVisibleWidgets(filteredWidgetConfigs.filter(w => w.defaultVisible).map(w => w.id));
+        setLayouts(filteredDefaultLayouts);
       }
     } else {
-      setVisibleWidgets(WIDGET_CONFIGS.filter(w => w.defaultVisible).map(w => w.id));
-      setLayouts(DEFAULT_LAYOUTS);
+      setVisibleWidgets(filteredWidgetConfigs.filter(w => w.defaultVisible).map(w => w.id));
+      setLayouts(filteredDefaultLayouts);
     }
   }, [userId]);
 
@@ -191,8 +209,8 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
   };
 
   const resetToDefaults = () => {
-    const defaults = WIDGET_CONFIGS.filter(w => w.defaultVisible).map(w => w.id);
-    saveSettings(defaults, DEFAULT_LAYOUTS);
+    const defaults = filteredWidgetConfigs.filter(w => w.defaultVisible).map(w => w.id);
+    saveSettings(defaults, filteredDefaultLayouts);
   };
 
   const handleResize = (widgetId: string, newWidthPercent: number, newHeightPx: number) => {
@@ -572,6 +590,9 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
 
       case "quicklinks":
         return <QuickLinksWidget userId={userId} />;
+
+      case "visionboard":
+        return <VisionBoardWidget />;
 
       case "financial":
         return <FinancialOverviewWidget />;

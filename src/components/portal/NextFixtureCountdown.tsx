@@ -15,9 +15,17 @@ interface NextFixtureCountdownProps {
 export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) => {
   const lang = usePortalLanguage();
   const navigate = useNavigate();
-  const [nextFixture, setNextFixture] = useState<{ id: string; match_date: string; home_team: string; away_team: string; venue?: string } | null>(null);
+  const [nextFixture, setNextFixture] = useState<{ id: string; match_date: string; match_time?: string | null; home_team: string; away_team: string; venue?: string } | null>(null);
   const [preMatchAnalysis, setPreMatchAnalysis] = useState<{ id: string; home_team: string; away_team: string } | null>(null);
   const [now, setNow] = useState(new Date());
+
+  const getFixtureKickoff = (fixture: { match_date: string; match_time?: string | null }) => {
+    const [year, month, day] = fixture.match_date.split("-").map(Number);
+    const timeValue = fixture.match_time && fixture.match_time.trim() ? fixture.match_time : null;
+    if (!timeValue) return null;
+    const [hours, mins] = timeValue.split(":").map(Number);
+    return new Date(year, (month || 1) - 1, day || 1, hours || 0, mins || 0, 0, 0);
+  };
 
   useEffect(() => {
     const fetchNext = async () => {
@@ -26,15 +34,18 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
 
       const { data } = await sharedSupabase
         .from("fixtures")
-        .select("id, match_date, home_team, away_team, venue")
+        .select("id, match_date, match_time, home_team, away_team, venue, category")
         .gte("match_date", today)
         .order("match_date", { ascending: true })
+        .order("match_time", { ascending: true })
         .limit(30);
 
-      const upcomingFixture = (data || []).find((fixture) => {
-        const matchDate = new Date(fixture.match_date);
-        return matchDate.getTime() > nowDate.getTime();
-      }) || null;
+      const upcomingFixture = (data || [])
+        .filter((f: any) => f.category !== "training")
+        .find((fixture: any) => {
+          const kickoff = getFixtureKickoff(fixture);
+          return kickoff !== null && kickoff > nowDate;
+        }) || null;
 
       if (!upcomingFixture) {
         setNextFixture(null);
@@ -49,6 +60,7 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
         .from("analyses")
         .select("id, home_team, away_team")
         .eq("analysis_type", "pre-match")
+        .neq("category", "training")
         .eq("fixture_id", upcomingFixture.id)
         .limit(1);
 
@@ -75,7 +87,8 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
 
   const countdown = useMemo(() => {
     if (!nextFixture) return null;
-    const target = new Date(nextFixture.match_date);
+    const target = getFixtureKickoff(nextFixture);
+    if (!target) return null;
     const diff = target.getTime() - now.getTime();
     if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, passed: true };
 
@@ -99,7 +112,7 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
     <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-primary border-b-0 overflow-hidden">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-background to-primary/10 pointer-events-none" />
-      <CardHeader marble className="py-2 relative z-10">
+      <CardHeader className="py-2 relative z-10">
         <div className="flex items-center gap-2 container mx-auto px-4">
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
             <Clock className="h-4 w-4 text-primary" />
@@ -111,6 +124,7 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
         <div className="text-center space-y-3">
           <p className="text-sm font-medium text-muted-foreground">
             {nextFixture.home_team} vs {nextFixture.away_team}
+            {nextFixture.match_time && <span className="ml-1">· {nextFixture.match_time}</span>}
             {nextFixture.venue && <span className="ml-1">· {nextFixture.venue}</span>}
           </p>
 

@@ -32,6 +32,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTheme } from "next-themes";
 
 // Eager: header chrome + always-mounted (hidden-div) sections + default landing
 import PlayerManagement from "@/components/staff/PlayerManagement";
@@ -154,6 +155,13 @@ const ICON_MAP: Record<string, any> = {
 
 const Staff = () => {
   const isMobile = useIsMobile();
+  const { setTheme } = useTheme();
+
+  // Force dark mode on staff portal so light-mode bleed from public site doesn't wash out admin UI
+  useEffect(() => {
+    setTheme('dark');
+  }, [setTheme]);
+
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
