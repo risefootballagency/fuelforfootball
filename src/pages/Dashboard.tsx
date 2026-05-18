@@ -62,6 +62,7 @@ import { PortalEmptyState } from "@/components/portal/PortalEmptyState";
 import { SectionDivider } from "@/components/portal/SectionDivider";
 import { PortalMusicPlayer } from "@/components/portal/PortalMusicPlayer";
 import { PortalMusicControls } from "@/components/portal/PortalMusicControls";
+import { PortalWelcomeModal } from "@/components/portal/PortalWelcomeModal";
 
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
@@ -5165,6 +5166,21 @@ const Dashboard = () => {
         tracks={(portalSettings?.music_tracks as any[] || []).map((t: any) => ({ url: t.url || '', name: t.name || 'Track' }))}
         enabled={portalSettings?.show_music_player === true}
       />
+
+      {/* First-time welcome tour */}
+      {playerData?.id && (
+        <PortalWelcomeModal
+          playerName={playerData?.name || playerData?.email || ""}
+          playerId={playerData.id}
+          portalLanguage={portalLang}
+          hasAnalyses={analyses.length > 0 || otherAnalyses.length > 0}
+          hasPerformanceReports={analyses.some(a => !!a.r90_score)}
+          onNavigate={(tab, subTab) => {
+            setActiveTab(tab);
+            if (subTab) setActiveAnalysisTab(subTab);
+          }}
+        />
+      )}
     </div>
   );
 };
