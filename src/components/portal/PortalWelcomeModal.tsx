@@ -30,7 +30,7 @@ const getWelcomeCopy = (lang?: string | null) => {
         { icon: BarChart3, title: "Analyse", description: "Analyses tactiques d'avant et d'après match préparées par votre staff.", tab: "analysis", subTab: "analysis" },
         { icon: TrendingUp, title: "Forme et comparaisons", description: "Suivez l'évolution de votre forme avec les tendances R90 et les comparaisons de performances.", tab: "analysis", subTab: "performance" },
         { icon: Video, title: "Clips et highlights", description: "Regardez vos clips de match et vos meilleures séquences.", tab: "clips" },
-        { icon: Dumbbell, title: "Programmes", description: "Accédez à vos programmes d'entraînement, séances gym, nutrition et planning.", tab: "programmes" },
+        { icon: Dumbbell, title: "Programmes", description: "Accédez à vos programmes d'entraînement, séances gym, nutrition et planning.", tab: "physical" },
       ],
     };
   }
@@ -46,16 +46,18 @@ const getWelcomeCopy = (lang?: string | null) => {
       { icon: BarChart3, title: "Analysis", description: "Pre-match and post-match tactical analysis prepared by your coaching team. Review team shape, key matchups, and tactical points.", tab: "analysis", subTab: "analysis" },
       { icon: TrendingUp, title: "Form & Comparisons", description: "Track your form over time with R90 trend graphs. See how your metrics compare across different matches and periods.", tab: "analysis", subTab: "performance" },
       { icon: Video, title: "Clips & Highlights", description: "Watch your match clips and highlight reels. Upload your own clips or view ones selected by the coaching team.", tab: "clips" },
-      { icon: Dumbbell, title: "Programmes", description: "Access your training programmes, gym sessions, nutrition plans, and weekly schedules all in one place.", tab: "programmes" },
+      { icon: Dumbbell, title: "Programmes", description: "Access your training programmes, gym sessions, nutrition plans, and weekly schedules all in one place.", tab: "physical" },
     ],
   };
 };
+
+const STORAGE_PREFIX = "portal_welcome_seen_";
 
 export const PortalWelcomeModal = ({
   playerName,
   playerId,
   portalLanguage,
-  hasSeenWelcome = false,
+  hasSeenWelcome: hasSeenWelcomeProp,
   hasAnalyses,
   hasPerformanceReports,
   onNavigate,
@@ -69,17 +71,24 @@ export const PortalWelcomeModal = ({
   }, [playerId]);
 
   useEffect(() => {
-    if (hasSeenWelcome) {
+    if (!playerId) return;
+    // Resolve "seen" from prop OR localStorage fallback
+    const lsSeen = (() => {
+      try { return localStorage.getItem(STORAGE_PREFIX + playerId) === "true"; } catch { return false; }
+    })();
+    const seen = hasSeenWelcomeProp || lsSeen;
+    if (seen) {
       setOpen(false);
       return;
     }
     const timer = setTimeout(() => setOpen(true), 800);
     return () => clearTimeout(timer);
-  }, [playerId, hasSeenWelcome]);
+  }, [playerId, hasSeenWelcomeProp]);
 
   const handleDismiss = async () => {
     if (!hasMarkedRef.current) {
       hasMarkedRef.current = true;
+      try { localStorage.setItem(STORAGE_PREFIX + playerId, "true"); } catch {}
       await onMarkSeen?.();
     }
     setOpen(false);
@@ -97,7 +106,7 @@ export const PortalWelcomeModal = ({
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleDismiss(); }}>
       <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{t(portalLanguage, "view_profile")}, {firstName} 👋</DialogTitle>
+          <DialogTitle className="text-2xl">{t(portalLanguage, "view_profile") || "Welcome"}, {firstName} 👋</DialogTitle>
         </DialogHeader>
 
         <p className="text-muted-foreground">{copy.intro}</p>
@@ -126,17 +135,23 @@ export const PortalWelcomeModal = ({
             <p className="text-sm font-medium">{copy.waiting}</p>
             <div className="flex gap-2 mt-2 flex-wrap">
               {hasPerformanceReports && (
-                <Button size="sm" onClick={() => handleNavigate("analysis", "performance")}>{copy.viewPerformance}</Button>
+                <Button size="sm" onClick={() => handleNavigate("analysis", "performance")}>
+                  {copy.viewPerformance}
+                </Button>
               )}
               {hasAnalyses && (
-                <Button size="sm" variant="outline" onClick={() => handleNavigate("analysis", "analysis")}>{copy.viewAnalysis}</Button>
+                <Button size="sm" variant="outline" onClick={() => handleNavigate("analysis", "analysis")}>
+                  {copy.viewAnalysis}
+                </Button>
               )}
             </div>
           </div>
         )}
 
         <div className="flex justify-end mt-4">
-          <Button variant="outline" onClick={handleDismiss}>{copy.cta}</Button>
+          <Button variant="outline" onClick={handleDismiss}>
+            {copy.cta}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
