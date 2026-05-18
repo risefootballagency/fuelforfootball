@@ -129,6 +129,21 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
   const [scheduleFullscreen, setScheduleFullscreen] = useState(false);
   const isMobile = useIsMobile();
 
+  // Hide financial widget for marketeer-only roles
+  const filteredWidgetConfigs = useMemo(() => {
+    if (isMarketeer && !isAdmin) {
+      return WIDGET_CONFIGS.filter(w => w.id !== 'financial');
+    }
+    return WIDGET_CONFIGS;
+  }, [isMarketeer, isAdmin]);
+
+  const filteredDefaultLayouts = useMemo(() => {
+    if (isMarketeer && !isAdmin) {
+      return DEFAULT_LAYOUTS.filter(l => l.id !== 'financial');
+    }
+    return DEFAULT_LAYOUTS;
+  }, [isMarketeer, isAdmin]);
+
   // Widget data hooks
   const scoutingData = useScoutingWidget();
   const prospectsData = useProspectsWidget();
