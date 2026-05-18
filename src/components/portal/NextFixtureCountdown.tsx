@@ -112,7 +112,7 @@ export const NextFixtureCountdown = ({ playerName }: NextFixtureCountdownProps) 
     <Card className="w-screen relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-none border-x-0 border-t-[2px] border-t-primary border-b-0 overflow-hidden">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-background to-primary/10 pointer-events-none" />
-      <CardHeader marble className="py-2 relative z-10">
+      <CardHeader className="py-2 relative z-10">
         <div className="flex items-center gap-2 container mx-auto px-4">
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
             <Clock className="h-4 w-4 text-primary" />
