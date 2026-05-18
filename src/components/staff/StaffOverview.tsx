@@ -28,6 +28,7 @@ import { QuickLinksWidget } from "./widgets/QuickLinksWidget";
 import { DocsWidget } from "./widgets/DocsWidget";
 import { SheetsWidget } from "./widgets/SheetsWidget";
 import { FinancialOverviewWidget } from "./widgets/FinancialOverviewWidget";
+import { VisionBoardWidget } from "./widgets/VisionBoardWidget";
 
 interface Goal {
   id: string;
@@ -55,6 +56,7 @@ interface WidgetConfig {
 
 const WIDGET_CONFIGS: WidgetConfig[] = [
   // Default visible
+  { id: "visionboard", title: "Vision Board", icon: Sparkles, defaultVisible: true },
   { id: "goals", title: "Quarter Goals", icon: Target, defaultVisible: true },
   { id: "todo", title: "To Do", icon: CheckSquare, defaultVisible: true },
   { id: "quicklinks", title: "Quick Links", icon: Link2, defaultVisible: true },
@@ -103,12 +105,13 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
 ];
 
 const DEFAULT_LAYOUTS: WidgetLayout[] = [
-  { id: "goals", row: 0, order: 0, widthPercent: 33, heightPx: 200 },
-  { id: "todo", row: 0, order: 1, widthPercent: 33, heightPx: 200 },
-  { id: "quicklinks", row: 0, order: 2, widthPercent: 34, heightPx: 200 },
-  { id: "financial", row: 1, order: 0, widthPercent: 100, heightPx: 200 },
-  { id: "schedule", row: 2, order: 0, widthPercent: 60, heightPx: 450 },
-  { id: "represented", row: 2, order: 1, widthPercent: 40, heightPx: 450 },
+  { id: "visionboard", row: 0, order: 0, widthPercent: 100, heightPx: 200 },
+  { id: "goals", row: 1, order: 0, widthPercent: 33, heightPx: 200 },
+  { id: "todo", row: 1, order: 1, widthPercent: 33, heightPx: 200 },
+  { id: "quicklinks", row: 1, order: 2, widthPercent: 34, heightPx: 200 },
+  { id: "financial", row: 2, order: 0, widthPercent: 100, heightPx: 200 },
+  { id: "schedule", row: 3, order: 0, widthPercent: 60, heightPx: 450 },
+  { id: "represented", row: 3, order: 1, widthPercent: 40, heightPx: 450 },
 ];
 
 const DEFAULT_HEIGHT_PX = 200;
