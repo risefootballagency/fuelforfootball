@@ -173,12 +173,12 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
         if (parsed.visibleWidgets) setVisibleWidgets(parsed.visibleWidgets);
         if (parsed.layouts) setLayouts(parsed.layouts);
       } catch {
-        setVisibleWidgets(WIDGET_CONFIGS.filter(w => w.defaultVisible).map(w => w.id));
-        setLayouts(DEFAULT_LAYOUTS);
+        setVisibleWidgets(filteredWidgetConfigs.filter(w => w.defaultVisible).map(w => w.id));
+        setLayouts(filteredDefaultLayouts);
       }
     } else {
-      setVisibleWidgets(WIDGET_CONFIGS.filter(w => w.defaultVisible).map(w => w.id));
-      setLayouts(DEFAULT_LAYOUTS);
+      setVisibleWidgets(filteredWidgetConfigs.filter(w => w.defaultVisible).map(w => w.id));
+      setLayouts(filteredDefaultLayouts);
     }
   }, [userId]);
 
@@ -209,8 +209,8 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
   };
 
   const resetToDefaults = () => {
-    const defaults = WIDGET_CONFIGS.filter(w => w.defaultVisible).map(w => w.id);
-    saveSettings(defaults, DEFAULT_LAYOUTS);
+    const defaults = filteredWidgetConfigs.filter(w => w.defaultVisible).map(w => w.id);
+    saveSettings(defaults, filteredDefaultLayouts);
   };
 
   const handleResize = (widgetId: string, newWidthPercent: number, newHeightPx: number) => {
