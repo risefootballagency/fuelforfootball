@@ -576,6 +576,9 @@ export const StaffOverview = ({ isAdmin, userId, isMarketeer }: { isAdmin: boole
       case "quicklinks":
         return <QuickLinksWidget userId={userId} />;
 
+      case "visionboard":
+        return <VisionBoardWidget />;
+
       case "financial":
         return <FinancialOverviewWidget />;
 
