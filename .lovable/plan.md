@@ -1,64 +1,123 @@
-# Invoicing v2 — Product-aware invoices, searchable dropdowns, portal parity
+# RISE → FFF: Staff & Portal UI Audit
 
-Reworking the staff invoicing flow so it matches the power of Sales pay links, makes every staff dropdown type-to-search, fixes the player picker, and tightens the portal/hub connection.
+Deep diff between RISE Football and the current Fuel For Football codebase, focused on UI/UX patterns (not agency-specific logic). Each item lists what RISE does, what FFF does, and the suggested action so you can pick & choose.
 
-## What changes
+## Staff — shared chrome & utilities
 
-### 1. Player picker shows everyone, with type-to-search
-- Replace the plain `<Select>` for player in the Invoice/Pay-link dialog with the existing `PlayerCombobox` (already supports typing to filter).
-- Fetch players with `id, name, position, image_url, club, representation_status` and pass them to the combobox, so Matthias Pieklak and any others currently lost in a 70+ long scroll list become findable by typing 2-3 letters.
-- The combobox is grouped by representation_status but every player (including `other`) is rendered — nobody is filtered out.
+### 1. `StaffSearchInput` is not debounced in FFF
+- **RISE:** wraps the input in local state, debounces parent `onChange` by 300 ms. List-filter screens stay smooth even at thousands of rows.
+- **FFF:** every keystroke fires `onChange` immediately, causing lag on big tables (Players, Outreach, Scouting).
+- **Fix:** port the debounced version (drop-in, same API).
 
-If Matthias still doesn't appear after this, it means he isn't in the local `players` table at all (he doesn't currently match any row). In that case the user can add him from the Players section, or we can wire a "type a name freehand" fallback later — flag this once tested.
+### 2. `PlayerCombobox` dropdown can hide behind modals
+- **RISE:** `PopoverContent` carries `z-[80]`, so the searchable list always renders above dialogs/sheets.
+- **FFF:** no z-index override — dropdown disappears when opened inside a Dialog (e.g. Create Invoice).
+- **Fix:** add `z-[80]` (or `z-[100]` to be safe).
 
-### 2. Every staff dropdown of names becomes type-to-search
-- Audit the staff dialogs that use `<Select>` to pick a player and swap them for `PlayerCombobox`. Targeted files (player selectors only — not generic enums like currency):
-  - `staff/InvoiceManagement.tsx`
-  - `staff/InvoicesManagement.tsx`
-  - `staff/SalesManagement.tsx` (player picker)
-  - `staff/TransferHub.tsx`
-  - `staff/HighlightCompiler.tsx`, `HighlightReelPlayer.tsx`
-  - `staff/PlayerScoutingManagement.tsx`, `R90RatingsViewer.tsx`
-  - `staff/staffpay/AddEarningDialog.tsx` (staff name picker → reuse same Combobox pattern fed by staff list)
-  - Any other player-name dropdowns surfaced during the sweep.
-- Generic short dropdowns (currency, payment type, interval, status filters with ≤6 options) stay as `<Select>`.
+### 3. `TableSettingsPopover` panel overflows on small phones
+- **RISE:** `w-full max-w-full sm:w-[540px]` with explicit `p-4 sm:p-6`, so the sheet fills the screen on mobile.
+- **FFF:** hard-coded `w-[400px] sm:w-[540px]` — clips and horizontal-scrolls on 360 px screens.
+- **Fix:** copy the responsive width/padding.
 
-### 3. Invoice dialog becomes the powerful one — built like Sales pay links
-- Widen the dialog: `DialogContent className="max-w-4xl w-[95vw]"`, two-column layout on md+.
-- Add a **line-items** section identical in shape to `SalesManagement.tsx`:
-  - Pick from existing service catalogue products (with type-to-search), or "Custom item"
-  - Per-line: name, qty, unit price, subtotal
-  - Auto-sum total and pass the total + line items to `create-pay-link`
-  - Persist line items so the portal can render the breakdown
-- Keep existing fields: title (auto-fills from first line), description, currency, due date, expires on.
-- Add **Invoice type** radio:
-  - `agreed` (default) — appears as a normal outstanding invoice
-  - `suggestion` — labelled "Suggested / Optional" on hub + sheet; same payment flow but visually distinct, no overdue colouring, copy reads "If you'd like this, you can complete payment below — we haven't discussed this yet."
-- Database: add `invoice_kind text default 'agreed'` and `line_items jsonb` to `pay_links`. `is_invoice` stays as the flag, `invoice_kind` distinguishes agreed vs suggestion.
+### 4. `StaffCardHeader` look
+- **RISE:** uses a smudged-marble overlay (`smudged-marble-overlay.png` / `white-marble-overlay.png`) and theme-aware, giving an editorial / luxurious feel.
+- **FFF:** dark forest green + grass texture + 2 px gold top line + gradient depth (the look you just dialed in).
+- **Choice:** keep current FFF look, or layer a subtle marble overlay on top of the grass for extra depth. (Just flag if you want to try a hybrid.)
 
-### 4. Portal / Hub connection
-- `PlayerInvoicesButton` already queries `pay_links` filtered by `player_id` + `is_invoice=true` + `status != completed`. Verify it for the logged-in player by:
-  - Confirming the `player_id` prop is being passed from `Dashboard.tsx` (it is, but double-check after the staff dialog now reliably sets `player_id`).
-  - Including suggestion invoices in the count but rendering them in a separate "Suggested" group inside the sheet, with a softer style.
-  - Rendering the `line_items` breakdown inside each invoice card.
-- Add a realtime + initial-fetch test by creating one invoice from staff and verifying the gold pulse button appears on that player's hub without a refresh.
+### 5. Force dark mode for the Staff page
+- **RISE:** `setTheme('dark')` runs on mount in `Staff.tsx`, so a marketeer who flipped to light on the public site does not bleed into the admin UI.
+- **FFF:** uses whatever theme is set globally — staff occasionally loads in light mode and looks washed out.
+- **Fix:** add the same `useEffect(() => setTheme('dark'), [])`.
 
-### 5. Edge function update
-- `create-pay-link` accepts a `lineItems` array. When present, build Stripe `line_items` with one `price_data` per line instead of a single computed product. Falls back to current single-product behaviour for plain pay links.
+## Staff — Overview / Dashboard
 
-## Technical notes
+### 6. `StaffOverview` race-conditions on save
+- **RISE:** auto-save with a dirty-tracker (`savedLayouts`/`savedVisibleWidgets`), `userId === undefined` hydration guard, marketeer filter that hides the financial widget for non-admins.
+- **FFF:** simpler `saveSettings(...)` writes on every state change (causing flicker after reload), no marketeer filter, no Vision Board widget in defaults.
+- **Fix:** port the dirty-aware save + marketeer filtering. Add Vision Board as a default-visible widget at row 0.
 
-- New columns on `pay_links`:
-  - `invoice_kind text not null default 'agreed'` (`'agreed' | 'suggestion'`)
-  - `line_items jsonb` (array of `{product_id, name, quantity, unit_price}`)
-- Files touched:
-  - `src/components/staff/PayLinksManagement.tsx` — widen dialog, line items UI, combobox player picker, suggestion radio
-  - `src/components/staff/SalesManagement.tsx` — reuse product picker, swap player Select for combobox
-  - Other staff files listed in §2 — swap Select → PlayerCombobox
-  - `src/components/portal/PlayerInvoicesButton.tsx` — render line items, separate suggestion group, copy tweaks
-  - `supabase/functions/create-pay-link/index.ts` — multi line-item support
-  - Migration adding the two `pay_links` columns
+### 7. `RecentPlayersBar` for the Athlete Centre is missing
+- **RISE:** pill-row of the last 5 players you opened, persisted to `localStorage`. One tap to switch player. Drives a huge UX win when reviewing many athletes in a row.
+- **FFF:** no equivalent — every switch requires reopening the player combobox.
+- **Fix:** copy the file + wire it into `AthleteCentre.tsx`.
 
-## Out of scope
-- Recurring invoices (subscriptions remain via the existing pay-link path).
-- Email notifications beyond the existing `invoice_paid` trigger.
+### 8. `SessionResumeBanner` (Athlete Centre)
+- **RISE:** if you closed mid-edit, a banner offers to restore your last session (player, tab, draft).
+- **FFF:** missing — refreshes reset everything.
+- **Fix:** port `SessionResumeBanner.tsx` and the `saveSession/clearSession` helpers.
+
+## Staff — Page chrome
+
+### 9. Hide grass texture overlay on text-input focus (minor)
+- RISE leaves the header static; FFF's grass header can compete visually with overlaid inputs. Worth tuning opacity on cards that contain forms.
+
+### 10. Sidebar tab pinning has no marketeer-aware default
+- Same code shared, but RISE seeds different defaults per role. Not high-priority — flag only if you want it.
+
+## Portal — first impression
+
+### 11. `ParallaxHero` is missing from the Hub
+- **RISE:** the portal opens with a full-bleed player photo (focal-point aware), name in Bebas, club & position chips, embedded countdown to next fixture, slow scale + crossfade between multiple images every 6 s.
+- **FFF:** Hub goes straight into stats — no cinematic landing moment.
+- **Fix:** port `ParallaxHero.tsx` and mount it above `<Hub />` in `Dashboard.tsx`. Already uses `usePortalLanguage` translations and `createAnalysisSlug`.
+
+### 12. `PortalWelcomeModal` is missing
+- **RISE:** first-time visitors get a friendly 5-card feature tour (Performance Reports, Analysis, Form & Comparisons, Clips, Programmes) with EN/FR copy and one-click navigation into each.
+- **FFF:** no onboarding — players land cold.
+- **Fix:** port the component; add a `has_seen_welcome` flag on the player record (or `localStorage` if you want zero-DB). Mount in `Dashboard.tsx` with `onNavigate={setActiveTab}`.
+
+### 13. `NextFixtureCountdown` is off by up to 24h
+- **RISE:** stores and reads `match_time`, so the countdown ticks to the exact kickoff and flips to "Match Day!" at the right moment. Also filters out fixtures with `category = 'training'`.
+- **FFF:** only uses `match_date` — countdown shows 0 the entire day of the match and never lines up with kickoff.
+- **Fix:** add `match_time` to the select, build the target with hours/minutes, drop the training fixtures.
+
+### 14. `SectionDivider` colour
+- **RISE:** primary green gradient.
+- **FFF:** accent (gold) gradient.
+- **Choice:** keep current (gold) or revert to primary for a more subtle break.
+
+### 15. `MobileBottomNav` indicator
+- **RISE:** soft gradient indicator (`linear-gradient(90deg, transparent, hsl(43,49%,61%), transparent)`) + radial glow on active tab.
+- **FFF:** flat white bar + accent hover.
+- **Choice:** the RISE version reads more premium; the FFF version reads more functional. Flag if you want me to swap.
+
+### 16. `PortalEmptyState` polish
+- RISE uses `rounded-2xl` icon tile with `bg-primary/10 border-primary/20`, motion fade-in, max-w-sm copy. Confirm FFF version (it's already similar) — no change needed.
+
+## Portal — secondary widgets
+
+### 17. `PortalSkeleton` exports
+- Both projects export the same set (Performance, Programming, Video, StatCards, Section). FFF already matches. ✅ No change.
+
+### 18. `InjuryLog`
+- Identical between both. ✅ No change.
+
+### 19. RISE-only portal components worth porting
+- *None besides the items above are agency-neutral.* The remaining differences are scoped player-management features tied to RISE's specific data model.
+
+## Suggested priority order
+
+Quick wins (no risk, big polish):
+1. #2 `PlayerCombobox` z-index — fixes the "dropdown disappears under modal" bug from your earlier complaint.
+2. #1 debounce `StaffSearchInput`.
+3. #3 responsive `TableSettingsPopover`.
+4. #5 force dark mode on Staff.
+5. #13 fix `NextFixtureCountdown` to use `match_time`.
+
+Medium effort (visible upgrade):
+6. #7 `RecentPlayersBar` in Athlete Centre.
+7. #8 `SessionResumeBanner`.
+8. #6 `StaffOverview` auto-save + marketeer + Vision Board default.
+9. #12 `PortalWelcomeModal`.
+
+Bigger but transformative:
+10. #11 `ParallaxHero` in the player portal Hub.
+
+Pure aesthetic choices (need your call):
+- #4 marble vs grass header
+- #14 gold vs green divider
+- #15 mobile nav indicator style
+
+---
+
+Tell me which numbered items to implement (e.g. "do 1, 2, 3, 5, 13" or "do all quick wins"), and I'll execute in one pass.
