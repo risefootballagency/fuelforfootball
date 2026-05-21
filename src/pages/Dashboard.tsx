@@ -206,6 +206,7 @@ const Dashboard = () => {
   const [operatingProfileOpen, setOperatingProfileOpen] = useState(false);
   const [operatingProfileStatus, setOperatingProfileStatus] = useState<{ exists: boolean; submitted: boolean }>({ exists: false, submitted: false });
   const [operatingProfileDismissed, setOperatingProfileDismissed] = useState(false);
+  const [operatingProfileAutoOpened, setOperatingProfileAutoOpened] = useState(false);
   const [selectedTest, setSelectedTest] = useState<{name: string; category: string; description?: string; reps?: string; sets?: number} | null>(null);
   const [testScore, setTestScore] = useState('');
   const [testNotes, setTestNotes] = useState('');
