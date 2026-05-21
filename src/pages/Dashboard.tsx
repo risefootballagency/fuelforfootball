@@ -71,6 +71,8 @@ const FFF_GOLD = 'hsl(47, 100%, 51%)';
 const FFF_GOLD_DIM = 'hsl(47, 90%, 40%)';
 const DEMO_PLAYER_EMAIL = "bloggs@fuelforfootball.com";
 const DEMO_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
+const PORTAL_WELCOME_STORAGE_PREFIX = "portal_welcome_seen_";
+const PORTAL_WELCOME_ROLLOUT_AT = Date.parse("2026-05-21T00:00:00Z");
 
 const isDemoPortalMode = () => {
   if (typeof window === "undefined") return false;
@@ -199,6 +201,8 @@ const Dashboard = () => {
   
   // Testing states
   const [testingDialogOpen, setTestingDialogOpen] = useState(false);
+  const [portalWelcomeReady, setPortalWelcomeReady] = useState(false);
+  const [portalWelcomeSeen, setPortalWelcomeSeen] = useState(true);
   const [operatingProfileOpen, setOperatingProfileOpen] = useState(false);
   const [operatingProfileStatus, setOperatingProfileStatus] = useState<{ exists: boolean; submitted: boolean }>({ exists: false, submitted: false });
   const [operatingProfileDismissed, setOperatingProfileDismissed] = useState(false);
@@ -897,6 +901,8 @@ const Dashboard = () => {
   const checkAuth = async () => {
     try {
       const isDemoMode = isDemoPortalMode();
+      setPortalWelcomeReady(false);
+      setPortalWelcomeSeen(true);
 
       // Check URL params first (staff portal login passes email via URL)
       const urlParams = new URLSearchParams(window.location.search);
@@ -1000,7 +1006,7 @@ const Dashboard = () => {
       const normalizedPlayerEmail = playerEmail.toLowerCase().trim();
       let { data: player, error: playerError } = await supabase
         .from("players")
-        .select("id, portal_language, email")
+        .select("id, portal_language, email, created_at")
         .ilike("email", normalizedPlayerEmail)
         .maybeSingle();
 
@@ -1008,7 +1014,7 @@ const Dashboard = () => {
         const demoPlayerId = sessionStorage.getItem("demo_portal_player_id") || DEMO_PLAYER_ID;
         const { data: fallbackPlayer, error: fallbackError } = await supabase
           .from("players")
-          .select("id, portal_language, email")
+          .select("id, portal_language, email, created_at")
           .eq("id", demoPlayerId)
           .maybeSingle();
 
@@ -1023,7 +1029,7 @@ const Dashboard = () => {
         } else {
           const { data: localFallbackPlayer, error: localFallbackError } = await localSupabase
             .from("players")
-            .select("id, portal_language, email")
+            .select("id, portal_language, email, created_at, portal_welcome_seen_at")
             .eq("id", demoPlayerId)
             .maybeSingle();
 
@@ -1056,6 +1062,29 @@ const Dashboard = () => {
         localStorage.setItem("portal_language_hint", (player as any).portal_language);
       }
 
+      try {
+        const playerCreatedAt = Date.parse((player as any)?.created_at || "");
+        const isExistingPlayer = !Number.isFinite(playerCreatedAt) || playerCreatedAt < PORTAL_WELCOME_ROLLOUT_AT;
+        const localSeen = localStorage.getItem(`${PORTAL_WELCOME_STORAGE_PREFIX}${player.id}`) === "true";
+        const { data: welcomeSeenRecord } = await (localSupabase as any)
+          .from("portal_welcome_seen")
+          .select("seen_at")
+          .eq("player_id", player.id)
+          .maybeSingle();
+        const resolvedSeen = isDemoMode || isExistingPlayer || localSeen || !!(player as any)?.portal_welcome_seen_at || !!welcomeSeenRecord?.seen_at;
+        setPortalWelcomeSeen(resolvedSeen);
+        setPortalWelcomeReady(true);
+        if (resolvedSeen) {
+          localStorage.setItem(`${PORTAL_WELCOME_STORAGE_PREFIX}${player.id}`, "true");
+          if ((isExistingPlayer || localSeen) && !welcomeSeenRecord?.seen_at) {
+            void (localSupabase as any).from("portal_welcome_seen").upsert({ player_id: player.id, seen_at: new Date().toISOString() }, { onConflict: "player_id" });
+          }
+        }
+      } catch {
+        setPortalWelcomeSeen(true);
+        setPortalWelcomeReady(true);
+      }
+
       await fetchAnalyses(playerEmail);
       await fetchPrograms(playerEmail);
       await fetchInvoices(playerEmail);
@@ -1064,7 +1093,7 @@ const Dashboard = () => {
       checkNutritionPrograms(player.id);
       // Check operating profile status
       try {
-        const { data: op } = await (supabase as any)
+        const { data: op } = await (localSupabase as any)
           .from("player_operating_profile")
           .select("submitted_at")
           .eq("player_id", player.id)
@@ -5188,7 +5217,8 @@ const Dashboard = () => {
           playerName={playerData?.name || playerData?.email || ""}
           playerId={playerData.id}
           portalLanguage={portalLang}
-          hasSeenWelcome={!!(playerData as any)?.portal_welcome_seen_at}
+          hasSeenWelcome={portalWelcomeSeen}
+          ready={portalWelcomeReady}
           hasAnalyses={analyses.length > 0 || otherAnalyses.length > 0}
           hasPerformanceReports={analyses.some(a => !!a.r90_score)}
           onNavigate={(tab, subTab) => {
@@ -5196,12 +5226,14 @@ const Dashboard = () => {
             if (subTab) setActiveAnalysisTab(subTab);
           }}
           onMarkSeen={async () => {
+            const seenAt = new Date().toISOString();
+            setPortalWelcomeSeen(true);
+            localStorage.setItem(`${PORTAL_WELCOME_STORAGE_PREFIX}${playerData.id}`, "true");
             try {
-              await (supabase as any)
-                .from("players")
-                .update({ portal_welcome_seen_at: new Date().toISOString() })
-                .eq("id", playerData.id);
-              setPlayerData((p: any) => p ? { ...p, portal_welcome_seen_at: new Date().toISOString() } : p);
+              await (localSupabase as any)
+                .from("portal_welcome_seen")
+                .upsert({ player_id: playerData.id, seen_at: seenAt }, { onConflict: "player_id" });
+              setPlayerData((p: any) => p ? { ...p, portal_welcome_seen_at: seenAt } : p);
             } catch {}
           }}
         />

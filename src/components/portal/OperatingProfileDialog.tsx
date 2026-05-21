@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Check, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { Question } from "./operatingProfileQuestions";
 import { useTranslatedOperatingProfile } from "./useTranslatedOperatingProfile";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Props {
   playerId: string | null | undefined;
@@ -20,8 +23,38 @@ interface Props {
 
 type Answers = Record<string, any>;
 
+const SortableRow = ({ id, index, label, onUp, onDown, isFirst, isLast }: {
+  id: string;
+  index: number;
+  label: string;
+  onUp: () => void;
+  onDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : "auto", opacity: isDragging ? 0.9 : 1 };
+
+  return (
+    <li ref={setNodeRef} style={style as any} className={`flex items-center gap-2 rounded-lg border bg-card/40 px-3 py-2 ${isDragging ? "border-accent shadow-lg" : "border-border"}`}>
+      <button type="button" className="cursor-grab active:cursor-grabbing text-muted-foreground/70 hover:text-accent touch-none" {...attributes} {...listeners} aria-label="Drag to reorder">
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/15 text-accent text-sm font-semibold tabular-nums">{index + 1}</span>
+      <span className="flex-1 text-sm">{label}</span>
+      <button type="button" onClick={onUp} disabled={isFirst} className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"><ArrowUp className="h-4 w-4" /></button>
+      <button type="button" onClick={onDown} disabled={isLast} className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"><ArrowDown className="h-4 w-4" /></button>
+    </li>
+  );
+};
+
 const RankInput = ({ q, value, onChange, labelFor }: { q: Question; value: string[]; onChange: (v: string[]) => void; labelFor: (s: string) => string }) => {
   const list = value && value.length === q.options!.length ? value : [...q.options!];
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const itemIds = useMemo(() => list, [list]);
   const move = (i: number, dir: -1 | 1) => {
     const j = i + dir;
     if (j < 0 || j >= list.length) return;
@@ -29,17 +62,24 @@ const RankInput = ({ q, value, onChange, labelFor }: { q: Question; value: strin
     [copy[i], copy[j]] = [copy[j], copy[i]];
     onChange(copy);
   };
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = list.indexOf(String(active.id));
+    const newIndex = list.indexOf(String(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
+    onChange(arrayMove(list, oldIndex, newIndex));
+  };
   return (
-    <ol className="space-y-1.5">
-      {list.map((opt, i) => (
-        <li key={opt} className="flex items-center gap-2 rounded-lg border border-border bg-card/40 px-3 py-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/15 text-accent text-sm font-semibold tabular-nums">{i + 1}</span>
-          <span className="flex-1 text-sm">{labelFor(opt)}</span>
-          <button type="button" onClick={() => move(i, -1)} disabled={i === 0} className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"><ArrowUp className="h-4 w-4" /></button>
-          <button type="button" onClick={() => move(i, 1)} disabled={i === list.length - 1} className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"><ArrowDown className="h-4 w-4" /></button>
-        </li>
-      ))}
-    </ol>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+        <ol className="space-y-1.5">
+          {list.map((opt, i) => (
+            <SortableRow key={opt} id={opt} index={i} label={labelFor(opt)} onUp={() => move(i, -1)} onDown={() => move(i, 1)} isFirst={i === 0} isLast={i === list.length - 1} />
+          ))}
+        </ol>
+      </SortableContext>
+    </DndContext>
   );
 };
 
@@ -153,7 +193,7 @@ export const OperatingProfileDialog = ({ playerId, open, onOpenChange, onSubmitt
             {stepIdx < sections.length - 1 ? (
               <Button type="button" onClick={goNext}>Next <ChevronRight className="h-4 w-4 ml-1" /></Button>
             ) : (
-              <Button type="button" onClick={() => persist(true)} disabled={saving} className="bg-accent text-black hover:bg-accent/90"><Check className="h-4 w-4 mr-1" /> Submit</Button>
+              <Button type="button" onClick={() => persist(true)} disabled={saving} className="bg-accent text-accent-foreground hover:bg-accent/90"><Check className="h-4 w-4 mr-1" /> Submit</Button>
             )}
           </div>
         </div>
