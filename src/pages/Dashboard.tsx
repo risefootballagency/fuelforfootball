@@ -206,6 +206,18 @@ const Dashboard = () => {
   const [operatingProfileOpen, setOperatingProfileOpen] = useState(false);
   const [operatingProfileStatus, setOperatingProfileStatus] = useState<{ exists: boolean; submitted: boolean }>({ exists: false, submitted: false });
   const [operatingProfileDismissed, setOperatingProfileDismissed] = useState(false);
+  const [operatingProfileAutoOpened, setOperatingProfileAutoOpened] = useState(false);
+
+  // Auto-open operating profile dialog once for new players (after welcome modal seen). Matches RISE behaviour.
+  useEffect(() => {
+    if (operatingProfileAutoOpened) return;
+    if (!playerData?.id) return;
+    if (operatingProfileStatus.submitted || operatingProfileStatus.exists) return;
+    if (operatingProfileDismissed) return;
+    if (!portalWelcomeSeen) return;
+    setOperatingProfileAutoOpened(true);
+    setOperatingProfileOpen(true);
+  }, [playerData?.id, operatingProfileStatus.submitted, operatingProfileStatus.exists, operatingProfileDismissed, portalWelcomeSeen, operatingProfileAutoOpened]);
   const [selectedTest, setSelectedTest] = useState<{name: string; category: string; description?: string; reps?: string; sets?: number} | null>(null);
   const [testScore, setTestScore] = useState('');
   const [testNotes, setTestNotes] = useState('');
@@ -1095,10 +1107,11 @@ const Dashboard = () => {
       try {
         const { data: op } = await (localSupabase as any)
           .from("player_operating_profile")
-          .select("submitted_at")
+          .select("submitted_at, answers")
           .eq("player_id", player.id)
           .maybeSingle();
-        setOperatingProfileStatus({ exists: !!op, submitted: !!op?.submitted_at });
+        const hasAny = op?.answers && typeof op.answers === "object" && Object.keys(op.answers).length > 0;
+        setOperatingProfileStatus({ exists: !!op && (hasAny || !!op?.submitted_at), submitted: !!op?.submitted_at });
         setOperatingProfileDismissed(localStorage.getItem(`op_profile_dismissed_${player.id}`) === "1");
       } catch {}
     } catch (error) {
