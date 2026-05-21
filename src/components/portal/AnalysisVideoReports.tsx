@@ -74,7 +74,7 @@ export const AnalysisVideoReports = ({ analyses, playerId, embedded }: Props) =>
   }, [analyses]);
 
   const splitActionTypes = (actionType: string | null | undefined): string[] =>
-    (actionType || "").split(/[\/,]/).map(type => type.trim()).filter(Boolean);
+    (actionType || "").split(/[\/,]/).map(type => canonicalActionType(type.trim())).filter(Boolean);
 
   const actionTypes = useMemo(
     () => [...new Set(allActions.flatMap(a => splitActionTypes(a.action_type)))].sort((a, b) => a.localeCompare(b)),
