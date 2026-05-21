@@ -1,0 +1,1 @@
+UPDATE public.players SET portal_welcome_seen_at = now() WHERE portal_welcome_seen_at IS NULL;
