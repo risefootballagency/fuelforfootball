@@ -11,9 +11,9 @@ interface Props {
 export const OperatingProfileReminder = ({ visible, inProgress, onOpen, onDismiss }: Props) => {
   if (!visible) return null;
   return (
-    <div className="sticky top-16 z-40 px-3 sm:px-4 pwa-safe-top">
-      <div className="mx-auto max-w-4xl mt-2">
-        <div className="rounded-xl border border-accent/40 bg-card/80 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.35)] px-3 sm:px-4 py-2.5 flex items-center gap-3">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] px-3 sm:px-4 pwa-safe-bottom w-full max-w-xl">
+      <div className="mx-auto">
+        <div className="rounded-xl border border-accent/40 bg-card/95 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.45)] px-3 sm:px-4 py-2.5 flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
             <ClipboardList className="h-4 w-4" />
           </div>
