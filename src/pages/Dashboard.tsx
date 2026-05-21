@@ -1064,7 +1064,7 @@ const Dashboard = () => {
 
       try {
         const playerCreatedAt = Date.parse((player as any)?.created_at || "");
-        const isExistingPlayer = Number.isFinite(playerCreatedAt) && playerCreatedAt < PORTAL_WELCOME_ROLLOUT_AT;
+        const isExistingPlayer = !Number.isFinite(playerCreatedAt) || playerCreatedAt < PORTAL_WELCOME_ROLLOUT_AT;
         const localSeen = localStorage.getItem(`${PORTAL_WELCOME_STORAGE_PREFIX}${player.id}`) === "true";
         const { data: welcomeSeenRecord } = await (localSupabase as any)
           .from("portal_welcome_seen")
