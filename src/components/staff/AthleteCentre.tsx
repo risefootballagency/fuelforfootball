@@ -31,6 +31,7 @@ import { HighlightCompiler } from "@/components/staff/HighlightCompiler";
 import { AiShellSuggestions } from "@/components/staff/AiShellSuggestions";
 import { RecentPlayersBar, getRecentPlayerIds, addRecentPlayer } from "@/components/staff/RecentPlayersBar";
 import { SessionResumeBanner, saveSession, clearSession, type SessionState } from "@/components/staff/SessionResumeBanner";
+import { OperatingProfileViewer } from "@/components/staff/OperatingProfileViewer";
 
 interface Player {
   id: string;
