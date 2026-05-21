@@ -9,6 +9,7 @@ interface PortalWelcomeModalProps {
   playerId: string;
   portalLanguage?: string | null;
   hasSeenWelcome?: boolean;
+  ready?: boolean;
   hasAnalyses: boolean;
   hasPerformanceReports: boolean;
   onNavigate: (tab: string, subTab?: string) => void;
@@ -58,6 +59,7 @@ export const PortalWelcomeModal = ({
   playerId,
   portalLanguage,
   hasSeenWelcome: hasSeenWelcomeProp,
+  ready = true,
   hasAnalyses,
   hasPerformanceReports,
   onNavigate,
@@ -72,6 +74,10 @@ export const PortalWelcomeModal = ({
 
   useEffect(() => {
     if (!playerId) return;
+    if (!ready) {
+      setOpen(false);
+      return;
+    }
     // Resolve "seen" from prop OR localStorage fallback
     const lsSeen = (() => {
       try { return localStorage.getItem(STORAGE_PREFIX + playerId) === "true"; } catch { return false; }
@@ -83,7 +89,7 @@ export const PortalWelcomeModal = ({
     }
     const timer = setTimeout(() => setOpen(true), 800);
     return () => clearTimeout(timer);
-  }, [playerId, hasSeenWelcomeProp]);
+  }, [playerId, hasSeenWelcomeProp, ready]);
 
   const handleDismiss = async () => {
     if (!hasMarkedRef.current) {
@@ -101,6 +107,8 @@ export const PortalWelcomeModal = ({
 
   const firstName = playerName?.split(" ")[0] || "there";
   const copy = getWelcomeCopy(portalLanguage);
+
+  if (!ready) return null;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleDismiss(); }}>
