@@ -1062,6 +1062,16 @@ const Dashboard = () => {
       await fetchUpdates(player.id);
       await fetchTestResults(player.id);
       checkNutritionPrograms(player.id);
+      // Check operating profile status
+      try {
+        const { data: op } = await (supabase as any)
+          .from("player_operating_profile")
+          .select("submitted_at")
+          .eq("player_id", player.id)
+          .maybeSingle();
+        setOperatingProfileStatus({ exists: !!op, submitted: !!op?.submitted_at });
+        setOperatingProfileDismissed(localStorage.getItem(`op_profile_dismissed_${player.id}`) === "1");
+      } catch {}
     } catch (error) {
       console.error("Error loading data:", error);
       const isDemoMode = isDemoPortalMode();
