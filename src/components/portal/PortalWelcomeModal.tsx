@@ -118,7 +118,7 @@ export const PortalWelcomeModal = ({
               onClick={() => handleNavigate(feature.tab, feature.subTab)}
               className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors text-left group"
             >
-              <div className="mt-0.5 p-2 rounded-md bg-primary/10 text-primary">
+              <div className="mt-0.5 p-2 rounded-md bg-accent/15 text-accent">
                 <feature.icon className="h-5 w-5" />
               </div>
               <div className="flex-1">
