@@ -38,11 +38,15 @@ export const getStatValue = (analysis: any, key: string): number | null => {
 
 export const computeStatAverage = (analyses: any[], metricKey: string): number | null => {
   if (analyses.length === 0) return null;
-  const vals = analyses
-    .map((a) => getStatValue(a, metricKey))
-    .filter((v): v is number => v != null && !isNaN(v));
-  if (vals.length === 0) return null;
-  return vals.reduce((s, v) => s + v, 0) / vals.length;
+  const raw = analyses.map((a) => getStatValue(a, metricKey));
+  const present = raw.filter((v): v is number => v != null && !isNaN(v));
+  if (present.length === 0) return null;
+  if (isPercentageMetric(metricKey)) {
+    // Percentages: exclude blanks (no attempts → no rate to include).
+    return present.reduce((s, v) => s + v, 0) / present.length;
+  }
+  // Raw / count stats: blanks count as 0 across the full window.
+  return present.reduce((s, v) => s + v, 0) / analyses.length;
 };
 
 export const computeAllStatAverages = (
