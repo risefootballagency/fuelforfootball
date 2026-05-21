@@ -5196,6 +5196,27 @@ const Dashboard = () => {
           }}
         />
       )}
+
+      {/* Operating Profile reminder + dialog */}
+      {playerData?.id && (
+        <>
+          <OperatingProfileReminder
+            visible={!operatingProfileStatus.submitted && !operatingProfileDismissed}
+            inProgress={operatingProfileStatus.exists && !operatingProfileStatus.submitted}
+            onOpen={() => setOperatingProfileOpen(true)}
+            onDismiss={() => {
+              setOperatingProfileDismissed(true);
+              localStorage.setItem(`op_profile_dismissed_${playerData.id}`, "1");
+            }}
+          />
+          <OperatingProfileDialog
+            playerId={playerData.id}
+            open={operatingProfileOpen}
+            onOpenChange={setOperatingProfileOpen}
+            onSubmitted={() => setOperatingProfileStatus({ exists: true, submitted: true })}
+          />
+        </>
+      )}
     </div>
   );
 };
