@@ -5188,11 +5188,21 @@ const Dashboard = () => {
           playerName={playerData?.name || playerData?.email || ""}
           playerId={playerData.id}
           portalLanguage={portalLang}
+          hasSeenWelcome={!!(playerData as any)?.portal_welcome_seen_at}
           hasAnalyses={analyses.length > 0 || otherAnalyses.length > 0}
           hasPerformanceReports={analyses.some(a => !!a.r90_score)}
           onNavigate={(tab, subTab) => {
             setActiveTab(tab);
             if (subTab) setActiveAnalysisTab(subTab);
+          }}
+          onMarkSeen={async () => {
+            try {
+              await (supabase as any)
+                .from("players")
+                .update({ portal_welcome_seen_at: new Date().toISOString() })
+                .eq("id", playerData.id);
+              setPlayerData((p: any) => p ? { ...p, portal_welcome_seen_at: new Date().toISOString() } : p);
+            } catch {}
           }}
         />
       )}
