@@ -9,6 +9,7 @@ import { t, translateActionTypeLabel } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
 import { toTitleCase } from "@/lib/titleCase";
 import { ClippedActionsPlayer } from "@/components/ClippedActionsPlayer";
+import { canonicalActionType } from "@/lib/actionTypeNormaliser";
 
 interface Analysis {
   id: string;
