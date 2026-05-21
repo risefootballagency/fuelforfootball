@@ -901,6 +901,8 @@ const Dashboard = () => {
   const checkAuth = async () => {
     try {
       const isDemoMode = isDemoPortalMode();
+      setPortalWelcomeReady(false);
+      setPortalWelcomeSeen(true);
 
       // Check URL params first (staff portal login passes email via URL)
       const urlParams = new URLSearchParams(window.location.search);
@@ -5215,7 +5217,8 @@ const Dashboard = () => {
           playerName={playerData?.name || playerData?.email || ""}
           playerId={playerData.id}
           portalLanguage={portalLang}
-          hasSeenWelcome={!!(playerData as any)?.portal_welcome_seen_at}
+          hasSeenWelcome={portalWelcomeSeen}
+          ready={portalWelcomeReady}
           hasAnalyses={analyses.length > 0 || otherAnalyses.length > 0}
           hasPerformanceReports={analyses.some(a => !!a.r90_score)}
           onNavigate={(tab, subTab) => {
@@ -5223,12 +5226,14 @@ const Dashboard = () => {
             if (subTab) setActiveAnalysisTab(subTab);
           }}
           onMarkSeen={async () => {
+            const seenAt = new Date().toISOString();
+            setPortalWelcomeSeen(true);
+            localStorage.setItem(`${PORTAL_WELCOME_STORAGE_PREFIX}${playerData.id}`, "true");
             try {
-              await (supabase as any)
-                .from("players")
-                .update({ portal_welcome_seen_at: new Date().toISOString() })
-                .eq("id", playerData.id);
-              setPlayerData((p: any) => p ? { ...p, portal_welcome_seen_at: new Date().toISOString() } : p);
+              await (localSupabase as any)
+                .from("portal_welcome_seen")
+                .upsert({ player_id: playerData.id, seen_at: seenAt }, { onConflict: "player_id" });
+              setPlayerData((p: any) => p ? { ...p, portal_welcome_seen_at: seenAt } : p);
             } catch {}
           }}
         />
