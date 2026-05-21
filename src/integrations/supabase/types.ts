@@ -2556,6 +2556,33 @@ export type Database = {
           },
         ]
       }
+      player_operating_profile: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          player_id: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          player_id: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          player_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       player_other_analysis: {
         Row: {
           analysis_id: string
