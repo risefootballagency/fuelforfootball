@@ -353,6 +353,7 @@ export const AthleteCentre = () => {
     { value: "comparisons", label: "Comparisons", icon: BarChart3 },
     { value: "video", label: "Video Reports", icon: Film },
     { value: "analysis", label: "Analysis", icon: LineChart },
+    { value: "operating", label: "Operating Profile", icon: ClipboardList },
   ];
 
   return (
