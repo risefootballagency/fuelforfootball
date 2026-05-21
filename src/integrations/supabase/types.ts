@@ -3123,6 +3123,24 @@ export type Database = {
         }
         Relationships: []
       }
+      portal_welcome_seen: {
+        Row: {
+          created_at: string
+          player_id: string
+          seen_at: string
+        }
+        Insert: {
+          created_at?: string
+          player_id: string
+          seen_at?: string
+        }
+        Update: {
+          created_at?: string
+          player_id?: string
+          seen_at?: string
+        }
+        Relationships: []
+      }
       positional_guide_media: {
         Row: {
           created_at: string
