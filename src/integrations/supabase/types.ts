@@ -3018,6 +3018,7 @@ export type Database = {
           next_program_notes: string | null
           player_list_order: number | null
           portal_language: string | null
+          portal_welcome_seen_at: string | null
           position: string
           preferred_currency: string | null
           representation_status: string | null
@@ -3050,6 +3051,7 @@ export type Database = {
           next_program_notes?: string | null
           player_list_order?: number | null
           portal_language?: string | null
+          portal_welcome_seen_at?: string | null
           position: string
           preferred_currency?: string | null
           representation_status?: string | null
@@ -3082,6 +3084,7 @@ export type Database = {
           next_program_notes?: string | null
           player_list_order?: number | null
           portal_language?: string | null
+          portal_welcome_seen_at?: string | null
           position?: string
           preferred_currency?: string | null
           representation_status?: string | null
