@@ -63,6 +63,8 @@ import { SectionDivider } from "@/components/portal/SectionDivider";
 import { PortalMusicPlayer } from "@/components/portal/PortalMusicPlayer";
 import { PortalMusicControls } from "@/components/portal/PortalMusicControls";
 import { PortalWelcomeModal } from "@/components/portal/PortalWelcomeModal";
+import { OperatingProfileReminder } from "@/components/portal/OperatingProfileReminder";
+import { OperatingProfileDialog } from "@/components/portal/OperatingProfileDialog";
 
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
