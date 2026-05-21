@@ -1093,7 +1093,7 @@ const Dashboard = () => {
       checkNutritionPrograms(player.id);
       // Check operating profile status
       try {
-        const { data: op } = await (supabase as any)
+        const { data: op } = await (localSupabase as any)
           .from("player_operating_profile")
           .select("submitted_at")
           .eq("player_id", player.id)
