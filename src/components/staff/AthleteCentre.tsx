@@ -31,6 +31,7 @@ import { HighlightCompiler } from "@/components/staff/HighlightCompiler";
 import { AiShellSuggestions } from "@/components/staff/AiShellSuggestions";
 import { RecentPlayersBar, getRecentPlayerIds, addRecentPlayer } from "@/components/staff/RecentPlayersBar";
 import { SessionResumeBanner, saveSession, clearSession, type SessionState } from "@/components/staff/SessionResumeBanner";
+import { OperatingProfileViewer } from "@/components/staff/OperatingProfileViewer";
 
 interface Player {
   id: string;
@@ -352,6 +353,7 @@ export const AthleteCentre = () => {
     { value: "comparisons", label: "Comparisons", icon: BarChart3 },
     { value: "video", label: "Video Reports", icon: Film },
     { value: "analysis", label: "Analysis", icon: LineChart },
+    { value: "operating", label: "Operating Profile", icon: ClipboardList },
   ];
 
   return (
@@ -629,6 +631,10 @@ export const AthleteCentre = () => {
                           <p className="text-sm md:text-base">No analysis reports yet</p>
                         </div>
                       )}
+                    </TabsContent>
+
+                    <TabsContent value="operating" className="mt-0">
+                      <OperatingProfileViewer playerId={selectedPlayer} />
                     </TabsContent>
                   </Tabs>
                 </TabsContent>

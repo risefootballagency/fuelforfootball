@@ -63,6 +63,8 @@ import { SectionDivider } from "@/components/portal/SectionDivider";
 import { PortalMusicPlayer } from "@/components/portal/PortalMusicPlayer";
 import { PortalMusicControls } from "@/components/portal/PortalMusicControls";
 import { PortalWelcomeModal } from "@/components/portal/PortalWelcomeModal";
+import { OperatingProfileReminder } from "@/components/portal/OperatingProfileReminder";
+import { OperatingProfileDialog } from "@/components/portal/OperatingProfileDialog";
 
 // FFF Gold accent color for table headers and UI elements - matches design system --accent
 const FFF_GOLD = 'hsl(47, 100%, 51%)';
@@ -197,6 +199,9 @@ const Dashboard = () => {
   
   // Testing states
   const [testingDialogOpen, setTestingDialogOpen] = useState(false);
+  const [operatingProfileOpen, setOperatingProfileOpen] = useState(false);
+  const [operatingProfileStatus, setOperatingProfileStatus] = useState<{ exists: boolean; submitted: boolean }>({ exists: false, submitted: false });
+  const [operatingProfileDismissed, setOperatingProfileDismissed] = useState(false);
   const [selectedTest, setSelectedTest] = useState<{name: string; category: string; description?: string; reps?: string; sets?: number} | null>(null);
   const [testScore, setTestScore] = useState('');
   const [testNotes, setTestNotes] = useState('');
@@ -1057,6 +1062,16 @@ const Dashboard = () => {
       await fetchUpdates(player.id);
       await fetchTestResults(player.id);
       checkNutritionPrograms(player.id);
+      // Check operating profile status
+      try {
+        const { data: op } = await (supabase as any)
+          .from("player_operating_profile")
+          .select("submitted_at")
+          .eq("player_id", player.id)
+          .maybeSingle();
+        setOperatingProfileStatus({ exists: !!op, submitted: !!op?.submitted_at });
+        setOperatingProfileDismissed(localStorage.getItem(`op_profile_dismissed_${player.id}`) === "1");
+      } catch {}
     } catch (error) {
       console.error("Error loading data:", error);
       const isDemoMode = isDemoPortalMode();
@@ -5180,6 +5195,27 @@ const Dashboard = () => {
             if (subTab) setActiveAnalysisTab(subTab);
           }}
         />
+      )}
+
+      {/* Operating Profile reminder + dialog */}
+      {playerData?.id && (
+        <>
+          <OperatingProfileReminder
+            visible={!operatingProfileStatus.submitted && !operatingProfileDismissed}
+            inProgress={operatingProfileStatus.exists && !operatingProfileStatus.submitted}
+            onOpen={() => setOperatingProfileOpen(true)}
+            onDismiss={() => {
+              setOperatingProfileDismissed(true);
+              localStorage.setItem(`op_profile_dismissed_${playerData.id}`, "1");
+            }}
+          />
+          <OperatingProfileDialog
+            playerId={playerData.id}
+            open={operatingProfileOpen}
+            onOpenChange={setOperatingProfileOpen}
+            onSubmitted={() => setOperatingProfileStatus({ exists: true, submitted: true })}
+          />
+        </>
       )}
     </div>
   );
