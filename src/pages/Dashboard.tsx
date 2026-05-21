@@ -207,6 +207,17 @@ const Dashboard = () => {
   const [operatingProfileStatus, setOperatingProfileStatus] = useState<{ exists: boolean; submitted: boolean }>({ exists: false, submitted: false });
   const [operatingProfileDismissed, setOperatingProfileDismissed] = useState(false);
   const [operatingProfileAutoOpened, setOperatingProfileAutoOpened] = useState(false);
+
+  // Auto-open operating profile dialog once for new players (after welcome modal seen). Matches RISE behaviour.
+  useEffect(() => {
+    if (operatingProfileAutoOpened) return;
+    if (!playerData?.id) return;
+    if (operatingProfileStatus.submitted || operatingProfileStatus.exists) return;
+    if (operatingProfileDismissed) return;
+    if (!portalWelcomeSeen) return;
+    setOperatingProfileAutoOpened(true);
+    setOperatingProfileOpen(true);
+  }, [playerData?.id, operatingProfileStatus.submitted, operatingProfileStatus.exists, operatingProfileDismissed, portalWelcomeSeen, operatingProfileAutoOpened]);
   const [selectedTest, setSelectedTest] = useState<{name: string; category: string; description?: string; reps?: string; sets?: number} | null>(null);
   const [testScore, setTestScore] = useState('');
   const [testNotes, setTestNotes] = useState('');
