@@ -1096,10 +1096,11 @@ const Dashboard = () => {
       try {
         const { data: op } = await (localSupabase as any)
           .from("player_operating_profile")
-          .select("submitted_at")
+          .select("submitted_at, answers")
           .eq("player_id", player.id)
           .maybeSingle();
-        setOperatingProfileStatus({ exists: !!op, submitted: !!op?.submitted_at });
+        const hasAny = op?.answers && typeof op.answers === "object" && Object.keys(op.answers).length > 0;
+        setOperatingProfileStatus({ exists: !!op && (hasAny || !!op?.submitted_at), submitted: !!op?.submitted_at });
         setOperatingProfileDismissed(localStorage.getItem(`op_profile_dismissed_${player.id}`) === "1");
       } catch {}
     } catch (error) {
