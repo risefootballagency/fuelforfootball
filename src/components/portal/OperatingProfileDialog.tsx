@@ -193,7 +193,7 @@ export const OperatingProfileDialog = ({ playerId, open, onOpenChange, onSubmitt
             {stepIdx < sections.length - 1 ? (
               <Button type="button" onClick={goNext}>Next <ChevronRight className="h-4 w-4 ml-1" /></Button>
             ) : (
-              <Button type="button" onClick={() => persist(true)} disabled={saving} className="bg-accent text-black hover:bg-accent/90"><Check className="h-4 w-4 mr-1" /> Submit</Button>
+              <Button type="button" onClick={() => persist(true)} disabled={saving} className="bg-accent text-accent-foreground hover:bg-accent/90"><Check className="h-4 w-4 mr-1" /> Submit</Button>
             )}
           </div>
         </div>
