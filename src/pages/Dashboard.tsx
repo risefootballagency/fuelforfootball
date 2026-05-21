@@ -1004,7 +1004,7 @@ const Dashboard = () => {
       const normalizedPlayerEmail = playerEmail.toLowerCase().trim();
       let { data: player, error: playerError } = await supabase
         .from("players")
-        .select("id, portal_language, email")
+        .select("id, portal_language, email, created_at, portal_welcome_seen_at")
         .ilike("email", normalizedPlayerEmail)
         .maybeSingle();
 
@@ -1012,7 +1012,7 @@ const Dashboard = () => {
         const demoPlayerId = sessionStorage.getItem("demo_portal_player_id") || DEMO_PLAYER_ID;
         const { data: fallbackPlayer, error: fallbackError } = await supabase
           .from("players")
-          .select("id, portal_language, email")
+          .select("id, portal_language, email, created_at, portal_welcome_seen_at")
           .eq("id", demoPlayerId)
           .maybeSingle();
 
@@ -1027,7 +1027,7 @@ const Dashboard = () => {
         } else {
           const { data: localFallbackPlayer, error: localFallbackError } = await localSupabase
             .from("players")
-            .select("id, portal_language, email")
+            .select("id, portal_language, email, created_at, portal_welcome_seen_at")
             .eq("id", demoPlayerId)
             .maybeSingle();
 
@@ -1058,6 +1058,29 @@ const Dashboard = () => {
       // Set portal language hint from player's configured language
       if ((player as any)?.portal_language) {
         localStorage.setItem("portal_language_hint", (player as any).portal_language);
+      }
+
+      try {
+        const playerCreatedAt = Date.parse((player as any)?.created_at || "");
+        const isExistingPlayer = Number.isFinite(playerCreatedAt) && playerCreatedAt < PORTAL_WELCOME_ROLLOUT_AT;
+        const localSeen = localStorage.getItem(`${PORTAL_WELCOME_STORAGE_PREFIX}${player.id}`) === "true";
+        const { data: welcomeSeenRecord } = await (supabase as any)
+          .from("portal_welcome_seen")
+          .select("seen_at")
+          .eq("player_id", player.id)
+          .maybeSingle();
+        const resolvedSeen = isDemoMode || isExistingPlayer || localSeen || !!(player as any)?.portal_welcome_seen_at || !!welcomeSeenRecord?.seen_at;
+        setPortalWelcomeSeen(resolvedSeen);
+        setPortalWelcomeReady(true);
+        if (resolvedSeen) {
+          localStorage.setItem(`${PORTAL_WELCOME_STORAGE_PREFIX}${player.id}`, "true");
+          if ((isExistingPlayer || localSeen) && !welcomeSeenRecord?.seen_at) {
+            void (supabase as any).from("portal_welcome_seen").upsert({ player_id: player.id, seen_at: new Date().toISOString() }, { onConflict: "player_id" });
+          }
+        }
+      } catch {
+        setPortalWelcomeSeen(true);
+        setPortalWelcomeReady(true);
       }
 
       await fetchAnalyses(playerEmail);
