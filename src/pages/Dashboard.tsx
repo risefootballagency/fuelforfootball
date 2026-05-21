@@ -71,6 +71,8 @@ const FFF_GOLD = 'hsl(47, 100%, 51%)';
 const FFF_GOLD_DIM = 'hsl(47, 90%, 40%)';
 const DEMO_PLAYER_EMAIL = "bloggs@fuelforfootball.com";
 const DEMO_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
+const PORTAL_WELCOME_STORAGE_PREFIX = "portal_welcome_seen_";
+const PORTAL_WELCOME_ROLLOUT_AT = Date.parse("2026-05-21T00:00:00Z");
 
 const isDemoPortalMode = () => {
   if (typeof window === "undefined") return false;
@@ -199,6 +201,8 @@ const Dashboard = () => {
   
   // Testing states
   const [testingDialogOpen, setTestingDialogOpen] = useState(false);
+  const [portalWelcomeReady, setPortalWelcomeReady] = useState(false);
+  const [portalWelcomeSeen, setPortalWelcomeSeen] = useState(true);
   const [operatingProfileOpen, setOperatingProfileOpen] = useState(false);
   const [operatingProfileStatus, setOperatingProfileStatus] = useState<{ exists: boolean; submitted: boolean }>({ exists: false, submitted: false });
   const [operatingProfileDismissed, setOperatingProfileDismissed] = useState(false);
