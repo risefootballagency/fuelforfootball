@@ -632,6 +632,10 @@ export const AthleteCentre = () => {
                         </div>
                       )}
                     </TabsContent>
+
+                    <TabsContent value="operating" className="mt-0">
+                      <OperatingProfileViewer playerId={selectedPlayer} />
+                    </TabsContent>
                   </Tabs>
                 </TabsContent>
               </div>
