@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { getR90Grade } from "@/lib/gradeCalculations";
-import { getR90Foreground } from "@/lib/r90Resolver";
+import { getEffectiveR90 as resolveEffectiveR90, getR90Foreground } from "@/lib/r90Resolver";
 import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
 import { createAnalysisSlug } from "@/lib/urlHelpers";
 import { QuickStatsComparison } from "./QuickStatsComparison";
@@ -573,19 +573,8 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
     }
   }, []);
 
-  const getEffectiveR90 = (a: PlayerAnalysis): number | null => {
-    const status = String(a.visibility_status || "").toLowerCase();
-    if (status === "draft" || status === "clipped") return null;
-    if (status === "hidden") {
-      // R90 for hidden reports comes ONLY from raw_score / minutes.
-      // placeholder_per is the PER metric, not R90.
-      if (a.placeholder_raw_score != null && a.placeholder_minutes) {
-        return (a.placeholder_raw_score / a.placeholder_minutes) * 90;
-      }
-      return null;
-    }
-    return a.r90_score;
-  };
+  const getEffectiveR90 = (a: PlayerAnalysis): number | null =>
+    resolveEffectiveR90(a as any);
 
   const chartData = analyses
     .filter(a => getEffectiveR90(a) != null)
