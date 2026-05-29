@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase as localSupabase } from "@/integrations/supabase/client";
 import { sharedSupabase } from "@/integrations/supabase/sharedClient";
 import { getR90Grade } from "@/lib/gradeCalculations";
+import { getR90Foreground } from "@/lib/r90Resolver";
 import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
 import { createAnalysisSlug } from "@/lib/urlHelpers";
 import { QuickStatsComparison } from "./QuickStatsComparison";
@@ -1103,7 +1104,7 @@ export const Hub = ({ programs, analyses, playerData, dailyAphorism, portalSetti
                           if (effectiveR90 == null) return null;
                           return (
                             <div 
-                              className="px-3 py-1 rounded text-white text-sm font-bold border-2 border-transparent hover:border-accent transition-colors duration-200"
+                              className={`px-3 py-1 rounded text-sm font-bold border-2 border-transparent hover:border-accent transition-colors duration-200 ${getR90Foreground(effectiveR90)}`}
                               style={{ backgroundColor: getR90Color(effectiveR90) }}
                             >
                               R90: {effectiveR90.toFixed(2)}
