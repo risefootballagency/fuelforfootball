@@ -287,7 +287,7 @@ export const ActionReportsList = ({ onCreateReport, onEditReport, defaultPlayerI
               })()}
               
               {/* Match info with black background */}
-              <div className="bg-black flex-1 p-3 md:p-4">
+              <div className="bg-black text-white flex-1 p-3 md:p-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
