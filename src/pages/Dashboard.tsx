@@ -16,7 +16,7 @@ import { NotificationPermission } from "@/components/NotificationPermission";
 import { NotificationSettings } from "@/components/NotificationSettings";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { toast } from "sonner";
-import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, Trophy, TrendingUp, Eye, EyeOff, ChevronUp, ChevronDown as ChevronDownIcon, List, RefreshCw, CheckCircle2, WifiOff, Bell, BarChart3, ChevronLeft, LineChart, Video, Database, Users, Search, Compass, Layers, Brain, FolderOpen, Activity, Apple, ShoppingBag } from "lucide-react";
+import { FileText, Play, Download, Upload, ChevronDown, Trash2, Lock, Calendar, Trophy, TrendingUp, Eye, EyeOff, ChevronUp, ChevronDown as ChevronDownIcon, List, RefreshCw, CheckCircle2, WifiOff, Bell, BarChart3, ChevronLeft, LineChart, Video, Database, Users, Search, Compass, Layers, Brain, FolderOpen, Activity, Apple, ShoppingBag, ClipboardList } from "lucide-react";
 import { ClipNameEditor } from "@/components/ClipNameEditor";
 import { addDays, format, parseISO, startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
 import { getDemoDate } from "@/lib/demoDate";
@@ -210,26 +210,6 @@ const Dashboard = () => {
   const [operatingProfileOpen, setOperatingProfileOpen] = useState(false);
   const [operatingProfileStatus, setOperatingProfileStatus] = useState<{ exists: boolean; submitted: boolean }>({ exists: false, submitted: false });
   const [operatingProfileDismissed, setOperatingProfileDismissed] = useState(false);
-  const [operatingProfileAutoOpened, setOperatingProfileAutoOpened] = useState(false);
-
-  // Legacy player check — players created before the operating-profile rollout
-  // should not see the reminder/auto-open unless they have already started.
-  const isLegacyForOperatingProfile = (() => {
-    const createdAt = Date.parse((playerData as any)?.created_at || "");
-    return Number.isFinite(createdAt) && createdAt < OPERATING_PROFILE_ROLLOUT_AT;
-  })();
-
-  // Auto-open operating profile dialog once for new players (after welcome modal seen). Matches RISE behaviour.
-  useEffect(() => {
-    if (operatingProfileAutoOpened) return;
-    if (!playerData?.id) return;
-    if (operatingProfileStatus.submitted || operatingProfileStatus.exists) return;
-    if (operatingProfileDismissed) return;
-    if (!portalWelcomeSeen) return;
-    if (isLegacyForOperatingProfile) return;
-    setOperatingProfileAutoOpened(true);
-    setOperatingProfileOpen(true);
-  }, [playerData?.id, operatingProfileStatus.submitted, operatingProfileStatus.exists, operatingProfileDismissed, portalWelcomeSeen, operatingProfileAutoOpened, isLegacyForOperatingProfile]);
   const [selectedTest, setSelectedTest] = useState<{name: string; category: string; description?: string; reps?: string; sets?: number} | null>(null);
   const [testScore, setTestScore] = useState('');
   const [testNotes, setTestNotes] = useState('');
