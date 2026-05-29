@@ -73,10 +73,6 @@ const DEMO_PLAYER_EMAIL = "bloggs@fuelforfootball.com";
 const DEMO_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
 const PORTAL_WELCOME_STORAGE_PREFIX = "portal_welcome_seen_";
 const PORTAL_WELCOME_ROLLOUT_AT = Date.parse("2026-05-21T00:00:00Z");
-// Operating profile rolled out alongside the welcome modal — players that
-// existed before this cutoff should not see the reminder/auto-open unless
-// they've already started a profile.
-const OPERATING_PROFILE_ROLLOUT_AT = Date.parse("2026-05-21T00:00:00Z");
 
 const isDemoPortalMode = () => {
   if (typeof window === "undefined") return false;
@@ -2052,15 +2048,43 @@ const Dashboard = () => {
       <header className="sticky top-0 bg-[url('/grass-smoky-3.png')] bg-cover bg-center border-b border-border z-50 pwa-safe-top">
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
         <div className="container mx-auto px-4 relative z-10">
-          <div className="flex items-center justify-center h-16">
+          <div className="relative flex items-center justify-center h-16">
             <img 
               src="/fff_logo.png"
               alt="Fuel For Football"
               className="h-10 w-auto"
             />
+            {playerData?.id && !operatingProfileStatus.submitted && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setOperatingProfileOpen(true)}
+                className="absolute right-0 h-9 border-accent/60 bg-background/70 text-accent hover:bg-accent hover:text-accent-foreground"
+                title={t(portalLang, "op_profile_title")}
+              >
+                <ClipboardList className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">
+                  {operatingProfileStatus.exists ? t(portalLang, "op_profile_continue") : t(portalLang, "op_profile_start")}
+                </span>
+              </Button>
+            )}
           </div>
         </div>
       </header>
+
+      {playerData?.id && !operatingProfileStatus.submitted && (
+        <OperatingProfileReminder
+          visible={!operatingProfileDismissed && !operatingProfileOpen}
+          inProgress={operatingProfileStatus.exists}
+          onOpen={() => setOperatingProfileOpen(true)}
+          onDismiss={() => {
+            setOperatingProfileDismissed(true);
+            localStorage.setItem(`op_profile_dismissed_${playerData.id}`, "1");
+          }}
+          portalLanguage={portalLang}
+        />
+      )}
 
       {/* Subheader with Options */}
       <div id="subheader" className="bg-background">
@@ -5247,16 +5271,6 @@ const Dashboard = () => {
       {/* Operating Profile reminder + dialog */}
       {playerData?.id && (
         <>
-          <OperatingProfileReminder
-            visible={!operatingProfileStatus.submitted && !operatingProfileDismissed}
-            inProgress={operatingProfileStatus.exists && !operatingProfileStatus.submitted}
-            legacyHidden={isLegacyForOperatingProfile && !operatingProfileStatus.exists}
-            onOpen={() => setOperatingProfileOpen(true)}
-            onDismiss={() => {
-              setOperatingProfileDismissed(true);
-              localStorage.setItem(`op_profile_dismissed_${playerData.id}`, "1");
-            }}
-          />
           <OperatingProfileDialog
             playerId={playerData.id}
             open={operatingProfileOpen}
