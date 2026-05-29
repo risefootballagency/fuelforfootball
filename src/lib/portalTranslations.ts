@@ -260,6 +260,14 @@ const extendedKeys: Record<string, string> = {
   description: "Description",
   video: "Video",
   watch_exercise_video: "Watch Exercise Video",
+  // Operating profile reminder + dialog
+  op_profile_intro_title: "What makes you tick?",
+  op_profile_intro_body: "Help us to know how to provide the best support to you",
+  op_profile_resume_title: "Pick up where you left off",
+  op_profile_resume_body: "Your operating profile is saved. Finish it when you get time.",
+  op_profile_start: "Start",
+  op_profile_continue: "Continue",
+  op_profile_title: "Player Operating Profile",
 };
 
 const translations: Record<string, Record<string, string>> = {

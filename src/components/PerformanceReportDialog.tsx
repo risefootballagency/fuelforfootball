@@ -30,11 +30,21 @@ import { ReportErrorBoundary } from "@/components/portal/ReportErrorBoundary";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
 const formatMinute = (minute: number | null | undefined): string => {
-  if (minute === null || minute === undefined) return "-";
+  if (minute === null || minute === undefined || !Number.isFinite(Number(minute))) return "-";
   const minPart = Math.floor(minute);
   const secPart = Math.round((minute - minPart) * 100);
   return `${minPart}.${secPart.toString().padStart(2, '0')}`;
 };
+
+const normalisePerformanceAction = (action: any): PerformanceAction => ({
+  ...action,
+  action_number: Number.isFinite(Number(action?.action_number)) ? Number(action.action_number) : 0,
+  minute: Number.isFinite(Number(action?.minute)) ? Number(action.minute) : 0,
+  action_score: Number.isFinite(Number(action?.action_score)) ? Number(action.action_score) : 0,
+  action_type: typeof action?.action_type === "string" && action.action_type.trim() ? action.action_type : "Uncategorised Action",
+  action_description: typeof action?.action_description === "string" ? action.action_description : "",
+  notes: typeof action?.notes === "string" ? action.notes : null,
+});
 
 interface PerformanceAction {
   id: string;
@@ -227,7 +237,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
       });
 
       if (actionsResult.error) throw actionsResult.error;
-      setActions((actionsResult.data || []).sort((a: any, b: any) => (a.action_number ?? 0) - (b.action_number ?? 0)) as any);
+      setActions((actionsResult.data || []).map(normalisePerformanceAction).sort((a, b) => (a.action_number ?? 0) - (b.action_number ?? 0)));
       
       // Mark this ID as prefetched
       setPrefetchedId(id);
