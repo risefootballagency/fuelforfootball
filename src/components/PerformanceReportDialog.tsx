@@ -1224,6 +1224,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
             </div>
             </div>
           )}
+          </ReportErrorBoundary>
         </div>
       </DialogContent>
 
