@@ -1,74 +1,60 @@
-# RISE → FFF: last 7 days of RISE additions worth porting
+## Goals
 
-Pulled from RISE's chat history (15–18 May 2026). Filtered to agency-neutral items that would benefit FFF. Pick whichever you want and I'll execute.
+1. Pull across the remaining recent RISE improvements (operating profile, decimal places, hidden-R90 use).
+2. Stop the one performance report that crashes the page from killing the whole view.
+3. Make the R90 chip on locked/hidden reports legible on mobile (currently white text on yellow/lime).
 
-## A. Highlights Maker Portal (big feature, fully built on RISE)
+## What's already in sync with RISE (verified)
 
-A separate, low-security portal for external highlight editors. Login is just a username (no email, no password required), staff assigns specific players to each maker, and the maker logs in to a stripped-down portal that shows only those players.
+- Operating Profile dialog, reminder banner copy ("What makes you tick?"), drag-to-rank, silent autosave, one-time auto-open gated on `portalWelcomeSeen`, `localStorage` dismiss — all match RISE.
+- `getEffectiveR90` logic (draft/clipped → null, hidden → `placeholder_raw_score / placeholder_minutes * 90`, else `r90_score`) is identical in `Hub.tsx`, `AnalysisDataTab.tsx`, `Dashboard.tsx`, `r90Resolver.ts`.
+- `R90FlowChart` 5-minute warm-up delay, `statAggregation` blanks-vs-zero rule, hidden-state lock screen in `PerformanceReportDialog` — all match.
 
-What they get in the portal:
-- Player picker with club logo, name, date pulled from performance reports.
-- The exact staff `ClippedActionsPlayer` (same controls, autoplay-next, R90 / Action Score) — not a custom mini player.
-- Per-player playlists in the saved order, with individual clip download + full-playlist ZIP download (JSZip).
-- Wyscout-style Video Reports tab: positive-only clips grouped by action category, colour-coded action-score tiles, click a tile to play.
-- "My Playlists" tab where the maker can create/upload their own playlists, shared with staff (so they feed into the same tables you already use).
+So the porting work is mostly consolidation + small correctness fixes, not large features.
 
-Supporting plumbing:
-- `highlight_makers` and `highlight_maker_players` tables, RLS denies direct access, all reads via edge functions with service role.
-- `highlight-maker-login-check` + `highlight-maker-data` edge functions (`verify_jwt = false`).
-- Staff UI: "Highlights Makers" management embedded directly inside Staff Accounts, with Add maker + Manage Players dialogs.
-- `is_favourite` boolean on `playlists` — only starred playlists appear in the highlights portal. Star toggle added to `PlaylistContent` and `PlaylistManager`.
+## A. Operating Profile — visibility tightening
 
-## B. Investor Portal (also big, fully built on RISE)
+Two small misses vs RISE:
 
-Private dashboard at `/investors-portal` (added to `robots.txt` disallow). Single hardcoded login (`levene` / `England4`) via bcrypt-checked edge function, structured so multi-user invite can be added later.
+1. `OperatingProfileReminder` currently renders for any player who hasn't submitted, even existing/legacy ones — same trap we hit with the welcome modal. Add the same rollout cutoff used for `PORTAL_WELCOME_ROLLOUT_AT`: hide the banner for players created before the operating-profile rollout date unless they've already started answering. This stops the banner appearing for accounts that have logged in dozens of times pre-feature.
+2. `ActionReportsList.tsx` (staff) `getEffectiveR90` is missing the `draft`/`clipped` → null branch — it returns `r90_score` for drafts, which leaks an auto score into the staff list. Replace it with `import { getEffectiveR90 } from "@/lib/r90Resolver"` so all four call sites share one definition (Hub, Dashboard, AnalysisDataTab, ActionReportsList).
 
-Sections:
-1. **Overview** — monthly spend, remaining budget, active players, active mandates, key activity summary.
-2. **Activity Log** — auto-ingestible feed (date, person, category, description). Categories: outreach / analysis / admin / travel / deal / communication.
-3. **Spending Tracker** — categorised (tools, travel, staff, misc), monthly + running totals, Recharts bar/line.
-4. **Player Pipeline** — table of players: name, age group, region, status (lead/contact/mandate/active/deal in progress), notes, expected value.
-5. **Deals & Opportunities** — stage-based negotiation tracker with timeline notes.
-6. **System Notes / Strategy Log** — founder reflections.
+## B. Decimal places + hidden-R90 use
 
-Tables: `investor_users`, `investor_sessions`, `investor_activity_log`, `investor_spending`, `investor_pipeline`, `investor_deals`, `investor_notes` — all RLS-denied, all access via `investor-login` / `investor-data` / `investor-write` edge functions.
+Centralise the formatting that's currently `.toFixed(2)` / `.toFixed(3)` scattered around:
 
-Visual: dark premium, shader intro before login, second shader transition after login, success chime with mute toggle.
+- Add `src/lib/numberFormat.ts` with `fmtR90(n)`, `fmtScore(n)`, `fmtPct(n)` — all null-safe (return `'—'` for null / NaN / Infinity, matching the project's null-guard rule).
+- Replace raw `.toFixed()` in `PerformanceReportDialog.tsx` (Raw Score, R90, action_score), `ActionReportsList.tsx`, `AnalysisDataTab.tsx` r90 cell and the metric cells (`val.toFixed(2)`), `Hub.tsx` R90 chip.
+- Use `getEffectiveR90` from `r90Resolver` everywhere `r90_score` is read for display, so hidden reports consistently show the placeholder-derived figure (the staff list currently shows `null` for hidden when placeholder is set, because of the missing branch in A.2).
 
-(Would need an FFF-specific login + branding. If you don't want investors as a use case, this could also be repurposed as an internal "ops dashboard" for you.)
+## C. Performance report that crashes the page
 
-## C. Quick UX wins (small, high value)
+Without the offending report ID I can't pinpoint the field, but the dialog has two well-known crash vectors that match the symptom ("breaks the page" on one specific report):
 
-1. **Stats Updater sidebar — flat when ≤7 sections.** In `Staff.tsx` `applyRoleVisibility`, if a role has 7 or fewer visible sections, drop category wrappers and just render the section buttons in order. Cleaner sidebar for scoped roles.
+1. `PerformanceReportDialog.tsx:858` divides by `analysis.minutes_played` without a `> 0` guard → `Infinity`/`NaN` → `.toFixed()` is fine but downstream chart math (R90FlowChart, heatmaps) explodes when a report has `minutes_played = 0` or `null` and `actions.length > 0`.
+2. `R90FlowChart` does `Math.max(...sorted.map(...))` with no fallback when an action's `minute` is null — produces `NaN`, then `startMinute = NaN`, then the loop doesn't run but `chartData[chartData.length - 1]` is fine. Safer: filter null minutes before reducing.
 
-2. **Username-or-email login everywhere.** Staff login + create-account flow accept either. If no `@` is present, append a synthetic domain (e.g. `@fff.local`) before calling Supabase auth. Email field switches to `type="text"`, label becomes "Email or username".
+Fix plan:
+- Wrap the dialog body in an `ErrorBoundary` so a single bad report shows a "Couldn't render this report" panel instead of taking the page down.
+- Add null/zero guards in `PerformanceReportDialog` Raw Score / R90 / Mins blocks (`minutes_played > 0`, `Number.isFinite(...)`).
+- Add null-minute filtering at the top of `R90FlowChart.useMemo`, plus null filtering in `ActionHeatmap`, `MatchTimelapse`, `ChanceCreationFlow` for `action_score`/`minute`.
+- Log a `console.warn` with `analysis.id` when we hit a guard so the next crash report is debuggable.
 
-3. **Password optional for limited roles.** When creating a stats-updater (or similar low-trust role), password is optional — if blank, auto-generate and show in the post-create credentials panel. Other roles keep `minLength=8` required.
+**Need from you (non-blocking — I'll ship the guards regardless):** which player + opponent is the report that crashes? That lets me confirm the exact field that's empty rather than guessing.
 
-4. **Playlist `is_favourite` star.** Even without the highlights portal, this is useful: stops half-finished/internal playlists cluttering the player Hub. Add a star toggle to `PlaylistContent`/`PlaylistManager`, and filter the portal feed to favourites only.
+## D. Locked / hidden R90 — mobile colour contrast
 
-## D. Performance Report polish (matches issues you've hit before)
+The R90 chip in `Hub.tsx` (portal) and the mobile R90 strip in `ActionReportsList` use `text-white` over `getR90ColorClass`, which returns light yellow (`bg-yellow-400`) and lime (`bg-lime-400`) for mid-range scores — white-on-yellow is invisible. This affects every R90 chip but is most visible for hidden reports because the placeholder score often lands in that mid range.
 
-5. **H1 toggle in the 45–51 minute overlap window.** Add `is_first_half?: boolean` to `PerformanceAction`. In `ActionTypeEditor`, show an inline `H1` toggle next to the minute input only for actions in 45–51. Sorting bucket: 0–45 = H1, ≥51 = H2, 45–51 = H1 toggle wins. This is the only way to keep a 47.00 H1 action above a 46.30 H2 action consistently across edit view, shared report, flow chart and clip players.
+Fix:
+- In `getR90ColorClass` (staff) and `getR90Color` (portal), pair every colour with a matching foreground token; expose `getR90Foreground(score)` returning `text-black` for the light bands (`yellow-400`, `lime-400`, `orange-500`) and `text-white` for the dark bands.
+- Apply at the four chip sites: portal Hub R90 button (line 1106), staff list mobile R90 (line 272) + desktop R90 (line 283), and the inline draft/clipped `text-white/60` pills (those are already on `bg-zinc-700`, no change needed).
 
-6. **Blank stats handling.** Raw/count stats: treat blank as 0 across the full window (divide by `analyses.length`). Percentage stats: still exclude blanks (divide by `present.length`). Apply centrally in `statAggregation.ts` so portal averages, transfer comparisons, data tab, radar/percentile and `QuickStatsComparison` all match.
+## Technical notes
 
-7. **Action type normaliser for Video Reports.** New `src/lib/actionTypeNormaliser.ts` with `normaliseActionType()` — strips punctuation, lowercases, collapses variants and misspellings ("Not Held" → "Tackle - Not Held", typos merged into canonical form). Stops the giant lists of near-duplicate action types.
+- No DB or edge-function changes.
+- New file: `src/lib/numberFormat.ts`.
+- Edits: `r90Resolver.ts` (no logic change, just add `getR90Color` + `getR90Foreground` helper there for one source of truth), `Hub.tsx`, `Dashboard.tsx`, `AnalysisDataTab.tsx`, `ActionReportsList.tsx`, `PerformanceReportDialog.tsx`, `R90FlowChart.tsx`, `OperatingProfileReminder.tsx` (rollout-cutoff prop), `pages/Dashboard.tsx` (pass `playerCreatedAt` + rollout constant to the reminder), new `src/components/portal/ReportErrorBoundary.tsx`.
+- `r90Resolver.ts` already exists and is unused — this finally adopts it.
 
-## E. PDF Signing improvements (only relevant if you use SignContract)
-
-8. **Audit log appended to signed PDFs.** `pdfExport.ts` gains `appendAuditPage()` — extra page with title, doc ID, SHA-256 hash, signer name/email, signed-at, intent-consent-at, IP, user agent. Wired into `exportSignedContractPDF`.
-9. **"Download PDF" button under Submit Signature** so signers can save outside the browser.
-10. **"Signing Electronically" pre-ticked + "More Options" collapsible** with print-to-sign fallback inside. Less friction.
-11. **Date field centering + dynamic font sizing** so dates fill their box instead of wrapping.
-12. **Signed URL resolution for private `signature-contracts` bucket** — fixes the "Unable to display PDF" error on shared signing links after the bucket was made private.
-
----
-
-## Suggested priority order
-
-Pure quick wins (do anytime): C1, C2, C3, D5, D6, D7.
-Medium upgrade: C4 (playlist star), E8–E12 (if SignContract is in use).
-Big features: A (Highlights Maker Portal), B (Investor / Ops Portal).
-
-Tell me which items (e.g. "C1, C2, C3, D5, D6, D7" or "all of C and D, plus A") and I'll execute in one pass.
+Reply with the crashing report (player + opponent or URL) when you have it; I'll fold the specific field into the guards before shipping.
