@@ -5270,6 +5270,7 @@ const Dashboard = () => {
           <OperatingProfileReminder
             visible={!operatingProfileStatus.submitted && !operatingProfileDismissed}
             inProgress={operatingProfileStatus.exists && !operatingProfileStatus.submitted}
+            legacyHidden={isLegacyForOperatingProfile && !operatingProfileStatus.exists}
             onOpen={() => setOperatingProfileOpen(true)}
             onDismiss={() => {
               setOperatingProfileDismissed(true);
