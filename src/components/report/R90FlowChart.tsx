@@ -18,9 +18,16 @@ interface R90FlowChartProps {
 
 export const R90FlowChart = ({ actions, minutesPlayed, language = "en" }: R90FlowChartProps) => {
   const chartData = useMemo(() => {
-    if (actions.length === 0 || !minutesPlayed) return [];
+    if (!actions || actions.length === 0 || !minutesPlayed || minutesPlayed <= 0) return [];
 
-    const sorted = sortReportActionsChronologically(actions);
+    // Defensive: drop actions without a finite minute or score before we run
+    // Math.max / divisions, otherwise a single null produces NaN and crashes.
+    const safeActions = actions.filter(
+      a => a && Number.isFinite(a.minute) && Number.isFinite(a.action_score),
+    );
+    if (safeActions.length === 0) return [];
+
+    const sorted = sortReportActionsChronologically(safeActions);
     const lastActionMinute = Math.max(...sorted.map(a => Math.floor(a.minute)));
     const startMinute = Math.max(0, lastActionMinute - minutesPlayed);
 

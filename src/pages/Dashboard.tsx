@@ -73,6 +73,10 @@ const DEMO_PLAYER_EMAIL = "bloggs@fuelforfootball.com";
 const DEMO_PLAYER_ID = "e3ae5dcd-0a67-4d49-bf04-879040c4b8c3";
 const PORTAL_WELCOME_STORAGE_PREFIX = "portal_welcome_seen_";
 const PORTAL_WELCOME_ROLLOUT_AT = Date.parse("2026-05-21T00:00:00Z");
+// Operating profile rolled out alongside the welcome modal — players that
+// existed before this cutoff should not see the reminder/auto-open unless
+// they've already started a profile.
+const OPERATING_PROFILE_ROLLOUT_AT = Date.parse("2026-05-21T00:00:00Z");
 
 const isDemoPortalMode = () => {
   if (typeof window === "undefined") return false;
@@ -208,6 +212,13 @@ const Dashboard = () => {
   const [operatingProfileDismissed, setOperatingProfileDismissed] = useState(false);
   const [operatingProfileAutoOpened, setOperatingProfileAutoOpened] = useState(false);
 
+  // Legacy player check — players created before the operating-profile rollout
+  // should not see the reminder/auto-open unless they have already started.
+  const isLegacyForOperatingProfile = (() => {
+    const createdAt = Date.parse((playerData as any)?.created_at || "");
+    return Number.isFinite(createdAt) && createdAt < OPERATING_PROFILE_ROLLOUT_AT;
+  })();
+
   // Auto-open operating profile dialog once for new players (after welcome modal seen). Matches RISE behaviour.
   useEffect(() => {
     if (operatingProfileAutoOpened) return;
@@ -215,9 +226,10 @@ const Dashboard = () => {
     if (operatingProfileStatus.submitted || operatingProfileStatus.exists) return;
     if (operatingProfileDismissed) return;
     if (!portalWelcomeSeen) return;
+    if (isLegacyForOperatingProfile) return;
     setOperatingProfileAutoOpened(true);
     setOperatingProfileOpen(true);
-  }, [playerData?.id, operatingProfileStatus.submitted, operatingProfileStatus.exists, operatingProfileDismissed, portalWelcomeSeen, operatingProfileAutoOpened]);
+  }, [playerData?.id, operatingProfileStatus.submitted, operatingProfileStatus.exists, operatingProfileDismissed, portalWelcomeSeen, operatingProfileAutoOpened, isLegacyForOperatingProfile]);
   const [selectedTest, setSelectedTest] = useState<{name: string; category: string; description?: string; reps?: string; sets?: number} | null>(null);
   const [testScore, setTestScore] = useState('');
   const [testNotes, setTestNotes] = useState('');
@@ -5258,6 +5270,7 @@ const Dashboard = () => {
           <OperatingProfileReminder
             visible={!operatingProfileStatus.submitted && !operatingProfileDismissed}
             inProgress={operatingProfileStatus.exists && !operatingProfileStatus.submitted}
+            legacyHidden={isLegacyForOperatingProfile && !operatingProfileStatus.exists}
             onOpen={() => setOperatingProfileOpen(true)}
             onDismiss={() => {
               setOperatingProfileDismissed(true);

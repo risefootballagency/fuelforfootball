@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 interface Props {
   visible: boolean;
   inProgress: boolean;
+  /** When true the reminder is suppressed even if `visible` — used to hide it for pre-rollout players who haven't started a profile yet. */
+  legacyHidden?: boolean;
   onOpen: () => void;
   onDismiss: () => void;
 }
 
-export const OperatingProfileReminder = ({ visible, inProgress, onOpen, onDismiss }: Props) => {
-  if (!visible) return null;
+export const OperatingProfileReminder = ({ visible, inProgress, legacyHidden, onOpen, onDismiss }: Props) => {
+  if (!visible || legacyHidden) return null;
   return (
     <div className="sticky top-16 z-40 px-3 sm:px-4 pwa-safe-top">
       <div className="mx-auto max-w-4xl mt-2">

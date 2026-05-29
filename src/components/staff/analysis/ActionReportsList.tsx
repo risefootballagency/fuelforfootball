@@ -14,6 +14,7 @@ import { ScoreEditMode } from "@/components/staff/analysis/ScoreEditMode";
 import { format } from "date-fns";
 import { CreatePerformanceReportDialog } from "@/components/staff/CreatePerformanceReportDialog";
 import { PerformanceReportDialog } from "@/components/PerformanceReportDialog";
+import { getEffectiveR90 as resolveEffectiveR90, getR90Foreground } from "@/lib/r90Resolver";
 
 interface ActionReport {
   id: string;
@@ -142,17 +143,8 @@ export const ActionReportsList = ({ onCreateReport, onEditReport, defaultPlayerI
     return "bg-gold";
   };
 
-  const getEffectiveR90 = (report: ActionReport): number | null => {
-    if (report.visibility_status === "hidden") {
-      // R90 for hidden reports comes ONLY from raw_score / minutes.
-      // placeholder_per is the PER metric, not R90.
-      if (report.placeholder_raw_score != null && report.placeholder_minutes) {
-        return (report.placeholder_raw_score / report.placeholder_minutes) * 90;
-      }
-      return null;
-    }
-    return report.r90_score;
-  };
+  const getEffectiveR90 = (report: ActionReport): number | null =>
+    resolveEffectiveR90(report as any);
 
   const filteredReports = reports.filter((report) => {
     const matchesSearch = 
@@ -260,29 +252,30 @@ export const ActionReportsList = ({ onCreateReport, onEditReport, defaultPlayerI
           {filteredReports.map((report) => (
             <div
               key={report.id}
-              className="rounded-lg overflow-hidden text-white flex flex-col md:flex-row md:items-stretch"
+              className="rounded-lg overflow-hidden flex flex-col md:flex-row md:items-stretch"
             >
               {/* R90 Score */}
               {(() => {
                 const effectiveR90 = getEffectiveR90(report);
                 if (effectiveR90 === null || effectiveR90 === undefined) return null;
+                const fg = getR90Foreground(effectiveR90);
                 return (
                   <>
                     {/* Mobile: Horizontal R90 */}
-                    <div className={`md:hidden ${getR90ColorClass(effectiveR90)} p-3`}>
+                    <div className={`md:hidden ${getR90ColorClass(effectiveR90)} ${fg} p-3`}>
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <div className="text-3xl font-bold">
                           {effectiveR90.toFixed(2)}
                         </div>
-                        <TrendingUp className="w-8 h-8 text-white" strokeWidth={2.5} />
+                        <TrendingUp className={`w-8 h-8 ${fg}`} strokeWidth={2.5} />
                       </div>
                       <div className="text-xs opacity-90 font-medium text-center">R90 SCORE</div>
                     </div>
                     
                     {/* Desktop: Vertical R90 */}
-                    <div className={`hidden md:flex ${getR90ColorClass(effectiveR90)} items-center justify-center p-4 flex-shrink-0`}>
+                    <div className={`hidden md:flex ${getR90ColorClass(effectiveR90)} ${fg} items-center justify-center p-4 flex-shrink-0`}>
                       <div className="text-center">
-                        <TrendingUp className="w-8 h-8 text-white mx-auto mb-2" strokeWidth={2.5} />
+                        <TrendingUp className={`w-8 h-8 ${fg} mx-auto mb-2`} strokeWidth={2.5} />
                         <div className="text-4xl font-bold">
                           {effectiveR90.toFixed(2)}
                         </div>
@@ -294,7 +287,7 @@ export const ActionReportsList = ({ onCreateReport, onEditReport, defaultPlayerI
               })()}
               
               {/* Match info with black background */}
-              <div className="bg-black flex-1 p-3 md:p-4">
+              <div className="bg-black text-white flex-1 p-3 md:p-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">

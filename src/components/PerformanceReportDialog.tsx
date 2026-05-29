@@ -26,6 +26,7 @@ import { t, normalizePortalLanguage, translateStatLabel } from "@/lib/portalTran
 import { getReportLanguage, getReportLocale, getTranslatedActionField, hasTranslatedReportContent } from "@/lib/reportTranslations";
 import { translateCalculatedStat } from "@/lib/portalTranslations";
 import { usePortalLanguage } from "@/hooks/usePortalLanguage";
+import { ReportErrorBoundary } from "@/components/portal/ReportErrorBoundary";
 
 // Format minute as MM.SS with proper zero padding (e.g., 0.3 → "0.30", 10.5 → "10.50")
 const formatMinute = (minute: number | null | undefined): string => {
@@ -677,6 +678,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
         </div>
 
         <div className="p-3 md:p-6 overflow-x-hidden">
+          <ReportErrorBoundary analysisId={analysisId}>
           {loading ? (
             <div className="space-y-6 animate-pulse">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -837,7 +839,14 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     className="text-base md:text-2xl font-bold"
                     style={{ color: analysis.opposition_color ? '#ffffff' : undefined }}
                   >
-                    {actions.length > 0 ? calculateRScore().toFixed(3) : (analysis.r90_score !== null && analysis.minutes_played ? ((analysis.r90_score / 90) * analysis.minutes_played).toFixed(3) : "N/A")}
+                    {(() => {
+                      const raw = actions.length > 0
+                        ? calculateRScore()
+                        : (analysis.r90_score !== null && analysis.minutes_played && analysis.minutes_played > 0
+                            ? (analysis.r90_score / 90) * analysis.minutes_played
+                            : null);
+                      return raw != null && Number.isFinite(raw) ? raw.toFixed(3) : "N/A";
+                    })()}
                   </p>
                 </div>
                 <div className="text-center bg-primary text-primary-foreground rounded-lg p-2 md:p-4 relative">
@@ -852,12 +861,16 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
                     </button>
                   </div>
                   <p className="text-lg md:text-3xl font-bold">
-                    {analysis.r90_score !== null 
-                      ? analysis.r90_score.toFixed(2)
-                      : analysis.minutes_played && actions.length > 0
-                        ? ((calculateRScore() / analysis.minutes_played) * 90).toFixed(2)
-                        : "N/A"
-                    }
+                    {(() => {
+                      if (analysis.r90_score !== null && analysis.r90_score !== undefined) {
+                        return analysis.r90_score.toFixed(2);
+                      }
+                      if (analysis.minutes_played && analysis.minutes_played > 0 && actions.length > 0) {
+                        const v = (calculateRScore() / analysis.minutes_played) * 90;
+                        return Number.isFinite(v) ? v.toFixed(2) : "N/A";
+                      }
+                      return "N/A";
+                    })()}
                   </p>
                 </div>
                 <div className="text-center p-2">
@@ -1211,6 +1224,7 @@ export const PerformanceReportDialog = ({ open, onOpenChange, analysisId, isPort
             </div>
             </div>
           )}
+          </ReportErrorBoundary>
         </div>
       </DialogContent>
 
